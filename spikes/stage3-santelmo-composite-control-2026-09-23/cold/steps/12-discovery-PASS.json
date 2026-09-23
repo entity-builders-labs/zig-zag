@@ -1,0 +1,2310 @@
+{
+  "label": "Adquisición multi-fuente (pase 1)",
+  "rules": [
+    {
+      "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+      "reason": "Fuentes enrutadas: wikivoyage, google_places, web.",
+      "result": "PASS",
+      "ruleId": "ACQ-ROUTING-001"
+    },
+    {
+      "rule": "Una fuente que falla no aborta la adquisición",
+      "reason": "Todas las fuentes atendidas respondieron.",
+      "result": "PASS",
+      "ruleId": "ACQ-ISOLATION-001"
+    },
+    {
+      "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+      "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+      "result": "PASS",
+      "ruleId": "ACQ-CANDIDATE-001"
+    }
+  ],
+  "stage": "discovery",
+  "inputs": {
+    "deficits": [
+      {
+        "key": "history",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:history] has no strong catalog match yet.",
+        "dimension": "theme"
+      }
+    ],
+    "passNumber": 1,
+    "routedProviders": [
+      "wikivoyage",
+      "google_places",
+      "web"
+    ]
+  },
+  "status": "PASS",
+  "outputs": {
+    "webResults": [
+      {
+        "query": "San Telmo historic sites history caminata histórica por San Telmo",
+        "status": "success",
+        "evidenceCount": 10,
+        "groundedModel": "google-ai-mode",
+        "candidateCount": 0,
+        "extractorModel": "qwen/qwen3.8-27b",
+        "groundingStatus": "applied",
+        "groundedProvider": "serpapi",
+        "validationErrors": [],
+        "extractorProvider": "groq"
+      }
+    ],
+    "candidateCount": 26,
+    "observationCount": 26,
+    "webCandidateCount": 0,
+    "structuredProviders": [
+      {
+        "status": "success",
+        "provider": "wikivoyage"
+      },
+      {
+        "status": "success",
+        "provider": "google_places"
+      }
+    ],
+    "structuredCandidateCount": 26
+  },
+  "summary": "Pase 1: fuentes [wikivoyage, google_places, web] → 26 observación(es) estructurada(s) + 26 candidate(s) (web: 0).",
+  "component": "ExperienceAcquisitionService",
+  "acquisition": {
+    "deficits": [
+      {
+        "key": "history",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:history] has no strong catalog match yet.",
+        "dimension": "theme"
+      }
+    ],
+    "evidence": [
+      {
+        "title": "Manzana de las Luces",
+        "source": "wikivoyage",
+        "snippet": "Este bloque, rodeado de las calles Alsina, Moreno, Perú y Bolívar, es el hogar de muchos de los más importantes y tradicionales de educación, instituciones religiosas y culturales de Buenos Aires, que datan del siglo 17 y 18. El nombre de este bloque proviene del número de instituciones intelectuales que estaban presentes en los viejos tiempos. Una de las atracciones más interesantes es una red subterránea de túneles misteriosos que comunica cada edificio.",
+        "evidenceKey": "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+      },
+      {
+        "title": "Mercado San Telmo",
+        "source": "wikivoyage",
+        "snippet": "mercado alojado en una sala enorme Wrough-hierro. Todo, desde la albahaca fresca para zapatos y monedas antiguas se encuentra en exhibición en este mercado permanente. Venir durante la semana para ver el mercado de productos y la carne local. El domingo, cuando la acción está fuera, es prácticamente vacío.",
+        "evidenceKey": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+      },
+      {
+        "title": "Plaza Dorrego",
+        "source": "wikivoyage",
+        "snippet": "La segunda plaza más antigua de Buenos Aires, seis días a la semana, la plaza es un espacio relativamente tranquilo, con sombra junto a restaurantes y cafés. Los domingos un mercado de antigüedades se hace cargo y casi no se puede ver la plaza del pueblo y puestos de mercado. Los puestos de ser anulado distancia de aproximadamente 17:00, y de 20:00 Hay baile público, incluyendo el tango.",
+        "evidenceKey": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+      },
+      {
+        "title": "Museo Histórico Nacional",
+        "source": "wikivoyage",
+        "snippet": "Historia de la Argentina, pero todos los subtítulos están en español y exhaustiva ni bien organizada. Entrada por donación",
+        "evidenceKey": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+      },
+      {
+        "title": "Pasaje San Lorenzo",
+        "source": "wikivoyage",
+        "snippet": "Caminando por la calle Balcarce, antes de llegar a la Av. Independencia, verá la calle \"San Lorenzo\". Una de las cosas interesantes que ver, es la casa más estrecha de la zona, entre la propia calle, que es muy agradable. Además, entre San Lorenzo y Av. Independencia, en la calle Balcarce, se puede encontrar el Almacén Don Manolo. Para aquellos que conocen Mafalda, almacén Don Manolo es donde Mafalda utiliza para ir de compras. La tienda en la calle Balcarce Nº 774 es en realidad la una de la qu…",
+        "evidenceKey": "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+      },
+      {
+        "title": "El Zanjón de Granados",
+        "source": "wikivoyage",
+        "snippet": "El edificio arquitectónico más importante de San Telmo y uno de los más importantes de la ciudad. Cuenta con casi 500 años de historia. Consulte el sitio web para obtener más información.",
+        "evidenceKey": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+      },
+      {
+        "url": "http://www.museomoderno.org/",
+        "title": "Museo Moderno",
+        "source": "google_places",
+        "snippet": "Av. San Juan 350, C1147AAO Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI"
+      },
+      {
+        "url": "https://museohistoriconacional.cultura.gob.ar/",
+        "title": "National Historic Museum",
+        "source": "google_places",
+        "snippet": "Defensa 1600, C1143 Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJNfUyJs00o5URBEEv5fDne6U"
+      },
+      {
+        "title": "Puerto Madero",
+        "source": "google_places",
+        "snippet": "Av. Alicia Moreau de Justo 1600, C1107 AFF, Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms"
+      },
+      {
+        "url": "https://museomacba.org/",
+        "title": "MACBA - Museum of Contemporary Art in Buenos Aires",
+        "source": "google_places",
+        "snippet": "Av. San Juan 328, C1141 Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJD22T4NI0o5URUrud9LZoV-E"
+      },
+      {
+        "url": "https://www.argentina.gob.ar/transporte/puerto-buenos-aires",
+        "title": "The Port of Buenos Aires",
+        "source": "google_places",
+        "snippet": "Encarnación Ezcurra 320, C1107 Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q"
+      },
+      {
+        "url": "http://www.elzanjon.com.ar/",
+        "title": "El Zanjón de Granados",
+        "source": "google_places",
+        "snippet": "Defensa 755, C1065 Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJxWZS0yrLvJUREyl88eDpbeM"
+      },
+      {
+        "url": "http://www.galeriadelasombro.com/",
+        "title": "Galeria Del Asombro",
+        "source": "google_places",
+        "snippet": "Defensa 1295, C1143 Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY"
+      },
+      {
+        "url": "https://www.museopenitenciarioab.ar/",
+        "title": "PRISON MUSEUM Antonio Ballvé",
+        "source": "google_places",
+        "snippet": "Humberto 1º 378, C1103ACH Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I"
+      },
+      {
+        "title": "Camino de la historieta",
+        "source": "google_places",
+        "snippet": "Balcarce 678, C1064AAN C1064AAN, Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4"
+      },
+      {
+        "url": "https://turismo.buenosaires.gob.ar/br/atractivo/passeio-de-la-historieta",
+        "title": "Mural De Calé - Paseo de la Historieta",
+        "source": "google_places",
+        "snippet": "Balcarce 580, C1064AAL C1064AAL, Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJQTY2YPo1o5URPtzefgIsDss"
+      },
+      {
+        "url": "https://www.instagram.com/galeriadelviejohotel/",
+        "title": "Old Hotel Gallery",
+        "source": "google_places",
+        "snippet": "Balcarce 1053, C1064 AAU, Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJrx7YQtM0o5URJKMiLhReiss"
+      },
+      {
+        "url": "https://instagram.com/santelmo_art",
+        "title": "Feria De las Artes San Telmo",
+        "source": "google_places",
+        "snippet": "Humberto 1º 450, C1103 Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI"
+      },
+      {
+        "title": "Argentine Puppet Museum",
+        "source": "google_places",
+        "snippet": "Estados Unidos 802, C1101 Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI"
+      },
+      {
+        "url": "https://turismo.buenosaires.gob.ar/es/atractivo/paseo-de-la-historieta-0",
+        "title": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+        "source": "google_places",
+        "snippet": "Balcarce 600 C1064AAL, C1064 C1064AAL, Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw"
+      },
+      {
+        "url": "https://turismo.buenosaires.gob.ar/es/atractivo/paseo-de-la-historieta-0",
+        "title": "Isidoro Cañones - Paseo de la Historieta",
+        "source": "google_places",
+        "snippet": "Balcarce 645, C1064AAM Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c"
+      },
+      {
+        "url": "https://www.instagram.com/museopenitenciarioab?igsh=Z2kzYm42eDkxdjk2",
+        "title": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+        "source": "google_places",
+        "snippet": "Humberto 1º 330, C1103ACH Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY"
+      },
+      {
+        "url": "https://turismo.buenosaires.gob.ar/es/atractivo/paseo-de-la-historieta-0",
+        "title": "Matías - Paseo de la Historieta",
+        "source": "google_places",
+        "snippet": "Balcarce 544 C1064AAL, C1064 C1064AAL, Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg"
+      },
+      {
+        "title": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+        "source": "google_places",
+        "snippet": "Av. P.º Colon 1407, C1063ADB Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJGf_mj800o5UR0msA_Pbu9QU"
+      },
+      {
+        "title": "Paseo de las Historietas",
+        "source": "google_places",
+        "snippet": "San Telmo, C1065 Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4"
+      },
+      {
+        "title": "Maqueta Barrio La Boca",
+        "source": "google_places",
+        "snippet": "Av. P.º Colon 1578-1598, C1063 Cdad. Autónoma de Buenos Aires, Argentina",
+        "evidenceKey": "google_places:ChIJWX2FQcw0o5URgbRjooRWd_I"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 1,
+        "source": "google_ai_mode",
+        "snippet": "San Telmo is the oldest and one of the most historically rich neighborhoods in Buenos Aires, Argentina, famous for its preserved colonial architecture, cobblestone streets, and pivotal role in the city's origins. Originally established around 1708 and named after Saint Pedro González Telmo, the patron saint of seafarers, this district transformed from an industrial and indigenous outpost into an elite residential area, and later a haven for European immigrants.",
+        "evidenceKey": "ev-1"
+      },
+      {
+        "kind": "list_item",
+        "order": 2,
+        "title": "Evolution of the Neighborhood",
+        "source": "Evolution of the Neighborhood",
+        "snippet": "Colonial Era & Indigenous Outpost: Before formal incorporation in 1708, the area was separated from central Buenos Aires by a ravine and inhabited largely by marginalized groups and the indigenous Querandí. Jesuits established a mission here before their expulsion in 1767.",
+        "evidenceKey": "ev-2",
+        "contextHeading": "Evolution of the Neighborhood"
+      },
+      {
+        "kind": "list_item",
+        "order": 3,
+        "title": "Evolution of the Neighborhood",
+        "source": "Evolution of the Neighborhood",
+        "snippet": "The Yellow Fever Turning Point: Wealthy families built grand Italianate mansions here in the mid-19th century. However, the devastating 1871 yellow fever epidemic forced wealthier residents to flee north to neighborhoods like Recoleta, leaving the grand mansions to be converted into multi-family conventillos for incoming European immigrants.",
+        "evidenceKey": "ev-3",
+        "contextHeading": "Evolution of the Neighborhood"
+      },
+      {
+        "kind": "list_item",
+        "order": 4,
+        "title": "Evolution of the Neighborhood",
+        "source": "Evolution of the Neighborhood",
+        "snippet": "Modern Preservation: Threatened by highway construction projects in the 1970s and 80s, the community fought back to preserve its architectural identity, cementing San Telmo as the bohemian, tango-infused conservation district it is today.",
+        "evidenceKey": "ev-4",
+        "contextHeading": "Evolution of the Neighborhood"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 5,
+        "title": "Evolution of the Neighborhood",
+        "source": "Evolution of the Neighborhood",
+        "snippet": "If you're planning a visit or need more details, let me know:",
+        "evidenceKey": "ev-5",
+        "contextHeading": "Evolution of the Neighborhood"
+      },
+      {
+        "kind": "list_item",
+        "order": 6,
+        "title": "Evolution of the Neighborhood",
+        "source": "Evolution of the Neighborhood",
+        "snippet": "Would you like a step-by-step self-guided walking itinerary with walking times?",
+        "evidenceKey": "ev-6",
+        "contextHeading": "Evolution of the Neighborhood"
+      },
+      {
+        "kind": "list_item",
+        "order": 7,
+        "title": "Evolution of the Neighborhood",
+        "source": "Evolution of the Neighborhood",
+        "snippet": "Are you looking for recommendations on traditional cafes and antique shops along the route?",
+        "evidenceKey": "ev-7",
+        "contextHeading": "Evolution of the Neighborhood"
+      },
+      {
+        "url": "https://turismo.buenosaires.gob.ar/en/otros-establecimientos/san-telmo-market",
+        "kind": "reference",
+        "order": 8,
+        "title": "San Telmo market - Turismo Buenos Aires",
+        "source": "Buenos Aires Ciudad",
+        "snippet": "The market was inaugurated in February 1897 to supply produce to the new waves of immigrants who were arriving in the city from the Old Continent.",
+        "evidenceKey": "ev-8"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/San_Telmo,_Buenos_Aires",
+        "kind": "reference",
+        "order": 9,
+        "title": "San Telmo, Buenos Aires - Wikipedia",
+        "source": "Wikipedia",
+        "snippet": "Previously separated from Buenos Aires proper by a ravine, the area was formally incorporated into the city in 1708 as the \\\"Ovens and Storehouses of San Pedro.\\\"",
+        "evidenceKey": "ev-9"
+      },
+      {
+        "url": "https://www.savacations.com/destinations/argentina-tours-travel/getting-know-san-telmo/",
+        "kind": "reference",
+        "order": 10,
+        "title": "Getting To Know San Telmo | Argentina Travel Info",
+        "source": "SA Vacations",
+        "snippet": "the Zanjón de Granados (Defensa 755), is a former conventillo turned museum and offers a fascinating glimpse of immigrant life in Buenos Aires around 1900.",
+        "evidenceKey": "ev-10"
+      }
+    ],
+    "candidates": [
+      {
+        "name": "Feria De las Artes San Telmo",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "feria de las artes san telmo:google_places:ChIJ-efrtizLvJURQbEIWsAFdEI:google_places:ChIJ-efrtizLvJURQbEIWsAFdEI:component:Feria De las Artes San Telmo",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI:component",
+            "name": "Feria De las Artes San Telmo",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "The Port of Buenos Aires",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "the port of buenos aires:google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q:google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q:component:The Port of Buenos Aires",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q:component",
+            "name": "The Port of Buenos Aires",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "PRISON MUSEUM Antonio Ballvé",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "prison museum antonio ballvé:google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I:google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I:component:PRISON MUSEUM Antonio Ballvé",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I:component",
+            "name": "PRISON MUSEUM Antonio Ballvé",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Paseo de las Historietas",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "paseo de las historietas:google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4:google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4:component:Paseo de las Historietas",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4:component",
+            "name": "Paseo de las Historietas",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "MACBA - Museum of Contemporary Art in Buenos Aires",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "macba - museum of contemporary art in buenos aires:google_places:ChIJD22T4NI0o5URUrud9LZoV-E:google_places:ChIJD22T4NI0o5URUrud9LZoV-E:component:MACBA - Museum of Contemporary Art in Buenos Aires",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJD22T4NI0o5URUrud9LZoV-E"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJD22T4NI0o5URUrud9LZoV-E:component",
+            "name": "MACBA - Museum of Contemporary Art in Buenos Aires",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJD22T4NI0o5URUrud9LZoV-E"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Galeria Del Asombro",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "galeria del asombro:google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY:google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY:component:Galeria Del Asombro",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY:component",
+            "name": "Galeria Del Asombro",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "antigua cárcel de mujeres san telmo. ex penitenciaria nacional. museo:google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY:google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY:component:Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY:component",
+            "name": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "museo de la dirección antártica \"gral. hernán pujato\":google_places:ChIJGf_mj800o5UR0msA_Pbu9QU:google_places:ChIJGf_mj800o5UR0msA_Pbu9QU:component:Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJGf_mj800o5UR0msA_Pbu9QU"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJGf_mj800o5UR0msA_Pbu9QU:component",
+            "name": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJGf_mj800o5UR0msA_Pbu9QU"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Museo Moderno",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "museo moderno:google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI:google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI:component:Museo Moderno",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI:component",
+            "name": "Museo Moderno",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Matías - Paseo de la Historieta",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "matías - paseo de la historieta:google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg:google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg:component:Matías - Paseo de la Historieta",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg:component",
+            "name": "Matías - Paseo de la Historieta",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Camino de la historieta",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "camino de la historieta:google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4:google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4:component:Camino de la historieta",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4:component",
+            "name": "Camino de la historieta",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "larguirucho y super hijitus - paseo de la historieta:google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw:google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw:component:Larguirucho y Super Hijitus - Paseo de la Historieta",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw:component",
+            "name": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "National Historic Museum",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "national historic museum:google_places:ChIJNfUyJs00o5URBEEv5fDne6U:google_places:ChIJNfUyJs00o5URBEEv5fDne6U:component:National Historic Museum",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJNfUyJs00o5URBEEv5fDne6U"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJNfUyJs00o5URBEEv5fDne6U:component",
+            "name": "National Historic Museum",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJNfUyJs00o5URBEEv5fDne6U"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Isidoro Cañones - Paseo de la Historieta",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "isidoro cañones - paseo de la historieta:google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c:google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c:component:Isidoro Cañones - Paseo de la Historieta",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c:component",
+            "name": "Isidoro Cañones - Paseo de la Historieta",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Argentine Puppet Museum",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "argentine puppet museum:google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI:google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI:component:Argentine Puppet Museum",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI:component",
+            "name": "Argentine Puppet Museum",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Mural De Calé - Paseo de la Historieta",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "mural de calé - paseo de la historieta:google_places:ChIJQTY2YPo1o5URPtzefgIsDss:google_places:ChIJQTY2YPo1o5URPtzefgIsDss:component:Mural De Calé - Paseo de la Historieta",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJQTY2YPo1o5URPtzefgIsDss"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJQTY2YPo1o5URPtzefgIsDss:component",
+            "name": "Mural De Calé - Paseo de la Historieta",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJQTY2YPo1o5URPtzefgIsDss"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Old Hotel Gallery",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "old hotel gallery:google_places:ChIJrx7YQtM0o5URJKMiLhReiss:google_places:ChIJrx7YQtM0o5URJKMiLhReiss:component:Old Hotel Gallery",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJrx7YQtM0o5URJKMiLhReiss"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJrx7YQtM0o5URJKMiLhReiss:component",
+            "name": "Old Hotel Gallery",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJrx7YQtM0o5URJKMiLhReiss"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Maqueta Barrio La Boca",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "maqueta barrio la boca:google_places:ChIJWX2FQcw0o5URgbRjooRWd_I:google_places:ChIJWX2FQcw0o5URgbRjooRWd_I:component:Maqueta Barrio La Boca",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJWX2FQcw0o5URgbRjooRWd_I"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJWX2FQcw0o5URgbRjooRWd_I:component",
+            "name": "Maqueta Barrio La Boca",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJWX2FQcw0o5URgbRjooRWd_I"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "El Zanjón de Granados",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "el zanjón de granados:google_places:ChIJxWZS0yrLvJUREyl88eDpbeM:google_places:ChIJxWZS0yrLvJUREyl88eDpbeM:component:El Zanjón de Granados",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJxWZS0yrLvJUREyl88eDpbeM"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJxWZS0yrLvJUREyl88eDpbeM:component",
+            "name": "El Zanjón de Granados",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJxWZS0yrLvJUREyl88eDpbeM"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Puerto Madero",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "puerto madero:google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms:google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms:component:Puerto Madero",
+        "providers": [
+          "google_places"
+        ],
+        "evidenceKeys": [
+          "google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms"
+        ],
+        "componentHints": [
+          {
+            "key": "google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms:component",
+            "name": "Puerto Madero",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Manzana de las Luces",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "manzana de las luces:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component:Manzana de las Luces",
+        "providers": [
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+        ],
+        "componentHints": [
+          {
+            "key": "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component",
+            "name": "Manzana de las Luces",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Mercado San Telmo",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "mercado san telmo:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component:Mercado San Telmo",
+        "providers": [
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+        ],
+        "componentHints": [
+          {
+            "key": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component",
+            "name": "Mercado San Telmo",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Museo Histórico Nacional",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "museo histórico nacional:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component:Museo Histórico Nacional",
+        "providers": [
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+        ],
+        "componentHints": [
+          {
+            "key": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component",
+            "name": "Museo Histórico Nacional",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Pasaje San Lorenzo",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "pasaje san lorenzo:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component:Pasaje San Lorenzo",
+        "providers": [
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+        ],
+        "componentHints": [
+          {
+            "key": "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component",
+            "name": "Pasaje San Lorenzo",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Plaza Dorrego",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "plaza dorrego:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component:Plaza Dorrego",
+        "providers": [
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+        ],
+        "componentHints": [
+          {
+            "key": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component",
+            "name": "Plaza Dorrego",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "El Zanjón de Granados",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "el zanjón de granados:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component:El Zanjón de Granados",
+        "providers": [
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+        ],
+        "componentHints": [
+          {
+            "key": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component",
+            "name": "El Zanjón de Granados",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      }
+    ],
+    "passNumber": 1,
+    "sourcePlans": [
+      {
+        "status": "success",
+        "provider": "wikivoyage",
+        "observations": [
+          {
+            "geo": {
+              "latitude": -34.610556,
+              "longitude": -58.374444
+            },
+            "title": "Manzana de las Luces",
+            "provider": "wikivoyage",
+            "externalId": "Q263127",
+            "description": "Este bloque, rodeado de las calles Alsina, Moreno, Perú y Bolívar, es el hogar de muchos de los más importantes y tradicionales de educación, instituciones religiosas y culturales de Buenos Aires, que datan del siglo 17 y 18. El nombre de este bloque proviene del número de instituciones intelectuales que estaban presentes en los viejos tiempos. Una de las atracciones más interesantes es una red subterránea de túneles misteriosos que comunica cada edificio.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.619528,
+              "longitude": -58.372832
+            },
+            "title": "Mercado San Telmo",
+            "provider": "wikivoyage",
+            "externalId": "Q6010497",
+            "description": "mercado alojado en una sala enorme Wrough-hierro. Todo, desde la albahaca fresca para zapatos y monedas antiguas se encuentra en exhibición en este mercado permanente. Venir durante la semana para ver el mercado de productos y la carne local. El domingo, cuando la acción está fuera, es prácticamente vacío.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.620556,
+              "longitude": -58.371667
+            },
+            "title": "Plaza Dorrego",
+            "provider": "wikivoyage",
+            "externalId": "Q3392154",
+            "description": "La segunda plaza más antigua de Buenos Aires, seis días a la semana, la plaza es un espacio relativamente tranquilo, con sombra junto a restaurantes y cafés. Los domingos un mercado de antigüedades se hace cargo y casi no se puede ver la plaza del pueblo y puestos de mercado. Los puestos de ser anulado distancia de aproximadamente 17:00, y de 20:00 Hay baile público, incluyendo el tango.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.626944,
+              "longitude": -58.370556
+            },
+            "title": "Museo Histórico Nacional",
+            "provider": "wikivoyage",
+            "externalId": "Q57785",
+            "description": "Historia de la Argentina, pero todos los subtítulos están en español y exhaustiva ni bien organizada. Entrada por donación",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "title": "Pasaje San Lorenzo",
+            "provider": "wikivoyage",
+            "description": "Caminando por la calle Balcarce, antes de llegar a la Av. Independencia, verá la calle \"San Lorenzo\". Una de las cosas interesantes que ver, es la casa más estrecha de la zona, entre la propia calle, que es muy agradable. Además, entre San Lorenzo y Av. Independencia, en la calle Balcarce, se puede encontrar el Almacén Don Manolo. Para aquellos que conocen Mafalda, almacén Don Manolo es donde Mafalda utiliza para ir de compras. La tienda en la calle Balcarce Nº 774 es en realidad la una de la qu…",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "title": "El Zanjón de Granados",
+            "provider": "wikivoyage",
+            "description": "El edificio arquitectónico más importante de San Telmo y uno de los más importantes de la ciudad. Cuenta con casi 500 años de historia. Consulte el sitio web para obtener más información.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          }
+        ],
+        "configuration": {
+          "sections": [
+            "SEE"
+          ]
+        },
+        "observationCount": 6
+      },
+      {
+        "status": "success",
+        "provider": "google_places",
+        "observations": [
+          {
+            "geo": {
+              "latitude": -34.6220479,
+              "longitude": -58.3705415
+            },
+            "title": "Museo Moderno",
+            "provider": "google_places",
+            "sourceUrl": "http://www.museomoderno.org/",
+            "externalId": "ChIJhTzp3tI0o5URtSE1HNW4CdI",
+            "description": "Av. San Juan 350, C1147AAO Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.626996,
+              "longitude": -58.3705892
+            },
+            "title": "National Historic Museum",
+            "provider": "google_places",
+            "sourceUrl": "https://museohistoriconacional.cultura.gob.ar/",
+            "externalId": "ChIJNfUyJs00o5URBEEv5fDne6U",
+            "description": "Defensa 1600, C1143 Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJNfUyJs00o5URBEEv5fDne6U",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.61645740000001,
+              "longitude": -58.3657194
+            },
+            "title": "Puerto Madero",
+            "provider": "google_places",
+            "externalId": "ChIJYSkWn9Y0o5URXuJM6JOAdms",
+            "description": "Av. Alicia Moreau de Justo 1600, C1107 AFF, Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6219018,
+              "longitude": -58.370211
+            },
+            "title": "MACBA - Museum of Contemporary Art in Buenos Aires",
+            "provider": "google_places",
+            "sourceUrl": "https://museomacba.org/",
+            "externalId": "ChIJD22T4NI0o5URUrud9LZoV-E",
+            "description": "Av. San Juan 328, C1141 Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJD22T4NI0o5URUrud9LZoV-E",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6173341,
+              "longitude": -58.36157240000001
+            },
+            "title": "The Port of Buenos Aires",
+            "provider": "google_places",
+            "sourceUrl": "https://www.argentina.gob.ar/transporte/puerto-buenos-aires",
+            "externalId": "ChIJ3bpXwdA0o5URPjw5VQY199Q",
+            "description": "Encarnación Ezcurra 320, C1107 Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6166056,
+              "longitude": -58.3720675
+            },
+            "title": "El Zanjón de Granados",
+            "provider": "google_places",
+            "sourceUrl": "http://www.elzanjon.com.ar/",
+            "externalId": "ChIJxWZS0yrLvJUREyl88eDpbeM",
+            "description": "Defensa 755, C1065 Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJxWZS0yrLvJUREyl88eDpbeM",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6229533,
+              "longitude": -58.3714228
+            },
+            "title": "Galeria Del Asombro",
+            "provider": "google_places",
+            "sourceUrl": "http://www.galeriadelasombro.com/",
+            "externalId": "ChIJE67Wy9I0o5URqnBGVI2UHwY",
+            "description": "Defensa 1295, C1143 Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6207578,
+              "longitude": -58.3711199
+            },
+            "title": "PRISON MUSEUM Antonio Ballvé",
+            "provider": "google_places",
+            "sourceUrl": "https://www.museopenitenciarioab.ar/",
+            "externalId": "ChIJ494KN9M0o5URFFo9Pf3Vv4I",
+            "description": "Humberto 1º 378, C1103ACH Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6154692,
+              "longitude": -58.37070050000001
+            },
+            "title": "Camino de la historieta",
+            "provider": "google_places",
+            "externalId": "ChIJjXYCCQA1o5URWbVT5IEQ2z4",
+            "description": "Balcarce 678, C1064AAN C1064AAN, Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6147306,
+              "longitude": -58.3706907
+            },
+            "title": "Mural De Calé - Paseo de la Historieta",
+            "provider": "google_places",
+            "sourceUrl": "https://turismo.buenosaires.gob.ar/br/atractivo/passeio-de-la-historieta",
+            "externalId": "ChIJQTY2YPo1o5URPtzefgIsDss",
+            "description": "Balcarce 580, C1064AAL C1064AAL, Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJQTY2YPo1o5URPtzefgIsDss",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.620006,
+              "longitude": -58.37011829999999
+            },
+            "title": "Old Hotel Gallery",
+            "provider": "google_places",
+            "sourceUrl": "https://www.instagram.com/galeriadelviejohotel/",
+            "externalId": "ChIJrx7YQtM0o5URJKMiLhReiss",
+            "description": "Balcarce 1053, C1064 AAU, Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJrx7YQtM0o5URJKMiLhReiss",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6206251,
+              "longitude": -58.37216009999999
+            },
+            "title": "Feria De las Artes San Telmo",
+            "provider": "google_places",
+            "sourceUrl": "https://instagram.com/santelmo_art",
+            "externalId": "ChIJ-efrtizLvJURQbEIWsAFdEI",
+            "description": "Humberto 1º 450, C1103 Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6185923,
+              "longitude": -58.3773589
+            },
+            "title": "Argentine Puppet Museum",
+            "provider": "google_places",
+            "externalId": "ChIJPS8m6CnLvJURf9gEIkEcPgI",
+            "description": "Estados Unidos 802, C1101 Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6148325,
+              "longitude": -58.3706385
+            },
+            "title": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+            "provider": "google_places",
+            "sourceUrl": "https://turismo.buenosaires.gob.ar/es/atractivo/paseo-de-la-historieta-0",
+            "externalId": "ChIJkbtCW9U0o5URa7q6hmsWdbw",
+            "description": "Balcarce 600 C1064AAL, C1064 C1064AAL, Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6158212,
+              "longitude": -58.37068859999999
+            },
+            "title": "Isidoro Cañones - Paseo de la Historieta",
+            "provider": "google_places",
+            "sourceUrl": "https://turismo.buenosaires.gob.ar/es/atractivo/paseo-de-la-historieta-0",
+            "externalId": "ChIJOYnhO9U0o5UR4XdeViPtb2c",
+            "description": "Balcarce 645, C1064AAM Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6206566,
+              "longitude": -58.37087030000001
+            },
+            "title": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+            "provider": "google_places",
+            "sourceUrl": "https://www.instagram.com/museopenitenciarioab?igsh=Z2kzYm42eDkxdjk2",
+            "externalId": "ChIJg4x3bxU1o5UR7l_eFQVhMvY",
+            "description": "Humberto 1º 330, C1103ACH Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6140376,
+              "longitude": -58.37069409999999
+            },
+            "title": "Matías - Paseo de la Historieta",
+            "provider": "google_places",
+            "sourceUrl": "https://turismo.buenosaires.gob.ar/es/atractivo/paseo-de-la-historieta-0",
+            "externalId": "ChIJjwwEpyo1o5URlHR-rWAOwsg",
+            "description": "Balcarce 544 C1064AAL, C1064 C1064AAL, Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6242594,
+              "longitude": -58.3682186
+            },
+            "title": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+            "provider": "google_places",
+            "externalId": "ChIJGf_mj800o5UR0msA_Pbu9QU",
+            "description": "Av. P.º Colon 1407, C1063ADB Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJGf_mj800o5UR0msA_Pbu9QU",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.615918,
+              "longitude": -58.3716072
+            },
+            "title": "Paseo de las Historietas",
+            "provider": "google_places",
+            "externalId": "ChIJ8y1-ZwA1o5URRQ8N0gZZiD4",
+            "description": "San Telmo, C1065 Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6269882,
+              "longitude": -58.3677324
+            },
+            "title": "Maqueta Barrio La Boca",
+            "provider": "google_places",
+            "externalId": "ChIJWX2FQcw0o5URgbRjooRWd_I",
+            "description": "Av. P.º Colon 1578-1598, C1063 Cdad. Autónoma de Buenos Aires, Argentina",
+            "evidenceKey": "google_places:ChIJWX2FQcw0o5URgbRjooRWd_I",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          }
+        ],
+        "configuration": {
+          "searchTypes": [
+            "museum",
+            "tourist_attraction"
+          ]
+        },
+        "observationCount": 20
+      },
+      {
+        "web": {
+          "query": "San Telmo historic sites history caminata histórica por San Telmo",
+          "evidence": [
+            {
+              "kind": "narrative_paragraph",
+              "order": 1,
+              "source": "google_ai_mode",
+              "snippet": "San Telmo is the oldest and one of the most historically rich neighborhoods in Buenos Aires, Argentina, famous for its preserved colonial architecture, cobblestone streets, and pivotal role in the city's origins. Originally established around 1708 and named after Saint Pedro González Telmo, the patron saint of seafarers, this district transformed from an industrial and indigenous outpost into an elite residential area, and later a haven for European immigrants.",
+              "evidenceKey": "ev-1"
+            },
+            {
+              "kind": "list_item",
+              "order": 2,
+              "title": "Evolution of the Neighborhood",
+              "source": "Evolution of the Neighborhood",
+              "snippet": "Colonial Era & Indigenous Outpost: Before formal incorporation in 1708, the area was separated from central Buenos Aires by a ravine and inhabited largely by marginalized groups and the indigenous Querandí. Jesuits established a mission here before their expulsion in 1767.",
+              "evidenceKey": "ev-2",
+              "contextHeading": "Evolution of the Neighborhood"
+            },
+            {
+              "kind": "list_item",
+              "order": 3,
+              "title": "Evolution of the Neighborhood",
+              "source": "Evolution of the Neighborhood",
+              "snippet": "The Yellow Fever Turning Point: Wealthy families built grand Italianate mansions here in the mid-19th century. However, the devastating 1871 yellow fever epidemic forced wealthier residents to flee north to neighborhoods like Recoleta, leaving the grand mansions to be converted into multi-family conventillos for incoming European immigrants.",
+              "evidenceKey": "ev-3",
+              "contextHeading": "Evolution of the Neighborhood"
+            },
+            {
+              "kind": "list_item",
+              "order": 4,
+              "title": "Evolution of the Neighborhood",
+              "source": "Evolution of the Neighborhood",
+              "snippet": "Modern Preservation: Threatened by highway construction projects in the 1970s and 80s, the community fought back to preserve its architectural identity, cementing San Telmo as the bohemian, tango-infused conservation district it is today.",
+              "evidenceKey": "ev-4",
+              "contextHeading": "Evolution of the Neighborhood"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 5,
+              "title": "Evolution of the Neighborhood",
+              "source": "Evolution of the Neighborhood",
+              "snippet": "If you're planning a visit or need more details, let me know:",
+              "evidenceKey": "ev-5",
+              "contextHeading": "Evolution of the Neighborhood"
+            },
+            {
+              "kind": "list_item",
+              "order": 6,
+              "title": "Evolution of the Neighborhood",
+              "source": "Evolution of the Neighborhood",
+              "snippet": "Would you like a step-by-step self-guided walking itinerary with walking times?",
+              "evidenceKey": "ev-6",
+              "contextHeading": "Evolution of the Neighborhood"
+            },
+            {
+              "kind": "list_item",
+              "order": 7,
+              "title": "Evolution of the Neighborhood",
+              "source": "Evolution of the Neighborhood",
+              "snippet": "Are you looking for recommendations on traditional cafes and antique shops along the route?",
+              "evidenceKey": "ev-7",
+              "contextHeading": "Evolution of the Neighborhood"
+            },
+            {
+              "url": "https://turismo.buenosaires.gob.ar/en/otros-establecimientos/san-telmo-market",
+              "kind": "reference",
+              "order": 8,
+              "title": "San Telmo market - Turismo Buenos Aires",
+              "source": "Buenos Aires Ciudad",
+              "snippet": "The market was inaugurated in February 1897 to supply produce to the new waves of immigrants who were arriving in the city from the Old Continent.",
+              "evidenceKey": "ev-8"
+            },
+            {
+              "url": "https://en.wikipedia.org/wiki/San_Telmo,_Buenos_Aires",
+              "kind": "reference",
+              "order": 9,
+              "title": "San Telmo, Buenos Aires - Wikipedia",
+              "source": "Wikipedia",
+              "snippet": "Previously separated from Buenos Aires proper by a ravine, the area was formally incorporated into the city in 1708 as the \\\"Ovens and Storehouses of San Pedro.\\\"",
+              "evidenceKey": "ev-9"
+            },
+            {
+              "url": "https://www.savacations.com/destinations/argentina-tours-travel/getting-know-san-telmo/",
+              "kind": "reference",
+              "order": 10,
+              "title": "Getting To Know San Telmo | Argentina Travel Info",
+              "source": "SA Vacations",
+              "snippet": "the Zanjón de Granados (Defensa 755), is a former conventillo turned museum and offers a fascinating glimpse of immigrant life in Buenos Aires around 1900.",
+              "evidenceKey": "ev-10"
+            }
+          ],
+          "extractor": {
+            "model": "qwen/qwen3.8-27b",
+            "provider": "groq",
+            "validationErrors": [],
+            "inputEvidenceKeys": [
+              "ev-1",
+              "ev-2",
+              "ev-3",
+              "ev-4",
+              "ev-5",
+              "ev-6",
+              "ev-7",
+              "ev-8",
+              "ev-9",
+              "ev-10"
+            ],
+            "candidateDecisions": [],
+            "sourceSupportAudits": [],
+            "admittedCandidateCount": 0,
+            "rejectedCandidateCount": 0,
+            "extractedCandidateCount": 0
+          },
+          "groundedModel": "google-ai-mode",
+          "semanticQuery": "caminata histórica por San Telmo",
+          "groundingStatus": "applied",
+          "requestedThemes": [
+            "history"
+          ],
+          "groundedProvider": "serpapi"
+        },
+        "status": "success",
+        "provider": "web",
+        "observations": [],
+        "configuration": {
+          "query": "San Telmo historic sites history caminata histórica por San Telmo",
+          "semanticQuery": "caminata histórica por San Telmo",
+          "requestedThemes": [
+            "history"
+          ]
+        },
+        "observationCount": 0
+      }
+    ],
+    "acquisitionContext": {
+      "strategy": "generic",
+      "passNumber": 1
+    },
+    "structuredCorroboration": {
+      "groups": [
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_1",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI"
+          ],
+          "candidateName": "Feria De las Artes San Telmo",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_2",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q"
+          ],
+          "candidateName": "The Port of Buenos Aires",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_3",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I"
+          ],
+          "candidateName": "PRISON MUSEUM Antonio Ballvé",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_4",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4"
+          ],
+          "candidateName": "Paseo de las Historietas",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_5",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJD22T4NI0o5URUrud9LZoV-E"
+          ],
+          "candidateName": "MACBA - Museum of Contemporary Art in Buenos Aires",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJD22T4NI0o5URUrud9LZoV-E"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_6",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY"
+          ],
+          "candidateName": "Galeria Del Asombro",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_7",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY"
+          ],
+          "candidateName": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_8",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJGf_mj800o5UR0msA_Pbu9QU"
+          ],
+          "candidateName": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJGf_mj800o5UR0msA_Pbu9QU"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_9",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI"
+          ],
+          "candidateName": "Museo Moderno",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_10",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg"
+          ],
+          "candidateName": "Matías - Paseo de la Historieta",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_11",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4"
+          ],
+          "candidateName": "Camino de la historieta",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_12",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw"
+          ],
+          "candidateName": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_13",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJNfUyJs00o5URBEEv5fDne6U"
+          ],
+          "candidateName": "National Historic Museum",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJNfUyJs00o5URBEEv5fDne6U"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_14",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c"
+          ],
+          "candidateName": "Isidoro Cañones - Paseo de la Historieta",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_15",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI"
+          ],
+          "candidateName": "Argentine Puppet Museum",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_16",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJQTY2YPo1o5URPtzefgIsDss"
+          ],
+          "candidateName": "Mural De Calé - Paseo de la Historieta",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJQTY2YPo1o5URPtzefgIsDss"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_17",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJrx7YQtM0o5URJKMiLhReiss"
+          ],
+          "candidateName": "Old Hotel Gallery",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJrx7YQtM0o5URJKMiLhReiss"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_18",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJWX2FQcw0o5URgbRjooRWd_I"
+          ],
+          "candidateName": "Maqueta Barrio La Boca",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJWX2FQcw0o5URgbRjooRWd_I"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_19",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJxWZS0yrLvJUREyl88eDpbeM"
+          ],
+          "candidateName": "El Zanjón de Granados",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJxWZS0yrLvJUREyl88eDpbeM"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_20",
+          "accepted": true,
+          "proposalIds": [
+            "google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms"
+          ],
+          "candidateName": "Puerto Madero",
+          "mergedEvidenceKeys": [
+            "google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "google_places"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_21",
+          "accepted": true,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+          ],
+          "candidateName": "Manzana de las Luces",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_22",
+          "accepted": true,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          ],
+          "candidateName": "Mercado San Telmo",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_23",
+          "accepted": true,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+          ],
+          "candidateName": "Museo Histórico Nacional",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_24",
+          "accepted": true,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+          ],
+          "candidateName": "Pasaje San Lorenzo",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_25",
+          "accepted": true,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ],
+          "candidateName": "Plaza Dorrego",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_26",
+          "accepted": true,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+          ],
+          "candidateName": "El Zanjón de Granados",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        }
+      ],
+      "groupCount": 26,
+      "proposalCount": 26,
+      "acceptedGroupCount": 26,
+      "rejectedGroupCount": 0,
+      "pairDecisionSummary": {
+        "total": 325,
+        "byReason": {
+          "no_shared_identity_signal": 300,
+          "name_match_without_geography": 1,
+          "geographic_overlap_without_name_match": 24
+        },
+        "byDecision": {
+          "NEW": 300,
+          "SAME": 0,
+          "AMBIGUOUS": 25
+        }
+      }
+    }
+  },
+  "providerStatus": "success",
+  "acquisitionContext": {
+    "strategy": "generic",
+    "passNumber": 1
+  }
+}

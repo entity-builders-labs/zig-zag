@@ -1,0 +1,88 @@
+{
+  "label": "Cobertura de preferencias (facet-first)",
+  "rules": [
+    {
+      "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+      "actual": 6,
+      "reason": "6 Experience(s) elegible(s) frente a 4 requerida(s).",
+      "result": "PASS",
+      "ruleId": "PCOV-QUANTITY-001",
+      "expected": 4
+    },
+    {
+      "rule": "Cobertura del facet solicitado: theme:history",
+      "actual": 2,
+      "reason": "2 coincidencia(s) fuerte(s), 0 débil(es).",
+      "result": "PASS",
+      "ruleId": "PCOV-FACET-THEME-HISTORY",
+      "expected": ">= 1"
+    },
+    {
+      "rule": "Cobertura del facet solicitado: intent:walk",
+      "actual": 0,
+      "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+      "result": "FAIL",
+      "ruleId": "PCOV-FACET-INTENT-WALK",
+      "expected": ">= 1"
+    }
+  ],
+  "stage": "coverage_analysis",
+  "inputs": {
+    "providerHealth": {
+      "status": "healthy"
+    },
+    "requestedFacetCount": 2,
+    "offeredCandidateCount": 4
+  },
+  "status": "FAIL",
+  "outputs": {
+    "sufficient": false,
+    "facetResults": [
+      {
+        "key": "history",
+        "dimension": "theme",
+        "satisfied": true,
+        "weakMatchCount": 0,
+        "strongMatchCount": 2
+      },
+      {
+        "key": "walk",
+        "dimension": "intent",
+        "satisfied": false,
+        "weakMatchCount": 0,
+        "strongMatchCount": 0
+      }
+    ],
+    "portfolioTarget": 4,
+    "allFacetsSatisfied": false,
+    "acquisitionDeficits": [
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ],
+    "globalCapacityDeficit": null,
+    "totalDistinctEligibleExperiences": 6
+  },
+  "summary": "Facets sin cobertura fuerte: intent:walk.",
+  "decision": {
+    "reason": "Facets sin cobertura fuerte: intent:walk.",
+    "status": "FAIL",
+    "outcome": "needs_additional_discovery",
+    "reasonCodes": [
+      "preference_facet"
+    ],
+    "triggeredActions": [
+      "RUN_ACQUISITION"
+    ]
+  },
+  "component": "FacetRetrievalService",
+  "semanticRanking": {
+    "status": "applied",
+    "indexedCandidateCount": 6,
+    "offeredCandidateCount": 4,
+    "eligibleCandidateCount": 6
+  }
+}

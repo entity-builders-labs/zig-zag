@@ -1,0 +1,69 @@
+{
+  "label": "Adquisición o reutilización de walk/ruta",
+  "stage": "area_route_walk_acquisition",
+  "inputs": {
+    "anchor": {
+      "kind": "area",
+      "usage": "geographic_scope",
+      "status": "resolved",
+      "rawName": "San Telmo",
+      "geometry": {
+        "type": "Polygon"
+      },
+      "priority": "soft",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069",
+      "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+      "osmBoundary": {
+        "id": "osm:relation:2223069",
+        "name": "San Telmo",
+        "tags": {
+          "name": "San Telmo",
+          "type": "boundary",
+          "boundary": "administrative",
+          "wikidata": "Q1026688",
+          "wikipedia": "es:San Telmo (Buenos Aires)",
+          "admin_level": "9"
+        },
+        "osmId": 2223069,
+        "osmType": "relation",
+        "geometry": {
+          "type": "Polygon"
+        }
+      },
+      "canonicalName": "San Telmo"
+    },
+    "deficit": {
+      "key": "walk",
+      "origin": "preference_facet",
+      "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+      "dimension": "intent"
+    },
+    "intentKey": "walk"
+  },
+  "status": "WARN",
+  "outputs": {
+    "reason": "no_accepted_results",
+    "outcome": "no_result",
+    "diagnostics": {
+      "execution": {
+        "webResults": [],
+        "candidateCount": 0
+      },
+      "anchorResolved": true,
+      "materialization": {
+        "acceptedCount": 0,
+        "rejectedCount": 0,
+        "resolvedCount": 0,
+        "rejectionReasons": {},
+        "semanticallyEligibleCount": 0
+      },
+      "sourcePlanProviders": [
+        "wikivoyage",
+        "web"
+      ]
+    }
+  },
+  "summary": "Resultado AREA_ROUTE_WALK: no_result.",
+  "component": "AreaRouteWalkAcquisitionService"
+}

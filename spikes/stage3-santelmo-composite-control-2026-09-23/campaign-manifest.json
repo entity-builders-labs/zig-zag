@@ -1,0 +1,60 @@
+{
+  "campaign": "Stage 3 COMPOSITE positive control -- San Telmo historical/cultural walk",
+  "purpose": "Positive control: verify the already-built COMPOSITE flow (AREA_ROUTE_WALK -> source-backed discovery -> MULTI_COMPONENT_EXPERIENCE -> component identity resolution -> persistence -> warm reuse) still works after Stage 3's catalog-first identity resolution checkpoint. No new capability was tested.",
+  "date": "2026-09-23",
+  "branch": "feat/preference-first-selection",
+  "startingRemoteHead": "1181c67b6b66b73cfd36f81d804e952cdf268406",
+  "remoteVerifiedUnmoved": true,
+  "worktree": ".worktrees/ui-redesign (already checked out at remote HEAD, no fetch/pull needed)",
+  "humanRequest": "caminata histórica por San Telmo",
+  "requestFile": "request.json (copied verbatim from spikes/rw1-san-telmo-historical-walk/request.json, the canonical San Telmo fixture used by every prior San Telmo spike)",
+  "runtimePath": "POST /auth/email/request-code -> POST /auth/email/verify -> POST /tours/generate-tour -> outbox TourGenerationRequested -> TourGenerationProcessorService -> ExperienceGenerationService.generateTourExperiences",
+  "orchestration": "spikes/stage3-simple-composite-mixed-2026-09-23/run-campaign.mjs (pre-existing spike-only orchestrator, reused verbatim; drives only the real HTTP path above)",
+  "backendProcess": {
+    "note": "Separate process from the shared dev zigzag-backend Docker container (left untouched). Built via `yarn build`, run as `node dist/src/main.js`, PORT=4010.",
+    "envLayering": "Repo-root .env sourced first, then .env.spike.stage3-santelmo-control overrides applied on top (GROUNDED_SEARCH_PROVIDER=serpapi, local Overpass/Nominatim, DATABASE_URL=zigzag_spike_stage3_santelmo_control, AI_CACHE_MODE=off, USE_MOCK_MAPS=false, PLACES_PROVIDER=google)."
+  },
+  "preflight": {
+    "ran": true,
+    "command": "RUN_SPIKE_PREFLIGHT=1 yarn test:live:discovery --testPathPattern=pre-b6-spike-infrastructure-preflight",
+    "result": "8/8 passed: SerpAPI selected (not Tavily), local Nominatim + Overpass reachable via real DI classes, dedicated DB confirmed (current_database=zigzag_spike_stage3_santelmo_control, not 'zigzag'), all 7 knowledge tables started at 0"
+  },
+  "database": {
+    "name": "zigzag_spike_stage3_santelmo_control",
+    "dedicatedFreshDatabase": true,
+    "migratedFresh": true,
+    "confirmedEmptyBeforeCold": true,
+    "confirmedNotSharedDevDb": true,
+    "rowCountsAfterCold": {
+      "experience": 6, "experienceComponent": 6, "experienceEvidence": 6,
+      "experienceTrait": 9, "geoEntity": 10, "geoEntityIdentity": 10, "traitDefinition": 9
+    },
+    "rowCountsAfterWarm": {
+      "experience": 6, "experienceComponent": 6, "experienceEvidence": 6,
+      "experienceTrait": 9, "geoEntity": 10, "geoEntityIdentity": 10, "traitDefinition": 9
+    },
+    "newRowsCreatedInWarm": 0
+  },
+  "providers": {
+    "GROUNDED_SEARCH_PROVIDER": "serpapi",
+    "groundedSearchProviderObservedInTrace": "serpapi (SerpApiGroundedSearchService)",
+    "DISCOVERY_EXTRACTOR_PROVIDER": "groq (qwen/qwen3.8-27b), observed in both COLD area_route_walk_acquisition attempts",
+    "PLACES_PROVIDER": "google",
+    "preferenceInterpretationProvider": "groq (qwen/qwen3.8-27b)",
+    "OVERPASS_API_URL": "http://localhost:12345/api/interpreter (local)",
+    "NOMINATIM_API_URL": "http://localhost:8088/search (local)"
+  },
+  "tours": {
+    "coldTourId": "35d69f67-64b4-4510-9874-c64ddb6fa97f",
+    "coldRuntimeMs": 163319,
+    "warmTourId": "932ae063-7ca4-4062-8f8b-845882ab4f6c",
+    "warmRuntimeMs": 30239
+  },
+  "secondaryAnomaliesObserved": [
+    "SerpApi rejected the raw location string 'San Telmo' on every grounded-search call (both COLD attempts and the WARM attempt), falling back to a location-less query automatically each time -- not fatal, but a recurring degradation of grounding precision worth a follow-up ticket outside this spike's scope.",
+    "Google Places SearchTextRequest daily quota (limit 20/day) was exhausted mid-COLD-run at 05:13:26 (project_number:857593443146), causing 2 fallback Places lookups to fail later in the same COLD run ('Antigua Carcel de mujeres San Telmo...' and one retry for 'El Zanjon de Granados', which had already separately succeeded via an earlier call). This did not affect the primary MULTI_COMPONENT_EXPERIENCE finding (that failure happened earlier, at 05:12:54, before the quota was exhausted) but does mean WARM's near-zero Google Places call count is partly a quota artifact, not purely catalog-reuse evidence -- though the trace's own acquisition summary confirms GENERIC=0 (no google_places plan was even built in WARM) so this is a minor confound, not the main driver.",
+    "Wikidata proximity lookups timed out repeatedly (10s timeout) throughout COLD; best-effort per architecture, did not block generation.",
+    "Groq rate-limited the preference/extraction calls a few times in both runs (visible retry-with-backoff), self-healed each time."
+  ],
+  "secretsRedacted": true
+}

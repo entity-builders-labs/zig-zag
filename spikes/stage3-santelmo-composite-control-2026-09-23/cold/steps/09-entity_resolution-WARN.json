@@ -1,0 +1,671 @@
+{
+  "label": "Resolución de entidades reales",
+  "rules": [
+    {
+      "rule": "Resolver hints contra identidades geográficas independientes del LLM",
+      "actual": 3,
+      "reason": "3 entidad(es) reales resueltas; 3 con coordenadas.",
+      "result": "WARN",
+      "ruleId": "RES-IDENTITY-001"
+    },
+    {
+      "rule": "No decidir coherencia geográfica ni persistencia durante entity resolution",
+      "reason": "La salida queda pendiente del GeographicValidationService.",
+      "result": "PASS",
+      "ruleId": "RES-SEPARATION-001"
+    },
+    {
+      "rule": "Toda propuesta no resoluble debe conservar razones explícitas",
+      "reason": "San Telmo Walking Tour and Market Experience: NO_OSM_MATCH; Premium Walking Tour San Telmo Neighborhood: UNRESOLVED_REQUIRED_COMPONENT",
+      "result": "PASS",
+      "ruleId": "RES-REJECTION-001"
+    }
+  ],
+  "stage": "entity_resolution",
+  "inputs": {
+    "totalCandidates": 2
+  },
+  "status": "WARN",
+  "outputs": {
+    "rejectedCount": 2,
+    "candidateCount": 2,
+    "resolvedEntityCount": 3,
+    "resolutionReadyCount": 0,
+    "entitiesWithCoordinates": 3
+  },
+  "summary": "Entity resolution procesó 2 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 2 no pudieron resolverse. Se obtuvieron 3 entidad(es) provider-backed, 3 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite. Rechazadas: San Telmo Walking Tour and Market Experience: NO_OSM_MATCH; Premium Walking Tour San Telmo Neighborhood: UNRESOLVED_REQUIRED_COMPONENT.",
+  "decision": {
+    "reason": "Ninguna propuesta produjo suficientes entidades reales para continuar.",
+    "status": "WARN",
+    "outcome": "NO_PROPOSALS_RESOLVED",
+    "reasonCodes": [
+      "NO_OSM_MATCH",
+      "UNRESOLVED_REQUIRED_COMPONENT"
+    ],
+    "triggeredActions": [
+      "CONTINUE_WITH_EXISTING_POOL"
+    ]
+  },
+  "component": "ExperienceProposalResolverService",
+  "degradedReason": "no_proposals_resolved",
+  "providerStatus": "failed",
+  "acquisitionContext": {
+    "anchor": {
+      "kind": "area",
+      "usage": "geographic_scope",
+      "status": "resolved",
+      "rawName": "San Telmo",
+      "geometry": {
+        "type": "Polygon"
+      },
+      "priority": "soft",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069",
+      "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+      "osmBoundary": {
+        "id": "osm:relation:2223069",
+        "name": "San Telmo",
+        "tags": {
+          "name": "San Telmo",
+          "type": "boundary",
+          "boundary": "administrative",
+          "wikidata": "Q1026688",
+          "wikipedia": "es:San Telmo (Buenos Aires)",
+          "admin_level": "9"
+        },
+        "osmId": 2223069,
+        "osmType": "relation",
+        "geometry": {
+          "type": "Polygon"
+        }
+      },
+      "canonicalName": "San Telmo"
+    },
+    "strategy": "area_route_walk",
+    "passNumber": 1
+  },
+  "candidateDecisions": [
+    {
+      "id": "San Telmo Walking Tour and Market Experience",
+      "name": "San Telmo Walking Tour and Market Experience",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Premium Walking Tour San Telmo Neighborhood",
+      "name": "Premium Walking Tour San Telmo Neighborhood",
+      "reason": "UNRESOLVED_REQUIRED_COMPONENT",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ]
+    }
+  ],
+  "entityResolutionAudit": [
+    {
+      "hints": [
+        {
+          "key": "san-telmo-food-market",
+          "name": "San Telmo Food Market",
+          "role": "venue",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "San Telmo Food Market",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "San Telmo Food Market",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "San Telmo Food Market",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "San Telmo Food Market",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "San Telmo Food Market",
+              "provider": "google_places",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJ01hQWivLvJURgrAJYmqWsHE",
+                "canonicalName": "Mercado San Telmo"
+              },
+              "providerResultCount": 3,
+              "verificationDecision": "REJECTED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-14"
+          ],
+          "expectedKind": "PLACE"
+        },
+        {
+          "key": "paseo-de-la-historieta",
+          "name": "Paseo de la Historieta",
+          "role": "venue",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Paseo de la Historieta",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Paseo de la Historieta",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Paseo de la Historieta",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "Paseo de la Historieta",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "Paseo de la Historieta",
+              "provider": "google_places",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJc-ZNwSo1o5URTB6WZXrV9Pc",
+                "canonicalName": "Clemente - Paseo de la Historieta"
+              },
+              "providerResultCount": 3,
+              "verificationDecision": "REJECTED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-14"
+          ],
+          "expectedKind": "PLACE"
+        },
+        {
+          "key": "iglesia-de-san-ignacio-de-loyola",
+          "name": "Iglesia de San Ignacio de Loyola",
+          "role": "venue",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Iglesia de San Ignacio de Loyola",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Iglesia de San Ignacio de Loyola",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Iglesia de San Ignacio de Loyola",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "Iglesia de San Ignacio de Loyola",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "Iglesia de San Ignacio de Loyola",
+              "provider": "google_places",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJoeWwm9TKvJURrKa3siFbBPY",
+                "canonicalName": "Parroquia San Ignacio de Loyola"
+              },
+              "providerResultCount": 3,
+              "verificationDecision": "REJECTED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-14"
+          ],
+          "expectedKind": "PLACE"
+        },
+        {
+          "key": "convento-santo-domingo",
+          "name": "Convento Santo Domingo",
+          "role": "venue",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Convento Santo Domingo",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Convento Santo Domingo",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Convento Santo Domingo",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "Convento Santo Domingo",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "MULTIPLE"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:1464484424",
+                "canonicalName": "Convento Santo Domingo"
+              },
+              "providerResultCount": 2,
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "Convento Santo Domingo",
+              "provider": "google_places",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJ39kcLdXKvJURTENDzemSdak",
+                "canonicalName": "Convento Santo Domingo - Basílica Nuestra Señora del Rosario de la Defensa y Reconquista de Buenos Aires"
+              },
+              "providerResultCount": 1,
+              "verificationDecision": "REJECTED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-14"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "San Telmo Walking Tour and Market Experience",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "san telmo walking tour and market experience:ev-14:convento-santo-domingo:Convento Santo Domingo|iglesia-de-san-ignacio-de-loyola:Iglesia de San Ignacio de Loyola|paseo-de-la-historieta:Paseo de la Historieta|san-telmo-food-market:San Telmo Food Market"
+    },
+    {
+      "hints": [
+        {
+          "key": "mafalda-statue",
+          "name": "Mafalda Statue",
+          "role": "venue",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Mafalda Statue",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Mafalda Statue",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Mafalda Statue",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "Mafalda Statue",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "Mafalda Statue",
+              "provider": "google_places",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": true,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJIbt1u-SMNg0RQuvXw1bFQu0",
+                "canonicalName": "Estatua de Mafalda"
+              },
+              "providerResultCount": 1,
+              "verificationDecision": "REJECTED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-16"
+          ],
+          "expectedKind": "PLACE"
+        },
+        {
+          "key": "casa-minima",
+          "name": "Casa Mínima",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Casa Mínima",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Casa Mínima",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Casa Mínima",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "SINGLE"
+                },
+                {
+                  "type": "DECLARED_ALIAS_MATCH",
+                  "identityMultiplicity": "SINGLE"
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:node:4440588689",
+                "canonicalName": "Casa Mínima"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-16"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:node:4440588689",
+            "geoEntityId": "4fdc3a8f-bb30-48fa-b2d7-0a561eee5410",
+            "canonicalName": "Casa Mínima"
+          }
+        },
+        {
+          "key": "san-telmo-market",
+          "name": "San Telmo Market",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "San Telmo Market",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "San Telmo Market",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "San Telmo Market",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": true,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:158893271",
+                "canonicalName": "Mercado de San Telmo"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-16"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:158893271",
+            "geoEntityId": "3763ccda-a3c7-4276-8aa6-18af6db58ec0",
+            "canonicalName": "Mercado de San Telmo"
+          }
+        },
+        {
+          "key": "lezama-park",
+          "name": "Lezama Park",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Lezama Park",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Lezama Park",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Lezama Park",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": true,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:17441757",
+                "canonicalName": "Parque Lezama"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-16"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:17441757",
+            "geoEntityId": "b31d5806-ccaf-4468-afbb-106b2267978c",
+            "canonicalName": "Parque Lezama"
+          }
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Premium Walking Tour San Telmo Neighborhood",
+      "rejectionReasons": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ],
+      "candidateTraceKey": "premium walking tour san telmo neighborhood:ev-16:mafalda-statue:Mafalda Statue|casa-minima:Casa Mínima|san-telmo-market:San Telmo Market|lezama-park:Lezama Park"
+    }
+  ]
+}

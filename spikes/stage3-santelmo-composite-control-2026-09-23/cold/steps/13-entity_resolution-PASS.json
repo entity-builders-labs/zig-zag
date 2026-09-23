@@ -1,0 +1,2040 @@
+{
+  "label": "Resolución de entidades reales",
+  "rules": [
+    {
+      "rule": "Resolver hints contra identidades geográficas independientes del LLM",
+      "actual": 7,
+      "reason": "7 entidad(es) reales resueltas; 7 con coordenadas.",
+      "result": "PASS",
+      "ruleId": "RES-IDENTITY-001"
+    },
+    {
+      "rule": "No decidir coherencia geográfica ni persistencia durante entity resolution",
+      "reason": "La salida queda pendiente del GeographicValidationService.",
+      "result": "PASS",
+      "ruleId": "RES-SEPARATION-001"
+    },
+    {
+      "rule": "Toda propuesta no resoluble debe conservar razones explícitas",
+      "reason": "The Port of Buenos Aires: NO_OSM_MATCH; PRISON MUSEUM Antonio Ballvé: NO_OSM_MATCH; MACBA - Museum of Contemporary Art in Buenos Aires: NO_OSM_MATCH; Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo: NO_OSM_MATCH; Museo de la Dirección Antártica \"Gral. Hernán Pujato\": NO_OSM_MATCH; Matías - Paseo de la Historieta: NO_OSM_MATCH; Camino de la historieta: NO_OSM_MATCH; Larguirucho y Super Hijitus - Paseo de la Historieta: NO_OSM_MATCH; National Historic Museum: NO_OSM_MATCH; Isidoro Cañones - Paseo de la Historieta: NO_OSM_MATCH; Argentine Puppet Museum: NO_OSM_MATCH; Mural De Calé - Paseo de la Historieta: NO_OSM_MATCH; Old Hotel Gallery: NO_OSM_MATCH; Maqueta Barrio La Boca: NO_OSM_MATCH; El Zanjón de Granados: NO_OSM_MATCH; Puerto Madero: NO_OSM_MATCH; Manzana de las Luces: NO_OSM_MATCH; Pasaje San Lorenzo: NO_OSM_MATCH; El Zanjón de Granados: NO_OSM_MATCH",
+      "result": "PASS",
+      "ruleId": "RES-REJECTION-001"
+    }
+  ],
+  "stage": "entity_resolution",
+  "inputs": {
+    "totalCandidates": 26
+  },
+  "status": "PASS",
+  "outputs": {
+    "rejectedCount": 19,
+    "candidateCount": 26,
+    "resolvedEntityCount": 7,
+    "resolutionReadyCount": 7,
+    "entitiesWithCoordinates": 7
+  },
+  "summary": "Entity resolution procesó 26 candidato(s): 7 quedaron con entidades concretas suficientes para continuar y 19 no pudieron resolverse. Se obtuvieron 7 entidad(es) provider-backed, 7 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite. Rechazadas: The Port of Buenos Aires: NO_OSM_MATCH; PRISON MUSEUM Antonio Ballvé: NO_OSM_MATCH; MACBA - Museum of Contemporary Art in Buenos Aires: NO_OSM_MATCH; Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo: NO_OSM_MATCH; Museo de la Dirección Antártica \"Gral. Hernán Pujato\": NO_OSM_MATCH; Matías - Paseo de la Historieta: NO_OSM_MATCH; Camino de la historieta: NO_OSM_MATCH; Larguirucho y Super Hijitus - Paseo de la Historieta: NO_OSM_MATCH; National Historic Museum: NO_OSM_MATCH; Isidoro Cañones - Paseo de la Historieta: NO_OSM_MATCH; Argentine Puppet Museum: NO_OSM_MATCH; Mural De Calé - Paseo de la Historieta: NO_OSM_MATCH; Old Hotel Gallery: NO_OSM_MATCH; Maqueta Barrio La Boca: NO_OSM_MATCH; El Zanjón de Granados: NO_OSM_MATCH; Puerto Madero: NO_OSM_MATCH; Manzana de las Luces: NO_OSM_MATCH; Pasaje San Lorenzo: NO_OSM_MATCH; El Zanjón de Granados: NO_OSM_MATCH.",
+  "decision": {
+    "reason": "Hay entidades reales resueltas; todavía falta validar existencia/coherencia de la actividad compuesta.",
+    "status": "PASS",
+    "outcome": "ENTITIES_READY_FOR_GEOGRAPHIC_VALIDATION",
+    "reasonCodes": [
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH"
+    ],
+    "triggeredActions": [
+      "VALIDATE_GEOGRAPHIC_COHERENCE"
+    ]
+  },
+  "component": "ExperienceProposalResolverService",
+  "providerStatus": "success",
+  "acquisitionContext": {
+    "strategy": "generic",
+    "passNumber": 1
+  },
+  "candidateDecisions": [
+    {
+      "id": "Feria De las Artes San Telmo",
+      "name": "Feria De las Artes San Telmo",
+      "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "ENTITY_RESOLUTION_READY"
+      ]
+    },
+    {
+      "id": "The Port of Buenos Aires",
+      "name": "The Port of Buenos Aires",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "PRISON MUSEUM Antonio Ballvé",
+      "name": "PRISON MUSEUM Antonio Ballvé",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Paseo de las Historietas",
+      "name": "Paseo de las Historietas",
+      "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "ENTITY_RESOLUTION_READY"
+      ]
+    },
+    {
+      "id": "MACBA - Museum of Contemporary Art in Buenos Aires",
+      "name": "MACBA - Museum of Contemporary Art in Buenos Aires",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Galeria Del Asombro",
+      "name": "Galeria Del Asombro",
+      "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "ENTITY_RESOLUTION_READY"
+      ]
+    },
+    {
+      "id": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+      "name": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+      "name": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Museo Moderno",
+      "name": "Museo Moderno",
+      "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "ENTITY_RESOLUTION_READY"
+      ]
+    },
+    {
+      "id": "Matías - Paseo de la Historieta",
+      "name": "Matías - Paseo de la Historieta",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Camino de la historieta",
+      "name": "Camino de la historieta",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+      "name": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "National Historic Museum",
+      "name": "National Historic Museum",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Isidoro Cañones - Paseo de la Historieta",
+      "name": "Isidoro Cañones - Paseo de la Historieta",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Argentine Puppet Museum",
+      "name": "Argentine Puppet Museum",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Mural De Calé - Paseo de la Historieta",
+      "name": "Mural De Calé - Paseo de la Historieta",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Old Hotel Gallery",
+      "name": "Old Hotel Gallery",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Maqueta Barrio La Boca",
+      "name": "Maqueta Barrio La Boca",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "El Zanjón de Granados",
+      "name": "El Zanjón de Granados",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Puerto Madero",
+      "name": "Puerto Madero",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Manzana de las Luces",
+      "name": "Manzana de las Luces",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Mercado San Telmo",
+      "name": "Mercado San Telmo",
+      "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "ENTITY_RESOLUTION_READY"
+      ]
+    },
+    {
+      "id": "Museo Histórico Nacional",
+      "name": "Museo Histórico Nacional",
+      "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "ENTITY_RESOLUTION_READY"
+      ]
+    },
+    {
+      "id": "Pasaje San Lorenzo",
+      "name": "Pasaje San Lorenzo",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Plaza Dorrego",
+      "name": "Plaza Dorrego",
+      "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "ENTITY_RESOLUTION_READY"
+      ]
+    },
+    {
+      "id": "El Zanjón de Granados",
+      "name": "El Zanjón de Granados",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    }
+  ],
+  "entityResolutionAudit": [
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI:component",
+          "name": "Feria De las Artes San Telmo",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Feria De las Artes San Telmo",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Feria De las Artes San Telmo",
+              "provider": "google_places",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI",
+                "canonicalName": "Feria De las Artes San Telmo"
+              },
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "Feria De las Artes San Telmo",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "Feria De las Artes San Telmo",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "Feria De las Artes San Telmo",
+              "provider": "google_places",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "SINGLE"
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI",
+                "canonicalName": "Feria De las Artes San Telmo"
+              },
+              "providerResultCount": 1,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "google_places",
+            "externalId": "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI",
+            "geoEntityId": "9c40cecc-7d3f-43cc-af19-1dcae639ed35",
+            "canonicalName": "Feria De las Artes San Telmo"
+          }
+        }
+      ],
+      "accepted": true,
+      "candidateName": "Feria De las Artes San Telmo",
+      "rejectionReasons": [],
+      "candidateTraceKey": "feria de las artes san telmo:google_places:ChIJ-efrtizLvJURQbEIWsAFdEI:google_places:ChIJ-efrtizLvJURQbEIWsAFdEI:component:Feria De las Artes San Telmo"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q:component",
+          "name": "The Port of Buenos Aires",
+          "role": "venue",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "The Port of Buenos Aires",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "The Port of Buenos Aires",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "The Port of Buenos Aires",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": false,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:239518532",
+                "canonicalName": "Museo de Arte Moderno de Buenos Aires"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "REJECTED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "The Port of Buenos Aires",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "the port of buenos aires:google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q:google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q:component:The Port of Buenos Aires"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I:component",
+          "name": "PRISON MUSEUM Antonio Ballvé",
+          "role": "venue",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "PRISON MUSEUM Antonio Ballvé",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "PRISON MUSEUM Antonio Ballvé",
+              "provider": "google_places",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I",
+                "canonicalName": "PRISON MUSEUM Antonio Ballvé"
+              },
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "PRISON MUSEUM Antonio Ballvé",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": false,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:node:5850559341",
+                "canonicalName": "Museo Penitenciario Argentino 'Antonio Ballvé'"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "REJECTED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "PRISON MUSEUM Antonio Ballvé",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "prison museum antonio ballvé:google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I:google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I:component:PRISON MUSEUM Antonio Ballvé"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4:component",
+          "name": "Paseo de las Historietas",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Paseo de las Historietas",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Paseo de las Historietas",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Paseo de las Historietas",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "Paseo de las Historietas",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "Paseo de las Historietas",
+              "provider": "google_places",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "SINGLE"
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4",
+                "canonicalName": "Paseo de las Historietas"
+              },
+              "providerResultCount": 3,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "google_places",
+            "externalId": "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4",
+            "geoEntityId": "319b4a5a-a812-40fe-acce-b064b04315f3",
+            "canonicalName": "Paseo de las Historietas"
+          }
+        }
+      ],
+      "accepted": true,
+      "candidateName": "Paseo de las Historietas",
+      "rejectionReasons": [],
+      "candidateTraceKey": "paseo de las historietas:google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4:google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4:component:Paseo de las Historietas"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJD22T4NI0o5URUrud9LZoV-E:component",
+          "name": "MACBA - Museum of Contemporary Art in Buenos Aires",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "MACBA - Museum of Contemporary Art in Buenos Aires",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "MACBA - Museum of Contemporary Art in Buenos Aires",
+              "provider": "google_places",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJD22T4NI0o5URUrud9LZoV-E",
+                "canonicalName": "MACBA - Museum of Contemporary Art in Buenos Aires"
+              },
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "MACBA - Museum of Contemporary Art in Buenos Aires",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJD22T4NI0o5URUrud9LZoV-E"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "MACBA - Museum of Contemporary Art in Buenos Aires",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "macba - museum of contemporary art in buenos aires:google_places:ChIJD22T4NI0o5URUrud9LZoV-E:google_places:ChIJD22T4NI0o5URUrud9LZoV-E:component:MACBA - Museum of Contemporary Art in Buenos Aires"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY:component",
+          "name": "Galeria Del Asombro",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Galeria Del Asombro",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Galeria Del Asombro",
+              "provider": "google_places",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY",
+                "canonicalName": "Galeria Del Asombro"
+              },
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "Galeria Del Asombro",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "SINGLE"
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:node:3227164768",
+                "canonicalName": "Galeria del Asombro"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:node:3227164768",
+            "geoEntityId": "e304a54f-1c1b-47e9-bf2e-aacfa9821bb0",
+            "canonicalName": "Galeria del Asombro"
+          }
+        }
+      ],
+      "accepted": true,
+      "candidateName": "Galeria Del Asombro",
+      "rejectionReasons": [],
+      "candidateTraceKey": "galeria del asombro:google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY:google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY:component:Galeria Del Asombro"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY:component",
+          "name": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+              "provider": "google_places",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY",
+                "canonicalName": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo"
+              },
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+              "provider": "google_places",
+              "strategy": "PLACES",
+              "failureReason": "Google Places searchText failed: Request failed with status code 429",
+              "executionStatus": "failed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "antigua cárcel de mujeres san telmo. ex penitenciaria nacional. museo:google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY:google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY:component:Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJGf_mj800o5UR0msA_Pbu9QU:component",
+          "name": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+              "provider": "google_places",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJGf_mj800o5UR0msA_Pbu9QU",
+                "canonicalName": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\""
+              },
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJGf_mj800o5UR0msA_Pbu9QU"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "museo de la dirección antártica \"gral. hernán pujato\":google_places:ChIJGf_mj800o5UR0msA_Pbu9QU:google_places:ChIJGf_mj800o5UR0msA_Pbu9QU:component:Museo de la Dirección Antártica \"Gral. Hernán Pujato\""
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI:component",
+          "name": "Museo Moderno",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Museo Moderno",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Museo Moderno",
+              "provider": "google_places",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI",
+                "canonicalName": "Museo Moderno"
+              },
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "Museo Moderno",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "DECLARED_ALIAS_MATCH",
+                  "identityMultiplicity": "SINGLE"
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:239518532",
+                "canonicalName": "Museo de Arte Moderno de Buenos Aires"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:239518532",
+            "geoEntityId": "51c82b38-ab6e-46a6-a28a-503560a8f85e",
+            "canonicalName": "Museo de Arte Moderno de Buenos Aires"
+          }
+        }
+      ],
+      "accepted": true,
+      "candidateName": "Museo Moderno",
+      "rejectionReasons": [],
+      "candidateTraceKey": "museo moderno:google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI:google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI:component:Museo Moderno"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg:component",
+          "name": "Matías - Paseo de la Historieta",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Matías - Paseo de la Historieta",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Matías - Paseo de la Historieta",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Matías - Paseo de la Historieta",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Matías - Paseo de la Historieta",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "matías - paseo de la historieta:google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg:google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg:component:Matías - Paseo de la Historieta"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4:component",
+          "name": "Camino de la historieta",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Camino de la historieta",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Camino de la historieta",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Camino de la historieta",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Camino de la historieta",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "camino de la historieta:google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4:google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4:component:Camino de la historieta"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw:component",
+          "name": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "larguirucho y super hijitus - paseo de la historieta:google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw:google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw:component:Larguirucho y Super Hijitus - Paseo de la Historieta"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJNfUyJs00o5URBEEv5fDne6U:component",
+          "name": "National Historic Museum",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "National Historic Museum",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "National Historic Museum",
+              "provider": "google_places",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJNfUyJs00o5URBEEv5fDne6U",
+                "canonicalName": "National Historic Museum"
+              },
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "National Historic Museum",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJNfUyJs00o5URBEEv5fDne6U"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "National Historic Museum",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "national historic museum:google_places:ChIJNfUyJs00o5URBEEv5fDne6U:google_places:ChIJNfUyJs00o5URBEEv5fDne6U:component:National Historic Museum"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c:component",
+          "name": "Isidoro Cañones - Paseo de la Historieta",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Isidoro Cañones - Paseo de la Historieta",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Isidoro Cañones - Paseo de la Historieta",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Isidoro Cañones - Paseo de la Historieta",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Isidoro Cañones - Paseo de la Historieta",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "isidoro cañones - paseo de la historieta:google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c:google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c:component:Isidoro Cañones - Paseo de la Historieta"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI:component",
+          "name": "Argentine Puppet Museum",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Argentine Puppet Museum",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Argentine Puppet Museum",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Argentine Puppet Museum",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Argentine Puppet Museum",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "argentine puppet museum:google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI:google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI:component:Argentine Puppet Museum"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJQTY2YPo1o5URPtzefgIsDss:component",
+          "name": "Mural De Calé - Paseo de la Historieta",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Mural De Calé - Paseo de la Historieta",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Mural De Calé - Paseo de la Historieta",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Mural De Calé - Paseo de la Historieta",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJQTY2YPo1o5URPtzefgIsDss"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Mural De Calé - Paseo de la Historieta",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "mural de calé - paseo de la historieta:google_places:ChIJQTY2YPo1o5URPtzefgIsDss:google_places:ChIJQTY2YPo1o5URPtzefgIsDss:component:Mural De Calé - Paseo de la Historieta"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJrx7YQtM0o5URJKMiLhReiss:component",
+          "name": "Old Hotel Gallery",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Old Hotel Gallery",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Old Hotel Gallery",
+              "provider": "google_places",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJrx7YQtM0o5URJKMiLhReiss",
+                "canonicalName": "Old Hotel Gallery"
+              },
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "Old Hotel Gallery",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJrx7YQtM0o5URJKMiLhReiss"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Old Hotel Gallery",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "old hotel gallery:google_places:ChIJrx7YQtM0o5URJKMiLhReiss:google_places:ChIJrx7YQtM0o5URJKMiLhReiss:component:Old Hotel Gallery"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJWX2FQcw0o5URgbRjooRWd_I:component",
+          "name": "Maqueta Barrio La Boca",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Maqueta Barrio La Boca",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Maqueta Barrio La Boca",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Maqueta Barrio La Boca",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJWX2FQcw0o5URgbRjooRWd_I"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Maqueta Barrio La Boca",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "maqueta barrio la boca:google_places:ChIJWX2FQcw0o5URgbRjooRWd_I:google_places:ChIJWX2FQcw0o5URgbRjooRWd_I:component:Maqueta Barrio La Boca"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJxWZS0yrLvJUREyl88eDpbeM:component",
+          "name": "El Zanjón de Granados",
+          "role": "venue",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "El Zanjón de Granados",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "El Zanjón de Granados",
+              "provider": "google_places",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJxWZS0yrLvJUREyl88eDpbeM",
+                "canonicalName": "El Zanjón de Granados"
+              },
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "El Zanjón de Granados",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:node:9953027884",
+                "canonicalName": "El Zanjón de Granados (historic ruins)"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "REJECTED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJxWZS0yrLvJUREyl88eDpbeM"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "El Zanjón de Granados",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "el zanjón de granados:google_places:ChIJxWZS0yrLvJUREyl88eDpbeM:google_places:ChIJxWZS0yrLvJUREyl88eDpbeM:component:El Zanjón de Granados"
+    },
+    {
+      "hints": [
+        {
+          "key": "google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms:component",
+          "name": "Puerto Madero",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Puerto Madero",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Puerto Madero",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Puerto Madero",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Puerto Madero",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "puerto madero:google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms:google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms:component:Puerto Madero"
+    },
+    {
+      "hints": [
+        {
+          "key": "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component",
+          "name": "Manzana de las Luces",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Manzana de las Luces",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Manzana de las Luces",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Manzana de las Luces",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Manzana de las Luces",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "manzana de las luces:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component:Manzana de las Luces"
+    },
+    {
+      "hints": [
+        {
+          "key": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component",
+          "name": "Mercado San Telmo",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Mercado San Telmo",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Mercado San Telmo",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Mercado San Telmo",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "DECLARED_ALIAS_MATCH",
+                  "identityMultiplicity": "SINGLE"
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:158893271",
+                "canonicalName": "Mercado de San Telmo"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:158893271",
+            "geoEntityId": "3763ccda-a3c7-4276-8aa6-18af6db58ec0",
+            "canonicalName": "Mercado de San Telmo"
+          }
+        }
+      ],
+      "accepted": true,
+      "candidateName": "Mercado San Telmo",
+      "rejectionReasons": [],
+      "candidateTraceKey": "mercado san telmo:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component:Mercado San Telmo"
+    },
+    {
+      "hints": [
+        {
+          "key": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component",
+          "name": "Museo Histórico Nacional",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Museo Histórico Nacional",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Museo Histórico Nacional",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Museo Histórico Nacional",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "SINGLE"
+                },
+                {
+                  "type": "DECLARED_ALIAS_MATCH",
+                  "identityMultiplicity": "SINGLE"
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:122969767",
+                "canonicalName": "Museo Histórico Nacional"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:122969767",
+            "geoEntityId": "e7004fd8-68d8-4693-873d-96a485681f77",
+            "canonicalName": "Museo Histórico Nacional"
+          }
+        }
+      ],
+      "accepted": true,
+      "candidateName": "Museo Histórico Nacional",
+      "rejectionReasons": [],
+      "candidateTraceKey": "museo histórico nacional:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component:Museo Histórico Nacional"
+    },
+    {
+      "hints": [
+        {
+          "key": "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component",
+          "name": "Pasaje San Lorenzo",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Pasaje San Lorenzo",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Pasaje San Lorenzo",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Pasaje San Lorenzo",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "Pasaje San Lorenzo",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "pasaje san lorenzo:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component:Pasaje San Lorenzo"
+    },
+    {
+      "hints": [
+        {
+          "key": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component",
+          "name": "Plaza Dorrego",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Plaza Dorrego",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Plaza Dorrego",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Plaza Dorrego",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "SINGLE"
+                },
+                {
+                  "type": "DECLARED_ALIAS_MATCH",
+                  "identityMultiplicity": "SINGLE"
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:31364659",
+                "canonicalName": "Plaza Dorrego"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:31364659",
+            "geoEntityId": "e6ed98be-2b85-4cc9-ac42-2d051920c390",
+            "canonicalName": "Plaza Dorrego"
+          }
+        }
+      ],
+      "accepted": true,
+      "candidateName": "Plaza Dorrego",
+      "rejectionReasons": [],
+      "candidateTraceKey": "plaza dorrego:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component:Plaza Dorrego"
+    },
+    {
+      "hints": [
+        {
+          "key": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component",
+          "name": "El Zanjón de Granados",
+          "role": "venue",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "El Zanjón de Granados",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "El Zanjón de Granados",
+              "provider": "google_places",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "google_places:ChIJxWZS0yrLvJUREyl88eDpbeM",
+                "canonicalName": "El Zanjón de Granados"
+              },
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "El Zanjón de Granados",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:node:9953027884",
+                "canonicalName": "El Zanjón de Granados (historic ruins)"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "El Zanjón de Granados",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:node:9953027884",
+                "canonicalName": "El Zanjón de Granados (historic ruins)"
+              },
+              "providerResultCount": 1,
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "El Zanjón de Granados",
+              "provider": "google_places",
+              "strategy": "PLACES",
+              "failureReason": "Google Places searchText daily quota is exhausted until 2026-09-24T07:00:00.000Z.",
+              "executionStatus": "failed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "El Zanjón de Granados",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "el zanjón de granados:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component:El Zanjón de Granados"
+    }
+  ]
+}

@@ -1,0 +1,377 @@
+{
+  "label": "Interpretación de preferencias",
+  "stage": "preference_interpretation",
+  "inputs": {
+    "intents": [
+      "walk"
+    ],
+    "groupType": "solo",
+    "budgetLevel": "medium",
+    "accessibilityNeeds": [],
+    "dietaryRestrictions": [],
+    "hasAdditionalPreferences": true
+  },
+  "status": "PASS",
+  "timing": {
+    "durationMs": 962
+  },
+  "outputs": {
+    "intent": {
+      "notes": [],
+      "ambiguities": [],
+      "anchoredPlaces": [
+        {
+          "usage": "geographic_scope",
+          "rawName": "San Telmo",
+          "priority": "soft"
+        }
+      ],
+      "excludedThemes": [],
+      "excludedTraits": [],
+      "hardExclusions": [],
+      "preferredFacets": [
+        {
+          "key": "walk",
+          "source": "free_text",
+          "evidence": [
+            {
+              "text": "caminata",
+              "source": "user_free_text"
+            }
+          ],
+          "dimension": "intent",
+          "confidence": 1,
+          "importance": 1
+        },
+        {
+          "key": "history",
+          "source": "free_text",
+          "evidence": [
+            {
+              "text": "histórica",
+              "source": "user_free_text"
+            }
+          ],
+          "dimension": "theme",
+          "confidence": 1,
+          "importance": 1
+        }
+      ],
+      "softConstraints": [],
+      "groupPreferences": [],
+      "budgetPreferences": [],
+      "dietaryPreferences": [],
+      "positiveSemanticQuery": "caminata histórica por San Telmo",
+      "accessibilityPreferences": []
+    },
+    "preferenceSpec": {
+      "trip": {
+        "days": 1,
+        "pace": "moderate",
+        "startDates": []
+      },
+      "facets": [
+        {
+          "key": "history",
+          "source": "wizard",
+          "weight": 1,
+          "required": false,
+          "dimension": "theme"
+        },
+        {
+          "key": "walk",
+          "source": "wizard",
+          "weight": 1,
+          "required": false,
+          "dimension": "intent"
+        }
+      ],
+      "anchors": [
+        {
+          "usage": "geographic_scope",
+          "rawName": "San Telmo",
+          "priority": "soft"
+        }
+      ],
+      "exclusions": {
+        "hard": [],
+        "themes": [],
+        "traits": []
+      },
+      "semanticQuery": "caminata histórica por San Telmo",
+      "resolvedAnchors": [
+        {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        }
+      ],
+      "softConstraints": {
+        "group": [],
+        "budget": [],
+        "dietary": [],
+        "accessibility": []
+      },
+      "explorationStyle": "balanced"
+    }
+  },
+  "summary": "Preferencias libres normalizadas y combinadas con filtros.",
+  "component": "PreferenceInterpreterService",
+  "preferenceInterpretation": {
+    "model": "qwen/qwen3.8-27b",
+    "stage": "preference_interpretation",
+    "status": "applied",
+    "provider": "groq",
+    "durationMs": 962,
+    "userPrompt": "caminata histórica por San Telmo",
+    "rawResponse": "{\n  \"preferredFacets\": [\n    {\n      \"dimension\": \"intent\",\n      \"key\": \"walk\",\n      \"confidence\": 1.0,\n      \"strength\": \"strong\",\n      \"evidence\": [\n        \"caminata\"\n      ]\n    },\n    {\n      \"dimension\": \"theme\",\n      \"key\": \"history\",\n      \"confidence\": 1.0,\n      \"strength\": \"strong\",\n      \"evidence\": [\n        \"histórica\"\n      ]\n    }\n  ],\n  \"anchoredPlaces\": [\n    {\n      \"rawName\": \"San Telmo\",\n      \"usage\": \"geographic_scope\",\n      \"priority\": \"soft\"\n    }\n  ],\n  \"excludedThemes\": [],\n  \"excludedTraits\": [],\n  \"hardExclusions\": [],\n  \"softConstraints\": [],\n  \"ambiguities\": [],\n  \"dietaryPreferences\": [],\n  \"accessibilityPreferences\": [],\n  \"budgetPreferences\": [],\n  \"groupPreferences\": [],\n  \"positiveSemanticQuery\": \"caminata histórica por San Telmo\",\n  \"notes\": []\n}",
+    "systemPrompt": "Interpret the user's supplemental tourism preferences into normalized intent.\nReturn JSON only. You interpret language; deterministic code enforces the result.\nNever invent geographic entities, provider IDs, coordinates, or evidence.\nDo not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.\nFor positive preferences, output preferredFacets as a list of objects with:\n- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.\n- key: CANONICAL domain key in English (e.g. \"architecture\" not \"arquitectura\", \"food\" not \"comida\", \"walk\" not \"caminata\", \"history\" not \"historia\").\n- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.\n- confidence: float between 0 and 1 indicating certainty.\n- strength: \"strong\" | \"medium\" | \"weak\" indicating user emphasis.\n- evidence: one or more short excerpts copied from the user's text that support\n  this facet. Never invent evidence; facets without supporting excerpts are rejected.\nDo not invent arbitrary importance numbers; code derives importance deterministically from strength.\nAlso output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by\nname (never a generic theme). For each, output:\n- rawName: the name as mentioned by the user.\n- usage: \"geographic_scope\" | \"specific_destination\" | \"named_path\" | \"unknown\". This describes how the phrase uses the name, not what geographic entity it is.\n- priority: \"must\" ONLY for explicit, unambiguous named-place intent, for example\n  \"quiero visitar X\", \"incluí X\", \"sí o sí quiero ir a X\", \"no me quiero perder X\".\n  Anything weaker or ambiguous -- including a place mentioned only in passing while\n  describing a theme, e.g. \"me interesa la arquitectura de X\" -- is priority \"soft\".\nExtract anchors conservatively: when in doubt about the name or the intent, omit the anchor\nrather than guessing. Do not invent named places that were not mentioned.\nOther fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,\ndietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,\npositiveSemanticQuery, notes. Use short lowercase phrases.",
+    "parsedResponse": {
+      "notes": [],
+      "ambiguities": [],
+      "anchoredPlaces": [
+        {
+          "usage": "geographic_scope",
+          "rawName": "San Telmo",
+          "priority": "soft"
+        }
+      ],
+      "excludedThemes": [],
+      "excludedTraits": [],
+      "hardExclusions": [],
+      "preferredFacets": [
+        {
+          "key": "walk",
+          "source": "free_text",
+          "evidence": [
+            {
+              "text": "caminata",
+              "source": "user_free_text"
+            }
+          ],
+          "dimension": "intent",
+          "confidence": 1,
+          "importance": 1
+        },
+        {
+          "key": "history",
+          "source": "free_text",
+          "evidence": [
+            {
+              "text": "histórica",
+              "source": "user_free_text"
+            }
+          ],
+          "dimension": "theme",
+          "confidence": 1,
+          "importance": 1
+        }
+      ],
+      "softConstraints": [],
+      "groupPreferences": [],
+      "budgetPreferences": [],
+      "dietaryPreferences": [],
+      "positiveSemanticQuery": "caminata histórica por San Telmo",
+      "accessibilityPreferences": []
+    },
+    "responseSchema": {
+      "type": "object",
+      "required": [
+        "preferredFacets",
+        "anchoredPlaces",
+        "excludedThemes",
+        "excludedTraits",
+        "hardExclusions",
+        "softConstraints",
+        "ambiguities",
+        "dietaryPreferences",
+        "accessibilityPreferences",
+        "budgetPreferences",
+        "groupPreferences",
+        "positiveSemanticQuery",
+        "notes"
+      ],
+      "properties": {
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ambiguities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "anchoredPlaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "rawName",
+              "usage",
+              "priority"
+            ],
+            "properties": {
+              "usage": {
+                "enum": [
+                  "geographic_scope",
+                  "specific_destination",
+                  "named_path",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              "rawName": {
+                "type": "string"
+              },
+              "priority": {
+                "enum": [
+                  "soft",
+                  "must"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "excludedThemes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excludedTraits": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hardExclusions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "preferredFacets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "dimension",
+              "key",
+              "confidence"
+            ],
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "strength": {
+                "enum": [
+                  "strong",
+                  "medium",
+                  "weak"
+                ],
+                "type": "string"
+              },
+              "dimension": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "softConstraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "groupPreferences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "budgetPreferences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dietaryPreferences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "positiveSemanticQuery": {
+          "type": "string"
+        },
+        "accessibilityPreferences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "validationErrors": [],
+    "facetNormalizationDecisions": [
+      {
+        "rawKey": "walk",
+        "reason": "VALID_AS_EMITTED",
+        "accepted": true,
+        "rawDimension": "intent",
+        "normalizedKey": "walk",
+        "normalizedDimension": "intent"
+      },
+      {
+        "rawKey": "history",
+        "reason": "VALID_AS_EMITTED",
+        "accepted": true,
+        "rawDimension": "theme",
+        "normalizedKey": "history",
+        "normalizedDimension": "theme"
+      }
+    ]
+  }
+}

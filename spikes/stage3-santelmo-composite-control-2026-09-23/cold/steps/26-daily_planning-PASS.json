@@ -1,0 +1,160 @@
+{
+  "label": "Planificación diaria determinística",
+  "rules": [
+    {
+      "rule": "Mantener exactamente los buckets de días solicitados por el planner",
+      "actual": 1,
+      "reason": "El solver devolvió 1 bucket(s) de día.",
+      "result": "PASS",
+      "ruleId": "PLAN-DAYS-001"
+    },
+    {
+      "rule": "No seleccionar candidatos que el solver haya marcado como no factibles",
+      "reason": "0 candidato(s) quedaron fuera con reason codes explícitos.",
+      "result": "PASS",
+      "ruleId": "PLAN-FEASIBILITY-001"
+    },
+    {
+      "rule": "Declarar si las estimaciones de traslado son aproximadas",
+      "actual": false,
+      "reason": "El solver informa estimaciones de traslado no aproximadas.",
+      "result": "PASS",
+      "ruleId": "PLAN-TRAVEL-001"
+    }
+  ],
+  "stage": "daily_planning",
+  "inputs": {
+    "solver": "GreedyDailyPlanningSolver",
+    "iterations": 1,
+    "approximateTravel": false
+  },
+  "status": "PASS",
+  "outputs": {
+    "days": [
+      {
+        "dayNumber": 1,
+        "experienceCount": 5,
+        "totalTravelMinutes": 19.33086666666667,
+        "utilizationMinutes": 619.3308666666667,
+        "totalWalkingMinutes": 19.33086666666667,
+        "totalExperienceMinutes": 600
+      }
+    ],
+    "score": 5,
+    "selectedCount": 5,
+    "unselectedCount": 0,
+    "residualCapacity": [
+      {
+        "dayNumber": 1,
+        "meaningful": false,
+        "availableMinutes": 40.66913333333332
+      }
+    ]
+  },
+  "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 5 Experience(s) seleccionada(s), 0 sin seleccionar (score total 5). Las estimaciones de traslado usadas son reales.",
+  "decision": {
+    "reason": "El solver produjo una asignación determinística y físicamente evaluable.",
+    "status": "PASS",
+    "outcome": "DAILY_PLAN_BUILT",
+    "reasonCodes": [
+      "PLANNING_COMPLETED"
+    ],
+    "triggeredActions": [
+      "VALIDATE_COMPLETENESS",
+      "VALIDATE_FORMAT_COVERAGE"
+    ]
+  },
+  "component": "GreedyDailyPlanningSolver",
+  "dailyPlanning": {
+    "days": [
+      {
+        "dayNumber": 1,
+        "experienceCount": 5,
+        "totalTravelMinutes": 19.33086666666667,
+        "utilizationMinutes": 619.3308666666667,
+        "totalWalkingMinutes": 19.33086666666667,
+        "totalExperienceMinutes": 600
+      }
+    ],
+    "score": 5,
+    "solver": "GreedyDailyPlanningSolver",
+    "routing": {
+      "fallbackCount": 0,
+      "providerCounts": {
+        "geoapify": 4
+      },
+      "externalEstimateCount": 4,
+      "internalEstimateCount": 0,
+      "approximateEstimateCount": 0
+    },
+    "dayCount": 1,
+    "iterations": 1,
+    "selectedCount": 5,
+    "unselectedCount": 0,
+    "residualCapacity": [
+      {
+        "dayNumber": 1,
+        "meaningful": false,
+        "availableMinutes": 40.66913333333332
+      }
+    ],
+    "approximateTravel": false
+  },
+  "candidateDecisions": [
+    {
+      "id": "cc0092c3-2a27-4647-80a4-71d81d223402",
+      "name": "cc0092c3-2a27-4647-80a4-71d81d223402",
+      "order": 1,
+      "reason": "Asignada al día 1 en posición 1; pasó la factibilidad del solver.",
+      "status": "SELECTED",
+      "dayNumber": 1,
+      "reasonCodes": [
+        "FEASIBLE_AND_SELECTED"
+      ]
+    },
+    {
+      "id": "95638579-90f5-467e-941d-ec638cde0bf8",
+      "name": "95638579-90f5-467e-941d-ec638cde0bf8",
+      "order": 2,
+      "reason": "Asignada al día 1 en posición 2; pasó la factibilidad del solver.",
+      "status": "SELECTED",
+      "dayNumber": 1,
+      "reasonCodes": [
+        "FEASIBLE_AND_SELECTED"
+      ]
+    },
+    {
+      "id": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+      "name": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+      "order": 3,
+      "reason": "Asignada al día 1 en posición 3; pasó la factibilidad del solver.",
+      "status": "SELECTED",
+      "dayNumber": 1,
+      "reasonCodes": [
+        "FEASIBLE_AND_SELECTED"
+      ]
+    },
+    {
+      "id": "a539265a-936a-49e0-850f-9be3d3429738",
+      "name": "a539265a-936a-49e0-850f-9be3d3429738",
+      "order": 4,
+      "reason": "Asignada al día 1 en posición 4; pasó la factibilidad del solver.",
+      "status": "SELECTED",
+      "dayNumber": 1,
+      "reasonCodes": [
+        "FEASIBLE_AND_SELECTED"
+      ]
+    },
+    {
+      "id": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+      "name": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+      "order": 5,
+      "reason": "Asignada al día 1 en posición 5; pasó la factibilidad del solver.",
+      "status": "SELECTED",
+      "dayNumber": 1,
+      "reasonCodes": [
+        "FEASIBLE_AND_SELECTED"
+      ]
+    }
+  ]
+}
