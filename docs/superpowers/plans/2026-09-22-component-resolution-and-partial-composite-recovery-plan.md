@@ -672,11 +672,14 @@ untouched and BLOCKED.
   stage needs true radial `ST_DWithin` — not required or used here.)
 
 **Resolver behavior** (`experience-proposal-resolver.service.ts`):
-- Catalog-first ordering: for every component hint, `resolveViaCatalog`
-  runs immediately after the existing `TRUSTED_OBSERVATION_REUSE`
-  pre-check and before any pool selection — a `VERIFIED` catalog match
-  `continue`s to the next hint before the old OSM-pool code is ever
-  reached.
+- Catalog-first ordering (corrected 2026-09-23 — see "Correction" below):
+  for every component hint, `resolveViaCatalog` now runs **before** the
+  existing `TRUSTED_OBSERVATION_REUSE` pre-check and before any pool
+  selection — a `VERIFIED` catalog match `continue`s to the next hint
+  before `TRUSTED_OBSERVATION_REUSE`, the OSM pools, or any other
+  external strategy is ever reached. `TRUSTED_OBSERVATION_REUSE` runs
+  second, only when catalog reuse was not terminal (miss, ambiguous, or
+  a unique match that failed verification).
 - Lazy OSM implementation: the old eager `Promise.all([lookupStreets*,
   lookupPois*])` at the top of `resolve()` was replaced with two
   request-scoped memoized getters (`getStreetLookup`/`getPoiLookup`,
@@ -718,11 +721,11 @@ route) whose every component resolves from the catalog —
 - POI OSM calls: 0 (`lookupPoisNear`/`lookupPoisWithin` never called);
 - Nominatim calls: 0 (`nominatim.search` never called);
 - Places calls: 0 (`placesApi.getPlaceDetails`/`searchText` never
-  called — a configured Places provider still runs the pre-existing
-  P2-B `TRUSTED_OBSERVATION_REUSE` local check for the venue hint, but
-  it returns `no_candidate` without ever reaching a real HTTP call,
-  since no `observations` were supplied; a route hint skips that check
-  entirely as before);
+  called — since the correction below, `CATALOG_REUSE` resolving the
+  venue hint is terminal, so the pre-existing P2-B
+  `TRUSTED_OBSERVATION_REUSE` local check never even runs for it; a
+  route hint still skips that check entirely as before, since routes
+  were never eligible for it);
 - Wikidata calls: 0 (`wikidata.getEntitySummaries` never called — the
   catalog match's `EXACT_NAME/SINGLE` evidence is `VERIFIED` by
   `IdentityVerifier` directly, so `IdentityEvidenceCollector.collect`'s
@@ -848,6 +851,69 @@ checkpoint):
   realistic data volume, before Stage 3 can be marked DONE).
 
 **Architecture deviation:** NONE.
+
+**Correction (2026-09-23) — resolver order was backwards.** The
+checkpoint above shipped with `TRUSTED_OBSERVATION_REUSE` running
+*before* `CATALOG_REUSE`, inverted from the catalog-first invariant this
+checkpoint exists to establish. `TRUSTED_OBSERVATION_REUSE` is not pure
+local reuse: for an eligible structured `SourceObservation` it can still
+execute `placesApi.getPlaceDetails(observation.externalId)` — a real
+external call — before the catalog was ever consulted. A warm run where
+a `GeoEntity` already exists in the catalog AND the current acquisition
+run also contains a matching `SourceObservation` for the same hint would
+therefore still perform unnecessary Internet work and reach
+`CATALOG_REUSE` too late to matter.
+
+Fixed by reordering `resolveCandidate`'s per-hint block so
+`CATALOG_REUSE` runs first and is terminal on a `VERIFIED` unique match;
+`TRUSTED_OBSERVATION_REUSE` runs second, reached only on a catalog miss,
+an ambiguous catalog match, or a unique catalog match that failed
+verification. Same-run structured observations are useful acquisition
+reuse, but they may still require an external provider detail fetch.
+Persisted canonical GeoEntity knowledge must therefore precede them in
+the Stage 3 catalog-first hierarchy. No other Stage 3 semantics changed:
+`findGeoEntityCandidatesForHint`, catalog matching, `IdentityVerifier`,
+`reuseCatalogGeoEntity`, the lazy OSM loaders, and Stage 4 are all
+untouched.
+
+Regression coverage added in the same describe block
+("Stage 3 — catalog-first identity resolution"):
+- "warm run: catalog identity for a hint takes priority over a matching
+  same-run SourceObservation" — catalog hit + a compatible
+  `SourceObservation` for the same hint → `attempts` = `['CATALOG_REUSE']`
+  only, `TRUSTED_OBSERVATION_REUSE` never attempted,
+  `placesApi.getPlaceDetails` 0 calls, `catalog.upsertGeoEntity` 0 calls,
+  resolved `geoEntityId` is the catalog's own.
+- "catalog miss: TRUSTED_OBSERVATION_REUSE still runs normally (as the
+  second strategy)" — proves the fallback is preserved, not deleted:
+  `attempts` begins `['CATALOG_REUSE', 'TRUSTED_OBSERVATION_REUSE']` and
+  `getPlaceDetails` is still called when the catalog misses.
+
+The pre-existing "all-catalog-hit" test's venue-hint assertion was
+updated mechanically from `['TRUSTED_OBSERVATION_REUSE', 'CATALOG_REUSE']`
+to `['CATALOG_REUSE']` — the same scenario, corrected to the new (and
+now correctly catalog-first) attempt order.
+
+**Validation (correction).**
+```
+cd be && npx tsc --noEmit -p .
+# Clean, 0 errors.
+
+cd be && npx eslint <changed files>
+# 0 problems.
+
+cd be && yarn test
+# Test Suites: 1 failed, 153 passed, 154 total.
+# Tests: 1 failed, 1788 passed, 1789 total.
+```
+The single failing suite/test is the same pre-existing, already-documented
+`preference-first-architecture.spec.ts:25` failure recorded above and in
+the Stage 2 entry — unrelated to this change, not modified here.
+
+**Stage (unchanged by this correction).**
+- Stage 3: IN PROGRESS.
+- Checkpoint: CATALOG-FIRST WARM-REUSE READY FOR SPIKES.
+- Stage 4: BLOCKED.
 
 **Engineering-principles / checkpoint architecture gate (§21):**
 - catalog lookup is bounded: **PASS** (kind + lat/lon box at the

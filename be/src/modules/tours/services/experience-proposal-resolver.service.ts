@@ -651,65 +651,23 @@ export class ExperienceProposalResolverService
               : undefined,
         });
       };
-      // P2-B, Phase 1: an optional, non-terminal FIRST attempt -- if this
-      // run's structured acquisition already gathered an unambiguous,
-      // in-scope, still-live identity for this exact hint, reuse it
-      // instead of re-discovering it from scratch. Never a special
-      // verification path: `IdentityVerifier` here is the SAME authority every
-      // other candidate goes through below. A `false`/`undefined` result
-      // is never terminal -- falls straight into the unchanged pipeline.
-      const reuseCandidate = await this.resolveViaTrustedObservation(
-        hint,
-        observations,
-        boundary,
-      );
-      if (reuseCandidate.status === 'candidate') {
-        const verification = await this.isVerified(
-          'TRUSTED_OBSERVATION_REUSE',
-          reuseCandidate.candidate,
-          hint,
-          observations,
-        );
-        recordAttempt(
-          'TRUSTED_OBSERVATION_REUSE',
-          {
-            status: 'completed',
-            provider: reuseCandidate.provider,
-            query: reuseCandidate.query,
-            entity: reuseCandidate.candidate,
-          },
-          verification,
-        );
-        if (verification.decision.status === 'VERIFIED') {
-          const resolved = await this.persistVerifiedCandidate(
-            reuseCandidate.candidate,
-          );
-          entities.push(resolved);
-          finishAudit(resolved);
-          continue;
-        }
-      } else if (reuseCandidate.status === 'no_candidate') {
-        recordAttempt(
-          'TRUSTED_OBSERVATION_REUSE',
-          { ...reuseCandidate, status: 'no_candidate' },
-          undefined,
-        );
-      } else if (reuseCandidate.status === 'failed') {
-        recordAttempt('TRUSTED_OBSERVATION_REUSE', reuseCandidate, undefined);
-      }
-
       let unconfirmedCatalogMatch: ResolvedGeoEntity | undefined;
       // Stage 3 (component-resolution-and-partial-composite-recovery-plan.md,
-      // "Catalog-first identity resolution"): a sufficiently unambiguous
-      // match against already-canonical GeoEntity knowledge is terminal
-      // success for this component -- no OSM/Nominatim/Places/Wikidata call
-      // is made to re-prove an identity the catalog already established.
-      // Ownership stays split exactly as the checkpoint requires: the
-      // catalog service (`findGeoEntityCandidatesForHint`) returns bounded
-      // candidates/facts only, `resolveViaCatalog` below never picks a
-      // winner out of an ambiguous set, and `IdentityVerifier` (via the
-      // same `isVerified` every other strategy already uses) remains the
-      // sole authority that declares VERIFIED.
+      // "Catalog-first identity resolution"): tried FIRST, ahead of
+      // TRUSTED_OBSERVATION_REUSE below -- persisted canonical GeoEntity
+      // knowledge is strictly cheaper than a same-run structured
+      // observation, which can still require its own external provider
+      // detail fetch (`resolveViaTrustedObservation`'s `getPlaceDetails`
+      // call) to be confirmed. A sufficiently unambiguous match against
+      // already-canonical GeoEntity knowledge is terminal success for this
+      // component -- no OSM/Nominatim/Places/Wikidata call is made to
+      // re-prove an identity the catalog already established. Ownership
+      // stays split exactly as the checkpoint requires: the catalog service
+      // (`findGeoEntityCandidatesForHint`) returns bounded candidates/facts
+      // only, `resolveViaCatalog` below never picks a winner out of an
+      // ambiguous set, and `IdentityVerifier` (via the same `isVerified`
+      // every other strategy already uses) remains the sole authority that
+      // declares VERIFIED.
       const catalogResult = await this.resolveViaCatalog(
         hint,
         entityResolutionScope,
@@ -750,8 +708,8 @@ export class ExperienceProposalResolverService
       } else if (catalogResult.status === 'ambiguous') {
         // 2+ bounded, same-kind, strictly name-matching GeoEntity rows.
         // Never an arbitrary winner, nearest-wins, or provider vote here --
-        // fail closed into the existing external resolution pipeline below,
-        // exactly like a catalog miss.
+        // fail closed into TRUSTED_OBSERVATION_REUSE/the external
+        // resolution pipeline below, exactly like a catalog miss.
         recordAttempt(
           'CATALOG_REUSE',
           {
@@ -768,6 +726,55 @@ export class ExperienceProposalResolverService
           { ...catalogResult, status: 'no_candidate' },
           undefined,
         );
+      }
+
+      // P2-B, Phase 1: an optional, non-terminal SECOND attempt, only
+      // reached when catalog reuse above was not terminal (miss, ambiguous,
+      // or a unique match that failed verification) -- if this run's
+      // structured acquisition already gathered an unambiguous, in-scope,
+      // still-live identity for this exact hint, reuse it instead of
+      // re-discovering it from scratch. Never a special verification path:
+      // `IdentityVerifier` here is the SAME authority every other candidate
+      // goes through below. A `false`/`undefined` result is never terminal
+      // -- falls straight into the unchanged pipeline.
+      const reuseCandidate = await this.resolveViaTrustedObservation(
+        hint,
+        observations,
+        boundary,
+      );
+      if (reuseCandidate.status === 'candidate') {
+        const verification = await this.isVerified(
+          'TRUSTED_OBSERVATION_REUSE',
+          reuseCandidate.candidate,
+          hint,
+          observations,
+        );
+        recordAttempt(
+          'TRUSTED_OBSERVATION_REUSE',
+          {
+            status: 'completed',
+            provider: reuseCandidate.provider,
+            query: reuseCandidate.query,
+            entity: reuseCandidate.candidate,
+          },
+          verification,
+        );
+        if (verification.decision.status === 'VERIFIED') {
+          const resolved = await this.persistVerifiedCandidate(
+            reuseCandidate.candidate,
+          );
+          entities.push(resolved);
+          finishAudit(resolved);
+          continue;
+        }
+      } else if (reuseCandidate.status === 'no_candidate') {
+        recordAttempt(
+          'TRUSTED_OBSERVATION_REUSE',
+          { ...reuseCandidate, status: 'no_candidate' },
+          undefined,
+        );
+      } else if (reuseCandidate.status === 'failed') {
+        recordAttempt('TRUSTED_OBSERVATION_REUSE', reuseCandidate, undefined);
       }
 
       const isAreaHint = hint.expectedKind === 'AREA' || hint.role === 'area';

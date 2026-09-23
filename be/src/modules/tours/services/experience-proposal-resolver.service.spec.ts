@@ -7600,18 +7600,15 @@ describe('ExperienceProposalResolverService', () => {
       ).toBe('geo-caminito');
 
       // CATALOG_REUSE attempts visible in the forensic audit for both hints.
-      // No real network call happens for either -- a configured Places
-      // provider still attempts P2-B's own TRUSTED_OBSERVATION_REUSE
-      // pre-check for venue hints (skipped entirely for ROUTE/AREA), but it
-      // returns `no_candidate` locally (no `observations` were supplied)
-      // WITHOUT ever calling `getPlaceDetails`, exactly the assertion above
-      // already proves.
+      // Catalog reuse runs FIRST and, once VERIFIED, is terminal -- P2-B's
+      // own TRUSTED_OBSERVATION_REUSE pre-check never even runs for the
+      // venue hint (no `getPlaceDetails` call, exactly the assertion above
+      // already proves).
       const componentAudits =
         result.entityResolution.forensicAudit[0].componentAudits;
       const venueAudit = componentAudits.find((a) => a.hintKey === 'venue');
       const streetAudit = componentAudits.find((a) => a.hintKey === 'street');
       expect(venueAudit?.attempts.map((a) => a.strategy)).toEqual([
-        'TRUSTED_OBSERVATION_REUSE',
         'CATALOG_REUSE',
       ]);
       expect(streetAudit?.attempts.map((a) => a.strategy)).toEqual([
@@ -7623,6 +7620,163 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalogAttempt(streetAudit)?.verificationDecision).toBe(
         'VERIFIED',
       );
+    });
+
+    it('warm run: catalog identity for a hint takes priority over a matching same-run SourceObservation -- CATALOG_REUSE resolves first and TRUSTED_OBSERVATION_REUSE never executes (no getPlaceDetails call)', async () => {
+      const osmPlaces = neverCalledOsmPlaces();
+      const nominatim = { search: jest.fn() };
+      const placesApiSpy = {
+        provider: 'google' as const,
+        getPlaceDetails: jest.fn(),
+        searchText: jest.fn(),
+      };
+      const wikidata = { getEntitySummaries: jest.fn() };
+      const findGeoEntityCandidatesForHint = catalogHitFor({
+        'Plaza Dorrego': {
+          geoEntityId: 'geo-plaza-dorrego',
+          provider: 'google_places',
+          externalId: 'ChIJ123',
+        },
+      });
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint,
+        upsertGeoEntity: jest.fn(),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-plaza-dorrego',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Plaza Dorrego Visit')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        nominatim as any,
+        placesApiSpy as any,
+        wikidata as any,
+      );
+
+      const observation: SourceObservation = {
+        provider: 'google_places',
+        externalId: 'ChIJ123',
+        title: 'Plaza Dorrego',
+        evidenceType: 'place',
+        evidenceKey: 'google_places:ChIJ123',
+        geo: { latitude: -34.6, longitude: -58.4 },
+        originationCapabilities: [],
+      };
+
+      const result = await service.resolve({
+        destinationName: 'Buenos Aires',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
+        candidates: [candidate('Plaza Dorrego Visit', 'Plaza Dorrego')],
+        observations: [observation],
+      });
+
+      // Same-run structured-observation reuse never even runs once catalog
+      // identity is sufficient -- zero external calls of any kind.
+      expect(placesApiSpy.getPlaceDetails).not.toHaveBeenCalled();
+      expect(placesApiSpy.searchText).not.toHaveBeenCalled();
+      expect(osmPlaces.lookupStreetsNear).not.toHaveBeenCalled();
+      expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
+      expect(osmPlaces.lookupPoisNear).not.toHaveBeenCalled();
+      expect(osmPlaces.lookupPoisWithin).not.toHaveBeenCalled();
+      expect(nominatim.search).not.toHaveBeenCalled();
+      expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+
+      expect(result.acceptedCount).toBe(1);
+      const resolvedEntities = result.resolved[0].resolvedEntities;
+      expect(resolvedEntities[0]?.geoEntityId).toBe('geo-plaza-dorrego');
+
+      const componentAudits =
+        result.entityResolution.forensicAudit[0].componentAudits;
+      expect(componentAudits[0].attempts.map((a) => a.strategy)).toEqual([
+        'CATALOG_REUSE',
+      ]);
+      expect(
+        componentAudits[0].attempts.find((a) => a.strategy === 'CATALOG_REUSE')
+          ?.verificationDecision,
+      ).toBe('VERIFIED');
+    });
+
+    it('catalog miss: TRUSTED_OBSERVATION_REUSE still runs normally (as the second strategy) and may call getPlaceDetails', async () => {
+      const osmPlaces = {
+        ...neverCalledOsmPlaces(),
+        lookupPoisWithin: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
+      };
+      const placesApiSpy = {
+        provider: 'google' as const,
+        getPlaceDetails: jest.fn().mockResolvedValue({
+          data: {
+            id: 'ChIJ123',
+            displayName: { text: 'Plaza Dorrego' },
+            businessStatus: 'OPERATIONAL',
+          },
+        }),
+        searchText: jest.fn(),
+      };
+      const findGeoEntityCandidatesForHint = jest
+        .fn()
+        .mockResolvedValue({ candidates: [] });
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint,
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-new' }),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-plaza-dorrego',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('Plaza Dorrego Visit')),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        geographicValidator as any,
+        undefined,
+        undefined,
+        placesApiSpy as any,
+      );
+
+      const observation: SourceObservation = {
+        provider: 'google_places',
+        externalId: 'ChIJ123',
+        title: 'Plaza Dorrego',
+        evidenceType: 'place',
+        evidenceKey: 'google_places:ChIJ123',
+        geo: { latitude: -34.6, longitude: -58.4 },
+        originationCapabilities: [],
+      };
+
+      const result = await service.resolve({
+        destinationName: 'Buenos Aires',
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
+        candidates: [candidate('Plaza Dorrego Visit', 'Plaza Dorrego')],
+        observations: [observation],
+      });
+
+      expect(findGeoEntityCandidatesForHint).toHaveBeenCalled();
+      expect(placesApiSpy.getPlaceDetails).toHaveBeenCalledWith('ChIJ123');
+
+      const componentAudits =
+        result.entityResolution.forensicAudit[0].componentAudits;
+      const strategies = componentAudits[0].attempts.map((a) => a.strategy);
+      expect(strategies.slice(0, 2)).toEqual([
+        'CATALOG_REUSE',
+        'TRUSTED_OBSERVATION_REUSE',
+      ]);
     });
 
     it('mixed hit/miss: only the missing component externalizes, and the shared OSM pool is fetched at most once', async () => {
