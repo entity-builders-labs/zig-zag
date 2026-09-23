@@ -165,6 +165,12 @@ provider candidate has been verified and has coordinates**. They cannot replace
 catalog-first lookup for a hint that is being resolved before those provider
 facts exist.
 
+Implementation constraint: catalog-first retrieval must use a bounded,
+index-backed candidate query and MUST NOT load/scan the full `GeoEntity` table
+for application-side name matching. The exact SQL/index/schema strategy is an
+implementation decision for Phase 2 and should be justified from the existing
+schema and query plan rather than prescribed here.
+
 For each component hint:
 
 1. attempt to match an existing canonical GeoEntity using the same identity
