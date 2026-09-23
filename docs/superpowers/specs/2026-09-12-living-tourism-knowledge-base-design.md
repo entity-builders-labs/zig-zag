@@ -275,7 +275,64 @@ A valid Experience can also be temporarily unusable for a specific request becau
 
 ---
 
-## 10. Future work intentionally not designed here
+## 10. 2026-09-22 amendment — partial component knowledge and enrichment
+
+The RW1 forensic rerun on 2026-09-22 proved that source-backed composite
+Experiences can be valuable research objects even while some geographic
+components remain unresolved.
+
+The canonical lifecycle is therefore refined:
+
+```text
+source-backed Experience/composition
+        ↓
+resolve every evidenced component
+        ↓
+per-component identity + geographic facts
+        ↓
+complete?
+   ┌────┴────┐
+  yes       no
+   │         │
+   │         └→ preserve research deficits / continue targeted research
+   ↓
+composite geographic validation
+        ↓
+verified canonical knowledge
+        ↓
+enrichment / refresh
+```
+
+"Partial" does not mean planner-eligible. The planner still consumes only
+Experiences admitted by the canonical verification policy.
+
+The system must preserve the distinction between:
+
+- a hallucinated/unsupported composition, which is rejected;
+- a source-backed composition with open component questions, which is useful
+  research state;
+- a verified Experience, which may still have thin traveler-facing content.
+
+Open research deficits should be precise and auditable, for example
+"identity ambiguous for Solar de French" rather than "rerun San Telmo
+discovery".
+
+Verification and enrichment are also separate knowledge dimensions. Wikidata,
+Wikipedia, Wikimedia, Places reviews/photos/hours, TripAdvisor and official
+sources may progressively make a verified Experience richer and more useful to
+a traveler without becoming universal prerequisites for its geographic
+identity.
+
+Provider observations remain historical evidence. A failed corroboration is
+not automatically contradictory evidence, and provider order or provider count
+never defines canonical truth.
+
+See:
+`docs/superpowers/specs/2026-09-22-component-resolution-geographic-validation-and-enrichment-amendment.md`.
+
+---
+
+## 11. Future work intentionally not designed here
 
 This document does not yet define:
 - background scheduler technology;
@@ -291,7 +348,7 @@ Those should be designed only after the current Preference-First / acquisition /
 
 ---
 
-## 11. Product test for future milestones
+## 12. Product test for future milestones
 
 Every future milestone should answer:
 

@@ -1,5 +1,29 @@
 # Real-World Tourism Research Spikes — B5/B6 Reality Gate
 
+> **2026-09-22 forensic rerun amendment — authoritative for current RW1 diagnosis**
+>
+> RW1 was rerun after the live preference-first cutover and the corrected
+> Bitácora work. Artifacts live under
+> `spikes/rw1-san-telmo-historical-walk/forensic-rerun-2026-09-22/`.
+> The original 2026-09-13 ORCHESTRATION_GAP remains historical evidence for
+> that earlier runtime, but it is no longer the current dominant RW1 diagnosis.
+>
+> The 2026-09-22 campaign proves that real multi-component walks now reach
+> grounded discovery, extraction and Entity Resolution. The dominant current
+> blocker is the LLM-authored `required` / all-or-nothing component gate:
+> partially resolved source-backed composites are discarded before useful
+> composite Geographic Validation. It also exposes identity-policy issues such
+> as El Zanjón de Granados, where multiple acquisition paths converge on the
+> same canonical OSM object but the candidate remains unconfirmed because
+> Wikidata does not fully corroborate the non-exact canonical name.
+>
+> The target correction is specified in
+> `docs/superpowers/specs/2026-09-22-component-resolution-geographic-validation-and-enrichment-amendment.md`.
+> References below to "all required components" describe the earlier gate and
+> are superseded for future acceptance criteria. Do not delete them from the
+> historical 2026-09-13 account.
+
+
 Status: **required characterization + acceptance gate; planned, not automated.**
 Written: 2026-09-12.
 Amended: 2026-09-13 — infrastructure preflight (local Nominatim added; SerpAPI
@@ -949,3 +973,84 @@ Every spike should answer this question:
 > Did Zig-Zag behave like a Tourism AI Research Agent that proved a real tourism Experience from evidence, or like a route generator that assembled plausible places?
 
 The former grows the living tourism knowledge base. The latter is a product failure even when the output looks attractive.
+
+
+## 7b. RW1 forensic rerun — 2026-09-22
+
+Remote state used by the captured campaign:
+
+```text
+run commit: 774cf60c7473befe1f5ae43b52f08fbe90d9d5dd
+artifact commit: a07cbe683ef651619613bda9bd3ed587a951bb77
+request: "caminata histórica por San Telmo"
+3 independent COLD databases + 1 WARM reuse of cold-3
+```
+
+Observed product facts:
+
+- COLD-1 extracted multi-component walks including 4- and 8-component
+  candidates; final materialization still contained only singleton Experiences.
+- COLD-2 extracted 7-component walks; unresolved components caused the
+  composites to be rejected.
+- COLD-3 had a degraded preference-interpretation call (Groq 429/fallback) and
+  produced no extracted composite candidates; this run is evidence of
+  degradation/nondeterminism, not proof that the normal pipeline cannot find
+  walks.
+- WARM extracted a 7-component self-guided walk and a real Freetour-backed
+  6-component City Tour route. The City Tour resolved 4/6 components but the
+  whole candidate was rejected.
+- Composite Geographic Validation received no useful accepted proposal for
+  these failed composites because Entity Resolution/all-or-nothing component
+  policy rejected them first.
+
+Important forensic examples:
+
+1. **El Zanjón de Granados**
+   - hint: `El Zanjón de Granados`;
+   - local OSM: `osm:node:9953027884`,
+     `El Zanjón de Granados (historic ruins)`;
+   - Nominatim resolves the same OSM node;
+   - the configured Places-path result recorded in the trace carries the same
+     underlying OSM venue/node reference;
+   - nearby Wikidata evidence reports `hintMatched=true`,
+     `candidateMatched=false`;
+   - current result: `UNCONFIRMED_MATCH`.
+
+   The rerun therefore disproves the assumption that every non-exact candidate
+   needs mandatory Wikidata confirmation. Provider-path convergence is useful
+   evidence, while a missing corroboration is not automatically contradiction.
+
+2. **Plaza de Mayo**
+   - a source-backed walk can legitimately start near Plaza de Mayo and enter
+     San Telmo by Calle Defensa;
+   - strict every-point-inside-San-Telmo containment would reject that valid
+     shape.
+
+3. **Calle Defensa**
+   - current ROUTE resolution can verify `Defensa`/the OSM way in healthy
+     cases;
+   - route-to-area relation must use LineString/intersection/corridor semantics,
+     not representative-point containment.
+
+4. **Source authority remains a separate problem**
+   - some extracted composites blend independent source evidence;
+   - Google AI Mode synthesis can become a candidate even when no independent
+     product proves that exact Experience;
+   - at least one extractor output introduced an entity not named by the cited
+     evidence.
+
+Current acceptance direction:
+
+```text
+real Experience/composition evidence
+→ resolve every evidenced component
+→ per-component identity + geographic relation
+→ preserve unresolved/ambiguous deficits
+→ resolution coverage
+→ composite geographic validation
+→ targeted research where needed
+```
+
+No partial-resolution percentage, minimum component count or generic NEAR
+distance is accepted as canonical yet. The next rerun after the component
+resolution cutover must collect those measurements first.

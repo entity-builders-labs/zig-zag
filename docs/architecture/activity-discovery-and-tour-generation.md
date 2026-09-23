@@ -1286,3 +1286,64 @@ separate migration work rather than hidden behind compatibility aliases.
 - **Frontend Skeleton Shimmer Contract**: While the tour is generating and `coverImage` is pending, `TourHeader` presents an animated skeleton shimmer (`TourHeaderSkeleton`). Upon SSE receipt, it performs a smooth fade-in to the verified destination photo. Hardcoded single-city placeholders are strictly prohibited across general fallbacks.
 - **Full Spec**: See `docs/superpowers/specs/2026-09-10-destination-cover-photo-async-resolution.md`.
 
+
+
+## Experience Domain V2 — component resolution and geographic validation amendment (2026-09-22)
+
+The RW1 forensic rerun of 2026-09-22 supersedes the earlier all-or-nothing
+`required` interpretation for composite components.
+
+Current target flow:
+
+```text
+Experience/source evidence
+        ↓
+extract every evidenced component
+        ↓
+for each component:
+  acquire/correlate candidates
+  → identity decision
+  → component geographic relation
+        ↓
+resolution coverage + research deficits
+        ↓
+Composite Geographic Validation
+        ↓
+verified canonical Experience
+        ↓
+traveler-facing enrichment
+        ↓
+ranking / deterministic planner
+```
+
+The extraction LLM does not own a `required` geographic-truth bit. A component
+that cannot yet be resolved remains an explicit research deficit rather than
+automatically erasing an otherwise source-backed composite.
+
+Component geography and composite geography are separate:
+
+- for a real AREA, point membership is based on the Polygon/MultiPolygon;
+  outside points may have a measured near-boundary relation, which is not
+  standalone acceptance;
+- for a ROUTE, use real LineString/intersection/corridor semantics rather than
+  one representative point;
+- POINT_RADIUS continues to use center/radius semantics;
+- composite validation decides whether the resulting INSIDE/INTERSECTS/NEAR
+  relations form one coherent evidence-backed Experience.
+
+For example, an evidenced San Telmo walk can legitimately start at Plaza de
+Mayo outside the neighborhood polygon and enter San Telmo via Calle Defensa.
+Strict containment of every stop would reject a real route. Conversely, mere
+proximity to San Telmo does not make an unrelated place part of the walk.
+
+Identity corroboration is additive. OSM/Nominatim/Places observations may
+converge on one canonical object; this must be traced, but provider counts are
+not votes. A missing/non-matching Wikidata corroboration is not by itself
+positive evidence that the candidate is wrong.
+
+The hard physical kinds remain `PLACE | AREA | ROUTE`; this amendment does not
+introduce a second closed tourism semantic-type taxonomy for identity.
+
+Full rationale and open decisions:
+`docs/superpowers/specs/2026-09-22-component-resolution-geographic-validation-and-enrichment-amendment.md`.
+

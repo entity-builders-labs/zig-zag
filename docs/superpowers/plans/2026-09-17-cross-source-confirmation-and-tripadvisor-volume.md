@@ -1,5 +1,30 @@
 # Cross-Source Confirmation + TripAdvisor Volume Implementation Plan
 
+> **SUPERSEDED IN PART — 2026-09-22**
+>
+> Track A's original universal rule
+> "every non-exact match requires independent Wikidata confirmation or becomes
+> unresolved" is superseded by
+> `docs/superpowers/specs/2026-09-22-component-resolution-geographic-validation-and-enrichment-amendment.md`.
+>
+> The corrected RW1 forensic rerun shows that:
+>
+> - multiple acquisition paths can converge on one strong canonical geographic
+>   identity without Wikidata being a mandatory veto;
+> - "Wikidata did not corroborate" is not the same fact as "Wikidata positively
+>   contradicted the identity";
+> - provider counts must not become votes;
+> - Wikidata proximity remains a useful optional corroboration and enrichment
+>   capability.
+>
+> Track B (TripAdvisor as additional real composite Experience evidence) is not
+> superseded by this finding, but its integration should obey the source-
+> authority and partial-research model in the 2026-09-22 amendment.
+>
+> Historical tasks below remain as a record of the earlier safety response and
+> must not be executed blindly where they conflict with the amendment.
+
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** (Track A) Make entity resolution give a real geographic guarantee — a required component only counts as resolved when either its name matches exactly in the correct local pool, or a second, genuinely independent database (Wikidata) confirms the same coordinates independently. (Track B) Add TripAdvisor (via the already-paid SerpAPI subscription) as a second evidence source feeding the same discovery extractor, to increase how many real composite-walk candidates are found per run.
@@ -1112,3 +1137,26 @@ Claude-Session: https://claude.ai/code/session_01LfY1QJJffi4PR42UEK6rtw"
 **Placeholder scan:** One acknowledged, explicit exception in Task A3 Step 1 (the 4th test's body, flagged as intentionally byte-identical boilerplate to the test above it rather than re-typed) — every other test and implementation step is complete, real code. Task B1/B2's code sketches explicitly instruct reading the real interface first rather than guessing field names, because the exact `ExperienceGroundedSearchProvider`/`ExecuteAcquisitionPlanResult` shapes were not re-read line-by-line during this planning pass (unlike Track A, which reused already-fully-read code) — this is a deliberate, flagged gap for the implementer to close before writing code, not a placeholder to skip.
 
 **Type consistency:** `WikidataNearbyPlace`, `findNearbyPlaces`, `hasSpecificNameOverlap`, `CONFIRMATION_RADIUS_METERS`, and `UNCONFIRMED_MATCH` are used with the same names/shapes everywhere they appear across Tasks A1-A3.
+
+
+## 2026-09-22 status note — what remains valid
+
+Still valid from Track A:
+
+- fuzzy/weak matching must not silently persist wrong entities;
+- Wikidata can provide independent structured corroboration;
+- provider failures/unknowns must remain observable;
+- shared identity comparison policy should not be duplicated;
+- traces must show why a candidate was or was not accepted.
+
+Superseded:
+
+- mandatory Wikidata confirmation for every non-exact match;
+- treating lack of Wikidata confirmation as equivalent to a hard rejection;
+- any implication that OSM/Nominatim/Places provider count itself establishes
+  independent confirmation.
+
+Track B remains useful as a future source-aware acquisition capability because
+real TripAdvisor products can establish Experience existence/composition. It
+does not replace geographic Entity Resolution and does not automatically make
+an itinerary geographically verified.

@@ -435,3 +435,35 @@ Do **not** implement any of the following merely because this roadmap exists:
 The current job remains: close preference-first Phase 7, pass acceptance, run
 Argentina live smoke, cross the Integration Gate, and only then execute this
 roadmap on the unified branch.
+
+
+## 10. 2026-09-22 alignment — targeted component repair before broad deep research
+
+The RW1 forensic rerun provides a concrete bridge into this roadmap.
+
+A source-backed Experience may now expose a narrow research deficit such as:
+
+```text
+Experience: City Tour Through San Telmo
+resolved components: 4/6
+open questions:
+- identity of Solar de French
+- identity of Nuestra Señora de Belén
+```
+
+The future research agent should prefer these bounded deficits over restarting
+generic destination discovery.
+
+The component-resolution amendment also sharpens the boundary in §6:
+
+- verification establishes real identity/geography/composition;
+- enrichment makes verified knowledge richer and more useful to a traveler;
+- the same provider may contribute to both, but one role must not be silently
+  substituted for the other;
+- missing enrichment never invalidates otherwise sufficient geographic
+  identity;
+- partial research state is not planner-eligible until canonical verification
+  policy admits it.
+
+See
+`docs/superpowers/specs/2026-09-22-component-resolution-geographic-validation-and-enrichment-amendment.md`.
