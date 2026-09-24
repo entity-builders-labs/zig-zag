@@ -7,6 +7,7 @@ import {
   INominatimApiService,
   NominatimResult,
   NominatimSearchOptions,
+  NominatimStructuredQuery,
 } from '../interfaces/nominatim.interface';
 
 @Injectable()
@@ -77,6 +78,45 @@ export class CachedNominatimApiService implements INominatimApiService {
       `[CachedNominatimApiService] Cache miss for "${query}". Calling real API...`,
     );
     const result = await this.realService.search(query, options);
+
+    if (this.mode === 'write') {
+      try {
+        fs.writeFileSync(cachePath, JSON.stringify(result, null, 2));
+      } catch (err: any) {
+        this.logger.error(`Failed to write Nominatim cache: ${err.message}`);
+      }
+    }
+
+    return result;
+  }
+
+  async searchStructured(
+    query: NominatimStructuredQuery,
+    options?: NominatimSearchOptions,
+  ): Promise<NominatimResult[]> {
+    // Sorted keys so the same structured query always maps to one cache file;
+    // the `structured:` prefix keeps it disjoint from any free-form query.
+    const key = `structured:${JSON.stringify(
+      Object.keys(query)
+        .sort()
+        .map((field) => [
+          field,
+          query[field as keyof NominatimStructuredQuery],
+        ]),
+    )}`;
+    const cachePath = this.getCachePath(key, options);
+
+    if (fs.existsSync(cachePath)) {
+      return JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
+    }
+
+    if (this.mode === 'strict') {
+      throw new Error(
+        `[CachedNominatimApiService] Strict mode: cache miss for ${key} and real API calls are disabled.`,
+      );
+    }
+
+    const result = await this.realService.searchStructured(query, options);
 
     if (this.mode === 'write') {
       try {

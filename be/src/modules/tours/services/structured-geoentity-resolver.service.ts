@@ -12,6 +12,11 @@ import {
   placesAcquisitionLabel,
 } from '../utils/places-external-identity.util';
 import { PLACES_FALLBACK_BIAS_RADIUS_METERS } from './experience-proposal-resolver.service';
+import {
+  DestinationAdminBoundary,
+  DestinationAdminCompatibilityService,
+  DestinationCompatibilityResult,
+} from './destination-admin-compatibility.service';
 
 export type StructuredExpectedKind = 'PLACE' | 'AREA' | 'ROUTE';
 
@@ -21,6 +26,12 @@ export interface StructuredGeoEntityResolutionRequest {
   destinationName: string;
   destinationCountryCode?: string;
   destinationPoint?: Coordinates;
+  /**
+   * The already-resolved destination's own OSM admin boundary. Required for
+   * an AREA to ever be RESOLVED: destination compatibility is decided from
+   * admin facts, and is UNKNOWN (never assumed) without it.
+   */
+  destinationBoundary?: DestinationAdminBoundary;
 }
 
 export interface StructuredCandidateFacts {
@@ -33,6 +44,7 @@ export interface StructuredCandidateFacts {
   longitude?: number;
   adminContext?: string;
   ranking?: number;
+  destinationCompatibility?: DestinationCompatibilityResult;
 }
 
 export type StructuredGeoEntityResolutionResult =
@@ -41,9 +53,17 @@ export type StructuredGeoEntityResolutionResult =
       candidate: StructuredCandidateFacts;
       providerFacts: unknown;
     }
-  | { status: 'AMBIGUOUS'; candidates: StructuredCandidateFacts[] }
+  | {
+      status: 'AMBIGUOUS';
+      candidates: StructuredCandidateFacts[];
+      reason?: 'DESTINATION_COMPATIBILITY_UNKNOWN';
+    }
   | { status: 'NOT_FOUND' }
-  | { status: 'INCOMPATIBLE'; reason: string };
+  | {
+      status: 'INCOMPATIBLE';
+      reason: string;
+      rejected?: StructuredCandidateFacts[];
+    };
 
 /**
  * Geoapify's own dotted category taxonomy for lodging -- the same product
@@ -104,6 +124,8 @@ export class StructuredGeoEntityResolverService {
     @Optional()
     @Inject('PlacesApiService')
     private readonly placesApi?: IPlacesApiService,
+    @Optional()
+    private readonly compatibility?: DestinationAdminCompatibilityService,
   ) {}
 
   async resolve(
@@ -137,26 +159,83 @@ export class StructuredGeoEntityResolverService {
     const eligible = results.filter(isAreaScaleEligible);
     if (eligible.length === 0) return { status: 'NOT_FOUND' };
 
-    const candidates = eligible.map((r) => ({
-      externalId: `osm:${r.osmType}:${r.osmId}`,
-      canonicalName: r.displayName,
-      provider: 'nominatim',
-      kind: GeoEntityKind.AREA,
-      structuralType: `${r.class ?? 'unknown'}/${r.type ?? 'unknown'}`,
-      latitude: r.latitude,
-      longitude: r.longitude,
-      adminContext: r.displayName,
-      ranking: r.importance,
-    }));
+    const candidates: StructuredCandidateFacts[] = [];
+    for (const r of eligible) {
+      candidates.push({
+        externalId: `osm:${r.osmType}:${r.osmId}`,
+        canonicalName: r.displayName,
+        provider: 'nominatim',
+        kind: GeoEntityKind.AREA,
+        structuralType: `${r.class ?? 'unknown'}/${r.type ?? 'unknown'}`,
+        latitude: r.latitude,
+        longitude: r.longitude,
+        adminContext: r.displayName,
+        ranking: r.importance,
+        destinationCompatibility: await this.areaCompatibility(request, r),
+      });
+    }
 
-    if (candidates.length === 1) {
+    // Destination compatibility is decided from admin facts, never from
+    // distance: a single structurally-eligible survivor is NOT enough to
+    // resolve when it lies outside the destination's admin unit (the
+    // "San Martín" -> Partido de General San Martín false positive).
+    const verdictOf = (c: StructuredCandidateFacts) =>
+      c.destinationCompatibility?.verdict ?? 'UNKNOWN';
+    const compatible = candidates.filter((c) => verdictOf(c) === 'COMPATIBLE');
+    const unknown = candidates.filter((c) => verdictOf(c) === 'UNKNOWN');
+
+    if (unknown.length > 0) {
       return {
-        status: 'RESOLVED',
-        candidate: candidates[0],
-        providerFacts: eligible[0],
+        status: 'AMBIGUOUS',
+        candidates: [...compatible, ...unknown],
+        reason: 'DESTINATION_COMPATIBILITY_UNKNOWN',
       };
     }
-    return { status: 'AMBIGUOUS', candidates };
+    if (compatible.length === 1) {
+      return {
+        status: 'RESOLVED',
+        candidate: compatible[0],
+        providerFacts: eligible[candidates.indexOf(compatible[0])],
+      };
+    }
+    if (compatible.length > 1) {
+      return { status: 'AMBIGUOUS', candidates: compatible };
+    }
+    const reasons = [
+      ...new Set(candidates.map((c) => c.destinationCompatibility!.reason)),
+    ];
+    return {
+      status: 'INCOMPATIBLE',
+      reason: `No AREA candidate is compatible with destination ${request.destinationName}: ${reasons.join(', ')}`,
+      rejected: candidates,
+    };
+  }
+
+  private async areaCompatibility(
+    request: StructuredGeoEntityResolutionRequest,
+    result: {
+      osmType: 'node' | 'way' | 'relation';
+      osmId: number;
+      latitude?: number;
+      longitude?: number;
+    },
+  ): Promise<DestinationCompatibilityResult | undefined> {
+    if (
+      !this.compatibility ||
+      !Number.isFinite(result.latitude) ||
+      !Number.isFinite(result.longitude)
+    ) {
+      return undefined;
+    }
+    return this.compatibility.evaluate(
+      { latitude: result.latitude!, longitude: result.longitude! },
+      {
+        name: request.destinationName,
+        countryCode: request.destinationCountryCode,
+        boundary: request.destinationBoundary,
+      },
+      { osmType: result.osmType, osmId: result.osmId },
+    );
   }
 
   private async resolveRoute(
@@ -167,7 +246,10 @@ export class StructuredGeoEntityResolverService {
     }
     // Deliberately NOT the resolveViaNominatim early return for ROUTE --
     // the whole point of this spike is testing what happens when Nominatim
-    // IS queried for a ROUTE hint.
+    // IS queried for a ROUTE hint. Superseded as a candidate acquisition
+    // strategy by TargetedRouteResolverService (2026-09-24 targeted-route
+    // spike); kept unchanged only as the "old bare-name + soft bias"
+    // comparison control.
     const results = await this.nominatim.search(request.name, {
       countryCode: request.destinationCountryCode,
       bias: request.destinationPoint,

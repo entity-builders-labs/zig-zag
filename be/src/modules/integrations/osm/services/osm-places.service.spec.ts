@@ -21,6 +21,8 @@ describe('OsmPlacesService', () => {
       queryPoisWithinArea: jest.fn(),
       queryPois: jest.fn(),
       queryFeaturesNear: jest.fn(),
+      queryHighwaysByName: jest.fn(),
+      queryContainingAdminBoundaries: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -845,6 +847,215 @@ describe('OsmPlacesService', () => {
         value: [],
         failureReason: 'overpass 504',
         rawResultCount: 0,
+      });
+    });
+  });
+
+  describe('lookupHighwaysByName', () => {
+    const params = {
+      name: 'Defensa',
+      latitude: -34.6037,
+      longitude: -58.3816,
+      radiusMeters: 20000,
+    };
+    const line = [
+      { lat: -34.625, lon: -58.371 },
+      { lat: -34.626, lon: -58.371 },
+    ];
+
+    it('normalizes route-compatible highway ways into typed segments', async () => {
+      service = await setup();
+      overpassApi.queryHighwaysByName.mockResolvedValue([
+        {
+          type: 'way',
+          id: 48113515,
+          tags: { highway: 'secondary', name: 'Defensa' },
+          nodes: [1, 2],
+          geometry: line,
+        },
+      ]);
+
+      const result = await service.lookupHighwaysByName(params);
+
+      expect(overpassApi.queryHighwaysByName).toHaveBeenCalledWith(params);
+      expect(result).toEqual({
+        status: 'success',
+        value: {
+          rawCount: 1,
+          segments: [
+            {
+              externalId: 'osm:way:48113515',
+              osmId: 48113515,
+              name: 'Defensa',
+              highway: 'secondary',
+              nodes: [1, 2],
+              geometry: line,
+            },
+          ],
+          rejected: [],
+        },
+      });
+    });
+
+    it('rejects non-route objects with explicit structural reasons: nodes, relations, non-highways, highway areas, missing name/geometry, invalid ids', async () => {
+      service = await setup();
+      overpassApi.queryHighwaysByName.mockResolvedValue([
+        {
+          type: 'node',
+          id: 1,
+          lat: -34.62,
+          lon: -58.37,
+          tags: { highway: 'bus_stop', name: 'Defensa' },
+        },
+        { type: 'relation', id: 2, tags: { type: 'route', name: 'Defensa' } },
+        {
+          type: 'way',
+          id: 3,
+          tags: { building: 'yes', name: 'Defensa' },
+          nodes: [1, 2],
+          geometry: line,
+        },
+        {
+          type: 'way',
+          id: 4,
+          tags: { highway: 'pedestrian', area: 'yes', name: 'Defensa' },
+          nodes: [1, 2, 3, 1],
+          geometry: [...line, { lat: -34.626, lon: -58.372 }, line[0]],
+        },
+        {
+          type: 'way',
+          id: 5,
+          tags: { highway: 'residential', name: 'Defensa' },
+          nodes: [1, 2],
+        },
+        {
+          type: 'way',
+          id: 6,
+          tags: { highway: 'residential' },
+          nodes: [1, 2],
+          geometry: line,
+        },
+        {
+          type: 'way',
+          id: -7,
+          tags: { highway: 'residential', name: 'Defensa' },
+          nodes: [1, 2],
+          geometry: line,
+        },
+      ] as OverpassElement[]);
+
+      const result = await service.lookupHighwaysByName(params);
+
+      expect(result.status).toBe('success');
+      expect(result.value.segments).toEqual([]);
+      expect(result.value.rawCount).toBe(7);
+      expect(result.value.rejected.map((r) => r.reason)).toEqual([
+        'NOT_A_WAY',
+        'NOT_A_WAY',
+        'NOT_A_HIGHWAY',
+        'HIGHWAY_AREA_NOT_LINEAR',
+        'MISSING_GEOMETRY',
+        'MISSING_NAME',
+        'INVALID_IDENTITY',
+      ]);
+    });
+
+    it('reports provider failure explicitly instead of an empty success', async () => {
+      service = await setup();
+      overpassApi.queryHighwaysByName.mockRejectedValue(new Error('timeout'));
+
+      const result = await service.lookupHighwaysByName(params);
+
+      expect(result.status).toBe('failed');
+      expect(result.failureReason).toBe('timeout');
+    });
+  });
+
+  describe('lookupContainingAdminUnits', () => {
+    it('normalizes containing admin relations into typed admin units, coarse to fine', async () => {
+      service = await setup();
+      overpassApi.queryContainingAdminBoundaries.mockResolvedValue([
+        {
+          type: 'relation',
+          id: 2223069,
+          tags: {
+            boundary: 'administrative',
+            admin_level: '9',
+            name: 'San Telmo',
+          },
+        },
+        {
+          type: 'relation',
+          id: 286393,
+          tags: {
+            boundary: 'administrative',
+            admin_level: '2',
+            name: 'Argentina',
+            'ISO3166-1:alpha2': 'AR',
+          },
+        },
+        {
+          type: 'relation',
+          id: 3082668,
+          tags: {
+            boundary: 'administrative',
+            admin_level: '4',
+            name: 'Ciudad Autónoma de Buenos Aires',
+          },
+        },
+        { type: 'node', id: 9, tags: { name: 'not an admin unit' } },
+      ]);
+
+      const result = await service.lookupContainingAdminUnits({
+        latitude: -34.62,
+        longitude: -58.37,
+      });
+
+      expect(overpassApi.queryContainingAdminBoundaries).toHaveBeenCalledWith({
+        latitude: -34.62,
+        longitude: -58.37,
+      });
+      expect(result).toEqual({
+        status: 'success',
+        value: [
+          {
+            osmType: 'relation',
+            osmId: 286393,
+            name: 'Argentina',
+            adminLevel: 2,
+            countryCode: 'AR',
+          },
+          {
+            osmType: 'relation',
+            osmId: 3082668,
+            name: 'Ciudad Autónoma de Buenos Aires',
+            adminLevel: 4,
+          },
+          {
+            osmType: 'relation',
+            osmId: 2223069,
+            name: 'San Telmo',
+            adminLevel: 9,
+          },
+        ],
+      });
+    });
+
+    it('reports provider failure explicitly', async () => {
+      service = await setup();
+      overpassApi.queryContainingAdminBoundaries.mockRejectedValue(
+        new Error('down'),
+      );
+
+      const result = await service.lookupContainingAdminUnits({
+        latitude: -34.62,
+        longitude: -58.37,
+      });
+
+      expect(result).toEqual({
+        status: 'failed',
+        value: [],
+        failureReason: 'down',
       });
     });
   });

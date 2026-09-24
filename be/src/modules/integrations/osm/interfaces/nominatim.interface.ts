@@ -68,9 +68,32 @@ export interface NominatimSearchOptions {
   };
 }
 
+/**
+ * Nominatim's structured-search fields. Nominatim rejects mixing these with
+ * the free-form `q` parameter, so structured search is a separate method
+ * (`searchStructured`) rather than an option silently folded into `search`.
+ */
+export interface NominatimStructuredQuery {
+  street?: string;
+  city?: string;
+  county?: string;
+  state?: string;
+  country?: string;
+  postalcode?: string;
+}
+
 export interface INominatimApiService {
+  /** Free-form search (`q=`). */
   search(
     query: string,
+    options?: NominatimSearchOptions,
+  ): Promise<NominatimResult[]>;
+  /**
+   * Structured search (`street=`/`city=`/...), never combined with `q=`.
+   * Same `countryCode`/`bias` options and result limit as `search`.
+   */
+  searchStructured(
+    query: NominatimStructuredQuery,
     options?: NominatimSearchOptions,
   ): Promise<NominatimResult[]>;
   reverse(latitude: number, longitude: number): Promise<NominatimResult | null>;

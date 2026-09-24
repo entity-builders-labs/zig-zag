@@ -4,6 +4,8 @@ import {
   IOverpassApiService,
   OverpassElement,
   OverpassSelector,
+  QueryContainingBoundaryParams,
+  QueryHighwaysByNameParams,
 } from '../interfaces/overpass.interface';
 import {
   GeoJsonGeometry,
@@ -40,6 +42,47 @@ export interface OsmFeatureLookupResult
   rawResultCount: number;
 }
 
+/**
+ * One OSM highway way normalized for ROUTE acquisition. `nodes` are the
+ * way's ordered OSM node refs: a shared ref is the provider-native
+ * topological fact that two ways are connected.
+ */
+export interface OsmRouteSegment {
+  externalId: string; // "osm:way:48113515"
+  osmId: number;
+  name: string;
+  highway: string;
+  nodes: number[];
+  geometry: Array<{ lat: number; lon: number }>;
+}
+
+export type OsmRouteObjectRejectionReason =
+  | 'INVALID_IDENTITY'
+  | 'NOT_A_WAY'
+  | 'NOT_A_HIGHWAY'
+  | 'HIGHWAY_AREA_NOT_LINEAR'
+  | 'MISSING_NAME'
+  | 'MISSING_GEOMETRY';
+
+export interface OsmRouteSegmentLookup {
+  rawCount: number;
+  segments: OsmRouteSegment[];
+  rejected: Array<{
+    externalId: string;
+    reason: OsmRouteObjectRejectionReason;
+  }>;
+}
+
+/** An administrative unit containing a point, normalized from OSM tags. */
+export interface OsmAdminUnit {
+  osmType: 'relation' | 'way';
+  osmId: number;
+  name?: string;
+  adminLevel?: number;
+  /** ISO 3166-1 alpha-2, present on country-level units. */
+  countryCode?: string;
+}
+
 const OSM_ELEMENT_TYPES: ReadonlySet<string> = new Set([
   'node',
   'way',
@@ -54,6 +97,48 @@ function isValidOsmIdentity(type: unknown, id: unknown): boolean {
     Number.isInteger(id) &&
     id > 0
   );
+}
+
+function classifyRouteObject(
+  element: OverpassElement,
+): OsmRouteSegment | OsmRouteObjectRejectionReason {
+  if (!isValidOsmIdentity(element?.type, element?.id)) {
+    return 'INVALID_IDENTITY';
+  }
+  if (element.type !== 'way') return 'NOT_A_WAY';
+  const tags = element.tags ?? {};
+  if (!tags.highway) return 'NOT_A_HIGHWAY';
+  // OSM's own convention for a pedestrian plaza / carriageway surface: an
+  // area, not a linear route.
+  if (tags.area === 'yes') return 'HIGHWAY_AREA_NOT_LINEAR';
+  const geometry = (element.geometry ?? []).filter(
+    (p) => Number.isFinite(p?.lat) && Number.isFinite(p?.lon),
+  );
+  if (geometry.length < 2) return 'MISSING_GEOMETRY';
+  if (!tags.name) return 'MISSING_NAME';
+  return {
+    externalId: `osm:way:${element.id}`,
+    osmId: element.id,
+    name: tags.name,
+    highway: tags.highway,
+    nodes: element.nodes ?? [],
+    geometry,
+  };
+}
+
+function toAdminUnit(element: OverpassElement): OsmAdminUnit | null {
+  if (!isValidOsmIdentity(element?.type, element?.id)) return null;
+  if (element.type !== 'relation' && element.type !== 'way') return null;
+  const tags = element.tags ?? {};
+  const adminLevel = Number(tags.admin_level);
+  const iso = tags['ISO3166-1:alpha2'] ?? tags['ISO3166-1'];
+  return {
+    osmType: element.type,
+    osmId: element.id,
+    ...(tags.name ? { name: tags.name } : {}),
+    ...(Number.isFinite(adminLevel) ? { adminLevel } : {}),
+    ...(iso ? { countryCode: iso.toUpperCase() } : {}),
+  };
 }
 
 // OSM's admin_level varies a lot by country, but 8-11 is the plausible
@@ -637,6 +722,75 @@ export class OsmPlacesService {
     } catch (error: any) {
       this.logger.warn(
         `Overpass queryPoisWithinArea failed for ${boundary.id}: ${error.message}`,
+      );
+      return {
+        status: 'failed',
+        value: [],
+        failureReason: error.message || 'unknown Overpass error',
+      };
+    }
+  }
+
+  /**
+   * Targeted ROUTE acquisition: highway ways whose name tag EXACTLY equals
+   * `name` around a destination point, normalized into route segments. The
+   * structural filter lives here, at the adapter boundary, so callers never
+   * read raw OSM tags.
+   */
+  async lookupHighwaysByName(
+    params: QueryHighwaysByNameParams,
+  ): Promise<OsmLookupResult<OsmRouteSegmentLookup>> {
+    try {
+      const elements = await this.overpassApi.queryHighwaysByName(params);
+      const lookup: OsmRouteSegmentLookup = {
+        rawCount: elements.length,
+        segments: [],
+        rejected: [],
+      };
+      for (const element of elements) {
+        const classified = classifyRouteObject(element);
+        if (typeof classified === 'string') {
+          lookup.rejected.push({
+            externalId: `osm:${element?.type}:${element?.id}`,
+            reason: classified,
+          });
+        } else {
+          lookup.segments.push(classified);
+        }
+      }
+      return { status: 'success', value: lookup };
+    } catch (error: any) {
+      this.logger.warn(`Overpass queryHighwaysByName failed: ${error.message}`);
+      return {
+        status: 'failed',
+        value: { rawCount: 0, segments: [], rejected: [] },
+        failureReason: error.message || 'unknown Overpass error',
+      };
+    }
+  }
+
+  /**
+   * The administrative units containing a point (`is_in`), coarse to fine.
+   * Admin-hierarchy facts only; never used as an acquisition scope.
+   */
+  async lookupContainingAdminUnits(
+    params: QueryContainingBoundaryParams,
+  ): Promise<OsmLookupResult<OsmAdminUnit[]>> {
+    try {
+      const elements =
+        await this.overpassApi.queryContainingAdminBoundaries(params);
+      const units = elements
+        .map(toAdminUnit)
+        .filter((unit): unit is OsmAdminUnit => unit !== null)
+        .sort(
+          (a, b) =>
+            (a.adminLevel ?? Number.MAX_SAFE_INTEGER) -
+              (b.adminLevel ?? Number.MAX_SAFE_INTEGER) || a.osmId - b.osmId,
+        );
+      return { status: 'success', value: units };
+    } catch (error: any) {
+      this.logger.warn(
+        `Overpass queryContainingAdminBoundaries failed: ${error.message}`,
       );
       return {
         status: 'failed',

@@ -2,18 +2,47 @@ import { GeoEntityKind } from '@prisma/client';
 import { StructuredGeoEntityResolverService } from './structured-geoentity-resolver.service';
 import { INominatimApiService } from '@integrations/osm/interfaces/nominatim.interface';
 import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
+import {
+  DestinationAdminCompatibilityService,
+  DestinationCompatibilityResult,
+} from './destination-admin-compatibility.service';
 
 describe('StructuredGeoEntityResolverService', () => {
   const destinationPoint = { latitude: -34.6212, longitude: -58.3731 };
 
+  const destinationBoundary = {
+    osmType: 'relation' as const,
+    osmId: 3082668,
+    adminLevel: 4,
+  };
+
   const buildService = (
     nominatim?: Partial<INominatimApiService>,
     placesApi?: Partial<IPlacesApiService>,
+    compatibility?: Partial<DestinationAdminCompatibilityService>,
   ) =>
     new StructuredGeoEntityResolverService(
       nominatim as INominatimApiService,
       placesApi as IPlacesApiService,
+      compatibility as DestinationAdminCompatibilityService,
     );
+
+  const verdict = (
+    v: DestinationCompatibilityResult['verdict'],
+    reason: DestinationCompatibilityResult['reason'],
+  ): DestinationCompatibilityResult => ({
+    verdict: v,
+    reason,
+    candidateHierarchy: [],
+    candidateCountryCode: 'AR',
+  });
+  const compatibleStub = () => ({
+    evaluate: jest
+      .fn()
+      .mockResolvedValue(
+        verdict('COMPATIBLE', 'WITHIN_DESTINATION_ADMIN_UNIT'),
+      ),
+  });
 
   describe('AREA', () => {
     it('resolves a single area-scale-eligible Nominatim result', async () => {
@@ -33,7 +62,8 @@ describe('StructuredGeoEntityResolverService', () => {
           },
         ]),
       };
-      const service = buildService(nominatim);
+      const compatibility = compatibleStub();
+      const service = buildService(nominatim, undefined, compatibility);
 
       const result = await service.resolve({
         name: 'San Telmo',
@@ -41,7 +71,18 @@ describe('StructuredGeoEntityResolverService', () => {
         destinationName: 'Buenos Aires, Argentina',
         destinationCountryCode: 'AR',
         destinationPoint,
+        destinationBoundary,
       });
+
+      expect(compatibility.evaluate).toHaveBeenCalledWith(
+        { latitude: -34.62, longitude: -58.37 },
+        {
+          name: 'Buenos Aires, Argentina',
+          countryCode: 'AR',
+          boundary: destinationBoundary,
+        },
+        { osmType: 'relation', osmId: 1224652 },
+      );
 
       expect(nominatim.search).toHaveBeenCalledWith('San Telmo', {
         countryCode: 'AR',
@@ -79,6 +120,145 @@ describe('StructuredGeoEntityResolverService', () => {
       });
 
       expect(result).toEqual({ status: 'NOT_FOUND' });
+    });
+
+    const partidoSanMartin = {
+      osmType: 'relation' as const,
+      osmId: 1224700,
+      addresstype: 'city',
+      class: 'boundary',
+      type: 'administrative',
+      placeRank: 16,
+      displayName:
+        'Ciudad del Libertador General San Martín, Partido de General San Martín, Buenos Aires, Argentina',
+      importance: 0.4,
+      latitude: -34.5755,
+      longitude: -58.5373,
+    };
+
+    it('never RESOLVES a single structurally-eligible AREA outside the destination admin unit (San Martín -> Partido de General San Martín)', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([partidoSanMartin]),
+      };
+      const compatibility = {
+        evaluate: jest
+          .fn()
+          .mockResolvedValue(
+            verdict('INCOMPATIBLE', 'OUTSIDE_DESTINATION_ADMIN_UNIT'),
+          ),
+      };
+      const service = buildService(nominatim, undefined, compatibility);
+
+      const result = await service.resolve({
+        name: 'San Martín',
+        expectedKind: 'AREA',
+        destinationName: 'Ciudad Autónoma de Buenos Aires',
+        destinationCountryCode: 'AR',
+        destinationPoint,
+        destinationBoundary,
+      });
+
+      expect(result.status).toBe('INCOMPATIBLE');
+      if (result.status === 'INCOMPATIBLE') {
+        expect(result.reason).toContain('OUTSIDE_DESTINATION_ADMIN_UNIT');
+        expect(result.rejected).toHaveLength(1);
+      }
+    });
+
+    it('never RESOLVES an AREA when destination compatibility cannot be established (no destination boundary)', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([partidoSanMartin]),
+      };
+      const compatibility = {
+        evaluate: jest
+          .fn()
+          .mockResolvedValue(
+            verdict('UNKNOWN', 'DESTINATION_BOUNDARY_UNKNOWN'),
+          ),
+      };
+      const service = buildService(nominatim, undefined, compatibility);
+
+      const result = await service.resolve({
+        name: 'San Martín',
+        expectedKind: 'AREA',
+        destinationName: 'Buenos Aires',
+        destinationCountryCode: 'AR',
+        destinationPoint,
+      });
+
+      expect(result.status).toBe('AMBIGUOUS');
+      if (result.status === 'AMBIGUOUS') {
+        expect(result.reason).toBe('DESTINATION_COMPATIBILITY_UNKNOWN');
+      }
+    });
+
+    it('never RESOLVES an AREA when no compatibility service is configured', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([partidoSanMartin]),
+      };
+      const service = buildService(nominatim);
+
+      const result = await service.resolve({
+        name: 'San Martín',
+        expectedKind: 'AREA',
+        destinationName: 'Buenos Aires',
+        destinationBoundary,
+      });
+
+      expect(result.status).not.toBe('RESOLVED');
+    });
+
+    it('drops an incompatible homonym and RESOLVES the single compatible AREA (by admin facts, not distance)', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation' as const,
+            osmId: 111,
+            addresstype: 'suburb',
+            class: 'boundary',
+            type: 'administrative',
+            placeRank: 20,
+            displayName: 'Recoleta, Buenos Aires, Argentina',
+            importance: 0.3,
+            latitude: -34.58,
+            longitude: -58.39,
+          },
+          {
+            osmType: 'relation' as const,
+            osmId: 222,
+            addresstype: 'suburb',
+            class: 'place',
+            type: 'suburb',
+            placeRank: 20,
+            displayName: 'Recoleta, Cordoba, Argentina',
+            importance: 0.4,
+            latitude: -31.4,
+            longitude: -64.18,
+          },
+        ]),
+      };
+      const compatibility = {
+        evaluate: jest.fn(async (point: { latitude: number }) =>
+          point.latitude > -32
+            ? verdict('INCOMPATIBLE', 'OUTSIDE_DESTINATION_ADMIN_UNIT')
+            : verdict('COMPATIBLE', 'WITHIN_DESTINATION_ADMIN_UNIT'),
+        ),
+      };
+      const service = buildService(nominatim, undefined, compatibility);
+
+      const result = await service.resolve({
+        name: 'Recoleta',
+        expectedKind: 'AREA',
+        destinationName: 'Ciudad Autónoma de Buenos Aires',
+        destinationCountryCode: 'AR',
+        destinationPoint,
+        destinationBoundary,
+      });
+
+      expect(result).toMatchObject({
+        status: 'RESOLVED',
+        candidate: { externalId: 'osm:relation:111' },
+      });
     });
 
     it('reports AMBIGUOUS when two structurally distinct areas both qualify', async () => {

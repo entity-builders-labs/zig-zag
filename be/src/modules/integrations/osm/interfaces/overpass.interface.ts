@@ -19,6 +19,10 @@ export interface OverpassElement {
   lon?: number;
   // Present on ways (a simple point sequence).
   geometry?: { lat: number; lon: number }[];
+  // Present on ways fetched with `out body`/`out geom`: the ordered OSM node
+  // refs. Two ways sharing a node ref are topologically connected -- the
+  // provider-native fact route-segment grouping relies on.
+  nodes?: number[];
   // Present on relations.
   members?: OverpassRelationMember[];
   // Present on a way/relation fetched with `out center` instead of
@@ -68,6 +72,17 @@ export interface QueryFeaturesNearParams {
   selectors: OverpassSelector[];
 }
 
+// Targeted ROUTE acquisition: every highway way whose `name` tag EXACTLY
+// equals `name`, within `radiusMeters` of a destination point. A directed
+// provider-side lookup, deliberately not "fetch every street and fuzzy-match
+// client-side", and deliberately not scoped through `map_to_area`.
+export interface QueryHighwaysByNameParams {
+  name: string;
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+}
+
 export interface QueryByIdParams {
   osmType: 'way' | 'relation';
   osmId: number;
@@ -105,5 +120,15 @@ export interface IOverpassApiService {
   // an explicit, structured selector list (never interpolated concept strings).
   queryFeaturesNear(
     params: QueryFeaturesNearParams,
+  ): Promise<OverpassElement[]>;
+  // Targeted ROUTE acquisition (see QueryHighwaysByNameParams). `out geom`,
+  // so each way carries both its node refs and its geometry.
+  queryHighwaysByName(
+    params: QueryHighwaysByNameParams,
+  ): Promise<OverpassElement[]>;
+  // The administrative relations containing a point (`is_in`), tags only --
+  // the admin-hierarchy facts destination compatibility is decided from.
+  queryContainingAdminBoundaries(
+    params: QueryContainingBoundaryParams,
   ): Promise<OverpassElement[]>;
 }

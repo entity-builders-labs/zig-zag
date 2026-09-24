@@ -5,6 +5,7 @@ import {
   QueryByIdParams,
   QueryAdminBoundariesWithinAreaParams,
   QueryFeaturesNearParams,
+  QueryHighwaysByNameParams,
   OverpassSelector,
 } from '../interfaces/overpass.interface';
 
@@ -22,6 +23,12 @@ const OVERPASS_TAG_TOKEN = /^[A-Za-z0-9_:]+$/;
 // configurable limit; this is a floor of last resort so a bad caller can
 // never aim an unbounded `around:` at a shared Overpass instance.
 const FEATURES_NEAR_MAX_RADIUS_METERS = 8000;
+
+// Server-side ceiling for the targeted highway-by-name query. The query is
+// already narrow (one exact name, highway ways only), so it can safely cover
+// a whole destination city; this matches the shared 50 km "still plausibly
+// this destination" scale the Nominatim/Places biases already use.
+const HIGHWAYS_BY_NAME_MAX_RADIUS_METERS = 50_000;
 
 // Zig-Zag's product scope is tourist EXPERIENCES, not businesses -- an
 // accommodation is never itself a component of one (hotels are explicitly
@@ -58,6 +65,19 @@ export function sanitizeOverpassName(name: string): string {
   const trimmed = name.trim().slice(0, MAX_NAME_LENGTH);
   const regexEscaped = trimmed.replace(REGEX_METACHARACTERS, '\\$&');
   return regexEscaped.replace(QUOTES_AND_CONTROL_CHARS, '');
+}
+
+// For an exact `["key"="value"]` match (not a `~` regex): only the string
+// literal itself must be protected, so quotes, backslashes and control
+// characters are stripped while dots/accents/parentheses stay verbatim --
+// regex-escaping them here would make the exact match miss the real tag.
+export function sanitizeOverpassExactValue(value: string): string {
+  return value
+    .trim()
+    .slice(0, MAX_NAME_LENGTH)
+    .replace(/\\/g, '')
+    .replace(QUOTES_AND_CONTROL_CHARS, '')
+    .trim();
 }
 
 export function buildBoundaryByNameQuery({
@@ -265,5 +285,38 @@ export function buildPoisWithinAreaQuery({
     '  nwr["highway"="corridor"]["name"](area.a);',
     ');',
     'out tags center;',
+  ].join('\n');
+}
+
+export function buildHighwaysByNameQuery({
+  name,
+  latitude,
+  longitude,
+  radiusMeters,
+}: QueryHighwaysByNameParams): string {
+  const safeName = sanitizeOverpassExactValue(name);
+  if (!safeName) {
+    throw new Error('buildHighwaysByNameQuery requires a non-empty name');
+  }
+  const radius = Math.min(
+    Math.max(0, Math.round(radiusMeters)),
+    HIGHWAYS_BY_NAME_MAX_RADIUS_METERS,
+  );
+  return [
+    '[out:json][timeout:25];',
+    `way["highway"]["name"="${safeName}"](around:${radius},${latitude},${longitude});`,
+    'out geom;',
+  ].join('\n');
+}
+
+export function buildContainingAdminBoundariesQuery({
+  latitude,
+  longitude,
+}: QueryContainingBoundaryParams): string {
+  return [
+    '[out:json][timeout:25];',
+    `is_in(${latitude},${longitude})->.a;`,
+    'rel(pivot.a)["boundary"="administrative"];',
+    'out tags;',
   ].join('\n');
 }

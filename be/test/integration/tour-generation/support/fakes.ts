@@ -392,6 +392,9 @@ export class FakeNominatimApiService implements INominatimApiService {
   readonly search = jest.fn(
     async (): Promise<NominatimResult[]> => this.results,
   );
+  readonly searchStructured = jest.fn(
+    async (): Promise<NominatimResult[]> => this.results,
+  );
   readonly reverse = jest.fn(async (): Promise<NominatimResult | null> => null);
 
   configure(results: NominatimResult[] = []): void {

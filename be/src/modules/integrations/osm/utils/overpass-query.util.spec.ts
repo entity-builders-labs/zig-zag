@@ -10,6 +10,8 @@ import {
   buildPoisWithinAreaQuery,
   buildPoisQuery,
   buildFeaturesNearQuery,
+  buildHighwaysByNameQuery,
+  buildContainingAdminBoundariesQuery,
 } from './overpass-query.util';
 
 describe('sanitizeOverpassName', () => {
@@ -351,5 +353,69 @@ describe('buildFeaturesNearQuery', () => {
     expect(() => buildFeaturesNearQuery({ ...base, selectors: [] })).toThrow(
       /at least one selector/,
     );
+  });
+});
+
+describe('buildHighwaysByNameQuery', () => {
+  const base = {
+    latitude: -34.6037,
+    longitude: -58.3816,
+    radiusMeters: 20000,
+  };
+
+  it('emits one exact-name, highway-only way query bounded by around:', () => {
+    const query = buildHighwaysByNameQuery({ ...base, name: 'Defensa' });
+    expect(query).toContain(
+      'way["highway"]["name"="Defensa"](around:20000,-34.6037,-58.3816);',
+    );
+    // out geom carries node refs (topological grouping) plus geometry.
+    expect(query).toContain('out geom;');
+    // A targeted exact match, never a regex/fuzzy name match or an area
+    // (map_to_area) scoped lookup.
+    expect(query).not.toContain('~');
+    expect(query).not.toContain('area');
+    expect(query).not.toMatch(/\bnode\[|\brelation\[|\bnwr\[/);
+  });
+
+  it('keeps accents and dots verbatim (exact-value match, not a regex)', () => {
+    const query = buildHighwaysByNameQuery({
+      ...base,
+      name: 'Doctor José M. Giuffra',
+    });
+    expect(query).toContain('["name"="Doctor José M. Giuffra"]');
+  });
+
+  it('strips quotes, backslashes and control characters', () => {
+    const query = buildHighwaysByNameQuery({
+      ...base,
+      name: 'Def"ensa\\\n',
+    });
+    expect(query).toContain('["name"="Defensa"]');
+  });
+
+  it('clamps the radius to a destination-scale ceiling', () => {
+    const query = buildHighwaysByNameQuery({
+      ...base,
+      name: 'Defensa',
+      radiusMeters: 10_000_000,
+    });
+    expect(query).toContain('(around:50000,');
+  });
+
+  it('rejects an empty name after sanitization', () => {
+    expect(() => buildHighwaysByNameQuery({ ...base, name: ' "" ' })).toThrow();
+  });
+});
+
+describe('buildContainingAdminBoundariesQuery', () => {
+  it('asks is_in for the administrative relations containing a point, tags only', () => {
+    const query = buildContainingAdminBoundariesQuery({
+      latitude: -34.6247943,
+      longitude: -58.3711431,
+    });
+    expect(query).toContain('is_in(-34.6247943,-58.3711431)->.a;');
+    expect(query).toContain('rel(pivot.a)["boundary"="administrative"];');
+    expect(query).toContain('out tags;');
+    expect(query).not.toContain('out geom');
   });
 });

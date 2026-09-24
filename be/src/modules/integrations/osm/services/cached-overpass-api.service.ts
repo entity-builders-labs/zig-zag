@@ -12,6 +12,7 @@ import {
   QueryByIdParams,
   QueryAdminBoundariesWithinAreaParams,
   QueryFeaturesNearParams,
+  QueryHighwaysByNameParams,
 } from '../interfaces/overpass.interface';
 
 @Injectable()
@@ -157,6 +158,22 @@ export class CachedOverpassApiService implements IOverpassApiService {
   ): Promise<OverpassElement[]> {
     return this.handleRequest('queryFeaturesNear', params, () =>
       this.realService.queryFeaturesNear(params),
+    );
+  }
+
+  async queryHighwaysByName(
+    params: QueryHighwaysByNameParams,
+  ): Promise<OverpassElement[]> {
+    return this.handleRequest('queryHighwaysByName', params, () =>
+      this.realService.queryHighwaysByName(params),
+    );
+  }
+
+  async queryContainingAdminBoundaries(
+    params: QueryContainingBoundaryParams,
+  ): Promise<OverpassElement[]> {
+    return this.handleRequest('queryContainingAdminBoundaries', params, () =>
+      this.realService.queryContainingAdminBoundaries(params),
     );
   }
 }

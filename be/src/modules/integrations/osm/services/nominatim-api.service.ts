@@ -5,6 +5,7 @@ import {
   INominatimApiService,
   NominatimResult,
   NominatimSearchOptions,
+  NominatimStructuredQuery,
 } from '../interfaces/nominatim.interface';
 
 const DEFAULT_API_URL = 'https://nominatim.openstreetmap.org/search';
@@ -129,38 +130,40 @@ export class NominatimApiService implements INominatimApiService {
     };
   }
 
-  async search(
-    query: string,
+  private searchParams(
     options?: NominatimSearchOptions,
+  ): Record<string, string | number> {
+    return {
+      format: 'jsonv2',
+      limit: RESULT_LIMIT,
+      addressdetails: 1,
+      // Restricting to a known destination country avoids a
+      // generic/common place name (e.g. "Cerro Alcázar") winning on
+      // global `importance` in an unrelated, more-documented country —
+      // verified live against the real API. Omitted entirely rather
+      // than sent empty when unknown, matching Nominatim's own
+      // expectation for this param.
+      ...(options?.countryCode
+        ? { countrycodes: options.countryCode.toLowerCase() }
+        : {}),
+      ...(options?.bias
+        ? {
+            viewbox: computeViewbox(options.bias, NOMINATIM_BIAS_RADIUS_METERS),
+          }
+        : {}),
+    };
+  }
+
+  private async fetch(
+    params: Record<string, string | number>,
+    label: string,
   ): Promise<NominatimResult[]> {
     try {
       const response = await axios.get<NominatimApiResponseItem[]>(
         this.apiUrl,
         {
           headers: { 'User-Agent': USER_AGENT },
-          params: {
-            q: query,
-            format: 'jsonv2',
-            limit: RESULT_LIMIT,
-            addressdetails: 1,
-            // Restricting to a known destination country avoids a
-            // generic/common place name (e.g. "Cerro Alcázar") winning on
-            // global `importance` in an unrelated, more-documented country —
-            // verified live against the real API. Omitted entirely rather
-            // than sent empty when unknown, matching Nominatim's own
-            // expectation for this param.
-            ...(options?.countryCode
-              ? { countrycodes: options.countryCode.toLowerCase() }
-              : {}),
-            ...(options?.bias
-              ? {
-                  viewbox: computeViewbox(
-                    options.bias,
-                    NOMINATIM_BIAS_RADIUS_METERS,
-                  ),
-                }
-              : {}),
-          },
+          params,
           timeout: this.timeoutMs,
         },
       );
@@ -168,7 +171,7 @@ export class NominatimApiService implements INominatimApiService {
       return (response.data || []).map((item) => this.mapResult(item));
     } catch (error: any) {
       this.logger.warn(
-        `Nominatim search failed for "${query}": ${error.message}`,
+        `Nominatim search failed for ${label}: ${error.message}`,
       );
       // Preserve the difference between a successful lookup with no matches
       // and an unavailable provider. DestinationResolutionService owns the
@@ -176,6 +179,37 @@ export class NominatimApiService implements INominatimApiService {
       // generation audit.
       throw error;
     }
+  }
+
+  async search(
+    query: string,
+    options?: NominatimSearchOptions,
+  ): Promise<NominatimResult[]> {
+    return this.fetch(
+      { q: query, ...this.searchParams(options) },
+      JSON.stringify(query),
+    );
+  }
+
+  async searchStructured(
+    query: NominatimStructuredQuery,
+    options?: NominatimSearchOptions,
+  ): Promise<NominatimResult[]> {
+    const fields = Object.fromEntries(
+      Object.entries(query).filter(
+        (entry): entry is [string, string] =>
+          typeof entry[1] === 'string' && entry[1].trim().length > 0,
+      ),
+    );
+    if (Object.keys(fields).length === 0) {
+      throw new Error(
+        'Nominatim structured search requires at least one field',
+      );
+    }
+    return this.fetch(
+      { ...fields, ...this.searchParams(options) },
+      JSON.stringify(fields),
+    );
   }
 
   async reverse(

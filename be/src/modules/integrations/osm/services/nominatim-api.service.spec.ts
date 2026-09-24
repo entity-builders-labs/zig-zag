@@ -176,6 +176,84 @@ describe('NominatimApiService', () => {
     expect(call[1].params).not.toHaveProperty('viewbox');
   });
 
+  describe('searchStructured', () => {
+    it('sends only structured fields -- never a free-form q -- plus the same country/bias/limit contract', async () => {
+      mockedAxios.get.mockResolvedValue({ data: [] });
+
+      await service.searchStructured(
+        { street: 'Defensa', city: 'Buenos Aires' },
+        {
+          countryCode: 'AR',
+          bias: { latitude: -34.6037, longitude: -58.3816 },
+        },
+      );
+
+      const call = mockedAxios.get.mock.calls.at(-1)!;
+      expect(call[1].params).toEqual(
+        expect.objectContaining({
+          street: 'Defensa',
+          city: 'Buenos Aires',
+          countrycodes: 'ar',
+          format: 'jsonv2',
+          limit: 5,
+          addressdetails: 1,
+        }),
+      );
+      expect(typeof call[1].params.viewbox).toBe('string');
+      expect(call[1].params).not.toHaveProperty('q');
+      expect(call[1].params).not.toHaveProperty('bounded');
+    });
+
+    it('omits structured fields that were not provided', async () => {
+      mockedAxios.get.mockResolvedValue({ data: [] });
+
+      await service.searchStructured({ street: 'Defensa' });
+
+      const call = mockedAxios.get.mock.calls.at(-1)!;
+      expect(call[1].params).not.toHaveProperty('city');
+      expect(call[1].params).not.toHaveProperty('state');
+      expect(call[1].params).not.toHaveProperty('q');
+    });
+
+    it('rejects an empty structured query instead of silently sending a free-form search', async () => {
+      await expect(service.searchStructured({})).rejects.toThrow();
+    });
+
+    it('maps results with the same mapper as the free-form search', async () => {
+      mockedAxios.get.mockResolvedValue({
+        data: [
+          {
+            osm_type: 'way',
+            osm_id: 48113515,
+            addresstype: 'road',
+            category: 'highway',
+            type: 'secondary',
+            display_name: 'Defensa, San Telmo, Buenos Aires',
+            importance: 0.05,
+            lat: '-34.6259',
+            lon: '-58.3710',
+            address: { suburb: 'San Telmo', country_code: 'ar' },
+          },
+        ],
+      });
+
+      const results = await service.searchStructured({ street: 'Defensa' });
+
+      expect(results).toEqual([
+        expect.objectContaining({
+          osmType: 'way',
+          osmId: 48113515,
+          class: 'highway',
+          latitude: -34.6259,
+          address: expect.objectContaining({
+            suburb: 'San Telmo',
+            countryCode: 'AR',
+          }),
+        }),
+      ]);
+    });
+  });
+
   it('throws when the request fails so callers can distinguish failure from no matches', async () => {
     mockedAxios.get.mockRejectedValue(new Error('network down'));
 

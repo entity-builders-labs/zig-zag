@@ -14,6 +14,7 @@ describe('CachedNominatimApiService', () => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nominatim-cache-test-'));
     realService = {
       search: jest.fn(),
+      searchStructured: jest.fn(),
       reverse: jest.fn(),
     };
   });
