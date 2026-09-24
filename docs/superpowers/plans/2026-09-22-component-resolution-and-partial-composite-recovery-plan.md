@@ -39,7 +39,7 @@ implements the stage. Do not mark a stage DONE without real validation.
 | --- | --- | --- | --- | --- | --- |
 | 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | `a0b6c75b50bf37807ab6c2450f94c8e81c9fc9d2` | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
 | 2. Source-grounded contract cutover | DONE | `a7df3b579282cee6b57fef8a914080d507e47fac` | *(this commit)* | jest (152/153 suites, 1746/1747 tests; 1 pre-existing arch failure) + tsc (clean) + eslint (clean) | LLM-owned `required` eliminated from discovery contract; deterministic source-support admission gate implemented; Santa Mónica blocked; semantic document bumped to v3; Stage 3 unblocked. |
-| 3. Catalog-first identity resolution | IN PROGRESS — structured provider-native resolution spike gate FAILED (STOP, per gate discipline); ROUTE bare-name resolution and one AREA false-positive-risk mechanism remain unsolved | `8060782ed22ff80d5d1f00ac21a134a36f8a3ed7` | latest evidence checkpoint *(this commit)* | catalog reuse checkpoint + live San Telmo/BA walk spikes; targeted live identity checks; Nominatim bias 4/4 flips with 0 regressions; corridor category live control; isolated structured-resolution spike (19 live resolutions, real Nominatim/Geoapify) — gate FAILS 3/6 rows; unit/type/lint evidence recorded in commits below | Catalog-first reuse is proven, El Zanjón now has within-hint same-ID convergence evidence, trace reasons are truthful, destination-biased Nominatim materially improves recall, and a structured provider-native PLACE path works cleanly (El Zanjón, Estadio Alberto J. Armando resolve with zero fuzzy/Wikidata; Galería Güemes proves identity resolution can be made independent of `map_to_area`). However Stage 3 is explicitly NOT done and the structured-resolution gate did not pass: ROUTE resolution for common Argentine street names (Defensa, Pasaje San Lorenzo, Caminito) is NOT reliably solved by the existing soft-viewbox bias alone — Nominatim's own top-5 window often never contains the destination's own segment among many nationally-tied-importance homonyms — and one AREA negative control (bare "San Martín") produced a confident but geographically wrong RESOLVED, a real false-positive-risk class. Per explicit task discipline this was a STOP, not a partial integration: no production wiring, no `STRUCTURED_PROVIDER_RESOLUTION` IdentityVerifier evidence, no ROUTE-workaround retirement, no San Telmo E2E control, no Buenos-Aires-walks mega-spike were performed. `StructuredGeoEntityResolverService` and its live harness are committed as isolated, unwired characterization code. See `spikes/stage3-structured-geoentity-resolution-2026-09-24/assessment.md` for full evidence. Stage 4 remains BLOCKED. |
+| 3. Catalog-first identity resolution | IN PROGRESS — targeted ROUTE acquisition + AREA destination-compatibility spike gate PASSED (characterization only, NOT integrated); production integration awaits evidence review | `8060782ed22ff80d5d1f00ac21a134a36f8a3ed7` | latest evidence checkpoint `b480143` (targeted-route spike, started from `13e3500164ccc6a4ddbdff3a00a896e4e3dfb939`) *(progress: this commit)* | catalog reuse checkpoint + live San Telmo/BA walk spikes; Nominatim bias 4/4 flips; corridor control; structured-resolution spike (gate FAILED 3/6); targeted-route spike: 14 ROUTE + 10 AREA live rows against local Overpass/Nominatim with the real DestinationResolutionService, unit/type/lint evidence in `b480143` | Targeted exact-name OSM highway acquisition around the destination + topology clustering + admin-hierarchy destination compatibility put the correct CABA street in the candidate set for 6/6 mandatory ROUTE controls (old Nominatim bare-name 0/6, Nominatim structured control 2/6): Defensa and Caminito RESOLVED, Pasaje San Lorenzo honestly AMBIGUOUS (a second real CABA "San Lorenzo" in Flores), 0 wrong-city RESOLVED, 0 POI-as-ROUTE, 0 arbitrary winners. AREA "San Martín" is now INCOMPATIBLE (was a confident false RESOLVED); CABA barrios resolve; other-province/other-partido homonyms INCOMPATIBLE. Open: canonical multi-way ROUTE identity, topology over-split (Balcarce/Chile), exact-name misses (Giuffra), per-segment is_in cost, destination-scope policy ownership. See `spikes/stage3-targeted-route-resolution-2026-09-24/assessment.md`. Stage 3 NOT done; Stage 4 remains BLOCKED. |
 | 4. Geographic + partial-composite cutover | BLOCKED | — | — | — | Starts after identity outcomes are explicit/stable. |
 | 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
 
@@ -1166,6 +1166,72 @@ ROUTE/AREA findings above.
   already-ruled-out options (no second parallel bias mechanism, no
   distance-as-identity, no per-place translation/alias lists) — the actual
   next design question, not yet answered by this task.
+
+### Stage 3 progress addendum — targeted ROUTE acquisition + AREA destination compatibility spike, gate PASSED (2026-09-24)
+
+Starting HEAD: `13e3500164ccc6a4ddbdff3a00a896e4e3dfb939` (verified equal to
+the fork's remote HEAD before any change). Evidence commit: `b480143`
+(`test(tours): characterize targeted ROUTE + AREA dest compatibility`). Full
+evidence: `spikes/stage3-targeted-route-resolution-2026-09-24/`
+(`assessment.md`, `summary.md`, `matrix.json`).
+
+The previous addendum's STOP identified ROUTE acquisition, not identity, as
+the failure: Nominatim bare-name search with a soft viewbox and a hard top-5
+window never returned the destination's own street for common Argentine
+street names. This spike replaced that acquisition strategy for ROUTE
+(Nominatim kept only as a control) and, separately, fixed the AREA
+single-survivor false positive. **It is characterization only. Nothing was
+wired into `ExperienceProposalResolverService` or any production path.**
+
+**Targeted ROUTE results (real local Overpass/Nominatim, real
+`DestinationResolutionService` → `osm:relation:1224652`, acquisition radius
+17 800 m):**
+
+| Strategy | Mandatory controls with correct CABA street present | False RESOLVED |
+| --- | --- | --- |
+| Old Nominatim free-form bare name + soft bias | 0 / 6 | 1 (Plaza Dorrego → bus-stop nodes as ROUTE) |
+| Nominatim structured `street=`/`city=` control | 2 / 6 | n/a (control) |
+| Targeted OSM exact-name highway query + topology clusters + admin compatibility | **6 / 6** | **0** |
+
+- Defensa / Defensa Street: RESOLVED to one 14-way CABA cluster; 8 homonym
+  clusters in Lomas de Zamora, La Matanza, and Avellaneda INCOMPATIBLE by
+  admin hierarchy.
+- Pasaje San Lorenzo / San Lorenzo Passage: the correct San Telmo cluster is
+  present; AMBIGUOUS because a second real, disconnected "San Lorenzo"
+  footway exists in Flores. No proximity winner.
+- Caminito / Caminito Street: RESOLVED to the La Boca `highway=pedestrian`
+  way; the Lomas de Zamora homonym is INCOMPATIBLE.
+- English glosses needed only the generic designator drop ("Street",
+  "Passage"); no per-place alias or translation table.
+
+**AREA destination compatibility:** San Telmo, Recoleta, Monserrat, and
+Belgrano RESOLVED (destination admin unit in their `is_in` hierarchy). "San
+Martín" (Partido de General San Martín) is now **INCOMPATIBLE**; it was the
+previous spike's confident false RESOLVED. La Plata, Villa General Belgrano
+(Lanús), Fisherton (Rosario), and Cerro de las Rosas (Córdoba and
+Catamarca) are INCOMPATIBLE. Rosario is NOT_FOUND.
+
+**Known non-resolutions (fail-closed, documented, not patched):**
+Balcarce/Chile over-split by pure OSM topology into several compatible
+clusters (AMBIGUOUS); "Pasaje Giuffra" is NOT_FOUND because its OSM name
+tag is "Doctor José M. Giuffra".
+
+**Stage status after this addendum:**
+
+- Stage 3: **IN PROGRESS**. Stage 3 DONE: **NO**.
+- Remaining before production integration, per the assessment's proposal:
+  canonical identity for a multi-way ROUTE cluster; one owner for the
+  destination-scope policy (admin-hierarchy compatibility vs the existing
+  polygon containment), plus batching or replacing per-segment `is_in`
+  probes; then integration behind catalog reuse as a typed structural
+  fact feeding correlation → `IdentityVerifier`, deleting the ROUTE
+  `OWN_QID → requireAllTokens:false` workaround and the Nominatim
+  bare-name ROUTE path in the same cutover; AREA compatibility in the
+  production Nominatim AREA path; then the San Telmo E2E control and the
+  Buenos Aires walks COLD/WARM spike. The other outstanding exit items
+  (full candidate correlation, broad COLD/WARM evidence, final
+  query/performance evidence) are unchanged.
+- Stage 4: **BLOCKED**, untouched.
 
 ### Cross-cutting product-shape note — simple, composite, and mixed Tour requests (2026-09-23)
 
