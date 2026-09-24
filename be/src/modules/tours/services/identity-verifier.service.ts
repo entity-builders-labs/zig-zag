@@ -17,6 +17,15 @@ export class IdentityVerifier {
     const exactName = this.evidenceOf(evidence, 'EXACT_NAME');
     const alias = this.evidenceOf(evidence, 'DECLARED_ALIAS_MATCH');
 
+    // 0. IDENTITY_CONVERGENCE -> VERIFIED immediately. A different,
+    // structurally independent acquisition strategy already found this
+    // exact same (provider, externalId) for this hint -- pure ID equality
+    // across two separate lookup mechanisms, never a name/string
+    // comparison and never a vote among competing candidates.
+    if (this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE')) {
+      return { status: 'VERIFIED' };
+    }
+
     // 1. EXACT_NAME + SINGLE -> VERIFIED immediately
     if (exactName && exactName.identityMultiplicity === 'SINGLE') {
       return { status: 'VERIFIED' };

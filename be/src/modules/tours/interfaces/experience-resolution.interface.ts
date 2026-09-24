@@ -70,7 +70,24 @@ export type IdentityEvidence =
       hintMatched: boolean;
       candidateMatched: boolean;
     }
-  | { type: 'WIKIDATA_UNAVAILABLE' };
+  | { type: 'WIKIDATA_UNAVAILABLE' }
+  | {
+      /**
+       * A DIFFERENT, structurally independent acquisition strategy already
+       * acquired a candidate with this exact same (provider, externalId)
+       * for this same hint -- e.g. LOCAL_OSM_POOL and NOMINATIM both
+       * independently returning osm:node:9953027884. This is real-world
+       * identity evidence by ID equality, never by name/string similarity:
+       * two separate lookup mechanisms (different indices, different query
+       * logic) landing on the exact same physical object is strictly
+       * stronger than any one of them's own fuzzy name match. It is NOT
+       * provider-majority voting -- it never counts opinions or picks a
+       * winner among competing candidates; it only recognizes when two
+       * strategies already agree on the identical object.
+       */
+      type: 'IDENTITY_CONVERGENCE';
+      priorStrategy: ResolutionStrategy;
+    };
 
 export type ResolutionStrategy =
   | 'CATALOG_REUSE'

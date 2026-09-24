@@ -7305,18 +7305,23 @@ describe('ExperienceProposalResolverService', () => {
       expect(result.resolved[0].rejectionReasons).toEqual(['NO_OSM_MATCH']);
     });
 
-    // Case A (resolver-level): two independent, real acquisition strategies
-    // (LOCAL_OSM_POOL and NOMINATIM) converge on the exact same canonical
-    // OSM object (osm:node:9953027884) for the "El Zanjón de Granados"
-    // hint, exactly as recorded in cold-1/cold-2/cold-3's real
-    // entityResolutionAudit. A non-corroborating Wikidata NEARBY match
-    // (hintMatched: true, candidateMatched: false — the search found a
-    // nearby entity matching the HINT's plain text but not the resolved
-    // candidate's longer canonical name) rejects both, even though both
-    // paths agree on one real physical object. See identity-verifier.
-    // service.spec.ts for the corresponding unit-level freeze of the
-    // underlying REJECTED decision.
-    it('Case A: LOCAL_OSM_POOL and NOMINATIM independently converge on osm:node:9953027884 for "El Zanjón de Granados", both rejected by the same non-corroborating Wikidata match', async () => {
+    // Case A (resolver-level, FIXED 2026-09-24 -- ID convergence, not string
+    // matching): real evidence showed LOCAL_OSM_POOL and NOMINATIM
+    // independently converging on the exact same canonical OSM object
+    // (osm:node:9953027884) for "El Zanjón de Granados", both previously
+    // REJECTED by a non-corroborating Wikidata NEARBY match (hintMatched:
+    // true, candidateMatched: false — the candidate's own display name
+    // carries a purely descriptive "(historic ruins)" suffix the nearby
+    // Wikidata entity's plain label never had). The fix is NOT a smarter
+    // string comparison: LOCAL_OSM_POOL's own attempt still gets REJECTED
+    // exactly as before (nothing about the name-matching changed). Instead,
+    // once NOMINATIM (a second, structurally independent acquisition
+    // strategy) acquires a candidate with the exact same (provider,
+    // externalId) LOCAL_OSM_POOL already saw for this hint, the resolver
+    // records IDENTITY_CONVERGENCE evidence -- pure ID equality across two
+    // independent lookups -- and IdentityVerifier verifies on that alone,
+    // without ever consulting Wikidata for this second attempt.
+    it('Case A: NOMINATIM verifies "El Zanjón de Granados" via IDENTITY_CONVERGENCE with LOCAL_OSM_POOL\'s own (rejected) osm:node:9953027884 acquisition', async () => {
       const zanjonOsmNode = {
         id: 'osm:node:9953027884',
         name: 'El Zanjón de Granados (historic ruins)',
@@ -7369,13 +7374,23 @@ describe('ExperienceProposalResolverService', () => {
         findGeoEntityCandidatesForHint: jest
           .fn()
           .mockResolvedValue({ candidates: [] }),
-        upsertGeoEntity: jest.fn(),
-        persistVerifiedExperience: jest.fn(),
+        upsertGeoEntity: jest
+          .fn()
+          .mockResolvedValue({ id: 'geo-el-zanjon-resolved' }),
+        persistVerifiedExperience: jest.fn().mockResolvedValue({
+          id: 'exp-el-zanjon',
+          dedupeDecision: 'NEW',
+        }),
+      };
+      const geographicValidator = {
+        validate: jest
+          .fn()
+          .mockReturnValue(acceptedValidation('El Zanjón de Granados')),
       };
       const service = new ExperienceProposalResolverService(
         osmPlaces as any,
         catalog as any,
-        { validate: jest.fn() } as any,
+        geographicValidator as any,
         undefined,
         nominatim as any,
         undefined,
@@ -7422,17 +7437,45 @@ describe('ExperienceProposalResolverService', () => {
       );
       const nominatimAttempt = attempts.find((a) => a.strategy === 'NOMINATIM');
 
+      // LOCAL_OSM_POOL's own attempt is unaffected by the fix: it still
+      // acquires the real object and still gets REJECTED on its own
+      // (non-corroborating) Wikidata NEARBY evidence -- nothing about name
+      // matching changed.
       expect(localOsmAttempt?.selectedCandidate?.externalId).toBe(
         'osm:node:9953027884',
       );
       expect(localOsmAttempt?.verificationDecision).toBe('REJECTED');
+      expect(
+        localOsmAttempt?.identityEvidence?.some(
+          (e: any) => e.type === 'IDENTITY_CONVERGENCE',
+        ),
+      ).toBe(false);
+
+      // NOMINATIM independently acquires the exact same real object. This
+      // second, structurally independent agreement on the identical
+      // (provider, externalId) is what verifies it -- via IDENTITY_
+      // CONVERGENCE, never by re-running (or improving) the Wikidata name
+      // comparison.
       expect(nominatimAttempt?.selectedCandidate?.externalId).toBe(
         'osm:node:9953027884',
       );
-      expect(nominatimAttempt?.verificationDecision).toBe('REJECTED');
+      expect(nominatimAttempt?.verificationDecision).toBe('VERIFIED');
+      expect(nominatimAttempt?.identityEvidence).toContainEqual({
+        type: 'IDENTITY_CONVERGENCE',
+        priorStrategy: 'LOCAL_OSM_POOL',
+      });
 
-      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
-      expect(result.resolved[0].status).toBe('rejected');
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+      expect(result.resolved[0].status).toBe('accepted');
+      // Persisted with NOMINATIM's own provider label ('nominatim') --
+      // resolving via ID convergence doesn't rewrite which strategy's
+      // candidate actually got persisted, only which evidence verified it.
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        status: 'resolved',
+        provider: 'nominatim',
+        externalId: 'osm:node:9953027884',
+        geoEntityId: 'geo-el-zanjon-resolved',
+      });
     });
   });
 

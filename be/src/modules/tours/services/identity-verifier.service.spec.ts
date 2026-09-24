@@ -30,6 +30,47 @@ const attempt = (
 });
 
 describe('IdentityVerifier', () => {
+  /**
+   * ID-based identity evidence, not string matching: a different,
+   * structurally independent acquisition strategy already returned this
+   * exact same (provider, externalId) for this hint (real spike case: "El
+   * Zanjón de Granados" -- LOCAL_OSM_POOL and NOMINATIM both independently
+   * acquired osm:node:9953027884). Verified regardless of any name-based
+   * evidence, and even when Wikidata itself would separately reject the
+   * candidate on a string basis.
+   */
+  it('verifies immediately on IDENTITY_CONVERGENCE, with no other evidence needed', async () => {
+    const verifier = new IdentityVerifier();
+
+    await expect(
+      verifier.verify(
+        { name: 'El Zanjón de Granados' },
+        attempt([
+          { type: 'IDENTITY_CONVERGENCE', priorStrategy: 'LOCAL_OSM_POOL' },
+        ]),
+      ),
+    ).toEqual({ status: 'VERIFIED' });
+  });
+
+  it('IDENTITY_CONVERGENCE overrides an otherwise-rejecting WIKIDATA_IDENTITY_MATCH', async () => {
+    const verifier = new IdentityVerifier();
+
+    await expect(
+      verifier.verify(
+        { name: 'El Zanjón de Granados' },
+        attempt([
+          { type: 'IDENTITY_CONVERGENCE', priorStrategy: 'LOCAL_OSM_POOL' },
+          {
+            type: 'WIKIDATA_IDENTITY_MATCH',
+            source: 'NEARBY',
+            hintMatched: true,
+            candidateMatched: false,
+          },
+        ]),
+      ),
+    ).toEqual({ status: 'VERIFIED' });
+  });
+
   it('rejects a candidate that only shares half of an observation QID identity', async () => {
     const verifier = new IdentityVerifier();
 

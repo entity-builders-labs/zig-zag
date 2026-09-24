@@ -587,6 +587,14 @@ export class ExperienceProposalResolverService
 
     for (const hint of candidate?.componentHints ?? []) {
       const attempts: ResolutionAttemptAudit[] = [];
+      // Real-world identity by ID equality, tracked across every strategy
+      // attempted for THIS hint (verified or not): keyed by the exact
+      // (provider, externalId) an acquisition returned, valued by the first
+      // strategy that found it. When a LATER, structurally independent
+      // strategy acquires a candidate with the same key, `isVerified` below
+      // injects IDENTITY_CONVERGENCE evidence -- never a name/string
+      // comparison, never a vote among candidates.
+      const seenIdentities = new Map<string, ResolutionStrategy>();
       const recordAttempt = (
         strategy: ResolutionStrategy,
         acquisition: {
@@ -678,6 +686,7 @@ export class ExperienceProposalResolverService
           catalogResult.candidate,
           hint,
           observations,
+          seenIdentities,
         );
         recordAttempt(
           'CATALOG_REUSE',
@@ -748,6 +757,7 @@ export class ExperienceProposalResolverService
           reuseCandidate.candidate,
           hint,
           observations,
+          seenIdentities,
         );
         recordAttempt(
           'TRUSTED_OBSERVATION_REUSE',
@@ -847,6 +857,7 @@ export class ExperienceProposalResolverService
           resolvedEntity,
           hint,
           observations,
+          seenIdentities,
         );
         recordAttempt(
           'LOCAL_OSM_POOL',
@@ -900,6 +911,7 @@ export class ExperienceProposalResolverService
             nominatimResolved.candidate,
             hint,
             observations,
+            seenIdentities,
           );
           recordAttempt(
             'NOMINATIM',
@@ -954,6 +966,7 @@ export class ExperienceProposalResolverService
             placesResolved.candidate,
             hint,
             observations,
+            seenIdentities,
           );
           recordAttempt(
             'PLACES',
@@ -1036,6 +1049,7 @@ export class ExperienceProposalResolverService
             resolvedEntity,
             correctedHint,
             observations,
+            seenIdentities,
           );
           recordAttempt(
             'AREA_TO_PLACE_CORRECTION',
@@ -1178,8 +1192,30 @@ export class ExperienceProposalResolverService
     entity: EntityCandidate,
     hint: any,
     observations: SourceObservation[] = [],
+    seenIdentities?: Map<string, ResolutionStrategy>,
   ): Promise<VerificationResult> {
     const evidence = buildLocalIdentityEvidence(hint, entity);
+    if (seenIdentities && entity.externalId) {
+      // Keyed by externalId alone, not `${provider}:${externalId}`: the
+      // externalId itself is already self-namespaced by real data source
+      // (`osm:node:...`/`osm:way:...`/`osm:relation:...` vs. an opaque
+      // `geoapify:...`/`google_places:...` string), so it is already
+      // globally unique across providers. LOCAL_OSM_POOL and NOMINATIM are
+      // two different SEARCH MECHANISMS over the exact same OSM dataset and
+      // label `candidate.provider` differently ('openstreetmap' vs.
+      // 'nominatim') even when they return the identical real object --
+      // requiring that acquisition-strategy label to also match would
+      // silently prevent the very convergence this evidence exists to
+      // recognize.
+      const identityKey = entity.externalId;
+      const priorStrategy = seenIdentities.get(identityKey);
+      if (priorStrategy && priorStrategy !== strategy) {
+        evidence.push({ type: 'IDENTITY_CONVERGENCE', priorStrategy });
+      }
+      if (!seenIdentities.has(identityKey)) {
+        seenIdentities.set(identityKey, strategy);
+      }
+    }
     const attempt: ResolutionAttempt = {
       strategy,
       candidate: entity,

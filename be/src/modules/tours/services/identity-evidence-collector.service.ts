@@ -26,8 +26,8 @@ export class IdentityEvidenceCollector {
   ): Promise<IdentityEvidence[]> {
     if (!this.wikidata) return [];
 
-    const qid =
-      candidate.wikidataQid ?? this.observationQid(hint, observations);
+    const ownQid = candidate.wikidataQid;
+    const qid = ownQid ?? this.observationQid(hint, observations);
     if (qid) {
       try {
         const summaries = await this.wikidata.getEntitySummaries([qid]);
@@ -36,14 +36,34 @@ export class IdentityEvidenceCollector {
           const identities = [summary.label, ...(summary.aliases ?? [])].filter(
             (label): label is string => Boolean(label),
           );
-          const hintMatched = this.matchesAny(hint.name, identities);
-          const candidateMatched = candidate.wikidataQid
+          // An OWN_QID for a ROUTE candidate (a street/way) does not carry
+          // the same name-collision risk a PLACE/venue OWN_QID does: two
+          // genuinely different real venues can legitimately share one
+          // specific token (e.g. a neighborhood name -- "Recoleta Cemetery"
+          // vs. the unrelated "Hotel Urban Suites Recoleta"), so a PLACE hint
+          // keeps the strict 100%-token bar unchanged. A street name is a
+          // single administratively-assigned linear feature per area with a
+          // near-universal English/Spanish category-suffix translation
+          // ("Street"/"Avenue" <-> "Calle"/"Avenida") that the extractor LLM
+          // often appends and the OSM/Wikidata canonical name never carries
+          // ("Defensa Street" vs. the real street's own name "Defensa") --
+          // the existing permissive "matching" bar (already used elsewhere
+          // for this exact cross-language case, see nominatim-match.util.ts's
+          // bestNominatimMatch) is the structurally-justified exception, not
+          // a generic threshold relaxation.
+          const hintMatched =
+            ownQid && candidate.kind === 'ROUTE'
+              ? this.matchesAny(hint.name, identities, {
+                  requireAllTokens: false,
+                })
+              : this.matchesAny(hint.name, identities);
+          const candidateMatched = ownQid
             ? true
             : this.matchesAny(candidate.canonicalName ?? '', identities);
           return [
             {
               type: 'WIKIDATA_IDENTITY_MATCH',
-              source: candidate.wikidataQid ? 'OWN_QID' : 'OBSERVATION_QID',
+              source: ownQid ? 'OWN_QID' : 'OBSERVATION_QID',
               hintMatched,
               candidateMatched,
             },
@@ -140,12 +160,18 @@ export class IdentityEvidenceCollector {
     return undefined;
   }
 
-  private matchesAny(name: string, identities: string[]): boolean {
+  private matchesAny(
+    name: string,
+    identities: string[],
+    options: { requireAllTokens: boolean } = { requireAllTokens: true },
+  ): boolean {
     const normalizedName = normalizeGeoName(name);
     return identities.some((identity) =>
-      hasSpecificNameOverlap(normalizedName, normalizeGeoName(identity), {
-        requireAllTokens: true,
-      }),
+      hasSpecificNameOverlap(
+        normalizedName,
+        normalizeGeoName(identity),
+        options,
+      ),
     );
   }
 }
