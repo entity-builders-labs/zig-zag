@@ -183,13 +183,40 @@ describe('GeoapifyPlacesApiService', () => {
           formattedAddress:
             'Museo de Arte Latinoamericano de Buenos Aires (MALBA), Avenida Presidente Figueroa Alcorta 3415, Palermo, C1425 CLA Buenos Aires, Argentina',
           location: { latitude: -34.5768817, longitude: -58.4033919 },
-          types: [],
+          types: ['entertainment.museum'],
+          primaryType: 'entertainment.museum',
           rating: undefined,
           userRatingCount: undefined,
           priceLevel: undefined,
           openingHoursWeekdayText: undefined,
         },
       ]);
+    });
+
+    it('falls back to an empty types array when the raw result carries no category (real API responses always have one for amenity results, but the mapper must not assume it)', async () => {
+      mockedAxios.get.mockResolvedValueOnce({
+        data: {
+          results: [
+            {
+              name: 'Uncategorized result',
+              lat: -34.6,
+              lon: -58.38,
+              place_id: 'geoapify-place-3',
+            },
+          ],
+        },
+      });
+
+      const results = await service.searchText({
+        textQuery: 'Uncategorized result',
+        locationBias: {
+          center: { latitude: -34.6037, longitude: -58.3816 },
+          radius: 50000,
+        },
+      });
+
+      expect(results.data[0].types).toEqual([]);
+      expect(results.data[0].primaryType).toBeUndefined();
     });
 
     it("echoes back the requested includedType, matching searchNearby's convention", async () => {

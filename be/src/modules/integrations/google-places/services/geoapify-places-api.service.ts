@@ -70,6 +70,12 @@ interface GeoapifyAutocompleteResult {
   formatted?: string;
   lat: number;
   lon: number;
+  // Geoapify's own dotted category taxonomy (e.g. "entertainment.museum"),
+  // present on every real amenity-type autocomplete result — live-verified
+  // against the real endpoint (2026-09-24). Previously read by nothing,
+  // so every Geoapify PlaceData silently reported `types: []` regardless
+  // of the provider's own real category classification.
+  category?: string;
 }
 
 @Injectable()
@@ -236,7 +242,12 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
       displayName: result.name ? { text: result.name } : undefined,
       formattedAddress: result.formatted,
       location: { latitude: result.lat, longitude: result.lon },
-      types: includedType ? [includedType] : [],
+      types: result.category
+        ? [result.category]
+        : includedType
+          ? [includedType]
+          : [],
+      primaryType: result.category,
       rating: undefined,
       userRatingCount: undefined,
       priceLevel: undefined,
