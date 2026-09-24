@@ -58,15 +58,10 @@ const BUENOS_AIRES_BOUNDARY: any = {
 
 function emptyOsmPlaces() {
   return {
-    lookupStreetsWithin: jest
-      .fn()
-      .mockResolvedValue({ status: 'success', value: [] }),
     lookupPoisWithin: jest
       .fn()
       .mockResolvedValue({ status: 'success', value: [] }),
-    lookupStreetsNear: jest
-      .fn()
-      .mockResolvedValue({ status: 'success', value: [] }),
+
     lookupPoisNear: jest
       .fn()
       .mockResolvedValue({ status: 'success', value: [] }),
@@ -300,9 +295,6 @@ describe('tour-generation integration · area/route walk geographic validation (
       // at all (unresolved_required_component would be a different,
       // weaker regression).
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -378,9 +370,6 @@ describe('tour-generation integration · area/route walk geographic validation (
 
     it('M: accepts + persists when every required component (no AREA hint on the candidate) is genuinely inside the external AREA scope', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -457,9 +446,6 @@ describe('tour-generation integration · area/route walk geographic validation (
   describe('required/optional persistence via the real resolver + catalog (I, I2)', () => {
     it('I: persists required:[true,true,true] for 3 hints all inside a real AREA (Stage 2: no more LLM-authored optional hint)', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -613,9 +599,6 @@ describe('tour-generation integration · area/route walk geographic validation (
         reverse: jest.fn(),
       };
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -756,6 +739,19 @@ describe('tour-generation integration · area/route walk geographic validation (
       tags: { highway: 'pedestrian' },
     };
 
+    // The same real way as the targeted ROUTE acquisition returns it.
+    const caminitoWay = {
+      externalId: caminitoStreet.id,
+      osmId: caminitoStreet.osmId,
+      name: caminitoStreet.name,
+      highway: 'pedestrian',
+      nodes: [1, 2],
+      geometry: caminitoStreet.geometry.coordinates.map(([lon, lat]) => ({
+        lat,
+        lon,
+      })),
+    };
+
     function routeCandidate(): ExperienceCandidate {
       return {
         name: 'Caminito Route',
@@ -785,9 +781,10 @@ describe('tour-generation integration · area/route walk geographic validation (
 
     it('D: accepts + persists a canonical ROUTE candidate with a coherent required waypoint', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [caminitoStreet] }),
+        lookupHighwaysByName: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: { rawCount: 1, segments: [caminitoWay], rejected: [] },
+        }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -834,9 +831,10 @@ describe('tour-generation integration · area/route walk geographic validation (
 
     it('E: rejects a canonical ROUTE candidate whose required waypoint is geographically incoherent, nothing persisted', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [caminitoStreet] }),
+        lookupHighwaysByName: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: { rawCount: 1, segments: [caminitoWay], rejected: [] },
+        }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -930,9 +928,6 @@ describe('tour-generation integration · area/route walk geographic validation (
 
     function wineryOsmPlaces() {
       return {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -1036,9 +1031,6 @@ describe('tour-generation integration · area/route walk geographic validation (
         ],
       };
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -1187,9 +1179,6 @@ describe('tour-generation integration · area/route walk geographic validation (
       });
 
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [

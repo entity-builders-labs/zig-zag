@@ -585,9 +585,6 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
       // GeoEntity ids via the identical (provider, externalId) identity
       // already seeded above.
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [

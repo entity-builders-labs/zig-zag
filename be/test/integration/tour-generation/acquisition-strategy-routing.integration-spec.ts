@@ -20,6 +20,34 @@ import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from 'src/modules/tours/service
 
 const DEST = { latitude: -34.6212, longitude: -58.373 };
 
+// Stage 3 cutover: AREA/ROUTE anchors must be destination-compatible, and
+// compatibility is UNKNOWN (fail closed) for a point-scale destination. These
+// scenarios therefore use the realistic area-scale Buenos Aires destination
+// whose admin boundary contains San Telmo and La Boca.
+const BUENOS_AIRES_AREA_DESTINATION = {
+  scale: 'area',
+  countryCode: 'AR',
+  boundary: {
+    id: 'osm:relation:1224652',
+    name: 'Buenos Aires',
+    osmType: 'relation',
+    osmId: 1224652,
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [-58.53, -34.71],
+          [-58.33, -34.71],
+          [-58.33, -34.53],
+          [-58.53, -34.53],
+          [-58.53, -34.71],
+        ],
+      ],
+    },
+    tags: { boundary: 'administrative', admin_level: '8' },
+  },
+} as any;
+
 function interpreterResponse(overrides: Record<string, unknown>): string {
   return JSON.stringify({
     preferredFacets: [],
@@ -93,6 +121,7 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
         longitude: DEST.longitude,
       },
     ]);
+    harness.configure({ destination: BUENOS_AIRES_AREA_DESTINATION });
     harness.fakes.osm.configure({
       boundary: {
         id: 'osm:relation:1',
@@ -189,6 +218,7 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
     const acquireSpy = jest
       .spyOn(areaRouteWalk, 'acquireOrReuse')
       .mockResolvedValue({ outcome: 'no_result' });
+    harness.configure({ destination: BUENOS_AIRES_AREA_DESTINATION });
     harness.fakes.osm.configure({
       streets: [
         {

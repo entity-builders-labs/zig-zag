@@ -29,6 +29,7 @@ import {
 import {
   OsmCandidate,
   OsmLookupResult,
+  OsmRouteSegmentLookup,
 } from '../../../../src/modules/integrations/osm/services/osm-places.service';
 import {
   INominatimApiService,
@@ -40,6 +41,7 @@ import {
   TravelEstimateProvider,
 } from '../../../../src/modules/tours/interfaces/daily-planning.interface';
 import { TransportationMode } from '../../../../src/modules/tours/interfaces/tour-generation.interface';
+import { CandidateSourceSupportAudit } from '../../../../src/modules/tours/utils/experience-candidate-extraction.util';
 
 /* ------------------------------------------------------------------ *
  * Grounded web search
@@ -185,7 +187,7 @@ export class FakeDiscoveryExtractorImpl
       return {
         candidates,
         validationErrors: this.config.validationErrors ?? [],
-        sourceSupportAudits: [],
+        sourceSupportAudits: [] as CandidateSourceSupportAudit[],
         provider: this.config.provider ?? 'fake-discovery-extractor',
         model: this.config.model ?? 'fake-extractor-model',
         rawOutput: JSON.stringify({ candidates: raw }),
@@ -298,11 +300,15 @@ function hashString(value: string): number {
 export interface FakeOsmConfig {
   /** POIs returned by lookupPoisNear / lookupPoisWithin (resolver PLACE match). */
   pois?: OsmCandidate[];
-  /** Streets returned by lookupStreetsNear / lookupStreetsWithin (ROUTE match). */
+  /**
+   * Real OSM highway ways. `lookupHighwaysByName` (targeted ROUTE
+   * acquisition) returns the ones whose name EXACTLY equals the query name,
+   * as the real adapter's exact `["name"=...]` query does.
+   */
   streets?: OsmCandidate[];
   /** Features returned by lookupFeaturesNear (OsmAcquisitionProvider). */
   features?: OsmCandidate[];
-  /** 'failed' status from POI/street/feature lookups. */
+  /** 'failed' status from POI/highway/feature lookups. */
   failPois?: boolean;
   failStreets?: boolean;
   failFeatures?: boolean;
@@ -339,18 +345,39 @@ export class FakeOsmPlacesService {
         : { status: 'success', value: this.config.pois ?? [] },
   );
 
-  readonly lookupStreetsNear = jest.fn(
-    async (): Promise<OsmLookupResult<OsmCandidate[]>> =>
-      this.config.failStreets
-        ? { status: 'failed', value: [], failureReason: 'fake overpass down' }
-        : { status: 'success', value: this.config.streets ?? [] },
-  );
-
-  readonly lookupStreetsWithin = jest.fn(
-    async (): Promise<OsmLookupResult<OsmCandidate[]>> =>
-      this.config.failStreets
-        ? { status: 'failed', value: [], failureReason: 'fake overpass down' }
-        : { status: 'success', value: this.config.streets ?? [] },
+  readonly lookupHighwaysByName = jest.fn(
+    async ({
+      name,
+    }: {
+      name: string;
+    }): Promise<OsmLookupResult<OsmRouteSegmentLookup>> => {
+      if (this.config.failStreets) {
+        return {
+          status: 'failed',
+          value: { rawCount: 0, segments: [], rejected: [] },
+          failureReason: 'fake overpass down',
+        };
+      }
+      const segments = (this.config.streets ?? [])
+        .filter(
+          (street) =>
+            street.name === name && street.geometry.type === 'LineString',
+        )
+        .map((street) => ({
+          externalId: street.id,
+          osmId: street.osmId,
+          name: street.name,
+          highway: street.tags.highway ?? 'residential',
+          nodes: [] as number[],
+          geometry: (
+            street.geometry as { coordinates: [number, number][] }
+          ).coordinates.map(([lon, lat]) => ({ lat, lon })),
+        }));
+      return {
+        status: 'success',
+        value: { rawCount: segments.length, segments, rejected: [] },
+      };
+    },
   );
 
   readonly lookupFeaturesNear = jest.fn(
@@ -372,10 +399,6 @@ export class FakeOsmPlacesService {
   readonly findPoisNear = jest.fn(
     async () => (this.config.pois ?? []) as OsmCandidate[],
   );
-  readonly findStreetsNear = jest.fn(
-    async () => (this.config.streets ?? []) as OsmCandidate[],
-  );
-
   constructor(private config: FakeOsmConfig = {}) {}
 
   configure(next: FakeOsmConfig): void {
