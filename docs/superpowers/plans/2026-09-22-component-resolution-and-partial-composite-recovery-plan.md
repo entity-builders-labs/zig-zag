@@ -39,7 +39,7 @@ implements the stage. Do not mark a stage DONE without real validation.
 | --- | --- | --- | --- | --- | --- |
 | 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | `a0b6c75b50bf37807ab6c2450f94c8e81c9fc9d2` | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
 | 2. Source-grounded contract cutover | DONE | `a7df3b579282cee6b57fef8a914080d507e47fac` | *(this commit)* | jest (152/153 suites, 1746/1747 tests; 1 pre-existing arch failure) + tsc (clean) + eslint (clean) | LLM-owned `required` eliminated from discovery contract; deterministic source-support admission gate implemented; Santa Mónica blocked; semantic document bumped to v3; Stage 3 unblocked. |
-| 3. Catalog-first identity resolution | IN PROGRESS — targeted ROUTE acquisition + AREA destination-compatibility spike gate PASSED (characterization only, NOT integrated); production integration awaits evidence review | `8060782ed22ff80d5d1f00ac21a134a36f8a3ed7` | latest evidence checkpoint `b480143` (targeted-route spike, started from `13e3500164ccc6a4ddbdff3a00a896e4e3dfb939`) *(progress: this commit)* | catalog reuse checkpoint + live San Telmo/BA walk spikes; Nominatim bias 4/4 flips; corridor control; structured-resolution spike (gate FAILED 3/6); targeted-route spike: 14 ROUTE + 10 AREA live rows against local Overpass/Nominatim with the real DestinationResolutionService, unit/type/lint evidence in `b480143` | Targeted exact-name OSM highway acquisition around the destination + topology clustering + admin-hierarchy destination compatibility put the correct CABA street in the candidate set for 6/6 mandatory ROUTE controls (old Nominatim bare-name 0/6, Nominatim structured control 2/6): Defensa and Caminito RESOLVED, Pasaje San Lorenzo honestly AMBIGUOUS (a second real CABA "San Lorenzo" in Flores), 0 wrong-city RESOLVED, 0 POI-as-ROUTE, 0 arbitrary winners. AREA "San Martín" is now INCOMPATIBLE (was a confident false RESOLVED); CABA barrios resolve; other-province/other-partido homonyms INCOMPATIBLE. Open: canonical multi-way ROUTE identity, topology over-split (Balcarce/Chile), exact-name misses (Giuffra), per-segment is_in cost, destination-scope policy ownership. See `spikes/stage3-targeted-route-resolution-2026-09-24/assessment.md`. Stage 3 NOT done; Stage 4 remains BLOCKED. |
+| 3. Catalog-first identity resolution | IN PROGRESS — ROUTE/AREA production cutover landed; San Telmo HTTP E2E gate NOT met (no composite persisted; ROUTE path not exercised live), mega-spike not run | `8060782ed22ff80d5d1f00ac21a134a36f8a3ed7` | cutover `b5f9177`,`ac39023`,`a7e5505`,`3e63838`,`544f9d7` (from `56c5cb1`) *(progress: this commit)* | unit 1872/1873 (pre-existing preference-first-architecture failure); integration on zigzag_test 75/78 (3 failures also fail at baseline 56c5cb1); real-Postgres multi-identity persistence 5/5; destination policy characterization 60/60 polygon==admin; tsc + eslint clean; San Telmo COLD E2E via HTTP (completed, 349.7 s) | Canonical ROUTE = 1 GeoEntity + N OSM way identities (MultiLineString), strong-identity correlation (0/1/2+ conflict), typed STRUCTURED_ROUTE_RESOLUTION evidence, catalog variant reuse, single polygon-based destination policy (AREA+ROUTE+geo validation), OWN_QID ROUTE workaround and street-pool adapters removed. E2E: the Basílica+Defensa control did not recur, no ROUTE hint was extracted (0 TARGETED_ROUTE attempts), and the only multi-component candidate (5/7 resolved, Basílica RESOLVED) was rejected by the Stage-2 `isMigrationRequiredHint` all-or-nothing seam (Stage 4 territory). See `spikes/stage3-cutover-santelmo-e2e-2026-09-24/assessment.md`. Stage 4 BLOCKED. |
 | 4. Geographic + partial-composite cutover | BLOCKED | — | — | — | Starts after identity outcomes are explicit/stable. |
 | 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
 
@@ -1232,6 +1232,107 @@ tag is "Doctor José M. Giuffra".
   (full candidate correlation, broad COLD/WARM evidence, final
   query/performance evidence) are unchanged.
 - Stage 4: **BLOCKED**, untouched.
+
+### Stage 3 progress addendum — ROUTE/AREA production cutover + San Telmo E2E, gate NOT met (2026-09-24)
+
+Starting HEAD: `56c5cb163434b5debc33bd93d43e1245ef2b1f25` (verified equal to
+the fork remote). Commits:
+
+- `b5f9177` feat(tours): persist canonical multi-way route identities.
+- `ac39023` feat(tours): cut over targeted route and destination compatibility.
+- `a7e5505` refactor(tours): remove legacy route identity workarounds.
+- `3e63838` test(tours): align integration suite with targeted ROUTE path.
+- `544f9d7` refactor(osm): remove dead street-pool adapters.
+
+**Canonical ROUTE identity.** One real street is persisted as ONE
+`GeoEntity(kind=ROUTE)` plus one `GeoEntityIdentity(openstreetmap,
+osm:way:N)` per real way. There is no synthetic cluster identity. The work
+is done by `ExperienceCatalogService.upsertGeoEntityWithIdentities`, under
+the same per-kind advisory lock as `upsertGeoEntity`:
+
+- if any known identity exists, the call reuses that GeoEntity and
+  attaches the missing identities;
+- if the known identities belong to 2+ GeoEntities, it returns
+  `IDENTITY_CONFLICT` and writes nothing;
+- no proximity is used anywhere in this decision.
+
+Geometry is a `MultiLineString` of the real segments. On reuse, lines are
+unioned (dedup at OSM 1e-7 precision) and gaps are never bridged. The
+representative point is the middle vertex of the longest segment.
+
+Correlation after targeted acquisition is
+`findGeoEntityIdsByIdentities(openstreetmap, segmentIds)`: 0 known → new,
+1 → reuse, 2+ → fail closed. `IdentityVerifier` judges a typed
+`STRUCTURED_ROUTE_RESOLUTION` fact, so the name is never the terminal
+authority.
+
+**Catalog-first ROUTE reuse.** For a ROUTE hint, the bounded
+`routeRetrievalQueryVariants` are EXACT catalog lookups over the
+destination scope. A single compatible match is `CATALOG_REUSE` (typed
+`CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH`); 2+ matches are ambiguous and
+lead to targeted acquisition.
+
+**The ROUTE production path is now:**
+`CATALOG_REUSE → TARGETED_ROUTE`. The same path is used by component
+resolution and by named anchors (`AreaRouteAnchorResolverService`).
+Removed:
+
+- the `map_to_area`/`around` street pool and its adapters;
+- the Nominatim bare-name ROUTE path (from the spike resolver);
+- the `OWN_QID + ROUTE → requireAllTokens:false` workaround.
+
+**Destination scope has a single owner:**
+`evaluateDestinationCompatibility` (COMPATIBLE / INCOMPATIBLE / UNKNOWN),
+used by:
+
+- AREA (Nominatim, local, catalog, anchor);
+- ROUTE clusters and catalog ROUTE rows;
+- composite geographic validation's destination-boundary check.
+
+The implementation is containment in the hydrated destination admin
+boundary. It was characterized equal to the `is_in` admin-hierarchy
+verdict on 60/60 real probes (Defensa, San Lorenzo, Caminito, Galería
+Güemes x2, San Martín, La Plata, San Telmo); see
+`spikes/stage3-destination-policy-characterization-2026-09-24/`. The cost
+drops from 28 s of `is_in` calls to 9 ms, and there are now 0 admin
+network calls. UNKNOWN (for example a point-scale destination) is never
+treated as compatible.
+
+**San Telmo HTTP E2E (COLD): gate NOT met, STOP.** The run completed in
+349.7 s on a fresh DB.
+
+- The Basílica + Defensa control candidate did not recur.
+- The extractor produced no ROUTE hint, so there were 0 `TARGETED_ROUTE`
+  attempts live.
+- The only multi-component candidate reached 5/7 components (Basílica
+  RESOLVED) and was rejected by the Stage-2 `isMigrationRequiredHint`
+  all-or-nothing seam (`UNRESOLVED_REQUIRED_COMPONENT`: Mafalda Statue
+  `NO_OSM_MATCH`, Farmacia la Estrella `UNCONFIRMED_MATCH`).
+- Result: 0 composites and 0 ROUTE GeoEntities persisted, 0 duplicate
+  identities.
+- Per the task, **the Buenos Aires walks mega-spike was not run**. Its
+  requests and driver are prepared in
+  `spikes/stage3-buenosaires-walks-mega-control-2026-09-24/`.
+
+**Stage 3 exit gate, reviewed literally:**
+
+| Exit item | Evidence | Status |
+| --- | --- | --- |
+| Catalog reuse without full-table scan | bounded kind + bbox lookup (unchanged); ROUTE variants use the destination bbox | met (unit/query evidence) |
+| Unambiguous canonical GeoEntity avoids external calls | unit: ROUTE variant reuse with 0 network | **live WARM not evidenced** |
+| Ambiguous catalog → bounded external resolution | unit | met (unit) |
+| Correlation and IdentityVerifier separate | strong-identity correlation + typed evidence | met |
+| Solar de French prior-knowledge reuse | earlier unit characterization; live COLD only | **live WARM not evidenced** |
+| El Zanjón re-tested | live COLD: RESOLVED (LOCAL_OSM_POOL; NOMINATIM + IDENTITY_CONVERGENCE) | met |
+| ROUTE identity | real-Postgres 5/5 + unit | **not exercised live** |
+| Real COLD/WARM composites | none persisted | **not met** |
+
+**Stage status:**
+
+- Stage 3: **IN PROGRESS**. Stage 3 DONE: **NO**.
+- Stage 4: **BLOCKED**, untouched: `isMigrationRequiredHint`, `required`
+  columns, the partial-composite lifecycle and planner eligibility were
+  not changed.
 
 ### Cross-cutting product-shape note — simple, composite, and mixed Tour requests (2026-09-23)
 
