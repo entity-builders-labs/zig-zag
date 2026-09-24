@@ -1,13 +1,44 @@
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { GeoEntityKind } from '@prisma/client';
 import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
 import { InterpretedAnchor } from '../interfaces/preference-spec.interface';
-import { normalizeGeoName } from '../utils/nominatim-match.util';
 
 // No global IdentityVerifier mock. The anchor resolver integration
 // tests exercise the REAL IdentityVerifier so the selected-candidate →
 // verification → persistence path is genuinely tested. Transport/provider
 // dependencies (Nominatim, Places, OSM, Wikidata, Catalog) are still
 // mocked per-test, but the identity policy itself is real.
+
+// The resolved destination every anchor must be compatible with (the single
+// destination policy): a Buenos Aires admin boundary covering the fixtures.
+const BUENOS_AIRES_DESTINATION: GeographicScope = {
+  kind: 'AREA_BOUNDARY',
+  boundary: {
+    id: 'osm:relation:1224652',
+    name: 'Buenos Aires',
+    osmType: 'relation',
+    osmId: 1224652,
+    tags: { boundary: 'administrative', admin_level: '8' },
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [-58.55, -34.75],
+          [-58.3, -34.75],
+          [-58.3, -34.5],
+          [-58.55, -34.5],
+          [-58.55, -34.75],
+        ],
+      ],
+    },
+  },
+};
+
+const noHighways = () =>
+  jest.fn().mockResolvedValue({
+    status: 'success',
+    value: { rawCount: 0, segments: [], rejected: [] },
+  });
 
 describe('AreaRouteAnchorResolverService', () => {
   const areaAnchor: InterpretedAnchor = {
@@ -22,6 +53,71 @@ describe('AreaRouteAnchorResolverService', () => {
   };
 
   describe('resolveArea', () => {
+    it('never resolves an AREA anchor outside the resolved destination (San Martín -> Partido de General San Martín)', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 9168783,
+            addresstype: 'city',
+            placeRank: 16,
+            class: 'boundary',
+            type: 'administrative',
+            displayName:
+              'Ciudad del Libertador General San Martín, Partido de General San Martín',
+            importance: 0.4,
+            latitude: -34.4755,
+            longitude: -58.5373,
+          },
+        ]),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: {
+            id: 'osm:relation:9168783',
+            name: 'Ciudad del Libertador General San Martín',
+            osmType: 'relation',
+            osmId: 9168783,
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [-58.56, -34.49],
+                  [-58.52, -34.49],
+                  [-58.52, -34.46],
+                  [-58.56, -34.46],
+                  [-58.56, -34.49],
+                ],
+              ],
+            },
+            tags: { boundary: 'administrative', admin_level: '8' },
+          },
+        }),
+        lookupHighwaysByName: noHighways(),
+      };
+      const catalog = { upsertGeoEntity: jest.fn() };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+      );
+
+      const result = await service.resolveArea(
+        { rawName: 'San Martín', usage: 'unknown', priority: 'must' },
+        'ar',
+        undefined,
+        BUENOS_AIRES_DESTINATION,
+      );
+
+      expect(result).toEqual({
+        resolved: false,
+        status: 'no_match',
+        reason: 'DESTINATION_INCOMPATIBLE',
+      });
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+
     it('resolves a real Nominatim way/relation match into a persisted AREA GeoEntity', async () => {
       const nominatim = {
         search: jest.fn().mockResolvedValue([
@@ -64,6 +160,7 @@ describe('AreaRouteAnchorResolverService', () => {
             tags: { boundary: 'administrative' },
           },
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -76,10 +173,15 @@ describe('AreaRouteAnchorResolverService', () => {
         nominatim as any,
       );
 
-      const result = await service.resolveArea(areaAnchor, 'ar', {
-        latitude: -34.6,
-        longitude: -58.38,
-      });
+      const result = await service.resolveArea(
+        areaAnchor,
+        'ar',
+        {
+          latitude: -34.6,
+          longitude: -58.38,
+        },
+        BUENOS_AIRES_DESTINATION,
+      );
 
       // Unique exact name match → real verifier returns VERIFIED.
       expect(result).toEqual(
@@ -139,6 +241,7 @@ describe('AreaRouteAnchorResolverService', () => {
         lookupBoundaryById: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: osmBoundary }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -174,6 +277,7 @@ describe('AreaRouteAnchorResolverService', () => {
       };
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -188,6 +292,7 @@ describe('AreaRouteAnchorResolverService', () => {
         areaAnchor,
         undefined,
         undefined,
+        BUENOS_AIRES_DESTINATION,
       );
 
       expect(result).toEqual(
@@ -214,6 +319,7 @@ describe('AreaRouteAnchorResolverService', () => {
       };
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -228,6 +334,7 @@ describe('AreaRouteAnchorResolverService', () => {
         areaAnchor,
         undefined,
         undefined,
+        BUENOS_AIRES_DESTINATION,
       );
 
       expect(result).toEqual(
@@ -259,6 +366,7 @@ describe('AreaRouteAnchorResolverService', () => {
           value: null,
           failureReason: 'boom',
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -273,6 +381,7 @@ describe('AreaRouteAnchorResolverService', () => {
         areaAnchor,
         undefined,
         undefined,
+        BUENOS_AIRES_DESTINATION,
       );
 
       expect(result).toEqual(
@@ -324,6 +433,7 @@ describe('AreaRouteAnchorResolverService', () => {
               tags: {},
             },
           })),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -348,6 +458,7 @@ describe('AreaRouteAnchorResolverService', () => {
         },
         undefined,
         { latitude: -31.5375, longitude: -68.5364 },
+        BUENOS_AIRES_DESTINATION,
       );
 
       expect(osmPlaces.lookupBoundaryById).toHaveBeenCalledWith('relation', 1);
@@ -375,6 +486,7 @@ describe('AreaRouteAnchorResolverService', () => {
       };
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -389,6 +501,7 @@ describe('AreaRouteAnchorResolverService', () => {
         { rawName: 'Argentina', usage: 'geographic_scope', priority: 'must' },
         undefined,
         undefined,
+        BUENOS_AIRES_DESTINATION,
       );
 
       expect(result).toEqual(
@@ -404,6 +517,7 @@ describe('AreaRouteAnchorResolverService', () => {
       };
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -415,7 +529,12 @@ describe('AreaRouteAnchorResolverService', () => {
       );
 
       await expect(
-        service.resolveArea(areaAnchor, undefined, undefined),
+        service.resolveArea(
+          areaAnchor,
+          undefined,
+          undefined,
+          BUENOS_AIRES_DESTINATION,
+        ),
       ).resolves.toMatchObject({ resolved: false, status: 'unavailable' });
     });
 
@@ -444,6 +563,7 @@ describe('AreaRouteAnchorResolverService', () => {
             mode === 'all-unavailable'
               ? jest.fn().mockRejectedValue(new Error('overpass down'))
               : jest.fn().mockResolvedValue({ status: 'success', value: [] }),
+          lookupHighwaysByName: noHighways(),
           lookupStreetsWithin: jest.fn(),
         };
         const places = {
@@ -520,6 +640,7 @@ describe('AreaRouteAnchorResolverService', () => {
           lookupStreetsNear: jest
             .fn()
             .mockResolvedValue({ status: 'success', value: [] }),
+          lookupHighwaysByName: noHighways(),
           lookupStreetsWithin: jest.fn(),
         } as any,
         { upsertGeoEntity: jest.fn() } as any,
@@ -559,66 +680,101 @@ describe('AreaRouteAnchorResolverService', () => {
     });
   });
 
-  describe('resolveRoute', () => {
-    const caminitoStreet = {
-      id: 'osm:way:1',
-      name: 'Caminito',
-      osmType: 'way' as const,
-      osmId: 1,
-      geometry: {
-        type: 'LineString' as const,
-        coordinates: [
-          [-58.3634, -34.6382],
-          [-58.363, -34.6376],
-        ],
-      },
-      tags: { highway: 'pedestrian' },
-    };
+  describe('resolveRoute (shared targeted ROUTE path)', () => {
+    const way = (
+      osmId: number,
+      nodes: number[],
+      points: Array<[number, number]>,
+      name = 'Caminito',
+    ) => ({
+      externalId: `osm:way:${osmId}`,
+      osmId,
+      name,
+      highway: 'pedestrian',
+      nodes,
+      geometry: points.map(([lat, lon]) => ({ lat, lon })),
+    });
+    const highways = (segments: any[]) =>
+      jest.fn().mockResolvedValue({
+        status: 'success',
+        value: { rawCount: segments.length, segments, rejected: [] },
+      });
+    const catalogFor = (knownGeoEntityIds: string[] = []) => ({
+      upsertGeoEntity: jest.fn(),
+      findGeoEntityIdsByIdentities: jest
+        .fn()
+        .mockResolvedValue(knownGeoEntityIds),
+      upsertGeoEntityWithIdentities: jest.fn().mockResolvedValue({
+        status: 'CREATED',
+        geoEntity: { id: 'geo-caminito' },
+        attachedExternalIds: [],
+      }),
+    });
 
-    it('resolves via lookupStreetsWithin for AREA_BOUNDARY scope', async () => {
+    it('resolves one real multi-way street inside the destination as ONE multi-identity ROUTE GeoEntity', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [caminitoStreet] }),
-        lookupStreetsNear: jest.fn(),
+        lookupHighwaysByName: highways([
+          way(
+            1,
+            [1, 2],
+            [
+              [-34.6382, -58.3634],
+              [-34.6376, -58.363],
+            ],
+          ),
+          way(
+            2,
+            [2, 3],
+            [
+              [-34.6376, -58.363],
+              [-34.637, -58.3626],
+            ],
+          ),
+        ]),
       };
-      const catalog = {
-        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-caminito' }),
-      };
+      const catalog = catalogFor();
       const service = new AreaRouteAnchorResolverService(
         osmPlaces as any,
         catalog as any,
       );
 
-      const result = await service.resolveRoute(routeAnchor, {
-        kind: 'AREA_BOUNDARY',
-        boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
-      } as any);
+      const result = await service.resolveRoute(
+        routeAnchor,
+        BUENOS_AIRES_DESTINATION,
+      );
 
-      // Single OSM way -> identityMultiplicity UNKNOWN -> no independent
-      // corroboration -> fail closed (not persisted).
-      expect(result).toEqual(
+      expect(result).toMatchObject({
+        resolved: true,
+        kind: 'route',
+        geoEntityId: 'geo-caminito',
+        canonicalName: 'Caminito',
+        geometry: { type: 'MultiLineString' },
+      });
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(catalog.upsertGeoEntityWithIdentities).toHaveBeenCalledWith(
         expect.objectContaining({
-          resolved: false,
-          status: 'no_match',
-          reason: 'IDENTITY_NOT_VERIFIED',
+          identities: [
+            { provider: 'openstreetmap', externalId: 'osm:way:1' },
+            { provider: 'openstreetmap', externalId: 'osm:way:2' },
+          ],
         }),
       );
-      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
-      expect(osmPlaces.lookupStreetsWithin).toHaveBeenCalled();
-      expect(osmPlaces.lookupStreetsNear).not.toHaveBeenCalled();
     });
 
-    it('resolves via lookupStreetsNear for POINT_RADIUS scope, never calling lookupStreetsWithin', async () => {
+    it('never resolves on a point-scale destination (compatibility UNKNOWN), acquiring over the destination radius', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [caminitoStreet] }),
+        lookupHighwaysByName: highways([
+          way(
+            1,
+            [1, 2],
+            [
+              [-34.6382, -58.3634],
+              [-34.6376, -58.363],
+            ],
+          ),
+        ]),
       };
-      const catalog = {
-        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-caminito' }),
-      };
+      const catalog = catalogFor();
       const service = new AreaRouteAnchorResolverService(
         osmPlaces as any,
         catalog as any,
@@ -631,29 +787,62 @@ describe('AreaRouteAnchorResolverService', () => {
         radiusMeters: 5000,
       });
 
-      // Single OSM way -> identityMultiplicity UNKNOWN -> no independent
-      // corroboration -> fail closed (not persisted).
-      expect(result.resolved).toBe(false);
-      expect((result as { resolved: false; reason?: string }).reason).toBe(
-        'IDENTITY_NOT_VERIFIED',
+      expect(result).toMatchObject({
+        resolved: false,
+        status: 'no_match',
+        reason: 'TARGETED_ROUTE_AMBIGUOUS',
+      });
+      expect(osmPlaces.lookupHighwaysByName).toHaveBeenCalledWith({
+        name: 'Caminito',
+        latitude: -34.6,
+        longitude: -58.4,
+        radiusMeters: 5000,
+      });
+      expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();
+    });
+
+    it('two disconnected same-name streets inside the destination stay unresolved (no proximity winner)', async () => {
+      const osmPlaces = {
+        lookupHighwaysByName: highways([
+          way(
+            1,
+            [1, 2],
+            [
+              [-34.6382, -58.3634],
+              [-34.6376, -58.363],
+            ],
+          ),
+          way(
+            2,
+            [8, 9],
+            [
+              [-34.65, -58.44],
+              [-34.651, -58.44],
+            ],
+          ),
+        ]),
+      };
+      const catalog = catalogFor();
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
       );
-      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
-      expect(osmPlaces.lookupStreetsNear).toHaveBeenCalledWith(
-        -34.6,
-        -58.4,
-        5000,
+
+      const result = await service.resolveRoute(
+        routeAnchor,
+        BUENOS_AIRES_DESTINATION,
       );
-      expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
+
+      expect(result).toMatchObject({
+        resolved: false,
+        reason: 'TARGETED_ROUTE_AMBIGUOUS',
+      });
+      expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();
     });
 
     it('stays unresolved (a normal outcome) when no street matches the anchor name', async () => {
-      const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [caminitoStreet] }),
-        lookupStreetsNear: jest.fn(),
-      };
-      const catalog = { upsertGeoEntity: jest.fn() };
+      const osmPlaces = { lookupHighwaysByName: highways([]) };
+      const catalog = catalogFor();
       const service = new AreaRouteAnchorResolverService(
         osmPlaces as any,
         catalog as any,
@@ -665,37 +854,65 @@ describe('AreaRouteAnchorResolverService', () => {
           usage: 'unknown',
           priority: 'must',
         },
-        {
-          kind: 'AREA_BOUNDARY',
-          boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
-        } as any,
+        BUENOS_AIRES_DESTINATION,
       );
 
       expect(result).toEqual(
-        expect.objectContaining({ resolved: false, status: 'no_match' }),
+        expect.objectContaining({
+          resolved: false,
+          status: 'no_match',
+          reason: 'TARGETED_ROUTE_NOT_FOUND',
+        }),
       );
-      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
 
-    it('never throws when the street lookup itself fails', async () => {
+    it('reports provider failure as unavailable, never as no_match', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockRejectedValue(new Error('overpass down')),
-        lookupStreetsNear: jest.fn(),
+        lookupHighwaysByName: jest.fn().mockResolvedValue({
+          status: 'failed',
+          value: { rawCount: 0, segments: [], rejected: [] },
+          failureReason: 'overpass down',
+        }),
       };
-      const catalog = { upsertGeoEntity: jest.fn() };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalogFor() as any,
+      );
+
+      await expect(
+        service.resolveRoute(routeAnchor, BUENOS_AIRES_DESTINATION),
+      ).resolves.toMatchObject({ resolved: false, status: 'unavailable' });
+    });
+
+    it('fails closed on a strong-identity conflict (segments already owned by two GeoEntities)', async () => {
+      const osmPlaces = {
+        lookupHighwaysByName: highways([
+          way(
+            1,
+            [1, 2],
+            [
+              [-34.6382, -58.3634],
+              [-34.6376, -58.363],
+            ],
+          ),
+        ]),
+      };
+      const catalog = catalogFor(['geo-1', 'geo-2']);
       const service = new AreaRouteAnchorResolverService(
         osmPlaces as any,
         catalog as any,
       );
 
-      await expect(
-        service.resolveRoute(routeAnchor, {
-          kind: 'AREA_BOUNDARY',
-          boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
-        } as any),
-      ).resolves.toMatchObject({ resolved: false, status: 'unavailable' });
+      const result = await service.resolveRoute(
+        routeAnchor,
+        BUENOS_AIRES_DESTINATION,
+      );
+
+      expect(result).toMatchObject({
+        resolved: false,
+        reason: 'IDENTITY_CONFLICT',
+      });
+      expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();
     });
   });
 
@@ -767,6 +984,7 @@ describe('AreaRouteAnchorResolverService', () => {
             tags: {},
           },
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -848,7 +1066,8 @@ describe('AreaRouteAnchorResolverService', () => {
           rawName: 'Ruta de los Siete Lagos',
           usage: 'named_path',
           status: 'unresolved',
-          unresolvedReason: 'IDENTITY_NOT_VERIFIED',
+          // No highway way with that exact name in the destination.
+          unresolvedReason: 'NO_CONFIDENT_GEO_ENTITY_MATCH',
         }),
         expect.objectContaining({
           rawName: 'Un lugar ambiguo',
@@ -923,6 +1142,7 @@ describe('AreaRouteAnchorResolverService', () => {
             tags: { boundary: 'administrative' },
           },
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -935,214 +1155,20 @@ describe('AreaRouteAnchorResolverService', () => {
         nominatim as any,
       );
 
-      const result = await service.resolveArea(areaAnchor, 'ar', {
-        latitude: -34.6,
-        longitude: -58.38,
-      });
+      const result = await service.resolveArea(
+        areaAnchor,
+        'ar',
+        {
+          latitude: -34.6,
+          longitude: -58.38,
+        },
+        BUENOS_AIRES_DESTINATION,
+      );
 
       // 2+ exact-name identities → exactNameAmbiguous = true
       // → real verifier cannot verify on exact-name alone → not persisted.
       expect(result).toEqual(
         expect.objectContaining({ resolved: false, status: 'no_match' }),
-      );
-      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
-    });
-
-    it('multiple same-name OSM ways must not by themselves create identity ambiguity', async () => {
-      // An OSM street/path can legitimately be represented by multiple
-      // way elements (split at intersections, tag changes, geometry
-      // boundaries, etc.). N same-name OSM ways != N distinct real-world
-      // identities. ROUTE resolution must still succeed.
-      const osmPlaces = {
-        lookupStreetsWithin: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [
-            {
-              id: 'osm:way:1',
-              name: 'Caminito',
-              osmType: 'way' as const,
-              osmId: 1,
-              geometry: {
-                type: 'LineString' as const,
-                coordinates: [
-                  [-58.3634, -34.6382],
-                  [-58.363, -34.6376],
-                ],
-              },
-              tags: { highway: 'pedestrian' },
-            },
-            {
-              id: 'osm:way:2',
-              name: 'Caminito',
-              osmType: 'way' as const,
-              osmId: 2,
-              geometry: {
-                type: 'LineString' as const,
-                coordinates: [
-                  [-58.37, -34.64],
-                  [-58.369, -34.639],
-                ],
-              },
-              tags: { highway: 'residential' },
-            },
-          ],
-        }),
-        lookupStreetsNear: jest.fn(),
-      };
-      const catalog = {
-        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-caminito' }),
-      };
-      const service = new AreaRouteAnchorResolverService(
-        osmPlaces as any,
-        catalog as any,
-      );
-
-      const result = await service.resolveRoute(routeAnchor, {
-        kind: 'AREA_BOUNDARY',
-        boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
-      } as any);
-
-      // Multiple same-name ways must NOT prevent resolution, but
-      // identity multiplicity is UNKNOWN for raw OSM ways. Without
-      // independent corroboration, verification fails closed.
-      expect(result).toEqual(
-        expect.objectContaining({
-          resolved: false,
-          status: 'no_match',
-          reason: 'IDENTITY_NOT_VERIFIED',
-        }),
-      );
-      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
-    });
-
-    it('ROUTE fuzzy match stays fail-closed for one raw OSM way', async () => {
-      // The raw route candidate is selected by existing fuzzy name matching.
-      // Raw OSM ROUTE multiplicity stays UNKNOWN/UNKNOWN and fails closed.
-      const osmPlaces = {
-        lookupStreetsWithin: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [
-            {
-              id: 'osm:way:1',
-              name: 'Defensa',
-              osmType: 'way' as const,
-              osmId: 1,
-              geometry: {
-                type: 'LineString' as const,
-                coordinates: [
-                  [-58.3634, -34.6382],
-                  [-58.363, -34.6376],
-                ],
-              },
-              tags: { highway: 'pedestrian', 'name:en': 'Defensa Street' },
-            },
-          ],
-        }),
-        lookupStreetsNear: jest.fn(),
-      };
-      const catalog = {
-        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-defensa' }),
-      };
-      const service = new AreaRouteAnchorResolverService(
-        osmPlaces as any,
-        catalog as any,
-      );
-
-      const primaryName = 'Defensa';
-      const hintName = 'Defensa Street';
-      // Primary MUST NOT equal hint.
-      expect(normalizeGeoName(primaryName)).not.toBe(
-        normalizeGeoName(hintName),
-      );
-
-      const result = await service.resolveRoute(
-        {
-          rawName: 'Defensa Street',
-          usage: 'unknown',
-          priority: 'soft',
-        },
-        {
-          kind: 'AREA_BOUNDARY',
-          boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
-        } as any,
-      );
-
-      // No raw-way count or metadata may manufacture route uniqueness.
-      expect(result).toEqual(
-        expect.objectContaining({
-          resolved: false,
-          status: 'no_match',
-          reason: 'IDENTITY_NOT_VERIFIED',
-        }),
-      );
-      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
-    });
-
-    // Two same-name raw OSM ways with alias must still be UNKNOWN/UNKNOWN.
-    it('ROUTE fuzzy match stays fail-closed for two raw OSM ways', async () => {
-      const osmPlaces = {
-        lookupStreetsWithin: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [
-            {
-              id: 'osm:way:1',
-              name: 'Defensa',
-              osmType: 'way' as const,
-              osmId: 1,
-              geometry: {
-                type: 'LineString' as const,
-                coordinates: [
-                  [-58.3634, -34.6382],
-                  [-58.363, -34.6376],
-                ],
-              },
-              tags: { highway: 'pedestrian', 'name:en': 'Defensa Street' },
-            },
-            {
-              id: 'osm:way:2',
-              name: 'Defensa',
-              osmType: 'way' as const,
-              osmId: 2,
-              geometry: {
-                type: 'LineString' as const,
-                coordinates: [
-                  [-58.37, -34.64],
-                  [-58.369, -34.639],
-                ],
-              },
-              tags: { highway: 'residential', 'name:en': 'Defensa Street' },
-            },
-          ],
-        }),
-        lookupStreetsNear: jest.fn(),
-      };
-      const catalog = {
-        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-defensa' }),
-      };
-      const service = new AreaRouteAnchorResolverService(
-        osmPlaces as any,
-        catalog as any,
-      );
-
-      const result = await service.resolveRoute(
-        {
-          rawName: 'Defensa Street',
-          usage: 'unknown',
-          priority: 'soft',
-        },
-        {
-          kind: 'AREA_BOUNDARY',
-          boundary: { id: 'osm:relation:1', name: 'Buenos Aires' },
-        } as any,
-      );
-
-      // Two raw ways still do not establish route identity multiplicity.
-      expect(result).toEqual(
-        expect.objectContaining({
-          resolved: false,
-          status: 'no_match',
-          reason: 'IDENTITY_NOT_VERIFIED',
-        }),
       );
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
@@ -1158,6 +1184,7 @@ describe('AreaRouteAnchorResolverService', () => {
           status: 'success',
           value: [],
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
       };
       const places = {
@@ -1223,6 +1250,7 @@ describe('AreaRouteAnchorResolverService', () => {
           status: 'success',
           value: [],
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
       };
       const places = {
@@ -1292,6 +1320,7 @@ describe('AreaRouteAnchorResolverService', () => {
           status: 'success',
           value: [],
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
       };
       const places = {
@@ -1356,6 +1385,7 @@ describe('AreaRouteAnchorResolverService', () => {
           status: 'success',
           value: [],
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
       };
       const places = {
@@ -1426,6 +1456,7 @@ describe('AreaRouteAnchorResolverService', () => {
           status: 'success',
           value: [],
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
       };
       const places = {
@@ -1533,6 +1564,7 @@ describe('AreaRouteAnchorResolverService', () => {
             tags: { boundary: 'administrative' },
           },
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -1545,10 +1577,15 @@ describe('AreaRouteAnchorResolverService', () => {
         nominatim as any,
       );
 
-      const result = await service.resolveArea(areaAnchor, 'ar', {
-        latitude: -34.6,
-        longitude: -58.38,
-      });
+      const result = await service.resolveArea(
+        areaAnchor,
+        'ar',
+        {
+          latitude: -34.6,
+          longitude: -58.38,
+        },
+        BUENOS_AIRES_DESTINATION,
+      );
 
       // Two exact-name AREA candidates -> exactName = MULTIPLE.
       // Boundary hydration MUST preserve MULTIPLE.
@@ -1602,6 +1639,7 @@ describe('AreaRouteAnchorResolverService', () => {
             tags: { boundary: 'administrative' },
           },
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -1614,10 +1652,15 @@ describe('AreaRouteAnchorResolverService', () => {
         nominatim as any,
       );
 
-      const result = await service.resolveArea(areaAnchor, 'ar', {
-        latitude: -34.6,
-        longitude: -58.38,
-      });
+      const result = await service.resolveArea(
+        areaAnchor,
+        'ar',
+        {
+          latitude: -34.6,
+          longitude: -58.38,
+        },
+        BUENOS_AIRES_DESTINATION,
+      );
 
       // Single exact AREA candidate -> exactName = SINGLE.
       // Boundary hydrates and persists.
@@ -1683,6 +1726,7 @@ describe('AreaRouteAnchorResolverService', () => {
             tags: { boundary: 'administrative', name: 'San Telmo' },
           },
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -1695,10 +1739,15 @@ describe('AreaRouteAnchorResolverService', () => {
         nominatim as any,
       );
 
-      await service.resolveArea(areaAnchor, 'ar', {
-        latitude: -34.6,
-        longitude: -58.38,
-      });
+      await service.resolveArea(
+        areaAnchor,
+        'ar',
+        {
+          latitude: -34.6,
+          longitude: -58.38,
+        },
+        BUENOS_AIRES_DESTINATION,
+      );
 
       // The payload passed to upsertGeoEntity MUST exactly match the
       // canonical EntityCandidate fields — no second representation
@@ -1726,6 +1775,7 @@ describe('AreaRouteAnchorResolverService', () => {
           status: 'success',
           value: [],
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
       };
       const places = {
@@ -1799,6 +1849,7 @@ describe('AreaRouteAnchorResolverService', () => {
           status: 'success',
           value: [],
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
       };
       const places = {
@@ -1914,6 +1965,7 @@ describe('AreaRouteAnchorResolverService', () => {
             tags: { boundary: 'administrative', wikidata: 'Q1026688' },
           },
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -1944,10 +1996,15 @@ describe('AreaRouteAnchorResolverService', () => {
         wikidata as any,
       );
 
-      const result = await service.resolveArea(areaAnchor, 'ar', {
-        latitude: -34.6,
-        longitude: -58.38,
-      });
+      const result = await service.resolveArea(
+        areaAnchor,
+        'ar',
+        {
+          latitude: -34.6,
+          longitude: -58.38,
+        },
+        BUENOS_AIRES_DESTINATION,
+      );
 
       // AFTER FIX: should be resolved and persisted
       expect(result).toEqual(
@@ -2022,6 +2079,7 @@ describe('AreaRouteAnchorResolverService', () => {
             tags: { boundary: 'administrative', wikidata: 'Q123;Q456' },
           },
         }),
+        lookupHighwaysByName: noHighways(),
         lookupStreetsWithin: jest.fn(),
         lookupStreetsNear: jest.fn(),
       };
@@ -2040,10 +2098,15 @@ describe('AreaRouteAnchorResolverService', () => {
         wikidata as any,
       );
 
-      const result = await service.resolveArea(areaAnchor, 'ar', {
-        latitude: -34.6,
-        longitude: -58.38,
-      });
+      const result = await service.resolveArea(
+        areaAnchor,
+        'ar',
+        {
+          latitude: -34.6,
+          longitude: -58.38,
+        },
+        BUENOS_AIRES_DESTINATION,
+      );
 
       // Malformed QID → no wikidataQid → NEARBY fallback attempted → still fails
       // because NEARBY doesn't match both hint + candidate

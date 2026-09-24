@@ -8,12 +8,12 @@ import { calculateDistance, Coordinates } from '@shared/utils/distance.utils';
  * themselves; two DISCONNECTED same-name groups, however, are genuinely
  * different candidates and stay separate.
  *
- * Grouping facts, in order of authority:
+ * Grouping facts:
  *   1. exact equality of the provider's own `name` tag (never similarity);
- *   2. OSM topology: ways sharing a node ref are connected;
- *   3. OPTIONAL, off by default: an explicit endpoint continuity gap
- *      (intersection-scale) for streets whose OSM ways are interrupted
- *      without sharing a node. Characterization knob, not identity policy.
+ *   2. OSM topology: ways sharing a node ref are connected.
+ * There is deliberately no distance/gap merge: a real street whose OSM ways
+ * do not share a node (Balcarce, Chile) stays over-split -> AMBIGUOUS, a
+ * known, measured false negative rather than a proximity heuristic.
  *
  * Distance to the destination (or to anything else) is never used here, and
  * the representative segment is chosen by its own length, not proximity.
@@ -31,6 +31,8 @@ export interface RouteClusterSegment {
   lengthMeters: number;
   /** A real vertex of the way (its middle one), so it lies on the line. */
   probePoint: Coordinates;
+  /** The way's own real vertices, GeoJSON [lon, lat] order. */
+  coordinates: [number, number][];
 }
 
 export interface RouteCandidateCluster {
@@ -44,11 +46,6 @@ export interface RouteCandidateCluster {
     highwayTypes: string[];
     bbox: { minLat: number; maxLat: number; minLon: number; maxLon: number };
   };
-}
-
-export interface RouteClusteringOptions {
-  /** 0 / omitted = pure OSM topology (shared node refs only). */
-  continuityGapMeters?: number;
 }
 
 const toCoordinates = (p: { lat: number; lon: number }): Coordinates => ({
@@ -69,10 +66,6 @@ function segmentLengthMeters(segment: RouteSegment): number {
   return total;
 }
 
-function endpoints(segment: RouteSegment) {
-  return [segment.geometry[0], segment.geometry[segment.geometry.length - 1]];
-}
-
 function toClusterSegment(segment: RouteSegment): RouteClusterSegment {
   const middle = segment.geometry[Math.floor(segment.geometry.length / 2)];
   return {
@@ -80,14 +73,15 @@ function toClusterSegment(segment: RouteSegment): RouteClusterSegment {
     highway: segment.highway,
     lengthMeters: Math.round(segmentLengthMeters(segment)),
     probePoint: toCoordinates(middle),
+    coordinates: segment.geometry.map(
+      (p) => [p.lon, p.lat] as [number, number],
+    ),
   };
 }
 
 export function clusterRouteSegments(
   input: RouteSegment[],
-  options: RouteClusteringOptions = {},
 ): RouteCandidateCluster[] {
-  const gap = options.continuityGapMeters ?? 0;
   // Canonical input order makes union-find (and therefore the output)
   // independent of provider response order.
   const segments = [...input].sort((a, b) => a.osmId - b.osmId);
@@ -114,18 +108,6 @@ export function clusterRouteSegments(
       else union(owner, i);
     }
   });
-
-  if (gap > 0) {
-    for (let i = 0; i < segments.length; i += 1) {
-      for (let j = i + 1; j < segments.length; j += 1) {
-        if (segments[i].name !== segments[j].name) continue;
-        const bridged = endpoints(segments[i]).some((a) =>
-          endpoints(segments[j]).some((b) => distanceMeters(a, b) <= gap),
-        );
-        if (bridged) union(i, j);
-      }
-    }
-  }
 
   const groups = new Map<number, RouteSegment[]>();
   segments.forEach((segment, i) => {

@@ -91,4 +91,36 @@ describe('distancePointToLineStringMeters', () => {
       ),
     ).toBe(Infinity);
   });
+
+  it('measures a MultiLineString against each real line independently -- a gap between segments is never road', () => {
+    // Two real segments of one street along a meridian, with a ~220 m gap.
+    const multi = {
+      type: 'MultiLineString' as const,
+      coordinates: [
+        [
+          [-58.371, -34.61],
+          [-58.371, -34.611],
+        ],
+        [
+          [-58.371, -34.613],
+          [-58.371, -34.614],
+        ],
+      ] as [number, number][][],
+    };
+
+    // On the second segment.
+    expect(
+      distancePointToLineStringMeters(
+        { latitude: -34.6135, longitude: -58.371 },
+        multi,
+      ),
+    ).toBeLessThan(1);
+    // In the middle of the gap: ~111 m from either real segment end, not 0.
+    const inGap = distancePointToLineStringMeters(
+      { latitude: -34.612, longitude: -58.371 },
+      multi,
+    );
+    expect(inGap).toBeGreaterThan(100);
+    expect(inGap).toBeLessThan(120);
+  });
 });

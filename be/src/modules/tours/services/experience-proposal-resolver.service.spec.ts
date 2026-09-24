@@ -123,32 +123,29 @@ describe('ExperienceProposalResolverService', () => {
     );
   });
 
-  it('uses radius-based OSM lookups for a point-scale destination instead of "within area" (real regression: Caminito/Calle Defensa)', async () => {
+  it('ROUTE on a point-scale destination: targeted acquisition over the destination radius, then fail closed (no admin boundary -> compatibility UNKNOWN)', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest.fn(),
-      lookupPoisWithin: jest.fn(),
-      lookupStreetsNear: jest.fn().mockResolvedValue({
+      lookupHighwaysByName: jest.fn().mockResolvedValue({
         status: 'success',
-        value: [
-          {
-            id: 'osm:way:1',
-            name: 'Caminito',
-            osmType: 'way',
-            osmId: 1,
-            geometry: {
-              type: 'LineString',
-              coordinates: [
-                [-58.363, -34.635],
-                [-58.362, -34.634],
+        value: {
+          rawCount: 1,
+          segments: [
+            {
+              externalId: 'osm:way:144844726',
+              osmId: 144844726,
+              name: 'Caminito',
+              highway: 'pedestrian',
+              nodes: [1, 2],
+              geometry: [
+                { lat: -34.635, lon: -58.363 },
+                { lat: -34.634, lon: -58.362 },
               ],
             },
-            tags: { highway: 'pedestrian' },
-          },
-        ],
+          ],
+          rejected: [],
+        },
       }),
-      lookupPoisNear: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupPoisNear: jest.fn(),
     };
     const routeCandidate: ExperienceCandidate = {
       name: 'Caminito Route',
@@ -172,19 +169,14 @@ describe('ExperienceProposalResolverService', () => {
       findGeoEntityCandidatesForHint: jest
         .fn()
         .mockResolvedValue({ candidates: [] }),
-      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-caminito' }),
-      persistVerifiedExperience: jest.fn().mockResolvedValue({
-        id: 'exp-caminito',
-        dedupeDecision: 'NEW',
-      }),
-    };
-    const geographicValidator = {
-      validate: jest.fn().mockReturnValue(acceptedValidation('Caminito Route')),
+      findGeoEntityIdsByIdentities: jest.fn(),
+      upsertGeoEntityWithIdentities: jest.fn(),
+      persistVerifiedExperience: jest.fn(),
     };
     const service = new ExperienceProposalResolverService(
       osmPlaces as any,
       catalog as any,
-      geographicValidator as any,
+      { validate: jest.fn() } as any,
     );
 
     const result = await service.resolve({
@@ -198,112 +190,30 @@ describe('ExperienceProposalResolverService', () => {
       candidates: [routeCandidate],
     });
 
-    expect(osmPlaces.lookupStreetsNear).toHaveBeenCalledWith(
-      -34.6345,
-      -58.3631,
-      1200,
-    );
-    // Stage 3: OSM pools are lazy -- this candidate has only a ROUTE hint,
-    // so the POI pool is never needed and lookupPoisNear is never invoked.
+    expect(osmPlaces.lookupHighwaysByName).toHaveBeenCalledWith({
+      name: 'Caminito',
+      latitude: -34.6345,
+      longitude: -58.3631,
+      radiusMeters: 1200,
+    });
     expect(osmPlaces.lookupPoisNear).not.toHaveBeenCalled();
-    expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
-    expect(osmPlaces.lookupPoisWithin).not.toHaveBeenCalled();
-    // ROUTE hint via POINT_RADIUS -> raw OSM ways -> identityMultiplicity
-    // UNKNOWN -> no independent corroboration -> fail closed (not persisted).
+    expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();
     expect(result.acceptedCount).toBe(0);
     const routeAttempts =
       result.entityResolution.forensicAudit[0].componentAudits[0].attempts;
     expect(routeAttempts.map((attempt) => attempt.strategy)).toEqual([
       'CATALOG_REUSE',
-      'LOCAL_OSM_POOL',
+      'TARGETED_ROUTE',
     ]);
-    expect(routeAttempts[0]).toMatchObject({
-      executionStatus: 'completed',
-      candidateAcquired: false,
-    });
     expect(routeAttempts[1]).toMatchObject({
       executionStatus: 'completed',
-      candidateAcquired: true,
-      poolCandidateCount: 1,
+      candidateAcquired: false,
+      routeResolution: {
+        status: 'AMBIGUOUS',
+        reason: 'DESTINATION_COMPATIBILITY_UNKNOWN',
+      },
     });
   });
-
-  it('fails closed when a raw OSM ROUTE alias matches but multiplicity is unknown', async () => {
-    const osmPlaces = {
-      lookupStreetsWithin: jest.fn().mockResolvedValue({
-        status: 'success',
-        value: [
-          {
-            id: 'osm:way:1',
-            name: 'Defensa',
-            osmType: 'way',
-            osmId: 1,
-            geometry: {
-              type: 'LineString',
-              coordinates: [
-                [-58.371, -34.621],
-                [-58.37, -34.62],
-              ],
-            },
-            tags: { highway: 'pedestrian', 'name:en': 'Defensa Street' },
-          },
-        ],
-      }),
-      lookupPoisWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
-    };
-    const catalog = {
-      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
-      findGeoEntityCandidatesForHint: jest
-        .fn()
-        .mockResolvedValue({ candidates: [] }),
-      upsertGeoEntity: jest.fn(),
-      persistVerifiedExperience: jest.fn(),
-    };
-    const service = new ExperienceProposalResolverService(
-      osmPlaces as any,
-      catalog as any,
-      { validate: jest.fn() } as any,
-    );
-    const hintName = 'Defensa Street';
-    const primaryName = 'Defensa';
-
-    expect(normalizeGeoName(primaryName)).not.toBe(normalizeGeoName(hintName));
-
-    const result = await service.resolve({
-      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [
-        {
-          name: 'Walk Defensa Street',
-          themes: ['culture'],
-          traits: [],
-          intents: ['walk'],
-          evidenceKeys: ['ev-1'],
-          shortReason: 'Walk a named street',
-          componentHints: [
-            {
-              key: 'defensa',
-              name: hintName,
-              role: 'route',
-              expectedKind: 'ROUTE',
-              evidenceKeys: ['ev-1'],
-            },
-          ],
-        },
-      ],
-    });
-
-    expect(result.acceptedCount).toBe(0);
-    expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
-      status: 'unresolved',
-      reason: 'UNCONFIRMED_MATCH',
-      role: 'route',
-    });
-    expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
-    expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
-  });
-
   it("dedupes components by geoEntityId before persisting (real regression: two hints of one candidate reconciled onto the same GeoEntity, crashing on ExperienceComponent's unique constraint)", async () => {
     // Verified live: a Recoleta candidate proposed an "area" hint ("Recoleta")
     // and a "venue" hint naming something inside it — cross-provider
@@ -1650,12 +1560,12 @@ describe('ExperienceProposalResolverService', () => {
     }
   });
 
-  it('records a failed street lookup as a failed ROUTE attempt', async () => {
+  it('records a failed targeted ROUTE lookup as a failed attempt and an OSM_PROVIDER_FAILED rejection (never NOT_FOUND)', async () => {
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest.fn().mockResolvedValue({
+        lookupHighwaysByName: jest.fn().mockResolvedValue({
           status: 'failed',
-          value: [],
+          value: { rawCount: 0, segments: [], rejected: [] },
           failureReason: 'Overpass timeout',
         }),
         lookupPoisWithin: jest
@@ -1693,7 +1603,7 @@ describe('ExperienceProposalResolverService', () => {
     expect(attempts).toHaveLength(2);
     expect(attempts[0].strategy).toBe('CATALOG_REUSE');
     expect(attempts[1]).toMatchObject({
-      strategy: 'LOCAL_OSM_POOL',
+      strategy: 'TARGETED_ROUTE',
       executionStatus: 'failed',
       provider: 'openstreetmap',
       candidateAcquired: false,
@@ -5808,10 +5718,9 @@ describe('ExperienceProposalResolverService', () => {
         geographicValidator as any,
       );
 
-      // Stage 3: OSM pools are lazy, so a real hint of each pool-needing
-      // kind (venue -> pois, route -> streets) is required to actually
-      // exercise the fetch this test characterizes -- an empty candidate
-      // list would never touch either lookup at all.
+      // Stage 3: the POI pool is lazy, so a real venue hint is required to
+      // exercise the fetch this test characterizes. ROUTE hints no longer
+      // use a local street pool at all (targeted route acquisition).
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary: boundary2 },
         candidates: [
@@ -5828,31 +5737,25 @@ describe('ExperienceProposalResolverService', () => {
                 expectedKind: 'PLACE',
                 evidenceKeys: ['ev-1'],
               },
-              {
-                key: 'street',
-                name: 'Some Street',
-                role: 'route',
-                expectedKind: 'ROUTE',
-                evidenceKeys: ['ev-1'],
-              },
             ],
             evidenceKeys: ['ev-1'],
-            shortReason: 'Mixed venue + route hints',
+            shortReason: 'Venue hint (ROUTE no longer uses a local pool)',
           },
         ],
         evidence: [],
       });
 
       expect(osmPlaces.lookupPoisWithin).toHaveBeenCalledWith(boundary2);
-      expect(osmPlaces.lookupStreetsWithin).toHaveBeenCalledWith(boundary2);
+      expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
     });
   });
 
   describe('trusted-observation reuse for web-discovered hints (P2-B, Phase 1)', () => {
     const emptyOsmPlaces = () => ({
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
+      lookupHighwaysByName: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: { rawCount: 0, segments: [], rejected: [] },
+      }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: [] }),
@@ -7172,25 +7075,44 @@ describe('ExperienceProposalResolverService', () => {
             },
           ],
         }),
-        lookupStreetsWithin: jest.fn().mockResolvedValue({
+        // Real 2026-09-24 targeted-route facts: "Pasaje San Lorenzo" is
+        // named "San Lorenzo" in OSM and TWO disconnected real clusters of
+        // that name exist inside the destination (San Telmo + a Flores
+        // footway).
+        lookupHighwaysByName: jest.fn(async ({ name }: { name: string }) => ({
           status: 'success',
-          value: [
-            {
-              id: 'osm:way:22697007',
-              name: 'San Lorenzo',
-              osmType: 'way',
-              osmId: 22697007,
-              geometry: {
-                type: 'LineString',
-                coordinates: [
-                  [-58.372, -34.621],
-                  [-58.371, -34.62],
-                ],
-              },
-              tags: { highway: 'residential' },
-            },
-          ],
-        }),
+          value:
+            name === 'San Lorenzo'
+              ? {
+                  rawCount: 2,
+                  segments: [
+                    {
+                      externalId: 'osm:way:22697007',
+                      osmId: 22697007,
+                      name: 'San Lorenzo',
+                      highway: 'residential',
+                      nodes: [1, 2],
+                      geometry: [
+                        { lat: -34.621, lon: -58.372 },
+                        { lat: -34.62, lon: -58.371 },
+                      ],
+                    },
+                    {
+                      externalId: 'osm:way:908381626',
+                      osmId: 908381626,
+                      name: 'San Lorenzo',
+                      highway: 'footway',
+                      nodes: [50, 51],
+                      geometry: [
+                        { lat: -34.65, lon: -58.44 },
+                        { lat: -34.6503, lon: -58.4402 },
+                      ],
+                    },
+                  ],
+                  rejected: [] as never[],
+                }
+              : { rawCount: 0, segments: [], rejected: [] },
+        })),
       };
       const catalog = {
         resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
@@ -7284,20 +7206,23 @@ describe('ExperienceProposalResolverService', () => {
       expect(plazaAudit?.finalStatus).toBe('unresolved');
       expect(plazaAudit?.finalReason).toBe('UNCONFIRMED_MATCH');
 
-      // Case E: a genuinely weak/wrong ROUTE identity stays an explicit
-      // unresolved deficit — never force-resolved onto "San Lorenzo".
+      // Case E (Stage 3 cutover): the targeted ROUTE path finds the real
+      // San Telmo cluster, but a second real "San Lorenzo" cluster inside
+      // the destination makes it genuinely AMBIGUOUS -- never
+      // force-resolved by proximity or name.
       expect(pasajeAudit?.attempts).toHaveLength(2);
       expect(pasajeAudit?.attempts[0].strategy).toBe('CATALOG_REUSE');
       expect(pasajeAudit?.attempts[1]).toMatchObject({
-        strategy: 'LOCAL_OSM_POOL',
-        candidateAcquired: true,
-        selectedCandidate: expect.objectContaining({
-          externalId: 'osm:way:22697007',
-          canonicalName: 'San Lorenzo',
+        strategy: 'TARGETED_ROUTE',
+        candidateAcquired: false,
+        routeResolution: expect.objectContaining({
+          status: 'AMBIGUOUS',
+          reason: 'MULTIPLE_COMPATIBLE_CLUSTERS',
+          compatibleClusterCount: 2,
         }),
       });
       expect(pasajeAudit?.finalStatus).toBe('unresolved');
-      expect(pasajeAudit?.finalReason).toBe('UNCONFIRMED_MATCH');
+      expect(pasajeAudit?.finalReason).toBe('AMBIGUOUS');
 
       // Case H (FIXED 2026-09-24): the proposal-level summary must not say
       // NO_OSM_MATCH when a real candidate was actually ACQUIRED and

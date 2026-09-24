@@ -427,4 +427,100 @@ describe('IdentityVerifier', () => {
       expect(result).toEqual({ status: 'AMBIGUOUS' });
     });
   });
+
+  describe('STRUCTURED_ROUTE_RESOLUTION (Stage 3 targeted ROUTE)', () => {
+    const structured = (
+      overrides: Partial<{
+        destinationCompatibility: 'COMPATIBLE' | 'INCOMPATIBLE' | 'UNKNOWN';
+        ambiguity: 'SINGLE_CLUSTER' | 'MULTIPLE_CLUSTERS';
+      }> = {},
+    ) => ({
+      type: 'STRUCTURED_ROUTE_RESOLUTION' as const,
+      provider: 'openstreetmap' as const,
+      segmentExternalIds: ['osm:way:1', 'osm:way:2'],
+      destinationCompatibility: 'COMPATIBLE' as const,
+      ambiguity: 'SINGLE_CLUSTER' as const,
+      ...overrides,
+    });
+
+    it('VERIFIES a single destination-compatible structural route cluster, with no name evidence at all', () => {
+      expect(
+        new IdentityVerifier().verify(
+          { name: 'Defensa Street' },
+          attempt([structured()], 'UNKNOWN', 'UNKNOWN'),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
+
+    it('never VERIFIES a cluster whose destination compatibility is not COMPATIBLE', () => {
+      for (const destinationCompatibility of [
+        'INCOMPATIBLE',
+        'UNKNOWN',
+      ] as const) {
+        expect(
+          new IdentityVerifier().verify(
+            { name: 'Defensa' },
+            attempt(
+              [structured({ destinationCompatibility })],
+              'UNKNOWN',
+              'UNKNOWN',
+            ),
+          ).status,
+        ).not.toBe('VERIFIED');
+      }
+    });
+
+    it('reports AMBIGUOUS, never VERIFIED, for competing clusters', () => {
+      expect(
+        new IdentityVerifier().verify(
+          { name: 'San Lorenzo' },
+          attempt(
+            [structured({ ambiguity: 'MULTIPLE_CLUSTERS' })],
+            'UNKNOWN',
+            'UNKNOWN',
+          ),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    });
+  });
+
+  describe('CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH (catalog reuse of a canonical ROUTE)', () => {
+    it('VERIFIES a single canonical ROUTE matched through the generic designator variant ("Defensa Street" -> "Defensa")', () => {
+      expect(
+        new IdentityVerifier().verify(
+          { name: 'Defensa Street' },
+          attempt(
+            [
+              {
+                type: 'CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH',
+                retrievalVariant: 'DESIGNATOR_NORMALIZED',
+                identityMultiplicity: 'SINGLE',
+              },
+            ],
+            'UNKNOWN',
+            'UNKNOWN',
+          ),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
+
+    it('is AMBIGUOUS when the variant matched several canonical ROUTEs', () => {
+      expect(
+        new IdentityVerifier().verify(
+          { name: 'Pasaje San Lorenzo' },
+          attempt(
+            [
+              {
+                type: 'CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH',
+                retrievalVariant: 'DESIGNATOR_NORMALIZED',
+                identityMultiplicity: 'MULTIPLE',
+              },
+            ],
+            'UNKNOWN',
+            'UNKNOWN',
+          ),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    });
+  });
 });

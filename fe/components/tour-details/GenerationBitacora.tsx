@@ -295,6 +295,12 @@ function identityEvidenceLabel(
       return `WIKIDATA_IDENTITY_MATCH source=${evidence.source} hintMatched=${String(evidence.hintMatched)} candidateMatched=${String(evidence.candidateMatched)}`;
     case "WIKIDATA_UNAVAILABLE":
       return "WIKIDATA_UNAVAILABLE";
+    case "IDENTITY_CONVERGENCE":
+      return `IDENTITY_CONVERGENCE prior=${evidence.priorStrategy}`;
+    case "STRUCTURED_ROUTE_RESOLUTION":
+      return `STRUCTURED_ROUTE_RESOLUTION segments=${evidence.segmentExternalIds.length} destination=${evidence.destinationCompatibility} ${evidence.ambiguity}`;
+    case "CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH":
+      return `CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH variant=${evidence.retrievalVariant} multiplicity=${evidence.identityMultiplicity}`;
   }
 }
 
@@ -954,6 +960,17 @@ function EntityResolutionAuditPanel({
                           : ""}
                         {attempt.verificationDecision
                           ? ` · ${attempt.verificationDecision}`
+                          : ""}
+                        {attempt.destinationCompatibility
+                          ? ` · destination=${attempt.destinationCompatibility.verdict}/${attempt.destinationCompatibility.reason}`
+                          : ""}
+                        {attempt.routeResolution
+                          ? ` · route=${attempt.routeResolution.status}/${attempt.routeResolution.reason} clusters=${attempt.routeResolution.compatibleClusterCount}/${attempt.routeResolution.clusterCount}${
+                              attempt.routeResolution.resolvedSegmentCount !==
+                              undefined
+                                ? ` segments=${attempt.routeResolution.resolvedSegmentCount}`
+                                : ""
+                            }`
                           : ""}
                       </Text>
                       {attempt.selectedCandidate ? (

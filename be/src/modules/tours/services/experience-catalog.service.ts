@@ -131,15 +131,15 @@ export interface GeoEntityWithIdentitiesInput {
    * dropped at OSM coordinate precision); gaps are never bridged by a
    * synthetic connector.
    */
-  geometry?: GeoJsonGeometry | MultiLineStringGeometry;
+  geometry?: GeoJsonGeometry;
   address?: string;
   metadata?: unknown;
 }
 
-export interface MultiLineStringGeometry {
-  type: 'MultiLineString';
-  coordinates: [number, number][][];
-}
+export type MultiLineStringGeometry = Extract<
+  GeoJsonGeometry,
+  { type: 'MultiLineString' }
+>;
 
 export type GeoEntityWithIdentitiesResult =
   | {

@@ -6,11 +6,9 @@ type LonLat = [number, number];
 
 /**
  * Minimum distance from `point` to the nearest segment of `geometry`, in
- * meters. LineString ONLY (Task B5) — the real `GeoJsonGeometry` type
- * (`osm-geometry.util.ts`) has no `MultiLineString` variant today, and B5
- * v1's canonical ROUTE resolution is itself LineString-only (named OSM
- * highway ways/streets), so there is no real input this needs to handle
- * beyond LineString.
+ * meters. LineString, or MultiLineString (one real street made of several
+ * OSM ways): the minimum over each real line independently -- lines are
+ * never joined, so a gap between segments is never treated as road.
  *
  * Deterministic, real geometry — projects the point onto each segment in a
  * locally-flat (equirectangular) approximation, adequate at street/
@@ -24,18 +22,23 @@ export function distancePointToLineStringMeters(
   point: GeographicPoint,
   geometry: GeoJsonGeometry,
 ): number {
-  if (geometry.type !== 'LineString') return Infinity;
-  const coordinates = geometry.coordinates;
-  if (!Array.isArray(coordinates) || coordinates.length < 2) return Infinity;
-
+  const lines: LonLat[][] =
+    geometry.type === 'LineString'
+      ? [geometry.coordinates]
+      : geometry.type === 'MultiLineString'
+        ? geometry.coordinates
+        : [];
   let min = Infinity;
-  for (let i = 0; i < coordinates.length - 1; i += 1) {
-    const distance = distancePointToSegmentMeters(
-      point,
-      coordinates[i],
-      coordinates[i + 1],
-    );
-    if (distance < min) min = distance;
+  for (const coordinates of lines) {
+    if (!Array.isArray(coordinates) || coordinates.length < 2) continue;
+    for (let i = 0; i < coordinates.length - 1; i += 1) {
+      const distance = distancePointToSegmentMeters(
+        point,
+        coordinates[i],
+        coordinates[i + 1],
+      );
+      if (distance < min) min = distance;
+    }
   }
   return min;
 }

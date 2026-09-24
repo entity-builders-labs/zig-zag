@@ -1,4 +1,10 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
+import { evaluateDestinationCompatibility } from '../utils/destination-compatibility.policy';
+import {
+  buildRouteClusterCandidate,
+  structuredRouteEvidence,
+} from '../utils/route-cluster-candidate.util';
+import { TargetedRouteResolverService } from './targeted-route-resolver.service';
 import { GeoEntityKind } from '@prisma/client';
 import {
   OsmPlacesService,
@@ -15,6 +21,7 @@ import {
 import {
   EntityCandidate,
   GeographicScope,
+  IdentityEvidence,
   VerificationDecision,
 } from '../interfaces/experience-resolution.interface';
 import { ExperienceCatalogService } from './experience-catalog.service';
@@ -24,7 +31,6 @@ import {
   countNominatimExactMatches,
   extractWikidataQid,
   isAreaScaleEligible,
-  matchOsmCandidateByName,
   normalizeGeoName,
   countExactNormalizedMatches,
 } from '../utils/nominatim-match.util';
@@ -77,6 +83,13 @@ interface AnchorGeoCandidate {
   // Task A6 -- only set by discoverArea, for the real OSM way/relation
   // boundary lookupBoundaryById already returned.
   osmBoundary?: OsmCandidate;
+  /**
+   * Only set by discoverRoute: the canonical multi-identity ROUTE candidate
+   * (shared `buildRouteClusterCandidate`) and the typed structural fact
+   * IdentityVerifier judges it by.
+   */
+  routeEntity?: EntityCandidate;
+  acquisitionEvidence?: IdentityEvidence[];
 }
 
 type CandidateDiscovery =
@@ -130,11 +143,13 @@ function representativePoint(
   const coordinates: Array<[number, number]> =
     geometry.type === 'LineString'
       ? geometry.coordinates
-      : geometry.type === 'Polygon'
-        ? geometry.coordinates[0]
-        : geometry.type === 'MultiPolygon'
-          ? (geometry.coordinates[0]?.[0] ?? [])
-          : [];
+      : geometry.type === 'MultiLineString'
+        ? geometry.coordinates.flat()
+        : geometry.type === 'Polygon'
+          ? geometry.coordinates[0]
+          : geometry.type === 'MultiPolygon'
+            ? (geometry.coordinates[0]?.[0] ?? [])
+            : [];
   if (coordinates.length === 0) return undefined;
   return {
     latitude:
@@ -150,6 +165,7 @@ function representativePoint(
 export class AreaRouteAnchorResolverService {
   private readonly identityVerifier: IdentityVerifier;
   private readonly identityEvidenceCollector: IdentityEvidenceCollector;
+  private readonly targetedRouteResolver: TargetedRouteResolverService;
 
   constructor(
     private readonly osmPlaces: OsmPlacesService,
@@ -166,6 +182,7 @@ export class AreaRouteAnchorResolverService {
   ) {
     this.identityVerifier = new IdentityVerifier();
     this.identityEvidenceCollector = new IdentityEvidenceCollector(wikidata);
+    this.targetedRouteResolver = new TargetedRouteResolverService(osmPlaces);
   }
 
   /** Resolve interpreted names to canonical GeoEntity kinds. */
@@ -187,6 +204,7 @@ export class AreaRouteAnchorResolverService {
             anchor,
             options.destinationCountryCode,
             options.destinationPoint,
+            options.geographicScope,
           ),
           this.discoverRoute(anchor, options.geographicScope),
           this.discoverPlace(anchor, options.destinationCountryCode),
@@ -372,6 +390,7 @@ export class AreaRouteAnchorResolverService {
     anchor: InterpretedAnchor,
     candidate: AnchorGeoCandidate,
   ): EntityCandidate {
+    if (candidate.routeEntity) return candidate.routeEntity;
     const kind =
       candidate.kind === 'area'
         ? GeoEntityKind.AREA
@@ -405,11 +424,12 @@ export class AreaRouteAnchorResolverService {
    */
   private async verifyAnchorCandidate(
     entity: EntityCandidate,
+    acquisitionEvidence: IdentityEvidence[] = [],
   ): Promise<VerificationDecision> {
-    const evidence = buildLocalIdentityEvidence(
-      { name: entity.hintName },
-      entity,
-    );
+    const evidence = [
+      ...buildLocalIdentityEvidence({ name: entity.hintName }, entity),
+      ...acquisitionEvidence,
+    ];
     const attempt = {
       strategy: 'ANCHOR_RESOLUTION' as const,
       candidate: entity,
@@ -439,19 +459,27 @@ export class AreaRouteAnchorResolverService {
     candidate: AnchorGeoCandidate,
   ): Promise<ResolvedAnchor | null> {
     const entity = this.toEntityCandidate(anchor, candidate);
-    const decision = await this.verifyAnchorCandidate(entity);
+    const decision = await this.verifyAnchorCandidate(
+      entity,
+      candidate.acquisitionEvidence,
+    );
     if (decision.status !== 'VERIFIED') return null;
 
-    const geo = await this.catalog.upsertGeoEntity({
-      name: entity.canonicalName,
-      kind: entity.kind,
-      provider: entity.provider,
-      externalId: entity.externalId,
-      latitude: entity.latitude,
-      longitude: entity.longitude,
-      geometry: entity.geometry,
-      metadata: entity.persistenceMetadata,
-    });
+    const geo = entity.identities?.length
+      ? await this.persistWithIdentities(entity)
+      : await this.catalog.upsertGeoEntity({
+          name: entity.canonicalName,
+          kind: entity.kind,
+          provider: entity.provider,
+          externalId: entity.externalId,
+          latitude: entity.latitude,
+          longitude: entity.longitude,
+          geometry: entity.geometry,
+          metadata: entity.persistenceMetadata,
+        });
+    // A concurrent write attached these identities to 2+ GeoEntities: never
+    // merged, the anchor stays unresolved.
+    if (!geo) return null;
     return {
       status: 'resolved',
       rawName: anchor.rawName,
@@ -467,6 +495,23 @@ export class AreaRouteAnchorResolverService {
     };
   }
 
+  private async persistWithIdentities(
+    entity: EntityCandidate,
+  ): Promise<{ id: string } | null> {
+    const persisted = await this.catalog.upsertGeoEntityWithIdentities({
+      name: entity.canonicalName,
+      kind: entity.kind,
+      identities: entity.identities!,
+      latitude: entity.latitude ?? undefined,
+      longitude: entity.longitude ?? undefined,
+      geometry: entity.geometry as GeoJsonGeometry,
+      metadata: entity.persistenceMetadata,
+    });
+    return persisted.status === 'IDENTITY_CONFLICT'
+      ? null
+      : persisted.geoEntity;
+  }
+
   /**
    * Nominatim search(anchor.rawName) -> bestNominatimMatch(...,
    * destinationPoint) -> if way/relation -> osmPlaces.lookupBoundaryById ->
@@ -478,6 +523,7 @@ export class AreaRouteAnchorResolverService {
     anchor: InterpretedAnchor,
     destinationCountryCode: string | undefined,
     destinationPoint: Coordinates | undefined,
+    destinationScope: GeographicScope,
   ): Promise<CandidateDiscovery> {
     if (!this.nominatim)
       return { status: 'no_match', reason: 'NO_NOMINATIM_PROVIDER' };
@@ -522,6 +568,35 @@ export class AreaRouteAnchorResolverService {
           : { status: 'no_match', reason: 'NO_AREA_BOUNDARY' };
       }
 
+      // Single destination policy: an anchor AREA outside the resolved
+      // destination is never an anchor; UNKNOWN never counts as inside.
+      const adminLevel = Number(boundary.value.tags?.admin_level);
+      const compatibility = evaluateDestinationCompatibility(
+        {
+          probePoints: [
+            {
+              latitude: match.latitude as number,
+              longitude: match.longitude as number,
+            },
+          ],
+          self: {
+            osmType: boundary.value.osmType,
+            osmId: boundary.value.osmId,
+            ...(Number.isFinite(adminLevel) ? { adminLevel } : {}),
+          },
+        },
+        destinationScope,
+      );
+      if (compatibility.verdict !== 'COMPATIBLE') {
+        return {
+          status: 'no_match',
+          reason:
+            compatibility.verdict === 'INCOMPATIBLE'
+              ? 'DESTINATION_INCOMPATIBLE'
+              : 'DESTINATION_COMPATIBILITY_UNKNOWN',
+        };
+      }
+
       const point = representativePoint(boundary.value.geometry);
       return {
         status: 'match',
@@ -550,11 +625,13 @@ export class AreaRouteAnchorResolverService {
     anchor: InterpretedAnchor,
     destinationCountryCode: string | undefined,
     destinationPoint: Coordinates | undefined,
+    geographicScope: GeographicScope,
   ): Promise<AnchorGeometryResolution> {
     const outcome = await this.discoverArea(
       anchor,
       destinationCountryCode,
       destinationPoint,
+      geographicScope,
     );
     if (outcome.status !== 'match') {
       return outcome.status === 'unavailable'
@@ -582,58 +659,54 @@ export class AreaRouteAnchorResolverService {
   }
 
   /**
-   * Named OSM highway way/street ONLY (canonical ROUTE support, v1 — no
-   * OSM route *relations*). Mirrors the resolver's own point-scale/area-
-   * scale street-lookup split EXACTLY: POINT_RADIUS -> `lookupStreetsNear`;
-   * AREA_BOUNDARY -> `lookupStreetsWithin`,
-   * never on a fabricated boundary. Any missing step returns
-   * {resolved:false} -- a NORMAL outcome (falls through to the tourism-
-   * route-Experience identity path), never a failure.
+   * ROUTE anchors use the SAME canonical route path as component
+   * resolution: targeted OSM acquisition over the destination, strong
+   * identity correlation against persisted GeoEntityIdentity rows, the
+   * shared multi-identity candidate, and the typed structural fact for
+   * IdentityVerifier. A non-RESOLVED outcome is a normal `no_match` (or
+   * `unavailable` on provider failure), never a failure.
    */
   private async discoverRoute(
     anchor: InterpretedAnchor,
     geographicScope: GeographicScope,
   ): Promise<CandidateDiscovery> {
-    try {
-      const streets =
-        geographicScope.kind === 'POINT_RADIUS'
-          ? (
-              await this.osmPlaces.lookupStreetsNear(
-                geographicScope.latitude,
-                geographicScope.longitude,
-                geographicScope.radiusMeters,
-              )
-            ).value
-          : (await this.osmPlaces.lookupStreetsWithin(geographicScope.boundary))
-              .value;
-      if (streets.length === 0)
-        return { status: 'no_match', reason: 'NO_STREET_MATCHES' };
-
-      const matched = matchOsmCandidateByName(anchor.rawName, streets);
-      if (!matched)
-        return { status: 'no_match', reason: 'NO_CONFIDENT_ROUTE_MATCH' };
-
-      const point = representativePoint(matched.geometry);
-      return {
-        status: 'match',
-        candidate: {
-          kind: 'route',
-          canonicalName: matched.name,
-          provider: 'openstreetmap',
-          externalId: matched.id,
-          latitude: point?.latitude,
-          longitude: point?.longitude,
-          geometry: matched.geometry,
-          metadata: matched.tags,
-          nameEvidenceMultiplicity: {
-            exactName: 'UNKNOWN',
-            declaredAlias: 'UNKNOWN',
-          },
-        },
-      };
-    } catch {
+    const result = await this.targetedRouteResolver.resolve({
+      name: anchor.rawName,
+      destination: geographicScope,
+    });
+    if (result.status === 'UNAVAILABLE') {
       return { status: 'unavailable', reason: 'ROUTE_PROVIDER_FAILED' };
     }
+    if (result.status !== 'RESOLVED' || !result.resolved) {
+      return { status: 'no_match', reason: `TARGETED_ROUTE_${result.status}` };
+    }
+    const cluster = result.resolved;
+    const knownGeoEntityIds = await this.catalog.findGeoEntityIdsByIdentities(
+      'openstreetmap',
+      cluster.segmentExternalIds,
+    );
+    if (knownGeoEntityIds.length > 1) {
+      return { status: 'no_match', reason: 'IDENTITY_CONFLICT' };
+    }
+    const routeEntity = buildRouteClusterCandidate(
+      { key: anchor.rawName, name: anchor.rawName, role: 'route' },
+      cluster,
+    );
+    return {
+      status: 'match',
+      candidate: {
+        kind: 'route',
+        canonicalName: routeEntity.canonicalName,
+        provider: routeEntity.provider,
+        externalId: routeEntity.externalId,
+        latitude: routeEntity.latitude ?? undefined,
+        longitude: routeEntity.longitude ?? undefined,
+        geometry: routeEntity.geometry as GeoJsonGeometry,
+        nameEvidenceMultiplicity: routeEntity.nameEvidenceMultiplicity,
+        routeEntity,
+        acquisitionEvidence: [structuredRouteEvidence(cluster)],
+      },
+    };
   }
 
   async resolveRoute(

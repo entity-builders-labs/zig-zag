@@ -1,0 +1,1310 @@
+{
+  "destination": {
+    "id": "osm:relation:1224652",
+    "name": "Buenos Aires",
+    "adminLevel": "8",
+    "geometryType": "MultiPolygon"
+  },
+  "rows": [
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:18828962",
+      "point": {
+        "latitude": -34.6291523,
+        "longitude": -58.3706876
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 176,
+      "polygonMs": 4,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 4",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo",
+        "9:Barracas"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:28413121",
+      "point": {
+        "latitude": -34.6961751,
+        "longitude": -58.4470997
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 937,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lomas de Zamora",
+        "8:Villa Fiorito"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:28413290",
+      "point": {
+        "latitude": -34.6948045,
+        "longitude": -58.4454842
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 111,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lomas de Zamora",
+        "8:Villa Fiorito"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:28833802",
+      "point": {
+        "latitude": -34.7040921,
+        "longitude": -58.5191137
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 1180,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:Aldo Bonzi"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:38536550",
+      "point": {
+        "latitude": -34.6252791,
+        "longitude": -58.3711177
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 107,
+      "polygonMs": 1,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:47521381",
+      "point": {
+        "latitude": -34.622919,
+        "longitude": -58.3712799
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 997,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:48113515",
+      "point": {
+        "latitude": -34.6256815,
+        "longitude": -58.3710597
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 183,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:147999135",
+      "point": {
+        "latitude": -34.6281218,
+        "longitude": -58.3707885
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 494,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 4",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo",
+        "9:Barracas"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:150893241",
+      "point": {
+        "latitude": -34.6166515,
+        "longitude": -58.3716947
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 177,
+      "polygonMs": 1,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:158893264",
+      "point": {
+        "latitude": -34.6195152,
+        "longitude": -58.3715225
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 972,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:163761817",
+      "point": {
+        "latitude": -34.6458541,
+        "longitude": -58.3501435
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 113,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Dock Sud"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:163761818",
+      "point": {
+        "latitude": -34.6561256,
+        "longitude": -58.3507394
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 931,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Dock Sud"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:208425783",
+      "point": {
+        "latitude": -34.6488884,
+        "longitude": -58.3503713
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 108,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Dock Sud"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:370540410",
+      "point": {
+        "latitude": -34.6991187,
+        "longitude": -58.5224132
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 1019,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:La Tablada"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:370540411",
+      "point": {
+        "latitude": -34.7005803,
+        "longitude": -58.5204212
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 143,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:La Tablada",
+        "8:Aldo Bonzi"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:452873573",
+      "point": {
+        "latitude": -34.6136163,
+        "longitude": -58.3718604
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 465,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:Monserrat"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:452873574",
+      "point": {
+        "latitude": -34.6124519,
+        "longitude": -58.3719179
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 180,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:Monserrat"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:473141731",
+      "point": {
+        "latitude": -34.6160069,
+        "longitude": -58.3717268
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 906,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:Monserrat",
+        "9:San Telmo"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:473173836",
+      "point": {
+        "latitude": -34.6113029,
+        "longitude": -58.3719887
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 142,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:Monserrat"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:532082242",
+      "point": {
+        "latitude": -34.6528936,
+        "longitude": -58.3506321
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 760,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Dock Sud"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:877626455",
+      "point": {
+        "latitude": -34.6540682,
+        "longitude": -58.3506754
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 118,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Dock Sud"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1171448024",
+      "point": {
+        "latitude": -34.7134253,
+        "longitude": -58.5158298
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 1152,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:Aldo Bonzi"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1171448025",
+      "point": {
+        "latitude": -34.7113023,
+        "longitude": -58.5165786
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 140,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:Aldo Bonzi"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1191275397",
+      "point": {
+        "latitude": -34.711598,
+        "longitude": -58.5164592
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 867,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:Aldo Bonzi"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1191275398",
+      "point": {
+        "latitude": -34.7102579,
+        "longitude": -58.5169261
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 106,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:Aldo Bonzi"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1191275400",
+      "point": {
+        "latitude": -34.7093685,
+        "longitude": -58.5172322
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 867,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:Aldo Bonzi"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1215841737",
+      "point": {
+        "latitude": -34.6521447,
+        "longitude": -58.3506134
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 141,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Dock Sud"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1247072182",
+      "point": {
+        "latitude": -34.6968782,
+        "longitude": -58.5254782
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 886,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:La Tablada"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1307766377",
+      "point": {
+        "latitude": -34.707618,
+        "longitude": -58.5178421
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 113,
+      "polygonMs": 1,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:Aldo Bonzi"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1435572237",
+      "point": {
+        "latitude": -34.6218396,
+        "longitude": -58.371329
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 917,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1435572238",
+      "point": {
+        "latitude": -34.6222695,
+        "longitude": -58.3713094
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 193,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1459168009",
+      "point": {
+        "latitude": -34.6090145,
+        "longitude": -58.3721264
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 465,
+      "polygonMs": 1,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:Monserrat"
+      ]
+    },
+    {
+      "label": "Defensa",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1512712811",
+      "point": {
+        "latitude": -34.6956275,
+        "longitude": -58.4470976
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 112,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lomas de Zamora",
+        "8:Villa Fiorito"
+      ]
+    },
+    {
+      "label": "Caminito",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:144844726",
+      "point": {
+        "latitude": -34.6393481,
+        "longitude": -58.3626552
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 230,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 4",
+        "8:Buenos Aires",
+        "9:La Boca"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:22697007",
+      "point": {
+        "latitude": -34.6165929,
+        "longitude": -58.3701042
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 184,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:27827958",
+      "point": {
+        "latitude": -34.6379232,
+        "longitude": -58.5623203
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 510,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:Ramos Mejía"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:28699929",
+      "point": {
+        "latitude": -34.730205,
+        "longitude": -58.3827715
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 141,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lanús",
+        "8:Remedios de Escalada",
+        "9:Los Talleres"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:28714892",
+      "point": {
+        "latitude": -34.7257863,
+        "longitude": -58.378755
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 862,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lanús",
+        "8:Remedios de Escalada",
+        "9:Los Talleres"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:28715153",
+      "point": {
+        "latitude": -34.7225181,
+        "longitude": -58.3755392
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 113,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lanús",
+        "8:Remedios de Escalada",
+        "9:Villa General Güemes"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:40118109",
+      "point": {
+        "latitude": -34.6901553,
+        "longitude": -58.3397635
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 977,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Villa Domínico",
+        "8:Sarandí"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:40133358",
+      "point": {
+        "latitude": -34.7042278,
+        "longitude": -58.355541
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 136,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Villa Domínico"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:40133421",
+      "point": {
+        "latitude": -34.7004807,
+        "longitude": -58.3512824
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 899,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Villa Domínico"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:47259076",
+      "point": {
+        "latitude": -34.6981715,
+        "longitude": -58.3492384
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 146,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Villa Domínico"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:135234933",
+      "point": {
+        "latitude": -34.6166187,
+        "longitude": -58.3702579
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 871,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:188649206",
+      "point": {
+        "latitude": -34.7166276,
+        "longitude": -58.3693224
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 139,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lanús",
+        "8:Lanús Este",
+        "9:Villa Obrera"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:188649207",
+      "point": {
+        "latitude": -34.720973,
+        "longitude": -58.373891
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 975,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lanús",
+        "8:Remedios de Escalada",
+        "8:Lanús Este",
+        "9:Villa General Güemes"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:265730538",
+      "point": {
+        "latitude": -34.6936512,
+        "longitude": -58.343808
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 112,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Villa Domínico",
+        "8:Sarandí"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:298420622",
+      "point": {
+        "latitude": -34.6368023,
+        "longitude": -58.5627576
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 848,
+      "polygonMs": 1,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Morón",
+        "8:Villa Sarmiento"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:437995535",
+      "point": {
+        "latitude": -34.7024783,
+        "longitude": -58.3535464
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 111,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Avellaneda",
+        "8:Villa Domínico"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:501298747",
+      "point": {
+        "latitude": -34.6166515,
+        "longitude": -58.3716947
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 844,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:537819084",
+      "point": {
+        "latitude": -34.7099808,
+        "longitude": -58.3623245
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 141,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lanús",
+        "8:Lanús Este",
+        "9:Villa de los Trabajadores"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:839045675",
+      "point": {
+        "latitude": -34.7118696,
+        "longitude": -58.3643379
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 990,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lanús",
+        "8:Lanús Este",
+        "9:Villa de los Trabajadores"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:908381626",
+      "point": {
+        "latitude": -34.6504849,
+        "longitude": -58.4402549
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 188,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 7",
+        "8:Buenos Aires",
+        "9:Flores",
+        "10:Villa 1-11-14 Barrio Padre Ricciardelli"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1511772838",
+      "point": {
+        "latitude": -34.7267484,
+        "longitude": -58.3797691
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 553,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lanús",
+        "8:Remedios de Escalada",
+        "9:Los Talleres"
+      ]
+    },
+    {
+      "label": "San Lorenzo",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:1511772840",
+      "point": {
+        "latitude": -34.7252687,
+        "longitude": -58.3782207
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 118,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de Lanús",
+        "8:Remedios de Escalada",
+        "9:Los Talleres"
+      ]
+    },
+    {
+      "label": "Galería Güemes",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:586443476",
+      "point": {
+        "latitude": -34.6398031,
+        "longitude": -58.5660541
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 160,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Matanza",
+        "8:Ramos Mejía"
+      ]
+    },
+    {
+      "label": "Galería General Güemes",
+      "kind": "ROUTE_SEGMENT",
+      "externalId": "osm:way:240463124",
+      "point": {
+        "latitude": -34.6063441,
+        "longitude": -58.3750727
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 223,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Nicolás"
+      ]
+    },
+    {
+      "label": "San Martín",
+      "kind": "AREA",
+      "externalId": "osm:relation:9168783",
+      "point": {
+        "latitude": -34.5771577,
+        "longitude": -58.5377237
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 612,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de General San Martín",
+        "8:Ciudad del Libertador General San Martín"
+      ]
+    },
+    {
+      "label": "La Plata",
+      "kind": "AREA",
+      "externalId": "osm:relation:3266014",
+      "point": {
+        "latitude": -34.9206797,
+        "longitude": -57.9537638
+      },
+      "adminStatus": "success",
+      "adminInside": false,
+      "polygonInside": false,
+      "agree": true,
+      "adminMs": 159,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Buenos Aires",
+        "5:Partido de La Plata",
+        "8:La Plata"
+      ]
+    },
+    {
+      "label": "San Telmo",
+      "kind": "AREA",
+      "externalId": "osm:relation:2223069",
+      "point": {
+        "latitude": -34.6214013,
+        "longitude": -58.37375
+      },
+      "adminStatus": "success",
+      "adminInside": true,
+      "polygonInside": true,
+      "agree": true,
+      "adminMs": 569,
+      "polygonMs": 0,
+      "hierarchy": [
+        "2:Argentina",
+        "4:Ciudad Autónoma de Buenos Aires",
+        "5:Comuna 1",
+        "8:Buenos Aires",
+        "9:San Telmo"
+      ]
+    }
+  ]
+}

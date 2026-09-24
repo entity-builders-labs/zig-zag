@@ -58,7 +58,7 @@ describe('clusterRouteSegments', () => {
     expect(clusters[0].geometryFacts.highwayTypes).toEqual(['residential']);
   });
 
-  it('keeps disconnected same-name ways as separate clusters when no gap tolerance is given', () => {
+  it('keeps disconnected same-name ways as separate clusters (topology only, no distance merge)', () => {
     const clusters = clusterRouteSegments([
       seg(
         1,
@@ -78,58 +78,6 @@ describe('clusterRouteSegments', () => {
         ],
       ),
     ]);
-
-    expect(clusters).toHaveLength(2);
-  });
-
-  it('bridges an intersection-scale endpoint gap only when a continuity tolerance is explicitly given', () => {
-    const segments = [
-      seg(
-        1,
-        [1, 2],
-        [
-          [-34.61, -58.37],
-          [-34.611, -58.37],
-        ],
-      ),
-      seg(
-        2,
-        [3, 4],
-        [
-          [-34.61118, -58.37],
-          [-34.612, -58.37],
-        ],
-      ),
-    ];
-
-    expect(
-      clusterRouteSegments(segments, { continuityGapMeters: 60 }),
-    ).toHaveLength(1);
-  });
-
-  it('never bridges a gap larger than the tolerance', () => {
-    const clusters = clusterRouteSegments(
-      [
-        seg(
-          1,
-          [1, 2],
-          [
-            [-34.61, -58.37],
-            [-34.611, -58.37],
-          ],
-        ),
-        // ~7 km away: a different real street with the same name.
-        seg(
-          2,
-          [3, 4],
-          [
-            [-34.65, -58.44],
-            [-34.651, -58.44],
-          ],
-        ),
-      ],
-      { continuityGapMeters: 60 },
-    );
 
     expect(clusters).toHaveLength(2);
   });
@@ -241,5 +189,11 @@ describe('clusterRouteSegments', () => {
       latitude: -34.611,
       longitude: -58.37,
     });
+    // The segment's own real vertices, GeoJSON [lon, lat] order.
+    expect(cluster.representativeSegment.coordinates).toEqual([
+      [-58.37, -34.61],
+      [-58.37, -34.611],
+      [-58.37, -34.612],
+    ]);
   });
 });

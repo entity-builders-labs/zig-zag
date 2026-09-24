@@ -6,6 +6,8 @@ import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
 import { SourceObservation } from './experience-acquisition.interface';
 import { GeographicValidationDecisionEntity } from './geographic-validation.interface';
+import type { DestinationCompatibilityVerdict } from '../utils/destination-compatibility.policy';
+import type { RouteRetrievalVariantKind } from '../utils/route-retrieval-name.util';
 
 /**
  * Task B5 — a request-level, non-authoritative geographic scope resolved
@@ -87,11 +89,37 @@ export type IdentityEvidence =
        */
       type: 'IDENTITY_CONVERGENCE';
       priorStrategy: ResolutionStrategy;
+    }
+  | {
+      /**
+       * Targeted ROUTE acquisition produced exactly one structural cluster
+       * of real OSM highway ways (exact name tag, OSM topology) that the
+       * destination-compatibility policy placed inside the destination.
+       * A structural fact about provider-native objects -- the hint name
+       * only drove retrieval, never the decision.
+       */
+      type: 'STRUCTURED_ROUTE_RESOLUTION';
+      provider: 'openstreetmap';
+      segmentExternalIds: string[];
+      destinationCompatibility: DestinationCompatibilityVerdict;
+      ambiguity: 'SINGLE_CLUSTER' | 'MULTIPLE_CLUSTERS';
+    }
+  | {
+      /**
+       * Catalog-first reuse of an already-canonical ROUTE GeoEntity found by
+       * exact name through a bounded route retrieval variant (the generic
+       * designator drop: "Defensa Street" -> "Defensa"), within the
+       * destination, same kind, destination-compatible.
+       */
+      type: 'CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH';
+      retrievalVariant: RouteRetrievalVariantKind;
+      identityMultiplicity: IdentityMultiplicity;
     };
 
 export type ResolutionStrategy =
   | 'CATALOG_REUSE'
   | 'TRUSTED_OBSERVATION_REUSE'
+  | 'TARGETED_ROUTE'
   | 'LOCAL_OSM_POOL'
   | 'NOMINATIM'
   | 'PLACES'
@@ -138,6 +166,32 @@ export interface ResolutionAttemptAudit {
   };
   identityEvidence: IdentityEvidence[];
   verificationDecision?: VerificationDecision['status'];
+  /** Destination-policy verdict that gated this attempt's candidate. */
+  destinationCompatibility?: {
+    verdict: DestinationCompatibilityVerdict;
+    reason: string;
+  };
+  /** Bounded facts of a TARGETED_ROUTE acquisition (no raw geometry). */
+  routeResolution?: {
+    status:
+      | 'RESOLVED'
+      | 'AMBIGUOUS'
+      | 'NOT_FOUND'
+      | 'INCOMPATIBLE'
+      | 'UNAVAILABLE';
+    reason: string;
+    variants: Array<{
+      variant: RouteRetrievalVariantKind;
+      name: string;
+      rawCount: number;
+      acceptedCount: number;
+    }>;
+    clusterCount: number;
+    compatibleClusterCount: number;
+    resolvedSegmentCount?: number;
+    /** Distinct canonical GeoEntities already owning the resolved segments. */
+    knownGeoEntityCount?: number;
+  };
 }
 
 export interface ComponentResolutionAudit {
@@ -198,6 +252,12 @@ export interface EntityCandidate {
   };
   /** Provider-specific metadata carried through to persistence (tags, etc). */
   persistenceMetadata?: unknown;
+  /**
+   * Every provider-native identity of ONE real entity observed through
+   * several provider objects (a multi-way ROUTE). `externalId` above is the
+   * representative one; all of these persist as GeoEntityIdentity rows.
+   */
+  identities?: Array<{ provider: string; externalId: string }>;
 }
 
 export interface ResolvedGeoEntity {

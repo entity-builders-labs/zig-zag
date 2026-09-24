@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { evaluateDestinationCompatibility } from '../utils/destination-compatibility.policy';
 import {
   geometryContainsPoint,
   distancePointToPolygonBoundaryMeters,
@@ -431,7 +432,8 @@ export class CompositeGeographicValidationService {
    * own geometry — a malformed/wrong-kind geometry must fail closed
    * regardless of candidate composition (see call site). AREA needs a
    * real polygonal shape (Polygon/MultiPolygon); ROUTE needs a real
-   * LineString with enough coordinates to define a segment.
+   * LineString, or a MultiLineString of real segments, with at least one
+   * line long enough to define a segment.
    */
   private isUsableScopeGeometry(
     kind: 'AREA' | 'ROUTE',
@@ -443,6 +445,14 @@ export class CompositeGeographicValidationService {
         (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') &&
         Array.isArray(geometry.coordinates) &&
         geometry.coordinates.length > 0
+      );
+    }
+    if (geometry.type === 'MultiLineString') {
+      return (
+        Array.isArray(geometry.coordinates) &&
+        geometry.coordinates.some(
+          (line) => Array.isArray(line) && line.length >= 2,
+        )
       );
     }
     return (
@@ -956,20 +966,26 @@ export class CompositeGeographicValidationService {
     return { mismatch: false, offendingEntities: [] };
   }
 
+  /**
+   * Destination scope is owned by the single destination-compatibility
+   * policy; this validator only asks it. UNKNOWN is never treated as inside.
+   */
   private isInsideDestination(
     entity: ResolvedGeoEntity,
     destinationBoundary: OsmCandidate,
   ): boolean {
-    if (
-      !Number.isFinite(entity.latitude) ||
-      !Number.isFinite(entity.longitude)
-    ) {
-      return false;
-    }
-    return geometryContainsPoint(
-      destinationBoundary.geometry,
-      entity.longitude as number,
-      entity.latitude as number,
+    return (
+      evaluateDestinationCompatibility(
+        {
+          probePoints: [
+            {
+              latitude: entity.latitude as number,
+              longitude: entity.longitude as number,
+            },
+          ],
+        },
+        { kind: 'AREA_BOUNDARY', boundary: destinationBoundary },
+      ).verdict === 'COMPATIBLE'
     );
   }
 
@@ -983,9 +999,11 @@ export class CompositeGeographicValidationService {
     const ring: [number, number][] =
       geometry.type === 'LineString'
         ? geometry.coordinates
-        : geometry.type === 'Polygon'
-          ? geometry.coordinates[0]
-          : geometry.coordinates[0][0];
+        : geometry.type === 'MultiLineString'
+          ? geometry.coordinates.flat()
+          : geometry.type === 'Polygon'
+            ? geometry.coordinates[0]
+            : geometry.coordinates[0][0];
     return {
       latitude: ring.reduce((sum, [, lat]) => sum + lat, 0) / ring.length,
       longitude: ring.reduce((sum, [lon]) => sum + lon, 0) / ring.length,

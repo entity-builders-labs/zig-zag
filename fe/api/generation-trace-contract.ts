@@ -72,10 +72,25 @@ export type IdentityEvidence =
       hintMatched: boolean;
       candidateMatched: boolean;
     }
-  | { type: "WIKIDATA_UNAVAILABLE" };
+  | { type: "WIKIDATA_UNAVAILABLE" }
+  | { type: "IDENTITY_CONVERGENCE"; priorStrategy: ResolutionStrategy }
+  | {
+      type: "STRUCTURED_ROUTE_RESOLUTION";
+      provider: "openstreetmap";
+      segmentExternalIds: string[];
+      destinationCompatibility: "COMPATIBLE" | "INCOMPATIBLE" | "UNKNOWN";
+      ambiguity: "SINGLE_CLUSTER" | "MULTIPLE_CLUSTERS";
+    }
+  | {
+      type: "CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH";
+      retrievalVariant: "RAW" | "DESIGNATOR_NORMALIZED";
+      identityMultiplicity: "SINGLE" | "MULTIPLE" | "UNKNOWN";
+    };
 
 export type ResolutionStrategy =
+  | "CATALOG_REUSE"
   | "TRUSTED_OBSERVATION_REUSE"
+  | "TARGETED_ROUTE"
   | "LOCAL_OSM_POOL"
   | "NOMINATIM"
   | "PLACES"
@@ -106,6 +121,29 @@ export interface TraceEntityResolutionAttempt {
   };
   identityEvidence: IdentityEvidence[];
   verificationDecision?: VerificationDecision;
+  destinationCompatibility?: {
+    verdict: "COMPATIBLE" | "INCOMPATIBLE" | "UNKNOWN";
+    reason: string;
+  };
+  routeResolution?: {
+    status:
+      | "RESOLVED"
+      | "AMBIGUOUS"
+      | "NOT_FOUND"
+      | "INCOMPATIBLE"
+      | "UNAVAILABLE";
+    reason: string;
+    variants: Array<{
+      variant: "RAW" | "DESIGNATOR_NORMALIZED";
+      name: string;
+      rawCount: number;
+      acceptedCount: number;
+    }>;
+    clusterCount: number;
+    compatibleClusterCount: number;
+    resolvedSegmentCount?: number;
+    knownGeoEntityCount?: number;
+  };
 }
 
 export interface TraceComponentHint {

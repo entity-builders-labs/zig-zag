@@ -12,11 +12,11 @@ import {
   placesAcquisitionLabel,
 } from '../utils/places-external-identity.util';
 import { PLACES_FALLBACK_BIAS_RADIUS_METERS } from './experience-proposal-resolver.service';
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import {
-  DestinationAdminBoundary,
-  DestinationAdminCompatibilityService,
-  DestinationCompatibilityResult,
-} from './destination-admin-compatibility.service';
+  DestinationCompatibility,
+  evaluateDestinationCompatibility,
+} from '../utils/destination-compatibility.policy';
 
 export type StructuredExpectedKind = 'PLACE' | 'AREA' | 'ROUTE';
 
@@ -27,11 +27,11 @@ export interface StructuredGeoEntityResolutionRequest {
   destinationCountryCode?: string;
   destinationPoint?: Coordinates;
   /**
-   * The already-resolved destination's own OSM admin boundary. Required for
-   * an AREA to ever be RESOLVED: destination compatibility is decided from
-   * admin facts, and is UNKNOWN (never assumed) without it.
+   * The already-resolved DESTINATION scope. Required for an AREA to ever be
+   * RESOLVED: compatibility is decided by the single destination policy and
+   * is UNKNOWN (never assumed) without an admin boundary.
    */
-  destinationBoundary?: DestinationAdminBoundary;
+  destinationScope?: GeographicScope;
 }
 
 export interface StructuredCandidateFacts {
@@ -44,7 +44,7 @@ export interface StructuredCandidateFacts {
   longitude?: number;
   adminContext?: string;
   ranking?: number;
-  destinationCompatibility?: DestinationCompatibilityResult;
+  destinationCompatibility?: DestinationCompatibility;
 }
 
 export type StructuredGeoEntityResolutionResult =
@@ -81,38 +81,6 @@ function isNonExperiencePlaceCategory(place: PlaceData): boolean {
   );
 }
 
-function isRouteScaleEligible(result: { class?: string }): boolean {
-  return result.class === 'highway';
-}
-
-/**
- * The real-world address locality Nominatim's own address hierarchy
- * assigns a highway segment to. Two segments of the SAME real street share
- * this; two different real streets that happen to share a name (a
- * countrywide collision) normally do not.
- */
-function routeLocalityKey(result: {
-  address?: {
-    suburb?: string;
-    city?: string;
-    town?: string;
-    village?: string;
-    municipality?: string;
-  };
-}): string {
-  const a = result.address;
-  return a?.suburb ?? a?.city ?? a?.town ?? a?.village ?? a?.municipality ?? '';
-}
-
-function normalize(value: string): string {
-  return value
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-}
-
 @Injectable()
 export class StructuredGeoEntityResolverService {
   private readonly logger = new Logger(StructuredGeoEntityResolverService.name);
@@ -124,8 +92,6 @@ export class StructuredGeoEntityResolverService {
     @Optional()
     @Inject('PlacesApiService')
     private readonly placesApi?: IPlacesApiService,
-    @Optional()
-    private readonly compatibility?: DestinationAdminCompatibilityService,
   ) {}
 
   async resolve(
@@ -135,7 +101,13 @@ export class StructuredGeoEntityResolverService {
       case 'AREA':
         return this.resolveArea(request);
       case 'ROUTE':
-        return this.resolveRoute(request);
+        // ROUTE is resolved by TargetedRouteResolverService (Stage 3
+        // cutover); the Nominatim bare-name ROUTE path proven unreliable by
+        // the 2026-09-24 spikes is removed, not kept as a control here.
+        return {
+          status: 'INCOMPATIBLE',
+          reason: 'ROUTE is resolved by TargetedRouteResolverService',
+        };
       case 'PLACE':
         return this.resolvePlace(request);
       default:
@@ -171,7 +143,7 @@ export class StructuredGeoEntityResolverService {
         longitude: r.longitude,
         adminContext: r.displayName,
         ranking: r.importance,
-        destinationCompatibility: await this.areaCompatibility(request, r),
+        destinationCompatibility: this.areaCompatibility(request, r),
       });
     }
 
@@ -211,7 +183,7 @@ export class StructuredGeoEntityResolverService {
     };
   }
 
-  private async areaCompatibility(
+  private areaCompatibility(
     request: StructuredGeoEntityResolutionRequest,
     result: {
       osmType: 'node' | 'way' | 'relation';
@@ -219,123 +191,16 @@ export class StructuredGeoEntityResolverService {
       latitude?: number;
       longitude?: number;
     },
-  ): Promise<DestinationCompatibilityResult | undefined> {
-    if (
-      !this.compatibility ||
-      !Number.isFinite(result.latitude) ||
-      !Number.isFinite(result.longitude)
-    ) {
-      return undefined;
-    }
-    return this.compatibility.evaluate(
-      { latitude: result.latitude!, longitude: result.longitude! },
+  ): DestinationCompatibility {
+    return evaluateDestinationCompatibility(
       {
-        name: request.destinationName,
-        countryCode: request.destinationCountryCode,
-        boundary: request.destinationBoundary,
+        probePoints:
+          Number.isFinite(result.latitude) && Number.isFinite(result.longitude)
+            ? [{ latitude: result.latitude!, longitude: result.longitude! }]
+            : [],
+        self: { osmType: result.osmType, osmId: result.osmId },
       },
-      { osmType: result.osmType, osmId: result.osmId },
-    );
-  }
-
-  private async resolveRoute(
-    request: StructuredGeoEntityResolutionRequest,
-  ): Promise<StructuredGeoEntityResolutionResult> {
-    if (!this.nominatim) {
-      return { status: 'INCOMPATIBLE', reason: 'Nominatim not configured' };
-    }
-    // Deliberately NOT the resolveViaNominatim early return for ROUTE --
-    // the whole point of this spike is testing what happens when Nominatim
-    // IS queried for a ROUTE hint. Superseded as a candidate acquisition
-    // strategy by TargetedRouteResolverService (2026-09-24 targeted-route
-    // spike); kept unchanged only as the "old bare-name + soft bias"
-    // comparison control.
-    const results = await this.nominatim.search(request.name, {
-      countryCode: request.destinationCountryCode,
-      bias: request.destinationPoint,
-    });
-    const eligible = results.filter(isRouteScaleEligible);
-    if (eligible.length === 0) return { status: 'NOT_FOUND' };
-
-    // A real street is rarely a single OSM way -- group by (normalized
-    // name, real address locality) so multiple segments of the SAME real
-    // street collapse into one identity, while two genuinely different
-    // real streets sharing a name in different localities do not.
-    const groups = new Map<string, typeof eligible>();
-    for (const r of eligible) {
-      const key = `${normalize(r.displayName.split(',')[0] ?? r.displayName)}|${normalize(routeLocalityKey(r))}`;
-      const group = groups.get(key) ?? [];
-      group.push(r);
-      groups.set(key, group);
-    }
-
-    const groupEntries = [...groups.values()];
-    if (groupEntries.length > 1) {
-      const candidates = groupEntries.map((group) => {
-        const representative = this.closestOrFirst(
-          group,
-          request.destinationPoint,
-        );
-        return {
-          externalId: `osm:${representative.osmType}:${representative.osmId}`,
-          canonicalName: representative.displayName,
-          provider: 'nominatim',
-          kind: GeoEntityKind.ROUTE,
-          structuralType: `${representative.class}/${representative.type ?? 'unknown'}`,
-          latitude: representative.latitude,
-          longitude: representative.longitude,
-          adminContext: representative.displayName,
-          ranking: representative.importance,
-        };
-      });
-      return { status: 'AMBIGUOUS', candidates };
-    }
-
-    const segments = groupEntries[0];
-    const representative = this.closestOrFirst(
-      segments,
-      request.destinationPoint,
-    );
-    return {
-      status: 'RESOLVED',
-      candidate: {
-        externalId: `osm:${representative.osmType}:${representative.osmId}`,
-        canonicalName: representative.displayName,
-        provider: 'nominatim',
-        kind: GeoEntityKind.ROUTE,
-        structuralType: `${representative.class}/${representative.type ?? 'unknown'}`,
-        latitude: representative.latitude,
-        longitude: representative.longitude,
-        adminContext: representative.displayName,
-        ranking: representative.importance,
-      },
-      providerFacts: {
-        segmentCount: segments.length,
-        segments,
-      },
-    };
-  }
-
-  private closestOrFirst<T extends { latitude?: number; longitude?: number }>(
-    items: T[],
-    destinationPoint?: Coordinates,
-  ): T {
-    if (!destinationPoint) return items[0];
-    const withCoords = items.filter(
-      (i) => Number.isFinite(i.latitude) && Number.isFinite(i.longitude),
-    );
-    if (withCoords.length === 0) return items[0];
-    return withCoords.reduce((closest, candidate) =>
-      calculateDistance(destinationPoint, {
-        latitude: candidate.latitude!,
-        longitude: candidate.longitude!,
-      }) <
-      calculateDistance(destinationPoint, {
-        latitude: closest.latitude!,
-        longitude: closest.longitude!,
-      })
-        ? candidate
-        : closest,
+      request.destinationScope,
     );
   }
 

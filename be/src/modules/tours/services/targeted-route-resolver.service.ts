@@ -1,15 +1,14 @@
-import { Injectable } from '@nestjs/common';
 import {
   OsmPlacesService,
   OsmRouteObjectRejectionReason,
   OsmRouteSegment,
 } from '@integrations/osm/services/osm-places.service';
-import { Coordinates } from '@shared/utils/distance.utils';
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import {
-  DestinationAdminCompatibilityService,
-  DestinationAdminContext,
-  DestinationCompatibilityResult,
-} from './destination-admin-compatibility.service';
+  DestinationCompatibility,
+  evaluateDestinationCompatibility,
+} from '../utils/destination-compatibility.policy';
+import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
 import {
   RouteRetrievalVariantKind,
   routeRetrievalQueryVariants,
@@ -20,35 +19,27 @@ import {
 } from '../utils/route-segment-clustering.util';
 
 /**
- * Stage 3 ROUTE characterization spike -- NOT wired into production.
+ * ROUTE candidate acquisition (Stage 3 production path):
  *
  *   route hint
  *     -> bounded retrieval-name variants (raw + one generic designator drop)
- *     -> targeted OSM query: highway ways with that exact name tag,
- *        within a radius covering the DESTINATION
+ *     -> targeted OSM query: highway ways with that EXACT name tag, around
+ *        a circle covering the DESTINATION boundary
  *     -> structural filter at the OSM adapter (way + highway + linear +
  *        real geometry + real id)
- *     -> segment grouping (exact name + OSM topology)
- *     -> per-cluster destination admin compatibility (never distance)
+ *     -> segment grouping (exact name + OSM topology, no distance merge)
+ *     -> per-cluster destination compatibility (single destination policy)
  *     -> RESOLVED / AMBIGUOUS / NOT_FOUND / INCOMPATIBLE / UNAVAILABLE
  *
- * Replaces, for ROUTE only, the Nominatim bare-name search whose hard top-N
- * window never contained the destination's own street for common names.
- * Acquisition is scoped by the destination, never by a neighborhood anchor
- * and never through `map_to_area`.
+ * Acquisition only: a RESOLVED cluster is a typed fact for candidate
+ * correlation and IdentityVerifier, never a verdict on its own. Scoped by
+ * the destination, never a neighborhood anchor, never `map_to_area`.
  */
-
-export interface TargetedRouteDestination extends DestinationAdminContext {
-  point: Coordinates;
-  /** Radius (m) around `point` that covers the destination's own extent. */
-  acquisitionRadiusMeters: number;
-}
 
 export interface TargetedRouteResolutionRequest {
   name: string;
-  destination: TargetedRouteDestination;
-  /** Segment-grouping knob; default 0 = pure OSM topology. */
-  continuityGapMeters?: number;
+  /** The request's DESTINATION scope (not the entity-resolution anchor). */
+  destination: GeographicScope;
 }
 
 export interface RouteVariantAcquisition {
@@ -72,9 +63,7 @@ export interface RouteVariantAcquisition {
 }
 
 export interface EvaluatedRouteCluster extends RouteCandidateCluster {
-  compatibility: DestinationCompatibilityResult;
-  /** Segment probes actually sent to the admin lookup for this cluster. */
-  probedSegmentIds: string[];
+  compatibility: DestinationCompatibility;
 }
 
 export type TargetedRouteStatus =
@@ -99,32 +88,40 @@ export interface TargetedRouteResolutionResult {
   clusters: EvaluatedRouteCluster[];
   compatibleClusterCount: number;
   resolved?: EvaluatedRouteCluster;
-  /** Provider cost facts for the assessment (no hidden calls). */
+  /** Real provider calls made (one per retrieval variant). */
   acquisitionQueryCount: number;
-  adminLookupCount: number;
 }
 
-@Injectable()
+/**
+ * The circle a destination-scoped acquisition covers: for an admin boundary,
+ * its bbox center + a radius reaching the farthest bbox corner (the shared
+ * `boundingBoxToCenterRadius` primitive); for a point-scale destination, the
+ * destination's own point/radius. The Overpass query builder hard-caps it.
+ */
+function acquisitionCircle(destination: GeographicScope) {
+  if (destination.kind === 'POINT_RADIUS') {
+    return {
+      latitude: destination.latitude,
+      longitude: destination.longitude,
+      radiusMeters: destination.radiusMeters,
+    };
+  }
+  const circle = boundingBoxToCenterRadius(destination.boundary.geometry);
+  return { ...circle, radiusMeters: Math.ceil(circle.radiusMeters) };
+}
+
 export class TargetedRouteResolverService {
-  constructor(
-    private readonly osmPlaces: OsmPlacesService,
-    private readonly compatibility: DestinationAdminCompatibilityService,
-  ) {}
+  constructor(private readonly osmPlaces: OsmPlacesService) {}
 
   async resolve(
     request: TargetedRouteResolutionRequest,
   ): Promise<TargetedRouteResolutionResult> {
-    const { destination } = request;
+    const circle = acquisitionCircle(request.destination);
     const variants: RouteVariantAcquisition[] = [];
     const segmentsById = new Map<number, OsmRouteSegment>();
 
     for (const { variant, name } of routeRetrievalQueryVariants(request.name)) {
-      const query = {
-        name,
-        latitude: destination.point.latitude,
-        longitude: destination.point.longitude,
-        radiusMeters: destination.acquisitionRadiusMeters,
-      };
+      const query = { name, ...circle };
       const lookup = await this.osmPlaces.lookupHighwaysByName(query);
       variants.push({
         variant,
@@ -150,81 +147,47 @@ export class TargetedRouteResolverService {
       }
     }
 
-    const acquisitionQueryCount = variants.length;
+    const base = { variants, acquisitionQueryCount: variants.length };
     // A failed variant could have held the real street: provider failure is
     // never reported as NOT_FOUND and never lets the other variant resolve.
     if (variants.some((v) => v.providerStatus === 'failed')) {
       return {
+        ...base,
         status: 'UNAVAILABLE',
         reason: 'ACQUISITION_PROVIDER_FAILED',
-        variants,
         clusters: [],
         compatibleClusterCount: 0,
-        acquisitionQueryCount,
-        adminLookupCount: 0,
       };
     }
 
-    const clusters = clusterRouteSegments([...segmentsById.values()], {
-      continuityGapMeters: request.continuityGapMeters,
-    });
+    const clusters: EvaluatedRouteCluster[] = clusterRouteSegments([
+      ...segmentsById.values(),
+    ]).map((cluster) => ({
+      ...cluster,
+      compatibility: evaluateDestinationCompatibility(
+        { probePoints: cluster.segments.map((s) => s.probePoint) },
+        request.destination,
+      ),
+    }));
     if (clusters.length === 0) {
       return {
+        ...base,
         status: 'NOT_FOUND',
         reason: 'NO_ROUTE_OBJECT_ACQUIRED',
-        variants,
         clusters: [],
         compatibleClusterCount: 0,
-        acquisitionQueryCount,
-        adminLookupCount: 0,
       };
     }
 
-    let adminLookupCount = 0;
-    const evaluated: EvaluatedRouteCluster[] = [];
-    for (const cluster of clusters) {
-      // Deterministic probe order (segment id). A cluster is compatible as
-      // soon as ANY of its segments lies inside the destination admin unit
-      // (a real street may continue past the city limit); it is
-      // INCOMPATIBLE only when every segment was checked and none is.
-      let compatible: DestinationCompatibilityResult | undefined;
-      let firstUnknown: DestinationCompatibilityResult | undefined;
-      let firstIncompatible: DestinationCompatibilityResult | undefined;
-      const probedSegmentIds: string[] = [];
-      for (const segment of cluster.segments) {
-        adminLookupCount += 1;
-        probedSegmentIds.push(segment.externalId);
-        const verdict = await this.compatibility.evaluate(
-          segment.probePoint,
-          destination,
-        );
-        if (verdict.verdict === 'COMPATIBLE') {
-          compatible = verdict;
-          break;
-        }
-        if (verdict.verdict === 'UNKNOWN') firstUnknown ??= verdict;
-        else firstIncompatible ??= verdict;
-      }
-      evaluated.push({
-        ...cluster,
-        // Every cluster has >= 1 segment, so one of the three is set.
-        compatibility: (compatible ?? firstUnknown ?? firstIncompatible)!,
-        probedSegmentIds,
-      });
-    }
-
-    const compatibleClusters = evaluated.filter(
+    const compatible = clusters.filter(
       (c) => c.compatibility.verdict === 'COMPATIBLE',
     );
     const common = {
-      variants,
-      clusters: evaluated,
-      compatibleClusterCount: compatibleClusters.length,
-      acquisitionQueryCount,
-      adminLookupCount,
+      ...base,
+      clusters,
+      compatibleClusterCount: compatible.length,
     };
-
-    if (evaluated.some((c) => c.compatibility.verdict === 'UNKNOWN')) {
+    if (clusters.some((c) => c.compatibility.verdict === 'UNKNOWN')) {
       // An unverifiable cluster could be the real one: never pick a winner.
       return {
         ...common,
@@ -232,15 +195,15 @@ export class TargetedRouteResolverService {
         reason: 'DESTINATION_COMPATIBILITY_UNKNOWN',
       };
     }
-    if (compatibleClusters.length === 1) {
+    if (compatible.length === 1) {
       return {
         ...common,
         status: 'RESOLVED',
         reason: 'SINGLE_COMPATIBLE_CLUSTER',
-        resolved: compatibleClusters[0],
+        resolved: compatible[0],
       };
     }
-    if (compatibleClusters.length > 1) {
+    if (compatible.length > 1) {
       return {
         ...common,
         status: 'AMBIGUOUS',

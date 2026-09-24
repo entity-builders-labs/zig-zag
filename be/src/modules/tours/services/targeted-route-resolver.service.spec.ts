@@ -4,22 +4,37 @@ import {
   OsmRouteSegment,
   OsmRouteSegmentLookup,
 } from '@integrations/osm/services/osm-places.service';
-import {
-  DestinationAdminCompatibilityService,
-  DestinationCompatibilityResult,
-} from './destination-admin-compatibility.service';
-import {
-  TargetedRouteResolverService,
-  TargetedRouteDestination,
-} from './targeted-route-resolver.service';
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
+import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
+import { TargetedRouteResolverService } from './targeted-route-resolver.service';
 
-const DESTINATION: TargetedRouteDestination = {
-  name: 'Ciudad Autónoma de Buenos Aires',
-  countryCode: 'AR',
-  point: { latitude: -34.6037, longitude: -58.3816 },
-  acquisitionRadiusMeters: 20000,
-  boundary: { osmType: 'relation', osmId: 3082668, adminLevel: 4 },
+// Destination admin boundary: covers San Telmo (lon < -58.36) and Flores,
+// excludes Avellaneda (lon -58.35).
+const DESTINATION: GeographicScope = {
+  kind: 'AREA_BOUNDARY',
+  boundary: {
+    id: 'osm:relation:1224652',
+    name: 'Buenos Aires',
+    osmType: 'relation',
+    osmId: 1224652,
+    tags: { boundary: 'administrative', admin_level: '8' },
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [-58.53, -34.71],
+          [-58.36, -34.71],
+          [-58.36, -34.53],
+          [-58.53, -34.53],
+          [-58.53, -34.71],
+        ],
+      ],
+    },
+  },
 };
+const ACQUISITION = boundingBoxToCenterRadius(
+  (DESTINATION as any).boundary.geometry,
+);
 
 const segment = (
   osmId: number,
@@ -64,18 +79,6 @@ const AVELLANEDA = segment(
   ],
 );
 
-const verdict = (
-  v: DestinationCompatibilityResult['verdict'],
-  reason: DestinationCompatibilityResult['reason'],
-): DestinationCompatibilityResult => ({
-  verdict: v,
-  reason,
-  candidateHierarchy: [],
-});
-const compatible = verdict('COMPATIBLE', 'WITHIN_DESTINATION_ADMIN_UNIT');
-const incompatible = verdict('INCOMPATIBLE', 'OUTSIDE_DESTINATION_ADMIN_UNIT');
-const unknown = verdict('UNKNOWN', 'ADMIN_LOOKUP_FAILED');
-
 const found = (
   segments: OsmRouteSegment[],
 ): OsmLookupResult<OsmRouteSegmentLookup> => ({
@@ -86,35 +89,24 @@ const found = (
 describe('TargetedRouteResolverService', () => {
   const build = (
     byName: Record<string, OsmLookupResult<OsmRouteSegmentLookup>>,
-    compatibilityByLon: (longitude: number) => DestinationCompatibilityResult,
   ) => {
     const osmPlaces = {
       lookupHighwaysByName: jest.fn(
         async ({ name }: { name: string }) => byName[name] ?? found([]),
       ),
     };
-    const compatibility = {
-      evaluate: jest.fn(async (p: { longitude: number }) =>
-        compatibilityByLon(p.longitude),
-      ),
-    };
     return {
       osmPlaces,
-      compatibility,
       service: new TargetedRouteResolverService(
         osmPlaces as unknown as OsmPlacesService,
-        compatibility as unknown as DestinationAdminCompatibilityService,
       ),
     };
   };
-  const cabaIsWestOf = (lon: number) =>
-    lon < -58.36 ? compatible : incompatible;
 
-  it('acquires with a targeted, destination-centered highway-by-name lookup per retrieval variant', async () => {
-    const { service, osmPlaces } = build(
-      { Defensa: found([SAN_TELMO_A, SAN_TELMO_B]) },
-      cabaIsWestOf,
-    );
+  it('acquires with a targeted highway-by-name lookup per retrieval variant, centered on and covering the DESTINATION boundary', async () => {
+    const { service, osmPlaces } = build({
+      Defensa: found([SAN_TELMO_A, SAN_TELMO_B]),
+    });
 
     const result = await service.resolve({
       name: 'Defensa Street',
@@ -125,17 +117,17 @@ describe('TargetedRouteResolverService', () => {
       [
         {
           name: 'Defensa Street',
-          latitude: -34.6037,
-          longitude: -58.3816,
-          radiusMeters: 20000,
+          latitude: ACQUISITION.latitude,
+          longitude: ACQUISITION.longitude,
+          radiusMeters: Math.ceil(ACQUISITION.radiusMeters),
         },
       ],
       [
         {
           name: 'Defensa',
-          latitude: -34.6037,
-          longitude: -58.3816,
-          radiusMeters: 20000,
+          latitude: ACQUISITION.latitude,
+          longitude: ACQUISITION.longitude,
+          radiusMeters: Math.ceil(ACQUISITION.radiusMeters),
         },
       ],
     ]);
@@ -156,10 +148,9 @@ describe('TargetedRouteResolverService', () => {
   });
 
   it('RESOLVES one real multi-way street inside the destination, excluding a same-name street in another admin unit', async () => {
-    const { service } = build(
-      { Defensa: found([SAN_TELMO_A, SAN_TELMO_B, AVELLANEDA]) },
-      cabaIsWestOf,
-    );
+    const { service } = build({
+      Defensa: found([SAN_TELMO_A, SAN_TELMO_B, AVELLANEDA]),
+    });
 
     const result = await service.resolve({
       name: 'Defensa',
@@ -188,10 +179,9 @@ describe('TargetedRouteResolverService', () => {
         [-34.651, -58.44],
       ],
     );
-    const { service } = build(
-      { Defensa: found([SAN_TELMO_A, SAN_TELMO_B, flores]) },
-      () => compatible,
-    );
+    const { service } = build({
+      Defensa: found([SAN_TELMO_A, SAN_TELMO_B, flores]),
+    });
 
     const result = await service.resolve({
       name: 'Defensa',
@@ -205,7 +195,7 @@ describe('TargetedRouteResolverService', () => {
   });
 
   it('is INCOMPATIBLE (not RESOLVED) when every acquired cluster is outside the destination admin unit', async () => {
-    const { service } = build({ Defensa: found([AVELLANEDA]) }, cabaIsWestOf);
+    const { service } = build({ Defensa: found([AVELLANEDA]) });
 
     const result = await service.resolve({
       name: 'Defensa',
@@ -216,7 +206,7 @@ describe('TargetedRouteResolverService', () => {
   });
 
   it('is NOT_FOUND when no variant acquires any route object (a POI name never becomes a ROUTE)', async () => {
-    const { service, compatibility } = build({}, cabaIsWestOf);
+    const { service } = build({});
 
     const result = await service.resolve({
       name: 'Plaza Dorrego',
@@ -225,21 +215,17 @@ describe('TargetedRouteResolverService', () => {
 
     expect(result.status).toBe('NOT_FOUND');
     expect(result.clusters).toEqual([]);
-    expect(compatibility.evaluate).not.toHaveBeenCalled();
   });
 
   it('is UNAVAILABLE (never NOT_FOUND, never RESOLVED) when any variant lookup fails', async () => {
-    const { service } = build(
-      {
-        'Defensa Street': {
-          status: 'failed',
-          value: { rawCount: 0, segments: [], rejected: [] },
-          failureReason: 'timeout',
-        },
-        Defensa: found([SAN_TELMO_A]),
+    const { service } = build({
+      'Defensa Street': {
+        status: 'failed',
+        value: { rawCount: 0, segments: [], rejected: [] },
+        failureReason: 'timeout',
       },
-      () => compatible,
-    );
+      Defensa: found([SAN_TELMO_A]),
+    });
 
     const result = await service.resolve({
       name: 'Defensa Street',
@@ -250,12 +236,24 @@ describe('TargetedRouteResolverService', () => {
     expect(result.reason).toBe('ACQUISITION_PROVIDER_FAILED');
   });
 
-  it('never RESOLVES when destination compatibility is UNKNOWN for a cluster (fail closed)', async () => {
-    const { service } = build({ Defensa: found([SAN_TELMO_A]) }, () => unknown);
+  it('never RESOLVES for a point-scale destination: compatibility is UNKNOWN without an admin boundary (fail closed)', async () => {
+    const { service, osmPlaces } = build({ Defensa: found([SAN_TELMO_A]) });
 
     const result = await service.resolve({
       name: 'Defensa',
-      destination: DESTINATION,
+      destination: {
+        kind: 'POINT_RADIUS',
+        latitude: -34.62,
+        longitude: -58.37,
+        radiusMeters: 5000,
+      },
+    });
+
+    expect(osmPlaces.lookupHighwaysByName).toHaveBeenCalledWith({
+      name: 'Defensa',
+      latitude: -34.62,
+      longitude: -58.37,
+      radiusMeters: 5000,
     });
 
     expect(result.status).toBe('AMBIGUOUS');
@@ -263,13 +261,10 @@ describe('TargetedRouteResolverService', () => {
   });
 
   it('deduplicates a way returned by both retrieval variants', async () => {
-    const { service } = build(
-      {
-        'Pasaje San Lorenzo': found([SAN_TELMO_A]),
-        'San Lorenzo': found([SAN_TELMO_A]),
-      },
-      () => compatible,
-    );
+    const { service } = build({
+      'Pasaje San Lorenzo': found([SAN_TELMO_A]),
+      'San Lorenzo': found([SAN_TELMO_A]),
+    });
 
     const result = await service.resolve({
       name: 'Pasaje San Lorenzo',
@@ -280,47 +275,38 @@ describe('TargetedRouteResolverService', () => {
     expect(result.resolved?.segmentExternalIds).toEqual(['osm:way:48113515']);
   });
 
-  it('stops evaluating a cluster at its first COMPATIBLE segment and reports the probe count', async () => {
-    const { service, compatibility } = build(
-      { Defensa: found([SAN_TELMO_A, SAN_TELMO_B]) },
-      () => compatible,
-    );
+  it('decides compatibility from the hydrated destination boundary -- no admin lookup network call at all', async () => {
+    const { service, osmPlaces } = build({
+      Defensa: found([SAN_TELMO_A, SAN_TELMO_B, AVELLANEDA]),
+    });
 
     const result = await service.resolve({
       name: 'Defensa',
       destination: DESTINATION,
     });
 
-    expect(compatibility.evaluate).toHaveBeenCalledTimes(1);
-    expect(result.adminLookupCount).toBe(1);
+    expect(result.status).toBe('RESOLVED');
+    expect(osmPlaces.lookupHighwaysByName).toHaveBeenCalledTimes(1);
+    expect(Object.keys(osmPlaces)).toEqual(['lookupHighwaysByName']);
   });
 
-  it('passes an explicit continuity gap through to segment grouping', async () => {
-    const gapped = segment(
-      99,
-      'Defensa',
-      [40, 41],
+  it("carries each segment's real geometry for MultiLineString persistence, never a synthetic joined line", async () => {
+    const { service } = build({ Defensa: found([SAN_TELMO_A, SAN_TELMO_B]) });
+
+    const result = await service.resolve({
+      name: 'Defensa',
+      destination: DESTINATION,
+    });
+
+    expect(result.resolved?.segments.map((s) => s.coordinates)).toEqual([
       [
-        [-34.62718, -58.371],
-        [-34.628, -58.371],
+        [-58.371, -34.626],
+        [-58.371, -34.627],
       ],
-    );
-    const { service } = build(
-      { Defensa: found([SAN_TELMO_A, SAN_TELMO_B, gapped]) },
-      () => compatible,
-    );
-
-    const strict = await service.resolve({
-      name: 'Defensa',
-      destination: DESTINATION,
-    });
-    const tolerant = await service.resolve({
-      name: 'Defensa',
-      destination: DESTINATION,
-      continuityGapMeters: 60,
-    });
-
-    expect(strict.status).toBe('AMBIGUOUS');
-    expect(tolerant.status).toBe('RESOLVED');
+      [
+        [-58.371, -34.625],
+        [-58.371, -34.626],
+      ],
+    ]);
   });
 });

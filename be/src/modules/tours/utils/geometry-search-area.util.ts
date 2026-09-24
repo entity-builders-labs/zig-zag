@@ -34,6 +34,8 @@ function collectAllPoints(
     points.push({ lat: geometry.coordinates[1], lon: geometry.coordinates[0] });
   } else if (geometry.type === 'LineString') {
     pushRing(geometry.coordinates);
+  } else if (geometry.type === 'MultiLineString') {
+    geometry.coordinates.forEach(pushRing);
   } else if (geometry.type === 'Polygon') {
     geometry.coordinates.forEach(pushRing);
   } else if (geometry.type === 'MultiPolygon') {

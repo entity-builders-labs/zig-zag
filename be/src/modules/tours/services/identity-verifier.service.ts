@@ -26,6 +26,35 @@ export class IdentityVerifier {
       return { status: 'VERIFIED' };
     }
 
+    // 0b. STRUCTURED_ROUTE_RESOLUTION -> VERIFIED only for exactly one
+    // destination-compatible structural cluster of real OSM ways; competing
+    // clusters are AMBIGUOUS, never a winner.
+    const structuredRoute = this.evidenceOf(
+      evidence,
+      'STRUCTURED_ROUTE_RESOLUTION',
+    );
+    if (structuredRoute) {
+      if (structuredRoute.ambiguity === 'MULTIPLE_CLUSTERS') {
+        return { status: 'AMBIGUOUS' };
+      }
+      if (structuredRoute.destinationCompatibility === 'COMPATIBLE') {
+        return { status: 'VERIFIED' };
+      }
+    }
+
+    // 0c. Catalog reuse of a canonical ROUTE through a route retrieval
+    // variant: same multiplicity semantics as EXACT_NAME.
+    const routeVariant = this.evidenceOf(
+      evidence,
+      'CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH',
+    );
+    if (routeVariant?.identityMultiplicity === 'SINGLE') {
+      return { status: 'VERIFIED' };
+    }
+    if (routeVariant?.identityMultiplicity === 'MULTIPLE') {
+      return { status: 'AMBIGUOUS' };
+    }
+
     // 1. EXACT_NAME + SINGLE -> VERIFIED immediately
     if (exactName && exactName.identityMultiplicity === 'SINGLE') {
       return { status: 'VERIFIED' };

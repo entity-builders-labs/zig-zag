@@ -10,7 +10,11 @@ import {
   IPlacesApiService,
   PlaceData,
 } from '@integrations/google-places/interfaces/places-api.interface';
-import { ExperienceCatalogService } from './experience-catalog.service';
+import {
+  CatalogGeoEntityCandidate,
+  ExperienceCatalogService,
+  MultiLineStringGeometry,
+} from './experience-catalog.service';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
 import { calculateDistance, Coordinates } from '@shared/utils/distance.utils';
@@ -28,6 +32,7 @@ import {
   CandidateResolutionAudit,
   ResolutionAttemptAudit,
   GeographicScope,
+  IdentityEvidence,
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
@@ -49,6 +54,22 @@ import { SourceObservation } from '../interfaces/experience-acquisition.interfac
 import { computeQualityScore } from '../utils/quality-score.util';
 import { IWikidataApiService } from '@integrations/wikidata/interfaces/wikidata.interface';
 import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
+import {
+  DestinationCompatibility,
+  evaluateDestinationCompatibility,
+} from '../utils/destination-compatibility.policy';
+import {
+  RouteRetrievalVariantKind,
+  routeRetrievalQueryVariants,
+} from '../utils/route-retrieval-name.util';
+import {
+  TargetedRouteResolutionResult,
+  TargetedRouteResolverService,
+} from './targeted-route-resolver.service';
+import {
+  buildRouteClusterCandidate,
+  structuredRouteEvidence,
+} from '../utils/route-cluster-candidate.util';
 import { findReusableObservationCandidate } from '../utils/observation-hint-correlation.util';
 import {
   acquisitionLabelToPlacesProvider,
@@ -67,6 +88,8 @@ type StrategyAcquisitionResult =
       provider: string;
       query: string;
       providerResultCount?: number;
+      /** Set when a structural candidate was dropped by destination scope. */
+      destinationCompatibility?: DestinationCompatibility;
     }
   | {
       status: 'candidate';
@@ -74,6 +97,7 @@ type StrategyAcquisitionResult =
       query: string;
       providerResultCount?: number;
       candidate: EntityCandidate;
+      destinationCompatibility?: DestinationCompatibility;
     }
   | {
       status: 'failed';
@@ -116,6 +140,8 @@ type CatalogAcquisitionResult =
       query: string;
       candidate: EntityCandidate;
       geoEntityId: string;
+      /** Typed facts about HOW the catalog row was retrieved. */
+      evidence: IdentityEvidence[];
     };
 
 /**
@@ -214,6 +240,17 @@ async function mapWithBoundedConcurrency<T, R>(
   return results;
 }
 
+/** Component reason for a non-RESOLVED targeted ROUTE acquisition. */
+const TARGETED_ROUTE_UNRESOLVED_REASON: Record<
+  Exclude<TargetedRouteResolutionResult['status'], 'RESOLVED'>,
+  string
+> = {
+  AMBIGUOUS: 'AMBIGUOUS',
+  NOT_FOUND: 'NO_OSM_MATCH',
+  INCOMPATIBLE: 'DESTINATION_INCOMPATIBLE',
+  UNAVAILABLE: 'OSM_PROVIDER_FAILED',
+};
+
 @Injectable()
 export class ExperienceProposalResolverService
   implements ExperienceProposalResolver
@@ -221,6 +258,7 @@ export class ExperienceProposalResolverService
   private readonly logger = new Logger(ExperienceProposalResolverService.name);
   private readonly identityVerifier: IdentityVerifier;
   private readonly identityEvidenceCollector: IdentityEvidenceCollector;
+  private readonly targetedRouteResolver: TargetedRouteResolverService;
 
   constructor(
     private readonly osmPlaces: OsmPlacesService,
@@ -240,6 +278,7 @@ export class ExperienceProposalResolverService
   ) {
     this.identityVerifier = new IdentityVerifier();
     this.identityEvidenceCollector = new IdentityEvidenceCollector(wikidata);
+    this.targetedRouteResolver = new TargetedRouteResolverService(osmPlaces);
   }
 
   async resolve(
@@ -274,22 +313,6 @@ export class ExperienceProposalResolverService
     // on first call, so two concurrent hints racing for the same pool still
     // only trigger one real Overpass call). When every hint in this call
     // resolves via CATALOG_REUSE, these are never invoked at all.
-    let streetLookupPromise:
-      | Promise<OsmLookupResult<OsmCandidate[]>>
-      | undefined;
-    const getStreetLookup = (): Promise<OsmLookupResult<OsmCandidate[]>> => {
-      if (!streetLookupPromise) {
-        streetLookupPromise =
-          poolScope.kind === 'POINT_RADIUS'
-            ? this.osmPlaces.lookupStreetsNear(
-                poolScope.latitude,
-                poolScope.longitude,
-                poolScope.radiusMeters,
-              )
-            : this.osmPlaces.lookupStreetsWithin(poolScope.boundary);
-      }
-      return streetLookupPromise;
-    };
     let poiLookupPromise: Promise<OsmLookupResult<OsmCandidate[]>> | undefined;
     const getPoiLookup = (): Promise<OsmLookupResult<OsmCandidate[]>> => {
       if (!poiLookupPromise) {
@@ -313,9 +336,9 @@ export class ExperienceProposalResolverService
         this.resolveCandidate(
           candidate,
           poolBoundary,
-          getStreetLookup,
           getPoiLookup,
           poolScope,
+          scope,
           input.destinationName,
           evidence,
           input.destinationCountryCode,
@@ -568,9 +591,10 @@ export class ExperienceProposalResolverService
   private async resolveCandidate(
     candidate: any,
     boundary: OsmCandidate | undefined,
-    getStreetLookup: () => Promise<OsmLookupResult<OsmCandidate[]>>,
     getPoiLookup: () => Promise<OsmLookupResult<OsmCandidate[]>>,
     entityResolutionScope: GeographicScope,
+    /** The DESTINATION scope: ROUTE acquisition + destination compatibility. */
+    destinationScope: GeographicScope,
     destinationName?: string,
     evidence: ExperienceResolutionRequest['evidence'] = [],
     destinationCountryCode?: string,
@@ -607,10 +631,18 @@ export class ExperienceProposalResolverService
           failureReason?: string;
           failureStage?: 'provider_search' | 'boundary_hydration';
           candidateFoundBeforeFailure?: boolean;
+          destinationCompatibility?: DestinationCompatibility;
+          routeResolution?: ResolutionAttemptAudit['routeResolution'];
         },
         verification: VerificationResult | undefined,
       ): void => {
         attempts.push({
+          ...(acquisition.destinationCompatibility
+            ? { destinationCompatibility: acquisition.destinationCompatibility }
+            : {}),
+          ...(acquisition.routeResolution
+            ? { routeResolution: acquisition.routeResolution }
+            : {}),
           strategy,
           executionStatus:
             acquisition.status === 'failed' ? 'failed' : 'completed',
@@ -679,6 +711,7 @@ export class ExperienceProposalResolverService
       const catalogResult = await this.resolveViaCatalog(
         hint,
         entityResolutionScope,
+        destinationScope,
       );
       if (catalogResult.status === 'candidate') {
         const verification = await this.isVerified(
@@ -687,6 +720,7 @@ export class ExperienceProposalResolverService
           hint,
           observations,
           seenIdentities,
+          catalogResult.evidence,
         );
         recordAttempt(
           'CATALOG_REUSE',
@@ -790,18 +824,39 @@ export class ExperienceProposalResolverService
       const isAreaHint = hint.expectedKind === 'AREA' || hint.role === 'area';
       const isRouteHint =
         hint.expectedKind === 'ROUTE' || hint.role === 'route';
-      // Each of these is lazily fetched (memoized per `resolve()` call, see
-      // getStreetLookup/getPoiLookup above) -- an AREA hint never touches
-      // either, a ROUTE hint only ever touches streets, and a venue hint
-      // only ever touches pois. A hint fully resolved above via
+
+      // ROUTE (Stage 3 cutover): after a catalog miss/ambiguity, the only
+      // acquisition path is targeted OSM route resolution over the
+      // DESTINATION -- the map_to_area street pool and its name-matching
+      // workaround are gone, and Nominatim/Places never apply to ROUTE.
+      if (isRouteHint) {
+        const routed = await this.resolveViaTargetedRoute(
+          hint,
+          destinationScope,
+          observations,
+          seenIdentities,
+        );
+        recordAttempt(
+          'TARGETED_ROUTE',
+          routed.acquisition,
+          routed.verification,
+        );
+        entities.push(routed.entity);
+        finishAudit(routed.entity);
+        continue;
+      }
+
+      // AREA destination-scope outcome that blocked a structural candidate,
+      // kept as the final diagnostic if nothing else resolves the hint.
+      let areaDestinationBlock: DestinationCompatibility | undefined;
+      // The POI pool is lazily fetched (memoized per `resolve()` call, see
+      // getPoiLookup above) -- an AREA hint only reaches it through the
+      // AREA_TO_PLACE_CORRECTION fallback. A hint fully resolved above via
       // TRUSTED_OBSERVATION_REUSE/CATALOG_REUSE never reaches this line at
       // all (both `continue` before it).
       let pool: OsmCandidate[];
       let localLookup: OsmLookupResult<OsmCandidate[]> | undefined;
-      if (isRouteHint) {
-        localLookup = await getStreetLookup();
-        pool = localLookup.value;
-      } else if (isAreaHint) {
+      if (isAreaHint) {
         pool = boundary ? [boundary] : [];
         localLookup = undefined;
       } else {
@@ -815,11 +870,25 @@ export class ExperienceProposalResolverService
             provider: 'openstreetmap',
             poolCandidateCount: pool.length,
           };
-      const matched = matchOsmCandidateByName(
-        hint.name,
-        pool,
-        hint.addressHint,
-      );
+      let matched = matchOsmCandidateByName(hint.name, pool, hint.addressHint);
+      if (matched && isAreaHint) {
+        // The local AREA pool is the entity-resolution anchor or the
+        // destination itself; it still answers to the single destination
+        // policy before it can become a component.
+        const compatibility = this.areaDestinationCompatibility(
+          matched,
+          destinationScope,
+        );
+        if (compatibility.verdict !== 'COMPATIBLE') {
+          recordAttempt(
+            'LOCAL_OSM_POOL',
+            { ...localOsmFacts, destinationCompatibility: compatibility },
+            undefined,
+          );
+          areaDestinationBlock = compatibility;
+          matched = undefined;
+        }
+      }
 
       let unconfirmedLocalMatch: ResolvedGeoEntity | undefined;
       let unconfirmedGlobalMatch: ResolvedGeoEntity | undefined;
@@ -828,10 +897,7 @@ export class ExperienceProposalResolverService
           exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
           declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
         };
-        if (hint.expectedKind === 'ROUTE' || hint.role === 'route') {
-          // Raw OSM way multiplicity does NOT establish route identity multiplicity
-          nameMultiplicity = { exactName: 'UNKNOWN', declaredAlias: 'UNKNOWN' };
-        } else if (isAreaHint) {
+        if (isAreaHint) {
           // Single boundary candidate - no alias pool for boundary candidates
           nameMultiplicity = { exactName: 'SINGLE', declaredAlias: 'UNKNOWN' };
         } else {
@@ -889,7 +955,7 @@ export class ExperienceProposalResolverService
           hint,
           resolvedEntity.provider,
         );
-      } else {
+      } else if (!areaDestinationBlock) {
         recordAttempt(
           'LOCAL_OSM_POOL',
           {
@@ -902,6 +968,7 @@ export class ExperienceProposalResolverService
       if (destinationAssociationVerified) {
         const nominatimResolved = await this.resolveViaNominatim(
           hint,
+          destinationScope,
           destinationCountryCode,
           this.representativePoint(boundary),
         );
@@ -948,6 +1015,9 @@ export class ExperienceProposalResolverService
             { ...nominatimResolved, status: 'no_candidate' },
             undefined,
           );
+          if (nominatimResolved.destinationCompatibility) {
+            areaDestinationBlock = nominatimResolved.destinationCompatibility;
+          }
         } else if (nominatimResolved.status === 'failed') {
           recordAttempt('NOMINATIM', nominatimResolved, undefined);
         }
@@ -1094,9 +1164,28 @@ export class ExperienceProposalResolverService
         continue;
       }
 
-      const lookup = isRouteHint
-        ? await getStreetLookup()
-        : await getPoiLookup();
+      if (areaDestinationBlock) {
+        entities.push({
+          hintKey: hint.key,
+          hintName: hint.name,
+          provider: 'openstreetmap',
+          externalId: '',
+          role: hint.role,
+          nameEvidenceMultiplicity: {
+            exactName: 'UNKNOWN',
+            declaredAlias: 'UNKNOWN',
+          },
+          status: 'unresolved',
+          reason:
+            areaDestinationBlock.verdict === 'INCOMPATIBLE'
+              ? 'DESTINATION_INCOMPATIBLE'
+              : 'DESTINATION_COMPATIBILITY_UNKNOWN',
+        });
+        finishAudit(entities[entities.length - 1]);
+        continue;
+      }
+
+      const lookup = await getPoiLookup();
       const reason =
         lookup.status === 'failed'
           ? 'OSM_PROVIDER_FAILED'
@@ -1202,8 +1291,12 @@ export class ExperienceProposalResolverService
     hint: any,
     observations: SourceObservation[] = [],
     seenIdentities?: Map<string, ResolutionStrategy>,
+    acquisitionEvidence: IdentityEvidence[] = [],
   ): Promise<VerificationResult> {
-    const evidence = buildLocalIdentityEvidence(hint, entity);
+    const evidence = [
+      ...buildLocalIdentityEvidence(hint, entity),
+      ...acquisitionEvidence,
+    ];
     if (seenIdentities && entity.externalId) {
       // Keyed by externalId alone, not `${provider}:${externalId}`: the
       // externalId itself is already self-namespaced by real data source
@@ -1250,6 +1343,23 @@ export class ExperienceProposalResolverService
   private async persistVerifiedCandidate(
     candidate: EntityCandidate,
   ): Promise<ResolvedGeoEntity> {
+    if (candidate.identities?.length) {
+      const persisted = await this.catalog.upsertGeoEntityWithIdentities({
+        name: candidate.canonicalName,
+        kind: candidate.kind,
+        identities: candidate.identities,
+        latitude: candidate.latitude ?? undefined,
+        longitude: candidate.longitude ?? undefined,
+        geometry: candidate.geometry as MultiLineStringGeometry,
+        metadata: candidate.persistenceMetadata,
+      });
+      if (persisted.status === 'IDENTITY_CONFLICT') {
+        // A concurrent write attached some of these identities to another
+        // GeoEntity since correlation ran: never merged, fail closed.
+        return this.identityConflictEntity(candidate);
+      }
+      return this.resolvedFromCandidate(candidate, persisted.geoEntity.id);
+    }
     const geo = await this.catalog.upsertGeoEntity({
       name: candidate.canonicalName,
       kind: candidate.kind,
@@ -1335,6 +1445,212 @@ export class ExperienceProposalResolverService
     };
   }
 
+  private resolvedFromCandidate(
+    candidate: EntityCandidate,
+    geoEntityId: string,
+  ): ResolvedGeoEntity {
+    return {
+      hintKey: candidate.hintKey,
+      hintName: candidate.hintName,
+      provider: candidate.provider,
+      externalId: candidate.externalId,
+      canonicalName: candidate.canonicalName,
+      latitude: candidate.latitude,
+      longitude: candidate.longitude,
+      geometry: candidate.geometry,
+      role: candidate.role,
+      wikidataQid: candidate.wikidataQid,
+      nameAliasCandidates: candidate.nameAliasCandidates,
+      addressConfirmed: candidate.addressConfirmed,
+      nameEvidenceMultiplicity: candidate.nameEvidenceMultiplicity,
+      adminContext: candidate.adminContext,
+      status: 'resolved',
+      geoEntityId,
+    };
+  }
+
+  private identityConflictEntity(hint: {
+    hintKey?: string;
+    key?: string;
+    hintName?: string;
+    name?: string;
+    role: ResolvedGeoEntity['role'];
+  }): ResolvedGeoEntity {
+    return {
+      hintKey: (hint.hintKey ?? hint.key) as string,
+      hintName: (hint.hintName ?? hint.name) as string,
+      provider: 'openstreetmap',
+      externalId: '',
+      role: hint.role,
+      nameEvidenceMultiplicity: {
+        exactName: 'UNKNOWN',
+        declaredAlias: 'UNKNOWN',
+      },
+      status: 'unresolved',
+      reason: 'IDENTITY_CONFLICT',
+    };
+  }
+
+  /**
+   * AREA candidate vs the single destination policy: the candidate's own
+   * representative point, plus its own admin identity/level when it is an
+   * administrative unit.
+   */
+  private areaDestinationCompatibility(
+    area: OsmCandidate,
+    destinationScope: GeographicScope,
+    probe?: Coordinates,
+  ): DestinationCompatibility {
+    const point = probe ?? this.representativePoint(area);
+    const adminLevel = Number(area.tags?.admin_level);
+    return evaluateDestinationCompatibility(
+      {
+        probePoints: point ? [point] : [],
+        self: {
+          osmType: area.osmType,
+          osmId: area.osmId,
+          ...(Number.isFinite(adminLevel) ? { adminLevel } : {}),
+        },
+      },
+      destinationScope,
+    );
+  }
+
+  /**
+   * ROUTE acquisition -> correlation -> verification -> persistence:
+   *  1. targeted OSM route resolution over the destination;
+   *  2. strong-identity correlation of the RESOLVED cluster's segment ids
+   *     against persisted GeoEntityIdentity rows (0 -> new, 1 -> reuse,
+   *     2+ -> IDENTITY_CONFLICT, fail closed);
+   *  3. IdentityVerifier judges the typed STRUCTURED_ROUTE_RESOLUTION fact;
+   *  4. one GeoEntity + one identity per real OSM way.
+   */
+  private async resolveViaTargetedRoute(
+    hint: any,
+    destinationScope: GeographicScope,
+    observations: SourceObservation[],
+    seenIdentities: Map<string, ResolutionStrategy>,
+  ): Promise<{
+    entity: ResolvedGeoEntity;
+    acquisition: {
+      status: 'completed' | 'failed' | 'no_candidate';
+      provider: string;
+      query: string;
+      providerResultCount?: number;
+      poolCandidateCount?: number;
+      entity?: EntityCandidate;
+      failureReason?: string;
+      routeResolution: NonNullable<ResolutionAttemptAudit['routeResolution']>;
+    };
+    verification?: VerificationResult;
+  }> {
+    const result = await this.targetedRouteResolver.resolve({
+      name: hint.name,
+      destination: destinationScope,
+    });
+    const routeResolution: NonNullable<
+      ResolutionAttemptAudit['routeResolution']
+    > = {
+      status: result.status,
+      reason: result.reason,
+      variants: result.variants.map((v) => ({
+        variant: v.variant,
+        name: v.name,
+        rawCount: v.rawCount,
+        acceptedCount: v.acceptedCount,
+      })),
+      clusterCount: result.clusters.length,
+      compatibleClusterCount: result.compatibleClusterCount,
+      ...(result.resolved
+        ? { resolvedSegmentCount: result.resolved.segmentExternalIds.length }
+        : {}),
+    };
+    const acquisitionBase = {
+      provider: 'openstreetmap',
+      query: result.variants.map((v) => v.name).join(' | ') || hint.name,
+      providerResultCount: result.variants.reduce(
+        (sum, v) => sum + v.rawCount,
+        0,
+      ),
+      poolCandidateCount: result.clusters.length,
+      routeResolution,
+    };
+    const unresolved = (reason: string): ResolvedGeoEntity => ({
+      hintKey: hint.key,
+      hintName: hint.name,
+      provider: 'openstreetmap',
+      externalId: '',
+      role: hint.role,
+      nameEvidenceMultiplicity: {
+        exactName: 'UNKNOWN',
+        declaredAlias: 'UNKNOWN',
+      },
+      status: 'unresolved',
+      reason,
+    });
+
+    if (result.status !== 'RESOLVED' || !result.resolved) {
+      return {
+        entity: unresolved(
+          result.status === 'RESOLVED'
+            ? 'NO_OSM_MATCH'
+            : TARGETED_ROUTE_UNRESOLVED_REASON[result.status],
+        ),
+        acquisition: {
+          ...acquisitionBase,
+          status: result.status === 'UNAVAILABLE' ? 'failed' : 'no_candidate',
+          ...(result.status === 'UNAVAILABLE'
+            ? {
+                failureReason:
+                  result.variants.find((v) => v.failureReason)?.failureReason ??
+                  result.reason,
+              }
+            : {}),
+        },
+      };
+    }
+
+    const cluster = result.resolved;
+    const knownGeoEntityIds = await this.catalog.findGeoEntityIdsByIdentities(
+      'openstreetmap',
+      cluster.segmentExternalIds,
+    );
+    routeResolution.knownGeoEntityCount = knownGeoEntityIds.length;
+    if (knownGeoEntityIds.length > 1) {
+      return {
+        entity: unresolved('IDENTITY_CONFLICT'),
+        acquisition: { ...acquisitionBase, status: 'no_candidate' },
+      };
+    }
+
+    const candidate = buildRouteClusterCandidate(hint, cluster);
+    const verification = await this.isVerified(
+      'TARGETED_ROUTE',
+      candidate,
+      hint,
+      observations,
+      seenIdentities,
+      [structuredRouteEvidence(cluster)],
+    );
+    const acquisition = {
+      ...acquisitionBase,
+      status: 'completed' as const,
+      entity: candidate,
+    };
+    if (verification.decision.status !== 'VERIFIED') {
+      return {
+        entity: this.unconfirmedEntity(hint, 'openstreetmap'),
+        acquisition,
+        verification,
+      };
+    }
+    return {
+      entity: await this.persistVerifiedCandidate(candidate),
+      acquisition,
+      verification,
+    };
+  }
+
   private buildOsmCandidate(
     hint: any,
     matched: OsmCandidate,
@@ -1392,6 +1708,7 @@ export class ExperienceProposalResolverService
 
   private async resolveViaNominatim(
     hint: any,
+    destinationScope: GeographicScope,
     destinationCountryCode?: string,
     destinationPoint?: Coordinates,
   ): Promise<StrategyAcquisitionResult> {
@@ -1464,6 +1781,26 @@ export class ExperienceProposalResolverService
             provider: 'nominatim',
             query: hint.name,
             providerResultCount: results.length,
+          };
+        }
+        // Single destination policy: an AREA outside the resolved destination
+        // (e.g. "San Martín" -> Partido de General San Martín for a Buenos
+        // Aires walk) is never a component; UNKNOWN never counts as inside.
+        const destinationCompatibility = this.areaDestinationCompatibility(
+          boundary.value,
+          destinationScope,
+          {
+            latitude: match.latitude as number,
+            longitude: match.longitude as number,
+          },
+        );
+        if (destinationCompatibility.verdict !== 'COMPATIBLE') {
+          return {
+            status: 'no_candidate',
+            provider: 'nominatim',
+            query: hint.name,
+            providerResultCount: results.length,
+            destinationCompatibility,
           };
         }
         const correctedHint =
@@ -1586,28 +1923,71 @@ export class ExperienceProposalResolverService
   private async resolveViaCatalog(
     hint: any,
     scope: GeographicScope,
+    destinationScope: GeographicScope,
   ): Promise<CatalogAcquisitionResult> {
-    const { candidates } = await this.catalog.findGeoEntityCandidatesForHint({
-      hintName: hint.name,
-      // GeoEntityHint.expectedKind is exactly 'PLACE' | 'AREA' | 'ROUTE',
-      // the same literal union GeoEntityKind is defined over.
-      expectedKind: hint.expectedKind as GeoEntityKind,
-      scope,
-    });
+    const isRoute = hint.expectedKind === 'ROUTE';
+    // ROUTE: the same bounded retrieval variants the targeted acquisition
+    // uses ("Defensa Street" -> "Defensa"), each an EXACT normalized-name
+    // lookup over the DESTINATION scope (a street is not contained by a
+    // neighborhood anchor). Never fuzzy, never an alias table.
+    const lookups = isRoute
+      ? routeRetrievalQueryVariants(hint.name)
+      : [{ variant: 'RAW' as const, name: hint.name }];
+    const lookupScope = isRoute ? destinationScope : scope;
 
-    if (candidates.length === 0) {
+    const byId = new Map<
+      string,
+      {
+        match: CatalogGeoEntityCandidate;
+        variant: RouteRetrievalVariantKind;
+      }
+    >();
+    for (const lookup of lookups) {
+      const { candidates } = await this.catalog.findGeoEntityCandidatesForHint({
+        hintName: lookup.name,
+        // GeoEntityHint.expectedKind is exactly 'PLACE' | 'AREA' | 'ROUTE',
+        // the same literal union GeoEntityKind is defined over.
+        expectedKind: hint.expectedKind as GeoEntityKind,
+        scope: lookupScope,
+      });
+      for (const match of candidates) {
+        if (!byId.has(match.geoEntityId)) {
+          byId.set(match.geoEntityId, { match, variant: lookup.variant });
+        }
+      }
+    }
+
+    let found = [...byId.values()];
+    if (isRoute || hint.expectedKind === 'AREA') {
+      // Canonical AREA/ROUTE knowledge is reusable only inside THIS
+      // destination; UNKNOWN is never treated as compatible.
+      const verdicts = found.map((entry) =>
+        this.catalogDestinationCompatibility(entry.match, destinationScope),
+      );
+      if (verdicts.some((v) => v.verdict === 'UNKNOWN')) {
+        return {
+          status: 'ambiguous',
+          provider: 'catalog',
+          query: hint.name,
+          poolCandidateCount: found.length,
+        };
+      }
+      found = found.filter((_, i) => verdicts[i].verdict === 'COMPATIBLE');
+    }
+
+    if (found.length === 0) {
       return { status: 'no_candidate', provider: 'catalog', query: hint.name };
     }
-    if (candidates.length > 1) {
+    if (found.length > 1) {
       return {
         status: 'ambiguous',
         provider: 'catalog',
         query: hint.name,
-        poolCandidateCount: candidates.length,
+        poolCandidateCount: found.length,
       };
     }
 
-    const match = candidates[0];
+    const [{ match, variant }] = found;
     const identity = match.identities[0];
     if (!identity) {
       return { status: 'no_candidate', provider: 'catalog', query: hint.name };
@@ -1642,38 +2022,55 @@ export class ExperienceProposalResolverService
       query: hint.name,
       candidate: entityCandidate,
       geoEntityId: match.geoEntityId,
+      evidence:
+        variant === 'DESIGNATOR_NORMALIZED'
+          ? [
+              {
+                type: 'CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH',
+                retrievalVariant: variant,
+                identityMultiplicity: 'SINGLE',
+              },
+            ]
+          : [],
     };
   }
 
   /**
-   * P2-B, Phase 1: candidate ACQUISITION, not a new confirmation rule.
-   * When a web-discovered hint's name unambiguously names the same
-   * real-world thing as a structured `SourceObservation` this same
-   * acquisition run already gathered (`google_places`/`geoapify`, always
-   * `evidenceType: 'place'`), fetch that observation's own identity
-   * deterministically instead of re-discovering it from scratch via a
-   * fresh text search. Never uses `hint.evidenceKeys` -- see
-   * `findReusableObservationCandidate`'s own doc comment for why that
-   * correlation is structurally impossible for web hints.
-   *
-   * Deliberately narrow in this phase, to respect two invariants at once:
-   *   - P0.1/P0.2: a single compatible observation proves nothing about
-   *     real-world uniqueness -- ambiguity (2+ distinct compatible
-   *     observations) or an out-of-scope/unverifiable match refuses to
-   *     reuse rather than guessing. The returned candidate is NOT trusted
-   *     outright -- the caller still runs it through the exact same
-   *     `IdentityVerifier` gate every other candidate goes through. There is
-   *     no reuse-specific fast path into confirmation.
-   *   - P1: Places can only ever supply a POINT, never an AREA/ROUTE
-   *     polygon -- an AREA/ROUTE-tagged hint skips this attempt entirely
-   *     (never converted to PLACE just because a same-named Places
-   *     observation exists) and still gets P1's own kind-correction
-   *     treatment normally afterward, since a skip here is never terminal.
-   *
-   * A `null`/`undefined` result here is ALWAYS non-terminal: the caller
-   * falls straight through to the unchanged local-pool/global pipeline, as
-   * if this attempt had never run.
+   * A catalog AREA/ROUTE row against the single destination policy: its
+   * representative point plus, for a line geometry, one real vertex per
+   * persisted line (a route may extend past the destination limit).
    */
+  private catalogDestinationCompatibility(
+    match: CatalogGeoEntityCandidate,
+    destinationScope: GeographicScope,
+  ): DestinationCompatibility {
+    const probes: Coordinates[] = [];
+    if (Number.isFinite(match.latitude) && Number.isFinite(match.longitude)) {
+      probes.push({
+        latitude: match.latitude as number,
+        longitude: match.longitude as number,
+      });
+    }
+    const geometry = match.geometry as {
+      type?: string;
+      coordinates?: unknown;
+    } | null;
+    const lines =
+      geometry?.type === 'MultiLineString'
+        ? (geometry.coordinates as [number, number][][])
+        : geometry?.type === 'LineString'
+          ? [geometry.coordinates as [number, number][]]
+          : [];
+    for (const line of lines) {
+      const middle = line[Math.floor(line.length / 2)];
+      if (middle) probes.push({ latitude: middle[1], longitude: middle[0] });
+    }
+    return evaluateDestinationCompatibility(
+      { probePoints: probes },
+      destinationScope,
+    );
+  }
+
   private async resolveViaTrustedObservation(
     hint: any,
     observations: SourceObservation[],
