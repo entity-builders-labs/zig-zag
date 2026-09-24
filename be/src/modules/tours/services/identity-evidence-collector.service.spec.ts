@@ -48,17 +48,13 @@ describe('IdentityEvidenceCollector', () => {
   });
 
   /**
-   * Real spike evidence (spikes/stage3-santelmo-composite-geoapify-control-
-   * 2026-09-23): the OSM way for "Defensa" street declares its own
-   * wikidata=Qxxxx tag (OWN_QID -- a direct, provider-declared structural
-   * cross-reference, not a proximity guess). The extractor's hint text
-   * ("Defensa Street") carries an English generic-type suffix the Spanish
-   * Wikidata label doesn't have, so the existing 100%-token bar rejects a
-   * real, already-uniquely-identified street. Scoped to ROUTE candidates
-   * only -- see the negative PLACE test right below, which proves this does
-   * NOT reopen the "Recoleta Cemetery" -> unrelated hotel collision class.
+   * Stage 3 cutover: ROUTE identity comes from the structural targeted-route
+   * fact (STRUCTURED_ROUTE_RESOLUTION), not from a kind-specific relaxation
+   * of Wikidata name matching. An OWN_QID for a ROUTE candidate uses exactly
+   * the same strict bar as every other kind -- "Defensa Street" does not
+   * name-match the label "Defensa".
    */
-  it('matches an OWN_QID hint permissively for a ROUTE candidate (cross-language / generic-suffix tolerant), unlike the stricter NEARBY bar', async () => {
+  it('applies the same strict OWN_QID name bar to a ROUTE candidate (no ROUTE-only permissive workaround)', async () => {
     const collector = new IdentityEvidenceCollector({
       getEntitySummaries: jest
         .fn()
@@ -78,15 +74,14 @@ describe('IdentityEvidenceCollector', () => {
       {
         type: 'WIKIDATA_IDENTITY_MATCH',
         source: 'OWN_QID',
-        hintMatched: true,
+        hintMatched: false,
         candidateMatched: true,
       },
     ]);
   });
 
   /**
-   * The permissive bar must stay scoped to ROUTE. A PLACE/venue OWN_QID
-   * keeps the strict 100%-token bar -- two different real venues can
+   * A PLACE/venue OWN_QID keeps the strict 100%-token bar -- two different real venues can
    * legitimately share one specific token (a neighborhood name), which is
    * exactly the collision class requireAllTokens was introduced to prevent
    * (see experience-proposal-resolver.service.spec.ts's "Recoleta Cemetery"
