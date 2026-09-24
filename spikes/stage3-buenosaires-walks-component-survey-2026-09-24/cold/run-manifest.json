@@ -1,0 +1,15 @@
+{
+  "runLabel": "ba-walks-cold",
+  "tourId": "51e89d21-bbcc-4085-a38f-8deb74f7505a",
+  "email": "stage3-spike-ba-walks-cold-1790262477906@example.com",
+  "baseUrl": "http://localhost:4014",
+  "requestFile": "request.json",
+  "createHttpMs": 31,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 1200000,
+  "pollElapsedMs": 328423,
+  "startedAt": "2026-09-24T15:07:58.051Z",
+  "finishedAt": "2026-09-24T15:13:26.483Z"
+}

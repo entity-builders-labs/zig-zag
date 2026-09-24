@@ -1,0 +1,8 @@
+{
+  "runLabel": "main",
+  "tourId": "f4de77a9-78cc-403a-8300-181abc630706",
+  "baseUrl": "http://localhost:4016",
+  "requestFile": "spikes/stage3-buenosaires-walks-component-survey-2026-09-24/request.json",
+  "generationStatus": "completed",
+  "note": "createHttpMs omitted: run-spike.sh's macOS `date +%s%3N` bug (no ms precision on BSD date) crashed the manifest write after generation had already completed and terminal-tour.json/generation-trace.json were saved."
+}

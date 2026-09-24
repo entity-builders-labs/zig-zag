@@ -1,0 +1,8 @@
+{
+  "runLabel": "multi-anchor",
+  "tourId": "a5a23b60-5d05-4cac-a1cc-fc26b16dbf6b",
+  "email": "stage3-nominatim-bias-multi-anchor-1790275834900962000@example.com",
+  "baseUrl": "http://localhost:4016",
+  "requestFile": "spikes/stage3-buenosaires-walks-component-survey-2026-09-24/request-multi-anchor.json",
+  "generationStatus": "completed"
+}
