@@ -22,9 +22,6 @@ describe('ExperienceProposalResolverService trace contract', () => {
       tags: {},
     };
     const osmPlaces: any = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest.fn().mockResolvedValue({
         status: 'success',
         value: [
@@ -139,9 +136,6 @@ describe('ExperienceProposalResolverService trace contract', () => {
       tags: {},
     };
     const osmPlaces: any = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest.fn().mockResolvedValue({
         status: 'success',
         value: [

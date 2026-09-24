@@ -105,15 +105,10 @@ function buildService(overrides?: { persist?: jest.Mock; upsert?: jest.Mock }) {
     tags: { tourism: 'attraction' },
   }));
   const osmPlaces = {
-    lookupStreetsWithin: jest
-      .fn()
-      .mockResolvedValue({ status: 'success', value: [] }),
     lookupPoisWithin: jest
       .fn()
       .mockResolvedValue({ status: 'success', value: poiPool }),
-    lookupStreetsNear: jest
-      .fn()
-      .mockResolvedValue({ status: 'success', value: [] }),
+
     lookupPoisNear: jest
       .fn()
       .mockResolvedValue({ status: 'success', value: poiPool }),

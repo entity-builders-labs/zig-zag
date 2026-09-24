@@ -113,18 +113,6 @@ export function buildContainingBoundaryQuery({
   ].join('\n');
 }
 
-export function buildStreetsQuery({
-  latitude,
-  longitude,
-  radiusMeters,
-}: QueryStreetsParams): string {
-  return [
-    '[out:json][timeout:25];',
-    `way["highway"]["name"](around:${radiusMeters},${latitude},${longitude});`,
-    'out geom;',
-  ].join('\n');
-}
-
 // Radius-based sibling of buildPoisWithinAreaQuery, for a point-scale
 // destination (no real OSM area/relation to scope a `map_to_area` query
 // against) — same tag filters, `around:radius,lat,lon` instead of an area
@@ -249,19 +237,6 @@ export function buildAdminBoundariesWithinAreaQuery({
     `  relation["boundary"="administrative"]["admin_level"="${childAdminLevel}"](area.a);`,
     `  way["boundary"="administrative"]["admin_level"="${childAdminLevel}"][!"highway"](area.a)(if:is_closed());`,
     ');',
-    'out tags center;',
-  ].join('\n');
-}
-
-export function buildStreetsWithinAreaQuery({
-  osmType,
-  osmId,
-}: QueryByIdParams): string {
-  return [
-    '[out:json][timeout:30];',
-    `${osmType}(${osmId});`,
-    'map_to_area->.a;',
-    'way["highway"]["name"](area.a);',
     'out tags center;',
   ].join('\n');
 }

@@ -15,10 +15,8 @@ import {
 import {
   buildBoundaryByNameQuery,
   buildContainingBoundaryQuery,
-  buildStreetsQuery,
   buildBoundaryByIdQuery,
   buildAdminBoundariesWithinAreaQuery,
-  buildStreetsWithinAreaQuery,
   buildPoisWithinAreaQuery,
   buildPoisQuery,
   buildFeaturesNearQuery,
@@ -207,10 +205,6 @@ export class OverpassApiService implements IOverpassApiService {
     return this.execute(buildContainingBoundaryQuery(params));
   }
 
-  async queryStreets(params: QueryStreetsParams): Promise<OverpassElement[]> {
-    return this.execute(buildStreetsQuery(params));
-  }
-
   async queryBoundaryById(params: QueryByIdParams): Promise<OverpassElement[]> {
     return this.execute(buildBoundaryByIdQuery(params));
   }
@@ -219,12 +213,6 @@ export class OverpassApiService implements IOverpassApiService {
     params: QueryAdminBoundariesWithinAreaParams,
   ): Promise<OverpassElement[]> {
     return this.execute(buildAdminBoundariesWithinAreaQuery(params));
-  }
-
-  async queryStreetsWithinArea(
-    params: QueryByIdParams,
-  ): Promise<OverpassElement[]> {
-    return this.execute(buildStreetsWithinAreaQuery(params));
   }
 
   async queryPoisWithinArea(

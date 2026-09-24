@@ -161,8 +161,6 @@ describe('AreaRouteAnchorResolverService', () => {
           },
         }),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = {
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
@@ -242,8 +240,6 @@ describe('AreaRouteAnchorResolverService', () => {
           .fn()
           .mockResolvedValue({ status: 'success', value: osmBoundary }),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = {
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
@@ -278,8 +274,6 @@ describe('AreaRouteAnchorResolverService', () => {
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = { upsertGeoEntity: jest.fn() };
       const service = new AreaRouteAnchorResolverService(
@@ -320,8 +314,6 @@ describe('AreaRouteAnchorResolverService', () => {
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = { upsertGeoEntity: jest.fn() };
       const service = new AreaRouteAnchorResolverService(
@@ -367,8 +359,6 @@ describe('AreaRouteAnchorResolverService', () => {
           failureReason: 'boom',
         }),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = { upsertGeoEntity: jest.fn() };
       const service = new AreaRouteAnchorResolverService(
@@ -434,8 +424,6 @@ describe('AreaRouteAnchorResolverService', () => {
             },
           })),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = {
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
@@ -487,8 +475,6 @@ describe('AreaRouteAnchorResolverService', () => {
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = { upsertGeoEntity: jest.fn() };
       const service = new AreaRouteAnchorResolverService(
@@ -518,8 +504,6 @@ describe('AreaRouteAnchorResolverService', () => {
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = { upsertGeoEntity: jest.fn() };
       const service = new AreaRouteAnchorResolverService(
@@ -559,12 +543,8 @@ describe('AreaRouteAnchorResolverService', () => {
         };
         const osmPlaces = {
           lookupBoundaryById: jest.fn(),
-          lookupStreetsNear:
-            mode === 'all-unavailable'
-              ? jest.fn().mockRejectedValue(new Error('overpass down'))
-              : jest.fn().mockResolvedValue({ status: 'success', value: [] }),
+
           lookupHighwaysByName: noHighways(),
-          lookupStreetsWithin: jest.fn(),
         };
         const places = {
           provider: 'google' as const,
@@ -637,11 +617,8 @@ describe('AreaRouteAnchorResolverService', () => {
       const service = new AreaRouteAnchorResolverService(
         {
           lookupBoundaryById: jest.fn(),
-          lookupStreetsNear: jest
-            .fn()
-            .mockResolvedValue({ status: 'success', value: [] }),
+
           lookupHighwaysByName: noHighways(),
-          lookupStreetsWithin: jest.fn(),
         } as any,
         { upsertGeoEntity: jest.fn() } as any,
         {
@@ -930,13 +907,6 @@ describe('AreaRouteAnchorResolverService', () => {
           ],
         ],
       };
-      const routeGeometry = {
-        type: 'LineString' as const,
-        coordinates: [
-          [-58.36, -34.63],
-          [-58.35, -34.64],
-        ],
-      };
       const nominatim = {
         search: jest.fn().mockImplementation(async (name: string) => {
           if (name === 'San Telmo')
@@ -985,18 +955,6 @@ describe('AreaRouteAnchorResolverService', () => {
           },
         }),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [
-            {
-              id: 'osm:way:7',
-              name: 'Ruta de los Siete Lagos',
-              geometry: routeGeometry,
-              tags: {},
-            },
-          ],
-        }),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = {
         upsertGeoEntity: jest.fn().mockImplementation(async (input) => ({
@@ -1143,8 +1101,6 @@ describe('AreaRouteAnchorResolverService', () => {
           },
         }),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = {
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
@@ -1180,12 +1136,8 @@ describe('AreaRouteAnchorResolverService', () => {
       };
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
-        lookupStreetsNear: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [],
-        }),
+
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
       };
       const places = {
         provider: 'google' as const,
@@ -1246,12 +1198,8 @@ describe('AreaRouteAnchorResolverService', () => {
       };
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
-        lookupStreetsNear: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [],
-        }),
+
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
       };
       const places = {
         provider: 'google' as const,
@@ -1316,12 +1264,8 @@ describe('AreaRouteAnchorResolverService', () => {
       };
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
-        lookupStreetsNear: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [],
-        }),
+
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
       };
       const places = {
         provider: 'google' as const,
@@ -1381,12 +1325,8 @@ describe('AreaRouteAnchorResolverService', () => {
       };
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
-        lookupStreetsNear: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [],
-        }),
+
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
       };
       const places = {
         provider: 'google' as const,
@@ -1452,12 +1392,8 @@ describe('AreaRouteAnchorResolverService', () => {
       };
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
-        lookupStreetsNear: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [],
-        }),
+
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
       };
       const places = {
         provider: 'google' as const,
@@ -1565,8 +1501,6 @@ describe('AreaRouteAnchorResolverService', () => {
           },
         }),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = {
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
@@ -1640,8 +1574,6 @@ describe('AreaRouteAnchorResolverService', () => {
           },
         }),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = {
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
@@ -1727,8 +1659,6 @@ describe('AreaRouteAnchorResolverService', () => {
           },
         }),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = {
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
@@ -1771,12 +1701,8 @@ describe('AreaRouteAnchorResolverService', () => {
       };
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
-        lookupStreetsNear: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [],
-        }),
+
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
       };
       const places = {
         provider: 'google' as const,
@@ -1845,12 +1771,8 @@ describe('AreaRouteAnchorResolverService', () => {
       };
       const osmPlaces = {
         lookupBoundaryById: jest.fn(),
-        lookupStreetsNear: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [],
-        }),
+
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
       };
       const places = {
         provider: 'google' as const,
@@ -1966,8 +1888,6 @@ describe('AreaRouteAnchorResolverService', () => {
           },
         }),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = {
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
@@ -2080,8 +2000,6 @@ describe('AreaRouteAnchorResolverService', () => {
           },
         }),
         lookupHighwaysByName: noHighways(),
-        lookupStreetsWithin: jest.fn(),
-        lookupStreetsNear: jest.fn(),
       };
       const catalog = {
         upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),

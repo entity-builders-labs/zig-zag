@@ -158,8 +158,7 @@ function build(
       async ({ name }: { name: string }) =>
         options.highways?.[name] ?? found([]),
     ),
-    lookupStreetsNear: jest.fn(),
-    lookupStreetsWithin: jest.fn(),
+
     lookupPoisNear: jest
       .fn()
       .mockResolvedValue({ status: 'success', value: [] }),
@@ -236,8 +235,12 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
         candidates: [routeCandidate('Defensa Street')],
       } as any);
 
-      expect(osmPlaces.lookupStreetsNear).not.toHaveBeenCalled();
-      expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
+      // One targeted lookup per bounded retrieval variant, nothing else.
+      expect(
+        osmPlaces.lookupHighwaysByName.mock.calls.map(
+          ([query]: any[]) => query.name,
+        ),
+      ).toEqual(['Defensa Street', 'Defensa']);
       expect(nominatim.search).not.toHaveBeenCalled();
       expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
       expect(wikidata.findNearbyPlaces).not.toHaveBeenCalled();

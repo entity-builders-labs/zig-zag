@@ -111,12 +111,6 @@ export class CachedOverpassApiService implements IOverpassApiService {
     );
   }
 
-  async queryStreets(params: QueryStreetsParams): Promise<OverpassElement[]> {
-    return this.handleRequest('queryStreets', params, () =>
-      this.realService.queryStreets(params),
-    );
-  }
-
   async queryBoundaryById(params: QueryByIdParams): Promise<OverpassElement[]> {
     return this.handleRequest('queryBoundaryById', params, () =>
       this.realService.queryBoundaryById(params),
@@ -128,14 +122,6 @@ export class CachedOverpassApiService implements IOverpassApiService {
   ): Promise<OverpassElement[]> {
     return this.handleRequest('queryAdminBoundariesWithinArea', params, () =>
       this.realService.queryAdminBoundariesWithinArea(params),
-    );
-  }
-
-  async queryStreetsWithinArea(
-    params: QueryByIdParams,
-  ): Promise<OverpassElement[]> {
-    return this.handleRequest('queryStreetsWithinArea', params, () =>
-      this.realService.queryStreetsWithinArea(params),
     );
   }
 

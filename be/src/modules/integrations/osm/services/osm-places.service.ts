@@ -154,14 +154,6 @@ const DEFAULT_MAX_STREETS_RADIUS_METERS = 2500;
 // reach than a walkable-streets query, but still bounded so a single union
 // query can never aim an unbounded `around:` at a shared Overpass instance.
 const DEFAULT_MAX_FEATURES_RADIUS_METERS = 8000;
-const GENERIC_STREET_NAMES = new Set([
-  'sin nombre',
-  'unnamed',
-  'unnamed road',
-  'unknown',
-  's n',
-]);
-
 @Injectable()
 export class OsmPlacesService {
   private readonly logger = new Logger(OsmPlacesService.name);
@@ -216,69 +208,6 @@ export class OsmPlacesService {
       geometry,
       tags,
     };
-  }
-
-  private toStreetCandidate(element: OverpassElement): OsmCandidate | null {
-    const candidate = this.toCandidate(element);
-    if (!candidate) return null;
-
-    const normalizedName = candidate.name
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, ' ')
-      .trim();
-    return GENERIC_STREET_NAMES.has(normalizedName) ? null : candidate;
-  }
-
-  /**
-   * Named streets near a point — candidates for a ROUTE whose own trace is
-   * the content of the experience (e.g. "walk through Caminito"), never for
-   * the merely incidental path between stops of a NEIGHBORHOOD_WALK (that's
-   * resolved client-side, never persisted — see Activity.boundary).
-   * Never throws — a failed/unconfigured Overpass call degrades to "no
-   * street candidates this generation", not a broken tour.
-   */
-  async findStreetsNear(
-    latitude: number,
-    longitude: number,
-    radiusMeters: number,
-  ): Promise<OsmCandidate[]> {
-    return (await this.lookupStreetsNear(latitude, longitude, radiusMeters))
-      .value;
-  }
-
-  async lookupStreetsNear(
-    latitude: number,
-    longitude: number,
-    radiusMeters: number,
-  ): Promise<OsmLookupResult<OsmCandidate[]>> {
-    const cappedRadiusMeters = Math.min(
-      radiusMeters,
-      this.maxStreetsRadiusMeters,
-    );
-    try {
-      const elements = await this.overpassApi.queryStreets({
-        latitude,
-        longitude,
-        radiusMeters: cappedRadiusMeters,
-      });
-      return {
-        status: 'success',
-        value: elements
-          .map((el) => this.toStreetCandidate(el))
-          .filter((c): c is OsmCandidate => c !== null),
-      };
-    } catch (error: any) {
-      this.logger.warn(
-        `Overpass queryStreets failed, continuing without street candidates: ${error.message}`,
-      );
-      return {
-        status: 'failed',
-        value: [],
-        failureReason: error.message || 'unknown Overpass error',
-      };
-    }
   }
 
   /**
@@ -652,42 +581,6 @@ export class OsmPlacesService {
     } catch (error: any) {
       this.logger.warn(
         `Overpass queryAdminBoundariesWithinArea failed for ${boundary.id}: ${error.message}`,
-      );
-      return {
-        status: 'failed',
-        value: [],
-        failureReason: error.message || 'unknown Overpass error',
-      };
-    }
-  }
-
-  /**
-   * Named streets within a resolved neighborhood's own polygon — replaces
-   * findStreetsNear's radius guess for the area-scale path (point-scale
-   * destinations still use findStreetsNear, which has no polygon of its
-   * own to query against). Never throws.
-   */
-  async findStreetsWithin(boundary: OsmCandidate): Promise<OsmCandidate[]> {
-    return (await this.lookupStreetsWithin(boundary)).value;
-  }
-
-  async lookupStreetsWithin(
-    boundary: OsmCandidate,
-  ): Promise<OsmLookupResult<OsmCandidate[]>> {
-    try {
-      const elements = await this.overpassApi.queryStreetsWithinArea({
-        osmType: boundary.osmType as 'way' | 'relation',
-        osmId: boundary.osmId,
-      });
-      return {
-        status: 'success',
-        value: elements
-          .map((el) => this.toStreetCandidate(el))
-          .filter((c): c is OsmCandidate => c !== null),
-      };
-    } catch (error: any) {
-      this.logger.warn(
-        `Overpass queryStreetsWithinArea failed for ${boundary.id}: ${error.message}`,
       );
       return {
         status: 'failed',

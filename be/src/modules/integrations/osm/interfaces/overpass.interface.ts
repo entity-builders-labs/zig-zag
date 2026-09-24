@@ -108,12 +108,10 @@ export interface IOverpassApiService {
   queryContainingBoundary(
     params: QueryContainingBoundaryParams,
   ): Promise<OverpassElement[]>;
-  queryStreets(params: QueryStreetsParams): Promise<OverpassElement[]>;
   queryBoundaryById(params: QueryByIdParams): Promise<OverpassElement[]>;
   queryAdminBoundariesWithinArea(
     params: QueryAdminBoundariesWithinAreaParams,
   ): Promise<OverpassElement[]>;
-  queryStreetsWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
   queryPoisWithinArea(params: QueryByIdParams): Promise<OverpassElement[]>;
   queryPois(params: QueryStreetsParams): Promise<OverpassElement[]>;
   // Proactive feature discovery: one bounded `around:` union query built from

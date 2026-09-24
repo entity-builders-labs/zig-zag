@@ -3,10 +3,8 @@ import {
   sanitizeOverpassTagToken,
   buildBoundaryByNameQuery,
   buildContainingBoundaryQuery,
-  buildStreetsQuery,
   buildBoundaryByIdQuery,
   buildAdminBoundariesWithinAreaQuery,
-  buildStreetsWithinAreaQuery,
   buildPoisWithinAreaQuery,
   buildPoisQuery,
   buildFeaturesNearQuery,
@@ -92,19 +90,6 @@ describe('buildContainingBoundaryQuery', () => {
   });
 });
 
-describe('buildStreetsQuery', () => {
-  it('filters by highway + name within the given radius', () => {
-    const query = buildStreetsQuery({
-      latitude: -34.6201,
-      longitude: -58.3715,
-      radiusMeters: 2500,
-    });
-
-    expect(query).toContain('["highway"]["name"]');
-    expect(query).toContain('(around:2500,-34.6201,-58.3715)');
-  });
-});
-
 describe('buildBoundaryByIdQuery', () => {
   it('queries a specific relation by id and asks for full geometry', () => {
     const query = buildBoundaryByIdQuery({
@@ -160,20 +145,6 @@ describe('buildAdminBoundariesWithinAreaQuery', () => {
         childAdminLevel: 13,
       }),
     ).toThrow(RangeError);
-  });
-});
-
-describe('buildStreetsWithinAreaQuery', () => {
-  it('uses map_to_area, filtering named highways, not a radius', () => {
-    const query = buildStreetsWithinAreaQuery({
-      osmType: 'relation',
-      osmId: 2223069,
-    });
-
-    expect(query).toContain('relation(2223069)');
-    expect(query).toContain('map_to_area->.a');
-    expect(query).toContain('way["highway"]["name"](area.a)');
-    expect(query).not.toContain('around:');
   });
 });
 

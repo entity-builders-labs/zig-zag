@@ -65,9 +65,6 @@ describe('ExperienceProposalResolverService', () => {
 
   it('uses AREA_BOUNDARY from the canonical request object', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest.fn().mockResolvedValue({
         status: 'success',
         value: [
@@ -224,9 +221,6 @@ describe('ExperienceProposalResolverService', () => {
     // (experienceId, geoEntityId) pair twice crashed the whole generation on
     // ExperienceComponent's unique constraint.
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest.fn().mockResolvedValue({
         status: 'success',
         value: [
@@ -308,9 +302,6 @@ describe('ExperienceProposalResolverService', () => {
 
   it('resolves candidate traits into traitDefinitionIds and threads them into persistence (CP3-3)', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest.fn().mockResolvedValue({
         status: 'success',
         value: [
@@ -386,9 +377,6 @@ describe('ExperienceProposalResolverService', () => {
     };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -478,9 +466,6 @@ describe('ExperienceProposalResolverService', () => {
     };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -550,9 +535,6 @@ describe('ExperienceProposalResolverService', () => {
 
   it('resolves an evidence-associated Experience outside the base destination and validates its own geo scope', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: [] }),
@@ -646,9 +628,6 @@ describe('ExperienceProposalResolverService', () => {
     // high-importance Nominatim result just because "Park" never literally
     // becomes "Parque".
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: [] }),
@@ -746,9 +725,6 @@ describe('ExperienceProposalResolverService', () => {
     // verified live against the real API. destinationCountryCode restricts
     // the search to the resolved destination's own country.
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: [] }),
@@ -840,9 +816,6 @@ describe('ExperienceProposalResolverService', () => {
       tags: { boundary: 'administrative' },
     };
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: [] }),
@@ -977,9 +950,6 @@ describe('ExperienceProposalResolverService', () => {
     };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -1071,9 +1041,6 @@ describe('ExperienceProposalResolverService', () => {
     };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -1161,9 +1128,6 @@ describe('ExperienceProposalResolverService', () => {
     };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -1244,9 +1208,6 @@ describe('ExperienceProposalResolverService', () => {
     };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -1289,9 +1250,6 @@ describe('ExperienceProposalResolverService', () => {
     const nominatim = { search: jest.fn().mockResolvedValue([]) };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -1349,9 +1307,6 @@ describe('ExperienceProposalResolverService', () => {
     };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -1396,9 +1351,6 @@ describe('ExperienceProposalResolverService', () => {
     const nominatim = { search: jest.fn() };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -1454,10 +1406,6 @@ describe('ExperienceProposalResolverService', () => {
   it('accepts the canonical point-radius scope without an OSM boundary', async () => {
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsNear: jest.fn().mockResolvedValue({
-          status: 'success',
-          value: [],
-        }),
         lookupPoisNear: jest.fn().mockResolvedValue({
           status: 'success',
           value: [],
@@ -1523,9 +1471,6 @@ describe('ExperienceProposalResolverService', () => {
   ])('distinguishes OSM $name', async ({ lookup, expected }) => {
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue(lookup),
       } as any,
       {
@@ -1617,9 +1562,6 @@ describe('ExperienceProposalResolverService', () => {
   it('records AREA_TO_PLACE_CORRECTION failure from the POI lookup', async () => {
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'failed',
           value: [],
@@ -1710,9 +1652,6 @@ describe('ExperienceProposalResolverService', () => {
       };
       const service = new ExperienceProposalResolverService(
         {
-          lookupStreetsWithin: jest
-            .fn()
-            .mockResolvedValue({ status: 'success', value: [] }),
           lookupPoisWithin: jest
             .fn()
             .mockResolvedValue({ status: 'success', value: [] }),
@@ -1792,9 +1731,6 @@ describe('ExperienceProposalResolverService', () => {
     };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -1838,9 +1774,6 @@ describe('ExperienceProposalResolverService', () => {
 
   it('uses the canonical AREA scale policy for a neighborhood-scale Nominatim match', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: [] }),
@@ -1935,9 +1868,6 @@ describe('ExperienceProposalResolverService', () => {
 
   it('preserves MULTIPLE through Nominatim AREA boundary hydration', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: [] }),
@@ -2041,9 +1971,6 @@ describe('ExperienceProposalResolverService', () => {
 
   it('resolves a PLACE-role hint as an AREA when Nominatim structurally shows it is a real neighborhood (mirror of the AREA-mistaken-for-PLACE case above: "Puerto Madero" tagged role="venue"/expectedKind="PLACE" by discovery, but it is a genuine neighborhood — the discovery LLM only proposes a kind, Nominatim\'s own scale evidence decides it)', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: [] }),
@@ -2145,9 +2072,6 @@ describe('ExperienceProposalResolverService', () => {
 
   it('falls through to the global Nominatim path when a local POI-pool match is found but fails confirmation (real regression, live-verified: "Puerto Madero" fuzzy-matches an unrelated local POI, "Templo Beit Jabad Puerto Madero", a synagogue sharing both tokens; the real neighborhood is a Nominatim administrative boundary and can structurally never appear in the local POI pool at all, so once the wrong local match consumes the hint there was previously no way back to it)', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest.fn().mockResolvedValue({
         status: 'success',
         value: [
@@ -2271,9 +2195,6 @@ describe('ExperienceProposalResolverService', () => {
 
   it('falls back to the local POI pool when an AREA-role hint is actually a point-like place (real regression: "Plaza de Mayo" tagged role="area" by discovery, but it is a leisure=park POI, not a neighborhood — neither the destination boundary nor Nominatim-as-administrative-area can ever find it)', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest.fn().mockResolvedValue({
         status: 'success',
         value: [
@@ -2363,9 +2284,6 @@ describe('ExperienceProposalResolverService', () => {
 
   it('does not use the POI-pool fallback for an AREA hint that already resolves correctly via Nominatim (regression guard: Palermo/Recoleta-type neighborhoods stay on the administrative-area path)', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest.fn().mockResolvedValue({
         status: 'success',
         value: [
@@ -2479,9 +2397,6 @@ describe('ExperienceProposalResolverService', () => {
     'rejects a too-broad AREA match through the canonical scale policy (%s)',
     async (scale) => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -2567,9 +2482,6 @@ describe('ExperienceProposalResolverService', () => {
     };
     const service = new ExperienceProposalResolverService(
       {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -2624,9 +2536,6 @@ describe('ExperienceProposalResolverService', () => {
       const candidateA = candidate('Shared Name Walk', 'Alpha Landmark');
       const candidateB = candidate('Shared Name Walk', 'Beta Monument');
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -2755,9 +2664,6 @@ describe('ExperienceProposalResolverService', () => {
 
     function osmPlacesFor(pois: any[]) {
       return {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: pois }),
@@ -3040,9 +2946,6 @@ describe('ExperienceProposalResolverService', () => {
 
   describe('B3 live wiring — qualityScore at persistence (cutover M2)', () => {
     const osmPlacesForVenue = () => ({
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest.fn().mockResolvedValue({
         status: 'success',
         value: [
@@ -3140,9 +3043,6 @@ describe('ExperienceProposalResolverService', () => {
   describe('component-derived quality from real Wikidata notability (composite-quality wiring)', () => {
     function osmPlacesFor(pois: any[]) {
       return {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: pois }),
@@ -3552,9 +3452,6 @@ describe('ExperienceProposalResolverService', () => {
 
   describe('cross-source confirmation (Task A3)', () => {
     const osmPlacesFor = (pois: any[]) => ({
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: pois }),
@@ -3605,9 +3502,6 @@ describe('ExperienceProposalResolverService', () => {
 
     it('does NOT confirm a fuzzy match when Wikidata only corroborates ONE of several significant tokens (Task A5 real regression: "Recoleta Cemetery" -> "Hotel Urban Suites Recoleta")', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -3674,9 +3568,6 @@ describe('ExperienceProposalResolverService', () => {
 
     it('does NOT confirm a fuzzy match when the corroborating Wikidata place matches the HINT but not the entity actually matched (final-review fix round 1: "Recoleta Cemetery" wrongly matched to "Hotel Urban Suites Recoleta", confirmed by the REAL nearby "La Recoleta Cemetery")', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -4036,9 +3927,6 @@ describe('ExperienceProposalResolverService', () => {
   describe('confirmMatch: exact name match alone is not sufficient when the candidate pool had multiple exact matches (P0.2)', () => {
     it('does NOT auto-confirm via isExact when the local OSM pool has TWO exact same-name candidates with no corroborating evidence (real-world class: a landmark and an unrelated transit stop both literally named "Plaza de Mayo") -- falls closed to UNCONFIRMED, never picks the first one and trusts it', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -4091,9 +3979,6 @@ describe('ExperienceProposalResolverService', () => {
 
     it('still resolves normally when the local OSM pool has exactly ONE exact same-name candidate (regression guard: a unique exact match remains strong evidence on its own)', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -4144,9 +4029,6 @@ describe('ExperienceProposalResolverService', () => {
           .mockResolvedValue(new Map([['Q123', { label: 'Plaza de Mayo' }]])),
       };
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -4211,9 +4093,6 @@ describe('ExperienceProposalResolverService', () => {
 
     it('does NOT auto-confirm an exact Nominatim result when its global result set contains two exact same-name entities', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -4281,9 +4160,6 @@ describe('ExperienceProposalResolverService', () => {
 
     it('does NOT auto-confirm an exact Places result when its global result set contains two exact same-name entities', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -4346,9 +4222,6 @@ describe('ExperienceProposalResolverService', () => {
 
   it('continues to local AREA-to-PLACE correction when the global candidate is rejected (P1)', async () => {
     const osmPlaces = {
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest.fn().mockResolvedValue({
         status: 'success',
         value: [
@@ -4432,9 +4305,6 @@ describe('ExperienceProposalResolverService', () => {
 
   describe("confirmMatch: direct confirmation via the OSM candidate's own wikidata tag", () => {
     const osmPlacesFor = (pois: any[]) => ({
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: pois }),
@@ -4887,9 +4757,6 @@ describe('ExperienceProposalResolverService', () => {
 
   describe("confirmMatch: direct confirmation via a known QID from the request's SourceObservations", () => {
     const osmPlacesFor = (pois: any[]) => ({
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: pois }),
@@ -5189,9 +5056,6 @@ describe('ExperienceProposalResolverService', () => {
 
   describe("confirmMatch: direct confirmation via the OSM candidate's own name:xx/alt_name/wikipedia tags", () => {
     const osmPlacesFor = (pois: any[]) => ({
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: pois }),
@@ -5446,9 +5310,6 @@ describe('ExperienceProposalResolverService', () => {
 
   describe("confirmMatch: direct confirmation via the hint's own addressHint", () => {
     const osmPlacesFor = (pois: any[]) => ({
-      lookupStreetsWithin: jest
-        .fn()
-        .mockResolvedValue({ status: 'success', value: [] }),
       lookupPoisWithin: jest
         .fn()
         .mockResolvedValue({ status: 'success', value: pois }),
@@ -5610,9 +5471,6 @@ describe('ExperienceProposalResolverService', () => {
         tags: {},
       };
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -5671,7 +5529,6 @@ describe('ExperienceProposalResolverService', () => {
       expect(osmPlaces.lookupPoisWithin).toHaveBeenCalledWith(narrowBoundary);
       // Stage 3: OSM pools are lazy -- this candidate has only a venue
       // (PLACE) hint, so the street pool is never needed at all.
-      expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
       // Geographic validation still receives the WIDE destination boundary,
       // unchanged -- destination_mismatch semantics must not narrow.
       expect(geographicValidator.validate).toHaveBeenCalledWith(
@@ -5696,9 +5553,6 @@ describe('ExperienceProposalResolverService', () => {
         tags: {},
       };
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -5746,7 +5600,6 @@ describe('ExperienceProposalResolverService', () => {
       });
 
       expect(osmPlaces.lookupPoisWithin).toHaveBeenCalledWith(boundary2);
-      expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
     });
   });
 
@@ -5977,9 +5830,6 @@ describe('ExperienceProposalResolverService', () => {
 
     it('lets a failed reuse attempt continue to the normal resolver (never terminal): no compatible observation at all still resolves via the ordinary local pool match', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -6362,9 +6212,6 @@ describe('ExperienceProposalResolverService', () => {
   describe('identity verification persistence lifecycle (no catalog pollution on unverified attempts)', () => {
     it('does NOT call upsertGeoEntity when identity verification returns REJECTED', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -6432,9 +6279,6 @@ describe('ExperienceProposalResolverService', () => {
 
     it('does NOT call upsertGeoEntity when identity verification returns AMBIGUOUS', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -6495,9 +6339,6 @@ describe('ExperienceProposalResolverService', () => {
 
     it('does NOT call upsertGeoEntity when identity verification returns INSUFFICIENT_EVIDENCE', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -6560,9 +6401,6 @@ describe('ExperienceProposalResolverService', () => {
 
     it('calls upsertGeoEntity exactly once and returns canonical ResolvedGeoEntity when candidate is VERIFIED', async () => {
       const osmPlaces = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest.fn().mockResolvedValue({
           status: 'success',
           value: [
@@ -6638,9 +6476,6 @@ describe('ExperienceProposalResolverService', () => {
       // Case A: Unverified (fuzzy mismatch without corroboration)
       const serviceUnverified = new ExperienceProposalResolverService(
         {
-          lookupStreetsWithin: jest
-            .fn()
-            .mockResolvedValue({ status: 'success', value: [] }),
           lookupPoisWithin: jest.fn().mockResolvedValue({
             status: 'success',
             value: [
@@ -6667,9 +6502,6 @@ describe('ExperienceProposalResolverService', () => {
       // Case B: Verified (exact match)
       const serviceVerified = new ExperienceProposalResolverService(
         {
-          lookupStreetsWithin: jest
-            .fn()
-            .mockResolvedValue({ status: 'success', value: [] }),
           lookupPoisWithin: jest.fn().mockResolvedValue({
             status: 'success',
             value: [
@@ -6717,9 +6549,6 @@ describe('ExperienceProposalResolverService', () => {
           .mockReturnValue(acceptedValidation('Tigre day trip')),
       };
       const emptyOsm = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -6831,9 +6660,6 @@ describe('ExperienceProposalResolverService', () => {
           .mockReturnValue(acceptedValidation('Visit Café Tortoni')),
       };
       const emptyOsm = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -6944,9 +6770,6 @@ describe('ExperienceProposalResolverService', () => {
         validate: jest.fn().mockReturnValue(acceptedValidation('El Zanjón')),
       };
       const emptyOsm = {
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
@@ -7265,9 +7088,6 @@ describe('ExperienceProposalResolverService', () => {
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [zanjonOsmNode] }),
-        lookupStreetsWithin: jest
-          .fn()
-          .mockResolvedValue({ status: 'success', value: [] }),
       };
       const nominatim = {
         search: jest.fn().mockResolvedValue([
@@ -7444,9 +7264,8 @@ describe('ExperienceProposalResolverService', () => {
 
     function neverCalledOsmPlaces() {
       return {
-        lookupStreetsNear: jest.fn(),
         lookupPoisNear: jest.fn(),
-        lookupStreetsWithin: jest.fn(),
+
         lookupPoisWithin: jest.fn(),
       };
     }
@@ -7553,8 +7372,6 @@ describe('ExperienceProposalResolverService', () => {
       });
 
       // No-network proof (checkpoint §10).
-      expect(osmPlaces.lookupStreetsNear).not.toHaveBeenCalled();
-      expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
       expect(osmPlaces.lookupPoisNear).not.toHaveBeenCalled();
       expect(osmPlaces.lookupPoisWithin).not.toHaveBeenCalled();
       expect(nominatim.search).not.toHaveBeenCalled();
@@ -7657,8 +7474,6 @@ describe('ExperienceProposalResolverService', () => {
       // identity is sufficient -- zero external calls of any kind.
       expect(placesApiSpy.getPlaceDetails).not.toHaveBeenCalled();
       expect(placesApiSpy.searchText).not.toHaveBeenCalled();
-      expect(osmPlaces.lookupStreetsNear).not.toHaveBeenCalled();
-      expect(osmPlaces.lookupStreetsWithin).not.toHaveBeenCalled();
       expect(osmPlaces.lookupPoisNear).not.toHaveBeenCalled();
       expect(osmPlaces.lookupPoisWithin).not.toHaveBeenCalled();
       expect(nominatim.search).not.toHaveBeenCalled();

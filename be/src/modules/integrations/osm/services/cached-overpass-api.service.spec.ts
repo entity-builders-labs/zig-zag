@@ -15,10 +15,8 @@ describe('CachedOverpassApiService', () => {
     realService = {
       queryBoundaryByName: jest.fn(),
       queryContainingBoundary: jest.fn(),
-      queryStreets: jest.fn(),
       queryBoundaryById: jest.fn(),
       queryAdminBoundariesWithinArea: jest.fn(),
-      queryStreetsWithinArea: jest.fn(),
       queryPoisWithinArea: jest.fn(),
       queryPois: jest.fn(),
       queryFeaturesNear: jest.fn(),
@@ -54,53 +52,53 @@ describe('CachedOverpassApiService', () => {
   };
 
   it('write mode calls the real service on a miss and persists the result', async () => {
-    realService.queryStreets.mockResolvedValue([{ type: 'way', id: 1 }] as any);
+    realService.queryPois.mockResolvedValue([{ type: 'way', id: 1 }] as any);
     const service = await setup('write');
 
-    const result = await service.queryStreets({
+    const result = await service.queryPois({
       latitude: 0,
       longitude: 0,
       radiusMeters: 1000,
     });
 
     expect(result).toEqual([{ type: 'way', id: 1 }]);
-    expect(realService.queryStreets).toHaveBeenCalledTimes(1);
+    expect(realService.queryPois).toHaveBeenCalledTimes(1);
     expect(fs.readdirSync(path.join(tempDir, 'osm-cache'))).toHaveLength(1);
   });
 
   it('read mode returns a cached response without calling the real service again', async () => {
-    realService.queryStreets.mockResolvedValue([{ type: 'way', id: 1 }] as any);
+    realService.queryPois.mockResolvedValue([{ type: 'way', id: 1 }] as any);
     const writer = await setup('write');
-    await writer.queryStreets({
+    await writer.queryPois({
       latitude: 0,
       longitude: 0,
       radiusMeters: 1000,
     });
 
-    realService.queryStreets.mockClear();
+    realService.queryPois.mockClear();
     const reader = await setup('read');
-    const result = await reader.queryStreets({
+    const result = await reader.queryPois({
       latitude: 0,
       longitude: 0,
       radiusMeters: 1000,
     });
 
     expect(result).toEqual([{ type: 'way', id: 1 }]);
-    expect(realService.queryStreets).not.toHaveBeenCalled();
+    expect(realService.queryPois).not.toHaveBeenCalled();
   });
 
   it('read mode falls back to the real service on a cache miss (without persisting)', async () => {
-    realService.queryStreets.mockResolvedValue([{ type: 'way', id: 2 }] as any);
+    realService.queryPois.mockResolvedValue([{ type: 'way', id: 2 }] as any);
     const service = await setup('read');
 
-    const result = await service.queryStreets({
+    const result = await service.queryPois({
       latitude: 1,
       longitude: 1,
       radiusMeters: 1000,
     });
 
     expect(result).toEqual([{ type: 'way', id: 2 }]);
-    expect(realService.queryStreets).toHaveBeenCalledTimes(1);
+    expect(realService.queryPois).toHaveBeenCalledTimes(1);
     expect(fs.readdirSync(path.join(tempDir, 'osm-cache'))).toHaveLength(0);
   });
 
@@ -108,9 +106,9 @@ describe('CachedOverpassApiService', () => {
     const service = await setup('strict');
 
     await expect(
-      service.queryStreets({ latitude: 0, longitude: 0, radiusMeters: 1000 }),
+      service.queryPois({ latitude: 0, longitude: 0, radiusMeters: 1000 }),
     ).rejects.toThrow(/Strict mode/);
-    expect(realService.queryStreets).not.toHaveBeenCalled();
+    expect(realService.queryPois).not.toHaveBeenCalled();
   });
 
   it('caches queryBoundaryByName and queryContainingBoundary independently by method+params', async () => {
@@ -162,20 +160,20 @@ describe('CachedOverpassApiService', () => {
     expect(realService.queryAdminBoundariesWithinArea).toHaveBeenCalledTimes(1);
   });
 
-  it('delegates queryStreetsWithinArea to the real service and caches by params', async () => {
-    realService.queryStreetsWithinArea.mockResolvedValue([]);
+  it('delegates queryPoisWithinArea to the real service and caches by params', async () => {
+    realService.queryPoisWithinArea.mockResolvedValue([]);
     const service = await setup('write');
 
-    await service.queryStreetsWithinArea({
+    await service.queryPoisWithinArea({
       osmType: 'relation',
       osmId: 2223069,
     });
-    await service.queryStreetsWithinArea({
+    await service.queryPoisWithinArea({
       osmType: 'relation',
       osmId: 2223069,
     });
 
-    expect(realService.queryStreetsWithinArea).toHaveBeenCalledTimes(1);
+    expect(realService.queryPoisWithinArea).toHaveBeenCalledTimes(1);
   });
 
   it('delegates queryPoisWithinArea to the real service and caches by params', async () => {

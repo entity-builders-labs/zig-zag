@@ -38,7 +38,8 @@ describe('OverpassApiService', () => {
     });
     service = await setup({ OVERPASS_API_URL: 'https://custom-overpass/api' });
 
-    const result = await service.queryStreets({
+    const result = await service.queryHighwaysByName({
+      name: 'Defensa',
       latitude: -34.6,
       longitude: -58.4,
       radiusMeters: 2000,
@@ -102,7 +103,8 @@ describe('OverpassApiService', () => {
     mockedAxios.post.mockResolvedValue({ data: {} });
     service = await setup();
 
-    const result = await service.queryStreets({
+    const result = await service.queryHighwaysByName({
+      name: 'Defensa',
       latitude: 0,
       longitude: 0,
       radiusMeters: 1000,
@@ -157,7 +159,12 @@ describe('OverpassApiService', () => {
     service = await setup();
 
     await expect(
-      service.queryStreets({ latitude: 0, longitude: 0, radiusMeters: 1000 }),
+      service.queryHighwaysByName({
+        name: 'Defensa',
+        latitude: 0,
+        longitude: 0,
+        radiusMeters: 1000,
+      }),
     ).rejects.toThrow('network down');
   });
 
@@ -215,10 +222,30 @@ describe('OverpassApiService', () => {
     service = await setup({ OVERPASS_MAX_CONCURRENCY: '2' });
 
     await Promise.all([
-      service.queryStreets({ latitude: 0, longitude: 0, radiusMeters: 1000 }),
-      service.queryStreets({ latitude: 0, longitude: 0, radiusMeters: 1000 }),
-      service.queryStreets({ latitude: 0, longitude: 0, radiusMeters: 1000 }),
-      service.queryStreets({ latitude: 0, longitude: 0, radiusMeters: 1000 }),
+      service.queryHighwaysByName({
+        name: 'Defensa',
+        latitude: 0,
+        longitude: 0,
+        radiusMeters: 1000,
+      }),
+      service.queryHighwaysByName({
+        name: 'Defensa',
+        latitude: 0,
+        longitude: 0,
+        radiusMeters: 1000,
+      }),
+      service.queryHighwaysByName({
+        name: 'Defensa',
+        latitude: 0,
+        longitude: 0,
+        radiusMeters: 1000,
+      }),
+      service.queryHighwaysByName({
+        name: 'Defensa',
+        latitude: 0,
+        longitude: 0,
+        radiusMeters: 1000,
+      }),
     ]);
 
     expect(maxActive).toBe(2);

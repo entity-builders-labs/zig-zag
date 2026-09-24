@@ -14,10 +14,8 @@ describe('OsmPlacesService', () => {
     overpassApi = {
       queryBoundaryByName: jest.fn(),
       queryContainingBoundary: jest.fn(),
-      queryStreets: jest.fn(),
       queryBoundaryById: jest.fn(),
       queryAdminBoundariesWithinArea: jest.fn(),
-      queryStreetsWithinArea: jest.fn(),
       queryPoisWithinArea: jest.fn(),
       queryPois: jest.fn(),
       queryFeaturesNear: jest.fn(),
@@ -41,132 +39,6 @@ describe('OsmPlacesService', () => {
 
   beforeEach(async () => {
     service = await setup();
-  });
-
-  describe('findStreetsNear', () => {
-    it('maps Overpass ways into OsmCandidate[]', async () => {
-      const way: OverpassElement = {
-        type: 'way',
-        id: 829393,
-        tags: { name: 'Defensa', highway: 'pedestrian' },
-        geometry: [
-          { lat: -34.62, lon: -58.37 },
-          { lat: -34.621, lon: -58.371 },
-        ],
-      };
-      overpassApi.queryStreets.mockResolvedValue([way]);
-
-      const result = await service.findStreetsNear(-34.62, -58.37, 2000);
-
-      expect(result).toEqual([
-        expect.objectContaining({
-          id: 'osm:way:829393',
-          name: 'Defensa',
-          osmType: 'way',
-          osmId: 829393,
-        }),
-      ]);
-    });
-
-    it('drops elements without a usable name or geometry', async () => {
-      const noName: OverpassElement = {
-        type: 'way',
-        id: 1,
-        tags: {},
-        geometry: [
-          { lat: 0, lon: 0 },
-          { lat: 1, lon: 1 },
-        ],
-      };
-      const noGeometry: OverpassElement = {
-        type: 'way',
-        id: 2,
-        tags: { name: 'Ghost street' },
-        geometry: [],
-      };
-      const placeholderNames: OverpassElement[] = [
-        {
-          type: 'way',
-          id: 3,
-          tags: { name: 'Sin Nombre' },
-          geometry: [
-            { lat: 0, lon: 0 },
-            { lat: 1, lon: 1 },
-          ],
-        },
-        {
-          type: 'way',
-          id: 4,
-          tags: { name: 'Unnamed Road' },
-          geometry: [
-            { lat: 0, lon: 0 },
-            { lat: 1, lon: 1 },
-          ],
-        },
-      ];
-      overpassApi.queryStreets.mockResolvedValue([
-        noName,
-        noGeometry,
-        ...placeholderNames,
-      ]);
-
-      const result = await service.findStreetsNear(0, 0, 1000);
-
-      expect(result).toEqual([]);
-    });
-
-    it('returns an empty array (not a throw) when Overpass fails', async () => {
-      overpassApi.queryStreets.mockRejectedValue(new Error('overpass down'));
-
-      const result = await service.findStreetsNear(0, 0, 1000);
-
-      expect(result).toEqual([]);
-    });
-
-    it('exposes failure separately from a successful empty result for trace consumers', async () => {
-      overpassApi.queryStreets.mockRejectedValue(new Error('overpass down'));
-
-      const failed = await service.lookupStreetsNear(0, 0, 1000);
-      overpassApi.queryStreets.mockResolvedValue([]);
-      const empty = await service.lookupStreetsNear(0, 0, 1000);
-
-      expect(failed).toEqual({
-        status: 'failed',
-        value: [],
-        failureReason: 'overpass down',
-      });
-      expect(empty).toEqual({ status: 'success', value: [] });
-    });
-
-    it('returns an empty array when there are no results', async () => {
-      overpassApi.queryStreets.mockResolvedValue([]);
-
-      const result = await service.findStreetsNear(0, 0, 1000);
-
-      expect(result).toEqual([]);
-    });
-
-    it('caps the radius passed to Overpass instead of inheriting the tour-wide radius', async () => {
-      overpassApi.queryStreets.mockResolvedValue([]);
-      service = await setup({ OVERPASS_MAX_RADIUS_METERS: '2500' });
-
-      await service.findStreetsNear(0, 0, 50000); // e.g. a tour's full search radius
-
-      expect(overpassApi.queryStreets).toHaveBeenCalledWith(
-        expect.objectContaining({ radiusMeters: 2500 }),
-      );
-    });
-
-    it('passes the radius through unchanged when it is already under the cap', async () => {
-      overpassApi.queryStreets.mockResolvedValue([]);
-      service = await setup({ OVERPASS_MAX_RADIUS_METERS: '2500' });
-
-      await service.findStreetsNear(0, 0, 800);
-
-      expect(overpassApi.queryStreets).toHaveBeenCalledWith(
-        expect.objectContaining({ radiusMeters: 800 }),
-      );
-    });
   });
 
   describe('findContainingBoundary', () => {
@@ -547,77 +419,6 @@ describe('OsmPlacesService', () => {
         failureReason: expect.stringMatching(/administrative level/),
       });
       expect(overpassApi.queryAdminBoundariesWithinArea).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('findStreetsWithin', () => {
-    const neighborhood: OsmCandidate = {
-      id: 'osm:relation:2223069',
-      name: 'San Telmo',
-      osmType: 'relation' as const,
-      osmId: 2223069,
-      geometry: {
-        type: 'Polygon' as const,
-        coordinates: [
-          [
-            [0, 0],
-            [1, 0],
-            [1, 1],
-            [0, 0],
-          ],
-        ],
-      },
-      tags: { name: 'San Telmo' },
-    };
-
-    it('maps named ways within the area into OsmCandidate[], falling back to their center (out tags center has no line geometry)', async () => {
-      overpassApi.queryStreetsWithinArea.mockResolvedValue([
-        {
-          type: 'way',
-          id: 47521387,
-          tags: { name: 'Defensa', highway: 'pedestrian' },
-          center: { lat: -34.621, lon: -58.371 },
-        },
-      ]);
-
-      const result = await service.findStreetsWithin(neighborhood);
-
-      expect(result).toEqual([
-        expect.objectContaining({
-          id: 'osm:way:47521387',
-          name: 'Defensa',
-          geometry: { type: 'Point', coordinates: [-58.371, -34.621] },
-        }),
-      ]);
-    });
-
-    it('drops placeholder street names from area-scoped candidates', async () => {
-      overpassApi.queryStreetsWithinArea.mockResolvedValue([
-        {
-          type: 'way',
-          id: 47521388,
-          tags: { name: 'Sin Nombre', highway: 'living_street' },
-          center: { lat: -34.621, lon: -58.371 },
-        },
-      ]);
-
-      const result = await service.findStreetsWithin(neighborhood);
-
-      expect(result).toEqual([]);
-    });
-
-    it('returns an empty array (not a throw) when Overpass fails', async () => {
-      overpassApi.queryStreetsWithinArea.mockRejectedValue(new Error('down'));
-
-      const result = await service.findStreetsWithin(neighborhood);
-      const lookup = await service.lookupStreetsWithin(neighborhood);
-
-      expect(result).toEqual([]);
-      expect(lookup).toMatchObject({
-        status: 'failed',
-        value: [],
-        failureReason: 'down',
-      });
     });
   });
 
