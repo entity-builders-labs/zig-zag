@@ -1,0 +1,31 @@
+{
+  "destination": {
+    "label": "Buenos Aires, Argentina",
+    "latitude": -34.6037,
+    "longitude": -58.3816,
+    "scaleHint": "settlement"
+  },
+  "days": 1,
+  "budgetLevel": "medium",
+  "groupType": "solo",
+  "intent": {
+    "interests": [
+      "culture",
+      "food"
+    ],
+    "intents": [
+      "walk"
+    ],
+    "explorationStyle": "balanced",
+    "additionalPreferences": "paseo a pie por Belgrano y el Barrio Chino"
+  },
+  "mobility": {
+    "allowedTransportationModes": [
+      "walking"
+    ],
+    "maxWalkingDistancePerDayMeters": 6000,
+    "maxContinuousWalkingDistanceMeters": 3000,
+    "travelPace": "moderate"
+  },
+  "skipImageGeneration": true
+}
