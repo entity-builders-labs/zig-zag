@@ -39,7 +39,7 @@ implements the stage. Do not mark a stage DONE without real validation.
 | --- | --- | --- | --- | --- | --- |
 | 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | `a0b6c75b50bf37807ab6c2450f94c8e81c9fc9d2` | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
 | 2. Source-grounded contract cutover | DONE | `a7df3b579282cee6b57fef8a914080d507e47fac` | *(this commit)* | jest (152/153 suites, 1746/1747 tests; 1 pre-existing arch failure) + tsc (clean) + eslint (clean) | LLM-owned `required` eliminated from discovery contract; deterministic source-support admission gate implemented; Santa Mónica blocked; semantic document bumped to v3; Stage 3 unblocked. |
-| 3. Catalog-first identity resolution | IN PROGRESS — characterization expanded; structured destination-biased resolution spike is next gate | `8060782ed22ff80d5d1f00ac21a134a36f8a3ed7` | latest evidence checkpoint `d1637b91ee2c5f57fd9bcebd4bb874731b9ccc35` | catalog reuse checkpoint + live San Telmo/BA walk spikes; targeted live identity checks; Nominatim bias 4/4 flips with 0 regressions; corridor category live control; unit/type/lint evidence recorded in commits below | Catalog-first reuse is proven, El Zanjón now has within-hint same-ID convergence evidence, trace reasons are truthful, and destination-biased Nominatim materially improves recall. However Stage 3 is NOT done: candidate correlation remains only partial, Nominatim still skips ROUTE, a ROUTE-specific fuzzy/Wikidata workaround remains, and `map_to_area` was live-proven incomplete for acquisition. Next gate is a structured provider-native resolution spike followed by a broad Buenos-Aires-walks COLD/WARM spike. Stage 4 remains BLOCKED. |
+| 3. Catalog-first identity resolution | IN PROGRESS — structured provider-native resolution spike gate FAILED (STOP, per gate discipline); ROUTE bare-name resolution and one AREA false-positive-risk mechanism remain unsolved | `8060782ed22ff80d5d1f00ac21a134a36f8a3ed7` | latest evidence checkpoint *(this commit)* | catalog reuse checkpoint + live San Telmo/BA walk spikes; targeted live identity checks; Nominatim bias 4/4 flips with 0 regressions; corridor category live control; isolated structured-resolution spike (19 live resolutions, real Nominatim/Geoapify) — gate FAILS 3/6 rows; unit/type/lint evidence recorded in commits below | Catalog-first reuse is proven, El Zanjón now has within-hint same-ID convergence evidence, trace reasons are truthful, destination-biased Nominatim materially improves recall, and a structured provider-native PLACE path works cleanly (El Zanjón, Estadio Alberto J. Armando resolve with zero fuzzy/Wikidata; Galería Güemes proves identity resolution can be made independent of `map_to_area`). However Stage 3 is explicitly NOT done and the structured-resolution gate did not pass: ROUTE resolution for common Argentine street names (Defensa, Pasaje San Lorenzo, Caminito) is NOT reliably solved by the existing soft-viewbox bias alone — Nominatim's own top-5 window often never contains the destination's own segment among many nationally-tied-importance homonyms — and one AREA negative control (bare "San Martín") produced a confident but geographically wrong RESOLVED, a real false-positive-risk class. Per explicit task discipline this was a STOP, not a partial integration: no production wiring, no `STRUCTURED_PROVIDER_RESOLUTION` IdentityVerifier evidence, no ROUTE-workaround retirement, no San Telmo E2E control, no Buenos-Aires-walks mega-spike were performed. `StructuredGeoEntityResolverService` and its live harness are committed as isolated, unwired characterization code. See `spikes/stage3-structured-geoentity-resolution-2026-09-24/assessment.md` for full evidence. Stage 4 remains BLOCKED. |
 | 4. Geographic + partial-composite cutover | BLOCKED | — | — | — | Starts after identity outcomes are explicit/stable. |
 | 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
 
@@ -1074,6 +1074,98 @@ product-level impact across many grounded composite candidates.
   production cutover**. The evidence now justifies testing provider-native
   structured resolution before adding more name/Wikidata heuristics.
 
+### Stage 3 progress addendum — structured provider-native resolution spike, gate FAILED (2026-09-24)
+
+The next gate identified by the addendum above (an isolated structured
+provider-native resolver, characterized against real Nominatim/Geoapify
+before any production integration) was executed. **The gate did not pass.**
+Per this plan's own explicit discipline for that gate ("if it fails: STOP,
+document why, do not add exceptions to force it green"), no production
+integration, IdentityVerifier evidence type, ROUTE-workaround retirement,
+small San Telmo E2E control, or Buenos-Aires-walks mega-spike were
+performed as a result. Full evidence:
+`spikes/stage3-structured-geoentity-resolution-2026-09-24/assessment.md`
+(matrix.json/summary.md alongside it).
+
+**What was built** (isolated, not wired into production):
+`StructuredGeoEntityResolverService` (`name + expectedKind + destination ->
+RESOLVED/AMBIGUOUS/NOT_FOUND/INCOMPATIBLE`), reusing the already-landed
+Nominatim soft-viewbox bias and the Places destination bias radius (no new
+bias mechanism), plus a genuinely new ROUTE path that queries Nominatim at
+all (today's `resolveViaNominatim` early-returns for
+`hint.expectedKind === 'ROUTE'`). An incidental provider-adapter fix was
+required first: `GeoapifyPlacesApiService` was silently discarding the real
+`category` field every Autocomplete response already carries, always
+reporting `types: []` — fixed and TDD'd, since PLACE structural-category
+filtering was otherwise impossible to test honestly.
+
+**Gate result — 3 of 6 required rows failed:**
+
+1. Defensa Street (hard RESOLVED requirement): **FAIL**. Under the real OSM
+   name ("Defensa"), Nominatim returns 5 same-importance segments, **none
+   in San Telmo/CABA** (all in other partidos). This is a distinct,
+   previously-unobserved failure mode from the one `bdd99c5` already fixed:
+   the soft bias reliably wins for a name with few national homonyms (its
+   own "José de San Martín" case) but not for an ordinary street name with
+   many nationally-tied-importance segments — Nominatim's own top-5 result
+   window can simply never contain the destination's own segment.
+2. San Lorenzo Passage (RESOLVED-or-honest-AMBIGUOUS requirement): **FAIL**
+   in substance. Real name "Pasaje San Lorenzo" returns `AMBIGUOUS`, but
+   across 5 segments in Chaco/Santa Fe — the real San Telmo passage never
+   appears in the candidate set at all. Reporting `AMBIGUOUS` for a set that
+   does not contain the right answer is a coverage miss wearing an
+   ambiguity label, not the honest-ambiguity the gate intended.
+3. Negative controls (0 false RESOLVED requirement): **FAIL**. Bare
+   "San Martín" (AREA) resolved confidently to a real but ~30km-distant
+   partido, because Nominatim's raw results contained exactly one
+   structurally area-eligible object at all (the only other raw result was
+   correctly excluded by the existing `osmType==='node'` rule in
+   `isAreaScaleEligible`) — with only one survivor, there was no internal
+   disagreement available to surface as ambiguity.
+
+**What passed and should not be lost:** El Zanjón de Granados (PLACE)
+resolved cleanly with zero fuzzy/Wikidata evidence, using only Geoapify's
+own category and geography; the same held for "Estadio Alberto J. Armando"
+("La Bombonera"). Plaza Dorrego and Plaza San Martín correctly stayed
+`AMBIGUOUS` among several real, structurally identical candidates rather
+than guessing. Galería Güemes decisively confirms the Group-C requirement:
+identity resolution for this class of hint can be done entirely through
+Geoapify Places, with zero Overpass/`map_to_area` calls, and still
+correctly reports `AMBIGUOUS` between the real downtown object and the
+known Ramos Mejía homonym (`d1637b9`'s finding). The new multi-segment
+ROUTE grouping logic (collapsing several OSM ways of one real street into
+one identity via normalized name + real address locality, never distance)
+is unit-tested and held up correctly whenever the underlying provider
+result set actually contained the right segments — every live ROUTE
+failure above is upstream of that logic, in what Nominatim's bare-name
+search itself returns.
+
+**A separate structural gap was found and deliberately left unfixed** (per
+STOP discipline, not silently patched to chase a green spike):
+"Cementerio de la Recoleta" is tagged `landuse=cemetery` in real OSM data,
+which satisfies neither the current AREA (`isAreaScaleEligible` requires
+`class` `boundary`/`place`) nor PLACE (Geoapify's `type=amenity` parameter)
+structural filters. Large "ground" features (cemeteries, and plausibly
+stadium grounds, campuses, `landuse`-tagged parks) are an undocumented
+blind spot in both existing structural predicates, independent of the
+ROUTE/AREA findings above.
+
+**Stage status after this addendum:**
+
+- Stage 3: **IN PROGRESS** (unchanged from the prior addendum's own
+  assessment — this spike neither advances nor regresses the exit-gate
+  checklist below, since it stopped before touching production).
+- Stage 3 DONE: **NO** — same outstanding items as before (full candidate
+  correlation, broad COLD/WARM composite evidence, final query/performance
+  exit evidence), **plus** ROUTE bare-name resolution and the AREA
+  single-candidate false-positive risk are now concretely characterized
+  open problems rather than untested hypotheses.
+- Stage 4: **BLOCKED**, untouched.
+- What must be solved before this path can be retried: a ROUTE resolution
+  mechanism that works for common Argentine street names without the
+  already-ruled-out options (no second parallel bias mechanism, no
+  distance-as-identity, no per-place translation/alias lists) — the actual
+  next design question, not yet answered by this task.
 
 ### Cross-cutting product-shape note — simple, composite, and mixed Tour requests (2026-09-23)
 

@@ -173,7 +173,7 @@ function selectBestPlaceCandidate(
 // destination-resolution.service.ts's own MAX_DESTINATION_DISTANCE_METERS)
 // without being so wide it stops disambiguating same-named places in
 // different cities.
-const PLACES_FALLBACK_BIAS_RADIUS_METERS = 50_000;
+export const PLACES_FALLBACK_BIAS_RADIUS_METERS = 50_000;
 
 /**
  * Upper bound on how many candidates `resolve()` resolves / persists at the
