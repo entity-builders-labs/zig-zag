@@ -1150,7 +1150,16 @@ export class ExperienceProposalResolverService
                 ? 'OSM_PROVIDER_FAILED'
                 : entities.some((entity) => entity.reason === 'OSM_QUERY_EMPTY')
                   ? 'OSM_QUERY_EMPTY'
-                  : 'NO_OSM_MATCH'
+                  : // A real candidate was acquired for at least one
+                    // component and then rejected by identity verification --
+                    // materially different from "nothing was ever found",
+                    // and must not collapse into the same NO_OSM_MATCH
+                    // summary as a genuine empty search (amendment §13).
+                    entities.some(
+                        (entity) => entity.reason === 'UNCONFIRMED_MATCH',
+                      )
+                    ? 'UNCONFIRMED_MATCH'
+                    : 'NO_OSM_MATCH'
               : 'UNRESOLVED_REQUIRED_COMPONENT',
           ],
         },

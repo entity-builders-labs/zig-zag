@@ -355,24 +355,21 @@ describe('IdentityVerifier', () => {
       expect(result).toEqual({ status: 'VERIFIED' });
     });
 
-    // Case F - divergent candidate clusters: "Nuestra Señora de Belén" is a
-    // genuinely common devotional name. The real warm-run trace recorded
-    // Nominatim returning 4 results (EXACT_NAME identityMultiplicity:
-    // MULTIPLE) while a separate geoapify Places attempt resolved a
-    // DIFFERENT real entity ("Capilla Nuestra Señora de Belén", a chapel
-    // building) for the same hint -- two structurally different real
-    // candidate clusters that cannot be safely correlated. The amendment
-    // says this should conceptually resolve as AMBIGUOUS, never provider-
-    // majority voting. Current code has an AMBIGUOUS status (A2/A7 above)
-    // for a bare EXACT_NAME/DECLARED_ALIAS_MATCH MULTIPLE signal, but rule 4
-    // (WIKIDATA_IDENTITY_MATCH) is checked BEFORE that fallback and returns
-    // REJECTED whenever a non-corroborating Wikidata match is present --
-    // even one carrying MULTIPLE name evidence alongside it. This freezes
-    // that precedence: today a MULTIPLE-candidate name ambiguity co-occurring
-    // with a rejected Wikidata NEARBY check collapses to REJECTED, not
-    // AMBIGUOUS, silently losing the "this was genuinely ambiguous, not
-    // simply wrong" signal Stage 3+ needs to preserve.
-    it('Case F: EXACT_NAME MULTIPLE (real divergent clusters) collapses to REJECTED, not AMBIGUOUS, once Wikidata NEARBY evidence is present', async () => {
+    // Case F (FIXED 2026-09-24) - divergent candidate clusters: "Nuestra
+    // Señora de Belén" is a genuinely common devotional name. The real
+    // warm-run trace recorded Nominatim returning 4 results (EXACT_NAME
+    // identityMultiplicity: MULTIPLE) while a separate geoapify Places
+    // attempt resolved a DIFFERENT real entity ("Capilla Nuestra Señora de
+    // Belén", a chapel building) for the same hint -- two structurally
+    // different real candidate clusters that cannot be safely correlated.
+    // The amendment says this should conceptually resolve as AMBIGUOUS,
+    // never provider-majority voting. A non-corroborating Wikidata match
+    // (hintMatched/candidateMatched not both true) doesn't actively
+    // CONTRADICT the candidate -- it simply failed to confirm one specific
+    // member of an already-observed MULTIPLE-candidate pool. That is exactly
+    // what AMBIGUOUS means; REJECTED implies the identity was disproven,
+    // which a mere non-confirmation never establishes.
+    it('Case F: EXACT_NAME MULTIPLE (real divergent clusters) is AMBIGUOUS, not REJECTED, when Wikidata NEARBY evidence does not corroborate', async () => {
       const verifier = new IdentityVerifier();
       const result = await verifier.verify(
         { name: 'Nuestra Señora de Belén' },
@@ -389,10 +386,32 @@ describe('IdentityVerifier', () => {
           'MULTIPLE',
         ),
       );
-      // Documented CURRENT behavior (not the desired target): without the
-      // WIKIDATA evidence, A2 above shows this same MULTIPLE signal alone
-      // already yields AMBIGUOUS.
-      expect(result).toEqual({ status: 'REJECTED' });
+      expect(result).toEqual({ status: 'AMBIGUOUS' });
+    });
+
+    // Non-regression: when Wikidata DOES positively corroborate (both hint
+    // and candidate match), that resolves WHICH of the multiple pool
+    // candidates is meant -- this must stay VERIFIED, not be downgraded to
+    // AMBIGUOUS merely because the local pool also happened to contain other
+    // same-named candidates.
+    it('Case F: EXACT_NAME MULTIPLE stays VERIFIED when Wikidata positively corroborates (disambiguates which candidate is meant)', async () => {
+      const verifier = new IdentityVerifier();
+      const result = await verifier.verify(
+        { name: 'Nuestra Señora de Belén' },
+        attempt(
+          [
+            { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+            {
+              type: 'WIKIDATA_IDENTITY_MATCH',
+              source: 'NEARBY',
+              hintMatched: true,
+              candidateMatched: true,
+            },
+          ],
+          'MULTIPLE',
+        ),
+      );
+      expect(result).toEqual({ status: 'VERIFIED' });
     });
 
     // Without any Wikidata evidence at all, the bare EXACT_NAME MULTIPLE

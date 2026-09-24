@@ -44,9 +44,22 @@ export class IdentityVerifier {
     // 4. WIKIDATA_IDENTITY_MATCH
     const wikidataMatch = this.evidenceOf(evidence, 'WIKIDATA_IDENTITY_MATCH');
     if (wikidataMatch) {
-      return wikidataMatch.hintMatched && wikidataMatch.candidateMatched
-        ? { status: 'VERIFIED' }
-        : { status: 'REJECTED' };
+      if (wikidataMatch.hintMatched && wikidataMatch.candidateMatched) {
+        return { status: 'VERIFIED' };
+      }
+      // A non-corroborating Wikidata match doesn't actively CONTRADICT the
+      // candidate -- it only failed to confirm one specific member of an
+      // already-observed multi-candidate pool. When that real name
+      // collision already exists (EXACT_NAME/DECLARED_ALIAS_MATCH
+      // MULTIPLE), the honest diagnosis is AMBIGUOUS, not REJECTED, which
+      // implies the identity was disproven.
+      if (
+        (exactName && exactName.identityMultiplicity === 'MULTIPLE') ||
+        (alias && alias.identityMultiplicity === 'MULTIPLE')
+      ) {
+        return { status: 'AMBIGUOUS' };
+      }
+      return { status: 'REJECTED' };
     }
 
     // 5. Fallback based on multiplicity

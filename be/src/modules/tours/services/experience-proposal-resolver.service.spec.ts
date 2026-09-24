@@ -7148,12 +7148,13 @@ describe('ExperienceProposalResolverService', () => {
     //    stays an explicit `unresolved`/`UNCONFIRMED_MATCH`, never
     //    force-resolved).
     // Because every required hint ends up unresolved, `resolvedEntities`
-    // is empty and the current proposal-level rejection-reason aggregation
+    // is empty. The proposal-level rejection-reason aggregation
     // (experience-proposal-resolver.service.ts, the `resolvedEntities.length
-    // === 0` branch) defaults straight to `NO_OSM_MATCH` — even though both
-    // components actually had a real candidate ACQUIRED and REJECTED
-    // (`UNCONFIRMED_MATCH`), never merely "no match found" (Case H).
-    it('Case B/E/H: destination-association gate bounds acquisition to one attempt per hint, wrong local candidates are acquired-then-rejected, and the proposal-level reason still collapses to NO_OSM_MATCH', async () => {
+    // === 0` branch) now reports `UNCONFIRMED_MATCH` here (FIXED
+    // 2026-09-24) instead of collapsing into `NO_OSM_MATCH`, since both
+    // components actually had a real candidate ACQUIRED and REJECTED, never
+    // merely "no match found" (Case H).
+    it('Case B/E/H: destination-association gate bounds acquisition to one attempt per hint, wrong local candidates are acquired-then-rejected, and the proposal-level reason faithfully reports UNCONFIRMED_MATCH', async () => {
       const nominatim = { search: jest.fn() };
       const osmPlaces = {
         lookupPoisWithin: jest.fn().mockResolvedValue({
@@ -7296,13 +7297,16 @@ describe('ExperienceProposalResolverService', () => {
       expect(pasajeAudit?.finalStatus).toBe('unresolved');
       expect(pasajeAudit?.finalReason).toBe('UNCONFIRMED_MATCH');
 
-      // Case H: the proposal-level summary still says NO_OSM_MATCH even
-      // though both components actually had a real candidate ACQUIRED and
-      // REJECTED, not "no candidate found" — the documented RW1 fidelity
-      // defect (amendment §13). This assertion freezes today's buggy
-      // aggregation; it is NOT the desired target behavior.
+      // Case H (FIXED 2026-09-24): the proposal-level summary must not say
+      // NO_OSM_MATCH when a real candidate was actually ACQUIRED and
+      // REJECTED for at least one component — that is a materially
+      // different, more informative fact ("we found something and it
+      // wasn't confirmed" vs. "we found nothing at all") the amendment
+      // (§13) requires the summary to preserve.
       expect(result.resolved[0].status).toBe('rejected');
-      expect(result.resolved[0].rejectionReasons).toEqual(['NO_OSM_MATCH']);
+      expect(result.resolved[0].rejectionReasons).toEqual([
+        'UNCONFIRMED_MATCH',
+      ]);
     });
 
     // Case A (resolver-level, FIXED 2026-09-24 -- ID convergence, not string
