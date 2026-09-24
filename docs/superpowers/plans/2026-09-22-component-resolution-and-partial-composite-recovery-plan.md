@@ -39,7 +39,7 @@ implements the stage. Do not mark a stage DONE without real validation.
 | --- | --- | --- | --- | --- | --- |
 | 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | `a0b6c75b50bf37807ab6c2450f94c8e81c9fc9d2` | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
 | 2. Source-grounded contract cutover | DONE | `a7df3b579282cee6b57fef8a914080d507e47fac` | *(this commit)* | jest (152/153 suites, 1746/1747 tests; 1 pre-existing arch failure) + tsc (clean) + eslint (clean) | LLM-owned `required` eliminated from discovery contract; deterministic source-support admission gate implemented; Santa Mónica blocked; semantic document bumped to v3; Stage 3 unblocked. |
-| 3. Catalog-first identity resolution | IN PROGRESS — checkpoint: CATALOG-FIRST WARM-REUSE READY FOR SPIKES | `8060782ed22ff80d5d1f00ac21a134a36f8a3ed7` | *(this commit)* | jest (154/154 suites, 1786/1787 tests; 1 pre-existing arch failure, same as Stage 2) + tsc --noEmit (clean) + eslint (clean) | First value checkpoint landed: catalog-first GeoEntity reuse + lazy OSM pools, no-network proof, Solar de French warm-reuse. Stopping here for real cold/warm spikes before continuing the rest of Stage 3 (see checkpoint entry below). Stage 4 remains BLOCKED. |
+| 3. Catalog-first identity resolution | IN PROGRESS — characterization expanded; structured destination-biased resolution spike is next gate | `8060782ed22ff80d5d1f00ac21a134a36f8a3ed7` | latest evidence checkpoint `d1637b91ee2c5f57fd9bcebd4bb874731b9ccc35` | catalog reuse checkpoint + live San Telmo/BA walk spikes; targeted live identity checks; Nominatim bias 4/4 flips with 0 regressions; corridor category live control; unit/type/lint evidence recorded in commits below | Catalog-first reuse is proven, El Zanjón now has within-hint same-ID convergence evidence, trace reasons are truthful, and destination-biased Nominatim materially improves recall. However Stage 3 is NOT done: candidate correlation remains only partial, Nominatim still skips ROUTE, a ROUTE-specific fuzzy/Wikidata workaround remains, and `map_to_area` was live-proven incomplete for acquisition. Next gate is a structured provider-native resolution spike followed by a broad Buenos-Aires-walks COLD/WARM spike. Stage 4 remains BLOCKED. |
 | 4. Geographic + partial-composite cutover | BLOCKED | — | — | — | Starts after identity outcomes are explicit/stable. |
 | 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
 
@@ -910,10 +910,10 @@ The single failing suite/test is the same pre-existing, already-documented
 `preference-first-architecture.spec.ts:25` failure recorded above and in
 the Stage 2 entry — unrelated to this change, not modified here.
 
-**Stage (unchanged by this correction).**
+**Stage (superseded by the 2026-09-24 addendum below).**
 - Stage 3: IN PROGRESS.
-- Checkpoint: CATALOG-FIRST WARM-REUSE READY FOR SPIKES.
-- Stage 4: BLOCKED.
+- The catalog-first warm-reuse checkpoint passed and subsequent live characterization has expanded the known acquisition/identity failure set.
+- Stage 4: BLOCKED until Stage 3's structured-resolution/identity outcomes are explicit and stable.
 
 **Engineering-principles / checkpoint architecture gate (§21):**
 - catalog lookup is bounded: **PASS** (kind + lat/lon box at the
@@ -950,6 +950,129 @@ the Stage 2 entry — unrelated to this change, not modified here.
   (`isMigrationRequiredHint` and every Stage-4-owned file untouched).
 - no destination-specific production hacks: **PASS** (all San
   Telmo/Solar-de-French/Buenos-Aires values are test fixtures only).
+
+
+### Stage 3 progress addendum — live identity/acquisition characterization (2026-09-24)
+
+This addendum records the Stage 3 production fixes and live controls that landed
+after the first catalog-first checkpoint. It **does not mark Stage 3 DONE** and
+does not unblock Stage 4.
+
+**Repository evidence through remote HEAD
+`d1637b91ee2c5f57fd9bcebd4bb874731b9ccc35`:**
+
+- `33066625615b614cbdba0ec1c614abb0ca235fe5`
+  (`fix(tours): verify component identity by ID, not string matching`):
+  added within-hint `IDENTITY_CONVERGENCE` when two independent acquisition
+  strategies return the exact same self-namespaced external identity. A targeted
+  live check verified El Zanjón de Granados through LOCAL_OSM_POOL + NOMINATIM
+  convergence. The same commit also made `Defensa Street` verify in a targeted
+  live check through a ROUTE-only OWN_QID permissive-name workaround. The
+  convergence mechanism is useful evidence; the ROUTE-specific permissive-name
+  rule is **not** treated as the desired end-state architecture.
+- `3d386e7c19e465dfdf3b5e12422ad6e7fef081ec`
+  (`fix(tours): report AMBIGUOUS and UNCONFIRMED_MATCH truthfully in the Bitácora`):
+  corrected trace/rejection fidelity so "candidate acquired but not confirmed"
+  no longer collapses to `NO_OSM_MATCH`, and non-corroborating Wikidata over a
+  real multi-candidate name collision reports `AMBIGUOUS` rather than implying
+  active contradiction. Persistence behavior is unchanged.
+- `bdd99c536a771d3a4e4e644e3d2924ec2e1742de`
+  (`fix(tours): bias Nominatim search toward the request destination`):
+  added a destination-centered soft Nominatim `viewbox` (no `bounded=1`),
+  reusing the existing 50 km bias scale. Real full-HTTP-path control runs
+  produced **4/4 like-for-like flips to VERIFIED and 0 regressions**, all on the
+  same real "José de San Martín" component that countrywide importance ranking
+  previously pushed out of Nominatim's top-5 window.
+- `6e915b760c0b3286aa11b76cb07bc46c87fa8345`:
+  recorded the Buenos-Aires-walks component survey and the Nominatim-bias live
+  control artifacts. The survey separates at least three real failure
+  mechanisms: provider result-window geography, OSM POI tag coverage, and
+  `map_to_area`/boundary topology gaps.
+- `3adaaf0326e0ab477622fd13adc2891dcac726fc`
+  (`fix(osm): include named indoor pedestrian corridors in POI pool`):
+  added the generic OSM category `highway=corridor + name` to local POI
+  queries. Live validation showed the category is narrow and surfaces real
+  named galleries/passages; no identity policy changed.
+- `d1637b91ee2c5f57fd9bcebd4bb874731b9ccc35`:
+  recorded the corridor control and a concrete live `map_to_area` gap:
+  "Galería Güemes" is a real downtown Buenos Aires OSM object but is absent
+  from the exact CABA relation-derived area pool used by the resolver, while a
+  broader Buenos Aires relation can surface it. This proves that local
+  `map_to_area` completeness cannot be assumed as a hard identity-resolution
+  prerequisite.
+
+**Current architectural reading from the evidence:**
+
+1. The composite extractor/source contract is no longer the dominant observed
+   failure for these cases; the recurring deficit is
+   `GeoEntityHint -> canonical GeoEntity`.
+2. Stage 3 failures are not one thing:
+   - some are true acquisition/coverage misses;
+   - some are provider result-window/geographic-bias misses;
+   - some acquire the correct canonical object and then fail identity policy;
+   - some are boundary-pool completeness defects.
+3. `IDENTITY_CONVERGENCE` is a valid strong fact, but current implementation
+   only correlates repeated external IDs **within one hint's strategy ladder**.
+   It does not yet satisfy the full Stage 3 candidate-correlation gate across
+   catalog rows/provider cross-references.
+4. Nominatim now has useful destination soft bias, but
+   `ExperienceProposalResolverService.resolveViaNominatim` still returns
+   `not_applicable` for `ROUTE` hints. Therefore the new bias does not yet
+   address `Defensa Street`/Pasaje-style ROUTE acquisition through Nominatim.
+5. The live `map_to_area` counterexample means destination/anchor polygons
+   should remain geographic-validation evidence and may support discovery, but
+   must not silently become a hard completeness assumption for canonical
+   component identity.
+6. The ROUTE-only `OWN_QID -> requireAllTokens:false` fix remains a temporary
+   compatibility workaround pending a more structural provider-native
+   resolution path; do not generalize it into more per-kind/per-name matching
+   heuristics.
+
+**Next Stage 3 gate — structured provider-native resolution spike:**
+
+Before adding more IdentityVerifier/name heuristics, characterize an isolated
+resolver whose contract is:
+
+```text
+name + expectedKind + destination/country
+        |
+        v
+structured provider search with soft destination bias
+        |
+        v
+provider-native canonical external ID + structural kind/admin facts
+        |
+        v
+RESOLVED / AMBIGUOUS / NOT_FOUND / INCOMPATIBLE
+```
+
+The spike must reuse the Nominatim soft-bias infrastructure already landed,
+must not first require membership in a `map_to_area` local pool, and must
+explicitly cover ROUTE lookup. Names may drive retrieval/ranking but must not
+be the terminal identity authority.
+
+Required real controls include the existing Stage 3 failures
+`Defensa Street`, `Dorrego Square`, `San Lorenzo Passage`,
+`El Zanjón de Granados`, `Mafalda Statue`, `Caminito Street`,
+`Boca Juniors Stadium`, `Ezeiza Mansion`, plus `Galería Güemes` as the
+known `map_to_area` incompleteness control and negative collision cases.
+
+If that isolated gate passes, integrate it behind catalog reuse and ahead of
+the legacy local-pool/name path; then run a broad **Buenos Aires walking-route
+COLD/WARM spike** through the real HTTP/outbox/processor path to measure
+product-level impact across many grounded composite candidates.
+
+**Stage status after this addendum:**
+
+- Stage 3: **IN PROGRESS**.
+- Stage 3 DONE: **NO** — full candidate correlation, structured-resolution
+  gate, broad COLD/WARM composite evidence, and final query/performance exit
+  evidence are still pending.
+- Stage 4: **BLOCKED** — `isMigrationRequiredHint`, partial-composite lifecycle,
+  planner eligibility, and persisted `required` semantics remain untouched.
+- Architecture deviation: **documented pivot in evaluation strategy, not yet a
+  production cutover**. The evidence now justifies testing provider-native
+  structured resolution before adding more name/Wikidata heuristics.
 
 
 ### Cross-cutting product-shape note — simple, composite, and mixed Tour requests (2026-09-23)
