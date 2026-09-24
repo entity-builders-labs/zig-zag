@@ -201,6 +201,15 @@ describe('buildPoisWithinAreaQuery', () => {
       'nwr["tourism"]["tourism"!~"^(hotel|hostel|guest_house|motel|apartment|camp_site|caravan_site|chalet|wilderness_hut)$"]["name"](area.a)',
     );
   });
+
+  it('includes named indoor pedestrian galleries/arcades (highway=corridor) -- real gap, live-verified against the real local Overpass instance: "Galería Güemes" (a well-known 1915 Buenos Aires shopping arcade, has its own Wikipedia article) is tagged only highway=corridor + indoor=yes, no tourism/historic/amenity/leisure tag at all, so it never entered the local pool before this. Scanning a 15km radius around Buenos Aires turned up only 6 real named corridors total (all real historic galleries/passages), so this is a narrow, safe tag-category addition, not a name-specific patch', () => {
+    const query = buildPoisWithinAreaQuery({
+      osmType: 'relation',
+      osmId: 2223069,
+    });
+
+    expect(query).toContain('nwr["highway"="corridor"]["name"](area.a)');
+  });
 });
 
 describe('buildPoisQuery', () => {
@@ -228,6 +237,18 @@ describe('buildPoisQuery', () => {
 
     expect(query).toContain(
       'nwr["tourism"]["tourism"!~"^(hotel|hostel|guest_house|motel|apartment|camp_site|caravan_site|chalet|wilderness_hut)$"]["name"]',
+    );
+  });
+
+  it('includes named indoor pedestrian galleries/arcades (highway=corridor), same category as buildPoisWithinAreaQuery', () => {
+    const query = buildPoisQuery({
+      latitude: -34.6201,
+      longitude: -58.3715,
+      radiusMeters: 2500,
+    });
+
+    expect(query).toContain(
+      'nwr["highway"="corridor"]["name"](around:2500,-34.6201,-58.3715)',
     );
   });
 });

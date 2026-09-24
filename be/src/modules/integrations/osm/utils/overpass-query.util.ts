@@ -125,6 +125,14 @@ export function buildPoisQuery({
     `  nwr["historic"]["name"]${around};`,
     `  nwr["leisure"~"^(park|square|beach_resort)$"]["name"]${around};`,
     `  nwr["natural"="beach"]["name"]${around};`,
+    // Named indoor pedestrian galleries/arcades -- real, historic shopping
+    // passages (e.g. Buenos Aires' "Galería Güemes", 1915) are commonly
+    // tagged ONLY highway=corridor + indoor=yes in OSM, with no
+    // tourism/historic/amenity/leisure tag at all, so they never entered
+    // the pool before. Live-verified: a 15km-radius scan around Buenos
+    // Aires turned up only 6 real named corridors total, all genuine
+    // galleries/passages -- a narrow category, not name-specific noise.
+    `  nwr["highway"="corridor"]["name"]${around};`,
     ');',
     'out tags center;',
   ].join('\n');
@@ -252,6 +260,9 @@ export function buildPoisWithinAreaQuery({
     '  nwr["historic"]["name"](area.a);',
     '  nwr["leisure"~"^(park|square|beach_resort)$"]["name"](area.a);',
     '  nwr["natural"="beach"]["name"](area.a);',
+    // See buildPoisQuery's identical addition for the real-evidence
+    // rationale (named indoor pedestrian galleries/arcades).
+    '  nwr["highway"="corridor"]["name"](area.a);',
     ');',
     'out tags center;',
   ].join('\n');
