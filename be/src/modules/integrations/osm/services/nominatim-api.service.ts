@@ -14,6 +14,11 @@ const RESULT_LIMIT = 5;
 // Same self-identification requirement as Overpass's public instance — see
 // overpass-api.service.ts's USER_AGENT comment.
 const USER_AGENT = 'ZigZagApp/1.0 (+https://github.com/jiseruk/zig-zag)';
+// Same bias radius as resolveViaPlaces' PLACES_FALLBACK_BIAS_RADIUS_METERS —
+// one shared "how far from the destination is still plausible" scale across
+// providers, not a Nominatim-specific guess.
+const NOMINATIM_BIAS_RADIUS_METERS = 50_000;
+const METERS_PER_DEGREE_LATITUDE = 111_320;
 
 interface NominatimApiResponseItem {
   osm_type: 'node' | 'way' | 'relation';
@@ -41,6 +46,26 @@ interface NominatimApiResponseItem {
     country?: string;
     country_code?: string;
   };
+}
+
+/**
+ * Nominatim's `viewbox` param, `<left>,<top>,<right>,<bottom>`
+ * (minLon,maxLat,maxLon,minLat). Passed alone (no `bounded=1`) it is a soft
+ * ranking preference, never a hard filter.
+ */
+function computeViewbox(
+  center: { latitude: number; longitude: number },
+  radiusMeters: number,
+): string {
+  const latDelta = radiusMeters / METERS_PER_DEGREE_LATITUDE;
+  const metersPerDegreeLongitude =
+    METERS_PER_DEGREE_LATITUDE * Math.cos((center.latitude * Math.PI) / 180);
+  const lonDelta = radiusMeters / metersPerDegreeLongitude;
+  const left = center.longitude - lonDelta;
+  const right = center.longitude + lonDelta;
+  const top = center.latitude + latDelta;
+  const bottom = center.latitude - latDelta;
+  return `${left},${top},${right},${bottom}`;
 }
 
 @Injectable()
@@ -126,6 +151,14 @@ export class NominatimApiService implements INominatimApiService {
             // expectation for this param.
             ...(options?.countryCode
               ? { countrycodes: options.countryCode.toLowerCase() }
+              : {}),
+            ...(options?.bias
+              ? {
+                  viewbox: computeViewbox(
+                    options.bias,
+                    NOMINATIM_BIAS_RADIUS_METERS,
+                  ),
+                }
               : {}),
           },
           timeout: this.timeoutMs,

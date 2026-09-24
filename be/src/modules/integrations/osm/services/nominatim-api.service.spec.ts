@@ -149,6 +149,33 @@ describe('NominatimApiService', () => {
     expect(call[1].params).not.toHaveProperty('countrycodes');
   });
 
+  it('sends a soft viewbox bias around the destination point when a bias option is passed', async () => {
+    mockedAxios.get.mockResolvedValue({ data: [] });
+
+    await service.search('Catedral', {
+      bias: { latitude: -34.6037, longitude: -58.3816 },
+    });
+
+    // The last call, not calls[0] — this spec's other tests share the same
+    // mocked axios.get and never reset its call history between tests.
+    const call = mockedAxios.get.mock.calls.at(-1)!;
+    expect(typeof call[1].params.viewbox).toBe('string');
+    expect(call[1].params.viewbox.split(',')).toHaveLength(4);
+    // Deliberately soft: no `bounded` param, so a real match outside the
+    // box is never hard-excluded, only deprioritized against a same-named
+    // homonym elsewhere in the country.
+    expect(call[1].params).not.toHaveProperty('bounded');
+  });
+
+  it('omits viewbox entirely when no bias option is passed', async () => {
+    mockedAxios.get.mockResolvedValue({ data: [] });
+
+    await service.search('Barcelona');
+
+    const call = mockedAxios.get.mock.calls.at(-1)!;
+    expect(call[1].params).not.toHaveProperty('viewbox');
+  });
+
   it('throws when the request fails so callers can distinguish failure from no matches', async () => {
     mockedAxios.get.mockRejectedValue(new Error('network down'));
 

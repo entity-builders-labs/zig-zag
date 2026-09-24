@@ -1400,12 +1400,16 @@ export class ExperienceProposalResolverService
     }
 
     try {
-      const results = await this.nominatim.search(
-        hint.name,
-        destinationCountryCode
-          ? { countryCode: destinationCountryCode }
-          : undefined,
-      );
+      const searchOptions =
+        destinationCountryCode || destinationPoint
+          ? {
+              ...(destinationCountryCode
+                ? { countryCode: destinationCountryCode }
+                : {}),
+              ...(destinationPoint ? { bias: destinationPoint } : {}),
+            }
+          : undefined;
+      const results = await this.nominatim.search(hint.name, searchOptions);
       const match = bestNominatimMatch(hint.name, results, destinationPoint);
       const exactNameCount = countNominatimExactMatches(hint.name, results);
       const nameMultiplicity = {

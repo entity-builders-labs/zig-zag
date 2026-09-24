@@ -50,6 +50,22 @@ export interface NominatimSearchOptions {
    * this; adding it resolved both correctly.
    */
   countryCode?: string;
+  /**
+   * Soft proximity bias toward the request's destination. Nominatim's own
+   * `importance` ranking has no awareness of the requested destination, and
+   * `countryCode` alone can still lose a real match to a same/similar-named,
+   * more "important" place elsewhere in a large country before it ever
+   * reaches the caller — the top-result-limited response never contains the
+   * real match, so no amount of client-side re-ranking against this same
+   * point can recover it. This narrows the search itself, not just the
+   * caller's later choice among whatever came back. Deliberately soft (no
+   * `bounded` filter): a genuine match outside the bias radius is
+   * deprioritized, never hard-excluded.
+   */
+  bias?: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export interface INominatimApiService {

@@ -705,7 +705,9 @@ describe('ExperienceProposalResolverService', () => {
       ],
     });
 
-    expect(nominatim.search).toHaveBeenCalledWith('Tigre', undefined);
+    expect(nominatim.search).toHaveBeenCalledWith('Tigre', {
+      bias: { latitude: -34.6, longitude: -58.45 },
+    });
     expect(result.acceptedCount).toBe(1);
     expect(result.resolved[0]).toMatchObject({
       experienceId: 'exp-tigre',
@@ -821,7 +823,7 @@ describe('ExperienceProposalResolverService', () => {
 
     expect(nominatim.search).toHaveBeenCalledWith(
       'Ischigualasto Provincial Park',
-      undefined,
+      { bias: { latitude: -34.6, longitude: -58.45 } },
     );
     expect(result.acceptedCount).toBe(0);
     expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
@@ -895,6 +897,7 @@ describe('ExperienceProposalResolverService', () => {
 
     expect(nominatim.search).toHaveBeenCalledWith('Cerro Alcázar', {
       countryCode: 'AR',
+      bias: { latitude: -34.6, longitude: -58.45 },
     });
   });
 
@@ -3991,10 +3994,9 @@ describe('ExperienceProposalResolverService', () => {
 
       // Proves the global path was actually attempted (not short-circuited
       // before it, the way the local-only test above never even calls it).
-      expect(nominatim.search).toHaveBeenCalledWith(
-        'San Ignacio Church',
-        undefined,
-      );
+      expect(nominatim.search).toHaveBeenCalledWith('San Ignacio Church', {
+        bias: { latitude: -34.6, longitude: -58.45 },
+      });
       expect(result.acceptedCount).toBe(0);
       expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
         status: 'unresolved',

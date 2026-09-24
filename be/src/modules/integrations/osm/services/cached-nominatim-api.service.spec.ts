@@ -185,6 +185,43 @@ describe('CachedNominatimApiService', () => {
     );
   });
 
+  it('caches the same query text separately per bias point', async () => {
+    realService.search
+      .mockResolvedValueOnce([
+        {
+          osmType: 'way',
+          osmId: 30,
+          addresstype: 'attraction',
+          displayName: 'Catedral, Buenos Aires, Argentina',
+          importance: 0.3,
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          osmType: 'way',
+          osmId: 40,
+          addresstype: 'attraction',
+          displayName: 'Catedral, Córdoba, Argentina',
+          importance: 0.5,
+        },
+      ]);
+    const service = await setup('write');
+
+    const buenosAires = await service.search('Catedral', {
+      bias: { latitude: -34.6037, longitude: -58.3816 },
+    });
+    const cordoba = await service.search('Catedral', {
+      bias: { latitude: -31.4201, longitude: -64.1888 },
+    });
+
+    expect(buenosAires).toMatchObject([{ osmId: 30 }]);
+    expect(cordoba).toMatchObject([{ osmId: 40 }]);
+    expect(realService.search).toHaveBeenCalledTimes(2);
+    expect(fs.readdirSync(path.join(tempDir, 'nominatim-cache'))).toHaveLength(
+      2,
+    );
+  });
+
   it('strict mode throws on a cache miss instead of calling the real service', async () => {
     const service = await setup('strict');
 

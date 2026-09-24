@@ -37,11 +37,15 @@ export class CachedNominatimApiService implements INominatimApiService {
     options?: NominatimSearchOptions,
   ): string {
     // Fold options into the cache key — two calls with the same query text
-    // but a different countryCode must not collide on the same cache file
-    // (they can legitimately return different results).
-    const keyMaterial = options?.countryCode
-      ? `${query}|countryCode=${options.countryCode.toLowerCase()}`
-      : query;
+    // but a different countryCode or bias destination must not collide on
+    // the same cache file (they can legitimately return different results).
+    let keyMaterial = query;
+    if (options?.countryCode) {
+      keyMaterial += `|countryCode=${options.countryCode.toLowerCase()}`;
+    }
+    if (options?.bias) {
+      keyMaterial += `|bias=${options.bias.latitude.toFixed(3)},${options.bias.longitude.toFixed(3)}`;
+    }
     const hash = crypto.createHash('md5').update(keyMaterial).digest('hex');
     return path.join(this.cacheDir, `search-${hash}.json`);
   }
