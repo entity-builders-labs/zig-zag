@@ -62,6 +62,44 @@ const GEO_ENTITY_RECONCILIATION_RADIUS_METERS =
  */
 const HYDRATION_BATCH_SIZE = 500;
 
+/**
+ * Union of two line geometries as a MultiLineString: every real segment line
+ * of both, duplicate lines (same vertices at OSM's 1e-7 precision) dropped,
+ * order preserved (persisted lines first).
+ * Returns undefined when either side is not line-shaped -- a non-line
+ * geometry is never overwritten by a route merge.
+ */
+function unionLineGeometry(
+  persisted: unknown,
+  incoming: unknown,
+): MultiLineStringGeometry | undefined {
+  const linesOf = (geometry: unknown): [number, number][][] | undefined => {
+    const g = geometry as { type?: string; coordinates?: unknown } | null;
+    if (g?.type === 'MultiLineString') {
+      return g.coordinates as [number, number][][];
+    }
+    if (g?.type === 'LineString') return [g.coordinates as [number, number][]];
+    return undefined;
+  };
+  const existingLines = linesOf(persisted);
+  const incomingLines = linesOf(incoming);
+  if (!existingLines || !incomingLines) return undefined;
+  const seen = new Set<string>();
+  const coordinates: [number, number][][] = [];
+  for (const lineCoordinates of [...existingLines, ...incomingLines]) {
+    // OSM stores coordinates at 1e-7 degrees; keying at that precision
+    // absorbs the float drift of a jsonb (numeric) round-trip without ever
+    // treating two genuinely different vertices as the same.
+    const key = lineCoordinates
+      .map(([lon, lat]) => `${lon.toFixed(7)},${lat.toFixed(7)}`)
+      .join(';');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    coordinates.push(lineCoordinates);
+  }
+  return { type: 'MultiLineString', coordinates };
+}
+
 export interface GeoEntityInput {
   name: string;
   kind: GeoEntityKind;
@@ -73,6 +111,52 @@ export interface GeoEntityInput {
   address?: string;
   metadata?: unknown;
 }
+
+/**
+ * One real-world entity observed through SEVERAL provider-native objects
+ * (e.g. a street split by OSM into many ways). Every identity is a real
+ * provider object; there is never a synthetic cluster identity.
+ */
+export interface GeoEntityWithIdentitiesInput {
+  name: string;
+  kind: GeoEntityKind;
+  /** Non-empty; each becomes one `GeoEntityIdentity` row. */
+  identities: Array<{ provider: string; externalId: string }>;
+  /** Deterministic representative point; never an identity fact. */
+  latitude?: number;
+  longitude?: number;
+  /**
+   * For a multi-segment ROUTE, a `MultiLineString` of the real segments.
+   * On reuse, lines are unioned with the persisted ones (duplicate lines
+   * dropped at OSM coordinate precision); gaps are never bridged by a
+   * synthetic connector.
+   */
+  geometry?: GeoJsonGeometry | MultiLineStringGeometry;
+  address?: string;
+  metadata?: unknown;
+}
+
+export interface MultiLineStringGeometry {
+  type: 'MultiLineString';
+  coordinates: [number, number][][];
+}
+
+export type GeoEntityWithIdentitiesResult =
+  | {
+      status: 'CREATED' | 'REUSED';
+      geoEntity: { id: string };
+      /** Identities newly attached by this call (sorted). */
+      attachedExternalIds: string[];
+    }
+  | {
+      /**
+       * The input identities already belong to 2+ different GeoEntities.
+       * Never merged silently and never decided by proximity; nothing is
+       * written.
+       */
+      status: 'IDENTITY_CONFLICT';
+      conflictingGeoEntityIds: string[];
+    };
 
 /**
  * Stage 3 — bounded, provider-neutral catalog read for one component hint.
@@ -970,6 +1054,136 @@ export class ExperienceCatalogService {
         }
         throw error;
       }
+    });
+  }
+
+  /**
+   * Strong-identity candidate correlation: the distinct GeoEntities that
+   * already own ANY of these provider-native identities (sorted). An exact
+   * `(provider, externalId)` lookup over the unique index -- never a name
+   * or proximity match.
+   */
+  async findGeoEntityIdsByIdentities(
+    provider: string,
+    externalIds: string[],
+  ): Promise<string[]> {
+    if (externalIds.length === 0) return [];
+    const rows = await this.prisma.geoEntityIdentity.findMany({
+      where: { provider, externalId: { in: externalIds } },
+      select: { geoEntityId: true },
+    });
+    return [...new Set(rows.map((row) => row.geoEntityId))].sort();
+  }
+
+  /**
+   * Persist one real-world entity with MANY provider-native identities
+   * (canonical multi-way ROUTE identity). Identity-only reconciliation:
+   *  - no known identity -> create one GeoEntity with every identity;
+   *  - all known identities point at ONE GeoEntity -> reuse it and attach
+   *    the missing identities (name/representative point are kept stable);
+   *  - known identities point at 2+ GeoEntities -> IDENTITY_CONFLICT, no
+   *    write at all.
+   * Runs under the same per-kind advisory lock as `upsertGeoEntity`, so it
+   * serializes with every other GeoEntity write of the same kind.
+   */
+  async upsertGeoEntityWithIdentities(
+    input: GeoEntityWithIdentitiesInput,
+  ): Promise<GeoEntityWithIdentitiesResult> {
+    const identities = [
+      ...new Map(
+        input.identities.map((identity) => [
+          `${identity.provider}\u0000${identity.externalId}`,
+          identity,
+        ]),
+      ).values(),
+    ];
+    if (identities.length === 0) {
+      throw new Error('upsertGeoEntityWithIdentities requires an identity');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${'geo-entity-reconcile:' + input.kind}))`;
+
+      const known = await tx.geoEntityIdentity.findMany({
+        where: {
+          OR: identities.map(({ provider, externalId }) => ({
+            provider,
+            externalId,
+          })),
+        },
+        select: { geoEntityId: true, provider: true, externalId: true },
+      });
+      const owners = [...new Set(known.map((row) => row.geoEntityId))].sort();
+      if (owners.length > 1) {
+        return {
+          status: 'IDENTITY_CONFLICT' as const,
+          conflictingGeoEntityIds: owners,
+        };
+      }
+
+      const knownKeys = new Set(
+        known.map((row) => `${row.provider}\u0000${row.externalId}`),
+      );
+      const missing = identities.filter(
+        (identity) =>
+          !knownKeys.has(`${identity.provider}\u0000${identity.externalId}`),
+      );
+      const attachedExternalIds = missing
+        .map((identity) => identity.externalId)
+        .sort();
+
+      if (owners.length === 0) {
+        const created = await tx.geoEntity.create({
+          data: {
+            name: input.name,
+            kind: input.kind,
+            latitude: input.latitude,
+            longitude: input.longitude,
+            geometry: input.geometry as Prisma.InputJsonValue | undefined,
+            address: input.address,
+            metadata: input.metadata as Prisma.InputJsonValue | undefined,
+            identities: {
+              create: identities.map(({ provider, externalId }) => ({
+                provider,
+                externalId,
+              })),
+            },
+          },
+          select: { id: true },
+        });
+        return {
+          status: 'CREATED' as const,
+          geoEntity: created,
+          attachedExternalIds,
+        };
+      }
+
+      const [geoEntityId] = owners;
+      if (missing.length > 0) {
+        await tx.geoEntityIdentity.createMany({
+          data: missing.map(({ provider, externalId }) => ({
+            geoEntityId,
+            provider,
+            externalId,
+          })),
+        });
+        const existing = await tx.geoEntity.findUniqueOrThrow({
+          where: { id: geoEntityId },
+          select: { geometry: true },
+        });
+        const merged = unionLineGeometry(existing.geometry, input.geometry);
+        if (merged) {
+          await tx.geoEntity.update({
+            where: { id: geoEntityId },
+            data: { geometry: merged as unknown as Prisma.InputJsonValue },
+          });
+        }
+      }
+      return {
+        status: 'REUSED' as const,
+        geoEntity: { id: geoEntityId },
+        attachedExternalIds,
+      };
     });
   }
 
