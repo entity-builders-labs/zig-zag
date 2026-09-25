@@ -55,6 +55,22 @@ export class IdentityVerifier {
       return { status: 'AMBIGUOUS' };
     }
 
+    // 0d. Catalog reuse through verified hint memory: this exact hint key
+    // was remembered on the canonical GeoEntity only after an earlier
+    // resolution of it was VERIFIED here. Same multiplicity semantics as
+    // EXACT_NAME -- a key shared by several in-scope GeoEntities is
+    // AMBIGUOUS, never a winner.
+    const verifiedHint = this.evidenceOf(
+      evidence,
+      'CATALOG_VERIFIED_HINT_MATCH',
+    );
+    if (verifiedHint?.identityMultiplicity === 'SINGLE') {
+      return { status: 'VERIFIED' };
+    }
+    if (verifiedHint?.identityMultiplicity === 'MULTIPLE') {
+      return { status: 'AMBIGUOUS' };
+    }
+
     // 1. EXACT_NAME + SINGLE -> VERIFIED immediately
     if (exactName && exactName.identityMultiplicity === 'SINGLE') {
       return { status: 'VERIFIED' };

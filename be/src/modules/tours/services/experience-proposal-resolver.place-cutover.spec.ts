@@ -2,6 +2,7 @@ import { GeoEntityKind } from '@prisma/client';
 import { PlaceData } from '@integrations/google-places/interfaces/places-api.interface';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
+import { CatalogGeoEntityCandidate } from './experience-catalog.service';
 
 /**
  * Stage 3 PLACE cutover: Geoapify Forward Geocoding (free-form hint text, no
@@ -107,6 +108,8 @@ function build(
     nominatimResults?: any[];
     wikidataLabels?: Record<string, { label: string; aliases?: string[] }>;
     upsertWithIdentitiesResult?: any;
+    catalogCandidates?: CatalogGeoEntityCandidate[];
+    rememberVerifiedHintName?: jest.Mock;
   } = {},
 ) {
   const osmPlaces = {
@@ -122,7 +125,10 @@ function build(
   const catalog = {
     findGeoEntityCandidatesForHint: jest
       .fn()
-      .mockResolvedValue({ candidates: [] }),
+      .mockResolvedValue({ candidates: options.catalogCandidates ?? [] }),
+    rememberVerifiedHintName:
+      options.rememberVerifiedHintName ??
+      jest.fn().mockResolvedValue('REMEMBERED'),
     findGeoEntityIdsByIdentities: jest.fn().mockResolvedValue([]),
     upsertGeoEntityWithIdentities: jest.fn().mockResolvedValue(
       options.upsertWithIdentitiesResult ?? {
@@ -192,7 +198,7 @@ function build(
     placesApi as any,
     wikidata as any,
   );
-  return { service, catalog, nominatim, placesApi, wikidata };
+  return { service, catalog, nominatim, placesApi, wikidata, osmPlaces };
 }
 
 const resolveHint = (
@@ -874,6 +880,275 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
           externalId: 'osm:node:42',
         }),
       );
+    });
+  });
+
+  /**
+   * Verified hint memory: the exact hint text is remembered on the canonical
+   * GeoEntity ONLY after a VERIFIED external resolution, and a later
+   * request with the same text reuses it catalog-first even when the text
+   * differs from the canonical name. Never inferred from similarity.
+   */
+  describe('verified hint memory', () => {
+    const NOMINATIM_FARMACIA = {
+      osmType: 'node',
+      osmId: 3348573778,
+      class: 'amenity',
+      type: 'pharmacy',
+      addresstype: 'amenity',
+      displayName:
+        'Farmacia de la Estrella, 201, Defensa, Monserrat, Buenos Aires, Argentina',
+      importance: 0.1,
+      latitude: -34.6101871,
+      longitude: -58.3721455,
+      address: { city: 'Buenos Aires', country: 'Argentina' },
+    };
+    const farmaciaCold = (extra: Parameters<typeof build>[0] = {}) =>
+      build({
+        nominatimResults: [NOMINATIM_FARMACIA],
+        searchResults: [FARMACIA],
+        details: {
+          'geo-farmacia-search': {
+            id: 'geo-farmacia-details',
+            sourceIdentities: [
+              { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
+            ],
+          },
+        },
+        ...extra,
+      });
+    const catalogRow = (
+      geoEntityId: string,
+      name: string,
+      matchKind: CatalogGeoEntityCandidate['matchKind'],
+    ): CatalogGeoEntityCandidate => ({
+      geoEntityId,
+      name,
+      kind: GeoEntityKind.PLACE,
+      latitude: -34.6102605,
+      longitude: -58.3721513,
+      geometry: { type: 'Point', coordinates: [-58.3721513, -34.6102605] },
+      address: null,
+      identities: [
+        { provider: 'openstreetmap', externalId: `osm:node:${geoEntityId}` },
+      ],
+      matchKind,
+    });
+    const expectNoProviderCall = (built: ReturnType<typeof build>) => {
+      expect(built.placesApi.searchText).not.toHaveBeenCalled();
+      expect(built.placesApi.getPlaceDetails).not.toHaveBeenCalled();
+      expect(built.nominatim.search).not.toHaveBeenCalled();
+      expect(built.wikidata.getEntitySummaries).not.toHaveBeenCalled();
+      expect(built.wikidata.findNearbyPlaces).not.toHaveBeenCalled();
+      expect(built.osmPlaces.lookupPoisWithin).not.toHaveBeenCalled();
+      expect(built.osmPlaces.lookupPoisNear).not.toHaveBeenCalled();
+    };
+
+    it('COLD: remembers the verbatim hint on the canonical GeoEntity only after the VERIFIED resolution', async () => {
+      const { service, catalog } = farmaciaCold();
+
+      const result = await resolveHint(service, 'Farmacia la Estrella');
+
+      expect(componentAudit(result).finalStatus).toBe('resolved');
+      expect(catalog.rememberVerifiedHintName).toHaveBeenCalledTimes(1);
+      expect(catalog.rememberVerifiedHintName).toHaveBeenCalledWith(
+        'geo-place',
+        'Farmacia la Estrella',
+      );
+      // Written after persistence established the canonical GeoEntity.
+      expect(
+        catalog.upsertGeoEntityWithIdentities.mock.invocationCallOrder[0],
+      ).toBeLessThan(
+        catalog.rememberVerifiedHintName.mock.invocationCallOrder[0],
+      );
+      expect(componentAudit(result).verifiedHintMemory).toBe('REMEMBERED');
+    });
+
+    it('records an idempotent re-remember as ALREADY_REMEMBERED', async () => {
+      const { service } = farmaciaCold({
+        rememberVerifiedHintName: jest
+          .fn()
+          .mockResolvedValue('ALREADY_REMEMBERED'),
+      });
+
+      const result = await resolveHint(service, 'Farmacia la Estrella');
+
+      expect(componentAudit(result).verifiedHintMemory).toBe(
+        'ALREADY_REMEMBERED',
+      );
+    });
+
+    it('does not remember a hint that fails closed (only candidate outside the destination -- "Galería Güemes")', async () => {
+      const { service, catalog } = build({
+        searchResults: [
+          place(
+            'ramos',
+            'Galería Güemes',
+            -34.6398,
+            -58.5658,
+            'point_of_interest',
+          ),
+        ],
+      });
+
+      const result = await resolveHint(service, 'Galería Güemes');
+
+      expect(componentAudit(result).finalStatus).toBe('unresolved');
+      expect(catalog.rememberVerifiedHintName).not.toHaveBeenCalled();
+      expect(componentAudit(result).verifiedHintMemory).toBeUndefined();
+    });
+
+    it('does not remember a REJECTED candidate (PLACES alone, no convergence -- Farmacia without Nominatim)', async () => {
+      const { service, catalog } = farmaciaCold({ nominatimResults: [] });
+
+      const result = await resolveHint(service, 'Farmacia la Estrella');
+
+      expect(placesAttempt(result).verificationDecision).not.toBe('VERIFIED');
+      expect(componentAudit(result).finalStatus).toBe('unresolved');
+      expect(catalog.rememberVerifiedHintName).not.toHaveBeenCalled();
+    });
+
+    it('does not remember an AMBIGUOUS hint (two in-destination same-name results)', async () => {
+      const { service, catalog } = build({
+        searchResults: [
+          place('a', 'San José', -34.61, -58.38, 'point_of_interest'),
+          place('b', 'San José', -34.6, -58.42, 'point_of_interest'),
+        ],
+      });
+
+      const result = await resolveHint(service, 'San José');
+
+      expect(placesAttempt(result).verificationDecision).toBe('AMBIGUOUS');
+      expect(componentAudit(result).finalStatus).toBe('unresolved');
+      expect(catalog.rememberVerifiedHintName).not.toHaveBeenCalled();
+    });
+
+    it('does not remember a VERIFIED candidate whose persistence hit IDENTITY_CONFLICT', async () => {
+      const { service, catalog } = farmaciaCold({
+        upsertWithIdentitiesResult: {
+          status: 'IDENTITY_CONFLICT',
+          conflictingGeoEntityIds: ['geo-a', 'geo-b'],
+        },
+      });
+
+      const result = await resolveHint(service, 'Farmacia la Estrella');
+
+      expect(componentAudit(result).finalStatus).toBe('unresolved');
+      expect(catalog.rememberVerifiedHintName).not.toHaveBeenCalled();
+    });
+
+    it('a failed memory write never fails the resolution (recorded as FAILED)', async () => {
+      const { service } = farmaciaCold({
+        rememberVerifiedHintName: jest
+          .fn()
+          .mockRejectedValue(new Error('connection reset')),
+      });
+
+      const result = await resolveHint(service, 'Farmacia la Estrella');
+
+      expect(componentAudit(result).finalStatus).toBe('resolved');
+      expect(resolvedEntity(result).geoEntityId).toBe('geo-place');
+      expect(componentAudit(result).verifiedHintMemory).toBe('FAILED');
+    });
+
+    it('WARM: a single verified-hint catalog match is CATALOG_REUSE of the same GeoEntity with zero provider calls and no re-write', async () => {
+      const built = build({
+        catalogCandidates: [
+          catalogRow(
+            'geo-farmacia',
+            'Farmacia de la Estrella',
+            'VERIFIED_HINT',
+          ),
+        ],
+      });
+
+      const result = await resolveHint(built.service, 'Farmacia la Estrella');
+
+      const audit = componentAudit(result);
+      expect(audit.attempts.map((a: any) => a.strategy)).toEqual([
+        'CATALOG_REUSE',
+      ]);
+      expect(audit.attempts[0]).toMatchObject({
+        query: 'Farmacia la Estrella',
+        verificationDecision: 'VERIFIED',
+        selectedCandidate: { canonicalName: 'Farmacia de la Estrella' },
+      });
+      expect(audit.attempts[0].identityEvidence).toEqual([
+        {
+          type: 'CATALOG_VERIFIED_HINT_MATCH',
+          verifiedHintKey: 'farmacia la estrella',
+          identityMultiplicity: 'SINGLE',
+        },
+      ]);
+      expect(audit.resolvedGeoEntity).toMatchObject({
+        geoEntityId: 'geo-farmacia',
+        canonicalName: 'Farmacia de la Estrella',
+      });
+      expectNoProviderCall(built);
+      expect(built.catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(
+        built.catalog.upsertGeoEntityWithIdentities,
+      ).not.toHaveBeenCalled();
+      expect(built.catalog.rememberVerifiedHintName).not.toHaveBeenCalled();
+    });
+
+    it('verified-hint MULTIPLE stays ambiguous: no winner, falls through to bounded external acquisition', async () => {
+      const built = build({
+        catalogCandidates: [
+          catalogRow('geo-sj-1', 'Parroquia San José', 'VERIFIED_HINT'),
+          catalogRow('geo-sj-2', 'Colegio San José', 'VERIFIED_HINT'),
+        ],
+      });
+
+      const result = await resolveHint(built.service, 'San José');
+
+      const audit = componentAudit(result);
+      expect(audit.attempts[0]).toMatchObject({
+        strategy: 'CATALOG_REUSE',
+        poolCandidateCount: 2,
+        candidateAcquired: false,
+      });
+      expect(audit.attempts[0].verificationDecision).toBeUndefined();
+      expect(audit.attempts.length).toBeGreaterThan(1);
+      expect(built.placesApi.searchText).toHaveBeenCalled();
+      expect(audit.finalStatus).toBe('unresolved');
+    });
+
+    it('a canonical-name match and a different verified-hint match together are ambiguous too', async () => {
+      const built = build({
+        catalogCandidates: [
+          catalogRow('geo-sj-1', 'San José', 'CANONICAL_NAME'),
+          catalogRow('geo-sj-2', 'Colegio San José', 'VERIFIED_HINT'),
+        ],
+      });
+
+      const result = await resolveHint(built.service, 'San José');
+
+      expect(componentAudit(result).attempts[0]).toMatchObject({
+        strategy: 'CATALOG_REUSE',
+        poolCandidateCount: 2,
+      });
+      expect(built.placesApi.searchText).toHaveBeenCalled();
+    });
+
+    it('exact canonical-name reuse is unchanged: EXACT_NAME(SINGLE), zero provider calls, nothing remembered', async () => {
+      const built = build({
+        catalogCandidates: [
+          catalogRow('geo-casa', 'Casa Mínima', 'CANONICAL_NAME'),
+        ],
+      });
+
+      const result = await resolveHint(built.service, 'Casa Mínima');
+
+      const audit = componentAudit(result);
+      expect(audit.attempts).toHaveLength(1);
+      expect(audit.attempts[0].identityEvidence).toEqual([
+        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+      ]);
+      expect(audit.attempts[0].verificationDecision).toBe('VERIFIED');
+      expect(audit.resolvedGeoEntity.geoEntityId).toBe('geo-casa');
+      expectNoProviderCall(built);
+      expect(built.catalog.rememberVerifiedHintName).not.toHaveBeenCalled();
     });
   });
 });

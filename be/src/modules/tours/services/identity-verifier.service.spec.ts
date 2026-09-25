@@ -537,4 +537,41 @@ describe('IdentityVerifier', () => {
       ).toEqual({ status: 'AMBIGUOUS' });
     });
   });
+
+  describe('CATALOG_VERIFIED_HINT_MATCH (verified hint memory, not alias inference)', () => {
+    const verifiedHint = (
+      identityMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN',
+    ) => ({
+      type: 'CATALOG_VERIFIED_HINT_MATCH' as const,
+      verifiedHintKey: 'farmacia la estrella',
+      identityMultiplicity,
+    });
+
+    it('VERIFIES the single in-scope GeoEntity this exact hint key was previously verified to, although the canonical name differs', () => {
+      expect(
+        new IdentityVerifier().verify(
+          { name: 'Farmacia la Estrella' },
+          attempt([verifiedHint('SINGLE')], 'UNKNOWN', 'UNKNOWN'),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
+
+    it('is AMBIGUOUS when the remembered key is shared by several in-scope GeoEntities -- never a winner', () => {
+      expect(
+        new IdentityVerifier().verify(
+          { name: 'San José' },
+          attempt([verifiedHint('MULTIPLE')], 'UNKNOWN', 'UNKNOWN'),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    });
+
+    it('does not verify on UNKNOWN multiplicity alone', () => {
+      expect(
+        new IdentityVerifier().verify(
+          { name: 'Farmacia la Estrella' },
+          attempt([verifiedHint('UNKNOWN')], 'UNKNOWN', 'UNKNOWN'),
+        ),
+      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+    });
+  });
 });

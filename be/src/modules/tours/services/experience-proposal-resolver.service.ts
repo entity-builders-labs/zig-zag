@@ -30,6 +30,7 @@ import {
   ResolutionStrategy,
   VerificationResult,
   CandidateResolutionAudit,
+  ComponentResolutionAudit,
   ResolutionAttemptAudit,
   GeographicScope,
   IdentityEvidence,
@@ -628,6 +629,14 @@ export class ExperienceProposalResolverService
         evidence,
       );
 
+    // Verified hint memory writes, flushed once every component of this
+    // candidate is decided (see `rememberVerifiedHints`).
+    const verifiedHintsToRemember: Array<{
+      audit: ComponentResolutionAudit;
+      geoEntityId: string;
+      hintName: string;
+    }> = [];
+
     for (const hint of candidate?.componentHints ?? []) {
       const attempts: ResolutionAttemptAudit[] = [];
       // Real-world identity by ID equality, tracked across every strategy
@@ -693,7 +702,7 @@ export class ExperienceProposalResolverService
         });
       };
       const finishAudit = (entity: ResolvedGeoEntity): void => {
-        componentAudits.push({
+        const audit: ComponentResolutionAudit = {
           hintKey: hint.key,
           hintName: hint.name,
           role: hint.role,
@@ -717,7 +726,31 @@ export class ExperienceProposalResolverService
                     : {}),
                 }
               : undefined,
-        });
+        };
+        componentAudits.push(audit);
+        // Verified hint memory: only a resolution that IdentityVerifier
+        // accepted through external acquisition (CATALOG_REUSE already
+        // knows the hint), onto a GeoEntity of the hint's own expected kind
+        // (the catalog lookup is kind-scoped; an AREA hint corrected to a
+        // PLACE is never remembered as that PLACE's hint). REJECTED,
+        // AMBIGUOUS, UNCONFIRMED, NO_CANDIDATE, IDENTITY_CONFLICT and
+        // provider failures never reach `status: 'resolved'`.
+        const verified = attempts.find(
+          (attempt) => attempt.verificationDecision === 'VERIFIED',
+        );
+        if (
+          entity.status === 'resolved' &&
+          entity.geoEntityId &&
+          verified &&
+          verified.strategy !== 'CATALOG_REUSE' &&
+          verified.selectedCandidate?.kind === hint.expectedKind
+        ) {
+          verifiedHintsToRemember.push({
+            audit,
+            geoEntityId: entity.geoEntityId,
+            hintName: hint.name,
+          });
+        }
       };
       let unconfirmedCatalogMatch: ResolvedGeoEntity | undefined;
       // Stage 3 (component-resolution-and-partial-composite-recovery-plan.md,
@@ -1239,6 +1272,8 @@ export class ExperienceProposalResolverService
       finishAudit(entities[entities.length - 1]);
     }
 
+    await this.rememberVerifiedHints(verifiedHintsToRemember);
+
     // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
     const required = (candidate?.componentHints ?? []).filter((hint: any) =>
       isMigrationRequiredHint(hint),
@@ -1312,6 +1347,41 @@ export class ExperienceProposalResolverService
         componentAudits,
       },
     };
+  }
+
+  /**
+   * Records verified hint memory for components that resolved VERIFIED
+   * through external acquisition, so a later request carrying the same
+   * hint text reuses the canonical GeoEntity catalog-first even when the
+   * text differs from its canonical name ("Farmacia la Estrella" ->
+   * "Farmacia de la Estrella"). Best-effort: the identity decision and
+   * persistence already happened, so a failed memory write only costs a
+   * future re-acquisition and never fails this resolution. The outcome is
+   * recorded on the component audit.
+   */
+  private async rememberVerifiedHints(
+    pending: Array<{
+      audit: ComponentResolutionAudit;
+      geoEntityId: string;
+      hintName: string;
+    }>,
+  ): Promise<void> {
+    for (const { audit, geoEntityId, hintName } of pending) {
+      try {
+        const outcome = await this.catalog.rememberVerifiedHintName(
+          geoEntityId,
+          hintName,
+        );
+        if (outcome !== 'EMPTY_KEY') audit.verifiedHintMemory = outcome;
+      } catch (error) {
+        audit.verifiedHintMemory = 'FAILED';
+        this.logger.warn(
+          `Verified hint memory write failed for "${hintName}" -> GeoEntity ${geoEntityId}: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
+      }
+    }
   }
 
   /** Builds/acquires normalized identity facts; only IdentityVerifier judges them. */
@@ -2025,6 +2095,7 @@ export class ExperienceProposalResolverService
       {
         match: CatalogGeoEntityCandidate;
         variant: RouteRetrievalVariantKind;
+        lookupName: string;
       }
     >();
     for (const lookup of lookups) {
@@ -2037,7 +2108,11 @@ export class ExperienceProposalResolverService
       });
       for (const match of candidates) {
         if (!byId.has(match.geoEntityId)) {
-          byId.set(match.geoEntityId, { match, variant: lookup.variant });
+          byId.set(match.geoEntityId, {
+            match,
+            variant: lookup.variant,
+            lookupName: lookup.name,
+          });
         }
       }
     }
@@ -2072,7 +2147,7 @@ export class ExperienceProposalResolverService
       };
     }
 
-    const [{ match, variant }] = found;
+    const [{ match, variant, lookupName }] = found;
     const identity = match.identities[0];
     if (!identity) {
       return { status: 'no_candidate', provider: 'catalog', query: hint.name };
@@ -2100,21 +2175,29 @@ export class ExperienceProposalResolverService
       // compatible catalog candidate -- SINGLE, the same signal
       // `buildLocalIdentityEvidence` turns into EXACT_NAME/SINGLE, which
       // IdentityVerifier treats as immediately VERIFIED with no further
-      // (network) corroboration needed.
+      // (network) corroboration needed. A verified-hint match says nothing
+      // about canonical-name multiplicity: UNKNOWN, and its own typed
+      // evidence below carries the catalog multiplicity instead.
       nameEvidenceMultiplicity: {
-        exactName: 'SINGLE',
+        exactName: match.matchKind === 'CANONICAL_NAME' ? 'SINGLE' : 'UNKNOWN',
         declaredAlias: 'UNKNOWN',
       },
     };
 
-    return {
-      status: 'candidate',
-      provider: 'catalog',
-      query: hint.name,
-      candidate: entityCandidate,
-      geoEntityId: match.geoEntityId,
-      evidence:
-        variant === 'DESIGNATOR_NORMALIZED'
+    // The single in-scope match came from verified hint memory (the hint
+    // text was remembered on this GeoEntity after an earlier VERIFIED
+    // resolution), or through a ROUTE retrieval variant, or by canonical
+    // name (EXACT_NAME is derived locally by `buildLocalIdentityEvidence`).
+    const evidence: IdentityEvidence[] =
+      match.matchKind === 'VERIFIED_HINT'
+        ? [
+            {
+              type: 'CATALOG_VERIFIED_HINT_MATCH',
+              verifiedHintKey: normalizeGeoName(lookupName),
+              identityMultiplicity: 'SINGLE',
+            },
+          ]
+        : variant === 'DESIGNATOR_NORMALIZED'
           ? [
               {
                 type: 'CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH',
@@ -2122,7 +2205,15 @@ export class ExperienceProposalResolverService
                 identityMultiplicity: 'SINGLE',
               },
             ]
-          : [],
+          : [];
+
+    return {
+      status: 'candidate',
+      provider: 'catalog',
+      query: hint.name,
+      candidate: entityCandidate,
+      geoEntityId: match.geoEntityId,
+      evidence,
     };
   }
 

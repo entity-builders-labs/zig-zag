@@ -132,6 +132,23 @@ export type IdentityEvidence =
       type: 'CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH';
       retrievalVariant: RouteRetrievalVariantKind;
       identityMultiplicity: IdentityMultiplicity;
+    }
+  | {
+      /**
+       * Catalog-first reuse through VERIFIED HINT MEMORY: this exact hint
+       * text (by its `normalizeGeoName` key) was remembered on the
+       * canonical GeoEntity only AFTER an earlier resolution of it ended
+       * VERIFIED to that entity (e.g. "Farmacia la Estrella" ->
+       * "Farmacia de la Estrella"). A recorded prior verification, never
+       * an alias inferred from string similarity. It is kind- and
+       * geographic-scope-bounded like every catalog read, and
+       * `identityMultiplicity` counts the distinct in-scope GeoEntities
+       * matched by canonical name OR remembered key: MULTIPLE never
+       * picks a winner.
+       */
+      type: 'CATALOG_VERIFIED_HINT_MATCH';
+      verifiedHintKey: string;
+      identityMultiplicity: IdentityMultiplicity;
     };
 
 export type ResolutionStrategy =
@@ -259,6 +276,14 @@ export interface ComponentResolutionAudit {
     ResolvedGeoEntity,
     'geoEntityId' | 'canonicalName' | 'provider' | 'externalId' | 'persistence'
   >;
+  /**
+   * Verified hint memory write for this component (only after a VERIFIED
+   * external resolution to a GeoEntity of the hint's expected kind):
+   * REMEMBERED = the hint key was appended; ALREADY_REMEMBERED = the key
+   * was already on that GeoEntity (idempotent no-op); FAILED = the
+   * best-effort write failed and resolution was left untouched.
+   */
+  verifiedHintMemory?: 'REMEMBERED' | 'ALREADY_REMEMBERED' | 'FAILED';
 }
 
 export interface CandidateResolutionAudit {
