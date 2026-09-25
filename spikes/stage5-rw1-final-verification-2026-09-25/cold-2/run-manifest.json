@@ -1,0 +1,15 @@
+{
+  "runLabel": "stage5-cold-2",
+  "tourId": "f5954066-de8a-427b-a6b9-8ce6ff31e55d",
+  "email": "stage3-spike-stage5-cold-2-1790374803519@example.com",
+  "baseUrl": "http://localhost:4022",
+  "requestFile": "request.json",
+  "createHttpMs": 55,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 259732,
+  "startedAt": "2026-09-25T22:20:03.723Z",
+  "finishedAt": "2026-09-25T22:24:23.467Z"
+}
