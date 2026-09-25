@@ -1,6 +1,6 @@
 # Component Resolution + Partial Composite Recovery — Implementation Plan
 
-Status: **architecture reviewed; ready for staged implementation.**
+Status: **milestone complete (Stage 5 DONE 2026-09-25); one open cross-cutting finding (Experience dedupe) recorded in the Stage 5 addendum.**
 Written: 2026-09-22.
 Execution plan compacted: 2026-09-23.
 Branch: `feat/preference-first-selection`.
@@ -41,7 +41,7 @@ implements the stage. Do not mark a stage DONE without real validation.
 | 2. Source-grounded contract cutover | DONE | `a7df3b579282cee6b57fef8a914080d507e47fac` | *(this commit)* | jest (152/153 suites, 1746/1747 tests; 1 pre-existing arch failure) + tsc (clean) + eslint (clean) | LLM-owned `required` eliminated from discovery contract; deterministic source-support admission gate implemented; Santa Mónica blocked; semantic document bumped to v3; Stage 3 unblocked. |
 | 3. Catalog-first identity resolution | DONE | `9eaf5ec1d9caddba55ccab1e0d5c2774f45f61b3` (PLACE cutover); `d1059a7cf786256acff2e9ca2311cac1ec7ab1b9` (verified hint memory) | `52c6da1`,`9424dc5`,`77de1fa`,`c101fea`; `6b60add`,`3abb70f`,`4b64b90` *(progress: this commit)* | unit 1987/1988 (pre-existing preference-first-architecture failure); integration on zigzag_test 91/94 (the 3 baseline failures; `catalog-reuse` passed); real-Postgres verified-hint memory 10/10 incl. concurrency (mutation-checked) and GIN EXPLAIN; live COLD/WARM on a fresh DB (15 hints incl. Solar de French); SerpApi/Serper/Google Places 0; tsc + eslint clean | Name-divergent WARM reuse closed by verified hint memory on `GeoEntity` (text[] + GIN, no new table). See the 2026-09-25 verified hint memory addendum and `spikes/stage3-verified-hint-memory-cold-warm-2026-09-25/assessment.md`. Stage 4 UNBLOCKED. |
 | 4. Geographic + partial-composite cutover | DONE | `5a9ec4322a006aa0489625d5bac1202d7cdc8cbb` | `f4d4f81`,`0307a94`,`8bc5ce0` *(progress: this commit)* | unit 2021/2022 (baseline preference-first-architecture); integration 95/98 on zigzag_test (the 3 baseline failures) incl. new partial-composite-isolation 4/4 (mutation-checked); tsc + eslint clean; bounded live COLD/WARM/COLD (Serper, SerpApi 0) | `required` has no geographic/reuse/planner authority; single area-scope policy gives typed per-component relations (MultiLineString included); full source composition is the only admission fact; A-B-C-D-E-F never persists as A-B-D-F. No schema, no thresholds. Live partial shape not extracted (variance). See the 2026-09-25 Stage 4 addendum. Stage 5 UNBLOCKED. |
-| 5. Trace + RW1 verification | UNBLOCKED (not started) | — | — | — | Final milestone validation; thresholds only from observed evidence. Stage 4 already emits typed per-component identity/geography/deficit + coverage in the trace (`entityResolutionAudit[].coverage/componentScope`, hint `identityStatus/geography/deficit`). |
+| 5. Trace + RW1 verification | DONE | `94e9cb10e33cbe085511e5ac7cced36db7700aa2` | `576bbe5`,`3097641`,`d38d4be`,`f2e164c` *(progress: this commit)* | unit 2041/2042 (baseline preference-first-architecture); integration 95/98 on zigzag_test (3 baseline failures); trace-failure-semantics 15/15 (RED first, mutation-checked); tsc + eslint clean; live RW1 3 COLD + 1 WARM + 1 targeted COLD (Serper; SerpApi/Google Places 0) | Trace distinguishes every terminal component state (false NO_OSM_MATCH on provider failure fixed; contradicted vs unconfirmed split) and states each composite's geographic/persistence/planner outcome. RW1: 2 composites (2/2, INSIDE, CGV accepted); partial/ambiguous/OUTSIDE/ROUTE not observed live (deterministic Stage 4 proof). No threshold selected. OPEN FINDING: Experience dedupe blocks single-vs-2-stop composites (order-dependent), characterized, needs a policy decision. Milestone COMPLETE. |
 
 ### Stage 1 — Characterization lock (2026-09-23)
 
@@ -1711,6 +1711,128 @@ polygon, anchor `nominatim` namespace, `catalog-reuse` flake. Live side
 note: COLD 2's extractor emitted "Calle Defensa" as a PLACE waypoint.
 
 **Stage status:** Stage 4 **DONE**. Stage 5 **UNBLOCKED** (not started).
+
+### Stage 5 — Trace + RW1 verification, DONE (2026-09-25)
+
+Starting HEAD: `94e9cb10e33cbe085511e5ac7cced36db7700aa2` (verified equal to
+the fork remote; no new commits). Baseline re-verified at that HEAD: unit
+2021/2022 (only `preference-first-architecture`), integration 95/98 on
+`zigzag_test` (2 × `acquisition-degradation`, 1 × `canonical-orchestration`;
+`catalog-reuse` passed), tsc + eslint clean. Commits:
+
+- `576bbe5` feat(tours): complete component and composite trace fidelity.
+- `3097641` fix(tours): report unrecognized extractor envelopes in the trace.
+- `d38d4be` feat(tours): explain AMBIGUOUS_DEDUPE in the composite outcome.
+- `f2e164c` test(tours): verify RW1 cold warm milestone behavior.
+- progress: this commit.
+
+Evidence: `spikes/stage5-rw1-final-verification-2026-09-25/`
+(`assessment.md`, `summary.md`, `matrix.json`, per-run traces, provider
+counts, DB snapshots, real planner-boundary output).
+
+**Trace contract.** Component: hint + evidence keys, expected role/kind,
+every attempt (strategy, provider, query, outcome, selected identity,
+convergence/multiplicity evidence, verdict), identity status, GeoEntity id +
+kind + canonical geometry, relation (RESOLVED only), deficit reason +
+classification. New deficit `CANDIDATE_REJECTED` (IdentityVerifier REJECTED
+every acquired candidate: contradicted) separate from `CANDIDATE_UNCONFIRMED`
+(not corroborated). Composite (`catalog_materialization.materializationAudit[].compositeOutcome`):
+coverage, geographic decision (`NOT_EVALUATED` for an incomplete
+composition / `ACCEPTED` / `REJECTED`), persistence (+ dedupe conflict ids
+and recorded signals), `plannerEligible`. Summaries name every component
+(`C=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)`), so a partial
+A-B-C-D-E-F keeps C/E visible. FE bitácora renders geography, deficit,
+coverage and composite outcome; a rejected candidate is `REJECTED`, not
+`UNRESOLVED`. Bounded: no raw payloads or geometry.
+
+**False `NO_OSM_MATCH`.** Stage 1's acquired-then-unconfirmed case stays
+`UNCONFIRMED_MATCH` (Case H). A second live-reachable variant was found and
+fixed: a hint whose Places/Nominatim provider failed with nothing acquired
+ended `NO_OSM_MATCH` while its typed deficit said PROVIDER_FAILURE; it now
+ends `PROVIDER_FAILURE`. A candidate with no resolved component lists every
+component's distinct reason instead of one precedence-picked reason that
+masked AMBIGUOUS/IDENTITY_CONFLICT/provider failure. An unrecognized
+extractor envelope is reported (`extractor_envelope_unrecognized`) instead
+of reading as an empty answer.
+
+**RW1 (observed).** COLD 1/2/3 + WARM on `576bbe5`, targeted COLD 4 on
+`3097641`. Composites extracted: 1, 0, 0, 1 (2 hints each; 2 of 9 web
+extraction passes emitted anything; COLD 4 shows a zero pass is a genuine
+empty model answer). Both composites 2/2 RESOLVED, INSIDE, CGV
+`component_defined` ACCEPTED; COLD 1 persisted (planner-selected), COLD 4
+`AMBIGUOUS_DEDUPE` (below). Every live deficit is `NO_CANDIDATE_ACQUIRED /
+PENDING_CLASSIFICATION` (0 KNOWLEDGE_DEFICIT). El Zanjón →
+`osm:node:9953027884` in all COLDs via two convergence paths, WARM via
+verified hint. Solar French → `osm:node:6903962986` in all COLDs; the Stage 3
+`osm:relation:9314953` divergence stays explicit. Plaza de Mayo only in
+evidence text; Calle Defensa never a ROUTE hint. WARM: 4/4 resolved via
+`CATALOG_REUSE`, same GeoEntity and Experience ids, counts unchanged, 0
+Geoapify/Wikidata identity calls, 338 s → 65 s. Real `findVerifiedWithin` /
+`findVerifiedWithinForMatching` return exactly the PERSISTED outcomes in
+every COLD DB. DB integrity: 0 duplicate identities, Experience names or
+same-kind hint keys.
+
+**Not observed live** (proof stays deterministic, Stage 4): partial
+composite, AMBIGUOUS/CONFLICTED/provider-failed component, OUTSIDE/
+INTERSECTS/UNDETERMINED relation, Plaza de Mayo relation, Calle Defensa
+ROUTE, POINT_RADIUS, MultiLineString in the planner.
+
+**OPEN FINDING (not fixed).** Experience dedupe (`setOverlap` divides by the
+larger set) scores a single venue vs a 2-stop composite containing it at
+`componentOverlap = 0.5`, the AMBIGUOUS cutoff: whichever persists second
+fails closed. Live: COLD 1 lost a standalone Plaza Dorrego; COLD 4 lost a
+complete, CGV-accepted composite. A 3-stop composite is unaffected
+(cardinality artifact). Pre-existing Gate 1 policy, contradicts the
+amendment's shared-GeoEntity statement; characterized in
+`experience-dedupe.util.spec.ts` ("OPEN FINDING"). Changing it is an
+Experience-identity policy decision, not Stage 5 work.
+
+**THRESHOLD DECISIONS.** NEAR distance: NOT SELECTED — insufficient
+evidence (0 OUTSIDE components live). Partial-resolution ratio: NOT
+SELECTED — insufficient evidence (no partial live). Minimum component
+count: NOT SELECTED — insufficient evidence.
+
+**Milestone completion gate.**
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| Source/composition authority | PASS | Stage 2/4; RW1 composites persisted exactly their source set |
+| Source-support admission blocks unsupported components | PASS | Stage 2 Santa Mónica regression; RW1 every live component SUPPORTED (blocking path NOT EXERCISED LIVE) |
+| Failure classification separates knowledge/system/source defects | PASS | typed deficits + this stage's trace fixes; live: 0 KNOWLEDGE_DEFICIT, provider failures OPERATIONAL |
+| Catalog-first GeoEntity reuse before external re-resolution | PASS | WARM 4/4 CATALOG_REUSE, 0 identity calls; intra-run CATALOG_REUSE in COLD 1 |
+| Bounded/index-backed catalog retrieval | PASS | Stage 3 EXPLAIN (unchanged) |
+| No automatic component → standalone Experience promotion | PASS | Stage 4 Postgres; COLD 1 composite created no Lezama Experience |
+| Provider isolation | PASS | no provider branching added |
+| Typed canonical facts | PASS | new trace facts are typed unions; no metadata bags |
+| Single candidate-correlation owner | PASS | unchanged |
+| Single IdentityVerifier authority | PASS | unchanged; trace only reports its verdicts |
+| Single geographic authority | PASS | unchanged |
+| No LLM-owned geographic truth | PASS | unchanged |
+| No magic thresholds | PASS | none added; dedupe evidence omitted rather than defaulted when absent |
+| Embedding document version/reindex after `required` removal | PASS | document v3, no `required`; all live Experiences indexed at v3 |
+| Semantic similarity ranking-only | PASS | dedupe "semanticSimilarity" is token overlap; no embedding in identity/geography |
+| No provider voting | PASS | convergence = identity equality |
+| No new semantic taxonomy | PASS | none |
+| Partial state cannot reach planner | PASS (deterministic) / NOT EXERCISED LIVE | Stage 4 Postgres + real planner boundaries = PERSISTED outcomes live |
+| Trace explainability, incl. no false NO_OSM_MATCH | PASS | `trace-failure-semantics.spec.ts`; live traces answer every RW1 question |
+| RW1 cold/warm evidence | PASS | spike above |
+| Tests/typecheck/lint executed | PASS | unit 2041/2042, integration 95/98 (baselines), tsc + eslint clean |
+
+**Engineering-principles gate.** Provider isolation PASS; typed boundaries
+PASS; single policy authority PASS (deficit taxonomy owned by
+`component-resolution-facts.util.ts`, summaries derived from it); unknown
+explicit PASS (no invented dedupe signals, unrecognized extractor shape
+reported); migration cutover PASS (no dual path); frontend domain ownership
+PASS (FE renders backend facts, no local policy). No Prisma migration.
+
+**Debt.** Dedupe finding above; low extraction yield on walk evidence;
+failed identity resolutions re-attempted every run; POINT_RADIUS
+ROUTE/AREA relation UNDETERMINED; MultiLineString planner footprint;
+`required` columns; San Martín hardening; `catalog-reuse` flake;
+`representativePoint` first polygon; anchor `nominatim` namespace.
+
+**Stage status:** Stage 5 **DONE**. Milestone **COMPLETE**, with the Experience
+dedupe finding open for a separate policy decision.
 
 ### Cross-cutting product-shape note — simple, composite, and mixed Tour requests (2026-09-23)
 
