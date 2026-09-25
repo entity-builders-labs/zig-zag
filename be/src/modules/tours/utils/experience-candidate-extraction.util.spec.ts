@@ -303,7 +303,37 @@ describe('extractExperienceCandidates', () => {
       8,
     );
     expect(result.candidates).toHaveLength(0);
-    expect(result.validationErrors).toEqual([]);
+    // Stage 5: never repaired, but never silent either -- "the extractor
+    // found nothing" and "its output shape was not understood" must stay
+    // distinguishable in the trace. Only the shape is reported (top-level
+    // keys), never the content.
+    expect(result.validationErrors).toEqual([
+      'extractor_envelope_unrecognized: top-level object keys [foo, unrelated]; no candidates read',
+    ]);
+  });
+
+  it('a well-formed empty envelope is a genuine "no candidates", with no note', () => {
+    for (const raw of [{ candidates: [] as unknown[] }, [] as unknown[]]) {
+      const result = extractExperienceCandidates(
+        raw,
+        [ev('ev-1', 'irrelevant')],
+        8,
+      );
+      expect(result.candidates).toHaveLength(0);
+      expect(result.validationErrors).toEqual([]);
+    }
+  });
+
+  it('reports a non-object extractor response shape instead of reading it as empty', () => {
+    const result = extractExperienceCandidates(
+      'not json-shaped',
+      [ev('ev-1', 'irrelevant')],
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors).toEqual([
+      'extractor_envelope_unrecognized: top-level string; no candidates read',
+    ]);
   });
 
   /**

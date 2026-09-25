@@ -115,7 +115,20 @@ function normalizeExtractorEnvelope(raw: unknown): {
       };
     }
   }
-  return { entries: [], repairNotes: [] };
+  // Not repaired, but never silent: an unreadable shape must not look like
+  // a genuine empty result in the trace. Shape only (keys), never content.
+  const shape =
+    raw && typeof raw === 'object'
+      ? `object keys [${Object.keys(raw).sort().join(', ')}]`
+      : raw === null
+        ? 'null'
+        : typeof raw;
+  return {
+    entries: [],
+    repairNotes: [
+      `extractor_envelope_unrecognized: top-level ${shape}; no candidates read`,
+    ],
+  };
 }
 
 export function extractExperienceCandidates(
