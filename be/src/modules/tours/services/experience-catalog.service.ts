@@ -184,7 +184,18 @@ export interface CatalogGeoEntityCandidate {
   /** Deterministically ordered (createdAt asc) so a caller that needs to
    * pick one persisted identity for provenance does so deterministically. */
   identities: Array<{ provider: string; externalId: string }>;
+  /**
+   * How the row matched the hint: its canonical `name`, or a key in its
+   * verified hint memory (`verifiedHintNameKeys`). A row matching both is
+   * reported once, as CANONICAL_NAME.
+   */
+  matchKind: 'CANONICAL_NAME' | 'VERIFIED_HINT';
 }
+
+export type RememberVerifiedHintNameResult =
+  | 'REMEMBERED'
+  | 'ALREADY_REMEMBERED'
+  | 'EMPTY_KEY';
 
 export interface FindGeoEntityCandidatesForHintResult {
   candidates: CatalogGeoEntityCandidate[];
@@ -1305,18 +1316,29 @@ export class ExperienceCatalogService {
    *  - a GeoEntity with no usable coordinates is fail-closed excluded
    *    (Prisma's `gte`/`lte` range filters never match a NULL column).
    *
-   * Matching policy (deliberately conservative for this checkpoint): among
-   * the bounded, same-kind pool, only strict normalized-name equality
-   * (`countExactNormalizedMatches`'s own definition, the same one the
-   * resolver already uses for its local OSM pool) counts as a candidate.
-   * No fuzzy score, no substring/alias matching, no geographic-nearest-
-   * wins, no provider voting. 0 candidates is a catalog miss; 1 is handed
-   * to IdentityVerifier by the caller; 2+ is ambiguous catalog knowledge —
+   * Matching policy (deliberately conservative): a row of the bounded,
+   * same-kind pool is a candidate when EITHER
+   *  - its canonical `name` equals the hint under strict normalized-name
+   *    equality (`normalizeGeoName`, the same definition the resolver uses
+   *    for its local OSM pool), OR
+   *  - its verified hint memory (`verifiedHintNameKeys`) contains the
+   *    hint's `normalizeGeoName` key -- i.e. this exact hint text already
+   *    resolved VERIFIED to that row once (see `rememberVerifiedHintName`).
+   *    Verified hint memory is not alias inference: a key only exists
+   *    after a verified resolution, never because two strings look alike.
+   *    The lookup is a separate `@>` query so the GIN index on
+   *    `verifiedHintNameKeys` serves it, still bounded by kind + bbox.
+   * No fuzzy score, no substring matching, no geographic-nearest-wins, no
+   * provider voting. Matches from both paths are unioned by GeoEntity id
+   * (multiplicity preserved): 0 candidates is a catalog miss; 1 is handed
+   * to IdentityVerifier by the caller; 2+ is ambiguous catalog knowledge --
    * the caller must not arbitrarily pick a winner.
    */
   async findGeoEntityCandidatesForHint(
     request: FindGeoEntityCandidatesForHintRequest,
   ): Promise<FindGeoEntityCandidatesForHintResult> {
+    const needle = normalizeGeoName(request.hintName);
+    if (!needle) return { candidates: [] };
     const centerRadius = ExperienceCatalogService.centerRadiusFromScope(
       request.scope,
     );
@@ -1325,43 +1347,127 @@ export class ExperienceCatalogService {
     const { latitude, longitude, radiusMeters } = centerRadius;
     const { latDeltaDegrees, lonDeltaDegrees } =
       ExperienceCatalogService.boundingBoxDegreeDeltas(latitude, radiusMeters);
+    const bounds = {
+      minLatitude: latitude - latDeltaDegrees,
+      maxLatitude: latitude + latDeltaDegrees,
+      minLongitude: longitude - lonDeltaDegrees,
+      maxLongitude: longitude + lonDeltaDegrees,
+    };
+    const identities = {
+      select: { provider: true, externalId: true },
+      orderBy: { createdAt: 'asc' as const },
+    };
 
     const rows = await this.prisma.geoEntity.findMany({
       where: {
         kind: request.expectedKind,
-        latitude: {
-          gte: latitude - latDeltaDegrees,
-          lte: latitude + latDeltaDegrees,
-        },
-        longitude: {
-          gte: longitude - lonDeltaDegrees,
-          lte: longitude + lonDeltaDegrees,
-        },
+        latitude: { gte: bounds.minLatitude, lte: bounds.maxLatitude },
+        longitude: { gte: bounds.minLongitude, lte: bounds.maxLongitude },
       },
-      include: {
-        identities: {
-          select: { provider: true, externalId: true },
-          orderBy: { createdAt: 'asc' },
-        },
-      },
+      include: { identities },
     });
+    const canonical = rows.filter(
+      (row) => normalizeGeoName(row.name) === needle,
+    );
 
-    const needle = normalizeGeoName(request.hintName);
-    if (!needle) return { candidates: [] };
-    const matches = rows.filter((row) => normalizeGeoName(row.name) === needle);
+    const verifiedHintIds = (
+      await this.findGeoEntityIdsByVerifiedHintKey(
+        needle,
+        request.expectedKind,
+        bounds,
+      )
+    ).filter((id) => !canonical.some((row) => row.id === id));
+    const verifiedHint =
+      verifiedHintIds.length === 0
+        ? []
+        : await this.prisma.geoEntity.findMany({
+            where: { id: { in: verifiedHintIds } },
+            include: { identities },
+            orderBy: { id: 'asc' },
+          });
 
+    const toCandidate = (
+      row: (typeof rows)[number],
+      matchKind: CatalogGeoEntityCandidate['matchKind'],
+    ): CatalogGeoEntityCandidate => ({
+      geoEntityId: row.id,
+      name: row.name,
+      kind: row.kind,
+      latitude: row.latitude,
+      longitude: row.longitude,
+      geometry: row.geometry,
+      address: row.address,
+      identities: row.identities,
+      matchKind,
+    });
     return {
-      candidates: matches.map((row) => ({
-        geoEntityId: row.id,
-        name: row.name,
-        kind: row.kind,
-        latitude: row.latitude,
-        longitude: row.longitude,
-        geometry: row.geometry,
-        address: row.address,
-        identities: row.identities,
-      })),
+      candidates: [
+        ...canonical.map((row) => toCandidate(row, 'CANONICAL_NAME')),
+        ...verifiedHint.map((row) => toCandidate(row, 'VERIFIED_HINT')),
+      ],
     };
+  }
+
+  /**
+   * The verified-hint half of `findGeoEntityCandidatesForHint`: ids of the
+   * same-kind GeoEntities inside the bounding box whose verified hint
+   * memory contains `key`. `"verifiedHintNameKeys" @> ARRAY[key]` (not
+   * `key = ANY(...)`, which GIN cannot serve) so the
+   * `geo_entity_verifiedHintNameKeys_idx` GIN index drives the lookup;
+   * kind + bbox stay in the same WHERE, so it never widens the bounded
+   * catalog read. Sorted for deterministic multiplicity handling.
+   */
+  private async findGeoEntityIdsByVerifiedHintKey(
+    key: string,
+    kind: GeoEntityKind,
+    bounds: {
+      minLatitude: number;
+      maxLatitude: number;
+      minLongitude: number;
+      maxLongitude: number;
+    },
+  ): Promise<string[]> {
+    const rows = await this.prisma.$queryRaw<Array<{ id: string }>>`
+      SELECT "id" FROM "geo_entity"
+      WHERE "verifiedHintNameKeys" @> ARRAY[${key}]::text[]
+        AND "kind" = ${kind}::"GeoEntityKind"
+        AND "latitude" BETWEEN ${bounds.minLatitude} AND ${bounds.maxLatitude}
+        AND "longitude" BETWEEN ${bounds.minLongitude} AND ${bounds.maxLongitude}
+      ORDER BY "id"`;
+    return rows.map((row) => row.id);
+  }
+
+  /**
+   * Verified hint memory write: remembers that `hintName` (verbatim) just
+   * resolved VERIFIED to GeoEntity `geoEntityId`. Callers invoke it ONLY
+   * after IdentityVerifier accepted an external resolution and the
+   * canonical GeoEntity exists -- never during acquisition, never for a
+   * rejected/ambiguous/unconfirmed/failed hint, never from string
+   * similarity. This is recorded resolution history, not an alias engine.
+   *
+   * One atomic, idempotent UPDATE appends the verbatim text and its
+   * `normalizeGeoName` key together (the two arrays stay positionally
+   * aligned; a DB CHECK enforces equal cardinality) only when the key is
+   * not already present. Under concurrent writers of the same key the
+   * row lock serializes the UPDATEs and PostgreSQL re-evaluates the
+   * `NOT @>` predicate against the committed row (READ COMMITTED
+   * EvalPlanQual), so the loser matches 0 rows: no lost update, no
+   * duplicate key. No read-modify-write in application code.
+   */
+  async rememberVerifiedHintName(
+    geoEntityId: string,
+    hintName: string,
+  ): Promise<RememberVerifiedHintNameResult> {
+    const key = normalizeGeoName(hintName);
+    if (!key) return 'EMPTY_KEY';
+    const updated = await this.prisma.$executeRaw`
+      UPDATE "geo_entity"
+      SET "verifiedHintNames" = array_append("verifiedHintNames", ${hintName}),
+          "verifiedHintNameKeys" = array_append("verifiedHintNameKeys", ${key}),
+          "updatedAt" = NOW()
+      WHERE "id" = ${geoEntityId}
+        AND NOT ("verifiedHintNameKeys" @> ARRAY[${key}]::text[])`;
+    return updated > 0 ? 'REMEMBERED' : 'ALREADY_REMEMBERED';
   }
 
   private normalizeGeoEntityName(value: string): string {

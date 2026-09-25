@@ -7325,6 +7325,7 @@ describe('ExperienceProposalResolverService', () => {
               identities: [
                 { provider: match.provider, externalId: match.externalId },
               ],
+              matchKind: 'CANONICAL_NAME',
             },
           ],
         };

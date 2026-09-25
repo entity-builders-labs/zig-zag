@@ -13,21 +13,34 @@ datasource db {
 // Experience identity: a provider identity belongs to a GeoEntity, while an
 // Experience describes what a traveller can do with one or more entities.
 model GeoEntity {
-  id         String                @id @default(uuid())
-  name       String
-  kind       GeoEntityKind
-  latitude   Float?
-  longitude  Float?
-  geometry   Json?
-  address    String?
-  metadata   Json?
-  identities GeoEntityIdentity[]
-  components ExperienceComponent[]
-  createdAt  DateTime              @default(now())
-  updatedAt  DateTime              @updatedAt
+  id                   String                @id @default(uuid())
+  name                 String
+  kind                 GeoEntityKind
+  latitude             Float?
+  longitude            Float?
+  geometry             Json?
+  address              String?
+  metadata             Json?
+  /// Verified hint memory (NOT an alias engine): the exact component-hint
+  /// texts that previously resolved VERIFIED to THIS GeoEntity through
+  /// external acquisition, stored verbatim. Never inferred from string
+  /// similarity, never globally unique (the same text may be remembered on
+  /// several GeoEntities; lookups keep that multiplicity). `name` stays the
+  /// canonical, provider-backed display name.
+  verifiedHintNames    String[]              @default([])
+  /// `normalizeGeoName(verifiedHintNames[i])` -- positionally aligned with
+  /// `verifiedHintNames` (a DB CHECK enforces equal cardinality) and
+  /// deduplicated by key. The GIN index serves the `@>` lookup in
+  /// `ExperienceCatalogService.findGeoEntityCandidatesForHint`.
+  verifiedHintNameKeys String[]              @default([])
+  identities           GeoEntityIdentity[]
+  components           ExperienceComponent[]
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
   @@index([kind])
   @@index([latitude, longitude])
+  @@index([verifiedHintNameKeys], type: Gin)
   @@map("geo_entity")
 }
 
@@ -401,8 +414,8 @@ model WebPushSubscription {
   auth       String
   enabled    Boolean  @default(true)
   lastSeenAt DateTime @default(now())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

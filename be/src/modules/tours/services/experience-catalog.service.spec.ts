@@ -1511,7 +1511,13 @@ describe('ExperienceCatalogService.findGeoEntityCandidatesForHint (Stage 3)', ()
 
   function prismaWithRows(rows: unknown[]) {
     const findMany = jest.fn().mockResolvedValue(rows);
-    return { prisma: { geoEntity: { findMany } } as any, findMany };
+    // No verified hint memory in these canonical-name cases.
+    const $queryRaw = jest.fn().mockResolvedValue([]);
+    return {
+      prisma: { geoEntity: { findMany }, $queryRaw } as any,
+      findMany,
+      $queryRaw,
+    };
   }
 
   it('issues one bounded, kind-filtered, index-backed query for a POINT_RADIUS scope — never an unbounded table scan', async () => {
@@ -1817,7 +1823,10 @@ describe('ExperienceCatalogService — Solar de French warm-reuse (Stage 3)', ()
       },
     ]);
     const service = new ExperienceCatalogService(
-      { geoEntity: { findMany } } as any,
+      {
+        geoEntity: { findMany },
+        $queryRaw: jest.fn().mockResolvedValue([]),
+      } as any,
       {} as any,
     );
 
@@ -1871,7 +1880,10 @@ describe('ExperienceCatalogService — Solar de French warm-reuse (Stage 3)', ()
       },
     ]);
     const service = new ExperienceCatalogService(
-      { geoEntity: { findMany } } as any,
+      {
+        geoEntity: { findMany },
+        $queryRaw: jest.fn().mockResolvedValue([]),
+      } as any,
       {} as any,
     );
 
@@ -1882,5 +1894,239 @@ describe('ExperienceCatalogService — Solar de French warm-reuse (Stage 3)', ()
     });
 
     expect(result.candidates).toHaveLength(2);
+  });
+});
+
+/**
+ * Verified hint memory (Stage 3): `verifiedHintNameKeys` holds the
+ * `normalizeGeoName` keys of hint texts that previously resolved VERIFIED
+ * to a GeoEntity. The catalog read unions canonical-name and verified-hint
+ * matches by id (multiplicity kept); the write is one atomic, idempotent
+ * UPDATE. Real-Postgres behavior (GIN usage, concurrency, CHECK) lives in
+ * test/integration/tour-generation/verified-hint-memory.integration-spec.ts.
+ */
+describe('ExperienceCatalogService — verified hint memory', () => {
+  const scope: GeographicScope = {
+    kind: 'POINT_RADIUS',
+    latitude: -34.61,
+    longitude: -58.372,
+    radiusMeters: 5_000,
+  };
+  const row = (id: string, name: string) => ({
+    id,
+    name,
+    kind: GeoEntityKind.PLACE,
+    latitude: -34.6102605,
+    longitude: -58.3721513,
+    geometry: null as unknown,
+    address: null as string | null,
+    identities: [{ provider: 'openstreetmap', externalId: `osm:node:${id}` }],
+  });
+  const sqlOf = (mock: jest.Mock) =>
+    (mock.mock.calls[0][0] as TemplateStringsArray).join('?');
+
+  function build(options: {
+    bboxRows: unknown[];
+    verifiedHintIds: string[];
+    verifiedHintRows?: unknown[];
+  }) {
+    const findMany = jest
+      .fn()
+      .mockResolvedValueOnce(options.bboxRows)
+      .mockResolvedValueOnce(options.verifiedHintRows ?? []);
+    const $queryRaw = jest
+      .fn()
+      .mockResolvedValue(options.verifiedHintIds.map((id) => ({ id })));
+    const service = new ExperienceCatalogService(
+      { geoEntity: { findMany }, $queryRaw } as any,
+      {} as any,
+    );
+    return { service, findMany, $queryRaw };
+  }
+
+  it('finds a GeoEntity whose canonical name differs from the hint through its remembered key (matchKind VERIFIED_HINT)', async () => {
+    const farmacia = row('geo-farmacia', 'Farmacia de la Estrella');
+    const { service, findMany, $queryRaw } = build({
+      bboxRows: [farmacia],
+      verifiedHintIds: ['geo-farmacia'],
+      verifiedHintRows: [farmacia],
+    });
+
+    const result = await service.findGeoEntityCandidatesForHint({
+      hintName: 'Farmacia la Estrella',
+      expectedKind: GeoEntityKind.PLACE,
+      scope,
+    });
+
+    expect(result.candidates).toEqual([
+      expect.objectContaining({
+        geoEntityId: 'geo-farmacia',
+        name: 'Farmacia de la Estrella',
+        matchKind: 'VERIFIED_HINT',
+      }),
+    ]);
+    // The verified-hint read is its own GIN-servable `@>` query, bounded
+    // by the same kind + bbox, keyed by the canonical normalization.
+    const sql = sqlOf($queryRaw);
+    expect(sql).toContain('"verifiedHintNameKeys" @> ARRAY[?]::text[]');
+    expect(sql).toContain('"kind" = ?::"GeoEntityKind"');
+    expect(sql).toContain('"latitude" BETWEEN ? AND ?');
+    expect(sql).toContain('"longitude" BETWEEN ? AND ?');
+    expect(sql).not.toContain('ANY(');
+    const [, key, kind, minLat, maxLat, minLon, maxLon] =
+      $queryRaw.mock.calls[0];
+    expect(key).toBe('farmacia la estrella');
+    expect(kind).toBe(GeoEntityKind.PLACE);
+    expect(minLat).toBeLessThan(scope.latitude as number);
+    expect(maxLat).toBeGreaterThan(scope.latitude as number);
+    expect(minLon).toBeLessThan(scope.longitude as number);
+    expect(maxLon).toBeGreaterThan(scope.longitude as number);
+    // Only the matched ids are hydrated -- never the whole pool again.
+    expect(findMany.mock.calls[1][0].where).toEqual({
+      id: { in: ['geo-farmacia'] },
+    });
+  });
+
+  it('reports a row matching both by canonical name and by remembered key once, as CANONICAL_NAME', async () => {
+    const casa = row('geo-casa', 'Casa Mínima');
+    const { service, findMany } = build({
+      bboxRows: [casa],
+      verifiedHintIds: ['geo-casa'],
+    });
+
+    const result = await service.findGeoEntityCandidatesForHint({
+      hintName: 'Casa Minima',
+      expectedKind: GeoEntityKind.PLACE,
+      scope,
+    });
+
+    expect(result.candidates.map((c) => [c.geoEntityId, c.matchKind])).toEqual([
+      ['geo-casa', 'CANONICAL_NAME'],
+    ]);
+    expect(findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps multiplicity: the same remembered key on two in-scope GeoEntities returns BOTH (no first-wins)', async () => {
+    const a = row('geo-sj-a', 'Parroquia San José');
+    const b = row('geo-sj-b', 'Colegio San José');
+    const { service } = build({
+      bboxRows: [a, b],
+      verifiedHintIds: ['geo-sj-a', 'geo-sj-b'],
+      verifiedHintRows: [a, b],
+    });
+
+    const result = await service.findGeoEntityCandidatesForHint({
+      hintName: 'San José',
+      expectedKind: GeoEntityKind.PLACE,
+      scope,
+    });
+
+    expect(result.candidates.map((c) => c.geoEntityId)).toEqual([
+      'geo-sj-a',
+      'geo-sj-b',
+    ]);
+    expect(
+      result.candidates.every((c) => c.matchKind === 'VERIFIED_HINT'),
+    ).toBe(true);
+  });
+
+  it('never queries for a hint whose normalized key is empty', async () => {
+    const { service, findMany, $queryRaw } = build({
+      bboxRows: [],
+      verifiedHintIds: [],
+    });
+
+    const result = await service.findGeoEntityCandidatesForHint({
+      hintName: ' — ',
+      expectedKind: GeoEntityKind.PLACE,
+      scope,
+    });
+
+    expect(result.candidates).toEqual([]);
+    expect(findMany).not.toHaveBeenCalled();
+    expect($queryRaw).not.toHaveBeenCalled();
+  });
+
+  describe('rememberVerifiedHintName', () => {
+    function withExecuteRaw(affected: number) {
+      const $executeRaw = jest.fn().mockResolvedValue(affected);
+      return {
+        service: new ExperienceCatalogService(
+          { $executeRaw } as any,
+          {} as any,
+        ),
+        $executeRaw,
+      };
+    }
+
+    it('appends the verbatim text and its canonical key in ONE conditional UPDATE (atomic, idempotent)', async () => {
+      const { service, $executeRaw } = withExecuteRaw(1);
+
+      await expect(
+        service.rememberVerifiedHintName(
+          'geo-farmacia',
+          'Farmacia la Estrella',
+        ),
+      ).resolves.toBe('REMEMBERED');
+
+      expect($executeRaw).toHaveBeenCalledTimes(1);
+      const sql = sqlOf($executeRaw);
+      expect(sql).toContain(
+        '"verifiedHintNames" = array_append("verifiedHintNames", ?)',
+      );
+      expect(sql).toContain(
+        '"verifiedHintNameKeys" = array_append("verifiedHintNameKeys", ?)',
+      );
+      expect(sql).toContain('NOT ("verifiedHintNameKeys" @> ARRAY[?]::text[])');
+      const [, name, key, id, guardKey] = $executeRaw.mock.calls[0];
+      expect([name, key, id, guardKey]).toEqual([
+        'Farmacia la Estrella',
+        'farmacia la estrella',
+        'geo-farmacia',
+        'farmacia la estrella',
+      ]);
+    });
+
+    it('reports ALREADY_REMEMBERED when the key was already present (0 rows updated)', async () => {
+      const { service } = withExecuteRaw(0);
+
+      await expect(
+        service.rememberVerifiedHintName(
+          'geo-farmacia',
+          'Farmacia la Estrella',
+        ),
+      ).resolves.toBe('ALREADY_REMEMBERED');
+    });
+
+    it('writes nothing for a hint with an empty normalized key', async () => {
+      const { service, $executeRaw } = withExecuteRaw(1);
+
+      await expect(
+        service.rememberVerifiedHintName('geo-x', '¡¿ !?'),
+      ).resolves.toBe('EMPTY_KEY');
+      expect($executeRaw).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['case', 'RECOLETA Cemetery', 'recoleta cemetery'],
+      ['accents', 'El Zanjón de Granados', 'el zanjon de granados'],
+      ['whitespace', '  Mafalda   Statue ', 'mafalda statue'],
+      [
+        'punctuation',
+        'Mafalda, Susanita y Manolito',
+        'mafalda susanita y manolito',
+      ],
+    ])(
+      'keys with the existing normalizeGeoName semantics (%s), keeping the original text verbatim',
+      async (_label, hint, expectedKey) => {
+        const { service, $executeRaw } = withExecuteRaw(1);
+
+        await service.rememberVerifiedHintName('geo-x', hint);
+
+        const [, name, key] = $executeRaw.mock.calls[0];
+        expect(name).toBe(hint);
+        expect(key).toBe(expectedKey);
+      },
+    );
   });
 });

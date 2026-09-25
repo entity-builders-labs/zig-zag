@@ -30,9 +30,13 @@ Physical reality only — never itself schedulable. `kind` is one of `PLACE | AR
 | `geometry`            | Json?           | Canonical geometry (polygon/route), when resolved         |
 | `address`             | String?         |                                                            |
 | `metadata`            | Json?           |                                                            |
+| `verifiedHintNames`   | String[]        | Verified hint memory: exact component-hint texts that previously resolved VERIFIED to this entity (verbatim) |
+| `verifiedHintNameKeys`| String[]        | `normalizeGeoName()` of each, positionally aligned (DB `CHECK` on equal cardinality), deduplicated by key |
 | `identities`          | → `GeoEntityIdentity[]` | Provider identities (see below)                    |
 
-**Indexes**: `(kind)`, `(latitude, longitude)`
+**Indexes**: `(kind)`, `(latitude, longitude)`, GIN `(verifiedHintNameKeys)`, plus the raw-SQL PostGIS GiST location index.
+
+**Verified hint memory is not an alias engine.** A key is appended (one atomic, idempotent `UPDATE`, `ExperienceCatalogService.rememberVerifiedHintName`) only after IdentityVerifier accepted an external resolution of that exact hint to this entity; never from string similarity, never backfilled. It is not globally unique — the same key may live on several GeoEntities, and the catalog-first lookup (`findGeoEntityCandidatesForHint`, `"verifiedHintNameKeys" @> ARRAY[key]` within kind + bbox) keeps that multiplicity (2+ → ambiguous, no winner). `name` stays the canonical display name.
 
 ### `GeoEntityIdentity` (table: `geo_entity_identity`)
 

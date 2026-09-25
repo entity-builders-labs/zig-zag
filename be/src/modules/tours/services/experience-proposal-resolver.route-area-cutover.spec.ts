@@ -420,6 +420,7 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
 
     const catalogDefensa = {
       geoEntityId: 'geo-defensa',
+      matchKind: 'CANONICAL_NAME' as const,
       name: 'Defensa',
       kind: GeoEntityKind.ROUTE,
       latitude: -34.626,
