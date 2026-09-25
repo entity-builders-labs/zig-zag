@@ -235,7 +235,9 @@ describe('buildCompositeComponentResolution (Stage 4)', () => {
     ).toEqual([
       ['plaza-de-mayo', 1, 'RESOLVED', 'OUTSIDE', null],
       ['calle-defensa', 2, 'RESOLVED', 'INTERSECTS', null],
-      ['pasaje-san-lorenzo', 3, 'UNRESOLVED', null, 'CANDIDATE_UNCONFIRMED'],
+      // Stage 5: the fixture's only verdict is REJECTED (contradicted), now
+      // distinct from a not-corroborated CANDIDATE_UNCONFIRMED.
+      ['pasaje-san-lorenzo', 3, 'UNRESOLVED', null, 'CANDIDATE_REJECTED'],
       ['el-zanjon', 4, 'RESOLVED', 'INSIDE', null],
     ]);
     expect(result.components[2].deficit?.classification).toBe(

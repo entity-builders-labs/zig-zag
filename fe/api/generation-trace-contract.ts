@@ -167,14 +167,85 @@ export interface TraceEntityResolutionHint extends TraceComponentHint {
   };
   reason?: string;
   attempts?: TraceEntityResolutionAttempt[];
+  /** Canonical geometry + relation to the request scope; RESOLVED only. */
+  geography?: TraceComponentGeography;
+  /** Why no canonical object exists; non-RESOLVED only. */
+  deficit?: TraceComponentDeficit;
+}
+
+export interface TraceComponentGeography {
+  geoEntityId?: string;
+  geoEntityKind?: "PLACE" | "AREA" | "ROUTE";
+  canonicalGeometry: "POINT" | "LINE" | "POLYGON" | "NONE";
+  geographicRelation: "INSIDE" | "INTERSECTS" | "OUTSIDE" | "UNDETERMINED";
+  distanceToBoundaryMeters?: number;
+}
+
+export interface TraceComponentDeficit {
+  reason:
+    | "NO_CANDIDATE_ACQUIRED"
+    | "CANDIDATE_UNCONFIRMED"
+    | "CANDIDATE_REJECTED"
+    | "AMBIGUOUS_CANDIDATES"
+    | "IDENTITY_CONFLICT"
+    | "PROVIDER_FAILURE"
+    | "DESTINATION_INCOMPATIBLE"
+    | "DESTINATION_COMPATIBILITY_UNKNOWN";
+  classification:
+    | "KNOWLEDGE_DEFICIT"
+    | "OPERATIONAL_FAILURE"
+    | "PENDING_CLASSIFICATION";
+}
+
+/** Observability of a source composition; never an acceptance threshold. */
+export interface TraceCompositeCoverage {
+  totalComponents: number;
+  identityResolvedComponents: number;
+  geographicallyAcceptedComponents: number;
+  unresolvedComponents: number;
+  ambiguousComponents: number;
+  conflictedComponents: number;
+  resolutionRatio: number;
+  openResearchDeficits: string[];
+  sourceCompositionComplete: boolean;
 }
 
 export interface TraceEntityResolutionDecision {
   candidateTraceKey: string;
   candidateName: string;
   hints: TraceEntityResolutionHint[];
+  coverage?: TraceCompositeCoverage;
   accepted: boolean;
   rejectionReasons: string[];
+}
+
+/** Why one source composite did or did not reach the planner. */
+export interface TraceCompositeOutcome {
+  coverage?: TraceCompositeCoverage;
+  geographicDecision:
+    | {
+        status: "NOT_EVALUATED";
+        reason: "INCOMPLETE_SOURCE_COMPOSITION" | "NO_VALIDATION_RESULT";
+      }
+    | { status: "ACCEPTED"; strategy?: string }
+    | { status: "REJECTED"; reasons: string[] };
+  persistence:
+    | {
+        status: "PERSISTED";
+        experienceId: string;
+        dedupeDecision?: "SAME" | "NEW" | "AMBIGUOUS";
+      }
+    | { status: "NOT_PERSISTED"; reasons: string[] };
+  plannerEligible: boolean;
+}
+
+export interface TraceMaterializationDecision {
+  candidateTraceKey: string;
+  candidateName: string;
+  accepted: boolean;
+  rejectionReasons: string[];
+  experienceId?: string;
+  compositeOutcome?: TraceCompositeOutcome;
 }
 
 export interface TraceGeographicComponent {
@@ -214,6 +285,7 @@ export interface GenerationTraceStep {
   timing?: { startedAt?: string; durationMs?: number };
   entityResolutionAudit?: TraceEntityResolutionDecision[];
   geographicValidationAudit?: TraceGeographicValidationDecision[];
+  materializationAudit?: TraceMaterializationDecision[];
   candidates?: TraceCandidate[];
   providerStatus?: "success" | "failed";
   degradedReason?: string;

@@ -1258,12 +1258,16 @@ export class ExperienceProposalResolverService
       }
 
       const lookup = await getPoiLookup();
+      // A strategy whose provider could not run leaves "nothing found"
+      // unproven: that is a provider failure, not an empty match.
       const reason =
         lookup.status === 'failed'
           ? 'OSM_PROVIDER_FAILED'
-          : lookup.value.length === 0
-            ? 'OSM_QUERY_EMPTY'
-            : 'NO_OSM_MATCH';
+          : attempts.some((attempt) => attempt.executionStatus === 'failed')
+            ? 'PROVIDER_FAILURE'
+            : lookup.value.length === 0
+              ? 'OSM_QUERY_EMPTY'
+              : 'NO_OSM_MATCH';
       entities.push({
         hintKey: hint.key,
         hintName: hint.name,
@@ -1309,26 +1313,19 @@ export class ExperienceProposalResolverService
           status: 'rejected' as const,
           resolvedEntities: entities,
           destinationAssociationVerified,
-          rejectionReasons: [
+          // Nothing resolved: the candidate's reasons are every component's
+          // own distinct final reason, in source order. A single summary
+          // reason used to mask the others (an acquired-but-unconfirmed,
+          // ambiguous, conflicted or provider-failed component collapsed
+          // into NO_OSM_MATCH -- amendment §13).
+          rejectionReasons:
             resolvedEntities.length === 0
-              ? entities.some(
-                  (entity) => entity.reason === 'OSM_PROVIDER_FAILED',
-                )
-                ? 'OSM_PROVIDER_FAILED'
-                : entities.some((entity) => entity.reason === 'OSM_QUERY_EMPTY')
-                  ? 'OSM_QUERY_EMPTY'
-                  : // A real candidate was acquired for at least one
-                    // component and then rejected by identity verification --
-                    // materially different from "nothing was ever found",
-                    // and must not collapse into the same NO_OSM_MATCH
-                    // summary as a genuine empty search (amendment §13).
-                    entities.some(
-                        (entity) => entity.reason === 'UNCONFIRMED_MATCH',
-                      )
-                    ? 'UNCONFIRMED_MATCH'
-                    : 'NO_OSM_MATCH'
-              : 'INCOMPLETE_SOURCE_COMPOSITION',
-          ],
+              ? [
+                  ...new Set(
+                    entities.map((entity) => entity.reason ?? 'NO_OSM_MATCH'),
+                  ),
+                ]
+              : ['INCOMPLETE_SOURCE_COMPOSITION'],
         },
         audit: {
           candidateTraceKey: traceCandidateKey(candidate),

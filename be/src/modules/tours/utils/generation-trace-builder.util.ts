@@ -13,14 +13,19 @@ import {
   TraceComponentHint,
   TraceEvidenceReference,
   TraceAcquisitionContext,
+  TraceCompositeOutcome,
 } from '../interfaces/generation-trace.interface';
 import {
   TourCompletenessIssue,
   TourCompletenessResult,
 } from '../interfaces/tour-completeness.interface';
 import {
+  ComponentResolutionFact,
+  CompositeComponentResolution,
+  ExperienceGeographicValidationResult,
   ExperienceResolutionResponse,
   FinalExperienceResolutionResponse,
+  ResolvedExperienceCandidate,
 } from '../interfaces/experience-resolution.interface';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
@@ -1408,7 +1413,8 @@ export function buildEntityResolutionStep(
   );
   const rejectedSummaries = rejected.map(
     (entry) =>
-      `${entry.candidate.name}: ${entry.rejectionReasons.join(', ') || 'sin motivo registrado'}`,
+      `${entry.candidate.name}: ${entry.rejectionReasons.join(', ') || 'sin motivo registrado'}` +
+      describeComponentResolution(entry.componentResolution),
   );
   return {
     stage: 'entity_resolution',
@@ -1486,8 +1492,10 @@ export function buildEntityResolutionStep(
           : ('REJECTED' as const),
       reason:
         entry.status === 'accepted'
-          ? `${entry.resolvedEntities.filter((entity) => entity.status === 'resolved').length} entidad(es) provider-backed resueltas; pendiente validación geográfica.`
-          : entry.rejectionReasons.join(', '),
+          ? `${entry.resolvedEntities.filter((entity) => entity.status === 'resolved').length} entidad(es) provider-backed resueltas; pendiente validación geográfica.` +
+            describeComponentResolution(entry.componentResolution)
+          : entry.rejectionReasons.join(', ') +
+            describeComponentResolution(entry.componentResolution),
       reasonCodes:
         entry.status === 'accepted'
           ? ['ENTITY_RESOLUTION_READY']
@@ -1726,7 +1734,28 @@ export function buildCatalogMaterializationStep(
   const persistedExperienceIds = materialized.map(
     (entry) => entry.experienceId as string,
   );
-  const materializationAudit = finalResolved.map((entry) => ({
+  const validationByTraceKey = new Map<
+    string,
+    ExperienceGeographicValidationResult
+  >();
+  // validateBatch()'s results and `resolved` are positionally aligned (see
+  // buildGeographicValidationStep); names are never identity.
+  (result.geographicValidation?.results ?? []).forEach((validation, index) => {
+    const validated = result.geographicValidation?.resolved?.[index];
+    if (validated) {
+      validationByTraceKey.set(
+        traceCandidateKey(validated.candidate),
+        validation,
+      );
+    }
+  });
+  const compositeOutcomes = finalResolved.map((entry) =>
+    buildCompositeOutcome(
+      entry,
+      validationByTraceKey.get(traceCandidateKey(entry.candidate)),
+    ),
+  );
+  const materializationAudit = finalResolved.map((entry, index) => ({
     candidateTraceKey: traceCandidateKey(entry.candidate),
     candidateName: entry.candidate.name,
     accepted: entry.status === 'accepted' && Boolean(entry.experienceId),
@@ -1738,7 +1767,11 @@ export function buildCatalogMaterializationStep(
           (entity) => entity.status === 'resolved' && entity.geoEntityId,
         ).length
       : undefined,
+    compositeOutcome: compositeOutcomes[index],
   }));
+  const outcomeSummaries = finalResolved.map((entry, index) =>
+    describeCompositeOutcome(entry.candidate.name, compositeOutcomes[index]),
+  );
 
   return {
     stage: 'catalog_materialization',
@@ -1749,7 +1782,8 @@ export function buildCatalogMaterializationStep(
     summary:
       `${materialized.length} propuesta(s) geográficamente verificadas quedaron materializadas ` +
       `como Experiences verificadas; ${rejected.length} no produjeron Experience persistida. ` +
-      `La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.`,
+      `La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.` +
+      (outcomeSummaries.length ? ` ${outcomeSummaries.join('; ')}.` : ''),
     inputs: {
       geoVerifiedCount:
         result.geographicValidation?.acceptedCount ?? materialized.length,
@@ -1812,6 +1846,97 @@ export function buildCatalogMaterializationStep(
     materializationAudit,
     classificationAudit: result.classification,
   };
+}
+
+/**
+ * `A=RESOLVED/INSIDE, C=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)`:
+ * every source component by name with its typed identity outcome, and the
+ * relation (resolved) or deficit (not resolved). Bounded: one short token
+ * per component, no geometry, no provider payload.
+ */
+export function describeComponentFact(fact: ComponentResolutionFact): string {
+  if (fact.resolved) {
+    const distance =
+      fact.resolved.distanceToBoundaryMeters !== undefined
+        ? ` ${Math.round(fact.resolved.distanceToBoundaryMeters)}m`
+        : '';
+    return `${fact.hintName}=${fact.identityStatus}/${fact.resolved.geographicRelation}${distance}`;
+  }
+  return fact.deficit
+    ? `${fact.hintName}=${fact.identityStatus}/${fact.deficit.reason}(${fact.deficit.classification})`
+    : `${fact.hintName}=${fact.identityStatus}`;
+}
+
+function describeComponentResolution(
+  resolution: CompositeComponentResolution | undefined,
+): string {
+  if (!resolution?.components.length) return '';
+  const { coverage } = resolution;
+  return (
+    ` [resueltos ${coverage.identityResolvedComponents}/${coverage.totalComponents}: ` +
+    `${resolution.components.map(describeComponentFact).join(', ')}]`
+  );
+}
+
+/**
+ * Joins what each owner already decided for one candidate: component
+ * coverage, the CompositeGeographicValidation verdict (only a complete
+ * source composition is ever validated), and the catalog write.
+ */
+function buildCompositeOutcome(
+  entry: ResolvedExperienceCandidate,
+  validation: ExperienceGeographicValidationResult | undefined,
+): TraceCompositeOutcome {
+  const coverage = entry.componentResolution?.coverage;
+  const complete = coverage?.sourceCompositionComplete ?? false;
+  const geographicDecision: TraceCompositeOutcome['geographicDecision'] =
+    !complete
+      ? { status: 'NOT_EVALUATED', reason: 'INCOMPLETE_SOURCE_COMPOSITION' }
+      : !validation
+        ? { status: 'NOT_EVALUATED', reason: 'NO_VALIDATION_RESULT' }
+        : validation.accepted
+          ? {
+              status: 'ACCEPTED',
+              ...(validation.strategy ? { strategy: validation.strategy } : {}),
+            }
+          : { status: 'REJECTED', reasons: [...validation.rejectionReasons] };
+  const persisted = entry.status === 'accepted' && Boolean(entry.experienceId);
+  return {
+    ...(coverage ? { coverage } : {}),
+    geographicDecision,
+    persistence: persisted
+      ? {
+          status: 'PERSISTED',
+          experienceId: entry.experienceId as string,
+          ...(entry.dedupeDecision
+            ? { dedupeDecision: entry.dedupeDecision }
+            : {}),
+        }
+      : { status: 'NOT_PERSISTED', reasons: [...entry.rejectionReasons] },
+    plannerEligible: persisted,
+  };
+}
+
+function describeCompositeOutcome(
+  name: string,
+  outcome: TraceCompositeOutcome,
+): string {
+  const coverage = outcome.coverage;
+  const counts = coverage
+    ? `${coverage.identityResolvedComponents}/${coverage.totalComponents} componentes resueltos, composición ${coverage.sourceCompositionComplete ? 'completa' : 'incompleta'}`
+    : 'sin cobertura registrada';
+  const geography =
+    outcome.geographicDecision.status === 'NOT_EVALUATED'
+      ? 'no evaluada geográficamente'
+      : outcome.geographicDecision.status === 'ACCEPTED'
+        ? 'geografía ACCEPTED'
+        : `geografía REJECTED (${outcome.geographicDecision.reasons.join(', ')})`;
+  const persistence =
+    outcome.persistence.status === 'PERSISTED' ? 'persistida' : 'no persistida';
+  const planner = outcome.plannerEligible
+    ? 'elegible para planner'
+    : 'no elegible para planner';
+  return `${name}: ${counts} → ${geography}, ${persistence}, ${planner}`;
 }
 
 export function buildCandidatePoolStep(params: {

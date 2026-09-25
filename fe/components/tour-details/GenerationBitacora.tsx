@@ -47,6 +47,7 @@ import type {
   TraceEntityResolutionDecision,
   TraceGeographicComponent,
   TraceGeographicValidationDecision,
+  TraceMaterializationDecision,
   TraceRuleEvaluation,
 } from "@/api/generation-trace-contract";
 
@@ -867,6 +868,71 @@ function GeographicAuditPanel({
   );
 }
 
+function coverageLabel(
+  coverage: NonNullable<TraceEntityResolutionDecision["coverage"]>,
+): string {
+  return (
+    `resolved ${coverage.identityResolvedComponents}/${coverage.totalComponents}` +
+    ` · geo-accepted ${coverage.geographicallyAcceptedComponents}` +
+    ` · ambiguous ${coverage.ambiguousComponents}` +
+    ` · conflicted ${coverage.conflictedComponents}` +
+    ` · composition ${coverage.sourceCompositionComplete ? "complete" : "incomplete"}` +
+    (coverage.openResearchDeficits.length
+      ? ` · research: ${coverage.openResearchDeficits.join(", ")}`
+      : "")
+  );
+}
+
+function CompositeOutcomePanel({
+  decisions,
+}: {
+  decisions: TraceMaterializationDecision[];
+}) {
+  return (
+    <Panel title="Resultado por composite" icon={Layers}>
+      <VStack>
+        {decisions.map((decision, idx) => {
+          const outcome = decision.compositeOutcome;
+          if (!outcome) return null;
+          const geography =
+            outcome.geographicDecision.status === "NOT_EVALUATED"
+              ? `geography NOT_EVALUATED (${outcome.geographicDecision.reason})`
+              : outcome.geographicDecision.status === "ACCEPTED"
+                ? `geography ACCEPTED${outcome.geographicDecision.strategy ? ` (${outcome.geographicDecision.strategy})` : ""}`
+                : `geography REJECTED (${outcome.geographicDecision.reasons.join(", ")})`;
+          const persistence =
+            outcome.persistence.status === "PERSISTED"
+              ? `PERSISTED ${outcome.persistence.experienceId}`
+              : `NOT_PERSISTED (${outcome.persistence.reasons.join(", ")})`;
+          return (
+            <Box key={`${decision.candidateTraceKey}-${idx}`} mb="$2">
+              <Text size="xs" fontWeight="$bold" color={COLORS.text}>
+                {decision.candidateName}
+              </Text>
+              {outcome.coverage ? (
+                <Text size="2xs" color={COLORS.textMuted}>
+                  {coverageLabel(outcome.coverage)}
+                </Text>
+              ) : null}
+              <Text size="2xs" color={COLORS.textMuted}>
+                {geography} · {persistence}
+              </Text>
+              <Text
+                size="2xs"
+                color={outcome.plannerEligible ? COLORS.green : COLORS.red}
+              >
+                {outcome.plannerEligible
+                  ? "planner-eligible"
+                  : "not planner-eligible"}
+              </Text>
+            </Box>
+          );
+        })}
+      </VStack>
+    </Panel>
+  );
+}
+
 function EntityResolutionAuditPanel({
   decisions,
 }: {
@@ -884,11 +950,16 @@ function EntityResolutionAuditPanel({
               size="2xs"
               color={decision.accepted ? COLORS.green : COLORS.red}
             >
-              {decision.accepted ? "ACCEPTED" : "UNRESOLVED"}
+              {decision.accepted ? "ACCEPTED" : "REJECTED"}
               {decision.rejectionReasons.length
                 ? ` · ${decision.rejectionReasons.join(", ")}`
                 : ""}
             </Text>
+            {decision.coverage ? (
+              <Text size="2xs" color={COLORS.textMuted}>
+                {coverageLabel(decision.coverage)}
+              </Text>
+            ) : null}
             {decision.hints.map((hint) => (
               <Box
                 key={hint.key}
@@ -1007,6 +1078,22 @@ function EntityResolutionAuditPanel({
                   final: {hint.status}
                   {hint.reason ? ` · ${hint.reason}` : ""}
                 </Text>
+                {hint.geography ? (
+                  <Text size="2xs" color={COLORS.textMuted} mt="$1">
+                    geography: {hint.geography.geographicRelation} ·{" "}
+                    {hint.geography.geoEntityKind ?? "UNKNOWN"}/
+                    {hint.geography.canonicalGeometry}
+                    {hint.geography.distanceToBoundaryMeters !== undefined
+                      ? ` · ${Math.round(hint.geography.distanceToBoundaryMeters)}m to boundary`
+                      : ""}
+                  </Text>
+                ) : null}
+                {hint.deficit ? (
+                  <Text size="2xs" color={COLORS.textMuted} mt="$1">
+                    deficit: {hint.deficit.reason} ·{" "}
+                    {hint.deficit.classification}
+                  </Text>
+                ) : null}
                 {hint.resolvedGeoEntity ? (
                   <Text size="2xs" color={COLORS.green} mt="$1">
                     geoEntityId=
@@ -1175,6 +1262,13 @@ function StageDetail({
         step.geographicValidationAudit?.length ? (
           <Box flexDirection="row" flexWrap="wrap" gap={12} mb="$4">
             <GeographicAuditPanel decisions={step.geographicValidationAudit} />
+          </Box>
+        ) : null}
+
+        {step.stage === "catalog_materialization" &&
+        step.materializationAudit?.some((item) => item.compositeOutcome) ? (
+          <Box flexDirection="row" flexWrap="wrap" gap={12} mb="$4">
+            <CompositeOutcomePanel decisions={step.materializationAudit} />
           </Box>
         ) : null}
 

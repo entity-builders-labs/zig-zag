@@ -322,7 +322,10 @@ export type ComponentIdentityStatus =
 /** Why a component has no canonical object, from what actually ran. */
 export type ComponentDeficitReason =
   | 'NO_CANDIDATE_ACQUIRED'
+  /** Acquired, but IdentityVerifier never corroborated it (not contradicted). */
   | 'CANDIDATE_UNCONFIRMED'
+  /** Acquired, and IdentityVerifier REJECTED every acquired candidate. */
+  | 'CANDIDATE_REJECTED'
   | 'AMBIGUOUS_CANDIDATES'
   | 'IDENTITY_CONFLICT'
   | 'PROVIDER_FAILURE'

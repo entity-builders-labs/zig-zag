@@ -239,6 +239,35 @@ export interface TraceEntityResolutionDecision {
   rejectionReasons: string[];
 }
 
+/**
+ * The end-to-end decision for ONE source-backed candidate, joined from the
+ * facts each owner already produced (coverage from component resolution,
+ * the CompositeGeographicValidation verdict, the catalog write). Observability
+ * only: nothing here is an admission rule.
+ */
+export interface TraceCompositeOutcome {
+  coverage?: CompositeResolutionCoverage;
+  geographicDecision:
+    | {
+        status: 'NOT_EVALUATED';
+        reason: 'INCOMPLETE_SOURCE_COMPOSITION' | 'NO_VALIDATION_RESULT';
+      }
+    | { status: 'ACCEPTED'; strategy?: string }
+    | { status: 'REJECTED'; reasons: string[] };
+  persistence:
+    | {
+        status: 'PERSISTED';
+        experienceId: string;
+        dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
+      }
+    | { status: 'NOT_PERSISTED'; reasons: string[] };
+  /**
+   * A persisted Experience is VERIFIED, so the planner/facet retrieval
+   * boundaries (`status = VERIFIED`) can see it; nothing else can.
+   */
+  plannerEligible: boolean;
+}
+
 export interface TraceEntityResolutionAttempt {
   strategy: ResolutionStrategy;
   executionStatus: 'completed' | 'failed';
@@ -351,6 +380,8 @@ export interface TraceAcquisitionAudit {
     experienceId?: string;
     canonicalName?: string;
     persistedComponentCount?: number;
+    /** Stage 5: why this source composite did or did not reach the planner. */
+    compositeOutcome?: TraceCompositeOutcome;
   }>;
   executionSkipped?: {
     reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION';

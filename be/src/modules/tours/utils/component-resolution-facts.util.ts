@@ -209,6 +209,18 @@ function componentDeficitReason(
   if (entity?.reason === 'DESTINATION_COMPATIBILITY_UNKNOWN') {
     return 'DESTINATION_COMPATIBILITY_UNKNOWN';
   }
+  const verdicts = attempts
+    .filter((attempt) => attempt.candidateAcquired)
+    .map((attempt) => attempt.verificationDecision)
+    .filter((verdict) => verdict !== undefined);
+  // Contradicted only when IdentityVerifier REJECTED every acquired candidate
+  // it judged; any not-corroborated verdict keeps the component UNCONFIRMED.
+  if (
+    verdicts.length > 0 &&
+    verdicts.every((verdict) => verdict === 'REJECTED')
+  ) {
+    return 'CANDIDATE_REJECTED';
+  }
   if (attempts.some((attempt) => attempt.candidateAcquired)) {
     return 'CANDIDATE_UNCONFIRMED';
   }

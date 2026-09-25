@@ -7069,9 +7069,12 @@ describe('ExperienceProposalResolverService', () => {
       // different, more informative fact ("we found something and it
       // wasn't confirmed" vs. "we found nothing at all") the amendment
       // (§13) requires the summary to preserve.
+      // Stage 5: the summary is every component's distinct reason in
+      // source order, so Pasaje's AMBIGUOUS is no longer masked either.
       expect(result.resolved[0].status).toBe('rejected');
       expect(result.resolved[0].rejectionReasons).toEqual([
         'UNCONFIRMED_MATCH',
+        'AMBIGUOUS',
       ]);
     });
 
