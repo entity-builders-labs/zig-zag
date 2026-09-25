@@ -1,0 +1,40 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Mafalda Statue",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:53:36.109Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 1556
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Mafalda Statue",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Estatua de Mafalda",
+        "address": "C. Uría, s/n",
+        "latitude": 43.362373,
+        "longitude": -5.850391,
+        "rating": 4.6,
+        "ratingCount": 12000,
+        "category": "Tourist attraction",
+        "cid": "17096444111895391042"
+      }
+    ],
+    "credits": 1
+  }
+}

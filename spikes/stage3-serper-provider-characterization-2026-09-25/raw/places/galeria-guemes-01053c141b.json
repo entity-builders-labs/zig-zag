@@ -1,0 +1,23 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Galería Güemes"
+  },
+  "capturedAt": "2026-09-25T12:54:46.520Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 779
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Galería Güemes",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "engine": "google"
+    },
+    "places": [],
+    "credits": 1
+  }
+}

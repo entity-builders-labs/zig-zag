@@ -1,0 +1,35 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Mafalda Statue"
+  },
+  "capturedAt": "2026-09-25T12:54:26.834Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 1132
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Mafalda Statue",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Estatua de Mafalda",
+        "address": "C. Uría, s/n",
+        "latitude": 43.362373,
+        "longitude": -5.850391,
+        "rating": 4.6,
+        "ratingCount": 12000,
+        "category": "Tourist attraction",
+        "cid": "17096444111895391042"
+      }
+    ],
+    "credits": 1
+  }
+}

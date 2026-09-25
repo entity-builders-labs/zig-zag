@@ -1,0 +1,28 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "San Martín",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:55.664Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 1299
+  },
+  "data": {
+    "searchParameters": {
+      "q": "San Martín",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [],
+    "credits": 1
+  }
+}

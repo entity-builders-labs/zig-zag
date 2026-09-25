@@ -1,0 +1,40 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "El Zanjón de Granados",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:38.980Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 868
+  },
+  "data": {
+    "searchParameters": {
+      "q": "El Zanjón de Granados",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "El Zanjón de Granados",
+        "address": "Defensa 755",
+        "latitude": -34.616604,
+        "longitude": -58.372066,
+        "rating": 4.8,
+        "ratingCount": 5600,
+        "category": "Museum",
+        "cid": "16388011771404495123"
+      }
+    ],
+    "credits": 1
+  }
+}

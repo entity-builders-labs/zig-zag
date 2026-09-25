@@ -1,0 +1,40 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Plaza Dorrego",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:36.839Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 1122
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Plaza Dorrego",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Plaza Dorrego",
+        "address": "Humberto 1º 400",
+        "latitude": -34.62049,
+        "longitude": -58.37175,
+        "rating": 4.4,
+        "ratingCount": 37000,
+        "category": "City park",
+        "cid": "8195367513670431665"
+      }
+    ],
+    "credits": 1
+  }
+}

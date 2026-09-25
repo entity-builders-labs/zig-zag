@@ -1,0 +1,117 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Farmacia la Estrella",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:27.697Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 861
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Farmacia la Estrella",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.611089,-58.4713715,14.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Pharmacy Star",
+        "address": "Defensa 201, C1065AAD Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6101871,
+        "longitude": -58.372145499999995,
+        "rating": 4.4,
+        "ratingCount": 196,
+        "type": "Pharmacy",
+        "types": [
+          "Pharmacy"
+        ],
+        "website": "https://www.instagram.com/farmaciadelaestrella.ba?igsh=MTd1MGk1ZnQxc3k1cQ==",
+        "phoneNumber": "+54 11 4343-4040",
+        "openingHours": {
+          "Friday": "8 AM–7 PM",
+          "Saturday": "Closed",
+          "Sunday": "Closed",
+          "Monday": "8 AM–7 PM",
+          "Tuesday": "8 AM–7 PM",
+          "Wednesday": "8 AM–7 PM",
+          "Thursday": "8 AM–7 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPBC01wFbVDuZvOJtaT6R-_poJdVDQs59e0LBzbWGVkrUUF8zjupvTrDNRYWvD_T_b30hePWTPhObpguCFh2aGRPrfBeEZbrWKD7E1aNpxLmV5oh4s-XimNqE2gACTtfTrFLwei",
+        "cid": "16187983576554178413",
+        "fid": "0x95bccad4ae7c1b93:0xe0a7454b965e876d",
+        "placeId": "ChIJkxt8rtTKvJURbYdelktFp-A"
+      },
+      {
+        "position": 2,
+        "title": "Florería La Estrella",
+        "address": "Juan Agustín García 3399, C1407 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6134275,
+        "longitude": -58.4882305,
+        "rating": 4.3,
+        "ratingCount": 129,
+        "type": "Florist",
+        "types": [
+          "Florist"
+        ],
+        "website": "https://instagram.com/laestrellafloreria?igshid=OGQ5ZDc2ODk2ZA%3D%3D&utm_source=qr",
+        "phoneNumber": "+54 11 4566-6493",
+        "openingHours": {
+          "Friday": "9 AM–8 PM",
+          "Saturday": "9 AM–8 PM",
+          "Sunday": "10 AM–2 PM",
+          "Monday": "9 AM–8 PM",
+          "Tuesday": "9 AM–8 PM",
+          "Wednesday": "9 AM–8 PM",
+          "Thursday": "9 AM–8 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmProDwC4MjicFGXYjJxTo45vcWSUfe2uQwGoNlz_0K_NbPGdKIJlUZCMbep83vZtZ11RPSA6PJbqLXZ5WM17zriVs2peckwwZv49fpj67rUnvR-3jD0VwQewzYpCfP_tkKeSSwsdA",
+        "cid": "5363898919617433970",
+        "fid": "0x95bcc9ddd1698135:0x4a7065a5f2e61172",
+        "placeId": "ChIJNYFp0d3JvJURchHm8qVlcEo"
+      },
+      {
+        "position": 3,
+        "title": "Ex Droguería La Estrella",
+        "address": "Av. Rivadavia 1501, C1085 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6087644,
+        "longitude": -58.3878936,
+        "type": "Apartment building",
+        "types": [
+          "Apartment building"
+        ],
+        "thumbnailUrl": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=-ghSUiHNdyp6aUX2z2gEog&cb_client=search.gws-prod.grass&w=80&h=92&yaw=337.52414&pitch=0&thumbfov=100",
+        "cid": "14734410587365428339",
+        "fid": "0x95bccac4b14e906b:0xcc7b245ceaabcc73",
+        "placeId": "ChIJa5BOscTKvJURc8yr6lwke8w"
+      },
+      {
+        "position": 4,
+        "title": "Museo de la Ciudad -Farmacia la Estrella",
+        "address": "Adolfo Alsina, Alsina 402, C1087 Buenos Aires, Argentina",
+        "latitude": -34.6102019,
+        "longitude": -58.372111,
+        "rating": 5,
+        "ratingCount": 1,
+        "type": "Educational institution",
+        "types": [
+          "Educational institution"
+        ],
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmM8BTq9skbOZDfkF3VzUKpbEJYXZ-prNSlc0KsoWoHtsZ3l0K9QYVtVfEyZA3bUt96fHciAns8tKvfvTBLrqI3ewvxyjb6LukY_vazpz_Cv1-PmXr-POaDr1bPmQiMHjK6UlU29_5k_ljBg",
+        "cid": "15065503677517978955",
+        "fid": "0x95bccbd2e772eff3:0xd1136bc634ccdd4b",
+        "placeId": "ChIJ8-9y59LLvJURS93MNMZrE9E"
+      }
+    ],
+    "credits": 3
+  }
+}

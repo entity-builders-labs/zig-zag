@@ -1,0 +1,58 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Casa Mínima",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:29.570Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 819
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Casa Mínima",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.6167288,-58.3739115,18.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Casa Mínima",
+        "address": "San Lorenzo 380, C1064AFD Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6167288,
+        "longitude": -58.3713366,
+        "rating": 4.4,
+        "ratingCount": 1589,
+        "type": "Historical landmark",
+        "types": [
+          "Historical landmark",
+          "Tourist attraction"
+        ],
+        "website": "http://www.elzanjon.com.ar/",
+        "phoneNumber": "+54 11 7078-1542",
+        "openingHours": {
+          "Friday": "12–1 PM",
+          "Saturday": "1–4 PM",
+          "Sunday": "1–4 PM",
+          "Monday": "12–1 PM",
+          "Tuesday": "12–1 PM",
+          "Wednesday": "12–1 PM",
+          "Thursday": "12–1 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWlWYzWsBlFB3zxKchoAdpUu-AD7KbOVy8PGu1Fusosc9OLqu-1PVXV_TiXhAUNtqUtwtEdLO5lrgnb9h2f0RCT9Oq5pkYYjBOaiyljq1xVG6XEpXHOsqxMhLuXN8buvxhueojEF",
+        "cid": "11126824770250787375",
+        "fid": "0x95a334d4c606bad5:0x9a6a6c2d14d0ca2f",
+        "placeId": "ChIJ1boGxtQ0o5URL8rQFC1sapo"
+      }
+    ],
+    "credits": 3
+  }
+}
