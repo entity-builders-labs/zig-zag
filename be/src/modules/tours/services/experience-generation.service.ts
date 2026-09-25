@@ -56,6 +56,7 @@ import {
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import { ExecuteAcquisitionPlanResult } from './experience-acquisition.service';
 import { ExperienceAcquisitionPlannerService } from './experience-acquisition-planner.service';
+import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
 import { AreaRouteWalkAcquisitionService } from './area-route-walk-acquisition.service';
 import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
 import { partitionDeficitsByStrategy } from '../utils/acquisition-strategy-selector.util';
@@ -185,6 +186,27 @@ export class ExperienceGenerationService {
     @Optional()
     private readonly preferenceInterpreter?: PreferenceInterpreterService,
   ) {}
+
+  /**
+   * The ONE construction of an acquisition plan's destination scope, shared
+   * by every plan-creation path (preference-deficit acquisition and the
+   * planner's residual-capacity acquisition) so none of them drops a
+   * destination fact. The country code is carried unchanged from
+   * DestinationResolutionService, its single source of truth.
+   */
+  private acquisitionDiscoveryScope(
+    destinationName: string,
+    destinationCountryCode: string | undefined,
+    area: { latitude: number; longitude: number; radiusMeters: number },
+  ): ExperienceDiscoveryScope {
+    return {
+      destinationName,
+      ...(destinationCountryCode ? { destinationCountryCode } : {}),
+      latitude: area.latitude,
+      longitude: area.longitude,
+      radiusMeters: area.radiusMeters,
+    };
+  }
 
   private emptyNormalizedPreferences(): NormalizedPreferenceIntent {
     return {
@@ -1053,12 +1075,11 @@ export class ExperienceGenerationService {
             //   (ExperienceProposalResolver) → catalog re-query →
             //   FacetRetrievalService/preference-sufficiency, bounded by
             //   MAX_ACQUISITION_PASSES.
-            const acquisitionScope = {
-              destinationName: canonicalDestinationName,
-              latitude: searchArea.latitude,
-              longitude: searchArea.longitude,
-              radiusMeters: searchArea.radiusMeters,
-            };
+            const acquisitionScope = this.acquisitionDiscoveryScope(
+              canonicalDestinationName,
+              destinationResolution.countryCode,
+              searchArea,
+            );
 
             let currentPool = nearbyExperiences;
             let currentSelection = selection;
@@ -1608,14 +1629,17 @@ export class ExperienceGenerationService {
         };
         const plannerAcquisitionPlan =
           this.experienceAcquisitionPlanner.buildAcquisitionPlan({
-            destination: {
-              destinationName: canonicalDestinationName,
-              latitude: request.destination.latitude,
-              longitude: request.destination.longitude,
-              radiusMeters:
-                request.destination.radiusMeters ??
-                this.destinationScopePolicy.pointRadiusMeters,
-            },
+            destination: this.acquisitionDiscoveryScope(
+              canonicalDestinationName,
+              destinationResolution.countryCode,
+              {
+                latitude: request.destination.latitude,
+                longitude: request.destination.longitude,
+                radiusMeters:
+                  request.destination.radiusMeters ??
+                  this.destinationScopePolicy.pointRadiusMeters,
+              },
+            ),
             deficits: [plannerDeficit],
             preferredFacets: preferenceSpec.facets.map((facet) => ({
               dimension: facet.dimension,

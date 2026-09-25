@@ -1,7 +1,15 @@
 /** Search evidence contract used by Experience Domain V2. */
 export interface ExperienceGroundedSearchRequest {
   destinationName: string;
+  /** Human-readable country name; never a provider locale parameter. */
   destinationCountry?: string;
+  /**
+   * ISO 3166-1 alpha-2 code of the resolved destination's country, exactly
+   * as `DestinationResolutionService` produced it (e.g. "AR") -- never
+   * re-inferred downstream. Providers may map it to their own country
+   * parameter (Serper `gl`); it says nothing about language.
+   */
+  destinationCountryCode?: string;
   requestedThemes: string[];
   additionalPreferences?: string;
   query: string;
@@ -121,6 +129,11 @@ export interface ExperienceGroundedSearchResult {
   evidenceProvenance?: ExperienceEvidenceProvenance[];
   rawOutput?: unknown;
   failureReason?: string;
+  /**
+   * The locale parameters the provider actually sent, echoed for provenance
+   * (e.g. Serper `{ gl: 'ar' }`). Absent when none were sent.
+   */
+  providerLocale?: { gl?: string; hl?: string };
 }
 
 export interface ExperienceGroundedSearchProvider {

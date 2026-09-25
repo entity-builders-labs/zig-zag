@@ -97,6 +97,9 @@ export class SerperGroundedSearchService implements GroundedSearchProvider {
           decisions,
         },
         rawOutput: data,
+        ...(providerRequest.gl
+          ? { providerLocale: { gl: providerRequest.gl } }
+          : {}),
       };
     } catch (error: unknown) {
       return this.failure(error);
@@ -115,10 +118,11 @@ export class SerperGroundedSearchService implements GroundedSearchProvider {
   /**
    * Query and locale come only from facts already in the request: the
    * caller's query (or the same general fallback SerpApi's engine=google
-   * path uses), and `gl` only when the request carries an ISO-3166 alpha-2
-   * country. No `hl`/`location` are derived — Zig-Zag has no reliable
-   * language fact here, and Serper's `location` is ranking context, not a
-   * geographic boundary.
+   * path uses), and `gl` only from the resolved destination's ISO 3166-1
+   * alpha-2 `destinationCountryCode` -- never from a free-text country
+   * name. No `hl`/`location` are derived: a country is not a language
+   * (there is no destination-language or user-locale fact here), and
+   * Serper's `location` is ranking context, not a geographic boundary.
    */
   private buildProviderRequest(
     request: GroundedSearchRequest,
@@ -130,12 +134,12 @@ export class SerperGroundedSearchService implements GroundedSearchProvider {
         ...request.requestedThemes,
         'real tourism experiences',
       ].join(' ');
-    const country = request.destinationCountry?.trim();
+    const countryCode = request.destinationCountryCode?.trim();
     return {
       q,
       gl:
-        country && /^[a-z]{2}$/i.test(country)
-          ? country.toLowerCase()
+        countryCode && /^[a-z]{2}$/i.test(countryCode)
+          ? countryCode.toLowerCase()
           : undefined,
       num: RESULTS_PER_SEARCH,
     };

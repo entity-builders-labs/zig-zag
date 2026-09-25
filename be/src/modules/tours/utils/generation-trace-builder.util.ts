@@ -1020,6 +1020,8 @@ export function buildAcquisitionStep(params: {
       groundedProvider?: string;
       groundedModel?: string;
       groundingStatus?: string;
+      destinationCountryCode?: string;
+      groundedProviderLocale?: { gl?: string; hl?: string };
       evidenceKeys: string[];
       extractorProvider?: string;
       extractorModel?: string;
@@ -1147,6 +1149,8 @@ export function buildAcquisitionStep(params: {
                 groundedProvider: webResult?.groundedProvider,
                 groundedModel: webResult?.groundedModel,
                 groundingStatus: webResult?.groundingStatus,
+                destinationCountryCode: webResult?.destinationCountryCode,
+                groundedProviderLocale: webResult?.groundedProviderLocale,
                 evidence: evidence
                   .filter((item) =>
                     (webResult?.evidenceKeys ?? []).includes(item.key ?? ''),
@@ -1335,6 +1339,8 @@ export function buildAcquisitionStep(params: {
         groundedProvider: w.groundedProvider,
         groundedModel: w.groundedModel,
         groundingStatus: w.groundingStatus,
+        destinationCountryCode: w.destinationCountryCode,
+        groundedProviderLocale: w.groundedProviderLocale,
         evidenceCount: w.evidenceKeys.length,
         extractorProvider: w.extractorProvider,
         extractorModel: w.extractorModel,

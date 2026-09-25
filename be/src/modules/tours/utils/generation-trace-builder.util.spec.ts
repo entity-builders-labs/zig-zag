@@ -1309,9 +1309,11 @@ describe('buildAcquisitionStep', () => {
           {
             status: 'success',
             query: 'Historic District walking tour',
-            groundedProvider: 'tavily',
-            groundedModel: 'search',
+            groundedProvider: 'serper',
+            groundedModel: 'google-search',
             groundingStatus: 'applied',
+            destinationCountryCode: 'AR',
+            groundedProviderLocale: { gl: 'ar' },
             evidenceKeys: ['web:a', 'web:b'],
             extractorProvider: 'ollama',
             extractorModel: 'llama',
@@ -1344,6 +1346,16 @@ describe('buildAcquisitionStep', () => {
     expect(step.acquisition?.sourcePlans[1].web).toMatchObject({
       query: 'Historic District walking tour',
       anchorNames: ['Historic District'],
+      groundedProvider: 'serper',
+      groundedModel: 'google-search',
+      destinationCountryCode: 'AR',
+      groundedProviderLocale: { gl: 'ar' },
+    });
+    expect((step.outputs as any).webResults[0]).toMatchObject({
+      groundedProvider: 'serper',
+      groundedModel: 'google-search',
+      destinationCountryCode: 'AR',
+      groundedProviderLocale: { gl: 'ar' },
     });
     expect(step.acquisition?.sourcePlans[1].web?.evidence).toHaveLength(2);
     expect(step.acquisition?.candidates[0]).toMatchObject({

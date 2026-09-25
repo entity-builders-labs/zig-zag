@@ -595,6 +595,76 @@ describe('ExperienceAcquisitionService', () => {
         });
       });
 
+      it('forwards the resolved destination country code into the grounded-search request and records the applied locale', async () => {
+        const search = jest.fn().mockResolvedValue({
+          ...groundedResult,
+          provider: 'serper',
+          model: 'google-search',
+          providerLocale: { gl: 'ar' },
+        });
+        const extractExperiences = jest.fn().mockResolvedValue({
+          candidates: [webCandidate],
+          validationErrors: [],
+          provider: 'gemini',
+          model: 'gemini-x',
+          rawOutput: '{"candidates":[]}',
+        });
+        const service = new ExperienceAcquisitionService(
+          {} as any,
+          {} as any,
+          { acquire: jest.fn() } as any,
+          { acquire: jest.fn() } as any,
+          new StructuredExperienceCandidateSynthesizerService(),
+          new StructuredCandidateCorroborationService(),
+          undefined,
+          { search } as any,
+          { extractExperiences } as any,
+        );
+
+        const result = await service.executePlan({
+          ...webPlan,
+          destination: {
+            destinationName: 'Buenos Aires',
+            destinationCountryCode: 'AR',
+          },
+        });
+
+        expect(search.mock.calls[0][0]).toMatchObject({
+          destinationName: 'Buenos Aires',
+          destinationCountryCode: 'AR',
+        });
+        expect(result.webResults?.[0]).toMatchObject({
+          groundedProvider: 'serper',
+          groundedModel: 'google-search',
+          destinationCountryCode: 'AR',
+          groundedProviderLocale: { gl: 'ar' },
+        });
+      });
+
+      it('sends no country code when the destination resolution had none', async () => {
+        const search = jest.fn().mockResolvedValue(groundedResult);
+        const service = new ExperienceAcquisitionService(
+          {} as any,
+          {} as any,
+          { acquire: jest.fn() } as any,
+          { acquire: jest.fn() } as any,
+          new StructuredExperienceCandidateSynthesizerService(),
+          new StructuredCandidateCorroborationService(),
+          undefined,
+          { search } as any,
+          {
+            extractExperiences: jest.fn().mockResolvedValue({
+              candidates: [],
+              validationErrors: [],
+            }),
+          } as any,
+        );
+
+        await service.executePlan(webPlan);
+
+        expect(search.mock.calls[0][0].destinationCountryCode).toBeUndefined();
+      });
+
       it('isolates a web failure — structured providers still contribute', async () => {
         const wikivoyageProvider = {
           acquire: jest.fn().mockResolvedValue({

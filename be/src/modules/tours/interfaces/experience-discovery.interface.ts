@@ -117,6 +117,12 @@ export type ExperienceDiscoveryBreadth = 'focused' | 'broad';
 export interface ExperienceDiscoveryScope {
   /** The destination selected by the user. For day_trip this is also the base used by FROM-base discovery queries. */
   destinationName?: string;
+  /**
+   * ISO 3166-1 alpha-2 code of the resolved destination's country, carried
+   * unchanged from `DestinationResolutionService` (its single source of
+   * truth) so web acquisition never re-infers it.
+   */
+  destinationCountryCode?: string;
   latitude?: number;
   longitude?: number;
   radiusMeters?: number;

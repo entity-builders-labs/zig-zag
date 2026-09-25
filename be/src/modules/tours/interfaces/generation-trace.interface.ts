@@ -137,6 +137,10 @@ export interface TraceAcquisitionSource {
     groundedProvider?: string;
     groundedModel?: string;
     groundingStatus?: string;
+    /** Resolved destination country the grounded request carried. */
+    destinationCountryCode?: string;
+    /** Locale parameters the grounded provider actually sent (e.g. gl). */
+    groundedProviderLocale?: { gl?: string; hl?: string };
     evidence: TraceEvidenceReference[];
     extractor?: {
       provider?: string;

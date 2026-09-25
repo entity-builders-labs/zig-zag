@@ -146,14 +146,59 @@ describe('SerperGroundedSearchService', () => {
     expect(sentBody()).toEqual({ q: request.query, num: 10 });
   });
 
-  it('derives gl only from an ISO alpha-2 destinationCountry fact', async () => {
+  it('derives gl only from the resolved ISO alpha-2 destinationCountryCode (AR -> ar), never hl', async () => {
     mockSerper(200, { organic: [] });
-    await service.search({ ...request, destinationCountry: 'AR' });
-    expect(sentBody()).toEqual({ q: request.query, gl: 'ar', num: 10 });
 
-    fetchSpy!.mockClear();
-    await service.search({ ...request, destinationCountry: 'Argentina' });
+    const result = await service.search({
+      ...request,
+      destinationCountryCode: 'AR',
+    });
+
+    expect(sentBody()).toEqual({ q: request.query, gl: 'ar', num: 10 });
+    expect(sentBody()).not.toHaveProperty('hl');
+    expect(result.providerLocale).toEqual({ gl: 'ar' });
+  });
+
+  it('sends no gl when the country code is absent, and never derives one from a free-text country name', async () => {
+    mockSerper(200, { organic: [] });
+
+    const absent = await service.search(request);
     expect(sentBody()).toEqual({ q: request.query, num: 10 });
+    expect(absent.providerLocale).toBeUndefined();
+
+    for (const destinationCountry of ['AR', 'Argentina']) {
+      fetchSpy!.mockClear();
+      await service.search({ ...request, destinationCountry });
+      expect(sentBody()).toEqual({ q: request.query, num: 10 });
+    }
+  });
+
+  it('ignores a malformed country code instead of guessing a locale', async () => {
+    mockSerper(200, { organic: [] });
+    for (const destinationCountryCode of ['ARG', 'A', '', ' 1r ']) {
+      fetchSpy?.mockClear();
+      await service.search({ ...request, destinationCountryCode });
+      expect(sentBody()).toEqual({ q: request.query, num: 10 });
+    }
+  });
+
+  it('never shares a cache entry between the same q with gl=ar and without gl', async () => {
+    mockSerper(200, {
+      organic: [{ title: 't', link: 'https://a.example', snippet: 's' }],
+    });
+
+    await service.search({ ...request, destinationCountryCode: 'AR' });
+    await service.search(request);
+
+    const keys = aiCache.cacheResponse.mock.calls.map(([key]) => key);
+    expect(keys).toHaveLength(2);
+    expect(keys[0]).not.toBe(keys[1]);
+    expect(
+      JSON.parse(keys[0].slice('serper-grounded-search:v1:'.length)).gl,
+    ).toBe('ar');
+    expect(
+      JSON.parse(keys[1].slice('serper-grounded-search:v1:'.length)).gl,
+    ).toBe(null);
   });
 
   it('falls back to the general destination+themes query when request.query is empty', async () => {
@@ -287,7 +332,7 @@ describe('SerperGroundedSearchService', () => {
 
     const result = await service.search({
       ...request,
-      destinationCountry: 'ar',
+      destinationCountryCode: 'ar',
     });
 
     expect(aiCache.cacheResponse).toHaveBeenCalledTimes(1);

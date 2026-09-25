@@ -108,6 +108,10 @@ export interface WebAcquisitionResult {
   groundedProvider?: string;
   groundedModel?: string;
   groundingStatus?: string;
+  /** The resolved destination country code the grounded request carried. */
+  destinationCountryCode?: string;
+  /** Locale parameters the grounded provider actually sent (e.g. gl). */
+  groundedProviderLocale?: { gl?: string; hl?: string };
   evidenceKeys: string[];
   evidenceProvenance?: unknown;
   normalizationAudit?: GroundingNormalizationAudit;
@@ -451,8 +455,10 @@ export class ExperienceAcquisitionService {
     }
 
     try {
+      const destinationCountryCode = plan.destination.destinationCountryCode;
       const grounded = await this.groundedSearchProvider.search({
         destinationName: plan.destination.destinationName ?? '',
+        ...(destinationCountryCode ? { destinationCountryCode } : {}),
         requestedThemes: web.requestedThemes ?? [],
         requestedIntents: web.requestedIntents,
         additionalPreferences: web.semanticQuery,
@@ -466,6 +472,10 @@ export class ExperienceAcquisitionService {
         groundedProvider: grounded.provider,
         groundedModel: grounded.model,
         groundingStatus: grounded.groundingStatus,
+        ...(destinationCountryCode ? { destinationCountryCode } : {}),
+        ...(grounded.providerLocale
+          ? { groundedProviderLocale: grounded.providerLocale }
+          : {}),
         evidenceKeys: (grounded.evidence ?? []).map((e) => e.key),
         evidenceProvenance: grounded.evidenceProvenance,
         normalizationAudit: grounded.normalizationAudit,
