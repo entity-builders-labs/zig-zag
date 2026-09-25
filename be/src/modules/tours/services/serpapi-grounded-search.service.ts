@@ -9,6 +9,7 @@ import {
   GroundingNormalizationAudit,
   GroundingNormalizationDecision,
 } from '../interfaces/experience-grounding.interface';
+import { groundingEvidenceDedupeKey } from '../utils/grounding-evidence-dedupe.util';
 type GroundedTextBlock = { text: string; evidenceKeys: string[] };
 
 interface SerpApiOrganicResult {
@@ -252,8 +253,6 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
     let counter = 0;
     let order = 0;
     const seen = new Set<string>();
-    const normalize = (value: string) =>
-      value.replace(/\s+/g, ' ').trim().toLowerCase();
     const emit = (input: {
       sourceLocator: string;
       sourceKind: GroundingNormalizationDecision['sourceKind'];
@@ -275,7 +274,7 @@ export class SerpApiGroundedSearchService implements GroundedSearchProvider {
         });
         return undefined;
       }
-      const dedupeKey = `${normalize(snippet)}\n${normalize(input.url ?? '')}`;
+      const dedupeKey = groundingEvidenceDedupeKey(snippet, input.url);
       if (seen.has(dedupeKey)) {
         decisions.push({
           sourceLocator: input.sourceLocator,

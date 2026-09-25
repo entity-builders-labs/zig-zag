@@ -11,6 +11,8 @@ import { CatalogRefillAnchorPlanner } from './services/catalog-refill-anchor-pla
 import { TourCompletenessValidator } from './services/tour-completeness-validator.service';
 import { GroqGroundedSearchService } from './services/groq-grounded-search.service';
 import { SerpApiGroundedSearchService } from './services/serpapi-grounded-search.service';
+import { SerperGroundedSearchService } from './services/serper-grounded-search.service';
+import { selectGroundedSearchProvider } from './services/grounded-search-provider-selection.util';
 import { TavilyGroundedSearchService } from './services/tavily-grounded-search.service';
 import { GeminiGroundedSearchService } from './services/gemini-grounded-search.service';
 import { TavilyExtractService } from './services/tavily-extract.service';
@@ -82,6 +84,7 @@ import { MediaModule } from '../media/media.module';
     TourCompletenessValidator,
     GroqGroundedSearchService,
     SerpApiGroundedSearchService,
+    SerperGroundedSearchService,
     TavilyGroundedSearchService,
     GeminiGroundedSearchService,
     TavilyExtractService,
@@ -139,34 +142,26 @@ import { MediaModule } from '../media/media.module';
       useFactory: (
         config: AiConfig,
         serpApi: SerpApiGroundedSearchService,
+        serper: SerperGroundedSearchService,
         groq: GroqGroundedSearchService,
         tavily: TavilyGroundedSearchService,
         gemini: GeminiGroundedSearchService,
-      ): ExperienceGroundedSearchProvider => {
-        const provider = (
-          config.groundedSearchProvider ||
-          process.env.GROUNDED_SEARCH_PROVIDER ||
-          (config.serpApiKey ? 'serpapi' : 'groq')
-        ).toLowerCase();
-
-        switch (provider) {
-          case 'groq':
-            return groq;
-          case 'tavily':
-            return tavily;
-          case 'serpapi':
-            return serpApi;
-          case 'gemini':
-            return gemini;
-          default:
-            throw new Error(
-              `Unsupported GROUNDED_SEARCH_PROVIDER: ${provider}`,
-            );
-        }
-      },
+      ): ExperienceGroundedSearchProvider =>
+        // The name is resolved by ai.config (explicit
+        // GROUNDED_SEARCH_PROVIDER, else serpapi-if-key, else groq). A
+        // SERPER_API_KEY alone never changes the selection.
+        selectGroundedSearchProvider(
+          (
+            config.groundedSearchProvider ||
+            process.env.GROUNDED_SEARCH_PROVIDER ||
+            (config.serpApiKey ? 'serpapi' : 'groq')
+          ).toLowerCase(),
+          { serpapi: serpApi, serper, groq, tavily, gemini },
+        ),
       inject: [
         aiConfig.KEY,
         SerpApiGroundedSearchService,
+        SerperGroundedSearchService,
         GroqGroundedSearchService,
         TavilyGroundedSearchService,
         GeminiGroundedSearchService,

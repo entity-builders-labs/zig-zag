@@ -211,6 +211,30 @@ describe('aiConfig embedding index contract', () => {
       );
     });
 
+    it('honors an explicit GROUNDED_SEARCH_PROVIDER=serper', () => {
+      process.env.GROUNDED_SEARCH_PROVIDER = 'serper';
+      process.env.SERPAPI_API_KEY = 'test-serpapi-key';
+
+      expect(loadConfig()).toEqual(
+        expect.objectContaining({ groundedSearchProvider: 'serper' }),
+      );
+    });
+
+    it('never selects serper implicitly: a SERPER_API_KEY alone does not change the default', () => {
+      delete process.env.GROUNDED_SEARCH_PROVIDER;
+      delete process.env.SERPAPI_API_KEY;
+      process.env.SERPER_API_KEY = 'test-serper-key';
+
+      expect(loadConfig()).toEqual(
+        expect.objectContaining({ groundedSearchProvider: 'groq' }),
+      );
+
+      process.env.SERPAPI_API_KEY = 'test-serpapi-key';
+      expect(loadConfig()).toEqual(
+        expect.objectContaining({ groundedSearchProvider: 'serpapi' }),
+      );
+    });
+
     it('rejects an unknown GROUNDED_SEARCH_PROVIDER instead of silently falling back to any provider', () => {
       process.env.GROUNDED_SEARCH_PROVIDER = 'mystery-provider';
 

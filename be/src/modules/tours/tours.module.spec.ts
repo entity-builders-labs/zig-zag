@@ -6,6 +6,8 @@ import {
   TOUR_PLANNING_FEASIBILITY_VALIDATOR,
 } from './interfaces/daily-planning.interface';
 import { PlanningCandidateNormalizerService } from './services/planning-candidate-normalizer.service';
+import { EXPERIENCE_GROUNDED_SEARCH_PROVIDER } from './interfaces/experience-grounding.interface';
+import { SerperGroundedSearchService } from './services/serper-grounded-search.service';
 
 describe('ToursModule DI wiring (Daily Planning Solver)', () => {
   beforeAll(() => {
@@ -23,5 +25,22 @@ describe('ToursModule DI wiring (Daily Planning Solver)', () => {
     expect(moduleRef.get(TOUR_PLANNING_FEASIBILITY_VALIDATOR)).toBeDefined();
     expect(moduleRef.get(PlanningCandidateNormalizerService)).toBeDefined();
     await moduleRef.close();
+  });
+
+  it('wires GROUNDED_SEARCH_PROVIDER=serper to exactly the Serper adapter', async () => {
+    const previous = process.env.GROUNDED_SEARCH_PROVIDER;
+    process.env.GROUNDED_SEARCH_PROVIDER = 'serper';
+    try {
+      const moduleRef = await Test.createTestingModule({
+        imports: [ToursModule],
+      }).compile();
+      expect(moduleRef.get(EXPERIENCE_GROUNDED_SEARCH_PROVIDER)).toBe(
+        moduleRef.get(SerperGroundedSearchService),
+      );
+      await moduleRef.close();
+    } finally {
+      if (previous === undefined) delete process.env.GROUNDED_SEARCH_PROVIDER;
+      else process.env.GROUNDED_SEARCH_PROVIDER = previous;
+    }
   });
 });

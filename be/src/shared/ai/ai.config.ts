@@ -14,8 +14,10 @@ export interface AiConfig {
   groqApiKey?: string;
   // Gemini
   geminiApiKey?: string;
-  // Grounded search evidence provider ('serpapi' | 'groq' | 'tavily' | 'gemini')
-  groundedSearchProvider?: 'serpapi' | 'groq' | 'tavily' | 'gemini';
+  // Grounded search evidence provider. 'serper' (Google organic SERP via
+  // Serper) is only ever selected explicitly — it is NOT a google_ai_mode
+  // equivalent, which only 'serpapi' provides.
+  groundedSearchProvider?: 'serpapi' | 'serper' | 'groq' | 'tavily' | 'gemini';
   // SerpApi (grounded search evidence provider)
   serpApiKey?: string;
   // Tavily (grounded search evidence provider)
@@ -153,15 +155,20 @@ export default registerAs('ai', (): AiConfig => {
     );
   }
 
+  // Explicit GROUNDED_SEARCH_PROVIDER is authoritative. The implicit default
+  // is unchanged (serpapi if its key exists, else groq): a SERPER_API_KEY on
+  // its own deliberately does not switch the active provider.
   const groundedSearchProvider = (
     process.env.GROUNDED_SEARCH_PROVIDER ||
     (process.env.SERPAPI_API_KEY ? 'serpapi' : 'groq')
   ).toLowerCase();
   if (
-    !['serpapi', 'groq', 'tavily', 'gemini'].includes(groundedSearchProvider)
+    !['serpapi', 'serper', 'groq', 'tavily', 'gemini'].includes(
+      groundedSearchProvider,
+    )
   ) {
     throw new Error(
-      `Unsupported GROUNDED_SEARCH_PROVIDER "${groundedSearchProvider}". Expected serpapi, groq, tavily, or gemini.`,
+      `Unsupported GROUNDED_SEARCH_PROVIDER "${groundedSearchProvider}". Expected serpapi, serper, groq, tavily, or gemini.`,
     );
   }
 
@@ -187,6 +194,7 @@ export default registerAs('ai', (): AiConfig => {
     tavilyApiKey: process.env.TAVILY_API_KEY,
     groundedSearchProvider: groundedSearchProvider as
       | 'serpapi'
+      | 'serper'
       | 'groq'
       | 'tavily'
       | 'gemini',
