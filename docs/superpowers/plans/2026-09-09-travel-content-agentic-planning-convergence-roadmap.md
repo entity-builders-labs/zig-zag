@@ -90,13 +90,16 @@ When convergence begins, create or recreate the unified branch **from the accept
 ## 2. Canonical high-level sequence
 
 ```text
-Preference-First implementation / M9
+Component-resolution / RW1 milestone COMPLETE
         ↓
-M10 RW1 rerun
+Experience dedupe policy correction
         ↓
-RW1 real PASS + warm catalog reuse
+focused deterministic regression + live rerun
         ↓
-RW2–RW6 real-world corpus
+RW2–RW6 real-world generalization
+        + extractor reliability evidence
+        + tour-quality evidence
+        + structural performance accounting
         ↓
 PREFERENCE-FIRST CORE CLOSED
         ↓
@@ -118,100 +121,145 @@ post-convergence product capabilities
 
 There is no required `preference-first → experience-domain-v2 → unified` detour.
 
+The component-resolution milestone is complete and stays closed unless a real
+regression invalidates an accepted invariant. The immediate post-milestone
+gate is the Experience-dedupe policy defect observed live in RW1, not more
+component-resolution work.
+
 ---
 
-# 3. Gate A — finish the Preference-First implementation through M10
+# 3. Gate A — Experience dedupe policy correction
 
-The current master implementation plan owns this work.
+The immediate deterministic product bug is in:
 
-M10/RW1 exists to prove that the corrected live orchestration reaches the real-world research path and can persist/reuse real tourism knowledge.
+`be/src/modules/tours/utils/experience-dedupe.util.ts`
 
-The desired RW1 product result is:
+Current component overlap uses:
 
 ```text
-COLD REQUEST
-human request for a historical walk in San Telmo
-  ↓
-real preference interpretation / scope
-  ↓
-no sufficient canonical walk in catalog
-  ↓
-real acquisition planning
-  ↓
-real discovery + source evidence
-  ↓
-real extraction of a composed Experience
-  ↓
-real component grounding
-  ↓
-geographic validation
-  ↓
-canonical identity / classification / persistence
-  ↓
-canonical multi-component Experience
-  ↓
-composition + planner
-
-WARM REQUEST
-same relevant request
-  ↓
-canonical catalog retrieval
-  ↓
-same persisted Experience id
-  ↓
-no reacquisition of that walk
-  ↓
-composition + planner
+intersection / max(left.size, right.size)
 ```
 
-An `ORCHESTRATION_GAP` remains a hard M10 failure.
+and `componentOverlap >= 0.5` can enter `AMBIGUOUS`. This makes a valid
+standalone Experience and a valid two-component Experience collide:
 
-`EXPECTED_B6_GAP`, `PROVIDER_COVERAGE_GAP`, or `INFRASTRUCTURE_GAP` may still be truthful diagnostic outcomes of the M10 spike contract, but **they do not close the full Preference-First core**. Product closure requires successful real composed-Experience behavior, not merely proof that execution reached the right service.
+```text
+[A] vs [A,B]
+→ overlap = 1/2
+→ AMBIGUOUS
+→ fail closed
+```
+
+RW1 Stage 5 observed both persistence orders:
+
+- composite first, standalone lost;
+- standalone first, complete CGV-accepted composite lost.
+
+That means the final catalog depends on component cardinality and persistence
+order rather than Experience identity.
+
+Canonical principle:
+
+```text
+shared GeoEntity membership != Experience identity
+GeoEntity existence != Experience existence
+component membership != standalone Experience authority
+```
+
+A GeoEntity may legitimately participate in many Experiences. In particular,
+these must be able to coexist:
+
+```text
+Experience("Visit Plaza Dorrego")
+components = [Plaza Dorrego]
+
+Experience("San Telmo Historical Walk")
+components = [Plaza Dorrego, Mercado]
+```
+
+Do **not** fix this by changing `0.5` to another arbitrary threshold.
+Partial component-set containment alone must not imply `SAME` or
+`AMBIGUOUS`.
+
+Required regression matrix:
+
+```text
+[A] then [A,B]       → both coexist
+[A,B] then [A]       → same final catalog result
+
+[A] vs [A,B,C]       → same semantics
+
+same [A] vs same [A]
+→ existing duplicate logic preserved
+
+same [A,B] vs same [A,B]
+→ existing duplicate logic preserved
+
+partial overlap between two genuine composites
+→ preserve current policy unless real evidence requires change
+```
+
+Required invariant:
+
+```text
+Persistence order must not change the final catalog result.
+```
+
+This correction should stay small and policy-focused. It must not reopen the
+closed component-resolution milestone or trigger a broad dedupe rewrite.
 
 ---
 
-# 4. Gate B — RW1 real PASS and warm reuse
+# 4. Gate B — focused regression after dedupe correction
 
-Before broadening the corpus, RW1 must prove at least one difficult area-scoped composed Experience end to end.
+After the policy correction:
 
-Required closure facts:
+1. run the deterministic dedupe regression matrix;
+2. rerun the affected RW1 live shape against the current architecture;
+3. prove standalone and two-stop composite coexist in either persistence order;
+4. prove exact duplicate behavior still works for identical single and
+   identical composite Experiences;
+5. verify no correctness invariant was weakened to obtain the pass.
 
-- human-level request, not hand-built candidate input;
-- real discovery/source evidence;
-- evidence proves the Experience itself exists;
-- evidence proves the real component composition;
-- every persisted real component is grounded;
-- deterministic geographic validation passes;
-- canonical dedupe/identity path runs;
-- evidence-only classification is persisted or validly reused;
-- a normal canonical Experience is re-read from the catalog before planning;
-- the final Experience has multiple real components when the source proves a composed walk;
-- cold request can use it in the tour flow;
-- warm request reuses the same canonical Experience id;
-- warm request does not reacquire that same walk;
-- no nearby-POI fabrication is accepted as a substitute.
+The goal is not another broad San Telmo campaign. It is a bounded proof that
+the observed COLD-1/COLD-4 order-dependent catalog defect is gone and that
+existing same-Experience dedupe still behaves as intended.
 
-If RW1 reaches research correctly but cannot prove a real composed walk, that is valuable diagnosis but not final closure. Fix the responsible research/extraction/source problem without weakening evidence, identity or geography, then rerun RW1.
+Only after this focused gate is accepted should broad RW2–RW6 generalization
+resume.
 
 ---
 
-# 5. Gate C — RW2–RW6 real-world generalization
+# 5. Gate C — RW2–RW6 real-world generalization + evidence tracks
 
-After RW1 passes, execute the remaining real-world corpus defined by:
+Execute the remaining real-world corpus defined by:
 
 `docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`
 
 Do not replace the corpus with easier variants of RW1.
 
-The purpose of RW2–RW6 is to demonstrate generality across different failure modes, including:
+The purpose of RW2–RW6 is to demonstrate generality across different failure
+modes, including:
 
 - multi-area / cross-neighborhood research;
 - real route-like geography;
-- destination-specific tourism structures such as wine routes;
+- destination-specific tourism structures such as wine/regional routes;
 - a foreign-city case using the correct non-Argentina geographic providers;
-- a negative anti-fabrication case where real nearby POIs exist but source evidence does **not** prove a composed walk/route.
+- a negative anti-fabrication case where real nearby POIs exist but source
+  evidence does **not** prove a composed walk/route.
 
-The negative case is as important as a positive case. Zig-Zag must be able to conclude:
+Mendoza SIMPLE/COMPOSITE/MIXED evidence already exists under:
+
+`spikes/stage3-simple-composite-mixed-2026-09-23/`
+
+Historical findings such as Google Places radius behavior above 50 km,
+route-like routing behavior, or a route candidate ending in `NO_OSM_MATCH`
+remain evidence from the architecture that produced them. They must **not** be
+described automatically as current bugs; re-run against current HEAD before
+promoting them to current-state findings.
+
+The negative case is as important as a positive case. Zig-Zag must be able to
+conclude:
 
 ```text
 I found real places, but I did not find evidence for a real composed Experience.
@@ -219,14 +267,235 @@ I found real places, but I did not find evidence for a real composed Experience.
 
 It must not manufacture a plausible route from proximity.
 
+### 5.1 Extractor reliability characterization
+
+Stage 5 observed:
+
+```text
+2 of 9 web extraction passes emitted candidates
+```
+
+This is an observed Stage-5 sample, **not** a demonstrated extractor success
+rate and not a percentage to extrapolate.
+
+RW2–RW6 should record, per relevant pass:
+
+```text
+usable evidence available?
+extractor candidate produced?
+well-formed empty response?
+unrecognized envelope?
+candidate component set?
+candidate quality?
+```
+
+Keep distinct:
+
+- no composite produced;
+- components varied;
+- partial composite;
+- candidate quality variance;
+- provider-evidence variance.
+
+The purpose is to identify where useful evidence is lost or transformed, not
+to force a candidate out of every source response.
+
+### 5.2 Tour-quality evidence
+
+Canonical correctness is necessary but not sufficient:
+
+```text
+verified != good recommendation
+verified != good tour
+```
+
+The system already evaluates factual correctness, identity and geography
+aggressively. Generalization must begin collecting product-quality evidence
+for:
+
+- relevance;
+- touristic value;
+- preference satisfaction;
+- shape correctness;
+- diversity;
+- redundancy;
+- feasibility.
+
+Start with a small human-reviewed representative corpus (roughly 20–30
+requests is a reasonable characterization size). Do not require a single
+aggregate numeric score or a complicated feedback system before learning from
+that corpus.
+
+### 5.3 Performance characterization
+
+Keep performance evidence separated into:
+
+```text
+STRUCTURAL
+ENVIRONMENTAL
+UNKNOWN UNTIL PRODUCTION-SHAPED BENCHMARK
+```
+
+Structural examples include provider/component fanout, sequential dependencies,
+repeated resolution work and routing-call volume.
+
+Environmental examples include free-tier/development quotas, public/shared
+endpoints, local Docker/Postgres/OSM, cache-disabled test configurations,
+timeouts and retries.
+
+The current `260–374s` / roughly `400s` COLD spike timings are real
+development evidence but are **not** demonstrated production-latency
+predictions.
+
+The independent post-milestone review observed roughly `124` Geoapify routing
+calls in a run. Treat that as a characterization candidate, not an immediate
+optimization mandate. Establish:
+
+- whether they are actual HTTP calls;
+- batching behavior;
+- parallel vs sequential execution;
+- cacheability by origin/destination pair + mode;
+- provider cost;
+- measured latency contribution.
+
+Only production-shaped benchmarking can answer the remaining production
+latency/cost question.
+
+### 5.4 Repeated failed-resolution work
+
+WARM evidence shows that some unresolved hints are acquired/resolved again.
+Preserve this as a finding; do not jump directly to generic negative caching.
+
+Failure knowledge has different semantics:
+
+```text
+PROVIDER_FAILURE
+→ never negative knowledge
+
+NO_CANDIDATE_ACQUIRED
+→ may be temporary
+
+AMBIGUOUS
+→ may improve with new evidence
+
+IDENTITY_REJECTED
+→ may have stronger negative value but still needs policy
+```
+
+Any future failure-memory design must be typed, reason-aware and
+TTL/expiry-aware.
+
+### 5.5 Baseline red suites and CI signal
+
+The component-resolution milestone closed with known baseline failures:
+
+```text
+unit:
+preference-first-architecture
+
+integration:
+2x acquisition-degradation
+canonical-orchestration
+```
+
+`preference-first-architecture.spec.ts` is source-text/regex based and still
+catches `destinationBoundary` in the resolver. A permanently red suite
+degrades CI signal.
+
+Clean this up soon:
+
+```text
+either make the architecture test meaningful and green
+or replace/remove the stale assertion
+```
+
+Apply the same standard to stale integration baselines. The operational goal
+is simple:
+
+```text
+green means green
+```
+
+### 5.6 Catalog freshness and correction lifecycle
+
+The shared catalog is cumulative knowledge and will eventually need explicit:
+
+- provenance;
+- freshness;
+- reverification;
+- identity correction;
+- merge;
+- supersession;
+- stale-fact lifecycle.
+
+`verifiedHintNames` is append-only after an externally VERIFIED identity. It
+does **not** grow once per request. The risk is stale or wrong learned names,
+not request-count explosion.
+
+This is medium-term knowledge-base debt, not a reason to weaken current
+catalog-first reuse.
+
+### 5.7 Typed lifecycle state
+
+Operational behavior currently depends on metadata fields such as:
+
+```text
+metadata.generationStatus
+metadata.generationFailureKind
+metadata.generationRetryCount
+```
+
+That is legitimate typed-boundary debt because lifecycle state influences
+behavior. A future cleanup may move authoritative lifecycle state into typed
+Tour columns/state while leaving audit payloads such as `generationTrace`
+and `executionSummary` in JSON.
+
+Not urgent.
+
+### 5.8 Maintainability and deferred geography debt
+
+Large services are a maintainability signal:
+
+```text
+ExperienceProposalResolverService ~2820 lines
+ExperienceGenerationService ~2150 lines
+```
+
+Do **not** broadly refactor them while dedupe/generalization/product behavior
+is still settling. Revisit after those semantics stabilize.
+
+The independent review also noted that `representativePoint` averages
+coordinates and, for MultiPolygon, uses only the first polygon. San Martín is
+harness debt, not production hardcoding. Grounded-provider plurality is
+acceptable while providers are still being characterized.
+
+Keep the following deferred unless real product evidence promotes them:
+
+```text
+NEAR threshold
+POINT_RADIUS ROUTE/AREA relation
+MultiLineString planner footprint
+representativePoint MultiPolygon refinement
+required-column migration
+San Martín hardening
+anchor Nominatim namespace
+broad service refactor
+```
+
 ### Real-world corpus acceptance
 
 Preference-First core closure requires:
 
-- positive cases can discover, ground, persist and reuse canonical Experiences when reality supports them;
+- positive cases can discover, ground, persist and reuse canonical Experiences
+  when reality supports them;
 - negative cases fail safely without invented composition;
 - warm reuse is proven wherever a cold run persisted reusable knowledge;
 - provider outages/rate limits are reported truthfully;
+- extractor outcomes are characterized without turning a small sample into a
+  fake statistical rate;
+- tour-quality evidence exists for a small representative human-reviewed
+  corpus;
+- structural performance costs are accounted for separately from environment;
 - no correctness invariant is weakened just to make a spike pass.
 
 ---
@@ -243,8 +512,13 @@ PREFERENCE-FIRST CORE CLOSED =
   + DB-backed verification green
   + single live orchestration owner
   + legacy authority removed
-  + real RW1 PASS with warm reuse
+  + component-resolution / RW1 milestone accepted
+  + Experience dedupe is order-independent for the verified containment case
+  + focused live dedupe regression accepted
   + RW2–RW6 generalization/anti-fabrication gate accepted
+  + extractor reliability evidence characterized
+  + initial human-reviewed tour-quality evidence recorded
+  + structural performance accounting separated from environment
 ```
 
 At closure the engine must satisfy, at minimum:
@@ -476,17 +750,25 @@ Do not perform history rewrites or delete branches merely because this roadmap r
 
 # 11. Current execution pointer
 
-As of this rewrite, the immediate implementation work remains the M9/M10 recovery on `feat/preference-first-selection`.
+As of 2026-09-25, the component-resolution / RW1 milestone is complete on
+`feat/preference-first-selection`. Do not reopen its closed Progress for
+post-milestone work unless a real regression disproves an accepted milestone
+fact.
 
-Do not begin agentic convergence merely because this roadmap is now updated.
+Do not begin agentic convergence merely because the component-resolution
+milestone is complete.
 
 Sequence from the current frontier:
 
 ```text
-finish M9 prerequisites
-→ M10 RW1 rerun
-→ obtain real RW1 PASS + warm reuse
-→ authorize/run RW2–RW6
+Experience dedupe policy correction
+→ focused deterministic regression
+→ focused live rerun
+→ RW2–RW6 generalization
+   + extractor reliability characterization
+   + initial tour-quality evaluation
+   + structural performance accounting
+→ clean stale red baseline suites so green means green
 → close Preference-First core
 → audit existing agentic work
 → create/recreate unified branch from Preference-First
@@ -494,4 +776,7 @@ finish M9 prerequisites
 → unified Agentic E2E
 ```
 
-The current main progress document remains the source of truth for the exact implementation checkpoint before RW1.
+The closed component-resolution Progress remains canonical historical evidence
+for that milestone. Current code is implementation authority; this roadmap owns
+post-milestone sequencing; historical spikes remain evidence rather than
+automatic current truth.
