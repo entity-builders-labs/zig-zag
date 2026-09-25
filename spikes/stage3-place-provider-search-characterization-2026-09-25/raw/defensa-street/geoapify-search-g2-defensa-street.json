@@ -1,0 +1,476 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "Defensa Street",
+      "type": "amenity",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 753,
+  "response": {
+    "results": [
+      {
+        "country_code": "ar",
+        "housenumber": "113",
+        "street": "Defensa",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "iso3166_2": "AR-C",
+        "lon": -58.372369,
+        "lat": -34.609179,
+        "result_type": "building",
+        "distance": 1041.5943079217138,
+        "postcode": "1871",
+        "formatted": "Defensa 113, Monserrat, 1871 Buenos Aires, Argentina",
+        "address_line1": "Defensa 113",
+        "address_line2": "Monserrat, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JRH+83",
+        "plus_code_short": "RH+83 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51a98592c9a92f4dc0597a34d593f94d41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a35623062356130643233386538306237"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "119",
+        "street": "Defensa",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "iso3166_2": "AR-C",
+        "lon": -58.37232,
+        "lat": -34.609294,
+        "result_type": "building",
+        "distance": 1052.73925799373,
+        "postcode": "1871",
+        "formatted": "Defensa 119, Monserrat, 1871 Buenos Aires, Argentina",
+        "address_line1": "Defensa 119",
+        "address_line2": "Monserrat, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JRH+73",
+        "plus_code_short": "RH+73 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51c8d2872ea82f4dc05913d38558fd4d41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a33396362333763373332333135396364"
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1086AAD",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Defensa",
+        "housenumber": "101",
+        "iso3166_2": "AR-C",
+        "lon": -58.372194,
+        "lat": -34.6090531,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "building",
+        "distance": 1046.6024060565219,
+        "formatted": "Defensa 101, Monserrat, C1086 AAD Buenos Aires, Argentina",
+        "address_line1": "Defensa 101",
+        "address_line2": "Monserrat, C1086 AAD Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JRH+94",
+        "plus_code_short": "RH+94 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "513be2900da42f4dc0598203b573f54d41c0f00103f9010443938200000000c00203e203256f70656e7374726565746d61703a616464726573733a6e6f64652f32313930363839303238",
+        "bbox": {
+          "lon1": -58.372244,
+          "lat1": -34.6091031,
+          "lon2": -58.372144,
+          "lat2": -34.6090031
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1086AAD",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Defensa",
+        "housenumber": "102",
+        "iso3166_2": "AR-C",
+        "lon": -58.3720578,
+        "lat": -34.6090344,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "building",
+        "distance": 1055.7095058073837,
+        "formatted": "Defensa 102, Monserrat, C1086 AAD Buenos Aires, Argentina",
+        "address_line1": "Defensa 102",
+        "address_line2": "Monserrat, C1086 AAD Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JRH+95",
+        "plus_code_short": "RH+95 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51619c09979f2f4dc059ca11d7d6f44d41c0f00103f9010343938200000000c00203e203256f70656e7374726565746d61703a616464726573733a6e6f64652f32313930363839303237",
+        "bbox": {
+          "lon1": -58.3721078,
+          "lat1": -34.6090844,
+          "lon2": -58.3720078,
+          "lat2": -34.6089844
+        }
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "125",
+        "street": "Defensa",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "iso3166_2": "AR-C",
+        "lon": -58.372332,
+        "lat": -34.609417,
+        "result_type": "building",
+        "distance": 1059.998336239013,
+        "postcode": "1871",
+        "formatted": "Defensa 125, Monserrat, 1871 Buenos Aires, Argentina",
+        "address_line1": "Defensa 125",
+        "address_line2": "Monserrat, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JRH+63",
+        "plus_code_short": "RH+63 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "518ca03193a82f4dc0592f505260014e41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a63386139613630336234396632343066"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "127",
+        "street": "Defensa",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "iso3166_2": "AR-C",
+        "lon": -58.372332,
+        "lat": -34.609417,
+        "result_type": "building",
+        "distance": 1059.998336239013,
+        "postcode": "1871",
+        "formatted": "Defensa 127, Monserrat, 1871 Buenos Aires, Argentina",
+        "address_line1": "Defensa 127",
+        "address_line2": "Monserrat, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JRH+63",
+        "plus_code_short": "RH+63 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "518ca03193a82f4dc0592f505260014e41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a35386463373433343235303436366365"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "129",
+        "street": "Defensa",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "iso3166_2": "AR-C",
+        "lon": -58.372332,
+        "lat": -34.609417,
+        "result_type": "building",
+        "distance": 1059.998336239013,
+        "postcode": "1871",
+        "formatted": "Defensa 129, Monserrat, 1871 Buenos Aires, Argentina",
+        "address_line1": "Defensa 129",
+        "address_line2": "Monserrat, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JRH+63",
+        "plus_code_short": "RH+63 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "518ca03193a82f4dc0592f505260014e41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a31343565323663653838653834383665"
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Museo de la Ciudad",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1065AAC",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Defensa",
+        "housenumber": "219",
+        "iso3166_2": "AR-C",
+        "lon": -58.372266,
+        "lat": -34.6103266,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "building",
+        "distance": 1128.1382132584265,
+        "formatted": "Defensa 219, Monserrat, C1065 AAC Buenos Aires, Argentina",
+        "address_line1": "Defensa 219",
+        "address_line2": "Monserrat, C1065 AAC Buenos Aires, Argentina",
+        "category": "entertainment.museum",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+V3",
+        "plus_code_short": "QH+V3 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.18554865524912875,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51d5b48b69a62f4dc0597f70992e1f4e41c0f00102f9015e148b0c00000000c002039203124d7573656f206465206c6120436975646164e203236f70656e7374726565746d61703a616464726573733a7761792f323130343431333130",
+        "bbox": {
+          "lon1": -58.3724406,
+          "lat1": -34.6105025,
+          "lon2": -58.3720882,
+          "lat2": -34.6101817
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Security Defensa Juridica S.A.",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1064",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Defensa",
+        "iso3166_2": "AR-C",
+        "lon": -58.3716773,
+        "lat": -34.6115836,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1262.2026367869523,
+        "formatted": "Security Defensa Juridica S.A., Defensa, Monserrat, 1064 Buenos Aires, Argentina",
+        "address_line1": "Security Defensa Juridica S.A.",
+        "address_line2": "Defensa, Monserrat, 1064 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+98",
+        "plus_code_short": "QH+98 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5132152c1f932f4dc0598e62145f484e41c0f00102f901ebea3a1c00000000c0020192031e536563757269747920446566656e7361204a7572696469636120532e412ee203216f70656e7374726565746d61703a76656e75653a7761792f343733363233323735",
+        "bbox": {
+          "lon1": -58.3719252,
+          "lat1": -34.6116476,
+          "lon2": -58.3714286,
+          "lat2": -34.6115305
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "National Historical Museum",
+        "old_name": "Museo Histórico de la Capital",
+        "other_names": {
+          "name": "Museo Histórico Nacional",
+          "name:es": "Museo Histórico Nacional",
+          "name:uk": "Національний історичний музей",
+          "name:zh": "智利国家历史博物馆",
+          "old_name": "Museo Histórico de la Capital"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1143AAH",
+        "city_district": "Comuna 1",
+        "district": "Distrito de Las Artes",
+        "suburb": "San Telmo",
+        "street": "Defensa",
+        "housenumber": "1652",
+        "iso3166_2": "AR-C",
+        "lon": -58.3705803,
+        "lat": -34.6270114,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "building",
+        "distance": 2781.3640109457215,
+        "formatted": "Defensa 1652, San Telmo, C1143 AAH Buenos Aires, Argentina",
+        "address_line1": "Defensa 1652",
+        "address_line2": "San Telmo, C1143 AAH Buenos Aires, Argentina",
+        "category": "entertainment.museum",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JFH+5Q",
+        "plus_code_short": "FH+5Q Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.40308494416412793,
+          "popularity": 7.4413917243941965,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "515c85de2c6f2f4dc0590e9cd8e8415041c0f00102f901a75e540700000000c0020392031a4e6174696f6e616c20486973746f726963616c204d757365756de203236f70656e7374726565746d61703a616464726573733a7761792f313232393639373637",
+        "bbox": {
+          "lon1": -58.370886,
+          "lat1": -34.6273164,
+          "lon2": -58.370295,
+          "lat2": -34.626611
+        }
+      }
+    ],
+    "query": {
+      "text": "Defensa Street"
+    }
+  }
+}

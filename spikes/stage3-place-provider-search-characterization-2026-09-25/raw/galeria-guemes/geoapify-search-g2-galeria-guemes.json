@@ -1,0 +1,452 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "Galería Güemes",
+      "type": "amenity",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 962,
+  "response": {
+    "results": [
+      {
+        "country_code": "ar",
+        "housenumber": "2924",
+        "street": "Guemes",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.408236,
+        "lat": -34.592553,
+        "result_type": "building",
+        "distance": 2735.004697674554,
+        "postcode": "C1425BGS",
+        "formatted": "Guemes 2924, Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "address_line1": "Guemes 2924",
+        "address_line2": "Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH4R+XP",
+        "plus_code_short": "CH4R+XP Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.516439641382146,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "516286c61341344dc059c712d6c6d84b41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a39643666626565356331373363336139"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "2933",
+        "street": "Guemes",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.408079,
+        "lat": -34.592118,
+        "result_type": "building",
+        "distance": 2744.5701913284497,
+        "postcode": "C1425BGS",
+        "formatted": "Guemes 2933, Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "address_line1": "Guemes 2933",
+        "address_line2": "Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH5R+5Q",
+        "plus_code_short": "CH5R+5Q Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.5384484096401705,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "519a97c3ee3b344dc059bcafca85ca4b41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a31366164353833333933636163323933"
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1425BGS",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "quarter": "Barrio Norte",
+        "street": "Güemes",
+        "housenumber": "2901",
+        "iso3166_2": "AR-C",
+        "lon": -58.4079585,
+        "lat": -34.592354,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "building",
+        "distance": 2722.5730187318754,
+        "formatted": "Güemes 2901, Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "address_line1": "Güemes 2901",
+        "address_line2": "Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH5R+3R",
+        "plus_code_short": "CH5R+3R Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.5384484096401705,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5107d0effb37344dc059d0d38041d24b41c0f00103f901865bc3dc00000000c00203e203256f70656e7374726565746d61703a616464726573733a6e6f64652f33373033373930343730",
+        "bbox": {
+          "lon1": -58.4080085,
+          "lat1": -34.592404,
+          "lon2": -58.4079085,
+          "lat2": -34.592304
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1425BGS",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "quarter": "Barrio Norte",
+        "street": "Güemes",
+        "housenumber": "2902",
+        "iso3166_2": "AR-C",
+        "lon": -58.4080471,
+        "lat": -34.5924864,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "building",
+        "distance": 2722.9873683259416,
+        "formatted": "Güemes 2902, Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "address_line1": "Güemes 2902",
+        "address_line2": "Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH5R+2Q",
+        "plus_code_short": "CH5R+2Q Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.5384484096401705,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5123dd2ae33a344dc05992a92798d64b41c0f00103f901875bc3dc00000000c00203e203256f70656e7374726565746d61703a616464726573733a6e6f64652f33373033373930343731",
+        "bbox": {
+          "lon1": -58.4080971,
+          "lat1": -34.5925364,
+          "lon2": -58.4079971,
+          "lat2": -34.5924364
+        }
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "2928",
+        "street": "Guemes",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.408408,
+        "lat": -34.592459,
+        "result_type": "building",
+        "distance": 2753.777499374886,
+        "postcode": "C1425BGS",
+        "formatted": "Guemes 2928, Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "address_line1": "Guemes 2928",
+        "address_line2": "Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH5R+2J",
+        "plus_code_short": "CH5R+2J Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.5384484096401705,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "515fb69db646344dc059459c4eb2d54b41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a36373838633161663535303734316534"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "2926",
+        "street": "Guemes",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.408408,
+        "lat": -34.592459,
+        "result_type": "building",
+        "distance": 2753.777499374886,
+        "postcode": "C1425BGS",
+        "formatted": "Guemes 2926, Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "address_line1": "Guemes 2926",
+        "address_line2": "Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH5R+2J",
+        "plus_code_short": "CH5R+2J Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.5384484096401705,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "515fb69db646344dc059459c4eb2d54b41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a62646531336163313464653431346231"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "2947",
+        "street": "Guemes",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.408169,
+        "lat": -34.592076,
+        "result_type": "building",
+        "distance": 2754.036739993658,
+        "postcode": "C1425BGS",
+        "formatted": "Guemes 2947, Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "address_line1": "Guemes 2947",
+        "address_line2": "Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH5R+5P",
+        "plus_code_short": "CH5R+5P Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.5384484096401705,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51da1ebde13e344dc0598d5f7825c94b41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a31656134326135643132373365666230"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "2957",
+        "street": "Guemes",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.40818,
+        "lat": -34.591958,
+        "result_type": "building",
+        "distance": 2761.1076879512693,
+        "postcode": "C1425BGS",
+        "formatted": "Guemes 2957, Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "address_line1": "Guemes 2957",
+        "address_line2": "Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH5R+6P",
+        "plus_code_short": "CH5R+6P Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.5384484096401705,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51ce70033e3f344dc059834d9d47c54b41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a36653863393430653633643632333133"
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Güemes",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1425",
+        "district": "Comuna 14",
+        "neighbourhood": "Alto Palermo",
+        "suburb": "Palermo",
+        "street": "Güemes",
+        "housenumber": "3787",
+        "iso3166_2": "AR-C",
+        "lon": -58.4152741,
+        "lat": -34.5874948,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 3570.3809205341554,
+        "formatted": "Güemes 3787, Palermo, C1425 Buenos Aires, Argentina",
+        "address_line1": "Güemes 3787",
+        "address_line2": "Palermo, C1425 Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH7M+2V",
+        "plus_code_short": "CH7M+2V Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.581970253177436,
+          "confidence": 0.9,
+          "match_type": "full_match"
+        },
+        "place_id": "511b30a3b327354dc059f8489407334b41c0f00103f901d50d291903000000c0020192030747c3bc656d6573e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3133333037303232383035",
+        "bbox": {
+          "lon1": -58.4153241,
+          "lat1": -34.5875448,
+          "lon2": -58.4152241,
+          "lat2": -34.5874448
+        }
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "2955",
+        "street": "Guemes",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.40818,
+        "lat": -34.591958,
+        "result_type": "building",
+        "distance": 2761.1076879512693,
+        "postcode": "C1425BGS",
+        "formatted": "Guemes 2955, Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "address_line1": "Guemes 2955",
+        "address_line2": "Recoleta, C1425 BGS Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH5R+6P",
+        "plus_code_short": "CH5R+6P Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.5384484096401705,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51ce70033e3f344dc059834d9d47c54b41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a36343965393334303335313165623332"
+      }
+    ],
+    "query": {
+      "text": "Galería Güemes"
+    }
+  }
+}

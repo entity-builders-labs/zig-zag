@@ -1,0 +1,506 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Recoleta Cemetery",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 602,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Recoleta Cemetry",
+        "other_names": {
+          "name": "Cementerio de la Recoleta",
+          "name:es": "Cementerio de la Recoleta",
+          "name:pt": "Cemitério da Recoleta"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.3935953,
+        "lat": -34.5876575,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2094.6722419212447,
+        "formatted": "Recoleta Cemetry, Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "address_line1": "Recoleta Cemetry",
+        "address_line2": "Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ64+WH",
+        "plus_code_short": "CJ64+WH Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.5007324917980888,
+          "confidence": 0.7875,
+          "match_type": "full_match"
+        },
+        "place_id": "51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+        "bbox": {
+          "lon1": -58.3951354,
+          "lat1": -34.5890966,
+          "lon2": -58.3918692,
+          "lat2": -34.5862094
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "166 - Cementerio de Recoleta",
+        "ref": "166",
+        "other_names": {
+          "ref": "166",
+          "brand": "BA Ecobici"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1113",
+        "district": "Comuna 2",
+        "neighbourhood": "La Isla",
+        "suburb": "Recoleta",
+        "street": "Vicente López",
+        "iso3166_2": "AR-C",
+        "lon": -58.3932473,
+        "lat": -34.5891902,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1933.831729135338,
+        "formatted": "166 - Cementerio de Recoleta, Vicente López, Recoleta, C1113 Buenos Aires, Argentina",
+        "address_line1": "166 - Cementerio de Recoleta",
+        "address_line2": "Vicente López, Recoleta, C1113 Buenos Aires, Argentina",
+        "category": "rental.bicycle",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ64+8P",
+        "plus_code_short": "CJ64+8P Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 0.5384615384615384,
+          "match_type": "full_match"
+        },
+        "place_id": "51c25e72ed55324dc059d50fa0956a4b41c0f00103f901a79a321201000000c0020192031c313636202d2043656d656e746572696f206465205265636f6c657461",
+        "bbox": {
+          "lon1": -58.3932973,
+          "lat1": -34.5892402,
+          "lon2": -58.3931973,
+          "lat2": -34.5891402
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Cementerio Parque Recoleta",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido del Pilar",
+        "city": "Del Viso",
+        "iso3166_2": "AR-B",
+        "lon": -58.807163,
+        "lat": -34.4343569,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 43298.081112343636,
+        "formatted": "Cementerio Parque Recoleta, Del Viso, Partido del Pilar, Argentina",
+        "address_line1": "Cementerio Parque Recoleta",
+        "address_line2": "Del Viso, Partido del Pilar, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3H58V+74",
+        "rank": {
+          "importance": 0.08003523537041272,
+          "confidence": 0.7,
+          "match_type": "full_match"
+        },
+        "place_id": "5148c5ff1d51674dc0595e25c401993741c0f00102f901d390c40f00000000c0020192031a43656d656e746572696f20506172717565205265636f6c657461",
+        "bbox": {
+          "lon1": -58.8095712,
+          "lat1": -34.4366224,
+          "lon2": -58.8048055,
+          "lat2": -34.4319616
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Cementerio General",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Santiago Metropolitan Region",
+        "county": "Provincia de Santiago",
+        "city": "Santiago",
+        "postcode": "8320000",
+        "suburb": "Recoleta",
+        "iso3166_2": "CL-RM",
+        "lon": -70.6482321,
+        "lat": -33.4132086,
+        "state_code": "RM",
+        "district": "Recoleta",
+        "result_type": "postcode",
+        "distance": 1137687.6264188555,
+        "formatted": "Recoleta, 8320000 Santiago, Chile",
+        "address_line1": "Recoleta",
+        "address_line2": "8320000 Santiago, Chile",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RFH9P2+PP",
+        "plus_code_short": "H9P2+PP Santiago, Provincia de Santiago, Chile",
+        "rank": {
+          "importance": 0.41359616883692174,
+          "confidence": 0.5,
+          "confidence_city_level": 0.5,
+          "match_type": "full_match"
+        },
+        "place_id": "51ea6d7da27ca951c05985b6f704e4b440c0f00102f901fbc8ca0b00000000c0020792030a383332303030302b636c",
+        "bbox": {
+          "lon1": -70.6534959,
+          "lat1": -33.4180109,
+          "lon2": -70.6437595,
+          "lat2": -33.4075753
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Cementerio de la Recoleta",
+        "country": "Paraguay",
+        "country_code": "py",
+        "state": "Distrito Capital",
+        "city": "Asuncion",
+        "iso3166_2": "PY-ASU",
+        "iso3166_2_sublevel": "PY-ASU",
+        "lon": -57.5896171,
+        "lat": -25.2921287,
+        "district": "Asuncion",
+        "result_type": "suburb",
+        "distance": 1038196.5416687021,
+        "formatted": "Asuncion, Distrito Capital, Paraguay",
+        "address_line1": "Asuncion",
+        "address_line2": "Distrito Capital, Paraguay",
+        "timezone": {
+          "name": "America/Asuncion",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "5864PC56+45",
+        "rank": {
+          "importance": 0.3415289282979405,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51c8d4b89278cb4cc05916b94cf2c84a39c0f00102f9013ce2421000000000c0020592031943656d656e746572696f206465206c61205265636f6c657461",
+        "bbox": {
+          "lon1": -57.5917221,
+          "lat1": -25.2947572,
+          "lon2": -57.5876157,
+          "lat2": -25.2899983
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Cementerios",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Santiago Metropolitan Region",
+        "county": "Provincia de Santiago",
+        "city": "Santiago",
+        "postcode": "8320000",
+        "district": "Población San Cristóbal",
+        "suburb": "Recoleta",
+        "street": "Avenida Arzobispo Valdivieso",
+        "iso3166_2": "CL-RM",
+        "lon": -70.643597,
+        "lat": -33.4139806,
+        "state_code": "RM",
+        "result_type": "amenity",
+        "distance": 1137249.0274360308,
+        "formatted": "Cementerios, Avenida Arzobispo Valdivieso, 832 0000 Santiago, Chile",
+        "address_line1": "Cementerios",
+        "address_line2": "Avenida Arzobispo Valdivieso, 832 0000 Santiago, Chile",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RFH9P4+CH",
+        "plus_code_short": "H9P4+CH Santiago, Provincia de Santiago, Chile",
+        "rank": {
+          "importance": 0.37898700054830464,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5170b378b130a951c059d816f950fdb440c0f00103f9015c05d60f00000000c0020192030b43656d656e746572696f73",
+        "bbox": {
+          "lon1": -70.648597,
+          "lat1": -33.4189806,
+          "lon2": -70.638597,
+          "lat2": -33.4089806
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "(M) Cementerios",
+        "ref": "PB755",
+        "other_names": {
+          "ref": "PB755"
+        },
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Santiago Metropolitan Region",
+        "county": "Provincia de Santiago",
+        "city": "Santiago",
+        "postcode": "8320000",
+        "district": "Población San Cristóbal",
+        "suburb": "Recoleta",
+        "street": "Avenida Recoleta",
+        "iso3166_2": "CL-RM",
+        "lon": -70.643763,
+        "lat": -33.4147793,
+        "state_code": "RM",
+        "result_type": "amenity",
+        "distance": 1137248.642498742,
+        "formatted": "(M) Cementerios, Avenida Recoleta, 832 0000 Santiago, Chile",
+        "address_line1": "(M) Cementerios",
+        "address_line2": "Avenida Recoleta, 832 0000 Santiago, Chile",
+        "category": "public_transport.bus",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RFH9P4+3F",
+        "plus_code_short": "H9P4+3F Santiago, Provincia de Santiago, Chile",
+        "rank": {
+          "importance": 0.000052081330586663884,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51fed7b96933a951c0596547f47c17b540c0f00103f9011b81114600000000c0020192030f284d292043656d656e746572696f73",
+        "bbox": {
+          "lon1": -70.643813,
+          "lat1": -33.4148293,
+          "lon2": -70.643713,
+          "lat2": -33.4147293
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Cementerio General",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Santiago Metropolitan Region",
+        "county": "Provincia de Santiago",
+        "city": "Santiago",
+        "postcode": "8320000",
+        "district": "Población San Cristóbal",
+        "suburb": "Recoleta",
+        "street": "Cementerio General",
+        "iso3166_2": "CL-RM",
+        "lon": -70.6454012,
+        "lat": -33.4140148,
+        "state_code": "RM",
+        "result_type": "street",
+        "distance": 1137413.230758169,
+        "formatted": "Cementerio General, 832 0000 Santiago, Chile",
+        "address_line1": "Cementerio General",
+        "address_line2": "832 0000 Santiago, Chile",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RFH9P3+9R",
+        "plus_code_short": "H9P3+9R Santiago, Provincia de Santiago, Chile",
+        "rank": {
+          "importance": 0.0400520813305867,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5125b3d5404ea951c059ad07dd6ffeb440c0f00102f901cd946f1500000000c0020492031243656d656e746572696f2047656e6572616c",
+        "bbox": {
+          "lon1": -70.6456271,
+          "lat1": -33.4140298,
+          "lon2": -70.6451753,
+          "lat2": -33.4139999
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Cementerio Comunidad Israelita",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Santiago Metropolitan Region",
+        "county": "Provincia de Santiago",
+        "city": "Santiago",
+        "postcode": "8320000",
+        "district": "Población San Cristóbal",
+        "suburb": "Recoleta",
+        "street": "La Unión",
+        "iso3166_2": "CL-RM",
+        "lon": -70.6449674,
+        "lat": -33.4160447,
+        "state_code": "RM",
+        "result_type": "amenity",
+        "distance": 1137334.07367655,
+        "formatted": "Cementerio Comunidad Israelita, La Unión, 832 0000 Santiago, Chile",
+        "address_line1": "Cementerio Comunidad Israelita",
+        "address_line2": "La Unión, 832 0000 Santiago, Chile",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RFH9M4+H2",
+        "plus_code_short": "H9M4+H2 Santiago, Provincia de Santiago, Chile",
+        "rank": {
+          "importance": 0.000052081330586663884,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "511d7f582547a951c0594a16e6f340b540c0f00103f90147d137ff01000000c0020192031e43656d656e746572696f20436f6d756e696461642049737261656c697461",
+        "bbox": {
+          "lon1": -70.6450174,
+          "lat1": -33.4160947,
+          "lon2": -70.6449174,
+          "lat2": -33.4159947
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Cementerio General",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Santiago Metropolitan Region",
+        "county": "Provincia de Santiago",
+        "city": "Santiago",
+        "postcode": "8320000",
+        "suburb": "Recoleta",
+        "street": "Belisario Prat",
+        "iso3166_2": "CL-RM",
+        "lon": -70.6481811,
+        "lat": -33.4174393,
+        "state_code": "RM",
+        "district": "Recoleta",
+        "result_type": "amenity",
+        "distance": 1137600.626775786,
+        "formatted": "Cementerio General, Belisario Prat, 832 0000 Santiago, Chile",
+        "address_line1": "Cementerio General",
+        "address_line2": "Belisario Prat, 832 0000 Santiago, Chile",
+        "category": "parking.cars",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RFH9M2+2P",
+        "plus_code_short": "H9M2+2P Santiago, Provincia de Santiago, Chile",
+        "rank": {
+          "importance": 0.000052081330586663884,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51a99894cc7ba951c05956c8a6a66eb540c0f00102f901146dc40a00000000c0020192031243656d656e746572696f2047656e6572616c",
+        "bbox": {
+          "lon1": -70.648389,
+          "lat1": -33.4178797,
+          "lon2": -70.6478271,
+          "lat2": -33.417055
+        }
+      }
+    ],
+    "query": {
+      "text": "Recoleta Cemetery",
+      "categories": []
+    }
+  }
+}

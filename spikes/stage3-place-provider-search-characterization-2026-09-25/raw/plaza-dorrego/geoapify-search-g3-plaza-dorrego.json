@@ -1,0 +1,77 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Plaza Dorrego",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 807,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "iso3166_2": "AR-C",
+        "lon": -58.3717807,
+        "lat": -34.6204917,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Plaza Dorrego, San Telmo, Buenos Aires, Comuna 1, Argentina",
+        "address_line1": "Plaza Dorrego",
+        "address_line2": "San Telmo, Buenos Aires, Comuna 1, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JHH+R7",
+        "plus_code_short": "HH+R7 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.22274623325780465,
+          "popularity": 7.953640848669934,
+          "confidence": 1,
+          "confidence_city_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "515ae48d82962f4dc0594078a3456c4f41c0f00102f9013396de0100000000c0020192030d506c617a6120446f727265676f",
+        "bbox": {
+          "lon1": -58.3720765,
+          "lat1": -34.6206579,
+          "lon2": -58.3714819,
+          "lat2": -34.6202899
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "parsed": {
+        "house": "Plaza Dorrego",
+        "city": "Buenos Aires",
+        "country": "Argentina",
+        "expected_type": "amenity"
+      }
+    }
+  }
+}

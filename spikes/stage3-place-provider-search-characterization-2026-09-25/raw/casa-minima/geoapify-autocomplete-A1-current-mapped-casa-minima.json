@@ -1,0 +1,22 @@
+{
+  "note": "PlaceData[] exactly as GeoapifyPlacesApiService.searchText returns it (production path)",
+  "mapped": [
+    {
+      "id": "51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae0801000000c0020192030c43617361204dc3ad6e696d61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34343430353838363839",
+      "name": "Casa Mínima",
+      "displayName": {
+        "text": "Casa Mínima"
+      },
+      "formattedAddress": "Casa Mínima, San Lorenzo 380, San Telmo, C1098 AAH Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6167555,
+        "longitude": -58.3713487
+      },
+      "types": [
+        "tourism.attraction"
+      ],
+      "primaryType": "tourism.attraction"
+    }
+  ],
+  "failure": null
+}

@@ -1,0 +1,530 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Farmacia la Estrella",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 963,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia de la Estrella",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1064",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Defensa",
+        "housenumber": "201",
+        "iso3166_2": "AR-C",
+        "lon": -58.3721513,
+        "lat": -34.6102605,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1131.3549723914916,
+        "formatted": "Farmacia de la Estrella, Defensa 201, Monserrat, 1064 Buenos Aires, Argentina",
+        "address_line1": "Farmacia de la Estrella",
+        "address_line2": "Defensa 201, Monserrat, 1064 Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+V4",
+        "plus_code_short": "QH+V4 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 0.9,
+          "match_type": "full_match"
+        },
+        "place_id": "51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61",
+        "bbox": {
+          "lon1": -58.3722013,
+          "lat1": -34.6103105,
+          "lon2": -58.3721013,
+          "lat2": -34.6102105
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia Estrella Argentina",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1407HGF",
+        "district": "Comuna 9",
+        "suburb": "Parque Avellaneda",
+        "street": "Dámaso Larrañaga",
+        "iso3166_2": "AR-C",
+        "lon": -58.4866718,
+        "lat": -34.6468208,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 10743.48070283878,
+        "formatted": "Farmacia Estrella Argentina, Dámaso Larrañaga, Parque Avellaneda, C1407 HGF Buenos Aires, Argentina",
+        "address_line1": "Farmacia Estrella Argentina",
+        "address_line2": "Dámaso Larrañaga, Parque Avellaneda, C1407 HGF Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39G37+78",
+        "plus_code_short": "9G37+78 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "515771f4424b3e4dc059b02f2306cb5241c0f00102f901758f611c00000000c0020192031b4661726d616369612045737472656c6c6120417267656e74696e61",
+        "bbox": {
+          "lon1": -58.4867553,
+          "lat1": -34.6469024,
+          "lon2": -58.4865839,
+          "lat2": -34.6467849
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia La Estrella",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Magallanes and Chilean Antarctica Region",
+        "county": "Provincia de Magallanes",
+        "city": "Punta Arenas",
+        "postcode": "6200537",
+        "district": "Manuel Rodríguez",
+        "street": "Avenida José Martínez de Aldunate",
+        "housenumber": "1528",
+        "iso3166_2": "CL-MA",
+        "lon": -70.9316968,
+        "lat": -53.1587066,
+        "state_code": "MA",
+        "result_type": "amenity",
+        "distance": 2287596.0855038203,
+        "formatted": "Farmacia La Estrella, Avenida José Martínez de Aldunate 1528, 620 0537 Punta Arenas, Chile",
+        "address_line1": "Farmacia La Estrella",
+        "address_line2": "Avenida José Martínez de Aldunate 1528, 620 0537 Punta Arenas, Chile",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Punta_Arenas",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "37RFR3R9+G8",
+        "plus_code_short": "R3R9+G8 Punta Arenas, Provincia de Magallanes, Chile",
+        "rank": {
+          "importance": 0.00006027084763862085,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "516c729deba0bb51c0596654747f50944ac0f00103f90190e3866c00000000c002019203144661726d61636961204c612045737472656c6c61",
+        "bbox": {
+          "lon1": -70.9317468,
+          "lat1": -53.1587566,
+          "lon2": -70.9316468,
+          "lat2": -53.1586566
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia Estrella",
+        "country": "Bolivia",
+        "country_code": "bo",
+        "state": "La Paz",
+        "county": "Provincia Pedro Domingo Murillo",
+        "city": "El Alto",
+        "district": "Distrito 3",
+        "neighbourhood": "Ayacucho",
+        "suburb": "Distrito 3",
+        "street": "Avenida Julio Cesar Valdez",
+        "iso3166_2": "BO-L",
+        "lon": -68.2011511,
+        "lat": -16.5256609,
+        "state_code": "L",
+        "result_type": "amenity",
+        "distance": 2235391.9917705203,
+        "formatted": "Farmacia Estrella, Avenida Julio Cesar Valdez, El Alto, Bolivia",
+        "address_line1": "Farmacia Estrella",
+        "address_line2": "Avenida Julio Cesar Valdez, El Alto, Bolivia",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/La_Paz",
+          "offset_STD": "-04:00",
+          "offset_DST": "-04:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -14400
+        },
+        "plus_code": "57MHFQFX+PG",
+        "rank": {
+          "importance": 0.00005351567864495334,
+          "confidence": 0.9,
+          "match_type": "full_match"
+        },
+        "place_id": "517c03dda8df0c51c059324976b6918630c0f00103f9010f76460803000000c002019203114661726d616369612045737472656c6c61",
+        "bbox": {
+          "lon1": -68.2012011,
+          "lat1": -16.5257109,
+          "lon2": -68.2011011,
+          "lat2": -16.5256109
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia La Estrella",
+        "country": "Dominican Republic",
+        "country_code": "do",
+        "state": "Santiago",
+        "city": "Puñal",
+        "town": "Canabacoa",
+        "hamlet": "Sabaneta de las Palomas",
+        "postcode": "32804",
+        "suburb": "Canabacoa Abajo",
+        "street": "Carretera Las Palomas",
+        "iso3166_2": "DO-25",
+        "lon": -70.6519758,
+        "lat": 19.4257318,
+        "district": "Sabaneta de las Palomas",
+        "result_type": "amenity",
+        "distance": 6146319.094237594,
+        "formatted": "Farmacia La Estrella, Carretera Las Palomas, Canabacoa Abajo, Puñal, Santiago, 32804, Dominican Republic",
+        "address_line1": "Farmacia La Estrella",
+        "address_line2": "Carretera Las Palomas, Canabacoa Abajo, Puñal, Santiago, 32804, Dominican Republic",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Santo_Domingo",
+          "offset_STD": "-04:00",
+          "offset_DST": "-04:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -14400,
+          "abbreviation_STD": "AST",
+          "abbreviation_DST": "AST"
+        },
+        "plus_code": "77FFC8GX+76",
+        "rank": {
+          "importance": 0.00004882200350952953,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5124b2b4f8b9a951c05902de5dc2fc6c3340f00102f901a2324e1800000000c002019203144661726d61636961204c612045737472656c6c61",
+        "bbox": {
+          "lon1": -70.6520434,
+          "lat1": 19.4256873,
+          "lon2": -70.6519081,
+          "lat2": 19.4257764
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia la Estrella",
+        "country": "Nicaragua",
+        "country_code": "ni",
+        "state": "Matagalpa",
+        "city": "Sébaco",
+        "postcode": "62200",
+        "district": "Sébaco Viejo",
+        "street": "Avenida Santa Lucía",
+        "iso3166_2": "NI-MT",
+        "lon": -86.0969644,
+        "lat": 12.8514471,
+        "state_code": "MT",
+        "result_type": "amenity",
+        "distance": 6033526.282790493,
+        "formatted": "Farmacia la Estrella, Avenida Santa Lucía, Sébaco Viejo, Sébaco, Nicaragua",
+        "address_line1": "Farmacia la Estrella",
+        "address_line2": "Avenida Santa Lucía, Sébaco Viejo, Sébaco, Nicaragua",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Managua",
+          "offset_STD": "-06:00",
+          "offset_DST": "-06:00",
+          "offset_STD_seconds": -21600,
+          "offset_DST_seconds": -21600,
+          "abbreviation_STD": "CST",
+          "abbreviation_DST": "CST"
+        },
+        "plus_code": "764MVW23+H6",
+        "plus_code_short": "23+H6 Sébaco, Matagalpa, Nicaragua",
+        "rank": {
+          "importance": 0.000039855802243030704,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5115b82baa348655c0594f8cd1dff0b32940f00103f901f30c17f800000000c002019203144661726d61636961206c612045737472656c6c61",
+        "bbox": {
+          "lon1": -86.0970144,
+          "lat1": 12.8513971,
+          "lon2": -86.0969144,
+          "lat2": 12.8514971
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia 5 estrella",
+        "country": "Dominican Republic",
+        "country_code": "do",
+        "state": "La Altagracia",
+        "city": "Higüey",
+        "village": "La Malena",
+        "postcode": "41201",
+        "district": "Juan Pablo Duarte",
+        "street": "Calle Evaristo del Carpio",
+        "iso3166_2": "DO-11",
+        "lon": -68.7110684,
+        "lat": 18.6029283,
+        "result_type": "amenity",
+        "distance": 6016317.84893998,
+        "formatted": "Farmacia 5 estrella, Calle Evaristo del Carpio, Higüey, La Altagracia, 41201, Dominican Republic",
+        "address_line1": "Farmacia 5 estrella",
+        "address_line2": "Calle Evaristo del Carpio, Higüey, La Altagracia, 41201, Dominican Republic",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Santo_Domingo",
+          "offset_STD": "-04:00",
+          "offset_DST": "-04:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -14400,
+          "abbreviation_STD": "AST",
+          "abbreviation_DST": "AST"
+        },
+        "plus_code": "77CHJ73Q+5H",
+        "rank": {
+          "importance": 0.000050651560234943425,
+          "confidence": 0.7,
+          "match_type": "full_match"
+        },
+        "place_id": "5105ce0825822d51c05937555282599a3240f00103f90159a7a8e001000000c002019203134661726d6163696120352065737472656c6c61",
+        "bbox": {
+          "lon1": -68.7111184,
+          "lat1": 18.6028783,
+          "lon2": -68.7110184,
+          "lat2": 18.6029783
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia La Estrella",
+        "country": "Spain",
+        "country_code": "es",
+        "state": "Andalusia",
+        "county": "Sevilla",
+        "city": "Seville",
+        "postcode": "41013",
+        "district": "Distrito Sur",
+        "neighbourhood": "Tabladilla-La Estrella",
+        "suburb": "Distrito Bellavista-La Palmera",
+        "street": "Avenida Manuel Siurot",
+        "housenumber": "3",
+        "iso3166_2": "ES-AN",
+        "iso3166_2_sublevel": "ES-SE",
+        "lon": -5.9840933,
+        "lat": 37.3664042,
+        "state_code": "AN",
+        "result_type": "amenity",
+        "distance": 9660150.56120266,
+        "county_code": "SE",
+        "NUTS_3": "ES618",
+        "formatted": "Farmacia La Estrella, Avenida Manuel Siurot, 3, 41013 Seville, Spain",
+        "address_line1": "Farmacia La Estrella",
+        "address_line2": "Avenida Manuel Siurot, 3, 41013 Seville, Spain",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "Europe/Madrid",
+          "offset_STD": "+01:00",
+          "offset_DST": "+02:00",
+          "offset_STD_seconds": 3600,
+          "offset_DST_seconds": 7200,
+          "abbreviation_STD": "CET",
+          "abbreviation_DST": "CEST"
+        },
+        "plus_code": "8C9P9288+H9",
+        "rank": {
+          "importance": 0.00007680094605931209,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51d2d96e27b6ef17c059fb0e3455e6ae4240f00103f901ae42cf2e00000000c002019203144661726d61636961204c612045737472656c6c61",
+        "bbox": {
+          "lon1": -5.9841433,
+          "lat1": 37.3663542,
+          "lon2": -5.9840433,
+          "lat2": 37.3664542
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia La Estrella",
+        "country": "Spain",
+        "country_code": "es",
+        "state": "Andalusia",
+        "county": "Sevilla",
+        "city": "Valencina de la Concepción",
+        "postcode": "41907",
+        "district": "Urbanización \"El Sitio de Valencina\"",
+        "street": "Calle Alamillo",
+        "housenumber": "31",
+        "iso3166_2": "ES-AN",
+        "iso3166_2_sublevel": "ES-SE",
+        "lon": -6.0737534,
+        "lat": 37.4168443,
+        "state_code": "AN",
+        "result_type": "amenity",
+        "distance": 9659229.869176393,
+        "county_code": "SE",
+        "NUTS_3": "ES618",
+        "formatted": "Farmacia La Estrella, Calle Alamillo, 31, 41907 Valencina de la Concepción, Spain",
+        "address_line1": "Farmacia La Estrella",
+        "address_line2": "Calle Alamillo, 31, 41907 Valencina de la Concepción, Spain",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "Europe/Madrid",
+          "offset_STD": "+01:00",
+          "offset_DST": "+02:00",
+          "offset_STD_seconds": 3600,
+          "offset_DST_seconds": 7200,
+          "abbreviation_STD": "CET",
+          "abbreviation_DST": "CEST"
+        },
+        "plus_code": "8C9MCW8G+PF",
+        "plus_code_short": "+PF Valencina de la Concepción, Sevilla, Spain",
+        "rank": {
+          "importance": 0.00005653086137174056,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "510fe0e302864b18c05913036e275bb54240f00103f901671133b402000000c002019203144661726d61636961204c612045737472656c6c61",
+        "bbox": {
+          "lon1": -6.0738034,
+          "lat1": 37.4167943,
+          "lon2": -6.0737034,
+          "lat2": 37.4168943
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia Estrella",
+        "other_names": {
+          "alt_name": "Farmacia Estrella Barrionuevo Ostos"
+        },
+        "country": "Spain",
+        "country_code": "es",
+        "state": "Andalusia",
+        "county": "Málaga-Costa del Sol",
+        "province": "Malaga",
+        "city": "Málaga",
+        "postcode": "29009",
+        "district": "Centro",
+        "neighbourhood": "La Trinidad (Centro)",
+        "suburb": "La Trinidad",
+        "street": "Avenida Fátima",
+        "housenumber": "22",
+        "iso3166_2": "ES-AN",
+        "iso3166_2_sublevel": "ES-MA",
+        "lon": -4.4267288,
+        "lat": 36.7258175,
+        "state_code": "AN",
+        "result_type": "amenity",
+        "distance": 9697809.940778958,
+        "formatted": "Farmacia Estrella, Avenida Fátima, 22, 29009 Málaga, Spain",
+        "address_line1": "Farmacia Estrella",
+        "address_line2": "Avenida Fátima, 22, 29009 Málaga, Spain",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "Europe/Madrid",
+          "offset_STD": "+01:00",
+          "offset_DST": "+02:00",
+          "offset_STD_seconds": 3600,
+          "offset_DST_seconds": 7200,
+          "abbreviation_STD": "CET",
+          "abbreviation_DST": "CEST"
+        },
+        "plus_code": "8C8QPHGF+88",
+        "plus_code_short": "GF+88 Málaga, Málaga-Costa del Sol, Spain",
+        "rank": {
+          "importance": 0.00007199588006404238,
+          "confidence": 0.9,
+          "match_type": "full_match"
+        },
+        "place_id": "51990b0165f8b411c059a7ae7c96e75c4240f00103f90196b40c4f01000000c002019203114661726d616369612045737472656c6c61",
+        "bbox": {
+          "lon1": -4.4267788,
+          "lat1": 36.7257675,
+          "lon2": -4.4266788,
+          "lat2": 36.7258675
+        }
+      }
+    ],
+    "query": {
+      "text": "Farmacia la Estrella",
+      "categories": []
+    }
+  }
+}

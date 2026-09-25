@@ -1,0 +1,38 @@
+{
+  "note": "PlaceData[] exactly as GeoapifyPlacesApiService.searchText returns it (production path)",
+  "mapped": [
+    {
+      "id": "518610a15bf92f4dc0596eda311a9e4d41c0f00103f9019c1cf09300000000c002019203184d697261646f722047616c6572c3ad612047c3bc656d6573e203236f70656e7374726565746d61703a76656e75653a6e6f64652f32343831393836373136",
+      "name": "Mirador Galería Güemes",
+      "displayName": {
+        "text": "Mirador Galería Güemes"
+      },
+      "formattedAddress": "Mirador Galería Güemes, Florida, San Nicolás, C1005 Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6063874,
+        "longitude": -58.3747973
+      },
+      "types": [
+        "tourism.attraction.viewpoint"
+      ],
+      "primaryType": "tourism.attraction.viewpoint"
+    },
+    {
+      "id": "51557ab7c370484dc0597331618fe45141c0f00103f901c3f2063403000000c0020192031347616c6572c3ad612047c3bc656d6573203531e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3133373537373732343833",
+      "name": "Galería Güemes 51",
+      "displayName": {
+        "text": "Galería Güemes 51"
+      },
+      "formattedAddress": "Galería Güemes 51, Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+      "location": {
+        "latitude": -34.6397876,
+        "longitude": -58.5659413
+      },
+      "types": [
+        "commercial.shopping_mall"
+      ],
+      "primaryType": "commercial.shopping_mall"
+    }
+  ],
+  "failure": null
+}

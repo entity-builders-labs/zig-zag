@@ -1,0 +1,511 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Parque Lezama",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 809,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Parque Lezama",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1143AAH",
+        "city_district": "Comuna 1",
+        "district": "Distrito de Las Artes",
+        "suburb": "San Telmo",
+        "street": "Defensa",
+        "iso3166_2": "AR-C",
+        "lon": -58.3709981,
+        "lat": -34.6256799,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "county": "Distrito de Las Artes",
+        "result_type": "amenity",
+        "distance": 2629.584418955886,
+        "formatted": "Parque Lezama, Defensa, San Telmo, C1143 AAH Buenos Aires, Argentina",
+        "address_line1": "Parque Lezama",
+        "address_line2": "Defensa, San Telmo, C1143 AAH Buenos Aires, Argentina",
+        "category": "public_transport.bus",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JFH+PJ",
+        "plus_code_short": "FH+PJ Buenos Aires, Distrito de Las Artes, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "516730a1dd7c2f4dc059dd216a47165041c0f00103f9010bb2359502000000c0020192030d506172717565204c657a616d61",
+        "bbox": {
+          "lon1": -58.3710481,
+          "lat1": -34.6257299,
+          "lon2": -58.3709481,
+          "lat2": -34.6256299
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Parque Lezama",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1143",
+        "city_district": "Comuna 1",
+        "district": "Distrito de Las Artes",
+        "suburb": "San Telmo",
+        "street": "Avenida Brasil",
+        "iso3166_2": "AR-C",
+        "lon": -58.3699007,
+        "lat": -34.6253437,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "county": "Distrito de Las Artes",
+        "result_type": "amenity",
+        "distance": 2634.0716003832767,
+        "formatted": "Parque Lezama, Avenida Brasil, San Telmo, 1143 Buenos Aires, Argentina",
+        "address_line1": "Parque Lezama",
+        "address_line2": "Avenida Brasil, San Telmo, 1143 Buenos Aires, Argentina",
+        "category": "public_transport.bus",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JFJ+V2",
+        "plus_code_short": "FJ+V2 Buenos Aires, Distrito de Las Artes, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "513ea2f8e7582f4dc0593c212a430b5041c0f00103f901d026cffd02000000c0020192030d506172717565204c657a616d61",
+        "bbox": {
+          "lon1": -58.3699507,
+          "lat1": -34.6253937,
+          "lon2": -58.3698507,
+          "lat2": -34.6252937
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Parque Lezama",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "city_district": "Comuna 1",
+        "district": "Distrito de Las Artes",
+        "suburb": "San Telmo",
+        "iso3166_2": "AR-C",
+        "lon": -58.3692791,
+        "lat": -34.6271211,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "county": "Distrito de Las Artes",
+        "result_type": "amenity",
+        "distance": 2837.905554273361,
+        "formatted": "Parque Lezama, San Telmo, Buenos Aires, Distrito de Las Artes, Argentina",
+        "address_line1": "Parque Lezama",
+        "address_line2": "San Telmo, Buenos Aires, Distrito de Las Artes, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JFJ+57",
+        "plus_code_short": "FJ+57 Buenos Aires, Distrito de Las Artes, Argentina",
+        "rank": {
+          "importance": 0.36736730413826313,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5154cc9c89442f4dc059d6901381455041c0f00102f901dd230a0100000000c0020192030d506172717565204c657a616d61",
+        "bbox": {
+          "lon1": -58.3710271,
+          "lat1": -34.6290124,
+          "lon2": -58.3681209,
+          "lat2": -34.6252477
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Parque Lezama",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1063ADN",
+        "city_district": "Comuna 1",
+        "district": "Distrito de Las Artes",
+        "suburb": "San Telmo",
+        "street": "Avenida Brasil",
+        "iso3166_2": "AR-C",
+        "lon": -58.368418,
+        "lat": -34.6252581,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "county": "Distrito de Las Artes",
+        "result_type": "amenity",
+        "distance": 2683.5724530902435,
+        "formatted": "Parque Lezama, Avenida Brasil, San Telmo, C1063 ADN Buenos Aires, Argentina",
+        "address_line1": "Parque Lezama",
+        "address_line2": "Avenida Brasil, San Telmo, C1063 ADN Buenos Aires, Argentina",
+        "category": "public_transport.bus",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JFJ+VJ",
+        "plus_code_short": "FJ+VJ Buenos Aires, Distrito de Las Artes, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51fda02e52282f4dc05991871975085041c0f00103f901af124c9302000000c0020192030d506172717565204c657a616d61",
+        "bbox": {
+          "lon1": -58.368468,
+          "lat1": -34.6253081,
+          "lon2": -58.368368,
+          "lat2": -34.6252081
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Parque Lezama",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 4",
+        "suburb": "La Boca",
+        "iso3166_2": "AR-C",
+        "lon": -58.367869,
+        "lat": -34.625461,
+        "result_type": "amenity",
+        "distance": 2726.5306634490853,
+        "formatted": "Parque Lezama, La Boca, Buenos Aires, Comuna 4, Argentina",
+        "address_line1": "Parque Lezama",
+        "address_line2": "La Boca, Buenos Aires, Comuna 4, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JFJ+RV",
+        "plus_code_short": "FJ+RV Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "512a1bd654162f4dc05934f6251b0f5041c0f00103f9019768528a02000000c0020192030d506172717565204c657a616d61e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3130393130353931313237"
+      },
+      {
+        "country_code": "ar",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "street": "Parque Lezama",
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "iso3166_2": "AR-C",
+        "lon": -58.369625,
+        "lat": -34.626859,
+        "result_type": "street",
+        "distance": 2798.6392776924145,
+        "postcode": "1871",
+        "formatted": "Parque Lezama, San Telmo, 1871 Buenos Aires, Argentina",
+        "address_line1": "Parque Lezama",
+        "address_line2": "San Telmo, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JFJ+75",
+        "plus_code_short": "FJ+75 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "confidence": 1,
+          "confidence_street_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "515a643bdf4f2f4dc059051a6cea3c5041c0f00102f901dd230a0100000000c00204e203206f70656e7374726565746d61703a76656e75653a7761792f3137343431373537",
+        "bbox": {
+          "lon1": -58.3710271,
+          "lat1": -34.6290124,
+          "lon2": -58.3681209,
+          "lat2": -34.6252477
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "006 - Parque Lezama",
+        "ref": "6",
+        "other_names": {
+          "ref": "6"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1143AAH",
+        "city_district": "Comuna 1",
+        "district": "Distrito de Las Artes",
+        "suburb": "San Telmo",
+        "street": "Avenida Martín García",
+        "iso3166_2": "AR-C",
+        "lon": -58.3699309,
+        "lat": -34.6284817,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "county": "Distrito de Las Artes",
+        "result_type": "amenity",
+        "distance": 2955.275579533814,
+        "formatted": "006 - Parque Lezama, Avenida Martín García, San Telmo, C1143 AAH Buenos Aires, Argentina",
+        "address_line1": "006 - Parque Lezama",
+        "address_line2": "Avenida Martín García, San Telmo, C1143 AAH Buenos Aires, Argentina",
+        "category": "rental.bicycle",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JCJ+J2",
+        "plus_code_short": "9JCJ+J2 Buenos Aires, Distrito de Las Artes, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51d2a34ee5592f4dc05937d19d16725041c0f00103f90172241b4300000000c00201920313303036202d20506172717565204c657a616d61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f31313235383532323734",
+        "bbox": {
+          "lon1": -58.3699809,
+          "lat1": -34.6285317,
+          "lon2": -58.3698809,
+          "lat2": -34.6284317
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galicia Parque Lezama",
+        "other_names": {
+          "brand": "Galicia"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1269ABF",
+        "city_district": "Comuna 4",
+        "district": "Distrito del Diseño",
+        "suburb": "Barracas",
+        "street": "Avenida Manuel Augusto Montes de Oca",
+        "iso3166_2": "AR-C",
+        "lon": -58.3748166,
+        "lat": -34.6357829,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "county": "Distrito del Diseño",
+        "result_type": "amenity",
+        "distance": 3621.0604764345076,
+        "formatted": "Galicia Parque Lezama, Avenida Manuel Augusto Montes de Oca, Barracas, C1269 ABF Buenos Aires, Argentina",
+        "address_line1": "Galicia Parque Lezama",
+        "address_line2": "Avenida Manuel Augusto Montes de Oca, Barracas, C1269 ABF Buenos Aires, Argentina",
+        "category": "service.financial.bank",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39J7G+M3",
+        "plus_code_short": "9J7G+M3 Buenos Aires, Distrito del Diseño, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51bc7f87fdf92f4dc059936d8555615141c0f00102f901bc08811b00000000c0020192031547616c6963696120506172717565204c657a616d61e203216f70656e7374726565746d61703a76656e75653a7761792f343631343431323132",
+        "bbox": {
+          "lon1": -58.3750003,
+          "lat1": -34.635869,
+          "lon2": -58.3746329,
+          "lat2": -34.6356969
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Lezama",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Merlo",
+        "city": "Merlo",
+        "postcode": "1721",
+        "suburb": "Parque San Martín",
+        "quarter": "Altos de Merlo",
+        "street": "Lezama",
+        "iso3166_2": "AR-B",
+        "lon": -58.7459901,
+        "lat": -34.6915281,
+        "state_code": "B",
+        "district": "Parque San Martín",
+        "result_type": "street",
+        "distance": 34734.1999390823,
+        "formatted": "Lezama, Parque San Martín, 1721 Merlo, Argentina",
+        "address_line1": "Lezama",
+        "address_line2": "Parque San Martín, 1721 Merlo, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q38753+9J",
+        "plus_code_short": "8753+9J, 1721 Merlo, Argentina",
+        "rank": {
+          "importance": 0.053380025177386096,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51e451859a7c5f4dc059ece126fe835841c0f00102f9019078464800000000c002049203064c657a616d61",
+        "bbox": {
+          "lon1": -58.7465807,
+          "lat1": -34.692114,
+          "lon2": -58.745412,
+          "lat2": -34.6909311
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Echeverry y Lezama",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Merlo",
+        "city": "Merlo",
+        "postcode": "B1721CNI",
+        "suburb": "Parque San Martín",
+        "quarter": "Luchetti",
+        "street": "Avenida Echeverry",
+        "iso3166_2": "AR-B",
+        "lon": -58.7516961,
+        "lat": -34.6974179,
+        "state_code": "B",
+        "district": "Parque San Martín",
+        "result_type": "amenity",
+        "distance": 35421.37129500003,
+        "formatted": "Echeverry y Lezama, Avenida Echeverry, Parque San Martín, B1721 CNI Merlo, Argentina",
+        "address_line1": "Echeverry y Lezama",
+        "address_line2": "Avenida Echeverry, Parque San Martín, B1721 CNI Merlo, Argentina",
+        "category": "public_transport.bus",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3863X+28",
+        "plus_code_short": "863X+28, B1721CNI Merlo, Argentina",
+        "rank": {
+          "importance": 0.000046691844052750704,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51ef03eb9337604dc0598f1260fd445941c0f00103f9014f81b69402000000c002019203124563686576657272792079204c657a616d61",
+        "bbox": {
+          "lon1": -58.7517461,
+          "lat1": -34.6974679,
+          "lon2": -58.7516461,
+          "lat2": -34.6973679
+        }
+      }
+    ],
+    "query": {
+      "text": "Parque Lezama",
+      "categories": []
+    }
+  }
+}

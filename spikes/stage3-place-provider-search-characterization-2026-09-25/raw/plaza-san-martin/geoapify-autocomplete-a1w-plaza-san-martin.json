@@ -1,0 +1,479 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Plaza San Martín",
+      "type": "amenity",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 913,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza San Martín",
+        "other_names": {
+          "official_name": "Plaza Libertador General San Martín"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1059ABO",
+        "district": "Comuna 1",
+        "suburb": "Retiro",
+        "iso3166_2": "AR-C",
+        "lon": -58.3759048,
+        "lat": -34.5946395,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1134.351977149439,
+        "formatted": "Plaza San Martín, Retiro, C1059 ABO Buenos Aires, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "Retiro, C1059 ABO Buenos Aires, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ4F+4J",
+        "plus_code_short": "CJ4F+4J Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.4013947720587043,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3784788,
+          "lat1": -34.5962265,
+          "lon2": -58.3740802,
+          "lat2": -34.5930561
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "city": "Lanús Oeste",
+        "suburb": "Villa de los Industriales",
+        "iso3166_2": "AR-B",
+        "lon": -58.4070128,
+        "lat": -34.6898992,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 9862.809110781607,
+        "formatted": "Plaza San Martín, Villa de los Industriales, Lanús Oeste, B, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "Villa de los Industriales, Lanús Oeste, B, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q38H6V+25",
+        "rank": {
+          "importance": 0.08005820477607382,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51d586d4fe18344dc059aec4f29d4e5841c0f00102f901698cea0500000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.4076815,
+          "lat1": -34.6904461,
+          "lon2": -58.4063445,
+          "lat2": -34.6893466
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de General San Martín",
+        "city": "Ciudad del Libertador General San Martín",
+        "postcode": "B1650",
+        "iso3166_2": "AR-B",
+        "lon": -58.5377724,
+        "lat": -34.5775787,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 14587.951005807796,
+        "formatted": "Plaza San Martín, B1650 Ciudad del Libertador General San Martín, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "B1650 Ciudad del Libertador General San Martín, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CFC6+XV",
+        "rank": {
+          "importance": 0.08004620965896084,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "518158dbb9d5444dc059dfae4d19ee4941c0f00102f901f7389e0500000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.5393515,
+          "lat1": -34.5784801,
+          "lon2": -58.5369476,
+          "lat2": -34.5764956
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Lomas de Zamora",
+        "city": "San José",
+        "iso3166_2": "AR-B",
+        "lon": -58.3571626,
+        "lat": -34.7625127,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 17799.99808771428,
+        "formatted": "Plaza San Martín, San José, Partido de Lomas de Zamora, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "San José, Partido de Lomas de Zamora, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q36JPV+X4",
+        "rank": {
+          "importance": 0.08005432745860987,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "515b2d0b81b72d4dc05970a422049a6141c0f00102f9013c46021200000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3577645,
+          "lat1": -34.763165,
+          "lon2": -58.3565085,
+          "lat2": -34.7619423
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Lomas de Zamora",
+        "city": "Turdera",
+        "iso3166_2": "AR-B",
+        "lon": -58.4051283,
+        "lat": -34.7909503,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 20932.12316156959,
+        "formatted": "Plaza San Martín, Turdera, Partido de Lomas de Zamora, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "Turdera, Partido de Lomas de Zamora, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q36H5V+JW",
+        "rank": {
+          "importance": 0.08005251316090635,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5190977f3edb334dc05975a103dc3d6541c0f00101f901b82f2c0000000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.405841,
+          "lat1": -34.7913722,
+          "lon2": -58.4044177,
+          "lat2": -34.790509
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "city": "Partido de Almirante Brown",
+        "town": "Adrogué",
+        "iso3166_2": "AR-B",
+        "lon": -58.394732,
+        "lat": -34.7981092,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 21650.654808132218,
+        "formatted": "Plaza San Martín, Partido de Almirante Brown, B, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "Partido de Almirante Brown, B, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q36J24+Q4",
+        "rank": {
+          "importance": 0.08005432745860987,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51a357039486324dc05980513871286641c0f00102f901fc19780a00000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3951098,
+          "lat1": -34.7988756,
+          "lon2": -58.3942061,
+          "lat2": -34.7974544
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza San Martín",
+        "old_name": "Plaza Adolfo Alsina",
+        "other_names": {
+          "old_name": "Plaza Adolfo Alsina",
+          "official_name": "Plaza del Libertador General San Martín"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Morón",
+        "city": "Morón",
+        "suburb": "Viejo Urbano",
+        "iso3166_2": "AR-B",
+        "lon": -58.6219448,
+        "lat": -34.6512243,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 22617.184951502066,
+        "formatted": "Plaza San Martín, Viejo Urbano, Morón, Partido de Morón, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "Viejo Urbano, Morón, Partido de Morón, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q389XH+G6",
+        "plus_code_short": "XH+G6 Morón, Partido de Morón, Argentina",
+        "rank": {
+          "importance": 0.14389741120638372,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5169f51fe39b4f4dc059256e5f515b5341c0f00102f901e58cc00800000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.6226351,
+          "lat1": -34.651586,
+          "lon2": -58.6212589,
+          "lat2": -34.6507431
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Berazategui",
+        "city": "Berazategui",
+        "suburb": "Barrio 12 de Octubre",
+        "iso3166_2": "AR-B",
+        "lon": -58.2144523,
+        "lat": -34.7539031,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 22639.80166373657,
+        "formatted": "Plaza San Martín, Barrio 12 de Octubre, Berazategui, Partido de Berazategui, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "Barrio 12 de Octubre, Berazategui, Partido de Berazategui, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q36QWP+C6",
+        "plus_code_short": "WP+C6 Berazategui, Partido de Berazategui, Argentina",
+        "rank": {
+          "importance": 0.08005001373311968,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51a786472c731b4dc059306d93e57f6041c0f00102f901a0d71d0800000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.2153633,
+          "lat1": -34.7546474,
+          "lon2": -58.2135412,
+          "lat2": -34.7531925
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de San Fernando",
+        "city": "San Fernando",
+        "iso3166_2": "AR-B",
+        "lon": -58.5585757,
+        "lat": -34.4435934,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 24079.403727853194,
+        "formatted": "Plaza San Martín, San Fernando, Partido de San Fernando, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "San Fernando, Partido de San Fernando, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3HC4R+HH",
+        "rank": {
+          "importance": 0.08004951781490803,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "518feb95687f474dc05958dc24abc73841c0f00102f9014b837f1000000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.5591123,
+          "lat1": -34.4440241,
+          "lon2": -58.5580457,
+          "lat2": -34.4431555
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Esteban Echeverría",
+        "city": "Monte Grande",
+        "iso3166_2": "AR-B",
+        "lon": -58.4687201,
+        "lat": -34.8135386,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 24654.568366323914,
+        "formatted": "Plaza San Martín, Monte Grande, Partido de Esteban Echeverría, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "Monte Grande, Partido de Esteban Echeverría, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q35GPJ+HG",
+        "rank": {
+          "importance": 0.08005007934691383,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "512a3d2e05ff3b4dc0594e846808226841c0f00102f9018d77f10200000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.4700331,
+          "lat1": -34.8142735,
+          "lon2": -58.467346,
+          "lat2": -34.812727
+        }
+      }
+    ],
+    "query": {
+      "text": "Plaza San Martín"
+    }
+  }
+}

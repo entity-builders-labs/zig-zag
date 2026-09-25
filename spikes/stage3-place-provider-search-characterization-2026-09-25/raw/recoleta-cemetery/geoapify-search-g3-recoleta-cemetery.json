@@ -1,0 +1,81 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Recoleta Cemetery",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1116,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Recoleta Cemetry",
+        "other_names": {
+          "name": "Cementerio de la Recoleta",
+          "name:es": "Cementerio de la Recoleta",
+          "name:pt": "Cemitério da Recoleta"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.3935953,
+        "lat": -34.5876575,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Recoleta Cemetry, Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "address_line1": "Recoleta Cemetry",
+        "address_line2": "Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ64+WH",
+        "plus_code_short": "CJ64+WH Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.5007324917980888,
+          "popularity": 7.65622506139933,
+          "confidence": 0.7875,
+          "confidence_city_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+        "bbox": {
+          "lon1": -58.3951354,
+          "lat1": -34.5890966,
+          "lon2": -58.3918692,
+          "lat2": -34.5862094
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "parsed": {
+        "house": "Recoleta Cemetery",
+        "city": "Buenos Aires",
+        "country": "Argentina",
+        "expected_type": "amenity"
+      }
+    }
+  }
+}

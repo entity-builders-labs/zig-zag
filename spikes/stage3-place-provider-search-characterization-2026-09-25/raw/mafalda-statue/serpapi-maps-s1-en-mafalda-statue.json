@@ -1,0 +1,224 @@
+{
+  "request": {
+    "url": "https://serpapi.com/search.json",
+    "params": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Mafalda Statue",
+      "ll": "@-34.6037,-58.3816,12z",
+      "hl": "en",
+      "gl": "ar",
+      "api_key": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1429,
+  "response": {
+    "search_metadata": {
+      "id": "6ab6645e304eba9311703199",
+      "status": "Success",
+      "json_endpoint": "https://serpapi.com/searches/LFgKat76Lhk1J9Sk8wIDBilk4gQ3SgtiFBzWEst82Pc/6ab6645e304eba9311703199.json",
+      "markdown_endpoint": "https://serpapi.com/searches/LFgKat76Lhk1J9Sk8wIDBilk4gQ3SgtiFBzWEst82Pc/6ab6645e304eba9311703199.md",
+      "created_at": "2026-09-25 12:09:02 UTC",
+      "processed_at": "2026-09-25 12:09:02 UTC",
+      "google_maps_url": "https://www.google.com/maps/search/Mafalda+Statue/@-34.6037,-58.3816,12z/data=!3m1!4b1!4m2!2m1!6e5?hl=en&gl=ar",
+      "raw_html_file": "https://serpapi.com/searches/LFgKat76Lhk1J9Sk8wIDBilk4gQ3SgtiFBzWEst82Pc/6ab6645e304eba9311703199.html",
+      "prettify_html_file": "https://serpapi.com/searches/LFgKat76Lhk1J9Sk8wIDBilk4gQ3SgtiFBzWEst82Pc/6ab6645e304eba9311703199.prettify",
+      "total_time_taken": 0.92
+    },
+    "search_parameters": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Mafalda Statue",
+      "ll": "@-34.6037,-58.3816,12z",
+      "google_domain": "google.com",
+      "hl": "en",
+      "gl": "ar"
+    },
+    "search_information": {
+      "local_results_state": "Showing results for type: \"place\" instead of type: \"search\"",
+      "query_displayed": "Mafalda Statue"
+    },
+    "place_results": {
+      "title": "Estatua de Mafalda",
+      "place_id": "ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+      "data_id": "0x95a3354dd6271479:0x962789966f588ee6",
+      "data_cid": "10819767908987080422",
+      "reviews_link": "https://serpapi.com/search.json?data_id=0x95a3354dd6271479%3A0x962789966f588ee6&engine=google_maps_reviews&hl=en",
+      "photos_link": "https://serpapi.com/search.json?data_id=0x95a3354dd6271479%3A0x962789966f588ee6&engine=google_maps_photos&hl=en",
+      "gps_coordinates": {
+        "latitude": -34.615832,
+        "longitude": -58.3716461
+      },
+      "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+      "provider_id": "/g/11t_kp4q5b",
+      "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkr-QixZM6HXZ8UfJtN1vLFfRCVYmUiB53uWYHlYikB7VQ6TUQGRZFZNaaSRV2J4yF6B0xPRC5zY5VLbyKJgiZKjD7otT5WcYzkZuFM_RjUgVKA-irDfpDwpe1bjOokT28qVbxS=w1000-h1000-c-n",
+      "serpapi_thumbnail": "https://serpapi.com/images/url/v1c6dXicHcRdDoIgAADgE5Faaa2th8yZ0_4kxeClJVNETUywrAt2hm7T1vfwfT-FUq1caFpdTEZMCFZnvcw6KhqVNWpExU1jrQRUAqmtPHiMkqoDIR_IzvLOZB7nvtobj62bwzXCt5jb5qRPsFdjXtkzFFpRHG4gccn-ej1BNPanL9ey9eEI1-Ybm2ibvgKfcRKUzkyoyEwoflekd3cXWMYMBSvAOydvnWebGWl5EFU0nt9ROpyWT0PXdVD8p6D5AQ5hREA",
+      "rating_summary": [
+        {
+          "stars": 1,
+          "amount": 65
+        },
+        {
+          "stars": 2,
+          "amount": 110
+        },
+        {
+          "stars": 3,
+          "amount": 593
+        },
+        {
+          "stars": 4,
+          "amount": 1386
+        },
+        {
+          "stars": 5,
+          "amount": 6141
+        }
+      ],
+      "rating": 4.6,
+      "reviews": 8295,
+      "type": [
+        "Sculpture",
+        "Tourist attraction"
+      ],
+      "extensions": [
+        {
+          "accessibility": [
+            "Wheelchair-accessible entrance"
+          ]
+        }
+      ],
+      "address": "9JMH+J8W, Defensa 700, C1064 Cdad. Autónoma de Buenos Aires",
+      "country": "Argentina",
+      "located_in": "Feria San Telmo calle defensa y chile",
+      "phone": "011 7125-4793",
+      "open_state": "Open 24 hours",
+      "hours": [
+        {
+          "friday": "Open 24 hours"
+        },
+        {
+          "saturday": "Open 24 hours"
+        },
+        {
+          "sunday": "Open 24 hours"
+        },
+        {
+          "monday": "Open 24 hours"
+        },
+        {
+          "tuesday": "Open 24 hours"
+        },
+        {
+          "wednesday": "Open 24 hours"
+        },
+        {
+          "thursday": "Open 24 hours"
+        }
+      ],
+      "user_reviews": {
+        "most_relevant": [
+          {
+            "username": "Max Itkin",
+            "rating": 5,
+            "contributor_id": "110740860924484425044",
+            "user_review_count": 274,
+            "user_photo_count": 414,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjUkAU37cS1nA9VZ96wRYv2p3O2rnCJpEAQ1GKc6BHAhTFRkZe0=s120-c-rp-mo-ba12-br100",
+            "description": "Very nice as part of comix statues path. Crowded at Saturday, but the plus is that you can visit the artisan and antiques market that is just there.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2xCellsUTJWM2xWVFU5emJVRlFVak5WTUZkRWMzYxAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOlBzYlQ2V3lVTU9zbUFQUjNVMFdEc3c%7C%7C?hl=en-GB",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPKsoerZ2meQVob3kANLMGIKd6UT0SXWz9I8aXGd6V2ZZE9EwmOwBNXISmwBCNEHGJ0_MSWWU3jTZRboUbZYGQMGOYIMZ7EEag5yg5d9hT0UI30khDIWeR7U9HKw2Bz-78PMVnA0DUuieQ=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPdSUh7SUkHFqsuxsxv9RC1PK5vXmFWCKtNgdSPhzmFwxRaBEsxfdVpmfIQc7b7gl-BvtKR5_604xAr7LnAfInVr6dq6WE_d71HPCnyxeiURZlDKDF9EHICrw7Pd_Isncezm1DIeRQzCII=k-no"
+              }
+            ],
+            "date": "2 months ago",
+            "date_iso8601": "2026-06-29T23:02:21+00:00"
+          },
+          {
+            "username": "Julio Morales",
+            "rating": 3,
+            "contributor_id": "115005364670253812341",
+            "user_review_count": 125,
+            "user_photo_count": 288,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjXMZL3K1eVH88yhSuNzwAB8NegFTGshJgc5XwEA0hWW3yS9j92n=s120-c-rp-mo-ba12-br100",
+            "description": "Interesting to see because of the history behind the piece. Smaller than most iconic figures,  but cute to see if you happen to be nearby.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2xoWE9WSTVNMnB2YTBKVExYaHBlSE5DT0Y5UmNXYxAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOlhXOVI5M2pva0JTLXhpeHNCOF9RcWc%7C%7C?hl=en-GB",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOWCvTb-Gwtr4Um6ePJsamc2jZH99x4tljxQr2KZuAr0b_VbkAaMLQ5ojwtoh538CY_bDOWnVvmXTgBnnYiZ_pLk4uIQAO6E0r0CC-jRRpIVJuWgpGt-Gx-2qLe967T1LEqg9fwmlR4z2iH=k-no"
+              }
+            ],
+            "date": "3 months ago",
+            "date_iso8601": "2026-05-28T13:09:28+00:00"
+          },
+          {
+            "username": "ade hughes",
+            "rating": 1,
+            "contributor_id": "118226327831305618747",
+            "user_review_count": 1019,
+            "user_photo_count": 104,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjXvveufzF2KXkr83RDzpOS7pxevHUfcwByaHy5cyf2VuARw2ySC=s120-c-rp-mo-ba12-br100",
+            "description": "The busiest place in BA - lines at all hours - a seriously popular thing. Observing the line and culture here is interesting if you can catch a glimpse into the reasoning and the passion for this spot with locals and visitors it’s worth it. One of the few things safely to talk about I guess.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT201TWVFNXdSMUZIUW1kaGMycEJRM1oyYVdsNU5sRRAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOm5MeE5wR1FHQmdhc2pBQ3Z2aWl5NlE%7C%7C?hl=en-GB",
+            "date": "5 months ago",
+            "date_iso8601": "2026-04-09T00:44:34+00:00"
+          },
+          {
+            "username": "André Marques",
+            "rating": 5,
+            "contributor_id": "110461428025207326603",
+            "user_review_count": 0,
+            "user_photo_count": 0,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjWXJEdsf102HENwsFGUlmU1OpoxIJfqFRDGlWbmBtaIfApmDOU_NA=s120-c-rp-mo-br100",
+            "description": "Such a nice touch to the city. Love Mafalda and couldn’t miss coming visit her ❤️\nThere’s obviously a shop nearby that sells lots of things with Mafalda on them (but you’ll find other stores throughout the city as well). The prices are reasonable and they do 10% discount if you pay in cash.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2xGVVVrUm1jMGxOU1Zwc2R6aHpXSGxpWmsxWFltYxAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOlFUUkRmc0lNSVpsdzhzWHliZk1XYmc%7C%7C?hl=en-GB",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMCOoDAXX5p_0KAxH_1Yxj62m9x_xoteES0s9pdR7VcjO7DsSYshGLLSVsFK9KTDGoPDGnuUzWIVHP2th4GIgBa3DFpK8AsjFsvoaxUQWALAuLViX0y7vb7aLYIFnHxdSngFaq9GtfSV8p6=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPZDSdCEzW_6QxPbnyMlx2YuL3hZeegMCBx6KqZa8KZHjcDEMawg-XucR0g2Tz2t65MF-nX9_jmJCisNf3hQAUcWukUgoU-08x5Hsjnrkz_-q2_B3t2TSSGDgHQcdMWR-GhOxR-5oaLlkiA=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOwSYqumKatSDEv1jpxhOKOx1rPr851Uy_u6EfDnZKQYrmsRllNoxzSxcSp2tYMLoTKltt-55r4s_swO1oBfcw0CXwVy3tEZp7Pds10cyw6d1IetyYGibmJMOKnlZsg-XEPXs_sFpkROaOE=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOzW_qk0SboF4vRI1RgA3XL1ryTWc0x2N3IEH-2kyWCuQIPbohuzjBbEYM-nGl4izUfdfeyrWOzdz70IZHYt4C60UIWKYQ4aEdA1-3LLiILQxwXslKa-pmIy7iUNPVZhF61VzO3gSJxUOyA=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNFFQUCOvORR-_N8M5A0AetodH6Jvo_RZ7saAzi8OUgLwfAO6valLgidvPTsOS7Q5xfv_v63NOENq205ZKAynAelEA3JQ7Fa0IEbUx8BocPPirbMZF_Ua4aSDfZch1HHxSZPFMWS_j6FnIR=k-no"
+              }
+            ],
+            "date": "6 months ago",
+            "date_iso8601": "2026-02-26T03:41:20+00:00"
+          },
+          {
+            "username": "rose sherwood",
+            "rating": 5,
+            "contributor_id": "104479482284323191458",
+            "user_review_count": 12,
+            "user_photo_count": 19,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a/ACg8ocLAxsArrX3SKVnGKrFVXxevNAPcfp4K7cUJhbMhbDZLRixSTQ=s120-c-rp-mo-ba12-br100",
+            "description": "It is fun to take pictures with the statue.  Every Sunday this place has a big street market, it is really worthwhile to visit.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT21aQ1ExOWpjekZ5VlRRNWNWTTRXRlJDZGpSUGVHYxAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOmZCQ19jczFyVTQ5cVM4WFRCdjRPeGc%7C%7C?hl=en-GB",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOgqrE9ejsHPRPy4FiJJFGqex7o1tESwwAUkLXss2-DsIvZLsFllOK93uS5fSCAPl3XqR97cq0omkaAEMYqjzk2uP5dOI0cndljbgw7Rc1pdIRF8Or03ej8bKutYJT0dKxXGfDaQyrGY3xl=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPYOv26Bgvw6Tmxyas4NPcFihqV_cBXqNBpgoNzYDwBr_6GtY_i9S8tTkpRgqew6OPiOg2PQ7K43GX0DBKbN5V4twghHFAAUv39XkxaHJEz9TacMbomS30dCO29PQzHYCIo4GYxGskQrL8=k-no"
+              }
+            ],
+            "date": "6 months ago",
+            "date_iso8601": "2026-03-09T14:12:00+00:00"
+          }
+        ]
+      }
+    }
+  }
+}

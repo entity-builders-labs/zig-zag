@@ -1,0 +1,248 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Parque Lezama",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 985,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Parque Lezama",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "city_district": "Comuna 1",
+        "district": "Distrito de Las Artes",
+        "suburb": "San Telmo",
+        "iso3166_2": "AR-C",
+        "lon": -58.3692791,
+        "lat": -34.6271211,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2837.905554273361,
+        "formatted": "Parque Lezama, San Telmo, Buenos Aires, Distrito de Las Artes, Argentina",
+        "address_line1": "Parque Lezama",
+        "address_line2": "San Telmo, Buenos Aires, Distrito de Las Artes, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JFJ+57",
+        "plus_code_short": "FJ+57 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.36736730413826313,
+          "popularity": 7.443473634905091,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "5154cc9c89442f4dc059d6901381455041c0f00102f901dd230a0100000000c0020192030d506172717565204c657a616d61",
+        "bbox": {
+          "lon1": -58.3710271,
+          "lat1": -34.6290124,
+          "lon2": -58.3681209,
+          "lat2": -34.6252477
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Parque Lezama",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 4",
+        "suburb": "La Boca",
+        "iso3166_2": "AR-C",
+        "lon": -58.367869,
+        "lat": -34.625461,
+        "result_type": "amenity",
+        "distance": 2726.5306634490853,
+        "formatted": "Parque Lezama, La Boca, Buenos Aires, Comuna 4, Argentina",
+        "address_line1": "Parque Lezama",
+        "address_line2": "La Boca, Buenos Aires, Comuna 4, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JFJ+RV",
+        "plus_code_short": "FJ+RV Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.440896031415412,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "512a1bd654162f4dc05934f6251b0f5041c0f00103f9019768528a02000000c0020192030d506172717565204c657a616d61e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3130393130353931313237"
+      },
+      {
+        "country_code": "ar",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "street": "Parque Lezama",
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "iso3166_2": "AR-C",
+        "lon": -58.369625,
+        "lat": -34.626859,
+        "result_type": "amenity",
+        "distance": 2798.6392776924145,
+        "postcode": "1871",
+        "formatted": "Parque Lezama, San Telmo, 1871 Buenos Aires, Argentina",
+        "address_line1": "Parque Lezama",
+        "address_line2": "San Telmo, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JFJ+75",
+        "plus_code_short": "FJ+75 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.443473634905091,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "515a643bdf4f2f4dc059051a6cea3c5041c0f00102f901dd230a0100000000c00201e203206f70656e7374726565746d61703a76656e75653a7761792f3137343431373537",
+        "bbox": {
+          "lon1": -58.3710271,
+          "lat1": -34.6290124,
+          "lon2": -58.3681209,
+          "lat2": -34.6252477
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Lezama",
+        "street": "Lezama",
+        "country": "Argentina",
+        "county": "Merlo",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "ME",
+        "iso3166_2": "AR-B",
+        "lon": -58.748616,
+        "lat": -34.69422,
+        "result_type": "street",
+        "distance": 35049.04295669768,
+        "postcode": "1722",
+        "formatted": "Lezama, 1722 BA, Argentina",
+        "address_line1": "Lezama",
+        "address_line2": "1722 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q38742+8H",
+        "rank": {
+          "popularity": 5.031586897138966,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "5194a12aa6d25f4dc059541d7233dc5841c0c002049203064c657a616d61e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363135383033",
+        "bbox": {
+          "lon1": -58.751928,
+          "lat1": -34.697437,
+          "lon2": -58.745412,
+          "lat2": -34.690931
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Lezama",
+        "street": "Lezama",
+        "country": "Argentina",
+        "county": "La Matanza",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "LM",
+        "iso3166_2": "AR-B",
+        "lon": -58.655221,
+        "lat": -34.890203,
+        "result_type": "street",
+        "distance": 40495.68187267944,
+        "formatted": "Lezama, BA, Argentina",
+        "address_line1": "Lezama",
+        "address_line2": "BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3485V+WW",
+        "rank": {
+          "popularity": 3.6756008418434205,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "5182531f48de534dc0598ae6012cf27141c0c002049203064c657a616d61e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363930333230",
+        "bbox": {
+          "lon1": -58.657907,
+          "lat1": -34.892477,
+          "lon2": -58.652502,
+          "lat2": -34.887955
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "parsed": {
+        "house": "Parque Lezama",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

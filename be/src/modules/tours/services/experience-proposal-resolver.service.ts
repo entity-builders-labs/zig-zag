@@ -157,7 +157,7 @@ type CatalogAcquisitionResult =
  * name matches the hint at all, preserving prior behavior for the fuzzy
  * case (still independently verified afterward by `IdentityVerifier`).
  */
-function selectBestPlaceCandidate(
+export function selectBestPlaceCandidate(
   hintName: string,
   results: PlaceData[],
   destinationPoint?: Coordinates,

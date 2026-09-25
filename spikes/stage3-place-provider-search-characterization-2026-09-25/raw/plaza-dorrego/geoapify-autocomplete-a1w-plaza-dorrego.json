@@ -1,0 +1,358 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Plaza Dorrego",
+      "type": "amenity",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 907,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "iso3166_2": "AR-C",
+        "lon": -58.3717807,
+        "lat": -34.6204917,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2072.143371404808,
+        "postcode": "1871",
+        "formatted": "Plaza Dorrego, San Telmo, 1871 Buenos Aires, Argentina",
+        "address_line1": "Plaza Dorrego",
+        "address_line2": "San Telmo, 1871 Buenos Aires, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JHH+R7",
+        "plus_code_short": "HH+R7 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.22274623325780465,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "515ae48d82962f4dc0594078a3456c4f41c0f00102f9013396de0100000000c0020192030d506c617a6120446f727265676f",
+        "bbox": {
+          "lon1": -58.3720765,
+          "lat1": -34.6206579,
+          "lon2": -58.3714819,
+          "lat2": -34.6202899
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Centro de Alfabetización, Educación Básica y Trabajo 79 Asamblea Popular Plaza Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1102",
+        "city_district": "Comuna 1",
+        "district": "Distrito de Las Artes",
+        "suburb": "Constitución",
+        "street": "Avenida San Juan",
+        "iso3166_2": "AR-C",
+        "lon": -58.3775317,
+        "lat": -34.6219258,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2060.5338169938946,
+        "formatted": "Centro de Alfabetización, Educación Básica y Trabajo 79 Asamblea Popular Plaza Dorrego, Avenida San Juan, Constitución, 1102 Buenos Aires, Argentina",
+        "address_line1": "Centro de Alfabetización, Educación Básica y Trabajo 79 Asamblea Popular Plaza Dorrego",
+        "address_line2": "Avenida San Juan, Constitución, 1102 Buenos Aires, Argentina",
+        "category": "education.school",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JHC+6X",
+        "plus_code_short": "HC+6X Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51055a70f552304dc059f2c4bd439b4f41c0f00103f901acae083101000000c0020192035943656e74726f20646520416c6661626574697a616369c3b36e2c2045647563616369c3b36e2042c3a17369636120792054726162616a6f203739204173616d626c656120506f70756c617220506c617a6120446f727265676fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f35313137363139383834",
+        "bbox": {
+          "lon1": -58.3775817,
+          "lat1": -34.6219758,
+          "lon2": -58.3774817,
+          "lat2": -34.6218758
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Café Plaza Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1065AAR",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "street": "Defensa",
+        "iso3166_2": "AR-C",
+        "lon": -58.3713785,
+        "lat": -34.6205689,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2096.0471756566594,
+        "formatted": "Café Plaza Dorrego, Defensa, San Telmo, C1065 AAR Buenos Aires, Argentina",
+        "address_line1": "Café Plaza Dorrego",
+        "address_line2": "Defensa, San Telmo, C1065 AAR Buenos Aires, Argentina",
+        "category": "catering.cafe",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JHH+QC",
+        "plus_code_short": "HH+QC Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5101f8a754892f4dc05915353dcd6e4f41c0f00103f9016f353f7101000000c00201920313436166c3a920506c617a6120446f727265676fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f36313934393335313531",
+        "bbox": {
+          "lon1": -58.3714285,
+          "lat1": -34.6206189,
+          "lon2": -58.3713285,
+          "lat2": -34.6205189
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza Manuel Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "city": "Partido de Lanús",
+        "town": "Remedios de Escalada",
+        "suburb": "Villa Remedios de Escalada",
+        "iso3166_2": "AR-B",
+        "lon": -58.398666,
+        "lat": -34.720408,
+        "state_code": "B",
+        "county": "Lanús",
+        "street": "Plaza Manuel Dorrego",
+        "county_code": "LS",
+        "result_type": "amenity",
+        "distance": 13070.885165492102,
+        "postcode": "1824",
+        "formatted": "Plaza Manuel Dorrego, Villa Remedios de Escalada, 1824 Partido de Lanús, Argentina",
+        "address_line1": "Plaza Manuel Dorrego",
+        "address_line2": "Villa Remedios de Escalada, 1824 Partido de Lanús, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q37JH2+RG",
+        "rank": {
+          "importance": 0.08005047302967877,
+          "confidence": 0.9,
+          "match_type": "full_match"
+        },
+        "place_id": "517903cc7c07334dc0596de34f54365c41c0f00102f9016cf65e4d00000000c00201920314506c617a61204d616e75656c20446f727265676fe203226f70656e7374726565746d61703a76656e75653a7761792f31323938303639313030",
+        "bbox": {
+          "lon1": -58.3988629,
+          "lat1": -34.7205757,
+          "lon2": -58.3984746,
+          "lat2": -34.7202591
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza Coronel Manuel Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de San Fernando",
+        "city": "Victoria",
+        "postcode": "1644",
+        "iso3166_2": "AR-B",
+        "lon": -58.5422574,
+        "lat": -34.4528908,
+        "state_code": "B",
+        "street": "Plaza Coronel Manuel Dorrego",
+        "county_code": "SF",
+        "result_type": "amenity",
+        "distance": 22311.665183377532,
+        "formatted": "Plaza Coronel Manuel Dorrego, 1644 Victoria, Argentina",
+        "address_line1": "Plaza Coronel Manuel Dorrego",
+        "address_line2": "1644 Victoria, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3GFW5+R3",
+        "rank": {
+          "importance": 0.08005184939345385,
+          "confidence": 0.81,
+          "match_type": "full_match"
+        },
+        "place_id": "51ca81c3b068454dc05963546353f83941c0f00102f901da67bf0f00000000c0020192031c506c617a6120436f726f6e656c204d616e75656c20446f727265676fe203216f70656e7374726565746d61703a76656e75653a7761792f323634323032323032",
+        "bbox": {
+          "lon1": -58.5429238,
+          "lat1": -34.4534401,
+          "lon2": -58.5415817,
+          "lat2": -34.4523408
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "González Catán",
+        "suburb": "Dorrego",
+        "quarter": "Las Nieves",
+        "iso3166_2": "AR-B",
+        "lon": -58.6139902,
+        "lat": -34.7730828,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 28393.732021532753,
+        "formatted": "Plaza Dorrego, Dorrego, González Catán, Partido de La Matanza, Argentina",
+        "address_line1": "Plaza Dorrego",
+        "address_line2": "Dorrego, González Catán, Partido de La Matanza, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q369GP+QC",
+        "rank": {
+          "importance": 0.08005018921187149,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5142881a3b974e4dc059d08c8f60f46241c0f00102f901267ac81100000000c0020192030d506c617a6120446f727265676f",
+        "bbox": {
+          "lon1": -58.6148891,
+          "lat1": -34.7738109,
+          "lon2": -58.6130909,
+          "lat2": -34.7723587
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "González Catán",
+        "postcode": "1759",
+        "suburb": "Dorrego",
+        "quarter": "Las Nieves",
+        "street": "Soberanía Nacional",
+        "iso3166_2": "AR-B",
+        "lon": -58.6141929,
+        "lat": -34.7723291,
+        "state_code": "B",
+        "county_code": "LM",
+        "result_type": "amenity",
+        "distance": 28352.1801803375,
+        "formatted": "Plaza Dorrego, Soberanía Nacional, Dorrego, 1759 González Catán, Argentina",
+        "address_line1": "Plaza Dorrego",
+        "address_line2": "Soberanía Nacional, Dorrego, 1759 González Catán, Argentina",
+        "category": "public_transport.bus",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q369HP+38",
+        "rank": {
+          "importance": 0.00005018921187147353,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51bb7779df9d4e4dc059e31f11aedb6241c0f00103f901509ade7001000000c0020192030d506c617a6120446f727265676fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f36313838363033393834",
+        "bbox": {
+          "lon1": -58.6142429,
+          "lat1": -34.7723791,
+          "lon2": -58.6141429,
+          "lat2": -34.7722791
+        }
+      }
+    ],
+    "query": {
+      "text": "Plaza Dorrego"
+    }
+  }
+}

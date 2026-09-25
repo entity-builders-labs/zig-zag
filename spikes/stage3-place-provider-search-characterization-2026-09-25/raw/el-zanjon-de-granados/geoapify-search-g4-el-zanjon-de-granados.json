@@ -1,0 +1,81 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "El Zanjón de Granados",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 594,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "El Zanjón de Granados (historic ruins)",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1100AAF",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "street": "Defensa",
+        "iso3166_2": "AR-C",
+        "lon": -58.3717972,
+        "lat": -34.6166864,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "El Zanjón de Granados (historic ruins), Defensa, San Telmo, C1100 AAF Buenos Aires, Argentina",
+        "address_line1": "El Zanjón de Granados (historic ruins)",
+        "address_line2": "Defensa, San Telmo, C1100 AAF Buenos Aires, Argentina",
+        "category": "entertainment.museum",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JMH+87",
+        "plus_code_short": "MH+87 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 0.81,
+          "confidence_city_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000c00201920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329",
+        "bbox": {
+          "lon1": -58.3718472,
+          "lat1": -34.6167364,
+          "lon2": -58.3717472,
+          "lat2": -34.6166364
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "parsed": {
+        "house": "El Zanjón de Granados",
+        "city": "Buenos Aires",
+        "country": "Argentina",
+        "expected_type": "amenity"
+      }
+    }
+  }
+}

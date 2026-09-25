@@ -1,0 +1,197 @@
+{
+  "request": {
+    "id": "51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279"
+  },
+  "status": 200,
+  "durationMs": 616,
+  "response": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "feature_type": "details",
+          "opening_hours": "Mo-Su 07:00-17:30",
+          "name": "Cementerio de la Recoleta",
+          "name_international": {
+            "en": "Recoleta Cemetry",
+            "pt": "Cemitério da Recoleta"
+          },
+          "facilities": {
+            "wheelchair": true
+          },
+          "wiki_and_media": {
+            "wikidata": "Q831322",
+            "wikipedia": "es:Cementerio de la Recoleta"
+          },
+          "heritage": {
+            "level": 4
+          },
+          "place_of_worship": {
+            "religion": "christian",
+            "denomination": "catholic"
+          },
+          "categories": [
+            "heritage",
+            "memorial",
+            "memorial.cemetery",
+            "memorial.christian",
+            "memorial.christian.catholic",
+            "tourism",
+            "tourism.attraction",
+            "wheelchair",
+            "wheelchair.yes"
+          ],
+          "datasource": {
+            "sourcename": "openstreetmap",
+            "attribution": "© OpenStreetMap contributors",
+            "license": "Open Database License",
+            "url": "https://www.openstreetmap.org/copyright",
+            "raw": {
+              "name": "Cementerio de la Recoleta",
+              "osm_id": 183842128,
+              "landuse": "cemetery",
+              "name:en": "Recoleta Cemetry",
+              "name:pt": "Cemitério da Recoleta",
+              "tourism": "attraction",
+              "heritage": 4,
+              "osm_type": "w",
+              "religion": "christian",
+              "wikidata": "Q831322",
+              "wikipedia": "es:Cementerio de la Recoleta",
+              "wheelchair": "yes",
+              "denomination": "catholic",
+              "opening_hours": "Mo-Su 07:00-17:30"
+            }
+          },
+          "city": "Buenos Aires",
+          "state": "Buenos Aires",
+          "state_code": "B",
+          "country": "Argentina",
+          "country_code": "ar",
+          "district": "Comuna 2",
+          "suburb": "Recoleta",
+          "formatted": "Recoleta, Buenos Aires, Comuna 2, Argentina",
+          "address_line1": "Recoleta",
+          "address_line2": "Buenos Aires, Comuna 2, Argentina",
+          "lat": -34.5876575,
+          "lon": -58.3935953,
+          "iso3166_2": "AR-C",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          },
+          "place_id": "5133c1475461324dc059be73675c384b41c0f00102f9015035f50a0000000092031943656d656e746572696f206465206c61205265636f6c657461"
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -58.3951354,
+                -34.5878046
+              ],
+              [
+                -58.3951219,
+                -34.5878721
+              ],
+              [
+                -58.3944423,
+                -34.5883365
+              ],
+              [
+                -58.393032,
+                -34.5890943
+              ],
+              [
+                -58.3930009,
+                -34.5890966
+              ],
+              [
+                -58.3929075,
+                -34.5890429
+              ],
+              [
+                -58.392617,
+                -34.5885321
+              ],
+              [
+                -58.3923809,
+                -34.5880968
+              ],
+              [
+                -58.3922453,
+                -34.5878007
+              ],
+              [
+                -58.3922146,
+                -34.5877337
+              ],
+              [
+                -58.3921449,
+                -34.5875813
+              ],
+              [
+                -58.3920764,
+                -34.5874318
+              ],
+              [
+                -58.3919723,
+                -34.5872046
+              ],
+              [
+                -58.3918692,
+                -34.5869793
+              ],
+              [
+                -58.392024,
+                -34.586934
+              ],
+              [
+                -58.3924095,
+                -34.586821
+              ],
+              [
+                -58.3924267,
+                -34.5868607
+              ],
+              [
+                -58.3925955,
+                -34.5868112
+              ],
+              [
+                -58.3925135,
+                -34.5866214
+              ],
+              [
+                -58.3927623,
+                -34.5865486
+              ],
+              [
+                -58.3927398,
+                -34.5864965
+              ],
+              [
+                -58.3937837,
+                -34.5862094
+              ],
+              [
+                -58.3951354,
+                -34.5878046
+              ]
+            ]
+          ]
+        },
+        "bbox": [
+          -58.3951354,
+          -34.5890966,
+          -58.3918692,
+          -34.5862094
+        ]
+      }
+    ]
+  }
+}

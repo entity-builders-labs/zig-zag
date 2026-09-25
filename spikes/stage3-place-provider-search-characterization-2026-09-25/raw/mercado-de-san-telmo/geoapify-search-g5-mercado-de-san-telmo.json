@@ -1,0 +1,496 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Mercado de San Telmo",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1984,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mercado de Carruajes",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1001AAQ",
+        "district": "Comuna 1",
+        "neighbourhood": "Catalinas Norte",
+        "suburb": "Retiro",
+        "street": "Avenida Leandro N. Alem",
+        "housenumber": "852",
+        "iso3166_2": "AR-C",
+        "lon": -58.3719941,
+        "lat": -34.5979291,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1088.4752647964453,
+        "formatted": "Mercado de Carruajes, Avenida Leandro N. Alem 852, Retiro, C1001 AAQ Buenos Aires, Argentina",
+        "address_line1": "Mercado de Carruajes",
+        "address_line2": "Avenida Leandro N. Alem 852, Retiro, C1001 AAQ Buenos Aires, Argentina",
+        "category": "building.commercial",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ2H+R6",
+        "plus_code_short": "CJ2H+R6 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "5109e7ae809d2f4dc059d2e9d4f0884c41c0f00102f9016fd5913d00000000c002019203144d65726361646f206465204361727275616a6573e203226f70656e7374726565746d61703a76656e75653a7761792f31303332393637353335",
+        "bbox": {
+          "lon1": -58.3722276,
+          "lat1": -34.5981727,
+          "lon2": -58.371707,
+          "lat2": -34.5976634
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mercado de San Telmo",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1065AAR",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "street": "Defensa",
+        "housenumber": "963",
+        "iso3166_2": "AR-C",
+        "lon": -58.372512,
+        "lat": -34.6190492,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1898.6146731644876,
+        "formatted": "Mercado de San Telmo, Defensa 963, San Telmo, C1065 AAR Buenos Aires, Argentina",
+        "address_line1": "Mercado de San Telmo",
+        "address_line2": "Defensa 963, San Telmo, C1065 AAR Buenos Aires, Argentina",
+        "category": "commercial.marketplace",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JJG+9X",
+        "plus_code_short": "JG+9X Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.811674379546099,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "510caf2479ae2f4dc059b74e12013d4f41c0f00102f901d784780900000000c002019203144d65726361646f2064652053616e2054656c6d6f",
+        "bbox": {
+          "lon1": -58.372879,
+          "lat1": -34.6195639,
+          "lon2": -58.3715918,
+          "lat2": -34.6185575
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Mercado de San Telmo",
+        "housenumber": "963",
+        "street": "Defensa",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "iso3166_2": "AR-C",
+        "lon": -58.372811,
+        "lat": -34.619543,
+        "result_type": "amenity",
+        "distance": 1936.5977572527574,
+        "postcode": "1871",
+        "formatted": "Mercado de San Telmo, Defensa 963, San Telmo, 1871 Buenos Aires, Argentina",
+        "address_line1": "Mercado de San Telmo",
+        "address_line2": "Defensa 963, San Telmo, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JJG+5V",
+        "plus_code_short": "JG+5V Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.811674379546099,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51664b5645b82f4dc0599dbb5d2f4d4f41c0f00102f901d784780900000000c002019203144d65726361646f2064652053616e2054656c6d6fe203216f70656e7374726565746d61703a76656e75653a7761792f313538383933323731",
+        "bbox": {
+          "lon1": -58.372879,
+          "lat1": -34.6195639,
+          "lon2": -58.3715918,
+          "lat2": -34.6185575
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Mercado de Pulgas",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 13",
+        "suburb": "Colegiales",
+        "iso3166_2": "AR-C",
+        "lon": -58.444358,
+        "lat": -34.583033,
+        "result_type": "amenity",
+        "distance": 6187.224877333756,
+        "formatted": "Mercado de Pulgas, Colegiales, Buenos Aires, Comuna 13, Argentina",
+        "address_line1": "Mercado de Pulgas",
+        "address_line2": "Colegiales, Buenos Aires, Comuna 13, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH84+Q7",
+        "plus_code_short": "CH84+Q7 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.181999960074639,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51a5db12b9e0384dc05990be49d3a04a41c0f00103f901d8703bf300000000c002019203114d65726361646f2064652050756c676173e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34303830373539303030"
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mercado de las Pulgas",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1414",
+        "city_district": "Comuna 15",
+        "district": "Distrito Audiovisual",
+        "suburb": "Chacarita",
+        "street": "Avenida Dorrego",
+        "housenumber": "1650",
+        "iso3166_2": "AR-C",
+        "lon": -58.4446243,
+        "lat": -34.5823874,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "distance": 6236.8073085023525,
+        "formatted": "Mercado de las Pulgas, Avenida Dorrego 1650, Chacarita, 1414 Buenos Aires, Argentina",
+        "address_line1": "Mercado de las Pulgas",
+        "address_line2": "Avenida Dorrego 1650, Chacarita, 1414 Buenos Aires, Argentina",
+        "category": "commercial.shopping_mall",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH94+25",
+        "plus_code_short": "CH94+25 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345
+        },
+        "place_id": "51e2c0f572e9384dc0591e4d9aab8b4a41c0f00102f901ab881212000000009203154d65726361646f206465206c61732050756c676173",
+        "bbox": {
+          "lon1": -58.4454297,
+          "lat1": -34.5830278,
+          "lon2": -58.443938,
+          "lat2": -34.5818514
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Mercado de las Pulgas",
+        "housenumber": "1650",
+        "street": "Avenida Dorrego",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "postcode": "1414",
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 13",
+        "suburb": "Colegiales",
+        "iso3166_2": "AR-C",
+        "lon": -58.445138,
+        "lat": -34.582755,
+        "result_type": "amenity",
+        "distance": 6265.006343211698,
+        "formatted": "Mercado de las Pulgas, Avenida Dorrego 1650, Colegiales, 1414 Buenos Aires, Argentina",
+        "address_line1": "Mercado de las Pulgas",
+        "address_line2": "Avenida Dorrego 1650, Colegiales, 1414 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH83+VW",
+        "plus_code_short": "CH83+VW Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.165907868255479,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "517a1a3048fa384dc0594d4a41b7974a41c0f00102f901ab88121200000000c002019203154d65726361646f206465206c61732050756c676173e203216f70656e7374726565746d61703a76656e75653a7761792f333033323034353233",
+        "bbox": {
+          "lon1": -58.4454297,
+          "lat1": -34.5830278,
+          "lon2": -58.443938,
+          "lat2": -34.5818514
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mercado de Cafeteras",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1428AAP",
+        "district": "Comuna 13",
+        "suburb": "Belgrano",
+        "street": "Amenábar",
+        "iso3166_2": "AR-C",
+        "lon": -58.4583525,
+        "lat": -34.5632278,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 8344.091505774852,
+        "formatted": "Mercado de Cafeteras, Amenábar, Belgrano, C1428 AAP Buenos Aires, Argentina",
+        "address_line1": "Mercado de Cafeteras",
+        "address_line2": "Amenábar, Belgrano, C1428 AAP Buenos Aires, Argentina",
+        "category": "commercial.food_and_drink.coffee_and_tea",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CGPR+PM",
+        "plus_code_short": "CGPR+PM Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.445456406820228,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "5119c5724bab3a4dc05959993ad9174841c0f00103f901574df4ff02000000c002019203144d65726361646f20646520436166657465726173e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3132383834313335323535",
+        "bbox": {
+          "lon1": -58.4584025,
+          "lat1": -34.5632778,
+          "lon2": -58.4583025,
+          "lat2": -34.5631778
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Ex Mercado de Liniers",
+        "old_name": "Mercado de Hacienda de Liniers",
+        "other_names": {
+          "old_name": "Mercado de Hacienda de Liniers"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "district": "Comuna 9",
+        "iso3166_2": "AR-C",
+        "lon": -58.4954345,
+        "lat": -34.6640279,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "distance": 12388.263865257457,
+        "formatted": "Buenos Aires, Comuna 9, Argentina",
+        "address_line1": "Buenos Aires",
+        "address_line2": "Comuna 9, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q38GP3+9R",
+        "plus_code_short": "8GP3+9R Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.08008279926756692
+        },
+        "place_id": "51b267cf656a3f4dc059d710c1ddfe5441c0f00102f90197e0ad01000000009203154578204d65726361646f206465204c696e69657273",
+        "bbox": {
+          "lon1": -58.5011518,
+          "lat1": -34.6677426,
+          "lon2": -58.4912257,
+          "lat2": -34.6601197
+        }
+      },
+      {
+        "country_code": "ar",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "street": "Ex Mercado de Liniers",
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 9",
+        "suburb": "Mataderos",
+        "iso3166_2": "AR-C",
+        "lon": -58.499881,
+        "lat": -34.662108,
+        "result_type": "amenity",
+        "distance": 12621.11662469147,
+        "postcode": "1752",
+        "formatted": "Ex Mercado de Liniers, Mataderos, 1752 Buenos Aires, Argentina",
+        "address_line1": "Ex Mercado de Liniers",
+        "address_line2": "Mataderos, 1752 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q38GQ2+52",
+        "plus_code_short": "8GQ2+52 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 6.510535008890943,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "512672c119fc3f4dc059c23577f4bf5441c0f00102f90197e0ad0100000000c00201e203206f70656e7374726565746d61703a76656e75653a7761792f3238313732343339",
+        "bbox": {
+          "lon1": -58.5011518,
+          "lat1": -34.6677426,
+          "lon2": -58.4912257,
+          "lat2": -34.6601197
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Mercado de Abasto Beccar",
+        "housenumber": "2560",
+        "street": "Avenida Andrés Rolón",
+        "country": "Argentina",
+        "county": "San Fernando",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "postcode": "B1643",
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "SF",
+        "iso3166_2": "AR-B",
+        "lon": -58.547753,
+        "lat": -34.463388,
+        "result_type": "amenity",
+        "distance": 21796.064528495026,
+        "city": "Beccar",
+        "formatted": "Mercado de Abasto Beccar, Avenida Andrés Rolón 2560, B1643 Beccar, Argentina",
+        "address_line1": "Mercado de Abasto Beccar",
+        "address_line2": "Avenida Andrés Rolón 2560, B1643 Beccar, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3GFP2+JV",
+        "rank": {
+          "popularity": 5.926637068063171,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "5198a432c51c464dc059efad484c503b41c0f00102f901cdff071c00000000c002019203184d65726361646f2064652041626173746f20426563636172e203216f70656e7374726565746d61703a76656e75653a7761792f343730323836323835",
+        "bbox": {
+          "lon1": -58.548873,
+          "lat1": -34.4641289,
+          "lon2": -58.5466329,
+          "lat2": -34.4625449
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "parsed": {
+        "house": "Mercado de San Telmo",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

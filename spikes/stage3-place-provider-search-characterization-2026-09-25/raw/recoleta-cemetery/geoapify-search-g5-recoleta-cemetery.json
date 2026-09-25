@@ -1,0 +1,517 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Recoleta Cemetery",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1013,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Cantina Recoleta",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1060ABA",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "street": "Avenida Santa Fe",
+        "housenumber": "1430",
+        "iso3166_2": "AR-C",
+        "lon": -58.3877073,
+        "lat": -34.5959002,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1031.8348991789678,
+        "formatted": "Cantina Recoleta, Avenida Santa Fe 1430, Recoleta, C1060 ABA Buenos Aires, Argentina",
+        "address_line1": "Cantina Recoleta",
+        "address_line2": "Avenida Santa Fe 1430, Recoleta, C1060 ABA Buenos Aires, Argentina",
+        "category": "catering.restaurant",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ36+JW",
+        "plus_code_short": "CJ36+JW Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.801264826991628,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51d2f58e64a0314dc05906572f75464c41c0f00103f90119bfb52403000000c0020192031043616e74696e61205265636f6c657461e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3133353030373932363031",
+        "bbox": {
+          "lon1": -58.3877573,
+          "lat1": -34.5959502,
+          "lon2": -58.3876573,
+          "lat2": -34.5958502
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Voyage Recoleta Hostel",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1113",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "quarter": "Barrio Norte",
+        "street": "Junín",
+        "iso3166_2": "AR-C",
+        "lon": -58.3958307,
+        "lat": -34.5915839,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1873.9618718150402,
+        "formatted": "Voyage Recoleta Hostel, Junín, Recoleta, 1113 Buenos Aires, Argentina",
+        "address_line1": "Voyage Recoleta Hostel",
+        "address_line2": "Junín, Recoleta, 1113 Buenos Aires, Argentina",
+        "category": "accommodation.hostel",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ53+9M",
+        "plus_code_short": "CJ53+9M Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.474801431164261,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "515ba09394aa324dc0598aab6f05b94b41c0f00103f901f5784f7702000000c00201920316566f79616765205265636f6c65746120486f7374656ce203246f70656e7374726565746d61703a76656e75653a6e6f64652f3130353931363331363035",
+        "bbox": {
+          "lon1": -58.3958807,
+          "lat1": -34.5916339,
+          "lon2": -58.3957807,
+          "lat2": -34.5915339
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Recoleta Urban Mall",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1119",
+        "district": "Comuna 2",
+        "neighbourhood": "La Isla",
+        "suburb": "Recoleta",
+        "street": "Vicente López",
+        "housenumber": "2050",
+        "iso3166_2": "AR-C",
+        "lon": -58.393786,
+        "lat": -34.5892794,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "distance": 1953.2957998372215,
+        "formatted": "Recoleta Urban Mall, Vicente López 2050, Recoleta, 1119 Buenos Aires, Argentina",
+        "address_line1": "Recoleta Urban Mall",
+        "address_line2": "Vicente López 2050, Recoleta, 1119 Buenos Aires, Argentina",
+        "category": "commercial.shopping_mall",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ64+7F",
+        "plus_code_short": "CJ64+7F Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.09078915819201436
+        },
+        "place_id": "51b3cf639467324dc0596f9ae3816d4b41c0f00102f9013ab06104000000009203135265636f6c65746120557262616e204d616c6c",
+        "bbox": {
+          "lon1": -58.3944549,
+          "lat1": -34.5896725,
+          "lon2": -58.3933022,
+          "lat2": -34.5887525
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "La Recoleta Cemetery",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "geonames",
+          "attribution": "GeoNames",
+          "license": "CC BY 4.0",
+          "url": "https://www.geonames.org/datasources/"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.39269,
+        "lat": -34.58854,
+        "result_type": "amenity",
+        "distance": 1967.7583567633014,
+        "formatted": "La Recoleta Cemetery, Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "address_line1": "La Recoleta Cemetery",
+        "address_line2": "Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ64+HW",
+        "plus_code_short": "CJ64+HW Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.656819892973871,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51aebb79aa43324dc059a5315a47554b41c0c002019203144c61205265636f6c6574612043656d6574657279e2031667656f6e616d65733a76656e75653a37353736313033"
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Recoleta Cemetry",
+        "other_names": {
+          "name": "Cementerio de la Recoleta",
+          "name:es": "Cementerio de la Recoleta",
+          "name:pt": "Cemitério da Recoleta"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.3935953,
+        "lat": -34.5876575,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2094.6722419212447,
+        "formatted": "Recoleta Cemetry, Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "address_line1": "Recoleta Cemetry",
+        "address_line2": "Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ64+WH",
+        "plus_code_short": "CJ64+WH Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.5007324917980888,
+          "popularity": 7.65622506139933,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+        "bbox": {
+          "lon1": -58.3951354,
+          "lat1": -34.5890966,
+          "lon2": -58.3918692,
+          "lat2": -34.5862094
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Cinépolis Recoleta",
+        "old_name": "Village Recoleta Cinemas",
+        "other_names": {
+          "brand": "Cinépolis",
+          "old_name": "Village Recoleta Cinemas"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1113",
+        "district": "Comuna 2",
+        "neighbourhood": "La Isla",
+        "suburb": "Recoleta",
+        "street": "Vicente López",
+        "housenumber": "2050",
+        "iso3166_2": "AR-C",
+        "lon": -58.393898,
+        "lat": -34.5891179,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1973.8935013247337,
+        "formatted": "Cinépolis Recoleta, Vicente López 2050, Recoleta, C1113 Buenos Aires, Argentina",
+        "address_line1": "Cinépolis Recoleta",
+        "address_line2": "Vicente López 2050, Recoleta, C1113 Buenos Aires, Argentina",
+        "category": "entertainment.cinema",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ64+9C",
+        "plus_code_short": "CJ64+9C Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.708272824171686,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51dbfae93f6b324dc0597dfe2037684b41c0f00103f901fc54de9e00000000c0020192031343696ec3a9706f6c6973205265636f6c657461e203236f70656e7374726565746d61703a76656e75653a6e6f64652f32363635333730383736",
+        "bbox": {
+          "lon1": -58.393948,
+          "lat1": -34.5891679,
+          "lon2": -58.393848,
+          "lat2": -34.5890679
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Atlas de Recoleta",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1129ABO",
+        "district": "Comuna 2",
+        "neighbourhood": "La Isla",
+        "suburb": "Recoleta",
+        "street": "Presidente Roberto M. Ortiz",
+        "iso3166_2": "AR-C",
+        "lon": -58.3910379,
+        "lat": -34.587667,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1981.069880972825,
+        "formatted": "Atlas de Recoleta, Presidente Roberto M. Ortiz, Recoleta, C1129 ABO Buenos Aires, Argentina",
+        "address_line1": "Atlas de Recoleta",
+        "address_line2": "Presidente Roberto M. Ortiz, Recoleta, C1129 ABO Buenos Aires, Argentina",
+        "category": "tourism.attraction.artwork",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ65+WH",
+        "plus_code_short": "CJ65+WH Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.57265122517629,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "518effa7870d324dc0591ff818ac384b41c0f00103f901ec3af75902000000c0020192031141746c6173206465205265636f6c657461e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3130303939333039323932",
+        "bbox": {
+          "lon1": -58.3910879,
+          "lat1": -34.587717,
+          "lon2": -58.3909879,
+          "lat2": -34.587617
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Centro Cultural Recoleta",
+        "housenumber": "1930",
+        "street": "Junín",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "postcode": "C1113AAX",
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.391637,
+        "lat": -34.586467,
+        "result_type": "amenity",
+        "distance": 2125.0832529089134,
+        "formatted": "Centro Cultural Recoleta, Junín 1930, Recoleta, C1113 AAX Buenos Aires, Argentina",
+        "address_line1": "Centro Cultural Recoleta",
+        "address_line2": "Junín 1930, Recoleta, C1113 AAX Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ75+C8",
+        "plus_code_short": "CJ75+C8 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.625690373906214,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51a873452921324dc0597497c459114b41c0f00102f9011b5ebe0600000000c0020192031843656e74726f2043756c747572616c205265636f6c657461e203216f70656e7374726565746d61703a76656e75653a7761792f313133313339323237",
+        "bbox": {
+          "lon1": -58.393735,
+          "lat1": -34.5867446,
+          "lon2": -58.3914146,
+          "lat2": -34.5857168
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Feira Recoleta",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1425AAA",
+        "district": "Comuna 2",
+        "neighbourhood": "La Isla",
+        "suburb": "Recoleta",
+        "street": "Avenida Del Libertador",
+        "housenumber": "1400",
+        "iso3166_2": "AR-C",
+        "lon": -58.3923606,
+        "lat": -34.5848022,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2320.7347442116134,
+        "formatted": "Feira Recoleta, Avenida Del Libertador 1400, Recoleta, C1425 AAA Buenos Aires, Argentina",
+        "address_line1": "Feira Recoleta",
+        "address_line2": "Avenida Del Libertador 1400, Recoleta, C1425 AAA Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ85+33",
+        "plus_code_short": "CJ85+33 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.554707139344297,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51969e44df38324dc0597ed069ccda4a41c0f00103f901762594b902000000c0020192030e4665697261205265636f6c657461e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3131373033343238343730",
+        "bbox": {
+          "lon1": -58.3924106,
+          "lat1": -34.5848522,
+          "lon2": -58.3923106,
+          "lat2": -34.5847522
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Epico Recoleta",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1119ACO",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "quarter": "Barrio Norte",
+        "street": "Peña",
+        "iso3166_2": "AR-C",
+        "lon": -58.400954,
+        "lat": -34.5883844,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2457.3558030493746,
+        "formatted": "Epico Recoleta, Peña, Recoleta, C1119 ACO Buenos Aires, Argentina",
+        "address_line1": "Epico Recoleta",
+        "address_line2": "Peña, Recoleta, C1119 ACO Buenos Aires, Argentina",
+        "category": "accommodation.hotel",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH6X+JJ",
+        "plus_code_short": "CH6X+JJ Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.450016782225044,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51a699ee7552334dc05901bd152e504b41c0f00103f9014ff430d702000000c0020192030e457069636f205265636f6c657461e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3132323030323434333033",
+        "bbox": {
+          "lon1": -58.401004,
+          "lat1": -34.5884344,
+          "lon2": -58.400904,
+          "lat2": -34.5883344
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "parsed": {
+        "house": "Recoleta Cemetery",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

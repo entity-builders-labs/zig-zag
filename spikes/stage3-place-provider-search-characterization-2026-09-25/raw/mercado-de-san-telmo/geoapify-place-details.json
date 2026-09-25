@@ -1,0 +1,236 @@
+{
+  "request": {
+    "id": "510caf2479ae2f4dc059b74e12013d4f41c0f00102f901d784780900000000c002019203144d65726361646f2064652053616e2054656c6d6f"
+  },
+  "status": 200,
+  "durationMs": 836,
+  "response": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "feature_type": "details",
+          "website": "https://mercadosantelmo.com.ar/",
+          "opening_hours": "Mo-Su 09:00-20:00",
+          "name": "Mercado de San Telmo",
+          "contact": {
+            "phone": "+54 11 4314 0133"
+          },
+          "wiki_and_media": {
+            "wikidata": "Q6010497",
+            "wikipedia": "es:Mercado San Telmo",
+            "wikimedia_commons": "Category:Mercado San Telmo, Buenos Aires"
+          },
+          "categories": [
+            "building",
+            "building.commercial",
+            "commercial.marketplace"
+          ],
+          "datasource": {
+            "sourcename": "openstreetmap",
+            "attribution": "© OpenStreetMap contributors",
+            "license": "Open Database License",
+            "url": "https://www.openstreetmap.org/copyright",
+            "raw": {
+              "name": "Mercado de San Telmo",
+              "phone": "+54 11 4314 0133",
+              "osm_id": 158893271,
+              "amenity": "marketplace",
+              "website": "https://mercadosantelmo.com.ar/",
+              "building": "yes",
+              "osm_type": "w",
+              "wikidata": "Q6010497",
+              "addr:city": "Ciudad Autónoma de Buenos Aires",
+              "wikipedia": "es:Mercado San Telmo",
+              "addr:street": "Defensa",
+              "addr:country": "AR",
+              "opening_hours": "Mo-Su 09:00-20:00",
+              "addr:housenumber": 963,
+              "contact:facebook": "MercadoSanTelmoOficial",
+              "contact:instagram": "elmercadosantelmo",
+              "wikimedia_commons": "Category:Mercado San Telmo, Buenos Aires"
+            }
+          },
+          "housenumber": "963",
+          "street": "Defensa",
+          "city": "Buenos Aires",
+          "state": "Buenos Aires",
+          "state_code": "B",
+          "postcode": "C1065AAR",
+          "country": "Argentina",
+          "country_code": "ar",
+          "district": "Comuna 1",
+          "suburb": "San Telmo",
+          "formatted": "Mercado de San Telmo, Defensa 963, San Telmo, C1065 AAR Buenos Aires, Argentina",
+          "address_line1": "Mercado de San Telmo",
+          "address_line2": "Defensa 963, San Telmo, C1065 AAR Buenos Aires, Argentina",
+          "lat": -34.6190492,
+          "lon": -58.372512,
+          "iso3166_2": "AR-C",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          },
+          "place_id": "51ce174c79ae2f4dc05912e611013d4f41c0f00102f901d7847809000000009203144d65726361646f2064652053616e2054656c6d6f"
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -58.372879,
+                -34.6191312
+              ],
+              [
+                -58.3728738,
+                -34.6191849
+              ],
+              [
+                -58.3728573,
+                -34.6193638
+              ],
+              [
+                -58.3728412,
+                -34.6195218
+              ],
+              [
+                -58.3728114,
+                -34.6195429
+              ],
+              [
+                -58.3727815,
+                -34.6195639
+              ],
+              [
+                -58.3724041,
+                -34.6195325
+              ],
+              [
+                -58.3723349,
+                -34.6195267
+              ],
+              [
+                -58.3722998,
+                -34.6194804
+              ],
+              [
+                -58.3723391,
+                -34.6194826
+              ],
+              [
+                -58.3723535,
+                -34.6193079
+              ],
+              [
+                -58.372314,
+                -34.6193057
+              ],
+              [
+                -58.3723172,
+                -34.6192681
+              ],
+              [
+                -58.3715918,
+                -34.6192278
+              ],
+              [
+                -58.3715975,
+                -34.6191591
+              ],
+              [
+                -58.3716031,
+                -34.6190903
+              ],
+              [
+                -58.3718105,
+                -34.6191018
+              ],
+              [
+                -58.371879,
+                -34.6191056
+              ],
+              [
+                -58.3720234,
+                -34.6191132
+              ],
+              [
+                -58.3721321,
+                -34.6191195
+              ],
+              [
+                -58.3723032,
+                -34.6191297
+              ],
+              [
+                -58.3723073,
+                -34.6190676
+              ],
+              [
+                -58.3724087,
+                -34.6190727
+              ],
+              [
+                -58.372418,
+                -34.618947
+              ],
+              [
+                -58.3724259,
+                -34.6188405
+              ],
+              [
+                -58.3724439,
+                -34.6185575
+              ],
+              [
+                -58.3725432,
+                -34.6185616
+              ],
+              [
+                -58.3726464,
+                -34.6185658
+              ],
+              [
+                -58.3726359,
+                -34.6187528
+              ],
+              [
+                -58.3726276,
+                -34.6188997
+              ],
+              [
+                -58.3726145,
+                -34.6190308
+              ],
+              [
+                -58.372611,
+                -34.6191022
+              ],
+              [
+                -58.3727767,
+                -34.6191097
+              ],
+              [
+                -58.3728361,
+                -34.6191119
+              ],
+              [
+                -58.372879,
+                -34.6191312
+              ]
+            ]
+          ]
+        },
+        "bbox": [
+          -58.372879,
+          -34.6195639,
+          -58.3715918,
+          -34.6185575
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Farmacia la Estrella",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1763,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia de la Estrella",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1064",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Defensa",
+        "housenumber": "201",
+        "iso3166_2": "AR-C",
+        "lon": -58.3721513,
+        "lat": -34.6102605,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Farmacia de la Estrella, Defensa 201, Monserrat, 1064 Buenos Aires, Argentina",
+        "address_line1": "Farmacia de la Estrella",
+        "address_line2": "Defensa 201, Monserrat, 1064 Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+V4",
+        "plus_code_short": "QH+V4 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 0.9,
+          "confidence_city_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61",
+        "bbox": {
+          "lon1": -58.3722013,
+          "lat1": -34.6103105,
+          "lon2": -58.3721013,
+          "lat2": -34.6102105
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "La Estrella",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Plata",
+        "city": "La Plata",
+        "postcode": "B1900AQJ",
+        "street": "Calle 12",
+        "housenumber": "802",
+        "iso3166_2": "AR-B",
+        "lon": -57.9561342,
+        "lat": -34.9183643,
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "La Estrella, Calle 12 802, B1900 AQJ La Plata, Argentina",
+        "address_line1": "La Estrella",
+        "address_line2": "Calle 12 802, B1900 AQJ La Plata, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q432JV+MG",
+        "plus_code_short": "JV+MG La Plata, Partido de La Plata, Argentina",
+        "rank": {
+          "importance": 0.00006666590371552632,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "confidence_city_level": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5127cbff9a62fa4cc0592f281df68c7541c0f00103f901d2ae82d200000000c0020192030b4c612045737472656c6c61",
+        "bbox": {
+          "lon1": -57.9561842,
+          "lat1": -34.9184143,
+          "lon2": -57.9560842,
+          "lat2": -34.9183143
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "parsed": {
+        "house": "Farmacia la Estrella",
+        "city": "Buenos Aires",
+        "country": "Argentina",
+        "expected_type": "amenity"
+      }
+    }
+  }
+}

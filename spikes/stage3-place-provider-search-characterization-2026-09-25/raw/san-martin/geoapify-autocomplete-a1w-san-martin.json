@@ -1,0 +1,528 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "San Martín",
+      "type": "amenity",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 774,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Teatro General San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1042AAO",
+        "district": "Comuna 1",
+        "suburb": "San Nicolás",
+        "street": "Avenida Corrientes",
+        "iso3166_2": "AR-C",
+        "lon": -58.3885267,
+        "lat": -34.6045409,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 640.8189237276049,
+        "formatted": "Teatro General San Martín, Avenida Corrientes, San Nicolás, C1042 AAO Buenos Aires, Argentina",
+        "address_line1": "Teatro General San Martín",
+        "address_line2": "Avenida Corrientes, San Nicolás, C1042 AAO Buenos Aires, Argentina",
+        "category": "entertainment.culture.theatre",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JW6+5H",
+        "plus_code_short": "W6+5H Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.40432454964183334,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51b80f2f3ebb314dc059164ca198614d41c0f00103f90132a90b6400000000c0020192031a54656174726f2047656e6572616c2053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3885767,
+          "lat1": -34.6045909,
+          "lon2": -58.3884767,
+          "lat2": -34.6044909
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Centro Cultural General San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1042AAO",
+        "district": "Comuna 1",
+        "suburb": "San Nicolás",
+        "street": "Avenida Corrientes",
+        "iso3166_2": "AR-C",
+        "lon": -58.3885632,
+        "lat": -34.6047815,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 648.5471516131768,
+        "formatted": "Centro Cultural General San Martín, Avenida Corrientes, San Nicolás, C1042 AAO Buenos Aires, Argentina",
+        "address_line1": "Centro Cultural General San Martín",
+        "address_line2": "Avenida Corrientes, San Nicolás, C1042 AAO Buenos Aires, Argentina",
+        "category": "entertainment.culture.arts_centre",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JW6+3H",
+        "plus_code_short": "W6+3H Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.3754795826599041,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51ed365e70bc314dc059e8dced7a694d41c0f00102f901958dc90100000000c0020192032343656e74726f2043756c747572616c2047656e6572616c2053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3888286,
+          "lat1": -34.60534,
+          "lon2": -58.3882911,
+          "lat2": -34.6042452
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "General San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1006",
+        "district": "Comuna 1",
+        "suburb": "Retiro",
+        "street": "Avenida Santa Fe",
+        "iso3166_2": "AR-C",
+        "lon": -58.3778987,
+        "lat": -34.5950235,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1022.5354793554465,
+        "formatted": "General San Martín, Avenida Santa Fe, Retiro, 1006 Buenos Aires, Argentina",
+        "address_line1": "General San Martín",
+        "address_line2": "Avenida Santa Fe, Retiro, 1006 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ3C+XR",
+        "plus_code_short": "CJ3C+XR Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.39951314662297394,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51b8d90efc5e304dc059fd6ce4ba294c41c0f00103f901cc8e82cd00000000c0020192031347656e6572616c2053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3828987,
+          "lat1": -34.6000235,
+          "lon2": -58.3728987,
+          "lat2": -34.5900235
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Monumento al General San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1061AAA",
+        "district": "Comuna 1",
+        "neighbourhood": "Catalinas Norte",
+        "suburb": "Retiro",
+        "street": "Arenales",
+        "iso3166_2": "AR-C",
+        "lon": -58.3771048,
+        "lat": -34.594978,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1053.5093076287478,
+        "formatted": "Monumento al General San Martín, Arenales, Retiro, C1061 AAA Buenos Aires, Argentina",
+        "address_line1": "Monumento al General San Martín",
+        "address_line2": "Arenales, Retiro, C1061 AAA Buenos Aires, Argentina",
+        "category": "tourism.sights.memorial.monument",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ4F+25",
+        "plus_code_short": "CJ4F+25 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.19619210675062,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51129557f844304dc05974eb353d284c41c0f00103f9015166cd2700000000c002019203204d6f6e756d656e746f20616c2047656e6572616c2053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3771548,
+          "lat1": -34.595028,
+          "lon2": -58.3770548,
+          "lat2": -34.594928
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Retiro (San Martín)",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1104AJN",
+        "district": "Comuna 1",
+        "suburb": "Retiro",
+        "quarter": "Villa 31",
+        "street": "Avenida Doctor José María Ramos Mejía",
+        "housenumber": "1630",
+        "iso3166_2": "AR-C",
+        "lon": -58.3732169,
+        "lat": -34.5893488,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1770.681441833576,
+        "formatted": "Retiro (San Martín), Avenida Doctor José María Ramos Mejía 1630, Retiro, C1104 AJN Buenos Aires, Argentina",
+        "address_line1": "Retiro (San Martín)",
+        "address_line2": "Avenida Doctor José María Ramos Mejía 1630, Retiro, C1104 AJN Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ6G+7P",
+        "plus_code_short": "CJ6G+7P Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.40167951396006313,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5142e84592c52f4dc059ebf70ec86f4b41c0f00103f9014b1ed9ca02000000c0020192031452657469726f202853616e204d617274c3ad6e29",
+        "bbox": {
+          "lon1": -58.3782169,
+          "lat1": -34.5943488,
+          "lon2": -58.3682169,
+          "lat2": -34.5843488
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Hospital de Clínicas José de San Martín",
+        "other_names": {
+          "alt_name": "Hospital de Clínicas"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1120AAR",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "quarter": "Barrio Norte",
+        "street": "Avenida Córdoba",
+        "housenumber": "2351",
+        "iso3166_2": "AR-C",
+        "lon": -58.4001532,
+        "lat": -34.5988462,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1781.8313934055789,
+        "formatted": "Hospital de Clínicas José de San Martín, Avenida Córdoba 2351, Recoleta, C1120 AAR Buenos Aires, Argentina",
+        "address_line1": "Hospital de Clínicas José de San Martín",
+        "address_line2": "Avenida Córdoba 2351, Recoleta, C1120 AAR Buenos Aires, Argentina",
+        "category": "healthcare.hospital",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH2X+FW",
+        "plus_code_short": "CH2X+FW Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.32076214465567665,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51e3b1553838334dc059bc2a06fea64c41c0f00101f901de01160100000000c0020192032a486f73706974616c20646520436cc3ad6e69636173204a6f73c3a92064652053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.4007685,
+          "lat1": -34.5994343,
+          "lon2": -58.3991674,
+          "lat2": -34.5982551
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1114AAD",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "quarter": "Barrio Norte",
+        "street": "Paraguay",
+        "iso3166_2": "AR-C",
+        "lon": -58.4007825,
+        "lat": -34.597933,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1869.1743907510706,
+        "formatted": "San Martín, Paraguay, Recoleta, C1114 AAD Buenos Aires, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "Paraguay, Recoleta, C1114 AAD Buenos Aires, Argentina",
+        "category": "catering.bar",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH2X+RM",
+        "plus_code_short": "CH2X+RM Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51912749d74c334dc0597e198c11894c41c0f00103f9016a76f6bb00000000c0020192030b53616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.4008325,
+          "lat1": -34.597983,
+          "lon2": -58.4007325,
+          "lat2": -34.597883
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín National Institute",
+        "other_names": {
+          "name": "Instituto Sanmartiniano",
+          "name:es": "Instituto Sanmartiniano",
+          "name:fr": "Institut national de San Martín",
+          "name:nl": "San Martín Rijksinstituut",
+          "name:ru": "Сан - Мартин Национальный институт",
+          "name:zh": "聖馬丁全國學院",
+          "alt_name": "Casa de San Martín"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1425",
+        "district": "Comuna 14",
+        "neighbourhood": "Barrio Parque",
+        "suburb": "Palermo",
+        "street": "Mariscal Ramón Castilla",
+        "housenumber": "2900",
+        "iso3166_2": "AR-C",
+        "lon": -58.4015808,
+        "lat": -34.5804167,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 3169.869373956974,
+        "formatted": "San Martín National Institute, Mariscal Ramón Castilla 2900, Palermo, 1425 Buenos Aires, Argentina",
+        "address_line1": "San Martín National Institute",
+        "address_line2": "Mariscal Ramón Castilla 2900, Palermo, 1425 Buenos Aires, Argentina",
+        "category": "entertainment.museum",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH9X+R9",
+        "plus_code_short": "CH9X+R9 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.35585735640848576,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51cb59e9ff66334dc059b0462c184b4a41c0f00102f9017e5dd10800000000c0020192031e53616e204d617274c3ad6e204e6174696f6e616c20496e73746974757465",
+        "bbox": {
+          "lon1": -58.4016817,
+          "lat1": -34.5805345,
+          "lon2": -58.4014799,
+          "lat2": -34.5802988
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1425BGW",
+        "district": "Comuna 14",
+        "neighbourhood": "Alto Palermo",
+        "suburb": "Palermo",
+        "street": "Avenida Santa Fe",
+        "housenumber": "3402",
+        "iso3166_2": "AR-C",
+        "lon": -58.4133993,
+        "lat": -34.5870341,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 3450.5746155745096,
+        "formatted": "San Martín, Avenida Santa Fe 3402, Palermo, C1425 BGW Buenos Aires, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "Avenida Santa Fe 3402, Palermo, C1425 BGW Buenos Aires, Argentina",
+        "category": "catering.restaurant",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH7P+5J",
+        "plus_code_short": "CH7P+5J Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "513bd8ac44ea344dc0598291f2ee234b41c0f00103f9011c15a91801000000c0020192030b53616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.4134493,
+          "lat1": -34.5870841,
+          "lon2": -58.4133493,
+          "lat2": -34.5869841
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín de Tours",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1425",
+        "district": "Comuna 14",
+        "neighbourhood": "Barrio Parque",
+        "suburb": "Palermo",
+        "street": "San Martín de Tours",
+        "housenumber": "2949",
+        "iso3166_2": "AR-C",
+        "lon": -58.4040243,
+        "lat": -34.5782871,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 3492.652526254556,
+        "formatted": "San Martín de Tours 2949, Palermo, 1425 Buenos Aires, Argentina",
+        "address_line1": "San Martín de Tours 2949",
+        "address_line2": "Palermo, 1425 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CHCW+M9",
+        "plus_code_short": "CHCW+M9 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5108a57911b7334dc0596e19cb4f054a41c0f00103f901301bb51400000000c0020192031453616e204d617274c3ad6e20646520546f757273",
+        "bbox": {
+          "lon1": -58.4040743,
+          "lat1": -34.5783371,
+          "lon2": -58.4039743,
+          "lat2": -34.5782371
+        }
+      }
+    ],
+    "query": {
+      "text": "San Martín",
+      "parsed": {
+        "city": "san martín",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

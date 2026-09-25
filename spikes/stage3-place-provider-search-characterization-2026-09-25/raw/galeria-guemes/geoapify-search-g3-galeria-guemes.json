@@ -1,0 +1,179 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Galería Güemes",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 941,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galería General Güemes",
+        "other_names": {
+          "alt_name": "Pasaje Güemes"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1005",
+        "district": "Comuna 1",
+        "suburb": "San Nicolás",
+        "quarter": "Microcentro",
+        "street": "Florida",
+        "iso3166_2": "AR-C",
+        "lon": -58.3743773,
+        "lat": -34.6063001,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Galería General Güemes, Florida, San Nicolás, C1005 Buenos Aires, Argentina",
+        "address_line1": "Galería General Güemes",
+        "address_line2": "Florida, San Nicolás, C1005 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JVG+F6",
+        "plus_code_short": "VG+F6 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.3436304091577327,
+          "popularity": 7.953640848669934,
+          "confidence": 0.9,
+          "confidence_city_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51b1ee6998eb2f4dc059e087de3d9b4d41c0f00102f901142d550e00000000c0020192031847616c6572c3ad612047656e6572616c2047c3bc656d6573",
+        "bbox": {
+          "lon1": -58.3750727,
+          "lat1": -34.6063441,
+          "lon2": -58.3736819,
+          "lat2": -34.6062562
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mirador Galería Güemes",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1005",
+        "district": "Comuna 1",
+        "suburb": "San Nicolás",
+        "quarter": "Microcentro",
+        "street": "Florida",
+        "iso3166_2": "AR-C",
+        "lon": -58.3747973,
+        "lat": -34.6063874,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Mirador Galería Güemes, Florida, San Nicolás, C1005 Buenos Aires, Argentina",
+        "address_line1": "Mirador Galería Güemes",
+        "address_line2": "Florida, San Nicolás, C1005 Buenos Aires, Argentina",
+        "category": "tourism.attraction.viewpoint",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JVG+C3",
+        "plus_code_short": "VG+C3 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 0.9,
+          "confidence_city_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "518610a15bf92f4dc0596eda311a9e4d41c0f00103f9019c1cf09300000000c002019203184d697261646f722047616c6572c3ad612047c3bc656d6573",
+        "bbox": {
+          "lon1": -58.3748473,
+          "lat1": -34.6064374,
+          "lon2": -58.3747473,
+          "lat2": -34.6063374
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galería Güemes",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "Ramos Mejía",
+        "postcode": "B1704ETD",
+        "suburb": "Ramos Mejía Norte",
+        "street": "Martín Miguel de Güemes",
+        "iso3166_2": "AR-B",
+        "lon": -58.5657864,
+        "lat": -34.6397571,
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Galería Güemes, Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "address_line1": "Galería Güemes",
+        "address_line2": "Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C6M+3M",
+        "rank": {
+          "importance": 0.000046261539635263866,
+          "popularity": 7.363571814268174,
+          "confidence": 0.2,
+          "confidence_city_level": 0.2,
+          "match_type": "full_match"
+        },
+        "place_id": "51c34252b06b484dc05920f1868fe35141c0f00102f901d46af42200000000c0020192031047616c6572c3ad612047c3bc656d6573",
+        "bbox": {
+          "lon1": -58.5660541,
+          "lat1": -34.6398031,
+          "lon2": -58.5655187,
+          "lat2": -34.6397112
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "parsed": {
+        "house": "Galería Güemes",
+        "city": "Buenos Aires",
+        "country": "Argentina",
+        "expected_type": "amenity"
+      }
+    }
+  }
+}

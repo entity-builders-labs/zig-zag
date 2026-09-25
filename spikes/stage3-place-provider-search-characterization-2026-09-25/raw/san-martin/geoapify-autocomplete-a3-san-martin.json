@@ -1,0 +1,78 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "San Martín",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 497,
+  "response": {
+    "results": [
+      {
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de General San Martín",
+        "city": "Ciudad del Libertador General San Martín",
+        "postcode": "B1650",
+        "name": "Ciudad del Libertador General San Martín",
+        "other_names": {
+          "name": "Ciudad del Libertador General San Martín",
+          "name:es": "Ciudad del Libertador General San Martín",
+          "official_name": "Ciudad del Libertador General Don José de San Martín",
+          "_place_name:es": "Ciudad del Libertador General San Martín",
+          "_place_loc_name": "San Martín"
+        },
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state_code": "B",
+        "iso3166_2": "AR-B",
+        "lon": -58.5377237,
+        "lat": -34.5771577,
+        "population": 28399,
+        "result_type": "city",
+        "formatted": "Ciudad del Libertador General San Martín, B, Argentina",
+        "address_line1": "Ciudad del Libertador General San Martín",
+        "address_line2": "Ciudad del Libertador General San Martín, B, Argentina",
+        "category": "administrative",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CFF6+4W",
+        "rank": {
+          "confidence": 1,
+          "confidence_city_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "515ee45421d4444dc0593a11b34de04941c0f00101f9018fe78b0000000000c002089203294369756461642064656c204c696265727461646f722047656e6572616c2053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.554151,
+          "lat1": -34.5900944,
+          "lon2": -58.5278457,
+          "lat2": -34.5675002
+        }
+      }
+    ],
+    "query": {
+      "text": "San Martín",
+      "parsed": {
+        "city": "san martín",
+        "expected_type": "unknown"
+      },
+      "categories": []
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "request": {
+    "url": "POST https://places.googleapis.com/v1/places:searchText",
+    "fieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.primaryType",
+    "body": "{\"textQuery\":\"Mafalda, Buenos Aires, Argentina\",\"pageSize\":10}"
+  },
+  "status": 200,
+  "durationMs": 519,
+  "response": {
+    "places": [
+      {
+        "id": "ChIJDaN56GvLvJURvFkM9w0rK18",
+        "types": [
+          "route"
+        ],
+        "formattedAddress": "Mafalda, C1437 Cdad. Autónoma de Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6461124,
+          "longitude": -58.3992576
+        },
+        "displayName": {
+          "text": "Mafalda",
+          "languageCode": "es"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Basílica de San Francisco",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1286,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica de San Francisco",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1091AAH",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Moreno",
+        "iso3166_2": "AR-C",
+        "lon": -58.3718121,
+        "lat": -34.6106142,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Basílica de San Francisco, Moreno, Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "address_line1": "Basílica de San Francisco",
+        "address_line2": "Moreno, Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+Q7",
+        "plus_code_short": "QH+Q7 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51e8e0f489972f4dc05992bc299b284e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f",
+        "bbox": {
+          "lon1": -58.3719542,
+          "lat1": -34.6112405,
+          "lon2": -58.3708282,
+          "lat2": -34.6101922
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Basílica de San Francisco",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "iso3166_2": "AR-C",
+        "lon": -58.371358,
+        "lat": -34.610703,
+        "result_type": "amenity",
+        "postcode": "C1091AAH",
+        "formatted": "Basílica de San Francisco, Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "address_line1": "Basílica de San Francisco",
+        "address_line2": "Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+PF",
+        "plus_code_short": "QH+PF Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51d28db0a8882f4dc059d84812842b4e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636fe203246f70656e7374726565746d61703a76656e75653a72656c6174696f6e2f32333534313532",
+        "bbox": {
+          "lon1": -58.3719542,
+          "lat1": -34.6112405,
+          "lon2": -58.3708282,
+          "lat2": -34.6101922
+        }
+      }
+    ],
+    "query": {
+      "text": "Basílica de San Francisco",
+      "categories": []
+    }
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Plaza San Martín",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1108,
+  "response": {
+    "results": [
+      {
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Plata",
+        "city": "City Bell",
+        "postcode": "1896",
+        "street": "Plaza San Martín",
+        "name": "Plaza San Martín",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state_code": "B",
+        "iso3166_2": "AR-B",
+        "lon": -58.0481724,
+        "lat": -34.8669005,
+        "distance": 42247.51379097204,
+        "result_type": "street",
+        "formatted": "Plaza San Martín, 1896 City Bell, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "1896 City Bell, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q34XM2+6P",
+        "rank": {
+          "confidence": 1,
+          "confidence_street_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51f04861832a064dc0596a317898f66e41c0f00102f90166f1ba1400000000c00204920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.0483014,
+          "lat1": -34.867765,
+          "lon2": -58.0472119,
+          "lat2": -34.8666342
+        }
+      },
+      {
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Neuquén",
+        "county": "Departamento Confluencia",
+        "city": "Villa El Chocón",
+        "postcode": "Q8311",
+        "suburb": "Centro Cívico",
+        "street": "Plaza San Martín",
+        "name": "Plaza San Martín",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state_code": "Q",
+        "iso3166_2": "AR-Q",
+        "lon": -68.7837032,
+        "lat": -39.2611588,
+        "result_type": "street",
+        "distance": 1058735.8168805172,
+        "formatted": "Plaza San Martín, Centro Cívico, Q8311 Villa El Chocón, Argentina",
+        "address_line1": "Plaza San Martín",
+        "address_line2": "Centro Cívico, Q8311 Villa El Chocón, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Salta",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47GHP6Q8+GG",
+        "rank": {
+          "confidence": 1,
+          "confidence_street_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5151717731283251c0590388cca66da143c0f00101f901b9f3f30000000000c00204920311506c617a612053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -68.7840599,
+          "lat1": -39.2614844,
+          "lon2": -68.7830925,
+          "lat2": -39.2608383
+        }
+      }
+    ],
+    "query": {
+      "text": "Plaza San Martín",
+      "parsed": {
+        "street": "plaza san martín",
+        "expected_type": "unknown"
+      },
+      "categories": []
+    }
+  }
+}

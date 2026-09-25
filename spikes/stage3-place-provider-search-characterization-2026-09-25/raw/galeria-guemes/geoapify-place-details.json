@@ -1,0 +1,97 @@
+{
+  "request": {
+    "id": "51b1ee6998eb2f4dc059e087de3d9b4d41c0f00102f901142d550e00000000c0020192031847616c6572c3ad612047656e6572616c2047c3bc656d6573"
+  },
+  "status": 200,
+  "durationMs": 779,
+  "response": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "feature_type": "details",
+          "website": "http://www.galeriaguemes.com.ar/",
+          "opening_hours": "Mo-Fr 08:00-20:00; Sa 09:00-15:00",
+          "name": "Galería General Güemes",
+          "name_other": {
+            "alt_name": "Pasaje Güemes"
+          },
+          "wiki_and_media": {
+            "wikipedia": "es:Galería General Güemes"
+          },
+          "restrictions": {
+            "access": "permissive"
+          },
+          "categories": [
+            "access",
+            "access.yes"
+          ],
+          "datasource": {
+            "sourcename": "openstreetmap",
+            "attribution": "© OpenStreetMap contributors",
+            "license": "Open Database License",
+            "url": "https://www.openstreetmap.org/copyright",
+            "raw": {
+              "name": "Galería General Güemes",
+              "layer": -2,
+              "access": "permissive",
+              "indoor": "yes",
+              "osm_id": 240463124,
+              "highway": "corridor",
+              "alt_name": "Pasaje Güemes",
+              "osm_type": "w",
+              "wikipedia": "es:Galería General Güemes",
+              "start_date": "1915-12-15",
+              "opening_hours": "Mo-Fr 08:00-20:00; Sa 09:00-15:00",
+              "contact:website": "http://www.galeriaguemes.com.ar/"
+            }
+          },
+          "street": "Florida",
+          "city": "Buenos Aires",
+          "state": "Buenos Aires",
+          "state_code": "B",
+          "postcode": "C1005",
+          "country": "Argentina",
+          "country_code": "ar",
+          "district": "Comuna 1",
+          "suburb": "San Nicolás",
+          "quarter": "Microcentro",
+          "formatted": "Florida, San Nicolás, C1005 Buenos Aires, Argentina",
+          "address_line1": "Florida",
+          "address_line2": "San Nicolás, C1005 Buenos Aires, Argentina",
+          "lat": -34.6063001,
+          "lon": -58.3743773,
+          "iso3166_2": "AR-C",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          },
+          "place_id": "51b7cdf9ced42f4dc05994959bcd994d41c0f00102f901142d550e0000000092031847616c6572c3ad612047656e6572616c2047c3bc656d6573"
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              -58.3736819,
+              -34.6062562
+            ],
+            [
+              -58.3750727,
+              -34.6063441
+            ]
+          ]
+        },
+        "bbox": [
+          -58.3750727,
+          -34.6063441,
+          -58.3736819,
+          -34.6062562
+        ]
+      }
+    ]
+  }
+}

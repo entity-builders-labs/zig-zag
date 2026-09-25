@@ -1,0 +1,25 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Defensa Street",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1934,
+  "response": {
+    "results": [],
+    "query": {
+      "text": "Defensa Street",
+      "parsed": {
+        "street": "defensa street",
+        "expected_type": "unknown"
+      },
+      "categories": []
+    }
+  }
+}
