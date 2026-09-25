@@ -183,7 +183,11 @@ describe('tour-generation integration · area/route walk geographic validation (
       expect(result.map((r) => r.id)).not.toContain(experience.id);
     });
 
-    it('does NOT match an Experience whose OPTIONAL component is outside the area (only required components are checked)', async () => {
+    // Stage 4: every persisted component is a member of the admitted source
+    // composition. A legacy `required:false` row neither hides an outside
+    // component from strict containment nor makes an inside Experience
+    // unreusable.
+    it('excludes an Experience with ANY persisted component outside the area, whatever its legacy `required` value', async () => {
       const area = await seedArea();
       const experience = await seedMultiComponentExperience(
         [
@@ -198,10 +202,10 @@ describe('tour-generation integration · area/route walk geographic validation (
         'AREA_CONTAINED',
       );
 
-      expect(result.map((r) => r.id)).toContain(experience.id);
+      expect(result.map((r) => r.id)).not.toContain(experience.id);
     });
 
-    it('excludes an Experience with ZERO required components (vacuous-truth guard)', async () => {
+    it('matches an Experience whose inside components all carry a legacy `required:false`', async () => {
       const area = await seedArea();
       const experience = await seedMultiComponentExperience([
         { name: 'Plaza Dorrego', required: false },
@@ -213,7 +217,7 @@ describe('tour-generation integration · area/route walk geographic validation (
         'AREA_CONTAINED',
       );
 
-      expect(result.map((r) => r.id)).not.toContain(experience.id);
+      expect(result.map((r) => r.id)).toContain(experience.id);
     });
 
     it('excludes a single-component Experience (not a real multi-component Experience)', async () => {
@@ -292,7 +296,7 @@ describe('tour-generation integration · area/route walk geographic validation (
       // real coordinates outside San Telmo -- rejection must happen
       // because that real point lies outside the polygon
       // (external_scope_mismatch), never because MALBA failed to resolve
-      // at all (unresolved_required_component would be a different,
+      // at all (incomplete_source_composition would be a different,
       // weaker regression).
       const osmPlaces = {
         lookupPoisWithin: jest.fn().mockResolvedValue({

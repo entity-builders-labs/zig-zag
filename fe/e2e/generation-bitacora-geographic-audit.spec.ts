@@ -54,13 +54,12 @@ test("entity-resolution forensic audit renders execution facts and identity evid
             candidateTraceKey: "candidate-farmacia",
             candidateName: "Farmacia la Estrella",
             accepted: false,
-            rejectionReasons: ["UNRESOLVED_REQUIRED_COMPONENT"],
+            rejectionReasons: ["INCOMPLETE_SOURCE_COMPOSITION"],
             hints: [
               {
                 key: "farmacia",
                 name: "Farmacia la Estrella",
                 role: "venue",
-                required: true,
                 evidenceKeys: ["ev-1"],
                 status: "unresolved",
                 reason: "NO_OSM_MATCH",
@@ -96,7 +95,6 @@ test("entity-resolution forensic audit renders execution facts and identity evid
                 key: "museum",
                 name: "Museo de Arte",
                 role: "venue",
-                required: true,
                 evidenceKeys: ["ev-2"],
                 status: "resolved",
                 resolvedGeoEntity: {

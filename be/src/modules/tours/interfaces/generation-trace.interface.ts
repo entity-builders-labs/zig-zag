@@ -3,6 +3,9 @@ import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { PreferenceInterpretationTrace } from './preference-interpretation.interface';
 import { GeoEntityHint } from './experience-discovery.interface';
 import {
+  ComponentGeographicScope,
+  ComponentResolutionFact,
+  CompositeResolutionCoverage,
   ResolvedGeoEntity,
   IdentityEvidence,
   ResolutionStrategy,
@@ -186,7 +189,6 @@ export interface TraceComponentHint {
   key: string;
   name: string;
   role: GeoEntityHint['role'];
-  required: boolean;
   order?: number;
   evidenceKeys: string[];
   addressHint?: string;
@@ -222,8 +224,17 @@ export interface TraceEntityResolutionDecision {
       > & { geometry?: { present: boolean; type?: string } };
       reason?: string;
       attempts?: TraceEntityResolutionAttempt[];
+      /** Stage 4 typed identity outcome (separate from geography). */
+      identityStatus?: ComponentResolutionFact['identityStatus'];
+      /** Canonical geometry + relation to the request scope; RESOLVED only. */
+      geography?: ComponentResolutionFact['resolved'];
+      /** Why no canonical object exists, and its deficit classification. */
+      deficit?: ComponentResolutionFact['deficit'];
     }
   >;
+  /** Coverage of the full source composition (observability only). */
+  coverage?: CompositeResolutionCoverage;
+  componentScope?: ComponentGeographicScope;
   accepted: boolean;
   rejectionReasons: string[];
 }

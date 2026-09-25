@@ -13,8 +13,8 @@ describe('decideExperienceDedupe', () => {
       {
         ...base,
         components: [
-          { geoEntityId: 'bodega-a', role: 'winery', required: true },
-          { geoEntityId: 'bodega-b', role: 'winery', required: true },
+          { geoEntityId: 'bodega-a', role: 'winery' },
+          { geoEntityId: 'bodega-b', role: 'winery' },
         ],
       },
       [
@@ -22,8 +22,8 @@ describe('decideExperienceDedupe', () => {
           id: 'canonical',
           ...base,
           components: [
-            { geoEntityId: 'bodega-a', role: 'winery', required: true },
-            { geoEntityId: 'bodega-b', role: 'winery', required: true },
+            { geoEntityId: 'bodega-a', role: 'winery' },
+            { geoEntityId: 'bodega-b', role: 'winery' },
           ],
         },
       ],
@@ -42,9 +42,9 @@ describe('decideExperienceDedupe', () => {
         ...base,
         canonicalName: 'Ruta del vino premium de Luján de Cuyo',
         components: [
-          { geoEntityId: 'bodega-a', role: 'winery', required: true },
-          { geoEntityId: 'restaurant-x', role: 'lunch', required: true },
-          { geoEntityId: 'bodega-z', role: 'winery', required: true },
+          { geoEntityId: 'bodega-a', role: 'winery' },
+          { geoEntityId: 'restaurant-x', role: 'lunch' },
+          { geoEntityId: 'bodega-z', role: 'winery' },
         ],
       },
       [
@@ -52,9 +52,9 @@ describe('decideExperienceDedupe', () => {
           id: 'classic-route',
           ...base,
           components: [
-            { geoEntityId: 'bodega-a', role: 'winery', required: true },
-            { geoEntityId: 'bodega-b', role: 'winery', required: true },
-            { geoEntityId: 'bodega-c', role: 'winery', required: true },
+            { geoEntityId: 'bodega-a', role: 'winery' },
+            { geoEntityId: 'bodega-b', role: 'winery' },
+            { geoEntityId: 'bodega-c', role: 'winery' },
           ],
         },
       ],
@@ -70,17 +70,13 @@ describe('decideExperienceDedupe', () => {
         latitude: -32.89,
         longitude: -68.84,
         provenance: ['provider-a'],
-        components: [
-          { geoEntityId: 'kitchen-1', role: 'venue', required: true },
-        ],
+        components: [{ geoEntityId: 'kitchen-1', role: 'venue' }],
       },
       [
         {
           id: 'existing',
           ...base,
-          components: [
-            { geoEntityId: 'bodega-a', role: 'winery', required: true },
-          ],
+          components: [{ geoEntityId: 'bodega-a', role: 'winery' }],
         },
       ],
     );

@@ -50,7 +50,7 @@ import {
   matchOsmCandidateByName,
   normalizeGeoName,
 } from '../utils/nominatim-match.util';
-import { isMigrationRequiredHint } from '../utils/geo-entity-hint-required-migration.util';
+import { buildCompositeComponentResolution } from '../utils/component-resolution-facts.util';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { computeQualityScore } from '../utils/quality-score.util';
@@ -366,9 +366,22 @@ export class ExperienceProposalResolverService
         ),
     );
 
-    const resolvedCandidates = resolutionResults.map(
-      (result) => result.resolved,
-    );
+    // Stage 4: every candidate -- admitted or not -- carries the typed
+    // identity/geography facts of EVERY source component plus its coverage.
+    // Pure and transient: computed from what resolution already did (no
+    // provider call), consumed by trace/audit only, never persisted as a
+    // partial Experience and never an admission threshold.
+    const resolvedCandidates = resolutionResults.map((result) => {
+      const componentResolution = buildCompositeComponentResolution({
+        candidate: result.resolved.candidate,
+        entities: result.resolved.resolvedEntities,
+        componentAudits: result.audit.componentAudits,
+        validationScope: input.validationScope,
+        geographicScope: scope,
+      });
+      result.audit.componentResolution = componentResolution;
+      return { ...result.resolved, componentResolution };
+    });
     const forensicAudit = resolutionResults.map((result) => result.audit);
     const acceptedForValidation = resolvedCandidates.filter(
       (item) => item.status === 'accepted',
@@ -463,7 +476,6 @@ export class ExperienceProposalResolverService
           candidate.resolvedEntities.filter(
             (entity: any) => entity.status === 'resolved' && entity.geoEntityId,
           ),
-          candidate.candidate.componentHints,
         );
         // A Wikidata QID is IDENTITY evidence (already established by
         // IdentityVerifier), never quality evidence by itself. The
@@ -514,7 +526,6 @@ export class ExperienceProposalResolverService
             // not intrinsic sequence, and must persist as null.
             order: candidate.candidate.orderedByEvidence ? index + 1 : null,
             role: entity.role,
-            required: entity.required,
           })),
           evidence: evidence
             .filter((item: { key?: string }) =>
@@ -707,8 +718,6 @@ export class ExperienceProposalResolverService
           hintName: hint.name,
           role: hint.role,
           expectedKind: hint.expectedKind,
-          // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
-          required: isMigrationRequiredHint(hint),
           evidenceKeys: [...hint.evidenceKeys],
           addressHint: hint.addressHint,
           attempts,
@@ -1274,22 +1283,26 @@ export class ExperienceProposalResolverService
 
     await this.rememberVerifiedHints(verifiedHintsToRemember);
 
-    // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
-    const required = (candidate?.componentHints ?? []).filter((hint: any) =>
-      isMigrationRequiredHint(hint),
-    );
-    const unresolvedRequired = required.some(
-      (hint: any) =>
-        !entities.find(
+    // Source composition is the authority on WHICH components make up this
+    // Experience. A candidate is admitted to geographic validation (and so
+    // to persistence) only when every source-backed component hint has a
+    // resolved canonical identity. An unresolved/ambiguous component is kept
+    // as an explicit fact (see componentResolution), never dropped to
+    // produce a smaller composite the source never described.
+    const componentHints: GeoEntityHint[] = candidate?.componentHints ?? [];
+    const sourceCompositionComplete =
+      componentHints.length > 0 &&
+      componentHints.every((hint) =>
+        entities.some(
           (entity) =>
             entity.hintKey === hint.key && entity.status === 'resolved',
         ),
-    );
+      );
     const resolvedEntities = entities.filter(
       (entity) => entity.status === 'resolved',
     );
 
-    if (resolvedEntities.length === 0 || unresolvedRequired) {
+    if (resolvedEntities.length === 0 || !sourceCompositionComplete) {
       return {
         resolved: {
           candidate,
@@ -1314,7 +1327,7 @@ export class ExperienceProposalResolverService
                       )
                     ? 'UNCONFIRMED_MATCH'
                     : 'NO_OSM_MATCH'
-              : 'UNRESOLVED_REQUIRED_COMPONENT',
+              : 'INCOMPLETE_SOURCE_COMPOSITION',
           ],
         },
         audit: {
@@ -1503,6 +1516,7 @@ export class ExperienceProposalResolverService
       longitude: candidate.longitude,
       geometry: candidate.geometry,
       role: candidate.role,
+      kind: candidate.kind,
       wikidataQid: candidate.wikidataQid,
       nameAliasCandidates: candidate.nameAliasCandidates,
       addressConfirmed: candidate.addressConfirmed,
@@ -1535,6 +1549,7 @@ export class ExperienceProposalResolverService
       longitude: candidate.longitude,
       geometry: candidate.geometry,
       role: candidate.role,
+      kind: candidate.kind,
       wikidataQid: candidate.wikidataQid,
       nameAliasCandidates: candidate.nameAliasCandidates,
       addressConfirmed: candidate.addressConfirmed,
@@ -1582,6 +1597,7 @@ export class ExperienceProposalResolverService
       longitude: candidate.longitude,
       geometry: candidate.geometry,
       role: candidate.role,
+      kind: candidate.kind,
       wikidataQid: candidate.wikidataQid,
       nameAliasCandidates: candidate.nameAliasCandidates,
       addressConfirmed: candidate.addressConfirmed,
@@ -2747,41 +2763,21 @@ export class ExperienceProposalResolverService
     }
   }
 
+  /**
+   * One persisted component per canonical GeoEntity: two source hints that
+   * converge on the same physical object are one ExperienceComponent
+   * (existing canonical policy). Membership comes from the complete source
+   * composition, never from a per-component flag.
+   */
   private dedupeResolvedEntitiesByGeoEntity<
     T extends { geoEntityId?: string; hintKey?: string },
-  >(
-    entities: T[],
-    componentHints: GeoEntityHint[] = [],
-  ): (T & { required: boolean })[] {
-    // `required` must be computed as the OR across EVERY resolved entity
-    // that maps to that real place, BEFORE dedup collapses several hints'
-    // entities onto one survivor -- an optional hint's entity surviving
-    // dedup must never silently downgrade a place another (required) hint
-    // also pointed at.
-    const requiredByGeoEntityId = new Map<string, boolean>();
-    for (const entity of entities) {
-      if (!entity.geoEntityId) continue;
-      const hint = componentHints.find((item) => item.key === entity.hintKey);
-      // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
-      const required = hint ? isMigrationRequiredHint(hint) : true;
-      requiredByGeoEntityId.set(
-        entity.geoEntityId,
-        (requiredByGeoEntityId.get(entity.geoEntityId) ?? false) || required,
-      );
-    }
-
+  >(entities: T[]): T[] {
     const seen = new Set<string>();
-    return entities
-      .filter((entity) => {
-        if (!entity.geoEntityId || seen.has(entity.geoEntityId)) return false;
-        seen.add(entity.geoEntityId);
-        return true;
-      })
-      .map((entity) => ({
-        ...entity,
-        required:
-          requiredByGeoEntityId.get(entity.geoEntityId as string) ?? true,
-      }));
+    return entities.filter((entity) => {
+      if (!entity.geoEntityId || seen.has(entity.geoEntityId)) return false;
+      seen.add(entity.geoEntityId);
+      return true;
+    });
   }
 
   private representativePoint(

@@ -23,10 +23,13 @@ export type GeographicValidationRejectionReason =
   | 'geographic_incoherence'
   | 'destination_mismatch'
   | 'grounded_evidence_missing'
-  | 'unresolved_required_component'
+  // Not every source-backed component hint has a resolved canonical
+  // identity: the composition is incomplete and is never validated as a
+  // trimmed subset.
+  | 'incomplete_source_composition'
   | 'ambiguous_component'
   // Task B5: a request-level (non-candidate-owned) validationScope was
-  // violated -- a required component lies outside the externally resolved
+  // violated -- a component lies outside the externally resolved
   // AREA polygon, or outside the externally resolved ROUTE's corridor.
   | 'external_scope_mismatch';
 
@@ -106,7 +109,7 @@ export interface GeographicValidationThresholds {
     minAnchors: number;
     maxRadiusMeters: number;
     maxPairwiseDistanceMeters: number;
-    // Task B5: max distance (meters) a required point-like component may
+    // Task B5: max distance (meters) a point-like component may
     // sit from a resolved canonical ROUTE's own LineString geometry to
     // still count as "on/along the route" -- a real corridor-membership
     // check, distinct from the regional destination-centroid/radius policy

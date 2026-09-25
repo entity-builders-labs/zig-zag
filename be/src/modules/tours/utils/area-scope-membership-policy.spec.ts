@@ -1,5 +1,9 @@
+import { GeoEntityKind } from '@prisma/client';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
-import { evaluateAreaScopeMembership } from './area-scope-membership-policy';
+import {
+  classifyComponentAreaRelation,
+  evaluateAreaScopeMembership,
+} from './area-scope-membership-policy';
 
 const area: GeoJsonGeometry = {
   type: 'Polygon',
@@ -20,21 +24,21 @@ describe('area scope membership policy', () => {
       evaluateAreaScopeMembership(
         area,
         [
-          { required: true, role: 'venue', latitude: 2, longitude: 2 },
-          { required: true, role: 'venue', latitude: 8, longitude: 8 },
+          { role: 'venue', latitude: 2, longitude: 2 },
+          { role: 'venue', latitude: 8, longitude: 8 },
         ],
         'AREA_CONTAINED',
       ).passes,
     ).toBe(true);
   });
 
-  it('rejects strict containment when a required component is outside', () => {
+  it('rejects strict containment when any component is outside', () => {
     expect(
       evaluateAreaScopeMembership(
         area,
         [
-          { required: true, role: 'venue', latitude: 2, longitude: 2 },
-          { required: true, role: 'venue', latitude: 20, longitude: 20 },
+          { role: 'venue', latitude: 2, longitude: 2 },
+          { role: 'venue', latitude: 20, longitude: 20 },
         ],
         'AREA_CONTAINED',
       ).passes,
@@ -46,9 +50,8 @@ describe('area scope membership policy', () => {
       evaluateAreaScopeMembership(
         area,
         [
-          { required: true, role: 'waypoint', latitude: 20, longitude: 20 },
+          { role: 'waypoint', latitude: 20, longitude: 20 },
           {
-            required: true,
             role: 'route',
             geometry: {
               type: 'LineString',
@@ -70,7 +73,6 @@ describe('area scope membership policy', () => {
         area,
         [
           {
-            required: true,
             role: 'route',
             geometry: {
               type: 'LineString',
@@ -87,7 +89,7 @@ describe('area scope membership policy', () => {
     expect(
       evaluateAreaScopeMembership(
         area,
-        [{ required: true, role: 'area', latitude: 5, longitude: 5 }],
+        [{ role: 'area', latitude: 5, longitude: 5 }],
         'AREA_ANCHORED_ROUTE',
       ).passes,
     ).toBe(false);
@@ -141,7 +143,6 @@ describe('area scope membership policy', () => {
         sanTelmoArea,
         [
           {
-            required: true,
             role: 'route',
             // Enters from outside (west of the polygon, like Defensa
             // approaching from Plaza de Mayo) and crosses into it.
@@ -165,7 +166,6 @@ describe('area scope membership policy', () => {
         sanTelmoArea,
         [
           {
-            required: true,
             role: 'route',
             geometry: {
               type: 'LineString',
@@ -194,17 +194,15 @@ describe('area scope membership policy', () => {
     // Calle-Defensa-shaped route that intersects the boundary. Current
     // AREA_ANCHORED_ROUTE policy already accepts this shape via
     // `routeIntersectsArea` even though the point itself never satisfies
-    // `requiredPointInside` -- freezing that CURRENT behavior, not a new one.
+    // `pointComponentInside` -- freezing that CURRENT behavior, not a new one.
     it('Case C (design fixture, not the observed RW1 failure): a resolved point outside San Telmo plus a connecting route into it already passes AREA_ANCHORED_ROUTE', () => {
       const plazaDeMayoShapedPoint = {
-        required: true,
         role: 'waypoint' as const,
         // Outside sanTelmoArea's bounds (west of the polygon).
         latitude: -34.6195,
         longitude: -58.3755,
       };
       const calleDefensaShapedRoute = {
-        required: true,
         role: 'route' as const,
         geometry: {
           type: 'LineString' as const,
@@ -221,7 +219,7 @@ describe('area scope membership policy', () => {
         'AREA_ANCHORED_ROUTE',
       );
 
-      expect(decision.requiredPointInside).toBe(false);
+      expect(decision.pointComponentInside).toBe(false);
       expect(decision.routeIntersectsArea).toBe(true);
       expect(decision.passes).toBe(true);
 
@@ -233,6 +231,233 @@ describe('area scope membership policy', () => {
         evaluateAreaScopeMembership(
           sanTelmoArea,
           [plazaDeMayoShapedPoint, calleDefensaShapedRoute],
+          'AREA_CONTAINED',
+        ).passes,
+      ).toBe(false);
+    });
+  });
+
+  /**
+   * Stage 4: typed component relations from real geometry (no mocked
+   * geometry policy). The unit square `area` above is the scope.
+   */
+  describe('component area relation (Stage 4)', () => {
+    const relationOf = (
+      fact: Parameters<typeof classifyComponentAreaRelation>[1],
+    ) => classifyComponentAreaRelation(area, fact);
+
+    it('PLACE point inside -> INSIDE', () => {
+      expect(
+        relationOf({
+          role: 'venue',
+          kind: GeoEntityKind.PLACE,
+          latitude: 5,
+          longitude: 5,
+        }),
+      ).toEqual({ role: 'venue', basis: 'POINT', relation: 'INSIDE' });
+    });
+
+    it('PLACE point on the boundary edge -> INSIDE (covered)', () => {
+      expect(
+        relationOf({
+          role: 'venue',
+          kind: GeoEntityKind.PLACE,
+          latitude: 5,
+          longitude: 10,
+        }).relation,
+      ).toBe('INSIDE');
+    });
+
+    it('PLACE point outside -> OUTSIDE with a measured boundary distance (observability, no NEAR)', () => {
+      const fact = relationOf({
+        hintKey: 'p',
+        role: 'waypoint',
+        kind: GeoEntityKind.PLACE,
+        latitude: 5,
+        longitude: 11,
+      });
+      expect(fact.relation).toBe('OUTSIDE');
+      expect(fact.basis).toBe('POINT');
+      expect(fact.distanceToBoundaryMeters).toBeGreaterThan(0);
+    });
+
+    it('ROUTE LineString crossing the boundary -> INTERSECTS', () => {
+      expect(
+        relationOf({
+          role: 'route',
+          kind: GeoEntityKind.ROUTE,
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [-2, 5],
+              [5, 5],
+            ],
+          },
+        }),
+      ).toEqual({ role: 'route', basis: 'LINE', relation: 'INTERSECTS' });
+    });
+
+    it('ROUTE crossing the area with both endpoints outside -> INTERSECTS (segment intersection, not endpoints)', () => {
+      expect(
+        relationOf({
+          role: 'route',
+          kind: GeoEntityKind.ROUTE,
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [-2, 5],
+              [12, 5],
+            ],
+          },
+        }).relation,
+      ).toBe('INTERSECTS');
+    });
+
+    it('ROUTE fully inside -> INSIDE; fully outside -> OUTSIDE', () => {
+      expect(
+        relationOf({
+          role: 'route',
+          kind: GeoEntityKind.ROUTE,
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [2, 2],
+              [8, 8],
+            ],
+          },
+        }).relation,
+      ).toBe('INSIDE');
+      expect(
+        relationOf({
+          role: 'route',
+          kind: GeoEntityKind.ROUTE,
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [20, 20],
+              [30, 30],
+            ],
+          },
+        }).relation,
+      ).toBe('OUTSIDE');
+    });
+
+    it('ROUTE MultiLineString (multi-way street) crossing the boundary -> INTERSECTS', () => {
+      expect(
+        relationOf({
+          role: 'route',
+          kind: GeoEntityKind.ROUTE,
+          geometry: {
+            type: 'MultiLineString',
+            coordinates: [
+              [
+                [-4, 5],
+                [-1, 5],
+              ],
+              [
+                [-1, 5],
+                [3, 5],
+              ],
+            ],
+          },
+        }),
+      ).toEqual({ role: 'route', basis: 'LINE', relation: 'INTERSECTS' });
+    });
+
+    it('ROUTE without line geometry is UNDETERMINED even with an inside representative point', () => {
+      expect(
+        relationOf({
+          role: 'route',
+          kind: GeoEntityKind.ROUTE,
+          latitude: 5,
+          longitude: 5,
+        }),
+      ).toEqual({ role: 'route', basis: 'NONE', relation: 'UNDETERMINED' });
+    });
+
+    it('AREA polygon contained / intersecting / outside / identical to the scope', () => {
+      const square = (x0: number, y0: number, x1: number, y1: number) => ({
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [x0, y0],
+            [x1, y0],
+            [x1, y1],
+            [x0, y1],
+            [x0, y0],
+          ] as [number, number][],
+        ],
+      });
+      const areaFact = (geometry: GeoJsonGeometry) => ({
+        role: 'area',
+        kind: GeoEntityKind.AREA,
+        geometry,
+      });
+      expect(relationOf(areaFact(square(2, 2, 4, 4))).relation).toBe('INSIDE');
+      expect(relationOf(areaFact(square(8, 8, 12, 12))).relation).toBe(
+        'INTERSECTS',
+      );
+      expect(relationOf(areaFact(square(20, 20, 30, 30))).relation).toBe(
+        'OUTSIDE',
+      );
+      // A component polygon enclosing the whole scope intersects it.
+      expect(relationOf(areaFact(square(-5, -5, 15, 15))).relation).toBe(
+        'INTERSECTS',
+      );
+      // The scope's own polygon is covered by itself.
+      expect(relationOf(areaFact(area)).relation).toBe('INSIDE');
+    });
+
+    it('AREA without polygon geometry is UNDETERMINED (no centroid approximation)', () => {
+      expect(
+        relationOf({
+          role: 'area',
+          kind: GeoEntityKind.AREA,
+          latitude: 5,
+          longitude: 5,
+        }).relation,
+      ).toBe('UNDETERMINED');
+    });
+
+    it('no coordinates and no geometry -> UNDETERMINED, never OUTSIDE', () => {
+      expect(relationOf({ role: 'venue', kind: GeoEntityKind.PLACE })).toEqual({
+        role: 'venue',
+        basis: 'NONE',
+        relation: 'UNDETERMINED',
+      });
+    });
+
+    it('the membership decision carries every component relation', () => {
+      const decision = evaluateAreaScopeMembership(
+        area,
+        [
+          { hintKey: 'in', role: 'venue', latitude: 5, longitude: 5 },
+          { hintKey: 'out', role: 'venue', latitude: 20, longitude: 20 },
+        ],
+        'AREA_CONTAINED',
+      );
+      expect(decision.passes).toBe(false);
+      expect(
+        decision.components.map(({ hintKey, relation }) => [hintKey, relation]),
+      ).toEqual([
+        ['in', 'INSIDE'],
+        ['out', 'OUTSIDE'],
+      ]);
+    });
+
+    it('AREA_CONTAINED fails closed on an UNDETERMINED component', () => {
+      expect(
+        evaluateAreaScopeMembership(
+          area,
+          [
+            { role: 'venue', latitude: 5, longitude: 5 },
+            {
+              role: 'route',
+              kind: GeoEntityKind.ROUTE,
+              latitude: 5,
+              longitude: 5,
+            },
+          ],
           'AREA_CONTAINED',
         ).passes,
       ).toBe(false);

@@ -6,7 +6,6 @@ import {
 } from '../interfaces/daily-planning.interface';
 
 export type ComponentLike = {
-  required?: boolean;
   order?: number | null;
   role?: string | null;
   latitude?: number | null;
@@ -101,7 +100,6 @@ export function buildOrderedComponentFootprints(
   components: ComponentLike[] = [],
 ): SpatialFootprint[] {
   return [...components]
-    .filter((component) => component.required !== false)
     .sort(
       (left, right) =>
         (left.order ?? Number.MAX_SAFE_INTEGER) -
@@ -125,9 +123,9 @@ export function buildExperienceFootprint(input: {
   longitude?: number | null;
   components?: ComponentLike[];
 }): SpatialFootprint {
-  const components = (input.components ?? []).filter(
-    (component) => component.required !== false,
-  );
+  // Every persisted component is a member of the admitted source
+  // composition; no per-component flag hides one from the planner.
+  const components = input.components ?? [];
 
   const canonicalRoute = components.find(
     (component) =>

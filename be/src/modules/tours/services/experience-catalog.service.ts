@@ -216,7 +216,6 @@ export interface VerifiedExperienceInput {
     /** `null` (not just absent) means no intrinsic sequence evidence exists. */
     order?: number | null;
     role?: string;
-    required?: boolean;
   }>;
   evidence?: Array<{
     source: string;
@@ -541,8 +540,8 @@ export class ExperienceCatalogService {
           evaluateAreaScopeMembership(
             area.geometry as GeoJsonGeometry,
             experience.components.map((component) => ({
-              required: component.required,
               role: component.role,
+              kind: component.geoEntity.kind,
               latitude: component.geoEntity.latitude,
               longitude: component.geoEntity.longitude,
               geometry: component.geoEntity.geometry,
@@ -555,8 +554,8 @@ export class ExperienceCatalogService {
 
   /**
    * Task B5 (mode B) — real reuse-first check for a resolved canonical
-   * ROUTE anchor: an EXACT identity match (this specific `geoEntityId`,
-   * `required: true` on that specific component), never polygon/line-
+   * ROUTE anchor: an EXACT identity match (this specific `geoEntityId` is
+   * a persisted component of the Experience), never polygon/line-
    * containment math — the ROUTE's own geometry is its identity here.
    */
   async findVerifiedMultiComponentByExactComponent(geoEntityId: string) {
@@ -564,7 +563,7 @@ export class ExperienceCatalogService {
     const rows = await this.prisma.experience.findMany({
       where: {
         status: ExperienceStatus.VERIFIED,
-        components: { some: { geoEntityId, required: true } },
+        components: { some: { geoEntityId } },
       },
       select: { id: true, _count: { select: { components: true } } },
     });
@@ -1677,7 +1676,10 @@ export class ExperienceCatalogService {
               geoEntityId: component.geoEntityId,
               order: component.order,
               role: component.role,
-              required: component.required ?? true,
+              // `ExperienceComponent.required` is left to its schema
+              // default (true): a persisted Experience is always its FULL
+              // admitted source composition, so every row is a member.
+              // The column carries no geographic/planner authority.
             })),
           },
           evidence: input.evidence?.length

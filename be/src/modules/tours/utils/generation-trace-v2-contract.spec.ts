@@ -31,14 +31,13 @@ describe('GenerationTrace V2 decision audit coverage', () => {
                 name: 'Farmacia la Estrella',
                 role: 'venue',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: ['e1'],
               },
             ],
           },
           status: 'rejected',
           resolvedEntities: [],
-          rejectionReasons: ['UNRESOLVED_REQUIRED_COMPONENT'],
+          rejectionReasons: ['INCOMPLETE_SOURCE_COMPOSITION'],
           forensicAudit: {
             candidateName: 'Farmacia la Estrella',
             candidateEvidenceKeys: ['e1'],
@@ -49,7 +48,6 @@ describe('GenerationTrace V2 decision audit coverage', () => {
                 hintName: 'Farmacia la Estrella',
                 role: 'venue',
                 expectedKind: 'PLACE',
-                required: true,
                 evidenceKeys: ['e1'],
                 attempts: [
                   {
@@ -93,7 +91,6 @@ describe('GenerationTrace V2 decision audit coverage', () => {
               hintName: 'Farmacia la Estrella',
               role: 'venue',
               expectedKind: 'PLACE',
-              required: true,
               evidenceKeys: ['e1'],
               attempts: [
                 {
@@ -159,7 +156,6 @@ describe('GenerationTrace V2 decision audit coverage', () => {
               name: 'Whale watching excursion',
               role: 'venue',
               expectedType: 'tour_operator',
-              required: true,
               evidenceKeys: ['e1'],
             },
           ],

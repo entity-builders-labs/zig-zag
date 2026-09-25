@@ -89,7 +89,10 @@ describe('PlanningCandidateNormalizerService', () => {
     });
   });
 
-  it('preserves ordered required component footprints and excludes optional components', async () => {
+  // Stage 4: every persisted component is a member of the admitted source
+  // composition; a legacy `required:false` row no longer hides a component
+  // from the planner's footprint.
+  it('preserves ordered footprints for every persisted component, whatever `required` says', async () => {
     const [candidate] = await service.normalizeExperiences(
       [
         {
@@ -120,10 +123,11 @@ describe('PlanningCandidateNormalizerService', () => {
     expect(candidate.componentFootprints).toEqual([
       { type: 'POINT', centroid: { lat: -34.6, lng: -58.4 } },
       { type: 'POINT', centroid: { lat: -34.601, lng: -58.401 } },
+      { type: 'POINT', centroid: { lat: -35, lng: -59 } },
     ]);
   });
 
-  it('derives startFootprint/endFootprint from the first/last required component of a multi-component Experience', async () => {
+  it('derives startFootprint/endFootprint from the first/last component of a multi-component Experience', async () => {
     const [candidate] = await service.normalizeExperiences(
       [
         {

@@ -29,7 +29,6 @@ import { CandidateScoreBreakdown } from './candidate-ranking.util';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { CandidateSourceSupportAudit } from './experience-candidate-extraction.util';
-import { isMigrationRequiredHint } from './geo-entity-hint-required-migration.util';
 import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 import type { CorroborationGroupTrace } from '../services/structured-candidate-corroboration.service';
 import type { StructuredPairDecisionSummary } from '../services/experience-acquisition.service';
@@ -176,8 +175,6 @@ function traceHint(
     key: hint.key,
     name: hint.name,
     role: hint.role,
-    // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
-    required: isMigrationRequiredHint(hint),
     order,
     evidenceKeys: [...hint.evidenceKeys],
     ...(hint.addressHint ? { addressHint: hint.addressHint } : {}),
@@ -1502,24 +1499,43 @@ export function buildEntityResolutionStep(
       (audit) => ({
         candidateTraceKey: audit.candidateTraceKey,
         candidateName: audit.candidateName,
-        hints: audit.componentAudits.map((component) => ({
-          key: component.hintKey,
-          name: component.hintName,
-          role: component.role,
-          expectedKind: component.expectedKind,
-          required: component.required,
-          evidenceKeys: [...component.evidenceKeys],
-          ...(component.addressHint
-            ? { addressHint: component.addressHint }
-            : {}),
-          status:
-            component.finalStatus === 'resolved'
-              ? ('resolved' as const)
-              : ('unresolved' as const),
-          resolvedGeoEntity: component.resolvedGeoEntity,
-          reason: component.finalReason,
-          attempts: component.attempts,
-        })),
+        hints: audit.componentAudits.map((component) => {
+          const fact = audit.componentResolution?.components.find(
+            (item) => item.hintKey === component.hintKey,
+          );
+          return {
+            key: component.hintKey,
+            name: component.hintName,
+            role: component.role,
+            expectedKind: component.expectedKind,
+            evidenceKeys: [...component.evidenceKeys],
+            ...(component.addressHint
+              ? { addressHint: component.addressHint }
+              : {}),
+            status:
+              component.finalStatus === 'resolved'
+                ? ('resolved' as const)
+                : fact?.identityStatus === 'AMBIGUOUS'
+                  ? ('ambiguous' as const)
+                  : ('unresolved' as const),
+            resolvedGeoEntity: component.resolvedGeoEntity,
+            reason: component.finalReason,
+            attempts: component.attempts,
+            ...(fact
+              ? {
+                  identityStatus: fact.identityStatus,
+                  ...(fact.resolved ? { geography: fact.resolved } : {}),
+                  ...(fact.deficit ? { deficit: fact.deficit } : {}),
+                }
+              : {}),
+          };
+        }),
+        ...(audit.componentResolution
+          ? {
+              coverage: audit.componentResolution.coverage,
+              componentScope: audit.componentResolution.scope,
+            }
+          : {}),
         accepted:
           resolution.resolved.find(
             (entry) =>

@@ -151,9 +151,10 @@ export interface TraceComponentHint {
   name: string;
   role: string;
   expectedKind?: string;
-  required: boolean;
   evidenceKeys: string[];
   addressHint?: string;
+  /** Backend identity outcome (RESOLVED/UNRESOLVED/AMBIGUOUS/CONFLICTED). */
+  identityStatus?: string;
 }
 
 export interface TraceEntityResolutionHint extends TraceComponentHint {

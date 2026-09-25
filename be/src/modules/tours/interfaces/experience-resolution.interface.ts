@@ -1,9 +1,16 @@
 import { GeoEntityKind } from '@prisma/client';
-import { ExperienceCandidate } from './experience-discovery.interface';
+import {
+  ExperienceCandidate,
+  GeoEntityHint,
+} from './experience-discovery.interface';
 import { DedupeEvidence } from '../utils/experience-dedupe.util';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
-import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
+import {
+  AreaScopeMembershipAudit,
+  ComponentAreaRelation,
+  ComponentGeometryBasis,
+} from './area-scope-membership.interface';
 import { SourceObservation } from './experience-acquisition.interface';
 import { GeographicValidationDecisionEntity } from './geographic-validation.interface';
 import type {
@@ -266,7 +273,6 @@ export interface ComponentResolutionAudit {
   hintName: string;
   role: 'area' | 'waypoint' | 'route' | 'venue';
   expectedKind?: string;
-  required: boolean;
   evidenceKeys: string[];
   addressHint?: string;
   attempts: ResolutionAttemptAudit[];
@@ -293,6 +299,109 @@ export interface CandidateResolutionAudit {
   candidateEvidenceKeys: string[];
   candidateHintKeys: string[];
   componentAudits: ComponentResolutionAudit[];
+  /** Per-component identity/geography facts + coverage (Stage 4). */
+  componentResolution?: CompositeComponentResolution;
+}
+
+/**
+ * Identity outcome of ONE source-backed component. Identity and geography
+ * are separate facts: only a RESOLVED component has a canonical object to
+ * relate geographically.
+ * - UNRESOLVED: no canonical object was established (nothing acquired, or
+ *   an acquired candidate was not confirmed, or acquisition could not run).
+ * - AMBIGUOUS: competing candidates/clusters and no winner.
+ * - CONFLICTED: the verified candidate's strong identities are owned by
+ *   several different canonical GeoEntities (never merged).
+ */
+export type ComponentIdentityStatus =
+  | 'RESOLVED'
+  | 'UNRESOLVED'
+  | 'AMBIGUOUS'
+  | 'CONFLICTED';
+
+/** Why a component has no canonical object, from what actually ran. */
+export type ComponentDeficitReason =
+  | 'NO_CANDIDATE_ACQUIRED'
+  | 'CANDIDATE_UNCONFIRMED'
+  | 'AMBIGUOUS_CANDIDATES'
+  | 'IDENTITY_CONFLICT'
+  | 'PROVIDER_FAILURE'
+  | 'DESTINATION_INCOMPATIBLE'
+  | 'DESTINATION_COMPATIBILITY_UNKNOWN';
+
+/**
+ * Only a genuine world-knowledge ambiguity is a KNOWLEDGE_DEFICIT (a future
+ * Tourism Researcher input). A provider that could not run is an
+ * OPERATIONAL_FAILURE. Everything else (nothing acquired, candidate not
+ * confirmed, identity conflict, destination gate) can be either a knowledge
+ * gap or a resolver/acquisition defect; runtime code cannot tell which, so
+ * it stays PENDING_CLASSIFICATION for forensic review instead of being
+ * disguised as research.
+ */
+export type ComponentDeficitClassification =
+  | 'KNOWLEDGE_DEFICIT'
+  | 'OPERATIONAL_FAILURE'
+  | 'PENDING_CLASSIFICATION';
+
+/** The request scope component relations were computed against. */
+export type ComponentGeographicScope =
+  | { kind: 'VALIDATION_AREA'; name: string }
+  | { kind: 'DESTINATION_AREA'; name?: string }
+  | { kind: 'POINT_RADIUS'; radiusMeters: number }
+  | { kind: 'UNAVAILABLE' };
+
+export interface ComponentResolutionFact {
+  hintKey: string;
+  hintName: string;
+  role: GeoEntityHint['role'];
+  expectedKind?: string;
+  evidenceKeys: string[];
+  /**
+   * 1-based position in the source's evidenced visiting sequence; null when
+   * the source declares no order (array order is never a sequence).
+   */
+  sourceOrder: number | null;
+  identityStatus: ComponentIdentityStatus;
+  /** Present only when identityStatus is RESOLVED. */
+  resolved?: {
+    geoEntityId?: string;
+    geoEntityKind?: GeoEntityKind;
+    canonicalGeometry: ComponentGeometryBasis;
+    /** Relation to the request scope; UNDETERMINED is never INSIDE/OUTSIDE. */
+    geographicRelation: ComponentAreaRelation;
+    distanceToBoundaryMeters?: number;
+  };
+  /** Present only when identityStatus is not RESOLVED. */
+  deficit?: {
+    reason: ComponentDeficitReason;
+    classification: ComponentDeficitClassification;
+  };
+}
+
+/**
+ * Observability of a source-backed composition. Counts are over every
+ * source-backed component; `resolutionRatio` is NOT an acceptance
+ * threshold. `sourceCompositionComplete` is the only admission fact: every
+ * source component has a RESOLVED canonical identity.
+ */
+export interface CompositeResolutionCoverage {
+  totalComponents: number;
+  identityResolvedComponents: number;
+  /** RESOLVED components whose relation is INSIDE or INTERSECTS. */
+  geographicallyAcceptedComponents: number;
+  unresolvedComponents: number;
+  ambiguousComponents: number;
+  conflictedComponents: number;
+  resolutionRatio: number;
+  /** hintKeys whose deficit is a genuine KNOWLEDGE_DEFICIT. */
+  openResearchDeficits: string[];
+  sourceCompositionComplete: boolean;
+}
+
+export interface CompositeComponentResolution {
+  scope: ComponentGeographicScope;
+  components: ComponentResolutionFact[];
+  coverage: CompositeResolutionCoverage;
 }
 
 /**
@@ -394,6 +503,8 @@ export interface ResolvedGeoEntity {
    */
   nameEvidenceMultiplicity: NameEvidenceMultiplicity;
   role: 'area' | 'waypoint' | 'route' | 'venue';
+  /** Canonical physical kind of the resolved object, when resolved. */
+  kind?: GeoEntityKind;
   expectedType?: string;
   status: ResolvedGeoEntityStatus;
   reason?: string;
@@ -418,6 +529,12 @@ export interface ResolvedExperienceCandidate {
    * the destination polygon.
    */
   destinationAssociationVerified?: boolean;
+  /**
+   * Stage 4: every source component's identity/geography facts and the
+   * composition's coverage, including unresolved/ambiguous components.
+   * Transient (trace/audit only); never persisted as a partial Experience.
+   */
+  componentResolution?: CompositeComponentResolution;
   experienceId?: string;
   dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
   dedupeEvidence?: DedupeEvidence;

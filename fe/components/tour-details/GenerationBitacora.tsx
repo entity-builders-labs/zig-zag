@@ -902,7 +902,8 @@ function EntityResolutionAuditPanel({
                     {hint.name}
                   </Text>
                   <Text size="2xs" color={COLORS.textMuted}>
-                    {hint.role} · {hint.required ? "required" : "optional"}
+                    {hint.role}
+                    {hint.identityStatus ? ` · ${hint.identityStatus}` : ""}
                   </Text>
                 </HStack>
                 {hint.evidenceKeys.length ? (

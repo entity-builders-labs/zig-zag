@@ -91,7 +91,7 @@ describe('CHAR-DB catalog round-trips', () => {
         source: 'grounded_experience_discovery',
       },
       traitDefinitionIds,
-      components: [{ geoEntityId: geo.id, role: 'venue', required: true }],
+      components: [{ geoEntityId: geo.id, role: 'venue' }],
       evidence: [{ source: obs.provider }],
     });
 
@@ -192,7 +192,7 @@ describe('CHAR-DB catalog round-trips', () => {
           source: 'grounded_experience_discovery',
         },
         traitDefinitionIds,
-        components: [{ geoEntityId: geo.id, role: 'venue', required: true }],
+        components: [{ geoEntityId: geo.id, role: 'venue' }],
         evidence: [{ source: 'osm' }],
       });
 
@@ -252,7 +252,7 @@ describe('CHAR-DB catalog round-trips', () => {
           durationMinutes: 90,
           metadata: { themes: [], traits: ['iconic'], intents: [] },
           traitDefinitionIds,
-          components: [{ geoEntityId: geo.id, role: 'venue', required: true }],
+          components: [{ geoEntityId: geo.id, role: 'venue' }],
         });
         const [hydrated] = await catalog.findVerifiedByIds([
           (experience as any).id,

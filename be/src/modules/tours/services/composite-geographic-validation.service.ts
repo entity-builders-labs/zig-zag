@@ -29,12 +29,16 @@ import {
   distanceMeters,
 } from '../utils/geographic-coherence.util';
 import { distancePointToLineStringMeters } from '../utils/route-geometry.util';
-import { evaluateAreaScopeMembership } from '../utils/area-scope-membership-policy';
 import {
+  classifyComponentAreaRelation,
+  evaluateAreaScopeMembership,
+} from '../utils/area-scope-membership-policy';
+import {
+  AreaScopeComponentFact,
   AreaScopeMembershipAudit,
   AreaScopeMembershipPolicy,
+  ComponentAreaRelationFact,
 } from '../interfaces/area-scope-membership.interface';
-import { isMigrationRequiredHint } from '../utils/geo-entity-hint-required-migration.util';
 
 @Injectable()
 export class CompositeGeographicValidationService {
@@ -77,19 +81,29 @@ export class CompositeGeographicValidationService {
     );
     const groundedEvidenceKeys = Array.from(new Set(candidate.evidenceKeys));
 
-    const externalScopeValidation = validationScope
-      ? this.rejectIfExternalScopeViolated(
-          resolvedProposal,
-          withCoordinates,
-          validationScope,
-          groundedEvidenceKeys,
-          validationIntent,
-        )
-      : undefined;
+    const compositionViolation = this.rejectIfSourceCompositionIncomplete(
+      resolvedProposal,
+      resolved,
+      withCoordinates,
+      groundedEvidenceKeys,
+    );
+    const externalScopeValidation =
+      !compositionViolation && validationScope
+        ? this.rejectIfExternalScopeViolated(
+            resolvedProposal,
+            resolved,
+            withCoordinates,
+            validationScope,
+            groundedEvidenceKeys,
+            validationIntent,
+          )
+        : undefined;
 
     const areaScopeMembership = externalScopeValidation?.areaScopeMembership;
     let result: GeographicValidationResult;
-    if (externalScopeValidation?.result?.accepted === false) {
+    if (compositionViolation) {
+      result = compositionViolation;
+    } else if (externalScopeValidation?.result?.accepted === false) {
       result = externalScopeValidation.result;
     } else if (geographicScope?.kind === 'POINT_RADIUS') {
       result = this.validatePointRadiusCoordinates(
@@ -251,6 +265,58 @@ export class CompositeGeographicValidationService {
   }
 
   /**
+   * Composite coherence is only defined over the FULL source composition.
+   * Every source-backed component hint must have a resolved canonical
+   * identity, and every resolved component must carry some canonical
+   * geography: an unresolved component is never silently dropped from the
+   * set (that would validate, and later persist, a trimmed composite), and
+   * unknown geography is never treated as coherent.
+   */
+  private rejectIfSourceCompositionIncomplete(
+    resolvedProposal: ResolvedExperienceCandidate,
+    resolved: ResolvedGeoEntity[],
+    withCoordinates: ResolvedGeoEntity[],
+    evidenceKeys: string[],
+  ): GeographicValidationResult | undefined {
+    const proposalName = resolvedProposal.candidate.name;
+    const incomplete = resolvedProposal.candidate.componentHints.some(
+      (hint) => !resolved.some((entity) => entity.hintKey === hint.key),
+    );
+    if (incomplete) {
+      return this.rejected(
+        proposalName,
+        'EXPERIENCE',
+        withCoordinates,
+        evidenceKeys,
+        ['incomplete_source_composition'],
+        undefined,
+        withCoordinates,
+        withCoordinates,
+      );
+    }
+    const withoutGeography = resolved.filter(
+      (entity) =>
+        !entity.geometry &&
+        !(
+          Number.isFinite(entity.latitude) && Number.isFinite(entity.longitude)
+        ),
+    );
+    if (withoutGeography.length > 0) {
+      return this.rejected(
+        proposalName,
+        'EXPERIENCE',
+        withoutGeography,
+        evidenceKeys,
+        ['missing_coordinates'],
+        undefined,
+        withoutGeography,
+        resolved,
+      );
+    }
+    return undefined;
+  }
+
+  /**
    * Task B5: a request-level scope resolved BEFORE acquisition even ran
    * (a real AREA polygon or ROUTE geometry the caller already knows about)
    * gates persistence regardless of whether THIS candidate's own
@@ -262,6 +328,7 @@ export class CompositeGeographicValidationService {
    */
   private rejectIfExternalScopeViolated(
     resolvedProposal: ResolvedExperienceCandidate,
+    resolved: ResolvedGeoEntity[],
     withCoordinates: ResolvedGeoEntity[],
     validationScope: ExperienceValidationScope,
     evidenceKeys: string[],
@@ -271,39 +338,16 @@ export class CompositeGeographicValidationService {
     areaScopeMembership?: AreaScopeMembershipAudit;
   } {
     const proposalName = resolvedProposal.candidate.name;
-    // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
-    const requiredHints = resolvedProposal.candidate.componentHints.filter(
-      (hint) => isMigrationRequiredHint(hint),
-    );
-
-    const unresolvedRequired = requiredHints.some(
-      (hint) => !withCoordinates.some((entity) => entity.hintKey === hint.key),
-    );
-    if (unresolvedRequired) {
-      return {
-        result: this.rejected(
-          proposalName,
-          'EXPERIENCE',
-          withCoordinates,
-          evidenceKeys,
-          ['unresolved_required_component'],
-          undefined,
-          withCoordinates,
-          withCoordinates,
-        ),
-      };
-    }
-
-    const requiredEntities = withCoordinates.filter((entity) =>
-      requiredHints.some((hint) => hint.key === entity.hintKey),
-    );
+    // The source composition is complete here (see
+    // rejectIfSourceCompositionIncomplete): every resolved component is
+    // evaluated, none is hidden from the scope policy.
 
     // The scope geometry's own SHAPE must be usable for its declared kind,
     // checked independently of candidate composition — a malformed/wrong-
     // shaped geometry must fail closed even when there happen to be no
-    // required point-like entities to run through the per-entity checks
-    // below (e.g. a route_like candidate with only a route-role required
-    // hint would otherwise let `requiredPointLikeEntities` be empty,
+    // point-like entities to run through the per-entity checks
+    // below (e.g. a route_like candidate with only a route-role
+    // hint would otherwise let `pointLikeEntities` be empty,
     // vacuously passing `.find()` on an empty array regardless of whether
     // `validationScope.geometry` is real).
     if (
@@ -321,12 +365,12 @@ export class CompositeGeographicValidationService {
         result: this.rejected(
           proposalName,
           'EXPERIENCE',
-          requiredEntities,
+          resolved,
           evidenceKeys,
           ['external_scope_mismatch'],
           undefined,
-          requiredEntities,
-          requiredEntities,
+          resolved,
+          resolved,
           undefined,
           reason,
         ),
@@ -340,43 +384,41 @@ export class CompositeGeographicValidationService {
           : 'AREA_CONTAINED';
       const decision = evaluateAreaScopeMembership(
         validationScope.geometry,
-        requiredEntities.map((entity) => ({
-          required: true,
-          role: entity.role,
-          latitude: entity.latitude,
-          longitude: entity.longitude,
-          geometry: entity.geometry,
-        })),
+        resolved.map(componentFact),
         policy,
       );
       const areaScopeMembership: AreaScopeMembershipAudit = {
         policy,
         decision,
-        routeGeometryPresent: requiredEntities.some(
-          (entity) => entity.role === 'route' && entity.geometry !== undefined,
+        routeGeometryPresent: decision.components.some(
+          (component) => component.basis === 'LINE',
         ),
-        requiredPointCount: requiredEntities.length,
+        evaluatedComponentCount: resolved.length,
       };
       if (!decision.passes) {
-        const outside = requiredEntities.filter(
-          (entity) =>
-            entity.role !== 'area' &&
-            !geometryContainsPoint(
-              validationScope.geometry,
-              entity.longitude as number,
-              entity.latitude as number,
-            ),
+        // The components the failed policy could not place: under strict
+        // containment every non-INSIDE component; under anchored-route
+        // semantics every non-area component without membership support.
+        const outside = resolved.filter((entity) =>
+          decision.components.some(
+            (component) =>
+              component.hintKey === entity.hintKey &&
+              (policy === 'AREA_CONTAINED'
+                ? component.relation !== 'INSIDE'
+                : component.role !== 'area' &&
+                  !relationSupportsMembership(component)),
+          ),
         );
         return {
           result: this.rejected(
             proposalName,
             'EXPERIENCE',
-            outside.length > 0 ? outside : requiredEntities,
+            outside.length > 0 ? outside : resolved,
             evidenceKeys,
             ['external_scope_mismatch'],
             undefined,
-            outside.length > 0 ? outside : requiredEntities,
-            requiredEntities,
+            outside.length > 0 ? outside : resolved,
+            resolved,
             areaScopeMembership,
             'EXTERNAL_AREA_SCOPE_MISMATCH',
             validationScope.geometry,
@@ -391,14 +433,14 @@ export class CompositeGeographicValidationService {
     // (NOT routeDestinationMismatch's regional destination-centroid/radius
     // approximation — that policy still runs afterward, unchanged, as an
     // additional regional-coherence guard once corridor membership passes).
-    // Applied ONLY to required point-like (venue/waypoint) components, NEVER
+    // Applied ONLY to point-like (venue/waypoint) components, NEVER
     // to the canonical ROUTE entity itself — its own representative/centroid
     // coordinate is not guaranteed to lie on its own LineString, and its
     // identity is already validationScope.geoEntityId + geometry.
-    const requiredPointLikeEntities = requiredEntities.filter(
+    const pointLikeEntities = withCoordinates.filter(
       (entity) => entity.role !== 'route',
     );
-    const tooFar = requiredPointLikeEntities.filter(
+    const tooFar = pointLikeEntities.filter(
       (entity) =>
         distancePointToLineStringMeters(
           {
@@ -418,7 +460,7 @@ export class CompositeGeographicValidationService {
           ['external_scope_mismatch'],
           undefined,
           tooFar,
-          requiredPointLikeEntities,
+          pointLikeEntities,
           undefined,
           'EXTERNAL_ROUTE_SCOPE_MISMATCH',
         ),
@@ -508,51 +550,27 @@ export class CompositeGeographicValidationService {
           destinationBoundary.geometry,
         );
       }
-      // Task B5 (correctness point 10): validate every OTHER required
-      // component too, not just the one canonical ROUTE entity.
-      // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
-      const requiredHints = resolvedProposal.candidate.componentHints.filter(
-        (hint) => isMigrationRequiredHint(hint),
+      // Task B5 (correctness point 10): validate every OTHER source
+      // component too, not just the one canonical ROUTE entity (the
+      // composition is complete here, see rejectIfSourceCompositionIncomplete).
+      const nonRouteEntities = withCoordinates.filter(
+        (entity) => entity.role !== 'route',
       );
-      const requiredNonRouteHints = requiredHints.filter(
-        (hint) => hint.role !== 'route',
-      );
-      const unresolvedRequiredNonRoute = requiredNonRouteHints.some(
-        (hint) =>
-          !withCoordinates.some((entity) => entity.hintKey === hint.key),
-      );
-      if (unresolvedRequiredNonRoute) {
-        return this.rejected(
-          proposalName,
-          'ROUTE',
-          [canonicalRoute],
-          evidenceKeys,
-          ['unresolved_required_component'],
-          undefined,
-          [canonicalRoute],
-          [canonicalRoute],
-        );
-      }
-      const requiredNonRouteEntities = withCoordinates.filter(
-        (entity) =>
-          entity.role !== 'route' &&
-          requiredNonRouteHints.some((hint) => hint.key === entity.hintKey),
-      );
-      const fullRequiredSet = [canonicalRoute, ...requiredNonRouteEntities];
+      const fullSet = [canonicalRoute, ...nonRouteEntities];
       const fullMismatch = this.routeDestinationMismatch(
-        fullRequiredSet,
+        fullSet,
         destinationBoundary,
       );
       if (fullMismatch.mismatch) {
         return this.rejected(
           proposalName,
           'ROUTE',
-          fullRequiredSet,
+          fullSet,
           evidenceKeys,
           ['destination_mismatch'],
           undefined,
           fullMismatch.offendingEntities,
-          fullRequiredSet,
+          fullSet,
           undefined,
           fullMismatch.reason,
           destinationBoundary.geometry,
@@ -565,7 +583,7 @@ export class CompositeGeographicValidationService {
         accepted: true,
         strategy: 'canonical_geometry',
         canonicalEntity: canonicalRoute,
-        anchors: fullRequiredSet,
+        anchors: fullSet,
         groundedEvidenceKeys: evidenceKeys,
         rejectionReasons: [],
         validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
@@ -573,24 +591,22 @@ export class CompositeGeographicValidationService {
     }
 
     // Task B5 (correctness point 14): the canonical-area shortcut applies
-    // ONLY when there is EXACTLY ONE required AREA hint — zero required
-    // AREA hints means no shortcut at all; two or more means a genuine
+    // ONLY when there is EXACTLY ONE source AREA component — zero AREA
+    // components means no shortcut at all; two or more means a genuine
     // multi-area Experience that must fall through to validateExperience's
     // destination+coherence path instead of being forced into one area's
-    // containment. An optional (non-required) AREA hint never triggers
-    // this shortcut on its own.
-    // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
-    const requiredAreaHints = resolvedProposal.candidate.componentHints.filter(
-      (hint) => isMigrationRequiredHint(hint) && hint.role === 'area',
+    // containment.
+    const areaHints = resolvedProposal.candidate.componentHints.filter(
+      (hint) => hint.role === 'area',
     );
     const hasWaypointHint = resolvedProposal.candidate.componentHints.some(
       (hint) => hint.role === 'waypoint' || hint.role === 'venue',
     );
-    if (requiredAreaHints.length === 1 && hasWaypointHint) {
+    if (areaHints.length === 1 && hasWaypointHint) {
       const canonicalArea = withCoordinates.find(
         (entity) =>
           entity.role === 'area' &&
-          entity.hintKey === requiredAreaHints[0].key &&
+          entity.hintKey === areaHints[0].key &&
           entity.geometry,
       );
       if (canonicalArea) {
@@ -609,40 +625,20 @@ export class CompositeGeographicValidationService {
             destinationBoundary.geometry,
           );
         }
-        // Task B5 (correctness point 10): validate every OTHER required
-        // (non-area) component too, not just the canonical AREA entity.
-        // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
-        const requiredNonAreaHints =
-          resolvedProposal.candidate.componentHints.filter(
-            (hint) => isMigrationRequiredHint(hint) && hint.role !== 'area',
-          );
-        const unresolvedRequiredNonArea = requiredNonAreaHints.some(
-          (hint) =>
-            !withCoordinates.some((entity) => entity.hintKey === hint.key),
+        // Task B5 (correctness point 10): validate every OTHER (non-area)
+        // source component too, not just the canonical AREA entity, through
+        // the single area-membership authority: a point must be INSIDE, a
+        // real street/route geometry must enter the area.
+        const nonAreaEntities = withCoordinates.filter(
+          (entity) => entity.role !== 'area',
         );
-        if (unresolvedRequiredNonArea) {
-          return this.rejected(
-            proposalName,
-            'EXPERIENCE',
-            [canonicalArea],
-            evidenceKeys,
-            ['unresolved_required_component'],
-            undefined,
-            [canonicalArea],
-            [canonicalArea],
-          );
-        }
-        const requiredNonAreaEntities = withCoordinates.filter(
+        const outsideArea = nonAreaEntities.filter(
           (entity) =>
-            entity.role !== 'area' &&
-            requiredNonAreaHints.some((hint) => hint.key === entity.hintKey),
-        );
-        const outsideArea = requiredNonAreaEntities.filter(
-          (entity) =>
-            !geometryContainsPoint(
-              canonicalArea.geometry as GeoJsonGeometry,
-              entity.longitude as number,
-              entity.latitude as number,
+            !relationSupportsMembership(
+              classifyComponentAreaRelation(
+                canonicalArea.geometry as GeoJsonGeometry,
+                componentFact(entity),
+              ),
             ),
         );
         if (outsideArea.length > 0) {
@@ -669,7 +665,7 @@ export class CompositeGeographicValidationService {
           accepted: true,
           strategy: 'canonical_area',
           canonicalEntity: canonicalArea,
-          anchors: [canonicalArea, ...requiredNonAreaEntities],
+          anchors: [canonicalArea, ...nonAreaEntities],
           groundedEvidenceKeys: evidenceKeys,
           rejectionReasons: [],
           validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
@@ -690,13 +686,9 @@ export class CompositeGeographicValidationService {
     const proposal = resolvedProposal.candidate;
     const proposalName = proposal.name;
     const kind = 'EXPERIENCE';
-    // Stage-2 migration seam; see geo-entity-hint-required-migration.util.ts.
-    const requiredConcreteHints = proposal.componentHints.filter((hint) =>
-      isMigrationRequiredHint(hint),
-    );
     const venueCentric =
-      requiredConcreteHints.length === 1 &&
-      requiredConcreteHints[0].role === 'venue';
+      proposal.componentHints.length === 1 &&
+      proposal.componentHints[0].role === 'venue';
     const anchors = this.dedupeEntities(
       withCoordinates.filter((entity) => entity.role !== 'area'),
     );
@@ -727,7 +719,7 @@ export class CompositeGeographicValidationService {
         );
       }
       const venue = anchors.find(
-        (entity) => entity.hintKey === requiredConcreteHints[0].key,
+        (entity) => entity.hintKey === proposal.componentHints[0].key,
       );
       if (venue) {
         if (!this.isInsideDestination(venue, destinationBoundary)) {
@@ -760,25 +752,6 @@ export class CompositeGeographicValidationService {
       }
     }
 
-    const unresolvedRequired = requiredConcreteHints.some(
-      (hint) =>
-        !resolvedProposal.resolvedEntities.some(
-          (entity) =>
-            entity.hintKey === hint.key && entity.status === 'resolved',
-        ),
-    );
-    if (unresolvedRequired) {
-      return this.rejected(
-        proposalName,
-        kind,
-        anchors,
-        evidenceKeys,
-        ['unresolved_required_component'],
-        undefined,
-        anchors,
-        anchors,
-      );
-    }
     if (
       anchors.length < (routeScale ? 1 : this.thresholds.experience.minAnchors)
     ) {
@@ -1110,4 +1083,29 @@ export class CompositeGeographicValidationService {
       .replace(/[^a-z0-9]+/g, ' ')
       .trim();
   }
+}
+
+function componentFact(entity: ResolvedGeoEntity): AreaScopeComponentFact {
+  return {
+    hintKey: entity.hintKey,
+    role: entity.role,
+    kind: entity.kind,
+    latitude: entity.latitude,
+    longitude: entity.longitude,
+    geometry: entity.geometry,
+  };
+}
+
+/**
+ * Whether a component relation supports area membership: a point/polygon
+ * must be INSIDE; a real line geometry only has to enter the area.
+ * UNDETERMINED never supports membership.
+ */
+function relationSupportsMembership(
+  component: ComponentAreaRelationFact,
+): boolean {
+  return (
+    component.relation === 'INSIDE' ||
+    (component.basis === 'LINE' && component.relation === 'INTERSECTS')
+  );
 }

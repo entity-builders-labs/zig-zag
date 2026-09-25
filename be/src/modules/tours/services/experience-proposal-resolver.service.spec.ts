@@ -2638,15 +2638,11 @@ describe('ExperienceProposalResolverService', () => {
     });
   });
 
-  // Stage 2 migration seam (geo-entity-hint-required-migration.util.ts):
-  // `GeoEntityHint.required` is no longer LLM-authored, so there is no more
-  // "optional hint" to construct -- every component hint is now
-  // unconditionally treated as required until Stage 4 redesigns admission
-  // around real per-component resolution outcomes. This describe block
-  // (originally Task B5, Fix 1) is kept to prove the persisted
-  // `required` column still comes out `true` in the same shapes/orderings,
-  // now uniformly rather than selectively.
-  describe('required persistence post-Stage-2 (was required/optional persistence, Task B5 Fix 1)', () => {
+  // Stage 4: persisted components are exactly the admitted source
+  // composition, one per canonical GeoEntity. No per-component `required`
+  // is written (the column keeps its schema default and carries no
+  // authority), so each persisted component is compared exactly.
+  describe('source-composition persistence (was required/optional persistence, Task B5 Fix 1)', () => {
     const walkCandidate: ExperienceCandidate = {
       name: 'San Telmo Historical Walk',
       themes: ['culture'],
@@ -2687,7 +2683,7 @@ describe('ExperienceProposalResolverService', () => {
       };
     }
 
-    it('persists required:[true,true,true] for 3 evidence-backed hints (distinct places)', async () => {
+    it('persists exactly the 3 evidence-backed components (distinct places), no required flag', async () => {
       const osmPlaces = osmPlacesFor([
         {
           id: 'osm:node:1',
@@ -2747,15 +2743,15 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
         expect.objectContaining({
           components: [
-            expect.objectContaining({ geoEntityId: 'geo-1', required: true }),
-            expect.objectContaining({ geoEntityId: 'geo-2', required: true }),
-            expect.objectContaining({ geoEntityId: 'geo-3', required: true }),
+            { geoEntityId: 'geo-1', order: null, role: 'venue' },
+            { geoEntityId: 'geo-2', order: null, role: 'venue' },
+            { geoEntityId: 'geo-3', order: null, role: 'venue' },
           ],
         }),
       );
     });
 
-    it('persists required:true when two hints dedupe onto the same GeoEntity (order A)', async () => {
+    it('persists one component when two hints converge on the same GeoEntity (order A)', async () => {
       const dedupeCandidate: ExperienceCandidate = {
         ...walkCandidate,
         componentHints: [
@@ -2815,16 +2811,13 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
         expect.objectContaining({
           components: [
-            expect.objectContaining({
-              geoEntityId: 'geo-shared',
-              required: true,
-            }),
+            { geoEntityId: 'geo-shared', order: null, role: 'venue' },
           ],
         }),
       );
     });
 
-    it('persists required:true when two hints dedupe onto the same GeoEntity (order B)', async () => {
+    it('persists one component when two hints converge on the same GeoEntity (order B)', async () => {
       const dedupeCandidate: ExperienceCandidate = {
         ...walkCandidate,
         componentHints: [
@@ -2883,16 +2876,13 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
         expect.objectContaining({
           components: [
-            expect.objectContaining({
-              geoEntityId: 'geo-shared',
-              required: true,
-            }),
+            { geoEntityId: 'geo-shared', order: null, role: 'venue' },
           ],
         }),
       );
     });
 
-    it('persists required:true when every hint deduping onto the same GeoEntity is evidence-backed (Stage 2: no optional hint left to construct)', async () => {
+    it('persists one component when every converging hint is evidence-backed', async () => {
       const dedupeCandidate: ExperienceCandidate = {
         ...walkCandidate,
         componentHints: [
@@ -2951,10 +2941,7 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
         expect.objectContaining({
           components: [
-            expect.objectContaining({
-              geoEntityId: 'geo-shared',
-              required: true,
-            }),
+            { geoEntityId: 'geo-shared', order: null, role: 'venue' },
           ],
         }),
       );

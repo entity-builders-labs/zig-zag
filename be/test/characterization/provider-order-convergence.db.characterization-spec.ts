@@ -66,7 +66,7 @@ describe('CHAR-8 provider order convergence (real Postgres)', () => {
       description: 'A guided visit to a shared landmark.',
       durationMinutes: 90,
       metadata,
-      components: [{ geoEntityId, role: 'venue', required: true }],
+      components: [{ geoEntityId, role: 'venue' }],
       evidence: [{ source: 'osm' }],
     });
   }

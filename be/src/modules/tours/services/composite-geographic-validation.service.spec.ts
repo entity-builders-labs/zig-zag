@@ -451,7 +451,7 @@ describe('CompositeGeographicValidationService', () => {
     );
 
     expect(result.accepted).toBe(false);
-    expect(result.rejectionReasons).toContain('unresolved_required_component');
+    expect(result.rejectionReasons).toContain('incomplete_source_composition');
   });
 
   it('rejects geographically incoherent resolved components', () => {
@@ -670,7 +670,7 @@ describe('CompositeGeographicValidationService', () => {
       expect(result.rejectionReasons).toContain('destination_mismatch');
     });
 
-    it('rejects when a required (non-area) hint is unresolved, even with a valid canonical area', () => {
+    it('rejects when a source (non-area) hint is unresolved, even with a valid canonical area', () => {
       const candidate = areaCandidate([
         {
           key: 'a',
@@ -698,7 +698,7 @@ describe('CompositeGeographicValidationService', () => {
       );
       expect(result.accepted).toBe(false);
       expect(result.rejectionReasons).toContain(
-        'unresolved_required_component',
+        'incomplete_source_composition',
       );
     });
 
@@ -960,7 +960,7 @@ describe('CompositeGeographicValidationService', () => {
       expect(result.rejectionReasons).toContain('destination_mismatch');
     });
 
-    it('rejects a canonical ROUTE candidate with an unresolved required waypoint', () => {
+    it('rejects a canonical ROUTE candidate with an unresolved source waypoint (incomplete composition)', () => {
       const candidate = routeCandidate([
         {
           key: 'r',
@@ -988,7 +988,7 @@ describe('CompositeGeographicValidationService', () => {
       );
       expect(result.accepted).toBe(false);
       expect(result.rejectionReasons).toContain(
-        'unresolved_required_component',
+        'incomplete_source_composition',
       );
     });
 
@@ -1359,7 +1359,7 @@ describe('CompositeGeographicValidationService', () => {
       };
     }
 
-    it('rejects (before persistence) when a required component is outside the external AREA scope, even with NO AREA hint on the candidate', () => {
+    it('rejects (before persistence) when a component is outside the external AREA scope, even with NO AREA hint on the candidate', () => {
       const candidate = unscopedCandidate([
         {
           key: 'p1',
@@ -1441,10 +1441,10 @@ describe('CompositeGeographicValidationService', () => {
       expect(result.areaScopeMembership).toMatchObject({
         policy: 'AREA_CONTAINED',
         routeGeometryPresent: false,
-        requiredPointCount: 3,
+        evaluatedComponentCount: 3,
         decision: {
           routeIntersectsArea: false,
-          requiredPointInside: true,
+          pointComponentInside: true,
           passes: false,
         },
       });
@@ -1456,7 +1456,7 @@ describe('CompositeGeographicValidationService', () => {
       );
     });
 
-    it('accepts when every required component (no AREA hint on the candidate) is genuinely inside the external AREA scope', () => {
+    it('accepts when every component (no AREA hint on the candidate) is genuinely inside the external AREA scope', () => {
       const candidate = unscopedCandidate([
         {
           key: 'p1',
@@ -1537,16 +1537,16 @@ describe('CompositeGeographicValidationService', () => {
       expect(result.areaScopeMembership).toMatchObject({
         policy: 'AREA_CONTAINED',
         routeGeometryPresent: false,
-        requiredPointCount: 3,
+        evaluatedComponentCount: 3,
         decision: {
           routeIntersectsArea: false,
-          requiredPointInside: true,
+          pointComponentInside: true,
           passes: true,
         },
       });
     });
 
-    it('rejects with unresolved_required_component when a required hint is unresolved, before checking the scope geometry', () => {
+    it('rejects with incomplete_source_composition when a source hint is unresolved, before checking the scope geometry', () => {
       const candidate = unscopedCandidate([
         {
           key: 'p1',
@@ -1568,7 +1568,7 @@ describe('CompositeGeographicValidationService', () => {
       );
       expect(result.accepted).toBe(false);
       expect(result.rejectionReasons).toContain(
-        'unresolved_required_component',
+        'incomplete_source_composition',
       );
     });
 
@@ -2575,5 +2575,278 @@ describe('Regression tests for forensic geographic trace evidence', () => {
       expect(entity.decisionReason).toBeUndefined();
       expect(entity.distanceToBoundaryMeters).toBeUndefined();
     }
+  });
+
+  /**
+   * Stage 4: component relation vs composite coherence are separate
+   * decisions, both through the single area-membership policy, over the
+   * FULL source composition.
+   */
+  describe('Stage 4: structural composite geography', () => {
+    const boundary: any = {
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-58.5, -34.7],
+            [-58.3, -34.7],
+            [-58.3, -34.5],
+            [-58.5, -34.5],
+            [-58.5, -34.7],
+          ],
+        ],
+      },
+    };
+    const sanTelmo: GeoJsonGeometry = {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [-58.373, -34.622],
+          [-58.368, -34.622],
+          [-58.368, -34.617],
+          [-58.373, -34.617],
+          [-58.373, -34.622],
+        ],
+      ],
+    };
+    const sanTelmoScope: ExperienceValidationScope = {
+      kind: 'AREA',
+      anchorName: 'San Telmo',
+      geoEntityId: 'geo-san-telmo',
+      geometry: sanTelmo,
+    };
+    const multiplicity = {
+      exactName: 'SINGLE',
+      declaredAlias: 'UNKNOWN',
+    } as const;
+    const entity = (
+      hintKey: string,
+      role: 'area' | 'waypoint' | 'route' | 'venue',
+      place: Record<string, unknown>,
+    ) => ({
+      hintKey,
+      hintName: hintKey,
+      provider: 'openstreetmap',
+      externalId: `osm:${hintKey}`,
+      geoEntityId: `geo-${hintKey}`,
+      role,
+      nameEvidenceMultiplicity: multiplicity,
+      status: 'resolved' as const,
+      ...place,
+    });
+    const walk = (
+      hints: Array<[string, 'area' | 'waypoint' | 'route' | 'venue']>,
+    ): ExperienceCandidate => ({
+      name: 'San Telmo Historic Walk',
+      themes: ['history'],
+      traits: [],
+      evidenceKeys: ['e'],
+      shortReason: 'grounded',
+      componentHints: hints.map(([key, role]) => ({
+        key,
+        name: key,
+        role,
+        expectedKind:
+          role === 'route' ? 'ROUTE' : role === 'area' ? 'AREA' : 'PLACE',
+        evidenceKeys: ['e'],
+      })),
+    });
+    // Plaza de Mayo DESIGN fixture: resolved point outside San Telmo.
+    const plazaDeMayo = entity('plaza-de-mayo', 'waypoint', {
+      kind: 'PLACE',
+      latitude: -34.6195,
+      longitude: -58.3755,
+    });
+    const calleDefensa = entity('calle-defensa', 'route', {
+      kind: 'ROUTE',
+      latitude: -34.6195,
+      longitude: -58.372,
+      geometry: {
+        type: 'MultiLineString',
+        coordinates: [
+          [
+            [-58.3745, -34.6195],
+            [-58.3715, -34.6195],
+          ],
+          [
+            [-58.3715, -34.6195],
+            [-58.3695, -34.6195],
+          ],
+        ],
+      },
+    });
+    const zanjon = entity('el-zanjon', 'venue', {
+      kind: 'PLACE',
+      latitude: -34.6195,
+      longitude: -58.3705,
+    });
+    const hints: Array<[string, 'area' | 'waypoint' | 'route' | 'venue']> = [
+      ['plaza-de-mayo', 'waypoint'],
+      ['calle-defensa', 'route'],
+      ['el-zanjon', 'venue'],
+    ];
+
+    it('an OUTSIDE component can belong to a coherent walk anchored by a route INTERSECTING the area', () => {
+      const result = new CompositeGeographicValidationService().validate(
+        {
+          candidate: walk(hints),
+          status: 'accepted',
+          resolvedEntities: [plazaDeMayo, calleDefensa, zanjon] as any,
+          rejectionReasons: [],
+        },
+        boundary,
+        sanTelmoScope,
+        'walk',
+      );
+      expect(result.accepted).toBe(true);
+      expect(result.areaScopeMembership).toMatchObject({
+        policy: 'AREA_ANCHORED_ROUTE',
+        routeGeometryPresent: true,
+        evaluatedComponentCount: 3,
+        decision: {
+          passes: true,
+          routeIntersectsArea: true,
+          pointComponentInside: true,
+          components: [
+            expect.objectContaining({
+              hintKey: 'plaza-de-mayo',
+              relation: 'OUTSIDE',
+            }),
+            expect.objectContaining({
+              hintKey: 'calle-defensa',
+              basis: 'LINE',
+              relation: 'INTERSECTS',
+            }),
+            expect.objectContaining({
+              hintKey: 'el-zanjon',
+              relation: 'INSIDE',
+            }),
+          ],
+        },
+      });
+    });
+
+    it('the same component facts fail strict containment: coherence is a separate decision', () => {
+      const result = new CompositeGeographicValidationService().validate(
+        {
+          candidate: walk(hints),
+          status: 'accepted',
+          resolvedEntities: [plazaDeMayo, calleDefensa, zanjon] as any,
+          rejectionReasons: [],
+        },
+        boundary,
+        sanTelmoScope,
+      );
+      expect(result.accepted).toBe(false);
+      expect(result.rejectionReasons).toEqual(['external_scope_mismatch']);
+      expect(
+        result.decisionEntities
+          ?.filter((item) => item.relation === 'offending')
+          .map((item) => item.hintKey),
+      ).toEqual(['plaza-de-mayo', 'calle-defensa']);
+    });
+
+    it('never validates a trimmed subset: one unresolved source component rejects the composition', () => {
+      const result = new CompositeGeographicValidationService().validate(
+        {
+          candidate: walk([...hints, ['pasaje-san-lorenzo', 'waypoint']]),
+          status: 'accepted',
+          resolvedEntities: [plazaDeMayo, calleDefensa, zanjon] as any,
+          rejectionReasons: [],
+        },
+        boundary,
+        sanTelmoScope,
+        'walk',
+      );
+      expect(result.accepted).toBe(false);
+      expect(result.rejectionReasons).toEqual([
+        'incomplete_source_composition',
+      ]);
+      expect(result.areaScopeMembership).toBeUndefined();
+    });
+
+    it('a resolved component with no canonical geography is not treated as coherent', () => {
+      const result = new CompositeGeographicValidationService().validate(
+        {
+          candidate: walk(hints),
+          status: 'accepted',
+          resolvedEntities: [
+            plazaDeMayo,
+            calleDefensa,
+            { ...zanjon, latitude: undefined, longitude: undefined },
+          ] as any,
+          rejectionReasons: [],
+        },
+        boundary,
+      );
+      expect(result.accepted).toBe(false);
+      expect(result.rejectionReasons).toEqual(['missing_coordinates']);
+    });
+
+    describe('canonical AREA shortcut uses the same relation policy', () => {
+      const area = entity('san-telmo', 'area', {
+        kind: 'AREA',
+        latitude: -34.6195,
+        longitude: -58.3705,
+        geometry: sanTelmo,
+      });
+      // A passage resolved as a real ROUTE line, playing a waypoint role.
+      const pasaje = entity('pasaje', 'waypoint', {
+        kind: 'ROUTE',
+        latitude: -34.6195,
+        longitude: -58.3725,
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [-58.3735, -34.6195],
+            [-58.3715, -34.6195],
+          ],
+        },
+      });
+      const candidateHints: Array<
+        [string, 'area' | 'waypoint' | 'route' | 'venue']
+      > = [
+        ['san-telmo', 'area'],
+        ['pasaje', 'waypoint'],
+        ['el-zanjon', 'venue'],
+      ];
+
+      it('accepts a real line entering the canonical area', () => {
+        const result = new CompositeGeographicValidationService().validate(
+          {
+            candidate: walk(candidateHints),
+            status: 'accepted',
+            resolvedEntities: [area, pasaje, zanjon] as any,
+            rejectionReasons: [],
+          },
+          boundary,
+        );
+        expect(result.accepted).toBe(true);
+        expect(result.strategy).toBe('canonical_area');
+      });
+
+      it('rejects a ROUTE-kind component without line geometry instead of trusting its representative point', () => {
+        const result = new CompositeGeographicValidationService().validate(
+          {
+            candidate: walk(candidateHints),
+            status: 'accepted',
+            resolvedEntities: [
+              area,
+              { ...pasaje, geometry: undefined, longitude: -58.3705 },
+              zanjon,
+            ] as any,
+            rejectionReasons: [],
+          },
+          boundary,
+        );
+        expect(result.accepted).toBe(false);
+        expect(
+          result.decisionEntities?.find((item) => item.hintKey === 'pasaje'),
+        ).toMatchObject({
+          relation: 'offending',
+          decisionReason: 'OUTSIDE_CANONICAL_AREA_BOUNDARY',
+        });
+      });
+    });
   });
 });

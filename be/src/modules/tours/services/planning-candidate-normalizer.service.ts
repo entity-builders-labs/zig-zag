@@ -15,7 +15,7 @@ export interface PlanningCandidateNormalizationContext {
 
 /**
  * Boundary adapter converting ranked, verified Experience records into the
- * planner's native candidate contract. It preserves every required component;
+ * planner's native candidate contract. It preserves every persisted component;
  * request-specific internal routing is intentionally left to the solver because
  * only the solver owns the canonical mobility constraints.
  */

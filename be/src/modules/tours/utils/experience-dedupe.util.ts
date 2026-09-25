@@ -1,7 +1,6 @@
 export interface DedupeComponentFingerprint {
   geoEntityId: string;
   role?: string | null;
-  required?: boolean | null;
   /**
    * `ExperienceComponent.order` — identity-relevant ONLY when real,
    * persisted evidence establishes a genuine visiting sequence (spec: "no

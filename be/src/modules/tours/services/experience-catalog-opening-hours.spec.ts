@@ -32,9 +32,7 @@ describe('ExperienceCatalogService opening hours', () => {
       qualityScore: 4.7,
       openingHours,
       metadata: { source: 'places_acquisition', provider: 'google' },
-      components: [
-        { geoEntityId: 'geo-museum-1', role: 'venue', required: true },
-      ],
+      components: [{ geoEntityId: 'geo-museum-1', role: 'venue' }],
       evidence: [{ source: 'google_places', title: 'Museo de Prueba' }],
     });
 

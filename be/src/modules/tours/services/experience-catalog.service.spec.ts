@@ -714,7 +714,7 @@ describe('ExperienceCatalogService.resolveOrCreateTraitDefinitions', () => {
 describe('ExperienceCatalogService dedupe', () => {
   const input: any = {
     canonicalName: ' Museo Central ',
-    components: [{ geoEntityId: 'geo-1', role: 'venue', required: true }],
+    components: [{ geoEntityId: 'geo-1', role: 'venue' }],
     evidence: [
       {
         source: 'search',
@@ -736,7 +736,7 @@ describe('ExperienceCatalogService dedupe', () => {
       latitude: null,
       longitude: null,
       metadata: {},
-      components: [{ geoEntityId: 'geo-1', role: 'venue', required: true }],
+      components: [{ geoEntityId: 'geo-1', role: 'venue' }],
       evidence: [],
       traits: [],
     };
@@ -780,7 +780,7 @@ describe('ExperienceCatalogService dedupe', () => {
       latitude: null,
       longitude: null,
       metadata: { themes: ['history'], traits: ['rooftop'] },
-      components: [{ geoEntityId: 'geo-1', role: 'venue', required: true }],
+      components: [{ geoEntityId: 'geo-1', role: 'venue' }],
       evidence: [],
       traits: [],
     };
@@ -843,7 +843,7 @@ describe('ExperienceCatalogService dedupe', () => {
       latitude: null,
       longitude: null,
       metadata: { classification: staleClassification },
-      components: [{ geoEntityId: 'geo-1', role: 'venue', required: true }],
+      components: [{ geoEntityId: 'geo-1', role: 'venue' }],
       evidence: [],
       traits: [],
     };
@@ -943,9 +943,7 @@ describe('ExperienceCatalogService dedupe', () => {
             latitude: null,
             longitude: null,
             metadata: {},
-            components: [
-              { geoEntityId: 'geo-1', role: 'venue', required: true },
-            ],
+            components: [{ geoEntityId: 'geo-1', role: 'venue' }],
             evidence: [],
             traits: [],
           },
@@ -990,9 +988,7 @@ describe('ExperienceCatalogService dedupe', () => {
             canonicalName: 'museo central',
             latitude: null,
             longitude: null,
-            components: [
-              { geoEntityId: 'geo-other', role: 'venue', required: true },
-            ],
+            components: [{ geoEntityId: 'geo-other', role: 'venue' }],
             evidence: [],
             traits: [],
           },
@@ -1020,9 +1016,9 @@ describe('ExperienceCatalogService dedupe', () => {
       latitude: -33.038,
       longitude: -68.879,
       components: [
-        { geoEntityId: 'bodega-a', role: 'winery', required: true },
-        { geoEntityId: 'bodega-b', role: 'winery', required: true },
-        { geoEntityId: 'bodega-c', role: 'winery', required: true },
+        { geoEntityId: 'bodega-a', role: 'winery' },
+        { geoEntityId: 'bodega-b', role: 'winery' },
+        { geoEntityId: 'bodega-c', role: 'winery' },
       ],
       evidence: [{ source: 'official-tourism' }],
       traits: [],
@@ -1046,9 +1042,9 @@ describe('ExperienceCatalogService dedupe', () => {
       latitude: -33.038,
       longitude: -68.879,
       components: [
-        { geoEntityId: 'bodega-a', role: 'winery', required: true },
-        { geoEntityId: 'restaurant-x', role: 'lunch', required: true },
-        { geoEntityId: 'bodega-z', role: 'winery', required: true },
+        { geoEntityId: 'bodega-a', role: 'winery' },
+        { geoEntityId: 'restaurant-x', role: 'lunch' },
+        { geoEntityId: 'bodega-z', role: 'winery' },
       ],
       evidence: [{ source: 'official-tourism' }],
     });
@@ -1253,7 +1249,7 @@ describe('ExperienceCatalogService.findVerifiedMultiComponentByExactComponent (T
       expect.objectContaining({
         where: {
           status: 'VERIFIED',
-          components: { some: { geoEntityId: 'geo-caminito', required: true } },
+          components: { some: { geoEntityId: 'geo-caminito' } },
         },
       }),
     );
