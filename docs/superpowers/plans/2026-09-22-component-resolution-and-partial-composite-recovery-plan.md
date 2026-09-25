@@ -40,8 +40,8 @@ implements the stage. Do not mark a stage DONE without real validation.
 | 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | `a0b6c75b50bf37807ab6c2450f94c8e81c9fc9d2` | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
 | 2. Source-grounded contract cutover | DONE | `a7df3b579282cee6b57fef8a914080d507e47fac` | *(this commit)* | jest (152/153 suites, 1746/1747 tests; 1 pre-existing arch failure) + tsc (clean) + eslint (clean) | LLM-owned `required` eliminated from discovery contract; deterministic source-support admission gate implemented; Santa Mónica blocked; semantic document bumped to v3; Stage 3 unblocked. |
 | 3. Catalog-first identity resolution | DONE | `9eaf5ec1d9caddba55ccab1e0d5c2774f45f61b3` (PLACE cutover); `d1059a7cf786256acff2e9ca2311cac1ec7ab1b9` (verified hint memory) | `52c6da1`,`9424dc5`,`77de1fa`,`c101fea`; `6b60add`,`3abb70f`,`4b64b90` *(progress: this commit)* | unit 1987/1988 (pre-existing preference-first-architecture failure); integration on zigzag_test 91/94 (the 3 baseline failures; `catalog-reuse` passed); real-Postgres verified-hint memory 10/10 incl. concurrency (mutation-checked) and GIN EXPLAIN; live COLD/WARM on a fresh DB (15 hints incl. Solar de French); SerpApi/Serper/Google Places 0; tsc + eslint clean | Name-divergent WARM reuse closed by verified hint memory on `GeoEntity` (text[] + GIN, no new table). See the 2026-09-25 verified hint memory addendum and `spikes/stage3-verified-hint-memory-cold-warm-2026-09-25/assessment.md`. Stage 4 UNBLOCKED. |
-| 4. Geographic + partial-composite cutover | UNBLOCKED (not started) | — | — | — | Identity outcomes are explicit/stable (Stage 3 DONE). |
-| 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
+| 4. Geographic + partial-composite cutover | DONE | `5a9ec4322a006aa0489625d5bac1202d7cdc8cbb` | `f4d4f81`,`0307a94`,`8bc5ce0` *(progress: this commit)* | unit 2021/2022 (baseline preference-first-architecture); integration 95/98 on zigzag_test (the 3 baseline failures) incl. new partial-composite-isolation 4/4 (mutation-checked); tsc + eslint clean; bounded live COLD/WARM/COLD (Serper, SerpApi 0) | `required` has no geographic/reuse/planner authority; single area-scope policy gives typed per-component relations (MultiLineString included); full source composition is the only admission fact; A-B-C-D-E-F never persists as A-B-D-F. No schema, no thresholds. Live partial shape not extracted (variance). See the 2026-09-25 Stage 4 addendum. Stage 5 UNBLOCKED. |
+| 5. Trace + RW1 verification | UNBLOCKED (not started) | — | — | — | Final milestone validation; thresholds only from observed evidence. Stage 4 already emits typed per-component identity/geography/deficit + coverage in the trace (`entityResolutionAudit[].coverage/componentScope`, hint `identityStatus/geography/deficit`). |
 
 ### Stage 1 — Characterization lock (2026-09-23)
 
@@ -1531,6 +1531,186 @@ cutover). Debt carried, not blocking: San Martín hardening (above);
 `representativePoint` uses the first MultiPolygon polygon;
 `AreaRouteAnchorResolverService` labels Nominatim anchors with the
 `nominatim` namespace; `catalog-reuse` integration flake.
+
+### Stage 4 — Geographic + partial-composite cutover, DONE (2026-09-25)
+
+Starting HEAD: `5a9ec4322a006aa0489625d5bac1202d7cdc8cbb` (verified equal
+to the fork remote; no new commits). Baseline re-verified at that HEAD
+before any change: unit 1987/1988 (only `preference-first-architecture`),
+integration 91/94 on `zigzag_test` (2 × `acquisition-degradation`,
+1 × `canonical-orchestration`; `catalog-reuse` passed). Commits:
+
+- `f4d4f81` test(tours): characterize required-driven geographic branches.
+- `0307a94` refactor(tours): replace required with structural component
+  geography.
+- `8bc5ce0` test(tours): verify partial composite planner isolation on
+  Postgres.
+- progress/assessment: this commit.
+
+**`required` blast radius — every behavioral read, classified.**
+
+| Read (at `5a9ec43`) | Class | Stage 4 outcome |
+| --- | --- | --- |
+| `isMigrationRequiredHint` (always `true`) in the resolver's whole-candidate gate (`unresolvedRequired`) | A | Replaced by `sourceCompositionComplete` (every source hint RESOLVED); reason `INCOMPLETE_SOURCE_COMPOSITION`. Util deleted. |
+| same seam in `dedupeResolvedEntitiesByGeoEntity` (OR-recompute of `required`) | A | Removed; dedupe by canonical GeoEntity kept (existing policy). |
+| same seam in CGV `rejectIfExternalScopeViolated`, `tryCanonicalGeometry` (route + area branches), `validateExperience` (venue-centric + unresolved gates) | A | One structural guard first (`incomplete_source_composition`, `missing_coordinates`); strategies run over the full resolved set; area shortcut counts source AREA components; canonical-area membership goes through the policy. |
+| `AreaScopeComponentFact.required` filter in `evaluateAreaScopeMembership` | A | Field removed; every component evaluated; typed per-component relations. |
+| `ExperienceCatalogService.findVerifiedMultiComponentInArea` passing persisted `required` | A | All persisted components evaluated (with their `GeoEntity.kind`). |
+| `findVerifiedMultiComponentByExactComponent` `where: {required: true}` | A | Filter removed: any persisted component matches. |
+| `spatial-footprint.util.ts` `required !== false` (planner footprint) | C | Removed: the planner footprint derives from every persisted component of an admitted Experience. Partials never persist, so they never get a footprint. |
+| `ComponentResolutionAudit.required` / `TraceComponentHint.required` / FE bitácora "required/optional" label | A (displayed authority) | Removed; trace/bitácora show `identityStatus`. |
+| `VerifiedExperienceInput.components[].required` → `ExperienceComponent.required` write | B | No longer written; the column keeps its schema default `true` = "member of the admitted source composition". No reader. |
+| `TourExperienceComponent.required` via `tour-experience-snapshot.util.ts` | B | Kept as a pass-through copy of the column (no reader, no authority). Dropping both columns is a follow-up migration, not done here. |
+| `DedupeComponentFingerprint.required` (declared, never read) | B→removed | Type field removed. |
+| `preference-*` facet `required`, JSON-Schema `required: [...]`, DTO/Swagger `required`, Groq `tool_choice: 'required'`, `requiredEligibleCount` | D | Untouched (unrelated meaning). |
+
+`isMigrationRequiredHint` was a pure Stage-2 migration seam (always
+`true`, not legacy-data compat); it is deleted, not preserved.
+
+**Component fact model** (`experience-resolution.interface.ts`,
+built by `component-resolution-facts.util.ts`, pure, no provider call):
+
+- identity: `RESOLVED | UNRESOLVED | AMBIGUOUS | CONFLICTED` (conflicted =
+  the verified identities are owned by several GeoEntities);
+- geography (RESOLVED only): `geoEntityId`, `geoEntityKind`,
+  `canonicalGeometry: POINT | LINE | POLYGON | NONE`,
+  `geographicRelation: INSIDE | INTERSECTS | OUTSIDE | UNDETERMINED`,
+  `distanceToBoundaryMeters` for OUTSIDE points (observability only);
+- deficit (non-RESOLVED only): reason `NO_CANDIDATE_ACQUIRED |
+  CANDIDATE_UNCONFIRMED | AMBIGUOUS_CANDIDATES | IDENTITY_CONFLICT |
+  PROVIDER_FAILURE | DESTINATION_INCOMPATIBLE |
+  DESTINATION_COMPATIBILITY_UNKNOWN`, classification `KNOWLEDGE_DEFICIT`
+  (only AMBIGUOUS_CANDIDATES) | `OPERATIONAL_FAILURE` (provider) |
+  `PENDING_CLASSIFICATION` (everything runtime cannot tell apart from a
+  resolver/acquisition defect — never auto-research);
+- `sourceOrder` only when the source evidenced a sequence;
+- coverage: `totalComponents, identityResolvedComponents,
+  geographicallyAcceptedComponents, unresolvedComponents,
+  ambiguousComponents, conflictedComponents, resolutionRatio,
+  openResearchDeficits, sourceCompositionComplete`;
+- relation scope: request validation AREA → destination AREA →
+  destination POINT_RADIUS (point components only) → UNAVAILABLE.
+
+Built for every candidate (admitted or not), attached to
+`ResolvedExperienceCandidate.componentResolution`, the forensic audit and
+the trace. Transient: never persisted, never an admission threshold.
+
+**Geographic policy** (`area-scope-membership-policy.ts`, still the single
+authority; no new engine — same `geometryContainsPoint`/orientation
+primitives): PLACE point → INSIDE (covered, boundary inclusive) / OUTSIDE
+(+measured distance); ROUTE LineString **and MultiLineString** → segment
+intersection (INSIDE/INTERSECTS/OUTSIDE), endpoints never decide alone;
+AREA polygon → vertex coverage + edge intersection (the scope polygon
+itself is INSIDE); ROUTE/AREA without line/polygon geometry →
+UNDETERMINED (no centroid approximation; the canonical kind decides, role
+only as a fallback). `AREA_CONTAINED` requires every component INSIDE;
+`AREA_ANCHORED_ROUTE` requires a LINE entering the area or a non-line
+component INSIDE. **Calle Defensa**: a MultiLineString route entering San
+Telmo is `LINE / INTERSECTS` and anchors the walk — at `5a9ec43` the
+policy did not recognize MultiLineString at all (characterized in
+`f4d4f81`). **NEAR is not classified**: it needs a boundary threshold;
+Stage 5 must derive it from the recorded distances.
+
+**Composite validation.** Component relations (policy) and composite
+coherence (CGV strategies: anchored route, canonical area/route, destination
++ coherence radius) are separate decisions. Deterministic example: Plaza de
+Mayo design fixture OUTSIDE + Calle Defensa INTERSECTS + El Zanjón INSIDE →
+accepted under `AREA_ANCHORED_ROUTE`, rejected under `AREA_CONTAINED`
+(offending: Plaza de Mayo and the only-intersecting street). A found and
+fixed inconsistency: under strict containment an INTERSECTS line failed
+the decision but was not listed as offending.
+
+**Partial composite.** Source A-B-C-D-E-F, C/E unresolved: A/B/D/F are
+RESOLVED with `INSIDE` facts and GeoEntities; C/E are
+`UNRESOLVED / NO_CANDIDATE_ACQUIRED / PENDING_CLASSIFICATION` with no
+relation; coverage 6 / 4 / geo-accepted 4 / ratio 4/6 /
+`sourceCompositionComplete: false`; the candidate is rejected
+(`INCOMPLETE_SOURCE_COMPOSITION`) before composite validation. Real
+Postgres: 4 GeoEntities, 0 Experience, 0 ExperienceComponent,
+`findVerifiedWithin` / `findVerifiedWithinForMatching` (the
+planner/facet retrieval boundaries, `status = VERIFIED`) and
+`findVerifiedMultiComponentByExactComponent` all empty. Same for an
+AMBIGUOUS B (two real exact-name candidates — the only
+`KNOWLEDGE_DEFICIT`, listed in `openResearchDeficits`). A later
+independently sourced A-B composite reuses the GeoEntities and is the only
+Experience. Mutation check: disabling both composition guards turns the
+gate red (`accepted` instead of `rejected`).
+
+**Persistence / schema / thresholds.** Complete composites persist exactly
+their source-backed membership and evidenced order (two hints converging
+on one GeoEntity stay one component — existing canonical policy, no new
+rule). Single-PLACE Experiences keep their path (venue-centric
+unchanged). No new lifecycle, status, table or durable partial object:
+transient facts + trace suffice. **Prisma migration: NO. New thresholds:
+NONE** (the POINT_RADIUS relation uses the request's own radius).
+
+**Live control** (`spikes/stage4-partial-composite-live-control-2026-09-25/`):
+RW1 San Telmo request, real HTTP path, Serper (SerpApi 0), Geoapify,
+local Nominatim/Overpass. COLD 1 (362 s): one 3-hint composite, 3/3
+RESOLVED/INSIDE, persisted with exactly 3 components; 9 single-component
+candidates stayed explicit `UNRESOLVED / NO_CANDIDATE_ACQUIRED`,
+including Pasaje San Lorenzo. WARM (34 s): catalog sufficient, 0
+resolution, counts unchanged. COLD 2: one 2-hint composite, 2/2, persisted.
+**No source-backed composite with unresolved components was extracted in
+either COLD** (extractor variance; the Stage 3 E2E on the same request
+got 5/7). Stopped after two COLDs instead of steering the request; the
+partial shape is proven deterministically and on real Postgres only.
+
+**Tests.** Unit: new `required-geographic-authority.spec.ts` (7, incl.
+required=true/false mutation cases on policy, footprint, warm reuse and
+the resolver: identical relations/footprints/coverage),
+`component-resolution-facts.util.spec.ts` (8), policy relation matrix
+(+13), CGV Stage 4 block (+6); expectations flipped where they encoded
+the replaced semantics (CGV reason/audit names, resolver persistence
+without `required`, normalizer footprint now includes a legacy
+`required:false` component, B5 warm-reuse integration tests). Totals:
+unit 2021/2022; integration 95/98 on `zigzag_test`; `tsc --noEmit` clean;
+eslint clean on every touched backend file (FE has no eslint config; FE
+`tsc` shows only pre-existing `@types/react` duplication errors in
+untouched files).
+
+**Baseline failures.** Pre-existing, unchanged: unit
+`preference-first-architecture.spec.ts` (`destinationBoundary` in the
+resolver); integration 2 × `acquisition-degradation` + 1 ×
+`canonical-orchestration` (`tour.executionSummary` undefined; the Tour
+itself is built). No new regressions; nothing fixed incidentally;
+`catalog-reuse` passed in every run (flake not reproduced).
+
+**Architecture deviations.** None of substance. Small FE touch
+(bitácora label + trace contract type) because the backend stopped
+emitting `required`. Identity (IdentityVerifier, corroboration, providers,
+hint memory) untouched; San Martín untouched.
+
+**Engineering-principles gate.** Provider isolation PASS (no provider
+branching added); typed facts PASS (no metadata bags); single geographic
+authority PASS (policy evolved, CGV canonical-area check routed through
+it); unknown is first-class PASS (UNDETERMINED / PENDING_CLASSIFICATION,
+no defaults); migration to one authority PASS (seam deleted, no dual
+path); no magic thresholds PASS.
+
+**Stage 4 exit gate, literally:**
+
+| Exit item | Evidence | Status |
+| --- | --- | --- |
+| No hidden `required` authority in component/composite geography | blast-radius table; mutation tests; seam deleted; only B/D reads remain | PASS |
+| Calle Defensa uses the existing route-intersection authority | LineString + MultiLineString fixtures through `evaluateAreaScopeMembership` / `classifyComponentAreaRelation` → LINE/INTERSECTS | PASS |
+| Component relations and composite coherence are separate decisions | typed per-component facts vs CGV strategies; OUTSIDE component in an accepted anchored walk | PASS |
+| Partial/unresolved state cannot become planner-eligible | real Postgres: 0 rows, empty planner retrieval boundaries; mutation-checked | PASS |
+| Source A-B-C-D-E-F cannot persist silently as A-B-D-F | resolver + CGV guards; unit + Postgres | PASS |
+| No automatic component → standalone Experience promotion | Postgres: GeoEntities only, 0 Experiences, exact-component lookup empty | PASS |
+| Progress records validation and remaining research-only deficits | this addendum; live: all deficits PENDING_CLASSIFICATION, 0 KNOWLEDGE_DEFICIT | PASS |
+
+**Remaining deficits / debt.** Live partial composite not yet observed
+(Stage 5 RW1). NEAR threshold (Stage 5, from recorded distances). POINT_
+RADIUS relation for LINE/POLYGON components is UNDETERMINED (no rule
+yet). `spatial-footprint` still only draws `LineString` routes (a
+MultiLineString route falls back to its point) — planner geometry debt.
+`required` columns can be dropped by a later migration. Carried from
+Stage 3, untouched: San Martín hardening, `representativePoint` first
+polygon, anchor `nominatim` namespace, `catalog-reuse` flake. Live side
+note: COLD 2's extractor emitted "Calle Defensa" as a PLACE waypoint.
+
+**Stage status:** Stage 4 **DONE**. Stage 5 **UNBLOCKED** (not started).
 
 ### Cross-cutting product-shape note — simple, composite, and mixed Tour requests (2026-09-23)
 
