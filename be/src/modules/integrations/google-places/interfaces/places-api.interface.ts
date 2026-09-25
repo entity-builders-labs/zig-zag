@@ -23,6 +23,47 @@ export interface PlaceData {
   // Human-readable label for `primaryType` (Task B1), e.g. "Art museum"
   // for primaryType "art_gallery".
   primaryTypeDisplayName?: { text: string; languageCode?: string };
+  /**
+   * The provider's own declaration of WHAT KIND of object this result is,
+   * normalized once at the adapter boundary. Absent when the provider
+   * declared nothing (e.g. Google Text Search, whose results are always
+   * places) -- never inferred from the name.
+   */
+  featureClass?: PlaceFeatureClass;
+  /**
+   * Identities in OTHER namespaces that the provider explicitly declared for
+   * this same record (e.g. Geoapify Place Details' `osm_type`/`osm_id` and
+   * `wikidata`). `id` stays the provider's own handle; this never repeats
+   * it, and it is never derived by parsing an opaque id.
+   */
+  sourceIdentities?: PlaceSourceIdentity[];
+}
+
+/**
+ * Provider-declared structural class of a search result:
+ *  - `point_of_interest`: a named venue/sight/amenity/natural feature;
+ *  - `building`: a building without a more specific POI tag;
+ *  - `street`: a street/road (a ROUTE-shaped object, never a PLACE);
+ *  - `administrative_area`: a city/suburb/district/county/state/country;
+ *  - `postcode`: a postcode area;
+ *  - `transport_stop`: a transit stop or vehicle-sharing dock, which takes
+ *    its name from the landmark it serves rather than being that landmark.
+ */
+export type PlaceFeatureClass =
+  | 'point_of_interest'
+  | 'building'
+  | 'street'
+  | 'administrative_area'
+  | 'postcode'
+  | 'transport_stop';
+
+/**
+ * One provider-declared cross-identity, already in the canonical persisted
+ * form of its namespace (`osm:node:123`, `Q123`).
+ */
+export interface PlaceSourceIdentity {
+  provider: 'openstreetmap' | 'wikidata';
+  externalId: string;
 }
 
 export interface PlacesSearchNearbyParams {
@@ -223,6 +264,13 @@ export function placesProviderLabel(provider: PlacesProvider): string {
 
 export interface IPlacesApiService {
   readonly provider: PlacesProvider;
+  /**
+   * Whether `getPlaceDetails` can return `sourceIdentities` (explicit
+   * cross-identities in other namespaces). A capability, so callers never
+   * branch on the provider name to decide whether an identity-enrichment
+   * details call is worth its cost.
+   */
+  readonly declaresSourceIdentitiesInDetails: boolean;
   getStatus(): PlacesProviderStatus;
   searchNearby(
     params: PlacesSearchNearbyParams,

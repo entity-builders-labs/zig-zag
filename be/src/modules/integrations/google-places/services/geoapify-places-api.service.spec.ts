@@ -112,138 +112,201 @@ describe('GeoapifyPlacesApiService', () => {
   });
 
   describe('searchText', () => {
-    // Round 2 correction: this method used to be a documented no-op stub
-    // ("Geoapify has no descriptive Text Search capability"). Live-confirmed
-    // against the real Geoapify Autocomplete API (2026-09-17) that it DOES
-    // support named-venue search via `type=amenity` — the stub premise was
-    // wrong, not a real product limitation. See
-    // docs/superpowers/characterization/2026-09-15-composite-experience-adversarial-review.md
-    // Root Cause #3.
-    it('builds the request against the Autocomplete endpoint with text/type=amenity/a hard circle filter/proximity bias, when locationBias is provided', async () => {
+    // Stage 3 PLACE cutover (spikes/stage3-place-provider-search-
+    // characterization-2026-09-25/assessment.md): Forward Geocoding with the
+    // hint as free-form `text`, NO `type`, a hard circle `filter` and a
+    // proximity `bias` found 11/12 PLACE hints vs 8/12 for the former
+    // Autocomplete + `type=amenity` shape (which could not match "Mafalda
+    // Statue" and dropped `landuse=cemetery`/untagged building ways).
+    const bias = {
+      center: { latitude: -34.6037, longitude: -58.3816 },
+      radius: 50000,
+    };
+
+    it('uses /v1/geocode/search with free-form text, no type, a hard circle filter and a proximity bias', async () => {
       mockedAxios.get.mockResolvedValueOnce({ data: { results: [] } });
 
       await service.searchText({
-        textQuery: 'MALBA Museum',
-        maxResultCount: 5,
-        locationBias: {
-          center: { latitude: -34.6037, longitude: -58.3816 },
-          radius: 50000,
-        },
+        textQuery: 'Mafalda Statue',
+        maxResultCount: 3,
+        locationBias: bias,
       });
 
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        'https://api.geoapify.com/v1/geocode/autocomplete',
-        {
-          params: {
-            text: 'MALBA Museum',
-            type: 'amenity',
-            filter: 'circle:-58.3816,-34.6037,50000',
-            bias: 'proximity:-58.3816,-34.6037',
-            limit: 5,
-            format: 'json',
-            apiKey: 'test-api-key',
-          },
-          timeout: 5000,
+      expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+      const [url, config] = mockedAxios.get.mock.calls[0];
+      expect(url).toBe('https://api.geoapify.com/v1/geocode/search');
+      expect(config).toEqual({
+        params: {
+          text: 'Mafalda Statue',
+          filter: 'circle:-58.3816,-34.6037,50000',
+          bias: 'proximity:-58.3816,-34.6037',
+          limit: 3,
+          format: 'json',
+          apiKey: 'test-api-key',
         },
-      );
+        timeout: 5000,
+      });
+      // Never a structured field mixed with free-form text, never `type`.
+      const params = (config as { params: Record<string, unknown> }).params;
+      for (const forbidden of [
+        'type',
+        'name',
+        'street',
+        'city',
+        'country',
+        'postcode',
+      ]) {
+        expect(params).not.toHaveProperty(forbidden);
+      }
     });
 
-    it('maps a real Autocomplete result shape to PlaceData (live-captured MALBA fixture)', async () => {
+    it('sends the hint text unchanged', async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: { results: [] } });
+
+      await service.searchText({
+        textQuery: '  Recoleta Cemetery ',
+        locationBias: bias,
+      });
+
+      expect(
+        (mockedAxios.get.mock.calls[0][1] as { params: { text: string } })
+          .params.text,
+      ).toBe('  Recoleta Cemetery ');
+    });
+
+    it('maps a real Forward Geocoding result (live-captured Mafalda row) faithfully, without inventing Google-style types', async () => {
       mockedAxios.get.mockResolvedValueOnce({
         data: {
           results: [
             {
-              name: 'Museo de Arte Latinoamericano de Buenos Aires (MALBA)',
-              lat: -34.5768817,
-              lon: -58.4033919,
+              datasource: {
+                sourcename: 'openstreetmap',
+                attribution: '© OpenStreetMap contributors',
+                license: 'Open Database License',
+                url: 'https://www.openstreetmap.org/copyright',
+              },
+              name: 'Mafalda, Susanita and Manolito',
+              country_code: 'ar',
+              lon: -58.3716913,
+              lat: -34.6159617,
               formatted:
-                'Museo de Arte Latinoamericano de Buenos Aires (MALBA), Avenida Presidente Figueroa Alcorta 3415, Palermo, C1425 CLA Buenos Aires, Argentina',
-              category: 'entertainment.museum',
-              place_id: 'geoapify-malba-place-id',
+                'Mafalda, Susanita and Manolito, Defensa 800, San Telmo, 1065 Buenos Aires, Argentina',
+              result_type: 'amenity',
+              rank: {
+                importance: 0.00008279926756690345,
+                popularity: 7.953640848669934,
+                confidence: 0,
+                match_type: 'full_match',
+              },
+              place_id: '5197da9c94932f4dc0-opaque',
             },
           ],
         },
       });
 
       const results = await service.searchText({
-        textQuery: 'MALBA Museum',
-        locationBias: {
-          center: { latitude: -34.6037, longitude: -58.3816 },
-          radius: 50000,
-        },
+        textQuery: 'Mafalda Statue',
+        locationBias: bias,
       });
 
       expect(results.data).toEqual([
         {
-          id: 'geoapify-malba-place-id',
-          name: 'Museo de Arte Latinoamericano de Buenos Aires (MALBA)',
-          displayName: {
-            text: 'Museo de Arte Latinoamericano de Buenos Aires (MALBA)',
-          },
+          id: '5197da9c94932f4dc0-opaque',
+          name: 'Mafalda, Susanita and Manolito',
+          displayName: { text: 'Mafalda, Susanita and Manolito' },
           formattedAddress:
-            'Museo de Arte Latinoamericano de Buenos Aires (MALBA), Avenida Presidente Figueroa Alcorta 3415, Palermo, C1425 CLA Buenos Aires, Argentina',
-          location: { latitude: -34.5768817, longitude: -58.4033919 },
-          types: ['entertainment.museum'],
-          primaryType: 'entertainment.museum',
+            'Mafalda, Susanita and Manolito, Defensa 800, San Telmo, 1065 Buenos Aires, Argentina',
+          location: { latitude: -34.6159617, longitude: -58.3716913 },
+          // No category declared on this row -> no type invented.
+          types: [],
+          primaryType: undefined,
+          featureClass: 'point_of_interest',
           rating: undefined,
           userRatingCount: undefined,
           priceLevel: undefined,
           openingHoursWeekdayText: undefined,
         },
       ]);
+      // An opaque search id never yields an identity by parsing.
+      expect(results.data[0].sourceIdentities).toBeUndefined();
     });
 
-    it('falls back to an empty types array when the raw result carries no category (real API responses always have one for amenity results, but the mapper must not assume it)', async () => {
+    it('preserves the declared category as the provider type', async () => {
       mockedAxios.get.mockResolvedValueOnce({
         data: {
           results: [
             {
-              name: 'Uncategorized result',
-              lat: -34.6,
-              lon: -58.38,
-              place_id: 'geoapify-place-3',
+              name: 'Farmacia de la Estrella',
+              lat: -34.6102605,
+              lon: -58.3721513,
+              result_type: 'amenity',
+              category:
+                'commercial.health_and_beauty.pharmacy;healthcare.pharmacy',
+              place_id: 'farmacia-opaque',
             },
           ],
         },
       });
 
       const results = await service.searchText({
-        textQuery: 'Uncategorized result',
-        locationBias: {
-          center: { latitude: -34.6037, longitude: -58.3816 },
-          radius: 50000,
-        },
+        textQuery: 'Farmacia la Estrella',
+        locationBias: bias,
       });
 
-      expect(results.data[0].types).toEqual([]);
-      expect(results.data[0].primaryType).toBeUndefined();
+      expect(results.data[0].types).toEqual([
+        'commercial.health_and_beauty.pharmacy;healthcare.pharmacy',
+      ]);
+      expect(results.data[0].primaryType).toBe(
+        'commercial.health_and_beauty.pharmacy;healthcare.pharmacy',
+      );
+      expect(results.data[0].featureClass).toBe('point_of_interest');
     });
 
-    it("echoes back the requested includedType, matching searchNearby's convention", async () => {
-      mockedAxios.get.mockResolvedValueOnce({
-        data: {
-          results: [
-            {
-              name: 'Some Museum',
-              lat: -34.6,
-              lon: -58.38,
-              place_id: 'geoapify-place-2',
-            },
-          ],
-        },
-      });
+    it.each([
+      ['street', undefined, 'street'],
+      ['building', undefined, 'building'],
+      ['postcode', undefined, 'postcode'],
+      ['suburb', undefined, 'administrative_area'],
+      ['district', undefined, 'administrative_area'],
+      ['city', 'administrative', 'administrative_area'],
+      ['county', undefined, 'administrative_area'],
+      ['state', undefined, 'administrative_area'],
+      ['country', undefined, 'administrative_area'],
+      // Live-captured: "Plaza Dorrego" bus stops and the "345 - Plaza
+      // Mafalda" bike dock are amenities named after the landmark they
+      // serve.
+      ['amenity', 'public_transport.bus', 'transport_stop'],
+      ['amenity', 'rental.bicycle', 'transport_stop'],
+      ['amenity', 'leisure.park', 'point_of_interest'],
+      ['amenity', undefined, 'point_of_interest'],
+      ['unknown', undefined, undefined],
+      [undefined, undefined, undefined],
+    ])(
+      'normalizes result_type=%s category=%s to featureClass=%s',
+      async (resultType, category, expected) => {
+        mockedAxios.get.mockResolvedValueOnce({
+          data: {
+            results: [
+              {
+                name: 'X',
+                lat: -34.6,
+                lon: -58.38,
+                place_id: 'p',
+                ...(resultType ? { result_type: resultType } : {}),
+                ...(category ? { category } : {}),
+              },
+            ],
+          },
+        });
 
-      const results = await service.searchText({
-        textQuery: 'Some Museum',
-        includedType: 'museum',
-        locationBias: {
-          center: { latitude: -34.6037, longitude: -58.3816 },
-          radius: 50000,
-        },
-      });
+        const results = await service.searchText({
+          textQuery: 'X',
+          locationBias: bias,
+        });
 
-      expect(results.data[0].types).toEqual(['museum']);
-    });
+        expect(results.data[0].featureClass).toBe(expected);
+      },
+    );
 
     it('fails closed — never searches globally without a locationBias (live-confirmed: an unscoped query can rank a same-named place in a different country first)', async () => {
       const results = await service.searchText({
@@ -260,10 +323,7 @@ describe('GeoapifyPlacesApiService', () => {
       await expect(
         service.searchText({
           textQuery: 'MALBA Museum',
-          locationBias: {
-            center: { latitude: -34.6037, longitude: -58.3816 },
-            radius: 50000,
-          },
+          locationBias: bias,
         }),
       ).rejects.toMatchObject<Partial<PlacesApiRequestError>>({
         provenance: {
@@ -323,6 +383,147 @@ describe('GeoapifyPlacesApiService', () => {
       expect(details.data.openingHoursWeekdayText).toEqual([
         'Mo-Fr 09:00-18:00; Sa 10:00-14:00',
       ]);
+    });
+
+    it('declares that Place Details can expose source identities', () => {
+      expect(service.declaresSourceIdentitiesInDetails).toBe(true);
+    });
+
+    it('maps explicit OSM osm_type/osm_id and the Wikidata QID (live-captured Mafalda details) to source identities', async () => {
+      mockedAxios.get.mockResolvedValueOnce({
+        data: {
+          features: [
+            {
+              properties: {
+                place_id: '5196da9c94932f-details-opaque',
+                name: 'Mafalda, Susanita y Manolito',
+                categories: ['tourism', 'tourism.attraction'],
+                datasource: {
+                  sourcename: 'openstreetmap',
+                  raw: {
+                    name: 'Mafalda, Susanita y Manolito',
+                    osm_id: 2472979623,
+                    amenity: 'bench',
+                    tourism: 'attraction',
+                    alt_name: 'Mafalda',
+                    osm_type: 'n',
+                    wikidata: 'Q111038841',
+                    artwork_type: 'sculpture',
+                  },
+                },
+                wiki_and_media: { wikidata: 'Q111038841' },
+              },
+            },
+          ],
+        },
+      });
+
+      const details = await service.getPlaceDetails('5197da9c-search-opaque');
+
+      expect(details.data.sourceIdentities).toEqual([
+        { provider: 'openstreetmap', externalId: 'osm:node:2472979623' },
+        { provider: 'wikidata', externalId: 'Q111038841' },
+      ]);
+    });
+
+    it.each([
+      ['w', 183842128, 'osm:way:183842128'],
+      ['r', 1224652, 'osm:relation:1224652'],
+    ])(
+      'maps osm_type=%s to the canonical OSM namespace',
+      async (osmType, osmId, expected) => {
+        mockedAxios.get.mockResolvedValueOnce({
+          data: {
+            features: [
+              {
+                properties: {
+                  place_id: 'p',
+                  datasource: {
+                    sourcename: 'openstreetmap',
+                    raw: { osm_type: osmType, osm_id: osmId },
+                  },
+                },
+              },
+            ],
+          },
+        });
+
+        const details = await service.getPlaceDetails('p');
+
+        expect(details.data.sourceIdentities).toEqual([
+          { provider: 'openstreetmap', externalId: expected },
+        ]);
+      },
+    );
+
+    it('maps an OSM identity without Wikidata (Farmacia: no QID is UNKNOWN, not a contradiction)', async () => {
+      mockedAxios.get.mockResolvedValueOnce({
+        data: {
+          features: [
+            {
+              properties: {
+                place_id: 'p',
+                datasource: {
+                  sourcename: 'openstreetmap',
+                  raw: {
+                    osm_type: 'n',
+                    osm_id: 3348573778,
+                    amenity: 'pharmacy',
+                  },
+                },
+              },
+            },
+          ],
+        },
+      });
+
+      const details = await service.getPlaceDetails('p');
+
+      expect(details.data.sourceIdentities).toEqual([
+        { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
+      ]);
+    });
+
+    it('never derives an identity from the opaque place_id, a non-OSM datasource, or malformed OSM/QID fields', async () => {
+      mockedAxios.get.mockResolvedValueOnce({
+        data: {
+          features: [
+            {
+              properties: {
+                // Hex-encodes "openstreetmap:venue:node/2472979623" -- still
+                // opaque to us.
+                place_id:
+                  '51...6f70656e7374726565746d61703a76656e75653a6e6f64652f32343732393739363233',
+                datasource: {
+                  sourcename: 'whosonfirst',
+                  raw: { osm_type: 'n', osm_id: 1 },
+                },
+                wiki_and_media: { wikidata: 'not-a-qid' },
+              },
+            },
+          ],
+        },
+      });
+      const nonOsm = await service.getPlaceDetails('p');
+      expect(nonOsm.data.sourceIdentities).toBeUndefined();
+
+      mockedAxios.get.mockResolvedValueOnce({
+        data: {
+          features: [
+            {
+              properties: {
+                place_id: 'p',
+                datasource: {
+                  sourcename: 'openstreetmap',
+                  raw: { osm_type: 'x', osm_id: 'abc' },
+                },
+              },
+            },
+          ],
+        },
+      });
+      const malformed = await service.getPlaceDetails('p');
+      expect(malformed.data.sourceIdentities).toBeUndefined();
     });
 
     it('reports provider provenance on request failure', async () => {

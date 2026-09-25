@@ -16,6 +16,9 @@ import {
 @Injectable()
 export class GooglePlacesApiService implements IPlacesApiService {
   readonly provider = 'google' as const;
+  // Google's own place id is already its canonical identity; its details
+  // response declares no OSM/Wikidata cross-identity.
+  readonly declaresSourceIdentitiesInDetails = false;
   private readonly logger = new Logger(GooglePlacesApiService.name);
   private readonly baseUrl = 'https://places.googleapis.com/v1/places';
   private readonly requestTimeoutMs = 5_000;

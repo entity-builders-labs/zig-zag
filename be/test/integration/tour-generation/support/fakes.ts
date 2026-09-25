@@ -227,6 +227,7 @@ export function placeData(
 
 export class FakePlacesApiService implements IPlacesApiService {
   readonly provider = 'google' as const;
+  readonly declaresSourceIdentitiesInDetails = false;
 
   readonly searchNearby = jest.fn(
     async (): Promise<PlacesApiResult<PlaceData[]>> => {

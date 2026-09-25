@@ -13,6 +13,7 @@ import {
 function realPlacesApi(provider: PlacesProvider): IPlacesApiService {
   return {
     provider,
+    declaresSourceIdentitiesInDetails: provider === 'geoapify',
     getStatus: () => ({
       provider,
       available: true,

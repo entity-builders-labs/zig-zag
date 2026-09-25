@@ -44,6 +44,10 @@ export class CachedPlacesApiService implements IPlacesApiService {
     return this.realService.provider;
   }
 
+  get declaresSourceIdentitiesInDetails() {
+    return this.realService.declaresSourceIdentitiesInDetails;
+  }
+
   getStatus(): PlacesProviderStatus {
     return {
       ...this.realService.getStatus(),

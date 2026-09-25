@@ -4,6 +4,8 @@ import axios from 'axios';
 import {
   IPlacesApiService,
   PlaceData,
+  PlaceFeatureClass,
+  PlaceSourceIdentity,
   PlacesApiRequestError,
   PlacesApiResult,
   PlacesProviderStatus,
@@ -60,33 +62,89 @@ interface GeoapifyFeature {
   };
 }
 
-// Shape of one `results[]` entry from /v1/geocode/autocomplete — a
-// different response envelope than the /v2/places `features[]` shape
-// above (this is the Geocoding API, not the Places API), live-verified
-// against the real endpoint (2026-09-17).
-interface GeoapifyAutocompleteResult {
+/**
+ * One `results[]` entry of Forward Geocoding (`/v1/geocode/search`,
+ * `format=json`), live-verified against the real endpoint (Stage 3 PLACE
+ * characterization spike, 2026-09-25). Only the fields Zig-Zag reads are
+ * typed. `category` is present on some amenity rows only; `datasource`
+ * carries no raw OSM ids on this endpoint (those exist only on Place
+ * Details).
+ */
+interface GeoapifyForwardGeocodingResult {
   place_id: string;
   name?: string;
   formatted?: string;
   lat: number;
   lon: number;
-  // Geoapify's own dotted category taxonomy (e.g. "entertainment.museum"),
-  // present on every real amenity-type autocomplete result — live-verified
-  // against the real endpoint (2026-09-24). Previously read by nothing,
-  // so every Geoapify PlaceData silently reported `types: []` regardless
-  // of the provider's own real category classification.
+  /**
+   * Geoapify's own location type: `unknown | amenity | building | street |
+   * suburb | district | postcode | city | county | state | country`.
+   */
+  result_type?: string;
+  /** Geoapify's dotted category, `;`-joined when several apply. */
   category?: string;
+  rank?: {
+    importance?: number;
+    popularity?: number;
+    confidence?: number;
+    match_type?: string;
+  };
+  datasource?: {
+    sourcename?: string;
+    attribution?: string;
+    license?: string;
+    url?: string;
+  };
 }
+
+/** Place Details `features[0].properties`, only the identity-bearing fields. */
+interface GeoapifyPlaceDetailsProperties {
+  place_id?: string;
+  name?: string;
+  contact?: { phone?: string };
+  website?: string;
+  opening_hours?: string;
+  datasource?: {
+    sourcename?: string;
+    raw?: { osm_type?: unknown; osm_id?: unknown; wikidata?: unknown };
+  };
+  wiki_and_media?: { wikidata?: unknown };
+}
+
+const ADMINISTRATIVE_RESULT_TYPES = new Set([
+  'suburb',
+  'district',
+  'city',
+  'county',
+  'state',
+  'country',
+]);
+
+/**
+ * Geoapify categories of an `amenity` result that name a stop/dock serving a
+ * landmark rather than the landmark itself -- only the two live-observed in
+ * the PLACE characterization spike ("Parque Lezama"/"Plaza Dorrego" bus
+ * stops, the "345 - Plaza Mafalda" bike dock). Provider taxonomy
+ * translation, deliberately kept at this adapter boundary.
+ */
+const TRANSPORT_STOP_CATEGORIES = ['public_transport.bus', 'rental.bicycle'];
+
+const OSM_TYPE_BY_GEOAPIFY_CODE: Record<string, 'node' | 'way' | 'relation'> = {
+  n: 'node',
+  w: 'way',
+  r: 'relation',
+};
 
 @Injectable()
 export class GeoapifyPlacesApiService implements IPlacesApiService {
   readonly provider = 'geoapify' as const;
+  readonly declaresSourceIdentitiesInDetails = true;
   private readonly logger = new Logger(GeoapifyPlacesApiService.name);
   private readonly placesUrl = 'https://api.geoapify.com/v2/places';
   private readonly placeDetailsUrl =
     'https://api.geoapify.com/v2/place-details';
-  private readonly autocompleteUrl =
-    'https://api.geoapify.com/v1/geocode/autocomplete';
+  private readonly forwardGeocodingUrl =
+    'https://api.geoapify.com/v1/geocode/search';
   private readonly requestTimeoutMs = 5_000;
 
   constructor(private readonly configService: ConfigService) {}
@@ -232,9 +290,8 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
     );
   }
 
-  private mapAutocompleteResultToPlaceData(
-    result: GeoapifyAutocompleteResult,
-    includedType: string | undefined,
+  private mapForwardGeocodingResultToPlaceData(
+    result: GeoapifyForwardGeocodingResult,
   ): PlaceData {
     return {
       id: result.place_id,
@@ -242,12 +299,11 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
       displayName: result.name ? { text: result.name } : undefined,
       formattedAddress: result.formatted,
       location: { latitude: result.lat, longitude: result.lon },
-      types: result.category
-        ? [result.category]
-        : includedType
-          ? [includedType]
-          : [],
+      // Only what Geoapify itself declared -- no Google-style type is
+      // invented for a result that carries no category.
+      types: result.category ? [result.category] : [],
       primaryType: result.category,
+      featureClass: this.featureClassOf(result),
       rating: undefined,
       userRatingCount: undefined,
       priceLevel: undefined,
@@ -255,23 +311,49 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
     };
   }
 
+  /** `result_type` (+ `category` for amenities) -> provider-neutral class. */
+  private featureClassOf(
+    result: GeoapifyForwardGeocodingResult,
+  ): PlaceFeatureClass | undefined {
+    const resultType = result.result_type;
+    if (resultType === 'street') return 'street';
+    if (resultType === 'building') return 'building';
+    if (resultType === 'postcode') return 'postcode';
+    if (resultType && ADMINISTRATIVE_RESULT_TYPES.has(resultType)) {
+      return 'administrative_area';
+    }
+    if (resultType === 'amenity') {
+      const categories = (result.category ?? '').split(';');
+      return categories.some((category) =>
+        TRANSPORT_STOP_CATEGORIES.some(
+          (stop) => category === stop || category.startsWith(`${stop}.`),
+        ),
+      )
+        ? 'transport_stop'
+        : 'point_of_interest';
+    }
+    return undefined;
+  }
+
   /**
-   * Live-confirmed against the real Geoapify Autocomplete API (2026-09-17,
-   * see docs/superpowers/characterization/2026-09-15-composite-experience-adversarial-review.md
-   * Root Cause #3): Geoapify DOES support finding a specific named
-   * venue/business (`type=amenity` on /v1/geocode/autocomplete) — the
-   * previous "no descriptive Text Search capability" stub was an
-   * incomplete implementation, not a real product limitation.
+   * Forward Geocoding with the hint as free-form `text` (never mixed with
+   * structured `name/street/city/...` fields, which the docs declare
+   * mutually exclusive), NO `type`, a hard circle `filter` and a proximity
+   * `bias`. Stage 3 PLACE characterization (spikes/stage3-place-provider-
+   * search-characterization-2026-09-25/assessment.md): this shape returned
+   * the correct object for 11/12 PLACE hints vs 8/12 for the former
+   * Autocomplete + `type=amenity` shape, which cannot match a descriptive
+   * gloss like "Mafalda Statue" and whose `amenity` class excludes
+   * `landuse=cemetery` and untagged building ways. Without `type`, streets,
+   * administrative areas and transit stops are in the result universe too:
+   * each result's `featureClass` declares that, and PLACE resolution must
+   * reject what cannot be a PLACE.
    *
-   * A hard geographic `filter` (not just a `bias`) is mandatory whenever a
-   * location is known. Live-confirmed: searching "San Ignacio Church" with
-   * only `bias=proximity` (no `filter`) ranked churches in Puerto Rico and
-   * New Mexico above the real Buenos Aires one — proximity bias only
-   * reorders global results, it does not restrict them. Adding
-   * `filter=circle:...` around the same point correctly returned the real
-   * "Parroquia San Ignacio de Loyola" first. Fail-closed: without a
-   * `locationBias` to build that hard filter from, this never searches
-   * globally — same principle already applied to the local OSM matcher.
+   * A hard geographic `filter` (not just a `bias`) is mandatory. Live-
+   * confirmed: proximity bias alone only reorders global results (a
+   * same-named church in Puerto Rico ranked above the real Buenos Aires
+   * one). Fail-closed: without a `locationBias` to build that filter from,
+   * this never searches globally.
    */
   async searchText(
     params: PlacesSearchTextParams,
@@ -287,10 +369,9 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
     const maxResultCount = params.maxResultCount || 5;
     try {
       const apiKey = this.getApiKey();
-      const response = await axios.get(this.autocompleteUrl, {
+      const response = await axios.get(this.forwardGeocodingUrl, {
         params: {
           text: params.textQuery,
-          type: 'amenity',
           filter: `circle:${center.longitude},${center.latitude},${radius}`,
           bias: `proximity:${center.longitude},${center.latitude}`,
           limit: maxResultCount,
@@ -300,12 +381,10 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
         timeout: this.requestTimeoutMs,
       });
 
-      const results: GeoapifyAutocompleteResult[] =
+      const results: GeoapifyForwardGeocodingResult[] =
         response.data?.results || [];
       return this.result(
-        results.map((r) =>
-          this.mapAutocompleteResultToPlaceData(r, params.includedType),
-        ),
+        results.map((r) => this.mapForwardGeocodingResultToPlaceData(r)),
         maxResultCount,
       );
     } catch (error) {
@@ -321,6 +400,41 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
     }
   }
 
+  /**
+   * Explicit cross-identities declared by Place Details: the OSM object
+   * (`datasource.raw.osm_type` n/w/r + `osm_id`, only when the datasource IS
+   * OpenStreetMap) and the Wikidata QID. The opaque `place_id` is never
+   * parsed -- the spike measured the same OSM node under different
+   * `place_id`s across search modes, so only these fields are stable keys.
+   */
+  private sourceIdentitiesOf(
+    p: GeoapifyPlaceDetailsProperties,
+  ): PlaceSourceIdentity[] | undefined {
+    const identities: PlaceSourceIdentity[] = [];
+    const raw = p.datasource?.raw;
+    if (p.datasource?.sourcename === 'openstreetmap' && raw) {
+      const osmType =
+        typeof raw.osm_type === 'string'
+          ? OSM_TYPE_BY_GEOAPIFY_CODE[raw.osm_type]
+          : undefined;
+      const osmId =
+        typeof raw.osm_id === 'number' || typeof raw.osm_id === 'string'
+          ? String(raw.osm_id)
+          : undefined;
+      if (osmType && osmId && /^[1-9]\d*$/.test(osmId)) {
+        identities.push({
+          provider: 'openstreetmap',
+          externalId: `osm:${osmType}:${osmId}`,
+        });
+      }
+    }
+    const qid = p.wiki_and_media?.wikidata ?? raw?.wikidata;
+    if (typeof qid === 'string' && /^Q[1-9]\d*$/.test(qid)) {
+      identities.push({ provider: 'wikidata', externalId: qid });
+    }
+    return identities.length > 0 ? identities : undefined;
+  }
+
   async getPlaceDetails(
     placeId: string,
   ): Promise<PlacesApiResult<Partial<PlaceData>>> {
@@ -331,7 +445,9 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
         timeout: this.requestTimeoutMs,
       });
 
-      const p = response.data?.features?.[0]?.properties || {};
+      const p: GeoapifyPlaceDetailsProperties =
+        response.data?.features?.[0]?.properties || {};
+      const sourceIdentities = this.sourceIdentitiesOf(p);
       return this.result(
         {
           id: p.place_id,
@@ -345,6 +461,7 @@ export class GeoapifyPlacesApiService implements IPlacesApiService {
           openingHoursWeekdayText: p.opening_hours
             ? [p.opening_hours]
             : undefined,
+          ...(sourceIdentities ? { sourceIdentities } : {}),
         },
         1,
       );
