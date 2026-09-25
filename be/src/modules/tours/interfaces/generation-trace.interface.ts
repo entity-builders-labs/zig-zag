@@ -260,7 +260,22 @@ export interface TraceCompositeOutcome {
         experienceId: string;
         dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
       }
-    | { status: 'NOT_PERSISTED'; reasons: string[] };
+    | {
+        status: 'NOT_PERSISTED';
+        reasons: string[];
+        /** Present when Experience dedupe failed closed (AMBIGUOUS). */
+        dedupe?: {
+          conflictingExperienceIds: string[];
+          /** The dedupe signals, only when dedupe evidence was recorded. */
+          evidence?: {
+            nameSimilarity: number;
+            semanticSimilarity: number;
+            componentOverlap: number;
+            roleAwareComponentOverlap: number;
+            reasons: string[];
+          };
+        };
+      };
   /**
    * A persisted Experience is VERIFIED, so the planner/facet retrieval
    * boundaries (`status = VERIFIED`) can see it; nothing else can.

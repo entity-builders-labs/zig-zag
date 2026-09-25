@@ -504,6 +504,58 @@ describe('Stage 5 trace failure semantics', () => {
       });
     });
 
+    it('an AMBIGUOUS_DEDUPE outcome names the conflicting Experiences and the dedupe signals', () => {
+      const dedupe = buildCatalogMaterializationStep({
+        totalCandidates: 1,
+        acceptedCount: 0,
+        rejectedCount: 1,
+        resolved: [],
+        geographicValidation: {
+          results: [validation('Complete walk', true)],
+          acceptedCount: 1,
+          rejectedCount: 0,
+          resolved: [complete.resolved],
+        },
+        materialization: {
+          resolved: [
+            {
+              ...complete.resolved,
+              status: 'rejected',
+              rejectionReasons: ['AMBIGUOUS_DEDUPE'],
+              dedupeCandidates: ['exp-composite'],
+              dedupeEvidence: {
+                nameSimilarity: 0.2,
+                semanticSimilarity: 0.4,
+                componentOverlap: 0.5,
+                roleAwareComponentOverlap: 0.5,
+                distanceKm: 0.1,
+                provenanceOverlap: 0,
+                conceptOverlap: 0,
+                orderConflict: false,
+                reasons: ['identity_signals_conflict_or_are_incomplete'],
+              },
+            },
+          ],
+        },
+      });
+      expect(dedupe.materializationAudit![0].compositeOutcome).toMatchObject({
+        geographicDecision: { status: 'ACCEPTED' },
+        persistence: {
+          status: 'NOT_PERSISTED',
+          reasons: ['AMBIGUOUS_DEDUPE'],
+          dedupe: {
+            conflictingExperienceIds: ['exp-composite'],
+            evidence: {
+              componentOverlap: 0.5,
+              nameSimilarity: 0.2,
+              reasons: ['identity_signals_conflict_or_are_incomplete'],
+            },
+          },
+        },
+        plannerEligible: false,
+      });
+    });
+
     it('states each composite decision in the summary', () => {
       expect(step.summary).toContain(
         'Partial walk: 2/3 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner',

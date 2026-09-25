@@ -903,7 +903,13 @@ function CompositeOutcomePanel({
           const persistence =
             outcome.persistence.status === "PERSISTED"
               ? `PERSISTED ${outcome.persistence.experienceId}`
-              : `NOT_PERSISTED (${outcome.persistence.reasons.join(", ")})`;
+              : `NOT_PERSISTED (${outcome.persistence.reasons.join(", ")})` +
+                (outcome.persistence.dedupe
+                  ? ` · dedupe vs ${outcome.persistence.dedupe.conflictingExperienceIds.join(", ") || "UNKNOWN"}` +
+                    (outcome.persistence.dedupe.evidence
+                      ? ` (componentOverlap=${outcome.persistence.dedupe.evidence.componentOverlap}, nameSimilarity=${outcome.persistence.dedupe.evidence.nameSimilarity.toFixed(2)})`
+                      : "")
+                  : "");
           return (
             <Box key={`${decision.candidateTraceKey}-${idx}`} mb="$2">
               <Text size="xs" fontWeight="$bold" color={COLORS.text}>

@@ -1912,7 +1912,32 @@ function buildCompositeOutcome(
             ? { dedupeDecision: entry.dedupeDecision }
             : {}),
         }
-      : { status: 'NOT_PERSISTED', reasons: [...entry.rejectionReasons] },
+      : {
+          status: 'NOT_PERSISTED',
+          reasons: [...entry.rejectionReasons],
+          ...(entry.dedupeDecision === 'AMBIGUOUS' ||
+          entry.rejectionReasons.includes('AMBIGUOUS_DEDUPE')
+            ? {
+                dedupe: {
+                  conflictingExperienceIds: [...(entry.dedupeCandidates ?? [])],
+                  ...(entry.dedupeEvidence
+                    ? {
+                        evidence: {
+                          nameSimilarity: entry.dedupeEvidence.nameSimilarity,
+                          semanticSimilarity:
+                            entry.dedupeEvidence.semanticSimilarity,
+                          componentOverlap:
+                            entry.dedupeEvidence.componentOverlap,
+                          roleAwareComponentOverlap:
+                            entry.dedupeEvidence.roleAwareComponentOverlap,
+                          reasons: [...entry.dedupeEvidence.reasons],
+                        },
+                      }
+                    : {}),
+                },
+              }
+            : {}),
+        },
     plannerEligible: persisted,
   };
 }

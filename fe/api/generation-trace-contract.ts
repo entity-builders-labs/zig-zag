@@ -235,7 +235,20 @@ export interface TraceCompositeOutcome {
         experienceId: string;
         dedupeDecision?: "SAME" | "NEW" | "AMBIGUOUS";
       }
-    | { status: "NOT_PERSISTED"; reasons: string[] };
+    | {
+        status: "NOT_PERSISTED";
+        reasons: string[];
+        dedupe?: {
+          conflictingExperienceIds: string[];
+          evidence?: {
+            nameSimilarity: number;
+            semanticSimilarity: number;
+            componentOverlap: number;
+            roleAwareComponentOverlap: number;
+            reasons: string[];
+          };
+        };
+      };
   plannerEligible: boolean;
 }
 
