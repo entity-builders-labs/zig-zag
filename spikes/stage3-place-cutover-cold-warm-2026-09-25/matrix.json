@@ -1,0 +1,4035 @@
+{
+  "generatedAt": "2026-09-25T14:16:10.895Z",
+  "destination": {
+    "scale": "area",
+    "countryCode": "AR",
+    "boundaryId": "osm:relation:1224652",
+    "boundaryGeometryType": "MultiPolygon"
+  },
+  "phaseTotals": {
+    "destinationResolution": {
+      "nominatim.local/search": 1,
+      "overpass.local": 1
+    },
+    "COLD": {
+      "overpass.local": 14,
+      "wikidata": 20,
+      "nominatim.local/search": 6,
+      "geoapify.geocode-search": 5,
+      "geoapify.place-details": 3,
+      "localhost": 12,
+      "en.wikipedia.org": 6
+    },
+    "WARM": {
+      "overpass.local": 7,
+      "wikidata": 12,
+      "nominatim.local/search": 5,
+      "geoapify.geocode-search": 4,
+      "geoapify.place-details": 2,
+      "localhost": 12,
+      "en.wikipedia.org": 2
+    },
+    "PLACES_ISOLATED": {
+      "geoapify.geocode-search": 14,
+      "geoapify.place-details": 11,
+      "wikidata": 5,
+      "en.wikipedia.org": 2
+    }
+  },
+  "embeddingIndexCalls": 24,
+  "snapshots": {
+    "COLD": {
+      "geoEntityCount": 11,
+      "identityCount": 16,
+      "experienceCount": 11,
+      "entities": [
+        {
+          "id": "db29363f-20ae-4353-9d11-20ab7f291799",
+          "name": "Farmacia de la Estrella",
+          "kind": "PLACE",
+          "latitude": -34.6102605,
+          "longitude": -58.3721513,
+          "identities": [
+            "geoapify/geoapify:51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738",
+            "openstreetmap/osm:node:3348573778"
+          ]
+        },
+        {
+          "id": "a83c03f2-8ebe-4d44-b994-c15f4a7bcfd3",
+          "name": "Mafalda, Susanita y Manolito",
+          "kind": "PLACE",
+          "latitude": -34.6159617,
+          "longitude": -58.3716913,
+          "identities": [
+            "openstreetmap/osm:node:2472979623"
+          ]
+        },
+        {
+          "id": "6c0c9360-e493-42f0-a0a5-a6078a62aecf",
+          "name": "Casa Mínima",
+          "kind": "PLACE",
+          "latitude": -34.6167555,
+          "longitude": -58.3713487,
+          "identities": [
+            "openstreetmap/osm:node:4440588689"
+          ]
+        },
+        {
+          "id": "7ae2b2b1-1d0a-4c03-920c-8824d7e532b2",
+          "name": "Mercado de San Telmo",
+          "kind": "PLACE",
+          "latitude": -34.6190607,
+          "longitude": -58.3722354,
+          "identities": [
+            "openstreetmap/osm:way:158893271"
+          ]
+        },
+        {
+          "id": "acdf0280-2842-4247-b645-b28d953dac32",
+          "name": "Plaza Dorrego",
+          "kind": "PLACE",
+          "latitude": -34.6204739,
+          "longitude": -58.3717792,
+          "identities": [
+            "openstreetmap/osm:way:31364659"
+          ]
+        },
+        {
+          "id": "4361ad7d-cbb7-43a9-8852-1d22f7dfc05f",
+          "name": "El Zanjón de Granados (historic ruins)",
+          "kind": "PLACE",
+          "latitude": -34.6166864,
+          "longitude": -58.3717972,
+          "identities": [
+            "openstreetmap/osm:node:9953027884"
+          ]
+        },
+        {
+          "id": "490e4d0d-e6e1-4449-8b9d-43a9ca0beda2",
+          "name": "Basílica de San Francisco",
+          "kind": "PLACE",
+          "latitude": -34.6107164,
+          "longitude": -58.3713912,
+          "identities": [
+            "openstreetmap/osm:relation:2354152"
+          ]
+        },
+        {
+          "id": "57d1d64e-cc39-4393-ab35-811285cceefa",
+          "name": "Parque Lezama",
+          "kind": "PLACE",
+          "latitude": -34.6271301,
+          "longitude": -58.369574,
+          "identities": [
+            "openstreetmap/osm:way:17441757"
+          ]
+        },
+        {
+          "id": "36480904-386b-4ef6-9ac7-7a198ca9824e",
+          "name": "Cementerio de la Recoleta",
+          "kind": "PLACE",
+          "latitude": -34.587653,
+          "longitude": -58.3935023,
+          "identities": [
+            "geoapify/geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+            "openstreetmap/osm:way:183842128",
+            "wikidata/Q831322"
+          ]
+        },
+        {
+          "id": "7461439c-ed73-4daa-96d5-c343f81dc0aa",
+          "name": "Plaza San Martín",
+          "kind": "PLACE",
+          "latitude": -34.5946395,
+          "longitude": -58.3759048,
+          "identities": [
+            "geoapify/geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+            "openstreetmap/osm:relation:531073",
+            "wikidata/Q2099124"
+          ]
+        },
+        {
+          "id": "b69f80ea-544b-4c36-9ba5-7e03ce00e77a",
+          "name": "Monumento al General San Martín",
+          "kind": "PLACE",
+          "latitude": -34.594978,
+          "longitude": -58.3771048,
+          "identities": [
+            "openstreetmap/osm:node:667772497"
+          ]
+        }
+      ]
+    },
+    "WARM": {
+      "geoEntityCount": 11,
+      "identityCount": 16,
+      "experienceCount": 11,
+      "entities": [
+        {
+          "id": "db29363f-20ae-4353-9d11-20ab7f291799",
+          "name": "Farmacia de la Estrella",
+          "kind": "PLACE",
+          "latitude": -34.6102605,
+          "longitude": -58.3721513,
+          "identities": [
+            "geoapify/geoapify:51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738",
+            "openstreetmap/osm:node:3348573778"
+          ]
+        },
+        {
+          "id": "a83c03f2-8ebe-4d44-b994-c15f4a7bcfd3",
+          "name": "Mafalda, Susanita y Manolito",
+          "kind": "PLACE",
+          "latitude": -34.6159617,
+          "longitude": -58.3716913,
+          "identities": [
+            "openstreetmap/osm:node:2472979623"
+          ]
+        },
+        {
+          "id": "6c0c9360-e493-42f0-a0a5-a6078a62aecf",
+          "name": "Casa Mínima",
+          "kind": "PLACE",
+          "latitude": -34.6167555,
+          "longitude": -58.3713487,
+          "identities": [
+            "openstreetmap/osm:node:4440588689"
+          ]
+        },
+        {
+          "id": "7ae2b2b1-1d0a-4c03-920c-8824d7e532b2",
+          "name": "Mercado de San Telmo",
+          "kind": "PLACE",
+          "latitude": -34.6190607,
+          "longitude": -58.3722354,
+          "identities": [
+            "openstreetmap/osm:way:158893271"
+          ]
+        },
+        {
+          "id": "acdf0280-2842-4247-b645-b28d953dac32",
+          "name": "Plaza Dorrego",
+          "kind": "PLACE",
+          "latitude": -34.6204739,
+          "longitude": -58.3717792,
+          "identities": [
+            "openstreetmap/osm:way:31364659"
+          ]
+        },
+        {
+          "id": "4361ad7d-cbb7-43a9-8852-1d22f7dfc05f",
+          "name": "El Zanjón de Granados (historic ruins)",
+          "kind": "PLACE",
+          "latitude": -34.6166864,
+          "longitude": -58.3717972,
+          "identities": [
+            "openstreetmap/osm:node:9953027884"
+          ]
+        },
+        {
+          "id": "490e4d0d-e6e1-4449-8b9d-43a9ca0beda2",
+          "name": "Basílica de San Francisco",
+          "kind": "PLACE",
+          "latitude": -34.6107164,
+          "longitude": -58.3713912,
+          "identities": [
+            "openstreetmap/osm:relation:2354152"
+          ]
+        },
+        {
+          "id": "57d1d64e-cc39-4393-ab35-811285cceefa",
+          "name": "Parque Lezama",
+          "kind": "PLACE",
+          "latitude": -34.6271301,
+          "longitude": -58.369574,
+          "identities": [
+            "openstreetmap/osm:way:17441757"
+          ]
+        },
+        {
+          "id": "36480904-386b-4ef6-9ac7-7a198ca9824e",
+          "name": "Cementerio de la Recoleta",
+          "kind": "PLACE",
+          "latitude": -34.587653,
+          "longitude": -58.3935023,
+          "identities": [
+            "geoapify/geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+            "openstreetmap/osm:way:183842128",
+            "wikidata/Q831322"
+          ]
+        },
+        {
+          "id": "7461439c-ed73-4daa-96d5-c343f81dc0aa",
+          "name": "Plaza San Martín",
+          "kind": "PLACE",
+          "latitude": -34.5946395,
+          "longitude": -58.3759048,
+          "identities": [
+            "geoapify/geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+            "openstreetmap/osm:relation:531073",
+            "wikidata/Q2099124"
+          ]
+        },
+        {
+          "id": "b69f80ea-544b-4c36-9ba5-7e03ce00e77a",
+          "name": "Monumento al General San Martín",
+          "kind": "PLACE",
+          "latitude": -34.594978,
+          "longitude": -58.3771048,
+          "identities": [
+            "openstreetmap/osm:node:667772497"
+          ]
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "phase": "COLD",
+      "hint": "Farmacia la Estrella",
+      "role": "gate: exact OSM identity",
+      "durationMs": 7468,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 2,
+        "nominatim.local/search": 1,
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Farmacia la Estrella",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738"
+        }
+      ],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "db29363f-20ae-4353-9d11-20ab7f291799",
+        "canonicalName": "Farmacia de la Estrella",
+        "provider": "geoapify",
+        "externalId": "geoapify:51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738",
+        "latitude": -34.6102605,
+        "longitude": -58.3721513,
+        "persistence": {
+          "status": "CREATED",
+          "attachedExternalIds": [
+            "geoapify:51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738",
+            "osm:node:3348573778"
+          ]
+        }
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Farmacia la Estrella",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Farmacia la Estrella",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Farmacia la Estrella",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Estrella de la Fortuna",
+            "externalId": "osm:way:294910341",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:294910341"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "NEARBY",
+              "hintMatched": false,
+              "candidateMatched": false
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "Farmacia la Estrella",
+          "executionStatus": "completed",
+          "providerResultCount": 1,
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Farmacia de la Estrella",
+            "externalId": "osm:node:3348573778",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:3348573778"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "NEARBY",
+              "hintMatched": false,
+              "candidateMatched": false
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "PLACES",
+          "provider": "geoapify",
+          "query": "Farmacia la Estrella",
+          "executionStatus": "completed",
+          "providerResultCount": 10,
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Farmacia de la Estrella",
+            "externalId": "geoapify:51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "geoapify",
+                "externalId": "geoapify:51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738"
+              },
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:3348573778"
+              }
+            ]
+          },
+          "placeSearch": {
+            "resultCount": 10,
+            "rejected": [
+              {
+                "name": "Farmacia",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Farmacia La Paz",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Farmacia Gemma",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Farmacia La Carra",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Farmacia Plaza la Carolina",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              }
+            ],
+            "viableCount": 5,
+            "identityEnrichment": {
+              "status": "ENRICHED",
+              "identities": [
+                {
+                  "provider": "openstreetmap",
+                  "externalId": "osm:node:3348573778"
+                }
+              ]
+            }
+          },
+          "identityEvidence": [
+            {
+              "type": "IDENTITY_CONVERGENCE",
+              "priorStrategy": "NOMINATIM",
+              "identity": {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:3348573778"
+              }
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "Mafalda Statue",
+      "role": "gate: acquisition with raw hint",
+      "durationMs": 4356,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 2,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "a83c03f2-8ebe-4d44-b994-c15f4a7bcfd3",
+        "canonicalName": "Mafalda, Susanita y Manolito",
+        "provider": "openstreetmap",
+        "externalId": "osm:node:2472979623",
+        "wikidataQid": "Q111038841",
+        "latitude": -34.6159617,
+        "longitude": -58.3716913
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Mafalda Statue",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Mafalda Statue",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Mafalda Statue",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Mafalda, Susanita y Manolito",
+            "externalId": "osm:node:2472979623",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:2472979623"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "OWN_QID",
+              "hintMatched": true,
+              "candidateMatched": true
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "Casa Mínima",
+      "role": "regression",
+      "durationMs": 3903,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "6c0c9360-e493-42f0-a0a5-a6078a62aecf",
+        "canonicalName": "Casa Mínima",
+        "provider": "openstreetmap",
+        "externalId": "osm:node:4440588689",
+        "wikidataQid": "Q5966085",
+        "latitude": -34.6167555,
+        "longitude": -58.3713487
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Casa Mínima",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Casa Mínima",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Casa Mínima",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Casa Mínima",
+            "externalId": "osm:node:4440588689",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:4440588689"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            },
+            {
+              "type": "DECLARED_ALIAS_MATCH",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "Mercado de San Telmo",
+      "role": "regression",
+      "durationMs": 3821,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "7ae2b2b1-1d0a-4c03-920c-8824d7e532b2",
+        "canonicalName": "Mercado de San Telmo",
+        "provider": "openstreetmap",
+        "externalId": "osm:way:158893271",
+        "wikidataQid": "Q6010497",
+        "latitude": -34.6190607,
+        "longitude": -58.3722354
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Mercado de San Telmo",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Mercado de San Telmo",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Mercado de San Telmo",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Mercado de San Telmo",
+            "externalId": "osm:way:158893271",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:158893271"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            },
+            {
+              "type": "DECLARED_ALIAS_MATCH",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "Plaza Dorrego",
+      "role": "regression",
+      "durationMs": 4290,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "en.wikipedia.org": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "acdf0280-2842-4247-b645-b28d953dac32",
+        "canonicalName": "Plaza Dorrego",
+        "provider": "openstreetmap",
+        "externalId": "osm:way:31364659",
+        "wikidataQid": "Q3392154",
+        "latitude": -34.6204739,
+        "longitude": -58.3717792
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Plaza Dorrego",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Plaza Dorrego",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Plaza Dorrego",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Plaza Dorrego",
+            "externalId": "osm:way:31364659",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:31364659"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            },
+            {
+              "type": "DECLARED_ALIAS_MATCH",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "El Zanjón de Granados",
+      "role": "regression",
+      "durationMs": 4196,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "nominatim.local/search": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "4361ad7d-cbb7-43a9-8852-1d22f7dfc05f",
+        "canonicalName": "El Zanjón de Granados (historic ruins)",
+        "provider": "openstreetmap",
+        "externalId": "osm:node:9953027884",
+        "latitude": -34.6166864,
+        "longitude": -58.3717972
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "El Zanjón de Granados",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "El Zanjón de Granados",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "El Zanjón de Granados",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "El Zanjón de Granados (historic ruins)",
+            "externalId": "osm:node:9953027884",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:9953027884"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "NEARBY",
+              "hintMatched": true,
+              "candidateMatched": false
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "El Zanjón de Granados",
+          "executionStatus": "completed",
+          "providerResultCount": 1,
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "El Zanjón de Granados (historic ruins)",
+            "externalId": "osm:node:9953027884",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:9953027884"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "IDENTITY_CONVERGENCE",
+              "priorStrategy": "LOCAL_OSM_POOL",
+              "identity": {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:9953027884"
+              }
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "Basílica de San Francisco",
+      "role": "regression",
+      "durationMs": 4720,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "490e4d0d-e6e1-4449-8b9d-43a9ca0beda2",
+        "canonicalName": "Basílica de San Francisco",
+        "provider": "openstreetmap",
+        "externalId": "osm:relation:2354152",
+        "wikidataQid": "Q4579815",
+        "latitude": -34.6107164,
+        "longitude": -58.3713912
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Basílica de San Francisco",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Basílica de San Francisco",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Basílica de San Francisco",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Basílica de San Francisco",
+            "externalId": "osm:relation:2354152",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:relation:2354152"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "Parque Lezama",
+      "role": "negative: never a bus stop",
+      "durationMs": 5038,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "en.wikipedia.org": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "57d1d64e-cc39-4393-ab35-811285cceefa",
+        "canonicalName": "Parque Lezama",
+        "provider": "openstreetmap",
+        "externalId": "osm:way:17441757",
+        "wikidataQid": "Q1133613",
+        "latitude": -34.6271301,
+        "longitude": -58.369574
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Parque Lezama",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Parque Lezama",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Parque Lezama",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Parque Lezama",
+            "externalId": "osm:way:17441757",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:17441757"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            },
+            {
+              "type": "DECLARED_ALIAS_MATCH",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "Cementerio de la Recoleta",
+      "role": "regression",
+      "durationMs": 4173,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "en.wikipedia.org": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "36480904-386b-4ef6-9ac7-7a198ca9824e",
+        "canonicalName": "Cementerio de la Recoleta",
+        "provider": "openstreetmap",
+        "externalId": "osm:way:183842128",
+        "wikidataQid": "Q831322",
+        "latitude": -34.587653,
+        "longitude": -58.3935023
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Cementerio de la Recoleta",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Cementerio de la Recoleta",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Cementerio de la Recoleta",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Cementerio de la Recoleta",
+            "externalId": "osm:way:183842128",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:183842128"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            },
+            {
+              "type": "DECLARED_ALIAS_MATCH",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "Recoleta Cemetery",
+      "role": "negative: never a business",
+      "durationMs": 6576,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 3,
+        "nominatim.local/search": 1,
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1,
+        "en.wikipedia.org": 2,
+        "localhost": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Recoleta Cemetery",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279"
+        }
+      ],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "36480904-386b-4ef6-9ac7-7a198ca9824e",
+        "canonicalName": "Recoleta Cemetry",
+        "provider": "geoapify",
+        "externalId": "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+        "wikidataQid": "Q831322",
+        "latitude": -34.5876575,
+        "longitude": -58.3935953,
+        "persistence": {
+          "status": "REUSED",
+          "attachedExternalIds": [
+            "Q831322",
+            "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279"
+          ]
+        }
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Recoleta Cemetery",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Recoleta Cemetery",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Recoleta Cemetery",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Gomero de la Recoleta",
+            "externalId": "osm:node:2834778817",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:2834778817"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "OWN_QID",
+              "hintMatched": false,
+              "candidateMatched": true
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "Recoleta Cemetery",
+          "executionStatus": "completed",
+          "providerResultCount": 0,
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "PLACES",
+          "provider": "geoapify",
+          "query": "Recoleta Cemetery",
+          "executionStatus": "completed",
+          "providerResultCount": 2,
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Recoleta Cemetry",
+            "externalId": "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "geoapify",
+                "externalId": "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279"
+              },
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:183842128"
+              },
+              {
+                "provider": "wikidata",
+                "externalId": "Q831322"
+              }
+            ]
+          },
+          "placeSearch": {
+            "resultCount": 2,
+            "rejected": [
+              {
+                "name": "Cementerio Parque Recoleta",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              }
+            ],
+            "viableCount": 1,
+            "identityEnrichment": {
+              "status": "ENRICHED",
+              "identities": [
+                {
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:183842128"
+                },
+                {
+                  "provider": "wikidata",
+                  "externalId": "Q831322"
+                }
+              ]
+            }
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "OWN_QID",
+              "hintMatched": true,
+              "candidateMatched": true
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "Galería Güemes",
+      "role": "negative: never Ramos Mejía",
+      "durationMs": 4989,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "nominatim.local/search": 1,
+        "geoapify.geocode-search": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Galería Güemes",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        }
+      ],
+      "finalStatus": "unresolved",
+      "finalReason": "UNCONFIRMED_MATCH",
+      "candidateStatus": "rejected",
+      "rejectionReasons": [
+        "UNCONFIRMED_MATCH"
+      ],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Galería Güemes",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Galería Güemes",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Galería Güemes",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Mirador Galería Güemes",
+            "externalId": "osm:node:2481986716",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:2481986716"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "NEARBY",
+              "hintMatched": true,
+              "candidateMatched": false
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "Galería Güemes",
+          "executionStatus": "completed",
+          "providerResultCount": 1,
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "PLACES",
+          "provider": "geoapify",
+          "query": "Galería Güemes",
+          "executionStatus": "completed",
+          "providerResultCount": 1,
+          "candidateAcquired": false,
+          "placeSearch": {
+            "resultCount": 1,
+            "rejected": [
+              {
+                "name": "Galería Güemes",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              }
+            ],
+            "viableCount": 0
+          },
+          "identityEvidence": []
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "Plaza San Martín",
+      "role": "regression / homonyms",
+      "durationMs": 6754,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 2,
+        "nominatim.local/search": 1,
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1,
+        "en.wikipedia.org": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Plaza San Martín",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e"
+        }
+      ],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "7461439c-ed73-4daa-96d5-c343f81dc0aa",
+        "canonicalName": "Plaza San Martín",
+        "provider": "geoapify",
+        "externalId": "geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "wikidataQid": "Q2099124",
+        "latitude": -34.5946395,
+        "longitude": -58.3759048,
+        "persistence": {
+          "status": "CREATED",
+          "attachedExternalIds": [
+            "Q2099124",
+            "geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+            "osm:relation:531073"
+          ]
+        }
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Plaza San Martín",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Plaza San Martín",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Plaza San Martín",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Plaza San Martin",
+            "externalId": "osm:node:4827968022",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:4827968022"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "MULTIPLE"
+            },
+            {
+              "type": "DECLARED_ALIAS_MATCH",
+              "identityMultiplicity": "MULTIPLE"
+            },
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "NEARBY",
+              "hintMatched": false,
+              "candidateMatched": false
+            }
+          ],
+          "verificationDecision": "AMBIGUOUS"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "Plaza San Martín",
+          "executionStatus": "completed",
+          "providerResultCount": 5,
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "PLACES",
+          "provider": "geoapify",
+          "query": "Plaza San Martín",
+          "executionStatus": "completed",
+          "providerResultCount": 10,
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Plaza San Martín",
+            "externalId": "geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "geoapify",
+                "externalId": "geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e"
+              },
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:relation:531073"
+              },
+              {
+                "provider": "wikidata",
+                "externalId": "Q2099124"
+              }
+            ]
+          },
+          "placeSearch": {
+            "resultCount": 10,
+            "rejected": [
+              {
+                "name": "Plaza San Martín",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Plaza San Martín",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Plaza San Martín",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Plaza San Martín",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Plaza San Martín",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Plaza San Martín",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Plaza San Martín",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Plaza San Martín",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Plaza San Martín",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              }
+            ],
+            "viableCount": 1,
+            "identityEnrichment": {
+              "status": "ENRICHED",
+              "identities": [
+                {
+                  "provider": "openstreetmap",
+                  "externalId": "osm:relation:531073"
+                },
+                {
+                  "provider": "wikidata",
+                  "externalId": "Q2099124"
+                }
+              ]
+            }
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "Defensa Street",
+      "role": "negative: street is never a PLACE",
+      "durationMs": 5517,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "nominatim.local/search": 1,
+        "geoapify.geocode-search": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Defensa Street",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        }
+      ],
+      "finalStatus": "unresolved",
+      "finalReason": "UNCONFIRMED_MATCH",
+      "candidateStatus": "rejected",
+      "rejectionReasons": [
+        "UNCONFIRMED_MATCH"
+      ],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Defensa Street",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Defensa Street",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Defensa Street",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Plaza de la Defensa",
+            "externalId": "osm:way:52848057",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:52848057"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "OWN_QID",
+              "hintMatched": false,
+              "candidateMatched": true
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "Defensa Street",
+          "executionStatus": "completed",
+          "providerResultCount": 0,
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "PLACES",
+          "provider": "geoapify",
+          "query": "Defensa Street",
+          "executionStatus": "completed",
+          "providerResultCount": 8,
+          "candidateAcquired": false,
+          "placeSearch": {
+            "resultCount": 8,
+            "rejected": [
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              }
+            ],
+            "viableCount": 0
+          },
+          "identityEvidence": []
+        }
+      ]
+    },
+    {
+      "phase": "COLD",
+      "hint": "San Martín",
+      "role": "negative: bare common name",
+      "durationMs": 4335,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 2,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "b69f80ea-544b-4c36-9ba5-7e03ce00e77a",
+        "canonicalName": "Monumento al General San Martín",
+        "provider": "openstreetmap",
+        "externalId": "osm:node:667772497",
+        "wikidataQid": "Q6023222",
+        "latitude": -34.594978,
+        "longitude": -58.3771048
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "San Martín",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "San Martín",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "San Martín",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Monumento al General San Martín",
+            "externalId": "osm:node:667772497",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:667772497"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "DECLARED_ALIAS_MATCH",
+              "identityMultiplicity": "MULTIPLE"
+            },
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "OWN_QID",
+              "hintMatched": true,
+              "candidateMatched": true
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Farmacia la Estrella",
+      "role": "gate: exact OSM identity",
+      "durationMs": 7187,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 2,
+        "nominatim.local/search": 1,
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Farmacia la Estrella",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738"
+        }
+      ],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "db29363f-20ae-4353-9d11-20ab7f291799",
+        "canonicalName": "Farmacia de la Estrella",
+        "provider": "geoapify",
+        "externalId": "geoapify:51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738",
+        "latitude": -34.6102605,
+        "longitude": -58.3721513,
+        "persistence": {
+          "status": "REUSED",
+          "attachedExternalIds": []
+        }
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Farmacia la Estrella",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Farmacia la Estrella",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Farmacia la Estrella",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Estrella de la Fortuna",
+            "externalId": "osm:way:294910341",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:294910341"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "NEARBY",
+              "hintMatched": false,
+              "candidateMatched": false
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "Farmacia la Estrella",
+          "executionStatus": "completed",
+          "providerResultCount": 1,
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Farmacia de la Estrella",
+            "externalId": "osm:node:3348573778",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:3348573778"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "NEARBY",
+              "hintMatched": false,
+              "candidateMatched": false
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "PLACES",
+          "provider": "geoapify",
+          "query": "Farmacia la Estrella",
+          "executionStatus": "completed",
+          "providerResultCount": 10,
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Farmacia de la Estrella",
+            "externalId": "geoapify:51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "geoapify",
+                "externalId": "geoapify:51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738"
+              },
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:3348573778"
+              }
+            ]
+          },
+          "placeSearch": {
+            "resultCount": 10,
+            "rejected": [
+              {
+                "name": "Farmacia",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Farmacia La Paz",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Farmacia Gemma",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Farmacia La Carra",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              {
+                "name": "Farmacia Plaza la Carolina",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              }
+            ],
+            "viableCount": 5,
+            "identityEnrichment": {
+              "status": "ENRICHED",
+              "identities": [
+                {
+                  "provider": "openstreetmap",
+                  "externalId": "osm:node:3348573778"
+                }
+              ]
+            }
+          },
+          "identityEvidence": [
+            {
+              "type": "IDENTITY_CONVERGENCE",
+              "priorStrategy": "NOMINATIM",
+              "identity": {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:3348573778"
+              }
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Mafalda Statue",
+      "role": "gate: acquisition with raw hint",
+      "durationMs": 4423,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 2,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "a83c03f2-8ebe-4d44-b994-c15f4a7bcfd3",
+        "canonicalName": "Mafalda, Susanita y Manolito",
+        "provider": "openstreetmap",
+        "externalId": "osm:node:2472979623",
+        "wikidataQid": "Q111038841",
+        "latitude": -34.6159617,
+        "longitude": -58.3716913
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Mafalda Statue",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Mafalda Statue",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Mafalda Statue",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Mafalda, Susanita y Manolito",
+            "externalId": "osm:node:2472979623",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:2472979623"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "OWN_QID",
+              "hintMatched": true,
+              "candidateMatched": true
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Casa Mínima",
+      "role": "regression",
+      "durationMs": 116,
+      "requests": {
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "6c0c9360-e493-42f0-a0a5-a6078a62aecf",
+        "canonicalName": "Casa Mínima",
+        "provider": "openstreetmap",
+        "externalId": "osm:node:4440588689",
+        "latitude": -34.6167555,
+        "longitude": -58.3713487
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Casa Mínima",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Casa Mínima",
+            "externalId": "osm:node:4440588689",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:4440588689"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Mercado de San Telmo",
+      "role": "regression",
+      "durationMs": 149,
+      "requests": {
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "7ae2b2b1-1d0a-4c03-920c-8824d7e532b2",
+        "canonicalName": "Mercado de San Telmo",
+        "provider": "openstreetmap",
+        "externalId": "osm:way:158893271",
+        "latitude": -34.6190607,
+        "longitude": -58.3722354
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Mercado de San Telmo",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Mercado de San Telmo",
+            "externalId": "osm:way:158893271",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:158893271"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Plaza Dorrego",
+      "role": "regression",
+      "durationMs": 125,
+      "requests": {
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "acdf0280-2842-4247-b645-b28d953dac32",
+        "canonicalName": "Plaza Dorrego",
+        "provider": "openstreetmap",
+        "externalId": "osm:way:31364659",
+        "latitude": -34.6204739,
+        "longitude": -58.3717792
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Plaza Dorrego",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Plaza Dorrego",
+            "externalId": "osm:way:31364659",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:31364659"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "El Zanjón de Granados",
+      "role": "regression",
+      "durationMs": 3862,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "nominatim.local/search": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "4361ad7d-cbb7-43a9-8852-1d22f7dfc05f",
+        "canonicalName": "El Zanjón de Granados (historic ruins)",
+        "provider": "openstreetmap",
+        "externalId": "osm:node:9953027884",
+        "latitude": -34.6166864,
+        "longitude": -58.3717972
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "El Zanjón de Granados",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "El Zanjón de Granados",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "El Zanjón de Granados",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "El Zanjón de Granados (historic ruins)",
+            "externalId": "osm:node:9953027884",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:9953027884"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "NEARBY",
+              "hintMatched": true,
+              "candidateMatched": false
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "El Zanjón de Granados",
+          "executionStatus": "completed",
+          "providerResultCount": 1,
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "El Zanjón de Granados (historic ruins)",
+            "externalId": "osm:node:9953027884",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:9953027884"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "IDENTITY_CONVERGENCE",
+              "priorStrategy": "LOCAL_OSM_POOL",
+              "identity": {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:9953027884"
+              }
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Basílica de San Francisco",
+      "role": "regression",
+      "durationMs": 128,
+      "requests": {
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "490e4d0d-e6e1-4449-8b9d-43a9ca0beda2",
+        "canonicalName": "Basílica de San Francisco",
+        "provider": "openstreetmap",
+        "externalId": "osm:relation:2354152",
+        "latitude": -34.6107164,
+        "longitude": -58.3713912
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Basílica de San Francisco",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Basílica de San Francisco",
+            "externalId": "osm:relation:2354152",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:relation:2354152"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Parque Lezama",
+      "role": "negative: never a bus stop",
+      "durationMs": 79,
+      "requests": {
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "57d1d64e-cc39-4393-ab35-811285cceefa",
+        "canonicalName": "Parque Lezama",
+        "provider": "openstreetmap",
+        "externalId": "osm:way:17441757",
+        "latitude": -34.6271301,
+        "longitude": -58.369574
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Parque Lezama",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Parque Lezama",
+            "externalId": "osm:way:17441757",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:17441757"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Cementerio de la Recoleta",
+      "role": "regression",
+      "durationMs": 125,
+      "requests": {
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "36480904-386b-4ef6-9ac7-7a198ca9824e",
+        "canonicalName": "Cementerio de la Recoleta",
+        "provider": "openstreetmap",
+        "externalId": "osm:way:183842128",
+        "latitude": -34.587653,
+        "longitude": -58.3935023
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Cementerio de la Recoleta",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Cementerio de la Recoleta",
+            "externalId": "osm:way:183842128",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:183842128"
+              },
+              {
+                "provider": "geoapify",
+                "externalId": "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279"
+              },
+              {
+                "provider": "wikidata",
+                "externalId": "Q831322"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Recoleta Cemetery",
+      "role": "negative: never a business",
+      "durationMs": 6330,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 3,
+        "nominatim.local/search": 1,
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1,
+        "en.wikipedia.org": 2,
+        "localhost": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Recoleta Cemetery",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279"
+        }
+      ],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "36480904-386b-4ef6-9ac7-7a198ca9824e",
+        "canonicalName": "Recoleta Cemetry",
+        "provider": "geoapify",
+        "externalId": "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+        "wikidataQid": "Q831322",
+        "latitude": -34.5876575,
+        "longitude": -58.3935953,
+        "persistence": {
+          "status": "REUSED",
+          "attachedExternalIds": []
+        }
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Recoleta Cemetery",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Recoleta Cemetery",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Recoleta Cemetery",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Gomero de la Recoleta",
+            "externalId": "osm:node:2834778817",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:2834778817"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "OWN_QID",
+              "hintMatched": false,
+              "candidateMatched": true
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "Recoleta Cemetery",
+          "executionStatus": "completed",
+          "providerResultCount": 0,
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "PLACES",
+          "provider": "geoapify",
+          "query": "Recoleta Cemetery",
+          "executionStatus": "completed",
+          "providerResultCount": 2,
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Recoleta Cemetry",
+            "externalId": "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "geoapify",
+                "externalId": "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279"
+              },
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:183842128"
+              },
+              {
+                "provider": "wikidata",
+                "externalId": "Q831322"
+              }
+            ]
+          },
+          "placeSearch": {
+            "resultCount": 2,
+            "rejected": [
+              {
+                "name": "Cementerio Parque Recoleta",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              }
+            ],
+            "viableCount": 1,
+            "identityEnrichment": {
+              "status": "ENRICHED",
+              "identities": [
+                {
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:183842128"
+                },
+                {
+                  "provider": "wikidata",
+                  "externalId": "Q831322"
+                }
+              ]
+            }
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "OWN_QID",
+              "hintMatched": true,
+              "candidateMatched": true
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Galería Güemes",
+      "role": "negative: never Ramos Mejía",
+      "durationMs": 4715,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "nominatim.local/search": 1,
+        "geoapify.geocode-search": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Galería Güemes",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        }
+      ],
+      "finalStatus": "unresolved",
+      "finalReason": "UNCONFIRMED_MATCH",
+      "candidateStatus": "rejected",
+      "rejectionReasons": [
+        "UNCONFIRMED_MATCH"
+      ],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Galería Güemes",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Galería Güemes",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Galería Güemes",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Mirador Galería Güemes",
+            "externalId": "osm:node:2481986716",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:2481986716"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "NEARBY",
+              "hintMatched": true,
+              "candidateMatched": false
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "Galería Güemes",
+          "executionStatus": "completed",
+          "providerResultCount": 1,
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "PLACES",
+          "provider": "geoapify",
+          "query": "Galería Güemes",
+          "executionStatus": "completed",
+          "providerResultCount": 1,
+          "candidateAcquired": false,
+          "placeSearch": {
+            "resultCount": 1,
+            "rejected": [
+              {
+                "name": "Galería Güemes",
+                "reason": "DESTINATION_INCOMPATIBLE",
+                "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+              }
+            ],
+            "viableCount": 0
+          },
+          "identityEvidence": []
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Plaza San Martín",
+      "role": "regression / homonyms",
+      "durationMs": 143,
+      "requests": {
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "7461439c-ed73-4daa-96d5-c343f81dc0aa",
+        "canonicalName": "Plaza San Martín",
+        "provider": "geoapify",
+        "externalId": "geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "latitude": -34.5946395,
+        "longitude": -58.3759048
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Plaza San Martín",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Plaza San Martín",
+            "externalId": "geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "geoapify",
+                "externalId": "geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e"
+              },
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:relation:531073"
+              },
+              {
+                "provider": "wikidata",
+                "externalId": "Q2099124"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Defensa Street",
+      "role": "negative: street is never a PLACE",
+      "durationMs": 6111,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 1,
+        "nominatim.local/search": 1,
+        "geoapify.geocode-search": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Defensa Street",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        }
+      ],
+      "finalStatus": "unresolved",
+      "finalReason": "UNCONFIRMED_MATCH",
+      "candidateStatus": "rejected",
+      "rejectionReasons": [
+        "UNCONFIRMED_MATCH"
+      ],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Defensa Street",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Defensa Street",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Defensa Street",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Plaza de la Defensa",
+            "externalId": "osm:way:52848057",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:52848057"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "OWN_QID",
+              "hintMatched": false,
+              "candidateMatched": true
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "Defensa Street",
+          "executionStatus": "completed",
+          "providerResultCount": 0,
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "PLACES",
+          "provider": "geoapify",
+          "query": "Defensa Street",
+          "executionStatus": "completed",
+          "providerResultCount": 8,
+          "candidateAcquired": false,
+          "placeSearch": {
+            "resultCount": 8,
+            "rejected": [
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              },
+              {
+                "name": "Defensa",
+                "reason": "STRUCTURALLY_INCOMPATIBLE",
+                "featureClass": "street"
+              }
+            ],
+            "viableCount": 0
+          },
+          "identityEvidence": []
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "San Martín",
+      "role": "negative: bare common name",
+      "durationMs": 5195,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 2,
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "b69f80ea-544b-4c36-9ba5-7e03ce00e77a",
+        "canonicalName": "Monumento al General San Martín",
+        "provider": "openstreetmap",
+        "externalId": "osm:node:667772497",
+        "wikidataQid": "Q6023222",
+        "latitude": -34.594978,
+        "longitude": -58.3771048
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "San Martín",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "San Martín",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "San Martín",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Monumento al General San Martín",
+            "externalId": "osm:node:667772497",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:667772497"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "DECLARED_ALIAS_MATCH",
+              "identityMultiplicity": "MULTIPLE"
+            },
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "OWN_QID",
+              "hintMatched": true,
+              "candidateMatched": true
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Farmacia la Estrella",
+      "role": "gate: exact OSM identity",
+      "durationMs": 3526,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1,
+        "wikidata": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Farmacia la Estrella",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 10,
+        "rejected": [
+          {
+            "name": "Farmacia",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Farmacia La Paz",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Farmacia Gemma",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Farmacia La Carra",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Farmacia Plaza la Carolina",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          }
+        ],
+        "viableCount": 5,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:node:3348573778"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "Farmacia de la Estrella",
+        "externalId": "geoapify:51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:node:3348573778"
+          }
+        ],
+        "latitude": -34.6102605,
+        "longitude": -58.3721513,
+        "nameEvidenceMultiplicity": {
+          "exactName": "UNKNOWN",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "WIKIDATA_IDENTITY_MATCH",
+          "source": "NEARBY",
+          "hintMatched": false,
+          "candidateMatched": false
+        }
+      ],
+      "verificationDecision": "REJECTED"
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Mafalda Statue",
+      "role": "gate: acquisition with raw hint",
+      "durationMs": 1911,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1,
+        "wikidata": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Mafalda Statue",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "5197da9c94932f4dc059568b3ed5d74e41c0f00103f901a7ac669300000000c0020192031e4d6166616c64612c20537573616e69746120616e64204d616e6f6c69746fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f32343732393739363233"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 10,
+        "rejected": [
+          {
+            "name": "345 - Plaza Mafalda",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "transport_stop"
+          },
+          {
+            "name": "Mafalda",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "street"
+          },
+          {
+            "name": "Mafalda",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Mafalda",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Super Mafalda",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Mafalda",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Mafalda y Libertad",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Reina Mafalda",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "street"
+          }
+        ],
+        "viableCount": 2,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:node:2472979623"
+            },
+            {
+              "provider": "wikidata",
+              "externalId": "Q111038841"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "Mafalda, Susanita and Manolito",
+        "externalId": "geoapify:5197da9c94932f4dc059568b3ed5d74e41c0f00103f901a7ac669300000000c0020192031e4d6166616c64612c20537573616e69746120616e64204d616e6f6c69746fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f32343732393739363233",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:5197da9c94932f4dc059568b3ed5d74e41c0f00103f901a7ac669300000000c0020192031e4d6166616c64612c20537573616e69746120616e64204d616e6f6c69746fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f32343732393739363233"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:node:2472979623"
+          },
+          {
+            "provider": "wikidata",
+            "externalId": "Q111038841"
+          }
+        ],
+        "wikidataQid": "Q111038841",
+        "latitude": -34.6159617,
+        "longitude": -58.3716913,
+        "nameEvidenceMultiplicity": {
+          "exactName": "UNKNOWN",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "WIKIDATA_IDENTITY_MATCH",
+          "source": "OWN_QID",
+          "hintMatched": true,
+          "candidateMatched": true
+        }
+      ],
+      "verificationDecision": "VERIFIED"
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Casa Mínima",
+      "role": "regression",
+      "durationMs": 1129,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Casa Mínima",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae0801000000c0020192030c43617361204dc3ad6e696d61"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 1,
+        "rejected": [],
+        "viableCount": 1,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:node:4440588689"
+            },
+            {
+              "provider": "wikidata",
+              "externalId": "Q5966085"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "Casa Mínima",
+        "externalId": "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae0801000000c0020192030c43617361204dc3ad6e696d61",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae0801000000c0020192030c43617361204dc3ad6e696d61"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:node:4440588689"
+          },
+          {
+            "provider": "wikidata",
+            "externalId": "Q5966085"
+          }
+        ],
+        "wikidataQid": "Q5966085",
+        "latitude": -34.6167555,
+        "longitude": -58.3713487,
+        "nameEvidenceMultiplicity": {
+          "exactName": "SINGLE",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "EXACT_NAME",
+          "identityMultiplicity": "SINGLE"
+        }
+      ],
+      "verificationDecision": "VERIFIED"
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Mercado de San Telmo",
+      "role": "regression",
+      "durationMs": 940,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Mercado de San Telmo",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "510caf2479ae2f4dc059b74e12013d4f41c0f00102f901d784780900000000c002019203144d65726361646f2064652053616e2054656c6d6f"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 1,
+        "rejected": [],
+        "viableCount": 1,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:way:158893271"
+            },
+            {
+              "provider": "wikidata",
+              "externalId": "Q6010497"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "Mercado de San Telmo",
+        "externalId": "geoapify:510caf2479ae2f4dc059b74e12013d4f41c0f00102f901d784780900000000c002019203144d65726361646f2064652053616e2054656c6d6f",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:510caf2479ae2f4dc059b74e12013d4f41c0f00102f901d784780900000000c002019203144d65726361646f2064652053616e2054656c6d6f"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:158893271"
+          },
+          {
+            "provider": "wikidata",
+            "externalId": "Q6010497"
+          }
+        ],
+        "wikidataQid": "Q6010497",
+        "latitude": -34.6190492,
+        "longitude": -58.372512,
+        "nameEvidenceMultiplicity": {
+          "exactName": "SINGLE",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "EXACT_NAME",
+          "identityMultiplicity": "SINGLE"
+        }
+      ],
+      "verificationDecision": "VERIFIED"
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Plaza Dorrego",
+      "role": "regression",
+      "durationMs": 970,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Plaza Dorrego",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "515ae48d82962f4dc0594078a3456c4f41c0f00102f9013396de0100000000c0020192030d506c617a6120446f727265676f"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 5,
+        "rejected": [
+          {
+            "name": "Plaza Dorrego",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Plaza Dorrego",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "transport_stop"
+          },
+          {
+            "name": "Plaza Dorrego",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "transport_stop"
+          },
+          {
+            "name": "Plaza Dorrego",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "transport_stop"
+          }
+        ],
+        "viableCount": 1,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:way:31364659"
+            },
+            {
+              "provider": "wikidata",
+              "externalId": "Q3392154"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "Plaza Dorrego",
+        "externalId": "geoapify:515ae48d82962f4dc0594078a3456c4f41c0f00102f9013396de0100000000c0020192030d506c617a6120446f727265676f",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:515ae48d82962f4dc0594078a3456c4f41c0f00102f9013396de0100000000c0020192030d506c617a6120446f727265676f"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:31364659"
+          },
+          {
+            "provider": "wikidata",
+            "externalId": "Q3392154"
+          }
+        ],
+        "wikidataQid": "Q3392154",
+        "latitude": -34.6204917,
+        "longitude": -58.3717807,
+        "nameEvidenceMultiplicity": {
+          "exactName": "SINGLE",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "EXACT_NAME",
+          "identityMultiplicity": "SINGLE"
+        }
+      ],
+      "verificationDecision": "VERIFIED"
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "El Zanjón de Granados",
+      "role": "regression",
+      "durationMs": 1143,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1,
+        "wikidata": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "El Zanjón de Granados",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000c00201920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 1,
+        "rejected": [],
+        "viableCount": 1,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:node:9953027884"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "El Zanjón de Granados (historic ruins)",
+        "externalId": "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000c00201920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000c00201920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:node:9953027884"
+          }
+        ],
+        "latitude": -34.6166864,
+        "longitude": -58.3717972,
+        "nameEvidenceMultiplicity": {
+          "exactName": "UNKNOWN",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "WIKIDATA_IDENTITY_MATCH",
+          "source": "NEARBY",
+          "hintMatched": true,
+          "candidateMatched": false
+        }
+      ],
+      "verificationDecision": "REJECTED"
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Basílica de San Francisco",
+      "role": "regression",
+      "durationMs": 1131,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Basílica de San Francisco",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51e8e0f489972f4dc05992bc299b284e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 1,
+        "rejected": [],
+        "viableCount": 1,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:relation:2354152"
+            },
+            {
+              "provider": "wikidata",
+              "externalId": "Q4579815"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "Basílica de San Francisco",
+        "externalId": "geoapify:51e8e0f489972f4dc05992bc299b284e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:51e8e0f489972f4dc05992bc299b284e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:relation:2354152"
+          },
+          {
+            "provider": "wikidata",
+            "externalId": "Q4579815"
+          }
+        ],
+        "wikidataQid": "Q4579815",
+        "latitude": -34.6106142,
+        "longitude": -58.3718121,
+        "nameEvidenceMultiplicity": {
+          "exactName": "SINGLE",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "EXACT_NAME",
+          "identityMultiplicity": "SINGLE"
+        }
+      ],
+      "verificationDecision": "VERIFIED"
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Parque Lezama",
+      "role": "negative: never a bus stop",
+      "durationMs": 1044,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Parque Lezama",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "5154cc9c89442f4dc059d6901381455041c0f00102f901dd230a0100000000c0020192030d506172717565204c657a616d61"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 1,
+        "rejected": [],
+        "viableCount": 1,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:way:17441757"
+            },
+            {
+              "provider": "wikidata",
+              "externalId": "Q1133613"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "Parque Lezama",
+        "externalId": "geoapify:5154cc9c89442f4dc059d6901381455041c0f00102f901dd230a0100000000c0020192030d506172717565204c657a616d61",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:5154cc9c89442f4dc059d6901381455041c0f00102f901dd230a0100000000c0020192030d506172717565204c657a616d61"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:17441757"
+          },
+          {
+            "provider": "wikidata",
+            "externalId": "Q1133613"
+          }
+        ],
+        "wikidataQid": "Q1133613",
+        "latitude": -34.6271211,
+        "longitude": -58.3692791,
+        "nameEvidenceMultiplicity": {
+          "exactName": "SINGLE",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "EXACT_NAME",
+          "identityMultiplicity": "SINGLE"
+        }
+      ],
+      "verificationDecision": "VERIFIED"
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Cementerio de la Recoleta",
+      "role": "regression",
+      "durationMs": 1678,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1,
+        "wikidata": 1,
+        "en.wikipedia.org": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Cementerio de la Recoleta",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 1,
+        "rejected": [],
+        "viableCount": 1,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:way:183842128"
+            },
+            {
+              "provider": "wikidata",
+              "externalId": "Q831322"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "Recoleta Cemetry",
+        "externalId": "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:183842128"
+          },
+          {
+            "provider": "wikidata",
+            "externalId": "Q831322"
+          }
+        ],
+        "wikidataQid": "Q831322",
+        "latitude": -34.5876575,
+        "longitude": -58.3935953,
+        "nameEvidenceMultiplicity": {
+          "exactName": "UNKNOWN",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "WIKIDATA_IDENTITY_MATCH",
+          "source": "OWN_QID",
+          "hintMatched": true,
+          "candidateMatched": true
+        }
+      ],
+      "verificationDecision": "VERIFIED"
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Recoleta Cemetery",
+      "role": "negative: never a business",
+      "durationMs": 1716,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1,
+        "wikidata": 1,
+        "en.wikipedia.org": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Recoleta Cemetery",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 2,
+        "rejected": [
+          {
+            "name": "Cementerio Parque Recoleta",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          }
+        ],
+        "viableCount": 1,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:way:183842128"
+            },
+            {
+              "provider": "wikidata",
+              "externalId": "Q831322"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "Recoleta Cemetry",
+        "externalId": "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:183842128"
+          },
+          {
+            "provider": "wikidata",
+            "externalId": "Q831322"
+          }
+        ],
+        "wikidataQid": "Q831322",
+        "latitude": -34.5876575,
+        "longitude": -58.3935953,
+        "nameEvidenceMultiplicity": {
+          "exactName": "UNKNOWN",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "WIKIDATA_IDENTITY_MATCH",
+          "source": "OWN_QID",
+          "hintMatched": true,
+          "candidateMatched": true
+        }
+      ],
+      "verificationDecision": "VERIFIED"
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Galería Güemes",
+      "role": "negative: never Ramos Mejía",
+      "durationMs": 801,
+      "requests": {
+        "geoapify.geocode-search": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Galería Güemes",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        }
+      ],
+      "acquisitionStatus": "no_candidate",
+      "placeSearch": {
+        "resultCount": 1,
+        "rejected": [
+          {
+            "name": "Galería Güemes",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          }
+        ],
+        "viableCount": 0
+      }
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Plaza San Martín",
+      "role": "regression / homonyms",
+      "durationMs": 1444,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Plaza San Martín",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 10,
+        "rejected": [
+          {
+            "name": "Plaza San Martín",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Plaza San Martín",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Plaza San Martín",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Plaza San Martín",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Plaza San Martín",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Plaza San Martín",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Plaza San Martín",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Plaza San Martín",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          },
+          {
+            "name": "Plaza San Martín",
+            "reason": "DESTINATION_INCOMPATIBLE",
+            "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+          }
+        ],
+        "viableCount": 1,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:relation:531073"
+            },
+            {
+              "provider": "wikidata",
+              "externalId": "Q2099124"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "Plaza San Martín",
+        "externalId": "geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:relation:531073"
+          },
+          {
+            "provider": "wikidata",
+            "externalId": "Q2099124"
+          }
+        ],
+        "wikidataQid": "Q2099124",
+        "latitude": -34.5946395,
+        "longitude": -58.3759048,
+        "nameEvidenceMultiplicity": {
+          "exactName": "SINGLE",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "EXACT_NAME",
+          "identityMultiplicity": "SINGLE"
+        }
+      ],
+      "verificationDecision": "VERIFIED"
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Defensa Street",
+      "role": "negative: street is never a PLACE",
+      "durationMs": 1330,
+      "requests": {
+        "geoapify.geocode-search": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Defensa Street",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        }
+      ],
+      "acquisitionStatus": "no_candidate",
+      "placeSearch": {
+        "resultCount": 8,
+        "rejected": [
+          {
+            "name": "Defensa",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "street"
+          },
+          {
+            "name": "Defensa",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "street"
+          },
+          {
+            "name": "Defensa",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "street"
+          },
+          {
+            "name": "Defensa",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "street"
+          },
+          {
+            "name": "Defensa",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "street"
+          },
+          {
+            "name": "Defensa",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "street"
+          },
+          {
+            "name": "Defensa",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "street"
+          },
+          {
+            "name": "Defensa",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "street"
+          }
+        ],
+        "viableCount": 0
+      }
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "San Martín",
+      "role": "negative: bare common name",
+      "durationMs": 3033,
+      "requests": {
+        "geoapify.geocode-search": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "San Martín",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        }
+      ],
+      "acquisitionStatus": "no_candidate",
+      "placeSearch": {
+        "resultCount": 2,
+        "rejected": [
+          {
+            "name": "Ciudad del Libertador General San Martín",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "administrative_area"
+          },
+          {
+            "name": "San Martín",
+            "reason": "STRUCTURALLY_INCOMPATIBLE",
+            "featureClass": "administrative_area"
+          }
+        ],
+        "viableCount": 0
+      }
+    }
+  ]
+}

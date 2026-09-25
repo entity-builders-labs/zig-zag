@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-09-25T14:19:09.435Z",
+  "destinationCountryCode": "AR",
+  "provider": "serper",
+  "model": "google-search",
+  "groundingStatus": "applied",
+  "providerLocale": {
+    "gl": "ar"
+  },
+  "sentBody": {
+    "q": "San Telmo historical walking tour",
+    "gl": "ar",
+    "num": 10
+  },
+  "serperSearchParametersEcho": {
+    "q": "San Telmo historical walking tour",
+    "gl": "ar",
+    "type": "search",
+    "num": 10,
+    "engine": "google"
+  },
+  "evidenceCount": 7,
+  "hosts": [
+    "google.serper.dev"
+  ]
+}

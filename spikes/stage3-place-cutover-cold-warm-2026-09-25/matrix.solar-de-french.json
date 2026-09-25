@@ -1,0 +1,360 @@
+{
+  "generatedAt": "2026-09-25T14:23:19.962Z",
+  "destination": {
+    "scale": "area",
+    "countryCode": "AR",
+    "boundaryId": "osm:relation:1224652",
+    "boundaryGeometryType": "MultiPolygon"
+  },
+  "phaseTotals": {
+    "destinationResolution": {
+      "nominatim.local/search": 1,
+      "overpass.local": 1
+    },
+    "COLD": {
+      "overpass.local": 1,
+      "wikidata": 2,
+      "nominatim.local/search": 1,
+      "geoapify.geocode-search": 1,
+      "geoapify.place-details": 1,
+      "localhost": 1
+    },
+    "WARM": {
+      "localhost": 1
+    },
+    "PLACES_ISOLATED": {
+      "geoapify.geocode-search": 1,
+      "geoapify.place-details": 1
+    }
+  },
+  "embeddingIndexCalls": 2,
+  "snapshots": {
+    "COLD": {
+      "geoEntityCount": 1,
+      "identityCount": 2,
+      "experienceCount": 1,
+      "entities": [
+        {
+          "id": "f1cc4fdb-a59f-4f56-ab77-955fcb2e08d1",
+          "name": "Solar de French",
+          "kind": "PLACE",
+          "latitude": -34.6202921,
+          "longitude": -58.3713193,
+          "identities": [
+            "geoapify/geoapify:51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368",
+            "openstreetmap/osm:relation:9314953"
+          ]
+        }
+      ]
+    },
+    "WARM": {
+      "geoEntityCount": 1,
+      "identityCount": 2,
+      "experienceCount": 1,
+      "entities": [
+        {
+          "id": "f1cc4fdb-a59f-4f56-ab77-955fcb2e08d1",
+          "name": "Solar de French",
+          "kind": "PLACE",
+          "latitude": -34.6202921,
+          "longitude": -58.3713193,
+          "identities": [
+            "geoapify/geoapify:51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368",
+            "openstreetmap/osm:relation:9314953"
+          ]
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "phase": "COLD",
+      "hint": "Solar de French",
+      "role": "exit gate: prior-knowledge reuse",
+      "durationMs": 6966,
+      "requests": {
+        "overpass.local": 1,
+        "wikidata": 2,
+        "nominatim.local/search": 1,
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1,
+        "localhost": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Solar de French",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368"
+        }
+      ],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "f1cc4fdb-a59f-4f56-ab77-955fcb2e08d1",
+        "canonicalName": "Solar de French",
+        "provider": "geoapify",
+        "externalId": "geoapify:51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368",
+        "latitude": -34.6202921,
+        "longitude": -58.3713193,
+        "persistence": {
+          "status": "CREATED",
+          "attachedExternalIds": [
+            "geoapify:51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368",
+            "osm:relation:9314953"
+          ]
+        }
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Solar de French",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "TRUSTED_OBSERVATION_REUSE",
+          "provider": "trusted_observation",
+          "query": "Solar de French",
+          "executionStatus": "completed",
+          "candidateAcquired": false,
+          "identityEvidence": []
+        },
+        {
+          "strategy": "LOCAL_OSM_POOL",
+          "provider": "openstreetmap",
+          "query": "Solar de French",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Solar French",
+            "externalId": "osm:node:6903962986",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:6903962986"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "NEARBY",
+              "hintMatched": false,
+              "candidateMatched": false
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "NOMINATIM",
+          "provider": "nominatim",
+          "query": "Solar de French",
+          "executionStatus": "completed",
+          "providerResultCount": 1,
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Galería Solar de French",
+            "externalId": "osm:relation:9314953",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:relation:9314953"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "WIKIDATA_IDENTITY_MATCH",
+              "source": "NEARBY",
+              "hintMatched": false,
+              "candidateMatched": false
+            }
+          ],
+          "verificationDecision": "REJECTED"
+        },
+        {
+          "strategy": "PLACES",
+          "provider": "geoapify",
+          "query": "Solar de French",
+          "executionStatus": "completed",
+          "providerResultCount": 1,
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Solar de French",
+            "externalId": "geoapify:51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "geoapify",
+                "externalId": "geoapify:51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368"
+              },
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:relation:9314953"
+              }
+            ]
+          },
+          "placeSearch": {
+            "resultCount": 1,
+            "rejected": [],
+            "viableCount": 1,
+            "identityEnrichment": {
+              "status": "ENRICHED",
+              "identities": [
+                {
+                  "provider": "openstreetmap",
+                  "externalId": "osm:relation:9314953"
+                }
+              ]
+            }
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            },
+            {
+              "type": "IDENTITY_CONVERGENCE",
+              "priorStrategy": "NOMINATIM",
+              "identity": {
+                "provider": "openstreetmap",
+                "externalId": "osm:relation:9314953"
+              }
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "WARM",
+      "hint": "Solar de French",
+      "role": "exit gate: prior-knowledge reuse",
+      "durationMs": 107,
+      "requests": {
+        "localhost": 1
+      },
+      "geoapifyRequests": [],
+      "finalStatus": "resolved",
+      "resolved": {
+        "geoEntityId": "f1cc4fdb-a59f-4f56-ab77-955fcb2e08d1",
+        "canonicalName": "Solar de French",
+        "provider": "geoapify",
+        "externalId": "geoapify:51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368",
+        "latitude": -34.6202921,
+        "longitude": -58.3713193
+      },
+      "candidateStatus": "accepted",
+      "rejectionReasons": [],
+      "attempts": [
+        {
+          "strategy": "CATALOG_REUSE",
+          "provider": "catalog",
+          "query": "Solar de French",
+          "executionStatus": "completed",
+          "candidateAcquired": true,
+          "selectedCandidate": {
+            "canonicalName": "Solar de French",
+            "externalId": "geoapify:51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368",
+            "kind": "PLACE",
+            "identities": [
+              {
+                "provider": "geoapify",
+                "externalId": "geoapify:51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368"
+              },
+              {
+                "provider": "openstreetmap",
+                "externalId": "osm:relation:9314953"
+              }
+            ]
+          },
+          "identityEvidence": [
+            {
+              "type": "EXACT_NAME",
+              "identityMultiplicity": "SINGLE"
+            }
+          ],
+          "verificationDecision": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "phase": "PLACES_ISOLATED",
+      "hint": "Solar de French",
+      "role": "exit gate: prior-knowledge reuse",
+      "durationMs": 2678,
+      "requests": {
+        "geoapify.geocode-search": 1,
+        "geoapify.place-details": 1
+      },
+      "geoapifyRequests": [
+        {
+          "endpoint": "/v1/geocode/search",
+          "text": "Solar de French",
+          "filter": "circle:-58.370985117948734,-34.56958224615385,50000",
+          "bias": "proximity:-58.370985117948734,-34.56958224615385",
+          "limit": 10,
+          "format": "json"
+        },
+        {
+          "endpoint": "/v2/place-details",
+          "id": "51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368"
+        }
+      ],
+      "acquisitionStatus": "candidate",
+      "placeSearch": {
+        "resultCount": 1,
+        "rejected": [],
+        "viableCount": 1,
+        "identityEnrichment": {
+          "status": "ENRICHED",
+          "identities": [
+            {
+              "provider": "openstreetmap",
+              "externalId": "osm:relation:9314953"
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "canonicalName": "Solar de French",
+        "externalId": "geoapify:51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368",
+        "identities": [
+          {
+            "provider": "geoapify",
+            "externalId": "geoapify:51d3ef0c64872f4dc059ccbb45bb654f41c0f00101f90189228e0000000000c0020192030f536f6c6172206465204672656e6368"
+          },
+          {
+            "provider": "openstreetmap",
+            "externalId": "osm:relation:9314953"
+          }
+        ],
+        "latitude": -34.6202921,
+        "longitude": -58.3713193,
+        "nameEvidenceMultiplicity": {
+          "exactName": "SINGLE",
+          "declaredAlias": "UNKNOWN"
+        }
+      },
+      "identityEvidence": [
+        {
+          "type": "EXACT_NAME",
+          "identityMultiplicity": "SINGLE"
+        }
+      ],
+      "verificationDecision": "VERIFIED"
+    }
+  ]
+}

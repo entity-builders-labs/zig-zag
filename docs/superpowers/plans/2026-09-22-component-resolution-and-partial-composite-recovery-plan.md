@@ -39,7 +39,7 @@ implements the stage. Do not mark a stage DONE without real validation.
 | --- | --- | --- | --- | --- | --- |
 | 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | `a0b6c75b50bf37807ab6c2450f94c8e81c9fc9d2` | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
 | 2. Source-grounded contract cutover | DONE | `a7df3b579282cee6b57fef8a914080d507e47fac` | *(this commit)* | jest (152/153 suites, 1746/1747 tests; 1 pre-existing arch failure) + tsc (clean) + eslint (clean) | LLM-owned `required` eliminated from discovery contract; deterministic source-support admission gate implemented; Santa Mónica blocked; semantic document bumped to v3; Stage 3 unblocked. |
-| 3. Catalog-first identity resolution | IN PROGRESS — ROUTE/AREA production cutover landed; San Telmo HTTP E2E gate NOT met (no composite persisted; ROUTE path not exercised live), mega-spike not run | `8060782ed22ff80d5d1f00ac21a134a36f8a3ed7` | cutover `b5f9177`,`ac39023`,`a7e5505`,`3e63838`,`544f9d7` (from `56c5cb1`) *(progress: this commit)* | unit 1872/1873 (pre-existing preference-first-architecture failure); integration on zigzag_test 75/78 (3 failures also fail at baseline 56c5cb1); real-Postgres multi-identity persistence 5/5; destination policy characterization 60/60 polygon==admin; tsc + eslint clean; San Telmo COLD E2E via HTTP (completed, 349.7 s) | Canonical ROUTE = 1 GeoEntity + N OSM way identities (MultiLineString), strong-identity correlation (0/1/2+ conflict), typed STRUCTURED_ROUTE_RESOLUTION evidence, catalog variant reuse, single polygon-based destination policy (AREA+ROUTE+geo validation), OWN_QID ROUTE workaround and street-pool adapters removed. E2E: the Basílica+Defensa control did not recur, no ROUTE hint was extracted (0 TARGETED_ROUTE attempts), and the only multi-component candidate (5/7 resolved, Basílica RESOLVED) was rejected by the Stage-2 `isMigrationRequiredHint` all-or-nothing seam (Stage 4 territory). See `spikes/stage3-cutover-santelmo-e2e-2026-09-24/assessment.md`. Stage 4 BLOCKED. |
+| 3. Catalog-first identity resolution | IN PROGRESS — PLACE cutover landed (Geoapify forward geocoding, structural PLACE filter, destination-scoped PLACE matches, multi-identity convergence); Farmacia + Mafalda + El Zanjón + Solar de French RESOLVED live; remaining: name-divergent WARM reuse (needs a schema decision) and the San Martín ambiguity override | `9eaf5ec1d9caddba55ccab1e0d5c2774f45f61b3` | `52c6da1`,`9424dc5`,`77de1fa`,`c101fea` *(evidence + progress: this commit)* | unit 1962/1963 (pre-existing preference-first-architecture failure); integration on zigzag_test 80–81/84 (the 3 baseline failures + `catalog-reuse`, which flakes identically at 9eaf5ec, 2/8 isolated runs); real-Postgres PLACE identity 5/5; country-code harness integration 1/1 (mutation-checked); live COLD/WARM on a fresh DB (14 hints + Solar de French); 1 live Serper call (`gl=ar`); SerpApi 0; tsc + eslint clean | See the 2026-09-25 PLACE cutover addendum below and `spikes/stage3-place-cutover-cold-warm-2026-09-25/assessment.md`. Stage 4 BLOCKED. |
 | 4. Geographic + partial-composite cutover | BLOCKED | — | — | — | Starts after identity outcomes are explicit/stable. |
 | 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
 
@@ -1333,6 +1333,104 @@ treated as compatible.
 - Stage 4: **BLOCKED**, untouched: `isMigrationRequiredHint`, `required`
   columns, the partial-composite lifecycle and planner eligibility were
   not changed.
+
+### Stage 3 progress addendum — PLACE provider cutover + strong-identity convergence (2026-09-25)
+
+Starting HEAD: `9eaf5ec1d9caddba55ccab1e0d5c2774f45f61b3` (verified equal to
+the fork remote). Preceding evidence commits: `e6b366d` (PLACE provider
+search characterization), `7dff58e`/`2e6d6dc`/`9eaf5ec` (Serper client,
+grounded provider, Maps/Places characterization). Commits of this step:
+
+- `52c6da1` fix(integrations): use Geoapify forward geocoding for PLACE search.
+- `9424dc5` feat(tours): converge PLACE candidates on strong identities.
+- `77de1fa` fix(tours): propagate destination country code to grounded search.
+- `c101fea` fix(tours): widen PLACE search window, scope Nominatim PLACE matches.
+
+**PLACE acquisition.** `GeoapifyPlacesApiService.searchText` now calls
+`/v1/geocode/search` with the hint as free-form `text` (never structured
+fields), no `type`, hard circle `filter` + proximity `bias`, `format=json`;
+still no global search without a bias. `result_type`/`category` are
+normalized at the adapter into a provider-neutral `PlaceData.featureClass`.
+The resolver's PLACES step is: search (hint unchanged, 10-result window —
+Geoapify `limit` is not a truncation, `limit=3` dropped the real pharmacy
+live) → structural PLACE compatibility (`street`, `administrative_area`,
+`postcode`, `transport_stop` are never a PLACE) → the single destination
+policy (positively outside → dropped; UNKNOWN drops nothing) → bounded
+selection + name multiplicity over the survivors → Place Details for the ONE
+selected candidate (capability `declaresSourceIdentitiesInDetails`), whose
+explicit `datasource.raw.osm_type/osm_id` and Wikidata QID become
+`PlaceData.sourceIdentities`. The opaque `place_id` is never parsed. The
+NOMINATIM PLACE branch now applies the same destination policy (it had let
+the Ramos Mejía "Galería Güemes" verify as `EXACT_NAME SINGLE`).
+
+**Identity.** `EntityCandidate.identities` is the complete strong identity
+set; `provider/externalId` stay the primary acquisition handle and are a
+member of it. `IDENTITY_CONVERGENCE` is the exact intersection of identity
+sets keyed `namespace/canonicalId` across strategies of one hint and records
+the shared identity; no names, coordinates or provider counts. Nominatim
+PLACE candidates now use the `openstreetmap` namespace (acquisition strategy
+!= identity provider). Multi-identity PLACEs persist through the same
+`upsertGeoEntityWithIdentities` authority as ROUTE (0/1/2+ owners → create /
+reuse + attach / `IDENTITY_CONFLICT`). No schema migration.
+
+**Country code.** `DestinationResolution.countryCode` →
+`ExperienceDiscoveryScope.destinationCountryCode` (one builder for both the
+preference-deficit and the planner residual-capacity plan paths) →
+`ExperienceAcquisitionPlan.destination` → `executeWebSourcePlan` →
+`ExperienceGroundedSearchRequest.destinationCountryCode` → Serper `gl`
+(ISO-2 only, never from a free-text country, never `hl`). Trace records
+`destinationCountryCode` + `groundedProviderLocale`. Live: `AR` → body
+`gl=ar`, Serper echo `gl=ar`, SerpApi 0.
+
+**Live COLD/WARM** (`spikes/stage3-place-cutover-cold-warm-2026-09-25/`,
+fresh dedicated DB): Farmacia RESOLVED by
+`IDENTITY_CONVERGENCE(NOMINATIM; openstreetmap/osm:node:3348573778)`, one
+PLACE GeoEntity (Geoapify handle + OSM identity); Mafalda RESOLVED with the
+raw hint (full pipeline: LOCAL_OSM_POOL + own QID; PLACES alone: Geoapify
+selects "Mafalda, Susanita and Manolito", details → `osm:node:2472979623` +
+`Q111038841`, VERIFIED); Galería Güemes fails closed (Ramos Mejía
+`INCOMPATIBLE` in both NOMINATIM and PLACES); Defensa Street never a PLACE
+(8/8 `street` rejected); Parque Lezama the park; Recoleta Cemetery the
+cemetery (persistence REUSED the Cementerio GeoEntity, attaching its
+Geoapify + Wikidata identities). WARM: 11 GeoEntities / 16 identities before
+and after — 0 duplicates. Hints whose text equals the canonical name reuse
+the catalog with 0 provider calls (7/7, 80–150 ms); name-divergent hints are
+re-acquired onto the same GeoEntity.
+
+**Stage 3 exit gate, reviewed literally:**
+
+| Exit item | Evidence | Status |
+| --- | --- | --- |
+| Catalog reuse without full-table scan | bounded kind + bbox query (unchanged); live WARM 80–150 ms | PASS |
+| Unambiguous canonical GeoEntity avoids unnecessary external identity calls | live WARM: 7/7 exact-canonical-name hints + Solar de French → CATALOG_REUSE, 0 provider calls; name-divergent hints (Farmacia, Mafalda, El Zanjón, Recoleta EN) re-acquire 3–9 calls onto the same GeoEntity | PARTIAL — see blocker 1 |
+| Ambiguous catalog matches fail closed into bounded external resolution | unit (unchanged); live Güemes fails closed | PASS (catalog); identity ambiguity: see blocker 2 |
+| Correlation and IdentityVerifier separate | correlation = exact identity-set intersection producing typed evidence; IdentityVerifier alone decides | PASS |
+| Solar de French prior-knowledge reuse, node-vs-relation divergence explicit | live: node `6903962986` and relation `9314953` stay separate; convergence on the relation; WARM CATALOG_REUSE 0 calls | PASS |
+| El Zanjón re-tested before corroboration relaxation | live COLD RESOLVED by keyed `IDENTITY_CONVERGENCE`; no relaxation | PASS |
+| Farmacia resolved | live COLD by exact OSM identity convergence | PASS |
+| Mafalda resolved | live COLD with the raw hint; PLACES path alone also VERIFIED | PASS |
+| Progress records tests, performance/query evidence, remaining deficits | this addendum + assessment | PASS |
+
+**Stage status:**
+
+- Stage 3: **IN PROGRESS**. Stage 3 DONE: **NO**. Named blockers:
+  1. *Name-divergent WARM reuse* — catalog-first retrieval is exact-name
+     only and the schema has no typed fact recording which hint text was
+     verified to which GeoEntity. Closing this needs a persisted
+     observed-name/alias model (a Prisma migration); per task discipline it
+     was **not** added and needs an explicit decision first.
+  2. *San Martín negative control* — LOCAL_OSM_POOL observes
+     `DECLARED_ALIAS_MATCH(MULTIPLE)`, but IdentityVerifier rule 4 accepts a
+     name-only `WIKIDATA_IDENTITY_MATCH(OWN_QID)` before the multiplicity
+     fallback, so "San Martín" resolves to the Monumento al General San
+     Martín. Pre-existing; the generic rule must be characterized with
+     controls before integration.
+- Debt: `representativePoint` uses the first polygon of a MultiPolygon as the
+  Places/Nominatim bias center; the anchor resolver still labels Nominatim
+  anchors with the `nominatim` namespace; `catalog-reuse` integration spec is
+  flaky at baseline (planner infeasibility).
+- Stage 4: **BLOCKED**, untouched (`required`, `isMigrationRequiredHint`,
+  partial-composite lifecycle, planner eligibility).
 
 ### Cross-cutting product-shape note — simple, composite, and mixed Tour requests (2026-09-23)
 
