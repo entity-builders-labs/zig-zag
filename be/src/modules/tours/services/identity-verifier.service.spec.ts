@@ -46,7 +46,14 @@ describe('IdentityVerifier', () => {
       verifier.verify(
         { name: 'El Zanjón de Granados' },
         attempt([
-          { type: 'IDENTITY_CONVERGENCE', priorStrategy: 'LOCAL_OSM_POOL' },
+          {
+            type: 'IDENTITY_CONVERGENCE',
+            priorStrategy: 'LOCAL_OSM_POOL',
+            identity: {
+              provider: 'openstreetmap',
+              externalId: 'osm:node:9953027884',
+            },
+          },
         ]),
       ),
     ).toEqual({ status: 'VERIFIED' });
@@ -59,7 +66,14 @@ describe('IdentityVerifier', () => {
       verifier.verify(
         { name: 'El Zanjón de Granados' },
         attempt([
-          { type: 'IDENTITY_CONVERGENCE', priorStrategy: 'LOCAL_OSM_POOL' },
+          {
+            type: 'IDENTITY_CONVERGENCE',
+            priorStrategy: 'LOCAL_OSM_POOL',
+            identity: {
+              provider: 'openstreetmap',
+              externalId: 'osm:node:9953027884',
+            },
+          },
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'NEARBY',

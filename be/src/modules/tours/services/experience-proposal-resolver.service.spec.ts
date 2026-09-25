@@ -962,9 +962,30 @@ describe('ExperienceProposalResolverService', () => {
       placesApi as any,
     );
 
+    // The destination scope must be San Juan itself: since the Stage 3
+    // PLACE cutover a Places result positively outside the resolved
+    // destination (this spec's shared Buenos Aires polygon) is dropped.
+    const sanJuanBoundary = {
+      ...boundary,
+      id: 'osm:relation:2',
+      name: 'San Juan',
+      osmId: 2,
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-68.7, -31.7],
+            [-68.4, -31.7],
+            [-68.4, -31.4],
+            [-68.7, -31.4],
+            [-68.7, -31.7],
+          ],
+        ],
+      },
+    };
     const result = await service.resolve({
       destinationName: 'San Juan, Argentina',
-      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary: sanJuanBoundary },
       candidates: [
         candidate(
           'Catedral San Juan Bautista tour',
@@ -6638,7 +6659,8 @@ describe('ExperienceProposalResolverService', () => {
       expect(res.resolved[0].resolvedEntities[0]).toMatchObject({
         status: 'resolved',
         geoEntityId: 'geo-nom',
-        provider: 'nominatim',
+        // Nominatim acquires; the identity is an OpenStreetMap object.
+        provider: 'openstreetmap',
       });
     });
 
@@ -7214,16 +7236,20 @@ describe('ExperienceProposalResolverService', () => {
       expect(nominatimAttempt?.identityEvidence).toContainEqual({
         type: 'IDENTITY_CONVERGENCE',
         priorStrategy: 'LOCAL_OSM_POOL',
+        identity: {
+          provider: 'openstreetmap',
+          externalId: 'osm:node:9953027884',
+        },
       });
 
       expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
       expect(result.resolved[0].status).toBe('accepted');
-      // Persisted with NOMINATIM's own provider label ('nominatim') --
-      // resolving via ID convergence doesn't rewrite which strategy's
-      // candidate actually got persisted, only which evidence verified it.
+      // Persisted as NOMINATIM's candidate, in the OpenStreetMap identity
+      // namespace (the acquisition strategy is not the identity provider)
+      // -- the same (openstreetmap, osm:node:...) key LOCAL_OSM_POOL uses.
       expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
         status: 'resolved',
-        provider: 'nominatim',
+        provider: 'openstreetmap',
         externalId: 'osm:node:9953027884',
         geoEntityId: 'geo-el-zanjon-resolved',
       });

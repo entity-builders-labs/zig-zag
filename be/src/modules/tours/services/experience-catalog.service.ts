@@ -126,10 +126,10 @@ export interface GeoEntityWithIdentitiesInput {
   latitude?: number;
   longitude?: number;
   /**
-   * For a multi-segment ROUTE, a `MultiLineString` of the real segments.
-   * On reuse, lines are unioned with the persisted ones (duplicate lines
-   * dropped at OSM coordinate precision); gaps are never bridged by a
-   * synthetic connector.
+   * A PLACE's Point, or for a multi-segment ROUTE a `MultiLineString` of
+   * the real segments. On reuse, ROUTE lines are unioned with the persisted
+   * ones (duplicate lines dropped at OSM coordinate precision; gaps never
+   * bridged by a synthetic connector); a Point is left as persisted.
    */
   geometry?: GeoJsonGeometry;
   address?: string;
@@ -1076,8 +1076,11 @@ export class ExperienceCatalogService {
   }
 
   /**
-   * Persist one real-world entity with MANY provider-native identities
-   * (canonical multi-way ROUTE identity). Identity-only reconciliation:
+   * Persist one real-world entity with MANY provider-native identities --
+   * the single multi-identity persistence authority for every kind: a
+   * multi-way ROUTE (one identity per OSM way) and a PLACE whose provider
+   * declared cross-identities (Geoapify handle + OSM object + Wikidata
+   * QID). Identity-only reconciliation:
    *  - no known identity -> create one GeoEntity with every identity;
    *  - all known identities point at ONE GeoEntity -> reuse it and attach
    *    the missing identities (name/representative point are kept stable);

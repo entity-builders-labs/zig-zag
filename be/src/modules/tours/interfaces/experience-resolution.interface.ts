@@ -6,7 +6,11 @@ import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
 import { SourceObservation } from './experience-acquisition.interface';
 import { GeographicValidationDecisionEntity } from './geographic-validation.interface';
-import type { DestinationCompatibilityVerdict } from '../utils/destination-compatibility.policy';
+import type {
+  DestinationCompatibilityReason,
+  DestinationCompatibilityVerdict,
+} from '../utils/destination-compatibility.policy';
+import type { PlaceFeatureClass } from '@integrations/google-places/interfaces/places-api.interface';
 import type { RouteRetrievalVariantKind } from '../utils/route-retrieval-name.util';
 
 /**
@@ -46,6 +50,19 @@ export type GeographicScope =
 export type ResolvedGeoEntityStatus = 'resolved' | 'unresolved';
 
 /**
+ * One provider-native identity in its canonical persisted form -- the same
+ * `(provider, externalId)` pair a `GeoEntityIdentity` row stores, e.g.
+ * `openstreetmap / osm:node:3348573778`, `wikidata / Q111038841`,
+ * `geoapify / geoapify:<opaque>`. `provider` is the identity NAMESPACE,
+ * never the acquisition strategy that surfaced it (Geoapify can acquire an
+ * OpenStreetMap identity).
+ */
+export interface StrongIdentity {
+  provider: string;
+  externalId: string;
+}
+
+/**
  * Provider-normalized facts used to decide whether an acquired entity is the
  * hint's real-world identity. Acquisition and ranking may produce these
  * facts, but neither may declare an entity verified.
@@ -76,19 +93,20 @@ export type IdentityEvidence =
   | {
       /**
        * A DIFFERENT, structurally independent acquisition strategy already
-       * acquired a candidate with this exact same (provider, externalId)
-       * for this same hint -- e.g. LOCAL_OSM_POOL and NOMINATIM both
-       * independently returning osm:node:9953027884. This is real-world
-       * identity evidence by ID equality, never by name/string similarity:
-       * two separate lookup mechanisms (different indices, different query
-       * logic) landing on the exact same physical object is strictly
-       * stronger than any one of them's own fuzzy name match. It is NOT
-       * provider-majority voting -- it never counts opinions or picks a
-       * winner among competing candidates; it only recognizes when two
-       * strategies already agree on the identical object.
+       * acquired, for this same hint, a candidate sharing at least one
+       * exact strong identity (namespace + canonical id) with this one --
+       * e.g. NOMINATIM returning osm:node:3348573778 and PLACES (Geoapify
+       * Place Details) declaring the same `openstreetmap/osm:node:
+       * 3348573778`. The candidates' identity SETS intersect; `identity` is
+       * the shared key. Real-world identity by ID equality, never by
+       * name/coordinates: two separate lookup mechanisms landing on the
+       * exact same object is strictly stronger than any one fuzzy name
+       * match. It is NOT provider-majority voting -- it never counts
+       * opinions or picks a winner among competing candidates.
        */
       type: 'IDENTITY_CONVERGENCE';
       priorStrategy: ResolutionStrategy;
+      identity: StrongIdentity;
     }
   | {
       /**
@@ -163,7 +181,11 @@ export interface ResolutionAttemptAudit {
     canonicalName: string;
     externalId: string;
     kind: GeoEntityKind;
+    /** Every strong identity the candidate carried into verification. */
+    identities?: StrongIdentity[];
   };
+  /** Bounded facts of a PLACES text search (no raw payloads). */
+  placeSearch?: PlaceSearchAudit;
   identityEvidence: IdentityEvidence[];
   verificationDecision?: VerificationDecision['status'];
   /** Destination-policy verdict that gated this attempt's candidate. */
@@ -194,6 +216,34 @@ export interface ResolutionAttemptAudit {
   };
 }
 
+export interface PlaceSearchAudit {
+  resultCount: number;
+  /** Results dropped before selection, in provider order. */
+  rejected: Array<
+    | {
+        name: string;
+        reason: 'STRUCTURALLY_INCOMPATIBLE';
+        featureClass: PlaceFeatureClass;
+      }
+    | {
+        name: string;
+        reason: 'DESTINATION_INCOMPATIBLE';
+        destinationReason: DestinationCompatibilityReason;
+      }
+  >;
+  /** Results left for bounded selection after both filters. */
+  viableCount: number;
+  /**
+   * Place Details enrichment of the ONE selected candidate: NOT_SUPPORTED
+   * when the provider cannot declare cross-identities (no call made).
+   */
+  identityEnrichment?:
+    | { status: 'ENRICHED'; identities: StrongIdentity[] }
+    | { status: 'NO_SOURCE_IDENTITIES' }
+    | { status: 'NOT_SUPPORTED' }
+    | { status: 'FAILED'; failureReason: string };
+}
+
 export interface ComponentResolutionAudit {
   hintKey: string;
   hintName: string;
@@ -207,7 +257,7 @@ export interface ComponentResolutionAudit {
   finalReason?: string;
   resolvedGeoEntity?: Pick<
     ResolvedGeoEntity,
-    'geoEntityId' | 'canonicalName' | 'provider' | 'externalId'
+    'geoEntityId' | 'canonicalName' | 'provider' | 'externalId' | 'persistence'
   >;
 }
 
@@ -253,11 +303,17 @@ export interface EntityCandidate {
   /** Provider-specific metadata carried through to persistence (tags, etc). */
   persistenceMetadata?: unknown;
   /**
-   * Every provider-native identity of ONE real entity observed through
-   * several provider objects (a multi-way ROUTE). `externalId` above is the
-   * representative one; all of these persist as GeoEntityIdentity rows.
+   * The COMPLETE set of strong provider-native identities of this ONE real
+   * entity -- the canonical correlation facts (IDENTITY_CONVERGENCE is their
+   * intersection across strategies) and exactly what persists as
+   * GeoEntityIdentity rows. Present when the entity carries more than its
+   * acquisition handle: a multi-way ROUTE (one identity per OSM way), a
+   * PLACE whose provider declared cross-identities (Geoapify Place Details
+   * -> OSM object, Wikidata QID). `provider`/`externalId` above stay the
+   * primary acquisition handle and are always a member of this set; when
+   * absent, that single pair is the only strong identity.
    */
-  identities?: Array<{ provider: string; externalId: string }>;
+  identities?: StrongIdentity[];
 }
 
 export interface ResolvedGeoEntity {
@@ -267,6 +323,15 @@ export interface ResolvedGeoEntity {
   externalId?: string;
   /** Present only after the resolver persists a VERIFIED EntityCandidate. */
   geoEntityId?: string;
+  /**
+   * Outcome of multi-identity persistence (identity-only reconciliation):
+   * a new GeoEntity, or an existing one that already owned some of the
+   * candidate's identities (the missing ones attached). Audit-only.
+   */
+  persistence?: {
+    status: 'CREATED' | 'REUSED';
+    attachedExternalIds: string[];
+  };
   canonicalName?: string | null;
   latitude?: number | null;
   longitude?: number | null;

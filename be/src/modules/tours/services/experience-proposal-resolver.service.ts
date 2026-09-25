@@ -13,8 +13,8 @@ import {
 import {
   CatalogGeoEntityCandidate,
   ExperienceCatalogService,
-  MultiLineStringGeometry,
 } from './experience-catalog.service';
+import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
 import { calculateDistance, Coordinates } from '@shared/utils/distance.utils';
@@ -33,6 +33,7 @@ import {
   ResolutionAttemptAudit,
   GeographicScope,
   IdentityEvidence,
+  PlaceSearchAudit,
 } from '../interfaces/experience-resolution.interface';
 import {
   bestNominatimMatch,
@@ -77,6 +78,11 @@ import {
   placesAcquisitionLabel,
 } from '../utils/places-external-identity.util';
 import { buildLocalIdentityEvidence } from '../utils/identity-evidence-builder.util';
+import { evaluatePlaceStructuralCompatibility } from '../utils/place-structural-compatibility.policy';
+import {
+  strongIdentitiesOf,
+  strongIdentityKey,
+} from '../utils/strong-identity.util';
 import { IdentityVerifier } from './identity-verifier.service';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
 import { traceCandidateKey } from '../utils/generation-trace-builder.util';
@@ -90,6 +96,7 @@ type StrategyAcquisitionResult =
       providerResultCount?: number;
       /** Set when a structural candidate was dropped by destination scope. */
       destinationCompatibility?: DestinationCompatibility;
+      placeSearch?: PlaceSearchAudit;
     }
   | {
       status: 'candidate';
@@ -98,6 +105,7 @@ type StrategyAcquisitionResult =
       providerResultCount?: number;
       candidate: EntityCandidate;
       destinationCompatibility?: DestinationCompatibility;
+      placeSearch?: PlaceSearchAudit;
     }
   | {
       status: 'failed';
@@ -612,11 +620,12 @@ export class ExperienceProposalResolverService
     for (const hint of candidate?.componentHints ?? []) {
       const attempts: ResolutionAttemptAudit[] = [];
       // Real-world identity by ID equality, tracked across every strategy
-      // attempted for THIS hint (verified or not): keyed by the exact
-      // (provider, externalId) an acquisition returned, valued by the first
-      // strategy that found it. When a LATER, structurally independent
-      // strategy acquires a candidate with the same key, `isVerified` below
-      // injects IDENTITY_CONVERGENCE evidence -- never a name/string
+      // attempted for THIS hint (verified or not): keyed by every strong
+      // identity (namespace + canonical id, see strongIdentityKey) an
+      // acquisition carried, valued by the first strategy that found it.
+      // When a LATER, structurally independent strategy acquires a
+      // candidate whose identity set intersects these keys, `isVerified`
+      // below injects IDENTITY_CONVERGENCE evidence -- never a name/string
       // comparison, never a vote among candidates.
       const seenIdentities = new Map<string, ResolutionStrategy>();
       const recordAttempt = (
@@ -633,6 +642,7 @@ export class ExperienceProposalResolverService
           candidateFoundBeforeFailure?: boolean;
           destinationCompatibility?: DestinationCompatibility;
           routeResolution?: ResolutionAttemptAudit['routeResolution'];
+          placeSearch?: PlaceSearchAudit;
         },
         verification: VerificationResult | undefined,
       ): void => {
@@ -642,6 +652,9 @@ export class ExperienceProposalResolverService
             : {}),
           ...(acquisition.routeResolution
             ? { routeResolution: acquisition.routeResolution }
+            : {}),
+          ...(acquisition.placeSearch
+            ? { placeSearch: acquisition.placeSearch }
             : {}),
           strategy,
           executionStatus:
@@ -661,6 +674,7 @@ export class ExperienceProposalResolverService
                   canonicalName: acquisition.entity.canonicalName,
                   externalId: acquisition.entity.externalId,
                   kind: acquisition.entity.kind,
+                  identities: strongIdentitiesOf(acquisition.entity),
                 }
               : undefined,
           identityEvidence: verification?.evidence ?? [],
@@ -687,6 +701,9 @@ export class ExperienceProposalResolverService
                   canonicalName: entity.canonicalName,
                   provider: entity.provider,
                   externalId: entity.externalId,
+                  ...(entity.persistence
+                    ? { persistence: entity.persistence }
+                    : {}),
                 }
               : undefined,
         });
@@ -1028,6 +1045,7 @@ export class ExperienceProposalResolverService
         // continue to the next strategy on any non-verified decision.
         const placesResolved = await this.resolveViaPlaces(
           hint,
+          destinationScope,
           this.representativePoint(boundary),
         );
         if (placesResolved.status === 'candidate') {
@@ -1046,6 +1064,7 @@ export class ExperienceProposalResolverService
               query: placesResolved.query,
               providerResultCount: placesResolved.providerResultCount,
               entity: placesResolved.candidate,
+              placeSearch: placesResolved.placeSearch,
             },
             verification,
           );
@@ -1297,25 +1316,31 @@ export class ExperienceProposalResolverService
       ...buildLocalIdentityEvidence(hint, entity),
       ...acquisitionEvidence,
     ];
-    if (seenIdentities && entity.externalId) {
-      // Keyed by externalId alone, not `${provider}:${externalId}`: the
-      // externalId itself is already self-namespaced by real data source
-      // (`osm:node:...`/`osm:way:...`/`osm:relation:...` vs. an opaque
-      // `geoapify:...`/`google_places:...` string), so it is already
-      // globally unique across providers. LOCAL_OSM_POOL and NOMINATIM are
-      // two different SEARCH MECHANISMS over the exact same OSM dataset and
-      // label `candidate.provider` differently ('openstreetmap' vs.
-      // 'nominatim') even when they return the identical real object --
-      // requiring that acquisition-strategy label to also match would
-      // silently prevent the very convergence this evidence exists to
-      // recognize.
-      const identityKey = entity.externalId;
-      const priorStrategy = seenIdentities.get(identityKey);
-      if (priorStrategy && priorStrategy !== strategy) {
-        evidence.push({ type: 'IDENTITY_CONVERGENCE', priorStrategy });
+    if (seenIdentities) {
+      // Strong-identity correlation: the candidate's identity SET (e.g.
+      // Geoapify's own handle + the OSM object and QID its Place Details
+      // declared) against every identity an EARLIER, different strategy
+      // acquired for this same hint. Keys are namespace + canonical id
+      // (`openstreetmap/osm:node:3348573778`): the namespace is the
+      // identity provider, never the acquisition strategy, so Nominatim's
+      // and Geoapify's views of one OSM node share a key while `osm:node:1`
+      // and `osm:way:1` never do. Exact equality only -- no names, no
+      // coordinates, no count of agreeing providers.
+      const identities = strongIdentitiesOf(entity);
+      for (const identity of identities) {
+        const priorStrategy = seenIdentities.get(strongIdentityKey(identity));
+        if (priorStrategy && priorStrategy !== strategy) {
+          evidence.push({
+            type: 'IDENTITY_CONVERGENCE',
+            priorStrategy,
+            identity,
+          });
+          break;
+        }
       }
-      if (!seenIdentities.has(identityKey)) {
-        seenIdentities.set(identityKey, strategy);
+      for (const identity of identities) {
+        const key = strongIdentityKey(identity);
+        if (!seenIdentities.has(key)) seenIdentities.set(key, strategy);
       }
     }
     const attempt: ResolutionAttempt = {
@@ -1350,15 +1375,32 @@ export class ExperienceProposalResolverService
         identities: candidate.identities,
         latitude: candidate.latitude ?? undefined,
         longitude: candidate.longitude ?? undefined,
-        geometry: candidate.geometry as MultiLineStringGeometry,
+        // A Point for a PLACE, a MultiLineString for a multi-way ROUTE.
+        geometry: candidate.geometry as GeoJsonGeometry,
         metadata: candidate.persistenceMetadata,
       });
       if (persisted.status === 'IDENTITY_CONFLICT') {
-        // A concurrent write attached some of these identities to another
-        // GeoEntity since correlation ran: never merged, fail closed.
+        // The candidate's strong identities are already owned by 2+
+        // different GeoEntities: never merged, never a name/proximity
+        // winner -- fail closed.
+        this.logger.warn(
+          `IDENTITY_CONFLICT persisting "${candidate.canonicalName}" for hint "${candidate.hintName}": identities ${strongIdentitiesOf(
+            candidate,
+          )
+            .map(strongIdentityKey)
+            .join(
+              ', ',
+            )} are owned by GeoEntities ${persisted.conflictingGeoEntityIds.join(', ')}`,
+        );
         return this.identityConflictEntity(candidate);
       }
-      return this.resolvedFromCandidate(candidate, persisted.geoEntity.id);
+      return {
+        ...this.resolvedFromCandidate(candidate, persisted.geoEntity.id),
+        persistence: {
+          status: persisted.status,
+          attachedExternalIds: persisted.attachedExternalIds,
+        },
+      };
     }
     const geo = await this.catalog.upsertGeoEntity({
       name: candidate.canonicalName,
@@ -1851,7 +1893,12 @@ export class ExperienceProposalResolverService
         candidate: {
           hintKey: correctedHint.key,
           hintName: correctedHint.name,
-          provider: 'nominatim',
+          // Nominatim is the acquisition strategy (the attempt's `provider`
+          // above); the identity itself is an OpenStreetMap object, in the
+          // same namespace LOCAL_OSM_POOL, targeted ROUTE and Geoapify Place
+          // Details use -- so one real OSM node is one strong identity
+          // whichever strategy surfaced it.
+          provider: 'openstreetmap',
           externalId,
           canonicalName,
           kind: GeoEntityKind.PLACE,
@@ -2005,6 +2052,12 @@ export class ExperienceProposalResolverService
       geometry: match.geometry,
       role: hint.role,
       expectedType: hint.expectedKind,
+      // Every persisted strong identity of the canonical entity, so a later
+      // strategy's acquisition of any of them correlates with it.
+      identities: match.identities.map(({ provider, externalId }) => ({
+        provider,
+        externalId,
+      })),
       // Strict normalized-name equality already established exactly one
       // compatible catalog candidate -- SINGLE, the same signal
       // `buildLocalIdentityEvidence` turns into EXACT_NAME/SINGLE, which
@@ -2214,6 +2267,15 @@ export class ExperienceProposalResolverService
       type: 'Point' as const,
       coordinates: [longitude, latitude],
     };
+    // The same details response may declare explicit cross-identities
+    // (Geoapify: OSM object + Wikidata QID) -- kept as correlation facts,
+    // never parsed out of the opaque id.
+    const sourceIdentities = (details.sourceIdentities ?? []).map(
+      ({ provider, externalId: id }) => ({ provider, externalId: id }),
+    );
+    const wikidataQid = sourceIdentities.find(
+      (identity) => identity.provider === 'wikidata',
+    )?.externalId;
     this.logger.debug(
       `[P2-B] reuse candidate acquired for hint "${hint.name}" via ${externalId}`,
     );
@@ -2240,6 +2302,15 @@ export class ExperienceProposalResolverService
           exactName: 'UNKNOWN',
           declaredAlias: 'UNKNOWN',
         },
+        ...(wikidataQid ? { wikidataQid } : {}),
+        ...(sourceIdentities.length > 0
+          ? {
+              identities: [
+                { provider: providerLabel, externalId },
+                ...sourceIdentities,
+              ],
+            }
+          : {}),
         persistenceMetadata: { formattedAddress: details.formattedAddress },
       },
     };
@@ -2252,15 +2323,34 @@ export class ExperienceProposalResolverService
    * same caching-wrapped instance the catalog-refill path already uses, so
    * this consumes the exact same quota/cache as the rest of the app rather
    * than a second, separately-configured client.
+   *
+   * Stage 3 PLACE cutover order, each step owning one question:
+   *  1. text search with the hint text unchanged (no alias, no stripping);
+   *  2. structural compatibility -- can this KIND of object be a PLACE?
+   *     (provider-declared `featureClass`; streets, administrative areas,
+   *     postcodes and transit stops never are);
+   *  3. destination scope -- the single destination policy drops objects
+   *     positively outside the resolved destination (a same-name gallery in
+   *     another partido); UNKNOWN scope drops nothing, keeping the hard
+   *     search circle as the only geographic constraint as before;
+   *  4. bounded selection among the survivors (`selectBestPlaceCandidate`,
+   *     ranking only) and name multiplicity over the SAME survivors;
+   *  5. Place Details for the ONE selected candidate, only when the
+   *     provider can declare cross-identities, turning an opaque handle into
+   *     explicit OSM/Wikidata identities for correlation.
+   * Identity itself stays with strong-identity correlation +
+   * IdentityVerifier; nothing here authorizes a match.
    */
   private async resolveViaPlaces(
     hint: any,
+    destinationScope: GeographicScope,
     destinationPoint?: Coordinates,
   ): Promise<StrategyAcquisitionResult> {
     if (!this.placesApi || hint.expectedKind !== 'PLACE') {
       return { status: 'not_applicable' };
     }
 
+    const providerLabel = placesAcquisitionLabel(this.placesApi.provider);
     try {
       const result = await this.placesApi.searchText({
         textQuery: hint.name,
@@ -2272,14 +2362,51 @@ export class ExperienceProposalResolverService
             }
           : undefined,
       });
+      const placeSearch: PlaceSearchAudit = {
+        resultCount: result.data.length,
+        rejected: [],
+        viableCount: 0,
+      };
+      const viable: PlaceData[] = [];
+      for (const place of result.data) {
+        const name = place.displayName?.text || place.name || '';
+        const structural = evaluatePlaceStructuralCompatibility(
+          place.featureClass,
+        );
+        if (structural.verdict === 'INCOMPATIBLE') {
+          placeSearch.rejected.push({
+            name,
+            reason: 'STRUCTURALLY_INCOMPATIBLE',
+            featureClass: structural.featureClass,
+          });
+          continue;
+        }
+        const destination = evaluateDestinationCompatibility(
+          {
+            probePoints: place.location ? [place.location] : [],
+          },
+          destinationScope,
+        );
+        if (destination.verdict === 'INCOMPATIBLE') {
+          placeSearch.rejected.push({
+            name,
+            reason: 'DESTINATION_INCOMPATIBLE',
+            destinationReason: destination.reason,
+          });
+          continue;
+        }
+        viable.push(place);
+      }
+      placeSearch.viableCount = viable.length;
+
       const place = selectBestPlaceCandidate(
         hint.name,
-        result.data,
+        viable,
         destinationPoint,
       );
       const exactNameCount = countExactNormalizedMatches(
         hint.name,
-        result.data,
+        viable,
         (candidate) => candidate.displayName?.text || candidate.name,
       );
       const nameMultiplicity = {
@@ -2293,18 +2420,25 @@ export class ExperienceProposalResolverService
       ) {
         return {
           status: 'no_candidate',
-          provider: placesAcquisitionLabel(this.placesApi.provider),
+          provider: providerLabel,
           query: hint.name,
           providerResultCount: result.data.length,
+          placeSearch,
         };
       }
 
-      const providerLabel = placesAcquisitionLabel(this.placesApi.provider);
       const canonicalName = place.displayName?.text || place.name || hint.name;
       const externalId = canonicalPlacesExternalId(
         this.placesApi.provider,
         place.id,
       );
+      const sourceIdentities = await this.enrichPlaceIdentities(
+        place.id,
+        placeSearch,
+      );
+      const wikidataQid = sourceIdentities.find(
+        (identity) => identity.provider === 'wikidata',
+      )?.externalId;
       const geometry = {
         type: 'Point' as const,
         coordinates: [place.location.longitude, place.location.latitude],
@@ -2314,6 +2448,7 @@ export class ExperienceProposalResolverService
         provider: providerLabel,
         query: hint.name,
         providerResultCount: result.data.length,
+        placeSearch,
         candidate: {
           hintKey: hint.key,
           hintName: hint.name,
@@ -2326,6 +2461,15 @@ export class ExperienceProposalResolverService
           geometry,
           role: hint.role,
           nameEvidenceMultiplicity: nameMultiplicity,
+          ...(wikidataQid ? { wikidataQid } : {}),
+          ...(sourceIdentities.length > 0
+            ? {
+                identities: [
+                  { provider: providerLabel, externalId },
+                  ...sourceIdentities,
+                ],
+              }
+            : {}),
           persistenceMetadata: {
             formattedAddress: place.formattedAddress,
             types: place.types,
@@ -2338,10 +2482,45 @@ export class ExperienceProposalResolverService
       );
       return {
         status: 'failed',
-        provider: placesAcquisitionLabel(this.placesApi.provider),
+        provider: providerLabel,
         query: hint.name,
         failureReason: error?.message ?? String(error),
       };
+    }
+  }
+
+  /**
+   * Explicit cross-identities (OSM object, Wikidata QID) the Places provider
+   * declares for ONE already-selected record via Place Details. Only called
+   * when the provider has that capability; enrichment is additive, so a
+   * failed/empty details call leaves the candidate with its own handle and
+   * is recorded, never turned into an acquisition failure or contradiction.
+   */
+  private async enrichPlaceIdentities(
+    placeId: string,
+    placeSearch: PlaceSearchAudit,
+  ): Promise<Array<{ provider: string; externalId: string }>> {
+    if (!this.placesApi?.declaresSourceIdentitiesInDetails) {
+      placeSearch.identityEnrichment = { status: 'NOT_SUPPORTED' };
+      return [];
+    }
+    try {
+      const details = await this.placesApi.getPlaceDetails(placeId);
+      const identities = (details.data?.sourceIdentities ?? []).map(
+        ({ provider, externalId }) => ({ provider, externalId }),
+      );
+      placeSearch.identityEnrichment =
+        identities.length > 0
+          ? { status: 'ENRICHED', identities }
+          : { status: 'NO_SOURCE_IDENTITIES' };
+      return identities;
+    } catch (error: any) {
+      const failureReason = error?.message ?? String(error);
+      this.logger.warn(
+        `Place Details identity enrichment failed for ${placeId}: ${failureReason}`,
+      );
+      placeSearch.identityEnrichment = { status: 'FAILED', failureReason };
+      return [];
     }
   }
 
