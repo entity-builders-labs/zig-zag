@@ -13,6 +13,7 @@ import {
 import { OsmModule } from './osm/osm.module';
 import { WikidataModule } from './wikidata/wikidata.module';
 import { PhotosModule } from './photos/photos.module';
+import { SerperModule } from './serper/serper.module';
 
 export function createRealPlacesApiService(
   configService: ConfigService,
@@ -47,7 +48,14 @@ export function createPlacesApiService(
 }
 
 @Module({
-  imports: [ConfigModule, AiModule, OsmModule, WikidataModule, PhotosModule],
+  imports: [
+    ConfigModule,
+    AiModule,
+    OsmModule,
+    WikidataModule,
+    PhotosModule,
+    SerperModule,
+  ],
   providers: [
     PrismaService,
     GooglePlacesApiService,
@@ -64,6 +72,12 @@ export function createPlacesApiService(
       inject: [ConfigService, 'RealPlacesApiService', CachedPlacesApiService],
     },
   ],
-  exports: ['PlacesApiService', OsmModule, WikidataModule, PhotosModule],
+  exports: [
+    'PlacesApiService',
+    OsmModule,
+    WikidataModule,
+    PhotosModule,
+    SerperModule,
+  ],
 })
 export class IntegrationsModule {}
