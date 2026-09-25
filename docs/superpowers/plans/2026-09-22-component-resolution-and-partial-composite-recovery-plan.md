@@ -39,8 +39,8 @@ implements the stage. Do not mark a stage DONE without real validation.
 | --- | --- | --- | --- | --- | --- |
 | 1. Characterization lock | DONE | `286c85930eeff59c97e8c02918c3620ab203a44c` | `a0b6c75b50bf37807ab6c2450f94c8e81c9fc9d2` | jest (5 spec files, 187 tests) + tsc --noEmit + eslint (touched files) all green | 9 RW1-derived characterization cases frozen; `required` blast radius inventoried; several defects found that were previously undocumented (see below). Stage 2 unblocked. |
 | 2. Source-grounded contract cutover | DONE | `a7df3b579282cee6b57fef8a914080d507e47fac` | *(this commit)* | jest (152/153 suites, 1746/1747 tests; 1 pre-existing arch failure) + tsc (clean) + eslint (clean) | LLM-owned `required` eliminated from discovery contract; deterministic source-support admission gate implemented; Santa Mónica blocked; semantic document bumped to v3; Stage 3 unblocked. |
-| 3. Catalog-first identity resolution | IN PROGRESS — PLACE cutover landed (Geoapify forward geocoding, structural PLACE filter, destination-scoped PLACE matches, multi-identity convergence); Farmacia + Mafalda + El Zanjón + Solar de French RESOLVED live; remaining: name-divergent WARM reuse (needs a schema decision) and the San Martín ambiguity override | `9eaf5ec1d9caddba55ccab1e0d5c2774f45f61b3` | `52c6da1`,`9424dc5`,`77de1fa`,`c101fea` *(evidence + progress: this commit)* | unit 1962/1963 (pre-existing preference-first-architecture failure); integration on zigzag_test 80–81/84 (the 3 baseline failures + `catalog-reuse`, which flakes identically at 9eaf5ec, 2/8 isolated runs); real-Postgres PLACE identity 5/5; country-code harness integration 1/1 (mutation-checked); live COLD/WARM on a fresh DB (14 hints + Solar de French); 1 live Serper call (`gl=ar`); SerpApi 0; tsc + eslint clean | See the 2026-09-25 PLACE cutover addendum below and `spikes/stage3-place-cutover-cold-warm-2026-09-25/assessment.md`. Stage 4 BLOCKED. |
-| 4. Geographic + partial-composite cutover | BLOCKED | — | — | — | Starts after identity outcomes are explicit/stable. |
+| 3. Catalog-first identity resolution | DONE | `9eaf5ec1d9caddba55ccab1e0d5c2774f45f61b3` (PLACE cutover); `d1059a7cf786256acff2e9ca2311cac1ec7ab1b9` (verified hint memory) | `52c6da1`,`9424dc5`,`77de1fa`,`c101fea`; `6b60add`,`3abb70f`,`4b64b90` *(progress: this commit)* | unit 1987/1988 (pre-existing preference-first-architecture failure); integration on zigzag_test 91/94 (the 3 baseline failures; `catalog-reuse` passed); real-Postgres verified-hint memory 10/10 incl. concurrency (mutation-checked) and GIN EXPLAIN; live COLD/WARM on a fresh DB (15 hints incl. Solar de French); SerpApi/Serper/Google Places 0; tsc + eslint clean | Name-divergent WARM reuse closed by verified hint memory on `GeoEntity` (text[] + GIN, no new table). See the 2026-09-25 verified hint memory addendum and `spikes/stage3-verified-hint-memory-cold-warm-2026-09-25/assessment.md`. Stage 4 UNBLOCKED. |
+| 4. Geographic + partial-composite cutover | UNBLOCKED (not started) | — | — | — | Identity outcomes are explicit/stable (Stage 3 DONE). |
 | 5. Trace + RW1 verification | BLOCKED | — | — | — | Final milestone validation; thresholds only from observed evidence. |
 
 ### Stage 1 — Characterization lock (2026-09-23)
@@ -1432,6 +1432,106 @@ re-acquired onto the same GeoEntity.
 - Stage 4: **BLOCKED**, untouched (`required`, `isMigrationRequiredHint`,
   partial-composite lifecycle, planner eligibility).
 
+### Stage 3 progress addendum — verified hint memory closes name-divergent WARM reuse, Stage 3 DONE (2026-09-25)
+
+Starting HEAD: `d1059a7cf786256acff2e9ca2311cac1ec7ab1b9` (verified equal
+to the fork remote). Baseline re-verified at that HEAD before any change:
+unit 1962/1963 (only `preference-first-architecture.spec.ts`), integration
+81/84 (the 3 known failures: 2 × `acquisition-degradation`, 1 ×
+`canonical-orchestration`; the `catalog-reuse` flake passed this time).
+Commits:
+
+- `6b60add` feat(db): remember verified GeoEntity hint names.
+- `3abb70f` feat(tours): reuse GeoEntities by verified hint name.
+- `4b64b90` test(tours): prove name-divergent warm catalog reuse.
+
+**Model — verified hint memory, not an alias engine.** `GeoEntity` gains
+`verifiedHintNames text[]` (the hint text, verbatim) and
+`verifiedHintNameKeys text[]` (its `normalizeGeoName` key — the single
+existing normalization), positionally aligned (DB `CHECK` on equal
+cardinality), deduplicated by key, GIN-indexed
+(`geo_entity_verifiedHintNameKeys_idx`). Migration
+`20260925180000_add_geo_entity_verified_hint_names` is additive (empty
+defaults, no backfill, no canonical name/identity/metadata rewritten). A
+separate table was not needed: the fact belongs to the GeoEntity
+aggregate, `text[] @>` is GIN-indexable, and one conditional `UPDATE`
+keeps both arrays atomic and idempotent. `GeoEntity.name` stays the
+canonical display name. Not globally unique: the same key may live on
+several GeoEntities.
+
+**Write path.** `ExperienceProposalResolverService` remembers `hint.name`
+only after IdentityVerifier VERIFIED an external resolution and persistence
+returned a GeoEntity of the hint's own expected kind — never on
+CATALOG_REUSE, REJECTED, AMBIGUOUS, UNCONFIRMED, NO_CANDIDATE,
+IDENTITY_CONFLICT or provider failure, never during acquisition.
+`ExperienceCatalogService.rememberVerifiedHintName` is one `UPDATE ... SET
+both = array_append(...) WHERE id = $id AND NOT ("verifiedHintNameKeys" @>
+ARRAY[$key])`: concurrent writers serialize on the row lock and READ
+COMMITTED re-evaluates the guard, so no lost update and no duplicate
+(12-way concurrent test; a naive read-modify-write fails it). Best-effort:
+a failed write is audited (`verifiedHintMemory: FAILED`) and never fails
+resolution.
+
+**Read path.** `findGeoEntityCandidatesForHint` = canonical-name matches
+(unchanged bounded kind + bbox query) ∪ `SELECT id FROM geo_entity WHERE
+"verifiedHintNameKeys" @> ARRAY[$key]::text[] AND kind = $kind AND
+latitude/longitude BETWEEN bbox` (`@>`, not `= ANY`, so GIN can serve it),
+unioned by id with `matchKind` typed per candidate (canonical wins for the
+same row). One verified-hint match → `CATALOG_VERIFIED_HINT_MATCH
+(verifiedHintKey, SINGLE)` evidence; IdentityVerifier accepts it like
+EXACT_NAME(SINGLE) and returns AMBIGUOUS on MULTIPLE. 2+ in-scope matches
+of either kind stay ambiguous and fall through to bounded external
+acquisition — never a winner. Catalog (facts/multiplicity), resolver
+(orchestration) and IdentityVerifier (authority) stay separate.
+
+**Query evidence.** Real Postgres, 5,001 PLACE rows inside the bbox after
+`ANALYZE`: `Bitmap Index Scan on "geo_entity_verifiedHintNameKeys_idx"`
+(asserted in the integration spec). The 12-row live DB uses `Index Scan
+using geo_entity_latitude_longitude_idx` with `@>` as a filter — bounded,
+no sequential scan either way.
+
+**Live COLD/WARM** (`spikes/stage3-verified-hint-memory-cold-warm-2026-09-25/`,
+fresh DB, same harness extended): Farmacia la Estrella, Mafalda Statue,
+Recoleta Cemetery and El Zanjón de Granados are COLD-resolved and
+remembered, then WARM `CATALOG_REUSE` via `VERIFIED_HINT(SINGLE)` onto the
+same GeoEntity with **0** Geoapify/Nominatim/Overpass/Wikidata calls
+(85–139 ms; previously 17 identity calls, 3.9–7.2 s). The 8 exact-name
+regressions (Casa Mínima, Mercado de San Telmo, Plaza Dorrego, Basílica de
+San Francisco, Parque Lezama, Cementerio de la Recoleta, Plaza San Martín,
+Solar de French) stay `CATALOG_REUSE` / `EXACT_NAME(SINGLE)` / 0 calls.
+Galería Güemes fails closed and Defensa Street is never a PLACE — neither
+is remembered. GeoEntity 12 / identities 18 / memory entries 13 before and
+after WARM. SerpApi, Serper, Google Places: 0.
+
+**San Martín.** "San Martín" is an adversarial bare-name control added by
+the harness, not an observed source-backed production hint. Its current
+IdentityVerifier behavior (own-QID Wikidata match verifying over
+`DECLARED_ALIAS_MATCH(MULTIPLE)`) remains hardening debt and does not block
+Stage 3. IdentityVerifier was not changed. Consequence to carry with that
+debt: its wrong COLD resolution is now remembered, so WARM reuses it; if the
+rule is hardened later, stale memory entries must be cleared (dev data is
+disposable).
+
+**Stage 3 exit gate, reviewed literally:**
+
+| Exit item | Evidence | Status |
+| --- | --- | --- |
+| Catalog reuse works without full-table scan | canonical: bounded kind + bbox; verified hint: kind + bbox + GIN `@>` (EXPLAIN evidence above) | PASS |
+| Unambiguous canonical GeoEntity avoids unnecessary external identity calls | live WARM: 12/12 COLD-resolved gated hints (4 name-divergent + 8 exact-name) → CATALOG_REUSE, same GeoEntity, 0 identity calls | PASS |
+| Ambiguous catalog matches fail closed into bounded external resolution | unit: verified-hint MULTIPLE and canonical+verified-hint mixes → no winner, external pipeline runs; real Postgres: shared key → both candidates | PASS |
+| Candidate correlation and IdentityVerifier remain separate | catalog returns facts + `matchKind`; typed evidence; IdentityVerifier alone decides | PASS |
+| Solar de French reuses established canonical knowledge | live COLD convergence on `osm:relation:9314953`; WARM CATALOG_REUSE 0 calls, 167 ms | PASS |
+| El Zanjón re-tested | live COLD keyed `IDENTITY_CONVERGENCE`; WARM CATALOG_REUSE via verified hint, 0 calls; no corroboration relaxation | PASS |
+| Progress records tests/performance/query evidence and remaining real deficits | this addendum + assessment | PASS |
+
+**Stage status:** Stage 3 **DONE**. Stage 4 **UNBLOCKED** (untouched:
+`required`, `isMigrationRequiredHint`, partial-composite lifecycle, planner
+eligibility, component geographic relation, CompositeGeographicValidation
+cutover). Debt carried, not blocking: San Martín hardening (above);
+`representativePoint` uses the first MultiPolygon polygon;
+`AreaRouteAnchorResolverService` labels Nominatim anchors with the
+`nominatim` namespace; `catalog-reuse` integration flake.
+
 ### Cross-cutting product-shape note — simple, composite, and mixed Tour requests (2026-09-23)
 
 The current milestone is intentionally focused on making multi-component
@@ -1887,7 +1987,10 @@ Reuse the existing schema before inventing new schema:
 - `GeoEntityIdentity(provider, externalId)` owns exact persisted identities.
 
 Do not add a duplicate kind field. A dedicated alias model is not required
-unless characterization proves it necessary.
+unless characterization proves it necessary. *(2026-09-25: characterization
+proved name-divergent hints need it; implemented as verified hint memory on
+`GeoEntity` itself — `verifiedHintNames`/`verifiedHintNameKeys` text[] +
+GIN — written only after a VERIFIED resolution. Not an alias engine.)*
 
 ### Query constraint
 

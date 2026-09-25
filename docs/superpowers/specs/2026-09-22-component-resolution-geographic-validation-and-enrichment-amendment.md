@@ -736,6 +736,17 @@ unambiguous name/kind/scope matches may be reused; anything uncertain falls
 through to external resolution. Add an alias model only if characterization
 shows that safe catalog reuse materially requires one.
 
+*Update 2026-09-25:* live COLD/WARM characterization showed observed hints
+whose text differs from the canonical name ("Farmacia la Estrella",
+"Mafalda Statue", "Recoleta Cemetery", "El Zanjón de Granados") re-acquired
+on every run. The implemented answer is **verified hint memory** on the
+`GeoEntity` row (`verifiedHintNames` / `verifiedHintNameKeys` text[] + GIN):
+a hint text is recorded only after it resolved VERIFIED to that entity, and
+a later exact-key match within kind + scope is typed
+`CATALOG_VERIFIED_HINT_MATCH` evidence for IdentityVerifier. It records
+resolution history, never infers aliases from similarity, and keeps
+multiplicity (a shared key is ambiguous).
+
 ---
 
 ## 16. GeoEntity and Experience remain different catalog identities

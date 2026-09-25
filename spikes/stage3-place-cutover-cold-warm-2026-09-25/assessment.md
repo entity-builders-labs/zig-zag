@@ -130,7 +130,9 @@ Lezama, Cementerio de la Recoleta, Plaza San Martín): 22 COLD provider calls
    observed-name/alias fact; the current schema has none (GeoEntity.name +
    GeoEntityIdentity only), and hiding it in `metadata` would violate the typed
    canonical contract rule. This needs a schema migration — **stopped here per
-   task instructions; needs approval first**.
+   task instructions; needs approval first**. *Resolved later on 2026-09-25
+   by verified hint memory on `GeoEntity` — see
+   `spikes/stage3-verified-hint-memory-cold-warm-2026-09-25/assessment.md`.*
 2. **San Martín.** LOCAL_OSM_POOL observes `DECLARED_ALIAS_MATCH(MULTIPLE)`,
    but IdentityVerifier rule 4 lets `WIKIDATA_IDENTITY_MATCH(OWN_QID)` verify
    before the multiplicity fallback. For a single-significant-token hint the
