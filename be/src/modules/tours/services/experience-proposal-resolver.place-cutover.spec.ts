@@ -221,6 +221,19 @@ const placesAttempt = (result: any) =>
 const resolvedEntity = (result: any) => result.resolved[0].resolvedEntities[0];
 
 describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
+  it('searches with the characterized 10-result window (Geoapify limit is not a truncation: limit=3 dropped the correct pharmacy live)', async () => {
+    const { service, placesApi } = build({ searchResults: [FARMACIA] });
+
+    await resolveHint(service, 'Farmacia la Estrella');
+
+    expect(placesApi.searchText).toHaveBeenCalledWith(
+      expect.objectContaining({
+        textQuery: 'Farmacia la Estrella',
+        maxResultCount: 10,
+      }),
+    );
+  });
+
   describe('structural PLACE compatibility (before selection)', () => {
     it('rejects a street result for a PLACE hint and never enriches it ("Defensa Street")', async () => {
       const { service, placesApi, catalog } = build({
@@ -788,6 +801,44 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
           externalId: 'osm:node:3348573778',
         }),
       );
+    });
+  });
+
+  describe('Nominatim PLACE candidates answer to the same destination policy', () => {
+    it('never verifies the same-name Ramos Mejía gallery Nominatim returns as its only exact match (live COLD false positive)', async () => {
+      const { service, catalog } = build({
+        nominatimResults: [
+          {
+            osmType: 'way',
+            osmId: 1,
+            class: 'shop',
+            type: 'mall',
+            addresstype: 'shop',
+            displayName:
+              'Galería Güemes, Ramos Mejía, Partido de La Matanza, Buenos Aires, Argentina',
+            importance: 0.1,
+            latitude: -34.6397571,
+            longitude: -58.5657864,
+            address: {},
+          },
+        ],
+      });
+
+      const result = await resolveHint(service, 'Galería Güemes');
+
+      const nominatimAttempt = componentAudit(result).attempts.find(
+        (a: any) => a.strategy === 'NOMINATIM',
+      );
+      expect(nominatimAttempt.candidateAcquired).toBe(false);
+      expect(nominatimAttempt.destinationCompatibility).toEqual({
+        verdict: 'INCOMPATIBLE',
+        reason: 'OUTSIDE_DESTINATION_BOUNDARY',
+      });
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(resolvedEntity(result)).toMatchObject({
+        status: 'unresolved',
+        reason: 'DESTINATION_INCOMPATIBLE',
+      });
     });
   });
 

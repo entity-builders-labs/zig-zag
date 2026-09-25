@@ -533,7 +533,14 @@ describe('ExperienceProposalResolverService', () => {
     );
   });
 
-  it('resolves an evidence-associated Experience outside the base destination and validates its own geo scope', async () => {
+  // Since the Stage 3 PLACE cutover, an evidence-associated global match
+  // positively outside an AREA-scale destination is DESTINATION_INCOMPATIBLE
+  // at component resolution -- the same verdict CompositeGeographicValidation
+  // Service's own OUTSIDE_DESTINATION_BOUNDARY rule already gave the
+  // accepted candidate (mocked here), now without persisting an
+  // out-of-destination GeoEntity first. A point-scale destination (no
+  // polygon) keeps resolving it, as the day-trip integration spec does.
+  it('an evidence-associated match outside an area-scale destination is DESTINATION_INCOMPATIBLE, never persisted', async () => {
     const osmPlaces = {
       lookupPoisWithin: jest
         .fn()
@@ -600,23 +607,12 @@ describe('ExperienceProposalResolverService', () => {
     expect(nominatim.search).toHaveBeenCalledWith('Tigre', {
       bias: { latitude: -34.6, longitude: -58.45 },
     });
-    expect(result.acceptedCount).toBe(1);
-    expect(result.resolved[0]).toMatchObject({
-      experienceId: 'exp-tigre',
-      destinationAssociationVerified: true,
+    expect(result.acceptedCount).toBe(0);
+    expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+      status: 'unresolved',
+      reason: 'DESTINATION_INCOMPATIBLE',
     });
-    expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
-      expect.objectContaining({
-        metadata: expect.objectContaining({ intents: ['day_trip'] }),
-      }),
-    );
-    expect(geographicValidator.validate).toHaveBeenCalledWith(
-      expect.anything(),
-      boundary,
-      undefined,
-      undefined,
-      { kind: 'AREA_BOUNDARY', boundary },
-    );
   });
 
   it('does not use a nearby Wikidata label to bridge a translated candidate with only partial token overlap', async () => {
@@ -6573,6 +6569,9 @@ describe('ExperienceProposalResolverService', () => {
         lookupPoisWithin: jest
           .fn()
           .mockResolvedValue({ status: 'success', value: [] }),
+        lookupPoisNear: jest
+          .fn()
+          .mockResolvedValue({ status: 'success', value: [] }),
         lookupBoundaryById: jest.fn(),
       };
 
@@ -6642,9 +6641,17 @@ describe('ExperienceProposalResolverService', () => {
         undefined,
         nominatimVerified as any,
       );
+      // Point-scale destination: no polygon, so Tigre (outside an
+      // area-scale Buenos Aires polygon) is not excluded by the destination
+      // policy -- this test is about the persistence lifecycle only.
       const res = await serviceVerified.resolve({
         destinationName: 'Buenos Aires',
-        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        geographicScope: {
+          kind: 'POINT_RADIUS',
+          latitude: -34.6037,
+          longitude: -58.3816,
+          radiusMeters: 50_000,
+        },
         candidates: [candidate('Tigre day trip', 'Tigre', ['day_trip'])],
         evidence: [
           {

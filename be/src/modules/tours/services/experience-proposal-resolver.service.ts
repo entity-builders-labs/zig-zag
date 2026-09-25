@@ -210,6 +210,17 @@ export function selectBestPlaceCandidate(
 export const PLACES_FALLBACK_BIAS_RADIUS_METERS = 50_000;
 
 /**
+ * Result window of the PLACES text search -- the window the Stage 3 PLACE
+ * characterization measured (Geoapify Forward Geocoding G1, 11/12 PLACE
+ * hints). A provider `limit` is not a plain truncation: live, for "Farmacia
+ * la Estrella" around the same bias point, `limit=10` returned the real
+ * pharmacy at #1 (confidence 0.9, full_match) while `limit=3` omitted it and
+ * returned three unrelated pharmacies. Structural/destination filtering and
+ * name multiplicity then run over this whole window.
+ */
+export const PLACES_TEXT_SEARCH_RESULT_WINDOW = 10;
+
+/**
  * Upper bound on how many candidates `resolve()` resolves / persists at the
  * same time. Each accepted candidate opens its own interactive
  * `prisma.$transaction` (GeoEntity upsert + verified-Experience persist, both
@@ -1873,6 +1884,33 @@ export class ExperienceProposalResolverService
         };
       }
 
+      // Single destination policy, exactly as for AREA above and the PLACES
+      // strategy: a point-scale match positively outside the resolved
+      // destination (a same-name gallery in another partido, the only
+      // exact Nominatim hit) is never a component. UNKNOWN (no destination
+      // polygon) excludes nothing -- the country code + soft bias remain
+      // the only geographic constraint, as before.
+      const placeDestinationCompatibility = evaluateDestinationCompatibility(
+        {
+          probePoints: [
+            {
+              latitude: match.latitude as number,
+              longitude: match.longitude as number,
+            },
+          ],
+        },
+        destinationScope,
+      );
+      if (placeDestinationCompatibility.verdict === 'INCOMPATIBLE') {
+        return {
+          status: 'no_candidate',
+          provider: 'nominatim',
+          query: hint.name,
+          providerResultCount: results.length,
+          destinationCompatibility: placeDestinationCompatibility,
+        };
+      }
+
       const correctedHint =
         hint.expectedKind === 'PLACE'
           ? hint
@@ -2354,7 +2392,7 @@ export class ExperienceProposalResolverService
     try {
       const result = await this.placesApi.searchText({
         textQuery: hint.name,
-        maxResultCount: 3,
+        maxResultCount: PLACES_TEXT_SEARCH_RESULT_WINDOW,
         locationBias: destinationPoint
           ? {
               center: destinationPoint,
