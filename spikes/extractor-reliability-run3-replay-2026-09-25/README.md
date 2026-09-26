@@ -308,5 +308,58 @@ Not yet supportable from evidence: `TEMPERATURE_IS_MAJOR_VARIANCE_SOURCE`,
 temperature experiment (Control B) and the remaining token-budget samples are
 blocked by the daily Groq quota.
 
+---
+
+## 13. Continuation — Control B (temperature=0), partial, TPD-blocked again
+
+Priority-ordered run (single-evidence → case-b → case-a), `temperature=0`,
+`max_completion_tokens=900`. Sequential, TPD-aware stop (`harness/controlled-matrix.ts`
+was extended to run cases in `CASES` order, to stop on the first hard TPD 429,
+and to distinguish OTPM/TPD/TPM 429). Same frozen inputs, same production
+semantic path; prompts byte-identical to prior runs.
+
+### Control B — single-evidence (2 clean runs before TPD)
+
+| run | outcome |
+|-----|---------|
+| 01 | CANDIDATE |
+| 02 | CANDIDATE |
+| 03 | PROVIDER_FAILURE (hard TPD 429) |
+
+The two CANDIDATE runs produced **byte-identical raw responses**: same
+candidate name (`San Telmo Walking Tour`), same 3-component set (`Lezama Park`,
+`Plaza Dorrego`, `El Mercado de San Telmo`), same roles/evidenceKeys/
+supportSpans/description. Contrast: at temperature=.7 the same single-evidence
+input was mixed (baseline 5C/4N/1J with varying output).
+
+This is a **preliminary** determinism signal (N=2) — consistent with
+`TEMPERATURE_IS_MAJOR_VARIANCE_SOURCE` but not yet conclusive.
+
+Transport (single-evidence): 7 HTTP requests, 1 soft TPM retry, 1 hard TPD 429,
+0 hard OTPM 429, 0 json_validate_failed. TPD message: `Limit 200000, Used 198659`.
+
+### Control B — case-b and case-a
+
+Not run (0/10 each): the TPD daily quota was exhausted during single-evidence;
+the run preserved priority order and stopped cleanly.
+
+### Remaining Control A (case-b 5, single-evidence 10)
+
+Not run — Control B had priority and the quota was exhausted first.
+
+### Classification after Control B
+
+```
+PROVIDER_CAPACITY_STILL_BLOCKING           (TPD daily 200000, Used 198659)
+TEMPERATURE_IS_MAJOR_VARIANCE_SOURCE        (provisional, N=2 byte-identical)
+```
+
+`TEMPERATURE_IS_MAJOR_VARIANCE_SOURCE` remains provisional: two byte-identical
+CANDIDATE runs at temperature=0 vs the mixed baseline at temperature=.7 is
+strongly suggestive but N=2 is not enough to claim it confidently. Completing
+the remaining single-evidence samples (and case-b) at temperature=0 requires the
+daily Groq quota to refresh.
+
+
 
 

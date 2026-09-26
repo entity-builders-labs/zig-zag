@@ -118,8 +118,16 @@ function classify(result: any): Outcome {
 
 function providerErrorKind(
   message: string,
-): 'rate_limit_429' | 'json_validate_failed' | 'other' {
-  if (/429/.test(message)) return 'rate_limit_429';
+):
+  | 'rate_limit_otpm_429'
+  | 'rate_limit_tpd_429'
+  | 'rate_limit_tpm_429'
+  | 'json_validate_failed'
+  | 'other' {
+  if (/tokens per day|\bTPD\b/i.test(message)) return 'rate_limit_tpd_429';
+  if (/OTPM|output tokens per minute|Request too large/i.test(message))
+    return 'rate_limit_otpm_429';
+  if (/429/.test(message)) return 'rate_limit_tpm_429';
   if (/json_validate_failed|Failed to generate JSON/i.test(message))
     return 'json_validate_failed';
   return 'other';
@@ -185,7 +193,7 @@ async function controlledOnce(request: any, searchResult: any): Promise<{
   return { raw, system, prompt, extracted };
 }
 
-async function runControlledCase(def: { id: string; requestFile: string; evidenceFile: string }): Promise<void> {
+async function runControlledCase(def: { id: string; requestFile: string; evidenceFile: string }): Promise<boolean> {
   const dir = path.join(SPIKE, LABEL, def.id);
   const request = JSON.parse(fs.readFileSync(path.join(SPIKE, def.requestFile), 'utf8'));
   const searchResult = JSON.parse(fs.readFileSync(path.join(SPIKE, def.evidenceFile), 'utf8'));
@@ -202,8 +210,11 @@ async function runControlledCase(def: { id: string; requestFile: string; evidenc
   const start400 = httpStats.status400;
 
   const outcomes: Outcome[] = [];
-  let hard429 = 0;
+  let hardOTPM = 0;
+  let hardTPD = 0;
+  let hardTPM = 0;
   let jsonValidate = 0;
+  let tpdBlocked = false;
 
   for (let run = 1; run <= RUNS; run++) {
     const runDir = path.join(dir, `run-${String(run).padStart(2, '0')}`);
@@ -238,8 +249,10 @@ async function runControlledCase(def: { id: string; requestFile: string; evidenc
       const kind = providerErrorKind(raw);
       const outcome: Outcome = kind === 'json_validate_failed' ? 'INVALID_JSON' : 'PROVIDER_FAILURE';
       outcomes.push(outcome);
-      if (kind === 'rate_limit_429') hard429++;
-      if (kind === 'json_validate_failed') jsonValidate++;
+      if (kind === 'rate_limit_otpm_429') hardOTPM++;
+      else if (kind === 'rate_limit_tpd_429') hardTPD++;
+      else if (kind === 'rate_limit_tpm_429') hardTPM++;
+      else if (kind === 'json_validate_failed') jsonValidate++;
       writeText(path.join(runDir, 'raw-response.txt'), '');
       writeJson(path.join(runDir, 'parsed-result.json'), {
         classification: outcome,
@@ -256,18 +269,31 @@ async function runControlledCase(def: { id: string; requestFile: string; evidenc
         `[${def.id}] run ${String(run).padStart(2, '0')} -> ${outcome}` +
           ` · ${redactSecrets(raw).slice(0, 120)}`,
       );
+      // Stop cleanly on daily-quota exhaustion; do not burn quota retrying.
+      if (kind === 'rate_limit_tpd_429') {
+        tpdBlocked = true;
+        break;
+      }
     }
   }
 
   const case429 = httpStats.status429 - start429;
   const case400 = httpStats.status400 - start400;
-  const soft429Retries = Math.max(0, case429 - hard429);
+  const hardTotal = hardOTPM + hardTPD + hardTPM;
+  const soft429Retries = Math.max(0, case429 - 4 * hardTotal);
+  const completedRuns = outcomes.length;
   writeJson(path.join(dir, 'aggregate.json'), {
     model: MODEL,
     temperature: TEMPERATURE,
     maxCompletionTokens: MAX_COMPLETION_TOKENS,
     responseFormat: RESPONSE_FORMAT,
     runs: RUNS,
+    completedRuns,
+    ...(tpdBlocked
+      ? { blocked: true, blockedReason: 'TPD daily limit exhausted' }
+      : completedRuns < RUNS
+        ? { blocked: true, blockedReason: 'interrupted' }
+        : {}),
     distribution: outcomes.reduce<Record<string, number>>((acc, o) => {
       acc[o] = (acc[o] ?? 0) + 1;
       return acc;
@@ -277,20 +303,28 @@ async function runControlledCase(def: { id: string; requestFile: string; evidenc
       httpRequests: httpStats.requests - startRequests,
       httpStatus429: case429,
       httpStatus400: case400,
-      hard429,
+      hardOTPM429: hardOTPM,
+      hardTPD429: hardTPD,
+      hardTPM429: hardTPM,
       soft429Retries,
       jsonValidateFailed: jsonValidate,
     },
   });
+  return tpdBlocked;
 }
 
 (async () => {
   console.log(
     `controlled matrix · provider=groq model=${MODEL} temperature=${TEMPERATURE} maxCompletionTokens=${MAX_COMPLETION_TOKENS} responseFormat=${RESPONSE_FORMAT} runs=${RUNS} cases=${CASES.join(',')} label=${LABEL}`,
   );
-  for (const def of CASE_DEFS) {
-    if (!CASES.includes(def.id)) continue;
-    await runControlledCase(def);
+  for (const id of CASES) {
+    const def = CASE_DEFS.find((d) => d.id === id.trim());
+    if (!def) continue;
+    const blocked = await runControlledCase(def);
+    if (blocked) {
+      console.log(`stopping: TPD daily limit exhausted during ${def.id}`);
+      break;
+    }
   }
   console.log('done');
 })().catch((err) => {
