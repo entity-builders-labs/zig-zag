@@ -77,7 +77,7 @@ Current execution state:
    `finish_reason=length`. The provider-specific transport fix in
    `c1aa8d2` sets
    `chat_template_kwargs: { enable_thinking: false }` and strips the observed
-   ```json` fence before the existing deterministic JSON/parser boundary.
+   JSON code fence before the existing deterministic JSON/parser boundary.
    The prompt, model, candidate semantics, temperature and 900-token budget
    were not changed.
 7. **Cloudflare frozen single-evidence ×5 characterized.** Evidence in
