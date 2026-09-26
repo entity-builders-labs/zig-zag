@@ -1,6 +1,6 @@
 # Preference-First Selection — CURRENT MAIN PROGRESS
 
-Updated: 2026-09-14
+Updated: 2026-09-26
 Branch: `feat/preference-first-selection`
 Repository: `jiseruk/zig-zag`
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
@@ -16,23 +16,116 @@ classification contract and deterministic validation are unchanged.
 >
 > Code wins over stale progress text. The cutover has progressed non-linearly: M4 is already landed and substantial M5 work is already landed. Do not revert later milestone work merely because an earlier milestone needed a forward correction.
 
-## Current verdict
+## Current execution verdict — 2026-09-26
 
-**M3.5 is COMPLETE / APPROVED by independent review.**
+**Active track: extractor/provider reliability under Gate C.**
 
-The previously identified Nominatim scope-resolution blockers are resolved:
+The component-resolution / RW1 milestone is **COMPLETE / CLOSED** and must not
+be reopened unless a real regression invalidates an accepted invariant. The
+post-milestone Experience-dedupe defect is also **fixed deterministically**.
+The remaining live confirmation of that dedupe shape is observationally
+inconclusive because the upstream web extractor did not emit a qualifying
+standalone+composite pair during the bounded rerun.
 
-1. JSONv2 provider classification is normalized once at the adapter boundary from `category` to the canonical internal `NominatimResult.class` field.
-2. AREA-scale eligibility uses the provider-native numeric rank band `13..25`, so valid city/municipality ranks below 16 are accepted while county/broader (`<=12`) and street/more granular (`>=26`) scales remain outside the supported AREA band.
-3. `DestinationResolutionService`, `AreaRouteAnchorResolverService`, and AREA hint resolution in `ExperienceProposalResolverService` share the same canonical `isAreaScaleEligible()` policy.
-4. Unknown evidence remains fail-closed; bare nodes and non-administrative `boundary=*` results remain rejected.
-5. There are no destination-name special cases and no duplicate AREA-scale authority.
+Current execution state:
 
-Independent reviewer verdict: **✅ APPROVED**.
+- **Component-resolution / RW1:** CLOSED.
+- **Experience dedupe policy correction:** DONE. Commit
+  `d6f060344073eba101f16ee8ebc1a798a9aed378`
+  (`fix(tours): separate membership from experience identity`) preserves
+  standalone/composite coexistence without weakening same-Experience dedupe.
+- **Focused deterministic dedupe regression:** GREEN. The historical
+  standalone-vs-composite order-dependence is fixed in deterministic coverage.
+- **Post-dedupe live re-confirmation:** **INCONCLUSIVE DUE TO EXTRACTION
+  VARIANCE**. Three bounded COLD reruns emitted no qualifying composite, so the
+  target live shape was never reached. This does not reopen or invalidate the
+  deterministic dedupe fix.
+- **Extractor/provider reliability:** ACTIVE CURRENT TRACK. The frozen Run-3
+  corpus is now the controlled boundary for isolating evidence, model,
+  transport and sampling behavior before broad RW2–RW6 continuation.
+
+### Extractor/provider evidence landed
+
+1. **Frozen extractor corpus built.** Exact Run-3 requests and normalized
+   evidence are preserved under
+   `spikes/extractor-reliability-run3-replay-2026-09-25/`, including
+   `case-a`, `case-b`, and the strongest `single-evidence` fixture.
+2. **Groq/Qwen stochasticity characterized.** With
+   `qwen/qwen3.8-27b`, temperature `.7` and the exact frozen inputs, the
+   same evidence produced CANDIDATE, semantic-empty and invalid-output
+   outcomes. `max_completion_tokens=4096` also caused a hard Groq OTPM
+   blocker on the on-demand tier.
+3. **Token budget isolated from semantic yield.** A 900-token completion
+   budget is sufficient for the complete three-component San Telmo candidate
+   and removes the observed Groq OTPM request-size blocker; lowering the budget
+   did not by itself repair semantic yield. Groq's 200k TPD quota later blocked
+   completion of the controlled matrix.
+4. **Temperature signal remains provisional.** At `temperature=0`,
+   the two clean Groq single-evidence samples were byte-identical and emitted
+   the same complete three-component candidate. The third logical call failed
+   on TPD, so this remains a strong but small-N signal rather than a completed
+   conclusion.
+5. **Cloudflare is now a first-class fourth discovery extractor.** Commit
+   `b3ce4ec` added `cloudflare` beside Gemini/Groq/Ollama, with
+   `CLOUDFLARE_DISCOVERY_MODEL` configurable and
+   `@cf/qwen/qwen3.8-27b` used initially to isolate provider behavior without
+   changing model family. No automatic fallback was added and Groq remained
+   independently selectable.
+6. **Cloudflare reasoning transport was characterized and corrected.** Live
+   smoke evidence showed the Cloudflare Qwen variant spending the 900-token
+   budget in `message.reasoning`, returning `content=null` with
+   `finish_reason=length`. The provider-specific transport fix in
+   `c1aa8d2` sets
+   `chat_template_kwargs: { enable_thinking: false }` and strips the observed
+   ```json` fence before the existing deterministic JSON/parser boundary.
+   The prompt, model, candidate semantics, temperature and 900-token budget
+   were not changed.
+7. **Cloudflare frozen single-evidence ×5 characterized.** Evidence in
+   `b57519c` produced **4/5 CANDIDATE + 1/5 PROVIDER_FAILURE (60s timeout)**.
+   The four successful raw model contents were byte-identical, with the same
+   `San Telmo Walking Tour` and ordered component set
+   `Lezama Park → Plaza Dorrego → El Mercado de San Telmo`, all source
+   supported. There were **0 NO_CANDIDATE, 0 INVALID_JSON and 0 HTTP 429**
+   outcomes. Successful latency was approximately **22–40s**, versus roughly
+   **1.5s** for the small successful Groq temperature-0 sample.
+
+Interpretation stays deliberately bounded:
+
+```text
+successful Cloudflare samples
+→ strong semantic/output determinism for this frozen fixture
+
+4/5 overall with one 60s timeout
+→ NOT evidence of 5/5 provider reliability
+
+Groq TPD / Cloudflare timeout
+→ provider-capacity/operational failures, not semantic empty output
+```
+
+### Open next steps
+
+- characterize the Cloudflare latency/timeout signal rather than hiding it with
+  an arbitrary timeout increase;
+- run the controlled `case-b ×5` Cloudflare fixture next if provider
+  characterization continues;
+- run `case-a` only if it remains informative after `case-b`;
+- benchmark alternate Cloudflare models later through the already-configurable
+  `CLOUDFLARE_DISCOVERY_MODEL`, using the same frozen corpus and parser;
+- design provider fallback separately, with explicit policy and observability;
+  **no automatic fallback exists today**;
+- eventually re-attempt the bounded live dedupe shape when extraction actually
+  emits the required standalone+composite pair.
+
+Do **not** reopen component-resolution, dedupe identity policy, geography or
+planner semantics to address extractor/provider variance.
+
+M3.5 remains **COMPLETE / APPROVED**; its accepted Nominatim policy and the
+older cutover checkpoint detail are retained below for provenance, but they
+are no longer the current execution pointer.
 
 ---
 
-## Milestone status — real branch state
+## Historical cutover milestone checkpoint — retained for provenance
 
 | Milestone | Status | Evidence / notes |
 | --- | --- | --- |

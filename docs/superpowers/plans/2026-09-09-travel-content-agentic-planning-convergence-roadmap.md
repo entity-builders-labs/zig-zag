@@ -130,6 +130,14 @@ component-resolution work.
 
 # 3. Gate A — Experience dedupe policy correction
 
+Status: **DONE**. The deterministic policy correction landed in
+`d6f060344073eba101f16ee8ebc1a798a9aed378`
+(`fix(tours): separate membership from experience identity`). Shared
+standalone/composite membership no longer creates `AMBIGUOUS` by itself;
+same-Experience duplicate behavior remains covered. This gate does not reopen
+component-resolution.
+
+
 The immediate deterministic product bug is in:
 
 `be/src/modules/tours/utils/experience-dedupe.util.ts`
@@ -212,6 +220,16 @@ closed component-resolution milestone or trigger a broad dedupe rewrite.
 
 # 4. Gate B — focused regression after dedupe correction
 
+Status: **DETERMINISTIC REGRESSION COMPLETE; LIVE RE-CONFIRMATION
+INCONCLUSIVE DUE TO EXTRACTION VARIANCE**.
+
+The deterministic matrix is green. A bounded three-run live re-confirmation
+was executed, but no run emitted the standalone+composite shape required to
+exercise the corrected live dedupe path. The live result therefore remains
+observationally inconclusive and does **not** invalidate the deterministic
+fix. Extractor/provider reliability is the active upstream evidence track.
+
+
 After the policy correction:
 
 1. run the deterministic dedupe regression matrix;
@@ -269,36 +287,151 @@ It must not manufacture a plausible route from proximity.
 
 ### 5.1 Extractor reliability characterization
 
-Stage 5 observed:
+Status: **ACTIVE CURRENT EVIDENCE TRACK**.
+
+Stage 5 originally observed:
 
 ```text
 2 of 9 web extraction passes emitted candidates
 ```
 
-This is an observed Stage-5 sample, **not** a demonstrated extractor success
-rate and not a percentage to extrapolate.
+That remains an observed historical sample, **not** a demonstrated success
+rate. The post-dedupe bounded live rerun then produced no qualifying composite:
+two runs were blocked by Groq output-token capacity and one had successful
+Serper grounding but semantic-empty extraction. That moved extractor
+reliability from a secondary observation to an explicit controlled
+characterization track.
 
-RW2–RW6 should record, per relevant pass:
+#### Frozen Run-3 replay
+
+The exact Run-3 discovery requests and normalized evidence are frozen under:
+
+`spikes/extractor-reliability-run3-replay-2026-09-25/`
+
+The corpus contains:
+
+- `case-a`: walk-focused pass, 10 evidence items;
+- `case-b`: history-focused pass, 10 evidence items;
+- `single-evidence`: the strongest TripAdvisor evidence item only.
+
+This boundary deliberately removes Serper, DB, geography, planner and tour
+generation from the experiment:
+
+```text
+frozen ExperienceDiscoveryRequest
++ frozen ExperienceGroundedSearchResult
+        ↓
+shared extraction prompt
+        ↓
+selected discovery extractor/model
+        ↓
+existing deterministic parser + source-support gate
+```
+
+#### Groq/Qwen findings
+
+For `qwen/qwen3.8-27b`:
+
+- baseline temperature `.7` produced stochastic
+  `CANDIDATE / NO_CANDIDATE / INVALID_JSON` outcomes from identical frozen
+  input;
+- production-style `max_completion_tokens=4096` can exceed the Groq
+  on-demand OTPM allowance;
+- `max_completion_tokens=900` is sufficient for the complete known
+  three-component candidate and removes that request-size blocker;
+- lowering the token budget alone did not repair semantic yield;
+- `temperature=0` produced two clean byte-identical single-evidence
+  candidates before the third logical call hit Groq's 200k TPD limit;
+- therefore temperature is a **provisional major variance signal**, not yet a
+  completed conclusion.
+
+Keep distinct:
+
+```text
+OTPM request-size blocker
+TPM soft retry
+TPD daily exhaustion
+semantic empty
+invalid model output
+```
+
+They are not interchangeable failure classes.
+
+#### Cloudflare provider isolation
+
+Cloudflare Workers AI is now a fourth first-class
+`DISCOVERY_EXTRACTOR_PROVIDER` beside Gemini, Groq and Ollama. The first
+Cloudflare characterization intentionally uses
+`@cf/qwen/qwen3.8-27b` so provider transport can be compared without changing
+the model family. The model remains configurable through
+`CLOUDFLARE_DISCOVERY_MODEL`.
+
+Live smoke characterization found that this Cloudflare Qwen deployment is a
+reasoning variant: with the 900-token budget it consumed the completion in
+`message.reasoning`, returned `content=null`, and stopped by length.
+`reasoning_effort=low` did not change that behavior.
+`chat_template_kwargs: { enable_thinking: false }` did: the model emitted the
+JSON answer in `message.content` and stopped normally. The content is wrapped
+in a ```json` fence, which the provider now normalizes before the existing
+JSON/parser boundary. No Cloudflare-specific semantic prompt or parser was
+introduced.
+
+The frozen `single-evidence ×5` run recorded in
+`spikes/cloudflare-discovery-x5-single-evidence-2026-09-26/` produced:
+
+| outcome | count |
+| --- | ---: |
+| CANDIDATE | 4 |
+| NO_CANDIDATE | 0 |
+| INVALID_JSON | 0 |
+| PROVIDER_FAILURE | 1 (60s timeout) |
+| HTTP 429 | 0 |
+
+All four successful raw contents are byte-identical and produce the same
+ordered composition:
+
+```text
+San Telmo Walking Tour
+→ Lezama Park
+→ Plaza Dorrego
+→ El Mercado de San Telmo
+```
+
+All three components are source-supported. Successful Cloudflare latency was
+approximately 22–40 seconds; the fifth call timed out at 60 seconds. The small
+successful Groq temperature-0 sample was roughly 1.5 seconds.
+
+This supports **strong output determinism conditional on Cloudflare success for
+this one fixture**, but it does **not** establish 5/5 provider reliability and
+must not be extrapolated to all extraction inputs.
+
+#### Next characterization steps
+
+1. Keep the timeout as an operational signal; do not hide it by arbitrarily
+   increasing the timeout without evidence.
+2. Run `case-b ×5` next if continuing Cloudflare characterization.
+3. Run `case-a` only if it remains informative after `case-b`.
+4. Benchmark alternate Cloudflare models later through
+   `CLOUDFLARE_DISCOVERY_MODEL` using the same frozen corpus.
+5. Treat automatic provider fallback as a separate policy/observability task;
+   no fallback is currently implemented.
+6. Re-attempt the bounded live dedupe confirmation only when extraction emits
+   the qualifying standalone+composite shape.
+
+RW2–RW6 should continue to record, per relevant pass:
 
 ```text
 usable evidence available?
 extractor candidate produced?
 well-formed empty response?
-unrecognized envelope?
+invalid/unrecognized envelope?
+provider failure class?
 candidate component set?
 candidate quality?
 ```
 
-Keep distinct:
-
-- no composite produced;
-- components varied;
-- partial composite;
-- candidate quality variance;
-- provider-evidence variance.
-
-The purpose is to identify where useful evidence is lost or transformed, not
-to force a candidate out of every source response.
+The purpose remains to identify where useful evidence is lost or transformed,
+not to force a candidate out of every source response.
 
 ### 5.2 Tour-quality evidence
 
