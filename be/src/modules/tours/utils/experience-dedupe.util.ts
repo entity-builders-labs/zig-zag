@@ -183,22 +183,37 @@ export function decideExperienceDedupe(
     };
   }
 
-  const ambiguous = ranked.filter(
-    ({ evidence }) =>
+  const ambiguous = ranked.filter(({ candidate, evidence }) => {
+    // Canonical domain rule: a standalone Experience and a source-backed
+    // composite may legitimately point at the SAME GeoEntity (§16 of the
+    // component-resolution amendment). In that 1-vs-many shape, shared
+    // component membership is expected catalog structure, not identity
+    // ambiguity. Keep measuring the structural overlap for audit/ranking,
+    // but do not let component overlap ALONE fail-close either Experience.
+    //
+    // Independent identity signals still apply: the same/similar name or
+    // strong semantic overlap may still make the pair AMBIGUOUS. And
+    // composite-vs-composite overlap keeps the existing conservative policy.
+    const standaloneComposite =
+      isStandaloneCompositeComparison(incoming, candidate);
+    return (
       evidence.nameSimilarity >= 0.72 ||
       evidence.semanticSimilarity >= 0.58 ||
-      evidence.componentOverlap >= 0.5 ||
-      evidence.roleAwareComponentOverlap >= 0.4,
-  );
+      (!standaloneComposite &&
+        (evidence.componentOverlap >= 0.5 ||
+          evidence.roleAwareComponentOverlap >= 0.4))
+    );
+  });
 
   if (ambiguous.length) {
+    const bestAmbiguous = ambiguous[0];
     return {
       decision: 'AMBIGUOUS',
       candidates: ambiguous.slice(0, 5).map(({ candidate }) => candidate.id),
       evidence: {
-        ...best.evidence,
+        ...bestAmbiguous.evidence,
         reasons: [
-          ...best.evidence.reasons,
+          ...bestAmbiguous.evidence.reasons,
           'identity_signals_conflict_or_are_incomplete',
         ],
       },
@@ -274,6 +289,12 @@ export function compareFingerprints(
   if (semanticSimilarity >= 0.72) reasons.push('strong_semantic_overlap');
   else if (semanticSimilarity >= 0.58) reasons.push('partial_semantic_overlap');
   if (componentOverlap > 0) reasons.push('shared_geo_entities');
+  if (
+    componentOverlap > 0 &&
+    isStandaloneCompositeComparison(incoming, existing)
+  ) {
+    reasons.push('standalone_composite_shared_membership');
+  }
   if (roleAwareComponentOverlap > 0)
     reasons.push('shared_role_aware_components');
   if (distanceKm != null && distanceKm <= 1.5)
@@ -336,6 +357,28 @@ function hasConflictingEvidencedOrder(
     .map((component) => component.geoEntityId);
 
   return incomingSequence.join('|') !== existingSequence.join('|');
+}
+
+/**
+ * A canonical standalone Experience has one DISTINCT GeoEntity component;
+ * a composite has more than one. Array length is intentionally not used:
+ * duplicate rows for the same GeoEntity must never manufacture composite
+ * identity semantics.
+ */
+function isStandaloneCompositeComparison(
+  left: Pick<DedupeExperienceFingerprint, 'components'>,
+  right: Pick<DedupeExperienceFingerprint, 'components'>,
+): boolean {
+  const leftCount = new Set(
+    left.components.map((component) => component.geoEntityId),
+  ).size;
+  const rightCount = new Set(
+    right.components.map((component) => component.geoEntityId),
+  ).size;
+  return (
+    (leftCount === 1 && rightCount > 1) ||
+    (rightCount === 1 && leftCount > 1)
+  );
 }
 
 function evidenceScore(evidence: DedupeEvidence): number {

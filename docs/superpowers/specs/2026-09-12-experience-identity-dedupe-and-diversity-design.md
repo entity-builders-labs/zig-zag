@@ -224,6 +224,50 @@ Conservative ambiguity is preferable to irreversible catalog corruption.
 
 ---
 
+## 6.1. Standalone/composite shared membership is not identity ambiguity
+
+A standalone Experience and a source-backed composite may legitimately share
+the same canonical `GeoEntity`:
+
+```text
+Experience("Visit Plaza Dorrego")
+components = [Plaza Dorrego]
+
+Experience("San Telmo Historical Walk")
+components = [Plaza Dorrego, Mercado]
+```
+
+That shared membership is expected catalog structure. It does not mean the two
+rows describe the same Experience, and it is not by itself an unresolved
+identity conflict.
+
+Canonical dedupe consequence:
+
+- continue measuring component and role-aware overlap as auditable evidence;
+- for **standalone-vs-composite** comparisons (one distinct component vs more
+  than one), shared component membership alone MUST NOT force `SAME` or
+  `AMBIGUOUS`;
+- independent identity signals such as name/semantic evidence may still make
+  the pair `AMBIGUOUS`;
+- exact standalone-vs-standalone and exact composite-vs-composite duplicate
+  behavior remains unchanged;
+- composite-vs-composite partial-overlap policy remains conservative unless
+  separate evidence justifies changing it;
+- persistence order MUST NOT change whether the standalone and composite can
+  coexist.
+
+This is the dedupe corollary of the component-resolution amendment §16:
+
+```text
+GeoEntity existence != Experience existence
+component membership != standalone Experience authority
+```
+
+It is a policy correction to the meaning of the overlap signal, not a new
+numeric threshold.
+
+---
+
 ## 7. Same facets, different Experiences
 
 This is explicitly valid:
@@ -332,6 +376,7 @@ It is **not required now** and must not be introduced simply to solve identity. 
 10. Planner diversity never deletes or merges catalog knowledge.
 11. Provider ordering must not change the final identity decision/state.
 12. Evidence can resolve ambiguity later; catalog decisions remain auditable.
+13. Shared GeoEntity membership between a standalone Experience and a composite is not, by itself, a SAME or AMBIGUOUS identity signal.
 
 ---
 
