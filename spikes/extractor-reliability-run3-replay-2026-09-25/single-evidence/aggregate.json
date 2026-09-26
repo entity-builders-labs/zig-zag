@@ -1,0 +1,21 @@
+{
+  "model": "qwen/qwen3.8-27b",
+  "runs": 10,
+  "distribution": {
+    "CANDIDATE": 5,
+    "INVALID_JSON": 1,
+    "NO_CANDIDATE": 4
+  },
+  "outcomes": [
+    "NO_CANDIDATE",
+    "NO_CANDIDATE",
+    "INVALID_JSON",
+    "NO_CANDIDATE",
+    "CANDIDATE",
+    "NO_CANDIDATE",
+    "CANDIDATE",
+    "CANDIDATE",
+    "CANDIDATE",
+    "CANDIDATE"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "classification": "PROVIDER_FAILURE",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "elapsedMs": 10824,
+  "providerError": "Groq error 429: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.8-27b` in organization `org_[REDACTED]` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1085. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n",
+  "providerErrorKind": "rate_limit_429"
+}

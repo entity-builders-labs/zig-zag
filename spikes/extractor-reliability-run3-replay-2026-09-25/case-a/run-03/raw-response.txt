@@ -1,0 +1,49 @@
+{
+  "candidates": [
+    {
+      "name": "San Telmo Free Walking Tour",
+      "description": "A free guided walking tour exploring San Telmo's main churches, traditional houses, and the neighborhood's history and architecture.",
+      "themes": [
+        "history",
+        "architecture"
+      ],
+      "traits": [
+        "guided",
+        "free",
+        "neighborhood exploration"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "suggestedDurationMinutes": 120,
+      "componentHints": [
+        {
+          "key": "churches",
+          "name": "Main churches of San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-6"
+          ],
+          "supportSpan": "We'll explore its main churches and traditional houses."
+        },
+        {
+          "key": "traditional-houses",
+          "name": "Traditional houses of San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-6"
+          ],
+          "supportSpan": "We'll explore its main churches and traditional houses."
+        }
+      ],
+      "evidenceKeys": [
+        "ev-6"
+      ],
+      "shortReason": "Evidence ev-6 explicitly supports a free tour that explores main churches and traditional houses, meeting the MULTI_COMPONENT_EXPERIENCE requirement. Other candidates (ev-1, ev-2, ev-4, ev-10) lack named geographic components in the provided evidence.",
+      "orderedByEvidence": false
+    }
+  ]
+}
