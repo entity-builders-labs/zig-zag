@@ -106,7 +106,7 @@ envelope fix (§4). All completed.
 | MultiLineString route reaching the planner | no ROUTE GeoEntity created | — (debt stays) |
 | Genuine KNOWLEDGE_DEFICIT | none: every live deficit is `NO_CANDIDATE_ACQUIRED / PENDING_CLASSIFICATION` | — |
 
-## 5. Historical finding — Experience dedupe blocked 2-stop composites (fixed post-milestone; live re-confirmation pending)
+## 5. Historical finding — Experience dedupe blocked 2-stop composites (fixed post-milestone; live re-confirmation attempted 2026-09-25 and inconclusive)
 
 Observed live under the Stage 5 code and reproduced deterministically:
 
@@ -151,9 +151,13 @@ Deterministic validation on `d6f0603`:
 
 Therefore the defect is **fixed deterministically**. The original COLD 1/COLD 4
 rows above remain historical Stage 5 observations; they have not been rewritten
-as if the run happened under new code. No post-`d6f0603` live COLD has been
-run yet, so live confirmation that both legitimate Experiences now persist is
-still pending.
+as if the run happened under new code. A post-`d6f0603` live COLD
+re-confirmation was attempted on 2026-09-25 (three fresh databases) and was
+**inconclusive** — no standalone/composite shared-membership pair was emitted
+(web extraction failed with Groq 429 OTPM in two runs; the third grounded
+successfully but extracted zero candidates). See
+`spikes/post-dedupe-live-confirmation-2026-09-25/`. Live confirmation that both
+legitimate Experiences now persist therefore remains pending.
 
 ## 6. El Zanjón / Plaza de Mayo / Calle Defensa / Solar de French
 
@@ -200,7 +204,8 @@ Mafalda / Farmacia / Recoleta: not emitted; no verified-hint noise observed
 
 - RESOLVED POST-MILESTONE: Experience dedupe single-vs-2-stop composite (§5)
   — fixed by `d6f0603`; deterministic validation green; bounded live
-  re-confirmation pending.
+  re-confirmation attempted 2026-09-25 and inconclusive (extraction variance),
+  so live re-confirmation remains pending.
 - NEW: extraction yield is low on walk evidence (2/9 passes); extractor/prompt
   work is out of scope here, and nothing was steered.
 - NEW: failed identity resolutions are re-attempted every run (WARM re-queried

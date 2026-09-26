@@ -1,6 +1,6 @@
 # Component Resolution + Partial Composite Recovery — Implementation Plan
 
-Status: **milestone complete (Stage 5 DONE 2026-09-25). The Stage 5 Experience-dedupe finding was resolved post-milestone by `d6f0603`; deterministic validation is green, live RW1 re-confirmation is still pending.**
+Status: **milestone complete (Stage 5 DONE 2026-09-25). The Stage 5 Experience-dedupe finding was resolved post-milestone by `d6f0603`; deterministic validation is green. A bounded live RW1 re-confirmation was attempted on 2026-09-25 and was inconclusive (extraction variance), so live re-confirmation remains pending.**
 Written: 2026-09-22.
 Execution plan compacted: 2026-09-23.
 Branch: `feat/preference-first-selection`.
@@ -1811,9 +1811,13 @@ Deterministic validation reported on `d6f0603`:
   `preference-first-architecture` baseline.
 
 This closes the policy defect deterministically. A bounded fresh-DB RW1 COLD
-re-run has **not** yet been executed after `d6f0603`; therefore the expected
-live outcome (both the standalone and 2-stop composite persist) remains a
-deterministic prediction pending live re-confirmation.
+re-confirmation was attempted on 2026-09-25 (three fresh databases; see
+`spikes/post-dedupe-live-confirmation-2026-09-25/`) and was **inconclusive**:
+no standalone/composite shared-membership pair was emitted (web extraction
+failed with Groq 429 OTPM in two runs; the third grounded successfully but
+extracted zero candidates from ten evidences). The expected live outcome (both
+the standalone and 2-stop composite persist) therefore remains a deterministic
+prediction pending a future live re-confirmation.
 
 **THRESHOLD DECISIONS.** NEAR distance: NOT SELECTED — insufficient
 evidence (0 OUTSIDE components live). Partial-resolution ratio: NOT
@@ -1854,7 +1858,8 @@ reported); migration cutover PASS (no dual path); frontend domain ownership
 PASS (FE renders backend facts, no local policy). No Prisma migration.
 
 **Debt.** The Stage 5 dedupe finding above is resolved deterministically by
-`d6f0603` (live re-confirmation pending); low extraction yield on walk
+`d6f0603` (live re-confirmation attempted 2026-09-25 and inconclusive due to
+extraction variance); low extraction yield on walk
 evidence; failed identity resolutions re-attempted every run; POINT_RADIUS
 ROUTE/AREA relation UNDETERMINED; MultiLineString planner footprint;
 `required` columns; San Martín hardening; `catalog-reuse` flake;
@@ -1862,8 +1867,9 @@ ROUTE/AREA relation UNDETERMINED; MultiLineString planner footprint;
 
 **Stage status:** Stage 5 **DONE**. Milestone **COMPLETE**. The Experience
 dedupe finding was intentionally left open at Stage 5 closure and was resolved
-post-milestone by `d6f0603`; deterministic validation is green and live
-re-confirmation remains pending.
+post-milestone by `d6f0603`; deterministic validation is green. A bounded live
+re-confirmation was attempted on 2026-09-25 and was inconclusive (extraction
+variance), so live re-confirmation remains pending.
 
 ### Cross-cutting product-shape note — simple, composite, and mixed Tour requests (2026-09-23)
 
