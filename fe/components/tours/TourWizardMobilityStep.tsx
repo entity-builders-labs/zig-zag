@@ -28,6 +28,7 @@ import {
   BudgetLevel,
   GroupType,
   TransportationMode,
+  WALKING_EFFORT_PRESETS,
   WalkingEffortProfile
 } from '@/features/tours/tour-generation-contract';
 import { WizardFieldLabel } from './WizardFieldLabel';
@@ -65,24 +66,36 @@ const TRANSPORT_OPTIONS = [
   { mode: 'public_transport' as const, icon: Bus, label: 'Bus/Subte' }
 ];
 
-const WALKING_PROFILES = [
+const formatKilometers = (meters: number): string => {
+  const km = meters / 1000;
+  return `${Number.isInteger(km) ? km : km.toFixed(1)} km/día`;
+};
+
+// Descriptions derive from the single canonical WALKING_EFFORT_PRESETS
+// contract instead of repeating 2/4/6/5/10 km literals that can drift from
+// the values actually applied to the request.
+const WALKING_PROFILES: Array<{
+  profile: WalkingEffortProfile;
+  label: string;
+  desc: string;
+}> = [
   {
-    profile: 'minimize' as const,
+    profile: 'minimize',
     label: 'Mínimo',
-    desc: 'Hasta 2 km/día'
+    desc: `Hasta ${formatKilometers(WALKING_EFFORT_PRESETS.minimize.dailyMeters)}`
   },
   {
-    profile: 'moderate' as const,
+    profile: 'moderate',
     label: 'Moderado',
-    desc: 'Hasta 4 km/día'
+    desc: `Hasta ${formatKilometers(WALKING_EFFORT_PRESETS.moderate.dailyMeters)}`
   },
   {
-    profile: 'enjoys_walking' as const,
+    profile: 'enjoys_walking',
     label: 'Me gusta caminar',
-    desc: 'Hasta 6 km/día'
+    desc: `Hasta ${formatKilometers(WALKING_EFFORT_PRESETS.enjoys_walking.dailyMeters)}`
   },
   {
-    profile: 'custom' as const,
+    profile: 'custom',
     label: 'Personalizado',
     desc: 'Ajustar sliders'
   }

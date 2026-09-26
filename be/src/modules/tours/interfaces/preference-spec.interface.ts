@@ -199,6 +199,32 @@ export interface CompositionCandidate {
 
 export interface CompositionSelectionResult extends CompositionResult {
   reservoir: string[];
+  /**
+   * Candidate-level dispositions computed during the same canonical composeSet
+   * pass. Tracing derives from these facts; it never re-runs selection policy.
+   */
+  decisions: CompositionCandidateDecision[];
+}
+
+export interface CompositionCandidateDecision {
+  id: string;
+  /** Reached the eligible set (not hard-excluded and has real components). */
+  eligible: boolean;
+  /** Selected into the initial portfolio. */
+  initialSelected: boolean;
+  /** Facet keys for which this candidate was the reserved strongest match. */
+  reservedForFacets: string[];
+  /** Forced by a resolved MUST venue anchor. */
+  mustForced: boolean;
+  /** Received a soft-anchor boost during within-facet/remainder ranking. */
+  softAnchorBoosted: boolean;
+  /** Filled the portfolio via the remainder pass (not a reservation). */
+  remainderFill: boolean;
+  /** Left over as a deterministic ranked reservoir for the planner. */
+  reservoir: boolean;
+  /** Dropped before composition. */
+  excluded: boolean;
+  excludedReason?: 'hard_exclusion' | 'no_components';
 }
 
 /** Formats a facet-shaped `{dimension,key}` pair as `"dimension:key"`. */

@@ -18,7 +18,9 @@ classification contract and deterministic validation are unchanged.
 
 ## Current execution verdict — 2026-09-26
 
-**Active track: Gate C real-world generalization — RW2 executed 2026-09-26.**
+**Active track: Gate C real-world generalization — RW2 executed 2026-09-26; its
+two named findings plus the bitácora gap are now closed (see §RW2 findings
+closure).**
 
 The component-resolution / RW1 milestone is **COMPLETE / CLOSED** and must not
 be reopened unless a real regression invalidates an accepted invariant. The
@@ -40,6 +42,11 @@ Current execution state:
   VARIANCE**. Three bounded COLD reruns emitted no qualifying composite, so the
   target live shape was never reached. This does not reopen or invalidate the
   deterministic dedupe fix.
+- **RW2 findings closure:** DONE in this worktree (uncommitted). Finding 1
+  (GENERIC structured-anchor propagation) fixed; Finding 2 wording corrected
+  (walking-constraint rejection, not "planner preferred museums"); Finding 3
+  (bitácora composition gap) fixed; walking rejection now auditable with
+  actual-vs-limit facts. Walking policy itself unchanged.
 - **Extractor/provider reliability:** ACTIVE CURRENT TRACK. The frozen Run-3
   corpus is now the controlled boundary for isolating evidence, model,
   transport and sampling behavior before broad RW2–RW6 continuation.
@@ -129,23 +136,74 @@ geoapify + groq classification + local Overpass/Nominatim).
   San Telmo → Av. Almirante Brown → Caminito → Riachuelo), 7/7 resolved to OSM,
   geo-ACCEPTED, persisted (id `b353fc85-…`), WARM-reused canonically (34s, no
   SerpAPI/extraction re-run).
-- **Finding (quality):** the planner materialized 5 singleton La Boca museums
-  instead of the eligible composite walk.
+- **Finding 1 (routing):** the GENERIC `buildAcquisitionPlan` call drops the
+  structured anchors at the planner call boundary; both names survive only via
+  the free-text `semanticQuery` string, not as `SourcePlan.web.anchorNames`.
+- **Finding 2 (planning mobility — corrected wording):** the composite reached
+  `GreedyDailyPlanningSolver` and was **rejected by the request's active
+  walking constraints** (`MAX_WALKING_PER_DAY_EXCEEDED` +
+  `MAX_CONTINUOUS_WALKING_EXCEEDED`); `TourCompletenessValidator` then emitted
+  `UNMET_REQUESTED_FORMAT(walk)`. It was **not** ignored by the planner and
+  **not** lost at ranking. The earlier "planner preferred museums" wording was
+  too loose.
+- **Finding 3 (Bitácora gap):** the 15-eligible → composition → 6
+  planning-candidate transition was not sufficiently auditable from trace: the
+  bitácora exposed only `candidate_pool` (15 offered) and `daily_planning` (6
+  represented / 5 selected / 1 unselected) without explaining composition
+  reservations, reservoir size, or per-candidate walking rejection facts.
 - Multi-area semantics PASS; crossing neighborhood boundaries was not rejected;
-  no proximity fabrication. Verdict MIXED (two named findings, no semantic
+  no proximity fabrication. Verdict MIXED (three named findings, no semantic
   blocker).
+
+Product observation (recorded, not changed here): the real frontend default is
+`walkingEffortProfile = moderate` → `daily = 5000 m`, `continuous = 1500 m`.
+RW2 used `daily = 5000 m`, `continuous = 3000 m`, so RW2's mobility shape was
+**not** the exact current default preset (the current default is even more
+restrictive on continuous walking). Do not describe 5000/3000 as "the default".
+
+### RW2 findings closure (2026-09-26)
+
+- **Finding 1 (GENERIC structured-anchor propagation): FIXED.** The GENERIC
+  `buildAcquisitionPlan` call now forwards `anchors: resolvedAnchors`, reusing
+  the existing canonical contract; `semanticQuery` is preserved independently.
+  Regression coverage: architecture test proves the call site forwards anchors;
+  the existing planner test proves both names reach `SourcePlan.web.anchorNames`.
+- **Finding 3 (Bitácora composition gap): FIXED.** `CompositionSelectionResult`
+  now carries typed candidate-level decisions (eligible / initial-selected /
+  reserved-for-facet / must-forced / soft-anchor-boosted / remainder-fill /
+  reservoir / excluded) computed in the same canonical `composeSet` pass, and
+  the `candidate_pool` trace exposes `portfolioTarget`, `initialSelectedIds`,
+  `reservoirIds`, `perFacetCoverage`, `mustAnchorsForced`,
+  `softAnchorsBoosted`, `unmetFacets`, `unmetAnchors`. The canonical Experience
+  ID is traceable across `catalog_materialization → candidate_pool →
+  daily_planning`.
+- **Walking rejection now auditable with actual-vs-limit facts.** Planner
+  walking rejections carry typed `walkingDiagnostics` (daily actual vs limit,
+  longest continuous leg vs limit, internal vs incoming-travel contribution),
+  surfaced in the `daily_planning` trace. The canonical mobility constraint
+  snapshot is also surfaced.
+- **Walking policy unchanged.** `MAX_WALKING_PER_DAY_EXCEEDED` /
+  `MAX_CONTINUOUS_WALKING_EXCEEDED` remain hard constraints. No threshold
+  changed; `intent:walk` does not override them. A provider-free deterministic
+  control proves the same RW2-shaped composite is rejected under the exact RW2
+  limits (5000/3000) and feasible under explicitly non-binding limits
+  (50000/20000, the DTO upper bound — a control value, not a recommendation).
+- **Frontend preset label mismatch fixed.** `TourWizardMobilityStep` walking
+  descriptions now derive from `WALKING_EFFORT_PRESETS` (2000/5000/10000 m),
+  removing the stale "4 km"/"6 km" literals.
 
 ### Open next steps
 
-- next canonical gate: **RW3 — Caminito canonical OSM ROUTE**;
+- next canonical gate: **RW3 — Caminito canonical OSM ROUTE** (still not
+  started; RW3 is not advanced by this task);
+- the walking feasibility policy itself remains **unchanged pending a separate
+  product decision** — we now have correct diagnostics, not a threshold change;
 - benchmark alternate Cloudflare models later through the already-configurable
   `CLOUDFLARE_DISCOVERY_MODEL`, using the same frozen corpus and parser;
 - design provider fallback separately, with explicit policy and observability;
   **no automatic fallback exists today**;
 - eventually re-attempt the bounded live dedupe shape when extraction actually
-  emits the required standalone+composite pair;
-- decide the two RW2 findings separately (GENERIC structured-anchor propagation;
-  planner composite selection) — no opportunistic fix landed during the spike.
+  emits the required standalone+composite pair.
 
 Do **not** reopen component-resolution, dedupe identity policy, geography or
 planner semantics to address extractor/provider variance.

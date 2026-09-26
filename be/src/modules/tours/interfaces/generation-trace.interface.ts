@@ -15,6 +15,10 @@ import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requireme
 import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
 import { GeographicDecisionReason } from './geographic-validation.interface';
 import { CandidateSourceSupportAudit } from '../utils/experience-candidate-extraction.util';
+import {
+  PlannerConstraintSnapshot,
+  PlanningWalkingDiagnostics,
+} from './daily-planning.interface';
 
 export type TraceStage =
   | 'preference_interpretation'
@@ -91,6 +95,8 @@ export interface TraceCandidateDecision {
   rules?: TraceRuleEvaluation[];
   dayNumber?: number;
   order?: number;
+  /** Typed actual-vs-limit facts for walking-related planner rejections. */
+  walkingDiagnostics?: PlanningWalkingDiagnostics;
 }
 
 /** Machine-readable forensic record for one preference-first acquisition pass. */
@@ -537,6 +543,8 @@ export interface GenerationTraceStep {
       fallbackCount: number;
       providerCounts: Record<string, number>;
     };
+    /** Canonical mobility/time constraint snapshot the solver evaluated. */
+    constraints?: PlannerConstraintSnapshot;
     days: Array<{
       dayNumber: number;
       experienceCount: number;

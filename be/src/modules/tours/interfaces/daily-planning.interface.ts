@@ -157,9 +157,31 @@ export type PlanningRejectionReason =
   | 'NO_FEASIBLE_DAY'
   | 'LOWER_RANKED_THAN_SELECTED';
 
+/**
+ * Typed, deterministic diagnostics for a walking-related planner rejection.
+ *
+ * These facts are computed by the same canonical helpers the planner uses to
+ * enforce walking feasibility (`daily-planning-placement.util.ts`); they are
+ * observability data only and MUST NOT become input to the planning policy.
+ */
+export interface PlanningWalkingDiagnostics {
+  /** Projected daily walking meters (internal + incoming travel) had the candidate been placed. */
+  dailyWalkingMeters: number;
+  dailyWalkingLimitMeters: number;
+  /** Longest single continuous walking leg (max of incoming travel leg and internal legs). */
+  longestContinuousWalkingMeters: number;
+  continuousWalkingLimitMeters: number;
+  /** Walking contributed by the candidate's own internal components (route legs). */
+  internalWalkingContributionMeters: number;
+  /** Walking contributed by travel from the previous Experience. */
+  incomingTravelWalkingContributionMeters: number;
+}
+
 export interface UnselectedPlanningCandidate {
   experienceId: string;
   reasons: PlanningRejectionReason[];
+  /** Present only when the rejection was walking-related. */
+  walkingDiagnostics?: PlanningWalkingDiagnostics;
 }
 
 export interface DailyPlanningSolution {
@@ -190,16 +212,22 @@ export interface DailyPlanningSolution {
     };
     /** Snapshot of the actual constraints the solver evaluated. This is
      * observability data only; it does not participate in the algorithm. */
-    constraints?: {
-      requestedDays: number;
-      planningWindow: DailyPlanningWindow;
-      allowedTransportationModes: TransportationMode[];
-      maxWalkingDistancePerDayMeters: number;
-      maxContinuousWalkingDistanceMeters: number;
-      travelPace: TravelPace;
-      startDates: string[];
-    };
+    constraints?: PlannerConstraintSnapshot;
   };
+}
+
+/**
+ * Canonical snapshot of the mobility/time constraints the solver evaluated for
+ * a given run. Observed values only, never recomputed from presentation.
+ */
+export interface PlannerConstraintSnapshot {
+  requestedDays: number;
+  planningWindow: DailyPlanningWindow;
+  allowedTransportationModes: TransportationMode[];
+  maxWalkingDistancePerDayMeters: number;
+  maxContinuousWalkingDistanceMeters: number;
+  travelPace: TravelPace;
+  startDates: string[];
 }
 
 export interface PlannerResidualCapacity {

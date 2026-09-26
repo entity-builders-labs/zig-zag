@@ -84,6 +84,7 @@ import {
   PreferenceCoverageResult,
   PreferenceSpec,
   ComposableExperience,
+  CompositionSelectionResult,
 } from '../interfaces/preference-spec.interface';
 import { AcquisitionDeficit } from '../interfaces/experience-acquisition-plan.interface';
 import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fingerprint.util';
@@ -113,6 +114,8 @@ interface SemanticRankingOutcome {
 interface CandidateSelection {
   initialExperiences: any[];
   reservoirExperiences: any[];
+  /** Canonical Stage-9 selection result, traced without re-running policy. */
+  compositionResult: CompositionSelectionResult;
   semanticRanking: SemanticRankingOutcome;
   scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
   preferenceEvaluationById: Map<string, unknown>;
@@ -500,6 +503,7 @@ export class ExperienceGenerationService {
       eligibleCount,
       offeredCandidates,
       requestedThemes: request.intent.interests,
+      composition: selection.compositionResult,
     });
   }
 
@@ -616,6 +620,7 @@ export class ExperienceGenerationService {
     return {
       initialExperiences,
       reservoirExperiences,
+      compositionResult: composition.result,
       scoreBreakdownById,
       preferenceEvaluationById: new Map(),
       hardExclusionRelaxed: false,
@@ -1140,6 +1145,7 @@ export class ExperienceGenerationService {
                   deficits: generic,
                   semanticQuery: preferenceSpec.semanticQuery,
                   breadth: 'focused',
+                  anchors: resolvedAnchors,
                 });
               const genericRoutable = acquisitionPlan.sourcePlans.length > 0;
 

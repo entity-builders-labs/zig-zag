@@ -1,5 +1,15 @@
 # RW2 — Buenos Aires multi-area walk (San Telmo + La Boca): assessment
 
+> **Post-hoc correction (2026-09-26).** The original §9/§11 wording below
+> described Finding 2 as "the planner materialized singletons and did not
+> surface the composite". The canonical bitácora proves the composite
+> **did** reach `GreedyDailyPlanningSolver` and was **rejected by explicit
+> mobility constraints** (`MAX_WALKING_PER_DAY_EXCEEDED` +
+> `MAX_CONTINUOUS_WALKING_EXCEEDED`); `TourCompletenessValidator` then emitted
+> `UNMET_REQUESTED_FORMAT(walk)`. The corrected finding is recorded in §9/§11
+> and in the main Progress doc. It was not "ranking lost the composite" nor
+> "the planner ignored the composite".
+
 Branch `feat/preference-first-selection`. Starting HEAD `7c5ed36c`
 (`chore(spikes): characterize cloudflare extractor case-b x5`), verified equal
 to the fork remote before any change. No production code changed.
@@ -206,24 +216,35 @@ The **final materialized tour selected 5 singleton Experiences**, not the
 4. La flor de la vida
 5. La "Inmortal Polaca" del maestro ajedrecista Miguel Najdorf
 
-`daily_planning`: "5 seleccionadas, 1 sin seleccionar (score total 5)",
-semantic ranking applied over all 15 eligible candidates, real travel-time
-estimates used. The composite walk — the single most relevant answer to the
-user's actual request — was **persisted and planner-eligible but not selected**
-in the final itinerary. This is the same singleton-preference shape observed in
-RW1, now reproduced for a multi-area walk.
+`daily_planning`: "6 candidatas representadas, 5 seleccionadas, 1 sin
+seleccionar", semantic ranking applied over all 15 eligible candidates, real
+travel-time estimates used.
 
-- relevance/preference fit: the composite walk matches the request exactly;
-  the 5 chosen singletons (La Boca museums/POIs) match "history/architecture"
-  only weakly and drop the "walk San Telmo → La Boca" shape.
-- touristic value: the singletons are individually real but low signal vs the
-  published multi-area walk.
-- shape/diversity: 5 standalone POIs with no spatial walk shape.
-- feasibility: feasible (single La Boca cluster), but not what was asked.
-- redundancy: none among the 5, but the composite was left unused.
+**Corrected root cause.** The composite walk (`b353fc85-…f8d31`) was
+successfully discovered, source-supported, resolved, geographically verified,
+persisted, classified (`history` + `architecture` + `walk`) and admitted to
+planning. It reached `GreedyDailyPlanningSolver`. It was **rejected by the
+request's active walking constraints**, which produced:
 
-This is a **product-quality finding**, not a validity failure: the multi-area
-walk was proven real and persisted; the planner did not surface it to the user.
+```text
+MAX_WALKING_PER_DAY_EXCEEDED
+MAX_CONTINUOUS_WALKING_EXCEEDED
+```
+
+`TourCompletenessValidator` then correctly exposed
+`UNMET_REQUESTED_FORMAT(walk)`. The composite was **not** ignored by the
+planner and was **not** lost at ranking — it was explicitly mobility-infeasible
+under the RW2 request shape (`daily = 5000 m`, `continuous = 3000 m`).
+
+Product observation (recorded, not changed here): the current frontend default
+`walkingEffortProfile = moderate` maps to `daily = 5000 m`, `continuous = 1500
+m`. RW2 used `daily = 5000 m`, `continuous = 3000 m`, so RW2's mobility shape
+was **not** the exact current default preset (and the current default is even
+more restrictive on continuous walking).
+
+This remains a **product-quality finding**, now with the correct mechanism: the
+multi-area walk was proven real and persisted; the active mobility contract
+excluded it from the final itinerary.
 
 ## 10. WARM (same DB, new process)
 
@@ -252,8 +273,12 @@ semantic goal).**
   proximity fabrication.
 - FINDING 1 (routing): `GENERIC` drops structured anchors at the acquisition
   planner; names survive only via the `semanticQuery` string.
-- FINDING 2 (quality): the planner materialized 5 singletons and did not select
-  the eligible composite walk.
+- FINDING 2 (planning mobility — corrected): the composite reached the planner
+  and was rejected by the active walking constraints
+  (`MAX_WALKING_PER_DAY_EXCEEDED` + `MAX_CONTINUOUS_WALKING_EXCEEDED`), then
+  exposed by `TourCompletenessValidator` as `UNMET_REQUESTED_FORMAT(walk)`.
+  It was **not** ignored and **not** lost at ranking.
 
-Not fixed (per spike scope). Next gate per roadmap: RW3 (Caminito canonical
-OSM ROUTE).
+Not fixed at spike time (per spike scope). These findings were later closed by
+the RW2 tracing/anchor fix described in the main Progress doc. Next gate per
+roadmap: RW3 (Caminito canonical OSM ROUTE).

@@ -6,6 +6,7 @@ import {
   buildEmbeddingsStep,
   buildDestinationResolutionStep,
   buildEntityResolutionStep,
+  buildExperienceCandidatePoolStep,
   buildGeographicValidationStep,
   buildLlmGenerationStep,
   buildPlacesCrawlStep,
@@ -13,7 +14,15 @@ import {
   buildTourCompletenessStep,
   buildTourIntentStep,
 } from './generation-trace-builder.util';
-import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
+import {
+  DailyPlanningSolution,
+  PlannerConstraintSnapshot,
+} from '../interfaces/daily-planning.interface';
+import {
+  TransportationMode,
+  TravelPace,
+} from '../interfaces/tour-generation.interface';
+import { CompositionSelectionResult } from '../interfaces/preference-spec.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { GeographicValidationStatus } from '../interfaces/geographic-validation.interface';
 
@@ -240,6 +249,76 @@ describe('buildDailyPlanningStep', () => {
     expect(step.providerStatus).toBe('failed');
     expect(step.degradedReason).toBe('no_experiences_selected');
     expect(step.dailyPlanning?.iterations).toBeUndefined();
+  });
+
+  it('surfaces the canonical mobility/time constraint snapshot the solver evaluated', () => {
+    const constraints: PlannerConstraintSnapshot = {
+      requestedDays: 2,
+      planningWindow: {
+        startMinutesFromMidnight: 540,
+        endMinutesFromMidnight: 1200,
+      },
+      allowedTransportationModes: [TransportationMode.WALKING],
+      maxWalkingDistancePerDayMeters: 5000,
+      maxContinuousWalkingDistanceMeters: 1500,
+      travelPace: TravelPace.MODERATE,
+      startDates: [],
+    };
+    const solution: DailyPlanningSolution = {
+      days: [],
+      unselected: [],
+      score: 0,
+      metadata: {
+        solver: 'GreedyDailyPlanningSolver',
+        approximateTravel: false,
+        constraints,
+      },
+    };
+
+    const step = buildDailyPlanningStep(solution);
+
+    expect(step.dailyPlanning?.constraints).toEqual(constraints);
+    expect(step.outputs?.constraints).toEqual(constraints);
+  });
+
+  it('carries walking actual-vs-limit diagnostics onto the unselected candidate decision', () => {
+    const solution: DailyPlanningSolution = {
+      days: [],
+      unselected: [
+        {
+          experienceId: 'rw2-walk',
+          reasons: ['MAX_WALKING_PER_DAY_EXCEEDED'],
+          walkingDiagnostics: {
+            dailyWalkingMeters: 5483.4,
+            dailyWalkingLimitMeters: 5000,
+            longestContinuousWalkingMeters: 4995,
+            continuousWalkingLimitMeters: 3000,
+            internalWalkingContributionMeters: 5483.4,
+            incomingTravelWalkingContributionMeters: 0,
+          },
+        },
+      ],
+      score: 0,
+      metadata: {
+        solver: 'GreedyDailyPlanningSolver',
+        approximateTravel: false,
+      },
+    };
+
+    const step = buildDailyPlanningStep(solution);
+
+    const decision = step.candidateDecisions?.find(
+      (candidate) => candidate.id === 'rw2-walk',
+    );
+    expect(decision).toBeDefined();
+    expect(decision?.walkingDiagnostics).toEqual({
+      dailyWalkingMeters: 5483.4,
+      dailyWalkingLimitMeters: 5000,
+      longestContinuousWalkingMeters: 4995,
+      continuousWalkingLimitMeters: 3000,
+      internalWalkingContributionMeters: 5483.4,
+      incomingTravelWalkingContributionMeters: 0,
+    });
   });
 });
 
@@ -1920,5 +1999,124 @@ describe('buildCandidatePoolStep', () => {
       refill: 0,
       discovery: 0,
     });
+  });
+});
+
+describe('buildExperienceCandidatePoolStep composition trace', () => {
+  const breakdown = () => ({
+    semanticSimilarity: 0.5,
+    qualityBonus: 0.1,
+    proximityBonus: 0.05,
+    diversityBonus: 0,
+    totalScore: 0.65,
+  });
+
+  const composition: CompositionSelectionResult = {
+    selected: ['walk'],
+    reservoir: ['reservoir-a'],
+    perFacetCoverage: {
+      'theme:history': ['walk'],
+      'intent:walk': ['walk'],
+    },
+    unmetFacets: [],
+    mustAnchorsForced: [],
+    softAnchorsBoosted: [],
+    unmetAnchors: [],
+    portfolioTarget: 3,
+    decisions: [
+      {
+        id: 'walk',
+        eligible: true,
+        initialSelected: true,
+        reservedForFacets: ['intent:walk'],
+        mustForced: false,
+        softAnchorBoosted: false,
+        remainderFill: false,
+        reservoir: false,
+        excluded: false,
+      },
+      {
+        id: 'reservoir-a',
+        eligible: true,
+        initialSelected: false,
+        reservedForFacets: [],
+        mustForced: false,
+        softAnchorBoosted: false,
+        remainderFill: false,
+        reservoir: true,
+        excluded: false,
+      },
+    ],
+  };
+
+  it('explains initial selection vs reservoir and reserves facets without re-running policy', () => {
+    const step = buildExperienceCandidatePoolStep({
+      initialCatalogCount: 10,
+      postAcquisitionCatalogCount: 12,
+      eligibleCount: 2,
+      offeredCandidates: [
+        {
+          id: 'walk',
+          name: 'San Telmo to La Boca History Walk',
+          matchedThemes: ['history'],
+          traceSource: 'discovery',
+          scoreBreakdown: breakdown(),
+        },
+        {
+          id: 'reservoir-a',
+          name: 'La Boca Museum',
+          traceSource: 'db',
+          scoreBreakdown: breakdown(),
+        },
+      ],
+      requestedThemes: ['history'],
+      composition,
+    });
+
+    expect(step.outputs?.composition).toEqual({
+      eligibleCount: 2,
+      portfolioTarget: 3,
+      initialSelectedIds: ['walk'],
+      reservoirIds: ['reservoir-a'],
+      perFacetCoverage: composition.perFacetCoverage,
+      mustAnchorsForced: [],
+      softAnchorsBoosted: [],
+      unmetFacets: [],
+      unmetAnchors: [],
+    });
+
+    const byId = new Map(
+      (step.candidateDecisions ?? []).map((decision) => [
+        decision.id,
+        decision,
+      ]),
+    );
+    expect(byId.get('walk')?.status).toBe('SELECTED');
+    expect(byId.get('walk')?.reasonCodes).toContain('RESERVED_FOR_FACET');
+    expect(byId.get('reservoir-a')?.status).toBe('RANKED');
+    expect(byId.get('reservoir-a')?.reasonCodes).toContain('RESERVOIR');
+  });
+
+  it('keeps the canonical Experience ID visible for cross-step tracing', () => {
+    const step = buildExperienceCandidatePoolStep({
+      initialCatalogCount: 10,
+      postAcquisitionCatalogCount: 12,
+      eligibleCount: 2,
+      offeredCandidates: [
+        {
+          id: 'walk',
+          name: 'San Telmo to La Boca History Walk',
+          traceSource: 'discovery',
+          scoreBreakdown: breakdown(),
+        },
+      ],
+      requestedThemes: [],
+      composition,
+    });
+
+    expect(step.outputs?.composition).toEqual(
+      expect.objectContaining({ initialSelectedIds: ['walk'] }),
+    );
+    expect(step.candidates?.map((candidate) => candidate.id)).toContain('walk');
   });
 });

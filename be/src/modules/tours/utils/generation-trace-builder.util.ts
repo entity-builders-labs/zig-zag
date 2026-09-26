@@ -29,7 +29,10 @@ import {
 } from '../interfaces/experience-resolution.interface';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DailyPlanningSolution } from '../interfaces/daily-planning.interface';
-import { PreferenceCoverageResult } from '../interfaces/preference-spec.interface';
+import {
+  CompositionSelectionResult,
+  PreferenceCoverageResult,
+} from '../interfaces/preference-spec.interface';
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
@@ -2082,6 +2085,8 @@ export function buildExperienceCandidatePoolStep(params: {
     }
   >;
   requestedThemes: string[];
+  /** Canonical Stage-9 result; traced verbatim, never recomputed. */
+  composition?: CompositionSelectionResult;
 }): GenerationTraceStep {
   const bySource = { catalog: 0, refill: 0, discovery: 0 };
   const candidates: TraceCandidate[] = params.offeredCandidates.map((c) => {
@@ -2105,6 +2110,13 @@ export function buildExperienceCandidatePoolStep(params: {
       },
     };
   });
+  const decisionsById = new Map(
+    (params.composition?.decisions ?? []).map((decision) => [
+      decision.id,
+      decision,
+    ]),
+  );
+
   return {
     stage: 'candidate_pool',
     label: 'Ranking de Experiences',
@@ -2116,6 +2128,9 @@ export function buildExperienceCandidatePoolStep(params: {
       postAcquisitionCatalogCount: params.postAcquisitionCatalogCount,
       eligibleCount: params.eligibleCount,
       requestedThemes: params.requestedThemes,
+      ...(params.composition
+        ? { portfolioTarget: params.composition.portfolioTarget }
+        : {}),
     },
     rules: [
       rule(
@@ -2134,17 +2149,70 @@ export function buildExperienceCandidatePoolStep(params: {
       reasonCodes: [],
       triggeredActions: ['RUN_DAILY_PLANNING'],
     },
-    outputs: { offeredCandidateCount: candidates.length, bySource },
+    outputs: {
+      offeredCandidateCount: candidates.length,
+      bySource,
+      ...(params.composition
+        ? {
+            composition: {
+              eligibleCount: params.composition.decisions.filter(
+                (decision) => decision.eligible,
+              ).length,
+              portfolioTarget: params.composition.portfolioTarget,
+              initialSelectedIds: params.composition.selected,
+              reservoirIds: params.composition.reservoir,
+              perFacetCoverage: params.composition.perFacetCoverage,
+              mustAnchorsForced: params.composition.mustAnchorsForced,
+              softAnchorsBoosted: params.composition.softAnchorsBoosted,
+              unmetFacets: params.composition.unmetFacets,
+              unmetAnchors: params.composition.unmetAnchors,
+            },
+          }
+        : {}),
+    },
     candidates,
-    candidateDecisions: params.offeredCandidates.map((c) => ({
-      id: c.id,
-      name: c.name,
-      source: c.traceSource,
-      status: 'RANKED' as const,
-      reason: 'Entró al pool V2 por relevancia.',
-      reasonCodes: ['INSIDE_EXPERIENCE_POOL'],
-      scoreBreakdown: c.scoreBreakdown,
-    })),
+    candidateDecisions: params.offeredCandidates.map((c) => {
+      const decision = decisionsById.get(c.id);
+      if (!decision) {
+        return {
+          id: c.id,
+          name: c.name,
+          source: c.traceSource,
+          status: 'RANKED' as const,
+          reason: 'Entró al pool V2 por relevancia.',
+          reasonCodes: ['INSIDE_EXPERIENCE_POOL'],
+          scoreBreakdown: c.scoreBreakdown,
+        };
+      }
+      const reasonCodes: string[] = [];
+      if (decision.mustForced) reasonCodes.push('MUST_FORCED');
+      if (decision.reservedForFacets.length > 0)
+        reasonCodes.push('RESERVED_FOR_FACET');
+      if (decision.softAnchorBoosted) reasonCodes.push('SOFT_ANCHOR_BOOSTED');
+      if (decision.remainderFill) reasonCodes.push('REMAINDER_FILL');
+      if (decision.reservoir) reasonCodes.push('RESERVOIR');
+      if (reasonCodes.length === 0) reasonCodes.push('INSIDE_EXPERIENCE_POOL');
+      const reason = decision.reservedForFacets.length
+        ? `Reservada para ${decision.reservedForFacets.join(', ')}.`
+        : decision.mustForced
+          ? 'Forzada por anchor MUST resuelto.'
+          : decision.remainderFill
+            ? 'Relleno de portfolio por orden canónico.'
+            : decision.reservoir
+              ? 'Reservorio ordenado para el planner.'
+              : 'Entró al pool V2 por relevancia.';
+      return {
+        id: c.id,
+        name: c.name,
+        source: c.traceSource,
+        status: decision.initialSelected
+          ? ('SELECTED' as const)
+          : ('RANKED' as const),
+        reason,
+        reasonCodes,
+        scoreBreakdown: c.scoreBreakdown,
+      };
+    }),
     candidatePool: {
       initialCatalogCount: params.initialCatalogCount,
       postAcquisitionCatalogCount: params.postAcquisitionCatalogCount,
@@ -2186,6 +2254,9 @@ export function buildDailyPlanningStep(
     status: 'UNSELECTED' as const,
     reason: candidate.reasons.join(', '),
     reasonCodes: candidate.reasons,
+    ...(candidate.walkingDiagnostics
+      ? { walkingDiagnostics: candidate.walkingDiagnostics }
+      : {}),
   }));
 
   return {
@@ -2244,6 +2315,7 @@ export function buildDailyPlanningStep(
       unselectedCount: solution.unselected.length,
       score: solution.score,
       residualCapacity: solution.metadata.residualCapacity,
+      constraints: solution.metadata.constraints,
       days: solution.days.map((day) => ({
         dayNumber: day.dayNumber,
         experienceCount: day.experiences.length,
@@ -2266,6 +2338,7 @@ export function buildDailyPlanningStep(
       residualCapacity: solution.metadata.residualCapacity,
       score: solution.score,
       routing: solution.metadata.routing,
+      constraints: solution.metadata.constraints,
       days: solution.days.map((day) => ({
         dayNumber: day.dayNumber,
         experienceCount: day.experiences.length,

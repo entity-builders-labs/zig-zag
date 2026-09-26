@@ -2,6 +2,7 @@ import {
   DailyPlanningWindow,
   PlanningExperienceCandidate,
   PlanningRejectionReason,
+  PlanningWalkingDiagnostics,
   TravelEstimateProvider,
   UnselectedPlanningCandidate,
 } from '../interfaces/daily-planning.interface';
@@ -93,7 +94,11 @@ export async function checkHardConstraints(
   candidate: PlanningExperienceCandidate,
   acc: DayAccumulator,
   context: PlacementContext,
-): Promise<{ feasible: boolean; reasons: PlanningRejectionReason[] }> {
+): Promise<{
+  feasible: boolean;
+  reasons: PlanningRejectionReason[];
+  walkingDiagnostics?: PlanningWalkingDiagnostics;
+}> {
   const reasons: PlanningRejectionReason[] = [];
 
   if (
@@ -135,8 +140,14 @@ export async function checkHardConstraints(
     candidate,
     context.policy,
   );
+  const internalContinuousWalkingMeters = maxInternalContinuousWalkingMeters(
+    candidate,
+    context.policy,
+  );
   const projectedWalkingMeters =
     acc.totalWalkingMeters + candidateInternalWalkingMeters + legWalkingMeters;
+
+  let walkingDailyExceeded = false;
   if (
     context.mobility.allowedTransportationModes.includes(
       TransportationMode.WALKING,
@@ -144,16 +155,35 @@ export async function checkHardConstraints(
     projectedWalkingMeters > context.mobility.maxWalkingDistancePerDayMeters
   ) {
     reasons.push('MAX_WALKING_PER_DAY_EXCEEDED');
+    walkingDailyExceeded = true;
   }
 
   const maxContinuousWalkingMeters =
     context.mobility.maxContinuousWalkingDistanceMeters;
+  let walkingContinuousExceeded = false;
   if (
     legWalkingMeters > maxContinuousWalkingMeters ||
-    maxInternalContinuousWalkingMeters(candidate, context.policy) >
-      maxContinuousWalkingMeters
+    internalContinuousWalkingMeters > maxContinuousWalkingMeters
   ) {
     reasons.push('MAX_CONTINUOUS_WALKING_EXCEEDED');
+    walkingContinuousExceeded = true;
+  }
+
+  // Observability only: the same canonical walking facts computed above,
+  // projected against the configured limits. Never fed back into policy.
+  let walkingDiagnostics: PlanningWalkingDiagnostics | undefined;
+  if (walkingDailyExceeded || walkingContinuousExceeded) {
+    walkingDiagnostics = {
+      dailyWalkingMeters: projectedWalkingMeters,
+      dailyWalkingLimitMeters: context.mobility.maxWalkingDistancePerDayMeters,
+      longestContinuousWalkingMeters: Math.max(
+        legWalkingMeters,
+        internalContinuousWalkingMeters,
+      ),
+      continuousWalkingLimitMeters: maxContinuousWalkingMeters,
+      internalWalkingContributionMeters: candidateInternalWalkingMeters,
+      incomingTravelWalkingContributionMeters: legWalkingMeters,
+    };
   }
 
   if (candidate.openingHours) {
@@ -179,7 +209,11 @@ export async function checkHardConstraints(
     }
   }
 
-  return { feasible: reasons.length === 0, reasons };
+  return {
+    feasible: reasons.length === 0,
+    reasons,
+    ...(walkingDiagnostics ? { walkingDiagnostics } : {}),
+  };
 }
 
 export function scoreCandidateForDay(
@@ -231,11 +265,18 @@ export async function placeCandidates(
     let bestDay: number | null = null;
     let bestScore = -Infinity;
     const dayFailureReasons = new Set<PlanningRejectionReason>();
+    // First walking-failure diagnostics in ascending day order; deterministic
+    // because day iteration order is fixed and the same canonical helpers are
+    // used everywhere. Observability only, never policy input.
+    let walkingDiagnostics: PlanningWalkingDiagnostics | undefined;
 
     for (const [dayNumber, acc] of days) {
       const feasibility = await checkHardConstraints(candidate, acc, context);
       if (!feasibility.feasible) {
         feasibility.reasons.forEach((r) => dayFailureReasons.add(r));
+        if (!walkingDiagnostics && feasibility.walkingDiagnostics) {
+          walkingDiagnostics = feasibility.walkingDiagnostics;
+        }
         continue;
       }
       const score = scoreCandidateForDay(candidate, acc, context);
@@ -252,6 +293,7 @@ export async function placeCandidates(
           dayFailureReasons.size > 0
             ? Array.from(dayFailureReasons)
             : ['NO_FEASIBLE_DAY'],
+        ...(walkingDiagnostics ? { walkingDiagnostics } : {}),
       });
       continue;
     }

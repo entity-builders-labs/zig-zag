@@ -229,4 +229,32 @@ describe('composeSet', () => {
     expect(result.mustAnchorsForced).toEqual(['venue']);
     expect(result.unmetAnchors).toEqual([]);
   });
+
+  it('exposes candidate-level decisions (reserved/remainder/reservoir/excluded) without recomputing selection', () => {
+    const result = composeSet({
+      candidates: [
+        candidate('history', ['theme:history']),
+        candidate('food', ['theme:food']),
+        candidate('generic', []),
+        candidate('excluded', ['theme:history'], {
+          matchesHardExclusion: true,
+        }),
+      ],
+      preferenceSpec: spec,
+    });
+
+    const byId = new Map(
+      result.decisions.map((decision) => [decision.id, decision]),
+    );
+
+    expect(byId.get('history')?.initialSelected).toBe(true);
+    expect(byId.get('history')?.reservedForFacets).toContain('theme:history');
+    expect(byId.get('food')?.initialSelected).toBe(true);
+    expect(byId.get('food')?.reservedForFacets).toContain('theme:food');
+    expect(byId.get('generic')?.remainderFill).toBe(true);
+    expect(byId.get('generic')?.initialSelected).toBe(true);
+    expect(byId.get('excluded')?.eligible).toBe(false);
+    expect(byId.get('excluded')?.excluded).toBe(true);
+    expect(byId.get('excluded')?.excludedReason).toBe('hard_exclusion');
+  });
 });

@@ -1,5 +1,6 @@
 import {
   CompositionCandidate,
+  CompositionCandidateDecision,
   CompositionSelectionResult,
   PreferenceSpec,
   facetKey,
@@ -84,6 +85,7 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
   const selectedIds = new Set<string>();
   const mustAnchorsForced: string[] = [];
   const reservedStrongExperienceIds: string[] = [];
+  const reservedForFacetsById = new Map<string, string[]>();
   const unmetAnchors = unresolvedVenueMustAnchors(
     input.preferenceSpec.resolvedAnchors ?? [],
     input.resolvedVenueMustAnchorNames ?? [],
@@ -111,6 +113,9 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
       selected.push(strongest);
       selectedIds.add(strongest.id);
       reservedStrongExperienceIds.push(strongest.id);
+      const reservedFacets = reservedForFacetsById.get(strongest.id) ?? [];
+      reservedFacets.push(key);
+      reservedForFacetsById.set(strongest.id, reservedFacets);
     }
   }
 
@@ -125,12 +130,16 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
   const remaining = eligible
     .filter((candidate) => !selectedIds.has(candidate.id))
     .sort((a, b) => byRemainderPriority(weights, a, b));
+  const remainderFillIds: string[] = [];
   while (selected.length < target && remaining.length > 0) {
     const candidate = remaining.shift()!;
     selected.push(candidate);
     selectedIds.add(candidate.id);
+    remainderFillIds.push(candidate.id);
   }
   const reservoir = remaining.map((candidate) => candidate.id);
+  const reservoirIds = new Set(reservoir);
+  const remainderFillIdSet = new Set(remainderFillIds);
   const perFacetCoverage: Record<string, string[]> = {};
   const unmetFacets: string[] = [];
   for (const key of requested.keys()) {
@@ -140,6 +149,30 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
     perFacetCoverage[key] = coverage;
     if (coverage.length === 0) unmetFacets.push(key);
   }
+
+  const decisions: CompositionCandidateDecision[] = input.candidates
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((candidate) => {
+      const isEligible = byId.has(candidate.id);
+      const excludedReason = !isEligible
+        ? candidate.matchesHardExclusion
+          ? ('hard_exclusion' as const)
+          : ('no_components' as const)
+        : undefined;
+      return {
+        id: candidate.id,
+        eligible: isEligible,
+        initialSelected: selectedIds.has(candidate.id),
+        reservedForFacets: reservedForFacetsById.get(candidate.id) ?? [],
+        mustForced: mustAnchorsForced.includes(candidate.id),
+        softAnchorBoosted: candidate.softAnchorBoost > 0,
+        remainderFill: remainderFillIdSet.has(candidate.id),
+        reservoir: reservoirIds.has(candidate.id),
+        excluded: !isEligible,
+        ...(excludedReason ? { excludedReason } : {}),
+      };
+    });
+
   return {
     selected: selected.map((candidate) => candidate.id),
     reservoir,
@@ -151,5 +184,6 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
       .map((candidate) => candidate.id),
     unmetAnchors,
     portfolioTarget: target,
+    decisions,
   };
 }

@@ -61,4 +61,13 @@ describe('preference-first architecture boundaries', () => {
     );
     expect(generation).toMatch(/resolveNamedAnchors\(/);
   });
+
+  it('forwards resolved anchors into the GENERIC acquisition plan (RW2 fix)', () => {
+    const generation = source('experience-generation.service.ts');
+    // The GENERIC buildAcquisitionPlan call must pass `anchors: resolvedAnchors`
+    // so structured anchors survive as typed facts, never only via semanticQuery.
+    expect(generation).toMatch(
+      /buildAcquisitionPlan\(\{[\s\S]*?deficits:\s*generic[\s\S]*?anchors:\s*resolvedAnchors/,
+    );
+  });
 });

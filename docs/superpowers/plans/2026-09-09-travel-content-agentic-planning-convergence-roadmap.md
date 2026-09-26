@@ -886,7 +886,10 @@ Do not perform history rewrites or delete branches merely because this roadmap r
 As of 2026-09-26, the component-resolution / RW1 milestone is complete on
 `feat/preference-first-selection`, and the Gate C extractor/provider
 characterization and the **RW2 (Buenos Aires multi-area walk) spike are
-executed**. Do not reopen the closed component-resolution Progress for
+executed**. RW2's two named findings plus its bitácora gap are now closed
+(GENERIC structured-anchor propagation fixed; planner walking-rejection wording
+corrected; bitácora composition/walking diagnostics added; walking policy
+unchanged). Do not reopen the closed component-resolution Progress for
 post-milestone work unless a real regression disproves an accepted milestone
 fact.
 
@@ -900,7 +903,7 @@ Experience dedupe policy correction          (DONE)
 → focused deterministic regression           (GREEN)
 → focused live rerun                         (done, dedupe shape inconclusive)
 → extractor/provider reliability             (bounded: case-b ×5 landed)
-→ RW2 multi-area walk                        (EXECUTED 2026-09-26, MIXED: 2 findings)
+→ RW2 multi-area walk                        (EXECUTED 2026-09-26; findings closed)
 → RW3 Caminito canonical OSM ROUTE           (NEXT GATE)
 → RW4–RW6 generalization
    + initial tour-quality evaluation
