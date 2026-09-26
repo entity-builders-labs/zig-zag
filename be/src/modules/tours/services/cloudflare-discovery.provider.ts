@@ -50,8 +50,17 @@ interface CloudflareChatCompletionResponse {
  * this model. So this provider deliberately sends **no** `response_format` and
  * relies on the shared prompt's "Return JSON with a candidates array"
  * instruction plus the existing deterministic JSON.parse / extraction
- * validation path. Malformed output remains observable as a parse failure
- * rather than being silently coerced.
+ * validation path.
+ *
+ * Live characterization (2026-09-26): `@cf/qwen/qwen3.8-27b` is a reasoning
+ * variant — without intervention it emits chain-of-thought into
+ * `choices[0].message.reasoning` and leaves `content` null, hitting
+ * `finish_reason: "length"` at the 900-token budget. Disabling thinking via
+ * `chat_template_kwargs: { enable_thinking: false }` makes it emit the answer
+ * in `content` (observed: `finish_reason: "stop"`, ~455 tokens), wrapped in a
+ * ```json markdown fence that is stripped alongside the `<think>` wrapper.
+ * Malformed output remains observable as a parse failure rather than being
+ * silently coerced.
  */
 @Injectable()
 export class CloudflareDiscoveryProvider {
@@ -165,6 +174,10 @@ export class CloudflareDiscoveryProvider {
         ],
         temperature: TEMPERATURE,
         max_completion_tokens: MAX_COMPLETION_TOKENS,
+        // This Cloudflare-hosted Qwen is a reasoning variant; disable its
+        // chain-of-thought so the answer lands in `content` within the
+        // extractor's 900-token budget (live-verified 2026-09-26).
+        chat_template_kwargs: { enable_thinking: false },
       }),
       signal: AbortSignal.timeout(this.cloudflare.timeoutMs),
     });
@@ -184,10 +197,20 @@ export class CloudflareDiscoveryProvider {
       throw new Error('Cloudflare response had no choices[0].message.content');
     }
 
-    // Normalize the one transport artifact comparable providers already strip:
-    // an explicit reasoning wrapper (`<think>…</think>`), which Qwen reasoning
-    // models can emit. Semantic content is otherwise untouched.
-    return content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    // Normalize the two transport artifacts comparable providers already
+    // strip: an explicit reasoning wrapper (`<think>…</think>`) and the
+    // optional ```json markdown fence. Semantic content is otherwise untouched.
+    return this.normalizeTransportArtifacts(content);
+  }
+
+  /** Strip the `<think>` reasoning wrapper and the optional ```json fence
+   * this reasoning model wraps its answer in, then trim. Idempotent — plain
+   * JSON content passes through unchanged. */
+  private normalizeTransportArtifacts(raw: string): string {
+    let out = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    out = out.replace(/^```(?:json)?\s*/i, '');
+    out = out.replace(/\s*```$/, '');
+    return out.trim();
   }
 
   /** Redact the API token (and any Bearer credential) from an upstream error

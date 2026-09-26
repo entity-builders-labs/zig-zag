@@ -130,11 +130,12 @@ describe('CloudflareDiscoveryProvider', () => {
     expect(body.messages[1].content).toContain('ev-1');
   });
 
-  it('uses temperature 0 and max_completion_tokens 900', async () => {
+  it('uses temperature 0, max_completion_tokens 900, and disables thinking', async () => {
     const provider = await makeProvider();
     await provider.extractExperiences(request, searchResult);
     expect(lastBody().temperature).toBe(0);
     expect(lastBody().max_completion_tokens).toBe(900);
+    expect(lastBody().chat_template_kwargs).toEqual({ enable_thinking: false });
   });
 
   it('extracts a valid candidate through the shared deterministic boundary', async () => {
@@ -246,6 +247,27 @@ describe('CloudflareDiscoveryProvider', () => {
           {
             message: {
               content: `<think>the user wants history</think>${JSON.stringify(VALID_CANDIDATE)}`,
+            },
+          },
+        ],
+      }),
+    } as any);
+    const provider = await makeProvider();
+    const result = await provider.extractExperiences(request, searchResult);
+    expect(result.validationErrors).toHaveLength(0);
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].name).toBe('Paseo');
+  });
+
+  it('strips ```json markdown fences before parsing', async () => {
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: '```json\n' + JSON.stringify(VALID_CANDIDATE) + '\n```',
             },
           },
         ],
