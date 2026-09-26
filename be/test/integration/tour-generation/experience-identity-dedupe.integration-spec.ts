@@ -508,6 +508,86 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
     });
   });
 
+  describe('Stage 5 regression — standalone/composite shared membership is order-independent', () => {
+    const standaloneInput = () => ({
+      canonicalName: 'Visit Plaza Dorrego',
+      description: 'Visit the historic Plaza Dorrego square.',
+      metadata: { themes: ['square'], intents: ['visit'] },
+      components: componentsOf(['Plaza Dorrego']),
+      evidence: [{ source: 'standalone-guide' }],
+    });
+
+    const compositeInput = () => ({
+      canonicalName: 'San Telmo Historical Walk',
+      description: 'A source-backed historical walk through two real stops.',
+      metadata: { themes: ['history'], intents: ['walk'] },
+      components: componentsOf(['Plaza Dorrego', 'Mercado de San Telmo']),
+      evidence: [{ source: 'walking-tour-guide' }],
+    });
+
+    async function expectBothPersisted(
+      standaloneId: string,
+      compositeId: string,
+    ) {
+      const prisma = await getPrisma();
+      expect(standaloneId).not.toBe(compositeId);
+      const rows = await prisma.experience.findMany({
+        where: { status: 'VERIFIED' },
+        include: { components: true },
+        orderBy: { canonicalName: 'asc' },
+      });
+      expect(rows).toHaveLength(2);
+      expect(
+        rows.map((row) => ({
+          name: row.canonicalName,
+          componentIds: row.components
+            .map((component) => component.geoEntityId)
+            .sort(),
+        })),
+      ).toEqual([
+        {
+          name: 'San Telmo Historical Walk',
+          componentIds: [
+            geo['Mercado de San Telmo'].id,
+            geo['Plaza Dorrego'].id,
+          ].sort(),
+        },
+        {
+          name: 'Visit Plaza Dorrego',
+          componentIds: [geo['Plaza Dorrego'].id],
+        },
+      ]);
+    }
+
+    it('[A] then [A,B] persists both canonical Experiences', async () => {
+      const standalone = await catalog.persistVerifiedExperience(
+        standaloneInput(),
+      );
+      expect((standalone as any).dedupeDecision).toBe('NEW');
+
+      const composite = await catalog.persistVerifiedExperience(
+        compositeInput(),
+      );
+      expect((composite as any).dedupeDecision).toBe('NEW');
+
+      await expectBothPersisted(standalone.id, composite.id);
+    });
+
+    it('[A,B] then [A] reaches the same final catalog result', async () => {
+      const composite = await catalog.persistVerifiedExperience(
+        compositeInput(),
+      );
+      expect((composite as any).dedupeDecision).toBe('NEW');
+
+      const standalone = await catalog.persistVerifiedExperience(
+        standaloneInput(),
+      );
+      expect((standalone as any).dedupeDecision).toBe('NEW');
+
+      await expectBothPersisted(standalone.id, composite.id);
+    });
+  });
+
   describe('Case 3 — AMBIGUOUS does not corrupt the catalog', () => {
     it('strong-but-inconclusive overlap returns AMBIGUOUS, mutates nothing, and creates no new row', async () => {
       const prisma = await getPrisma();

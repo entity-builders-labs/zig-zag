@@ -85,71 +85,123 @@ describe('decideExperienceDedupe', () => {
   });
 
   /**
-   * OPEN FINDING -- Stage 5 RW1 (spikes/stage5-rw1-final-verification-2026-09-25).
-   * Characterizes CURRENT behavior; this is NOT the intended design. The
-   * 2026-09-22 amendment says a GeoEntity may be shared by a source-backed
-   * composite and an independently discovered standalone Experience, but
-   * `setOverlap` divides by the larger set, so a single-venue Experience and
-   * a 2-stop composite containing it score componentOverlap = 1/2 = 0.5 --
-   * exactly the AMBIGUOUS cutoff -- and whichever is persisted second fails
-   * closed. A 3-stop composite scores 1/3 and is unaffected: the outcome
-   * depends on stop count and catalog order, not identity. Live: COLD 1 lost
-   * the standalone "Plaza Dorrego"; COLD 4 lost the complete, geo-accepted
-   * 2-stop walk "San Telmo Walking Tour" (Plaza Dorrego + Mercado). Flip
-   * these expectations when the Experience-dedupe policy decision is made.
+   * Stage 5 RW1 regression: a standalone Experience and a source-backed
+   * composite may legitimately share the same GeoEntity. That membership is
+   * expected catalog structure (amendment §16), not Experience identity.
+   *
+   * The structural overlap values remain evidence for audit/ranking. The
+   * policy correction is narrower: for standalone-vs-composite comparisons,
+   * shared membership alone must not trigger SAME or AMBIGUOUS. Independent
+   * identity signals (for example, the same canonical name) may still make
+   * the comparison ambiguous.
    */
-  describe('OPEN FINDING: single-venue vs 2-stop composite sharing a GeoEntity', () => {
+  describe('standalone vs composite shared membership', () => {
     const plazaDorrego = { geoEntityId: 'geo-plaza-dorrego', role: 'venue' };
     const mercado = { geoEntityId: 'geo-mercado', role: 'venue' };
     const lezama = { geoEntityId: 'geo-parque-lezama', role: 'venue' };
     const single = (
       id: string | undefined,
       component: typeof plazaDorrego,
-      name: string,
+      name = 'Visit Plaza Dorrego',
     ) => ({
       ...(id ? { id } : {}),
       canonicalName: name,
-      latitude: -34.6212,
-      longitude: -58.3731,
       components: [component],
     });
     const walk = (
       id: string | undefined,
       components: Array<typeof plazaDorrego>,
+      name = 'San Telmo Historical Walk',
     ) => ({
       ...(id ? { id } : {}),
-      canonicalName: 'San Telmo Walking Tour',
-      latitude: -34.6212,
-      longitude: -58.3731,
+      canonicalName: name,
       components,
     });
 
-    it('COLD 1 order: the composite exists, the standalone venue fails closed', () => {
-      const decision = decideExperienceDedupe(
-        single(undefined, plazaDorrego, 'Plaza Dorrego'),
-        [walk('exp-walk', [lezama, plazaDorrego])],
-      );
-      expect(decision.decision).toBe('AMBIGUOUS');
-      expect(decision.evidence.componentOverlap).toBe(0.5);
-    });
-
-    it('COLD 4 order: the standalone venues exist, the complete composite fails closed', () => {
+    it('[A] then [A,B]: shared membership alone preserves both Experiences', () => {
       const decision = decideExperienceDedupe(
         walk(undefined, [plazaDorrego, mercado]),
+        [single('exp-plaza', plazaDorrego)],
+      );
+
+      expect(decision.decision).toBe('NEW');
+      expect(decision.evidence.componentOverlap).toBe(0.5);
+      expect(decision.evidence.roleAwareComponentOverlap).toBe(0.5);
+    });
+
+    it('[A,B] then [A]: persistence order does not change the identity result', () => {
+      const decision = decideExperienceDedupe(
+        single(undefined, plazaDorrego),
+        [walk('exp-walk', [plazaDorrego, mercado])],
+      );
+
+      expect(decision.decision).toBe('NEW');
+      expect(decision.evidence.componentOverlap).toBe(0.5);
+      expect(decision.evidence.roleAwareComponentOverlap).toBe(0.5);
+    });
+
+    it('[A] vs [A,B,C]: the same standalone/composite semantics are cardinality-independent', () => {
+      const decision = decideExperienceDedupe(
+        walk(undefined, [plazaDorrego, mercado, lezama]),
+        [single('exp-plaza', plazaDorrego)],
+      );
+
+      expect(decision.decision).toBe('NEW');
+      expect(decision.evidence.componentOverlap).toBeCloseTo(1 / 3);
+    });
+
+    it('same [A] vs same [A] preserves exact duplicate behavior', () => {
+      const decision = decideExperienceDedupe(
+        single(undefined, plazaDorrego),
+        [single('exp-plaza', plazaDorrego)],
+      );
+
+      expect(decision.decision).toBe('SAME');
+      if (decision.decision === 'SAME') {
+        expect(decision.canonicalExperienceId).toBe('exp-plaza');
+      }
+    });
+
+    it('same [A,B] vs same [A,B] preserves exact composite duplicate behavior', () => {
+      const decision = decideExperienceDedupe(
+        walk(undefined, [plazaDorrego, mercado]),
+        [walk('exp-walk', [plazaDorrego, mercado])],
+      );
+
+      expect(decision.decision).toBe('SAME');
+      if (decision.decision === 'SAME') {
+        expect(decision.canonicalExperienceId).toBe('exp-walk');
+      }
+    });
+
+    it('partial overlap between two genuine composites preserves AMBIGUOUS policy', () => {
+      const decision = decideExperienceDedupe(
+        {
+          canonicalName: 'Harbor Circuit',
+          components: [plazaDorrego, mercado],
+        },
         [
-          single('exp-plaza', plazaDorrego, 'Plaza Dorrego'),
-          single('exp-mercado', mercado, 'Mercado San Telmo'),
+          {
+            id: 'other-composite',
+            canonicalName: 'Mountain Passage',
+            components: [plazaDorrego, lezama],
+          },
         ],
       );
+
+      expect(decision.decision).toBe('AMBIGUOUS');
+      expect(decision.evidence.componentOverlap).toBe(0.5);
+      expect(decision.evidence.roleAwareComponentOverlap).toBe(0.5);
+    });
+
+    it('independent identity evidence can still make standalone-vs-composite AMBIGUOUS', () => {
+      const decision = decideExperienceDedupe(
+        walk(undefined, [plazaDorrego, mercado], 'Plaza Dorrego Experience'),
+        [single('exp-plaza', plazaDorrego, 'Plaza Dorrego Experience')],
+      );
+
       expect(decision.decision).toBe('AMBIGUOUS');
     });
 
-    it('a 3-stop composite over the same venue is not affected (cardinality artifact)', () => {
-      const decision = decideExperienceDedupe(
-        walk(undefined, [plazaDorrego, mercado, lezama]),
-        [single('exp-plaza', plazaDorrego, 'Plaza Dorrego')],
-      );
-      expect(decision.decision).toBe('NEW');
-    });
   });
 });
