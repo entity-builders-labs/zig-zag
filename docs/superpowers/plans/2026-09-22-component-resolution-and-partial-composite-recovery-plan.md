@@ -1,6 +1,6 @@
 # Component Resolution + Partial Composite Recovery — Implementation Plan
 
-Status: **milestone complete (Stage 5 DONE 2026-09-25); one open cross-cutting finding (Experience dedupe) recorded in the Stage 5 addendum.**
+Status: **milestone complete (Stage 5 DONE 2026-09-25). The Stage 5 Experience-dedupe finding was resolved post-milestone by `d6f0603`; deterministic validation is green, live RW1 re-confirmation is still pending.**
 Written: 2026-09-22.
 Execution plan compacted: 2026-09-23.
 Branch: `feat/preference-first-selection`.
@@ -41,7 +41,7 @@ implements the stage. Do not mark a stage DONE without real validation.
 | 2. Source-grounded contract cutover | DONE | `a7df3b579282cee6b57fef8a914080d507e47fac` | *(this commit)* | jest (152/153 suites, 1746/1747 tests; 1 pre-existing arch failure) + tsc (clean) + eslint (clean) | LLM-owned `required` eliminated from discovery contract; deterministic source-support admission gate implemented; Santa Mónica blocked; semantic document bumped to v3; Stage 3 unblocked. |
 | 3. Catalog-first identity resolution | DONE | `9eaf5ec1d9caddba55ccab1e0d5c2774f45f61b3` (PLACE cutover); `d1059a7cf786256acff2e9ca2311cac1ec7ab1b9` (verified hint memory) | `52c6da1`,`9424dc5`,`77de1fa`,`c101fea`; `6b60add`,`3abb70f`,`4b64b90` *(progress: this commit)* | unit 1987/1988 (pre-existing preference-first-architecture failure); integration on zigzag_test 91/94 (the 3 baseline failures; `catalog-reuse` passed); real-Postgres verified-hint memory 10/10 incl. concurrency (mutation-checked) and GIN EXPLAIN; live COLD/WARM on a fresh DB (15 hints incl. Solar de French); SerpApi/Serper/Google Places 0; tsc + eslint clean | Name-divergent WARM reuse closed by verified hint memory on `GeoEntity` (text[] + GIN, no new table). See the 2026-09-25 verified hint memory addendum and `spikes/stage3-verified-hint-memory-cold-warm-2026-09-25/assessment.md`. Stage 4 UNBLOCKED. |
 | 4. Geographic + partial-composite cutover | DONE | `5a9ec4322a006aa0489625d5bac1202d7cdc8cbb` | `f4d4f81`,`0307a94`,`8bc5ce0` *(progress: this commit)* | unit 2021/2022 (baseline preference-first-architecture); integration 95/98 on zigzag_test (the 3 baseline failures) incl. new partial-composite-isolation 4/4 (mutation-checked); tsc + eslint clean; bounded live COLD/WARM/COLD (Serper, SerpApi 0) | `required` has no geographic/reuse/planner authority; single area-scope policy gives typed per-component relations (MultiLineString included); full source composition is the only admission fact; A-B-C-D-E-F never persists as A-B-D-F. No schema, no thresholds. Live partial shape not extracted (variance). See the 2026-09-25 Stage 4 addendum. Stage 5 UNBLOCKED. |
-| 5. Trace + RW1 verification | DONE | `94e9cb10e33cbe085511e5ac7cced36db7700aa2` | `576bbe5`,`3097641`,`d38d4be`,`f2e164c` *(progress: this commit)* | unit 2041/2042 (baseline preference-first-architecture); integration 95/98 on zigzag_test (3 baseline failures); trace-failure-semantics 15/15 (RED first, mutation-checked); tsc + eslint clean; live RW1 3 COLD + 1 WARM + 1 targeted COLD (Serper; SerpApi/Google Places 0) | Trace distinguishes every terminal component state (false NO_OSM_MATCH on provider failure fixed; contradicted vs unconfirmed split) and states each composite's geographic/persistence/planner outcome. RW1: 2 composites (2/2, INSIDE, CGV accepted); partial/ambiguous/OUTSIDE/ROUTE not observed live (deterministic Stage 4 proof). No threshold selected. OPEN FINDING: Experience dedupe blocks single-vs-2-stop composites (order-dependent), characterized, needs a policy decision. Milestone COMPLETE. |
+| 5. Trace + RW1 verification | DONE | `94e9cb10e33cbe085511e5ac7cced36db7700aa2` | `576bbe5`,`3097641`,`d38d4be`,`f2e164c` *(progress: this commit)* | unit 2041/2042 (baseline preference-first-architecture); integration 95/98 on zigzag_test (3 baseline failures); trace-failure-semantics 15/15 (RED first, mutation-checked); tsc + eslint clean; live RW1 3 COLD + 1 WARM + 1 targeted COLD (Serper; SerpApi/Google Places 0) | Trace distinguishes every terminal component state (false NO_OSM_MATCH on provider failure fixed; contradicted vs unconfirmed split) and states each composite's geographic/persistence/planner outcome. RW1: 2 composites (2/2, INSIDE, CGV accepted); partial/ambiguous/OUTSIDE/ROUTE not observed live (deterministic Stage 4 proof). No threshold selected. At Stage 5 closure the order-dependent single-vs-2-stop Experience-dedupe defect remained an OPEN FINDING; it was resolved separately post-milestone by `d6f0603` (deterministic validation green; live re-confirmation pending). Milestone COMPLETE. |
 
 ### Stage 1 — Characterization lock (2026-09-23)
 
@@ -1777,15 +1777,43 @@ composite, AMBIGUOUS/CONFLICTED/provider-failed component, OUTSIDE/
 INTERSECTS/UNDETERMINED relation, Plaza de Mayo relation, Calle Defensa
 ROUTE, POINT_RADIUS, MultiLineString in the planner.
 
-**OPEN FINDING (not fixed).** Experience dedupe (`setOverlap` divides by the
-larger set) scores a single venue vs a 2-stop composite containing it at
-`componentOverlap = 0.5`, the AMBIGUOUS cutoff: whichever persists second
-fails closed. Live: COLD 1 lost a standalone Plaza Dorrego; COLD 4 lost a
-complete, CGV-accepted composite. A 3-stop composite is unaffected
-(cardinality artifact). Pre-existing Gate 1 policy, contradicts the
-amendment's shared-GeoEntity statement; characterized in
-`experience-dedupe.util.spec.ts` ("OPEN FINDING"). Changing it is an
-Experience-identity policy decision, not Stage 5 work.
+**POST-MILESTONE RESOLUTION OF THE OPEN FINDING.** Stage 5 correctly
+closed without changing Experience identity policy inline. Under the Stage 5
+code, `setOverlap` divided by the larger set and a single venue vs a 2-stop
+composite containing it scored `componentOverlap = 0.5`; component overlap
+therefore triggered `AMBIGUOUS`, making the result persistence-order
+dependent. The live historical observations remain valid: COLD 1 lost the
+independently sourced standalone Plaza Dorrego; COLD 4 lost the complete,
+CGV-accepted composite.
+
+The separate post-milestone policy correction landed in
+`d6f060344073eba101f16ee8ebc1a798a9aed378`
+(`fix(tours): separate membership from experience identity`), with regression
+tests introduced in `a690714b0e7f45af11f763d6b2426c981c21bdd0`.
+
+The correction does **not** change `setOverlap`, SAME rules, or any numeric
+threshold. It changes the authority of structural overlap: for a
+standalone-vs-composite comparison (one distinct GeoEntity vs more than one),
+shared component / role-aware membership alone can no longer force SAME or
+AMBIGUOUS. Independent name/semantic identity evidence can still produce
+AMBIGUOUS, and composite-vs-composite partial-overlap policy is unchanged.
+Distinct GeoEntity cardinality is used so duplicate component rows cannot
+manufacture composite semantics. Ambiguous trace evidence now comes from the
+candidate that actually caused the ambiguity, and
+`standalone_composite_shared_membership` records the neutralized structural
+relationship.
+
+Deterministic validation reported on `d6f0603`:
+- `experience-dedupe.util.spec.ts`: **10/10**;
+- `experience-identity-dedupe.integration-spec.ts` on `zigzag_test`:
+  **19/19**;
+- full unit suite: **2045/2046**, with the sole failure the existing
+  `preference-first-architecture` baseline.
+
+This closes the policy defect deterministically. A bounded fresh-DB RW1 COLD
+re-run has **not** yet been executed after `d6f0603`; therefore the expected
+live outcome (both the standalone and 2-stop composite persist) remains a
+deterministic prediction pending live re-confirmation.
 
 **THRESHOLD DECISIONS.** NEAR distance: NOT SELECTED — insufficient
 evidence (0 OUTSIDE components live). Partial-resolution ratio: NOT
@@ -1825,14 +1853,17 @@ explicit PASS (no invented dedupe signals, unrecognized extractor shape
 reported); migration cutover PASS (no dual path); frontend domain ownership
 PASS (FE renders backend facts, no local policy). No Prisma migration.
 
-**Debt.** Dedupe finding above; low extraction yield on walk evidence;
-failed identity resolutions re-attempted every run; POINT_RADIUS
+**Debt.** The Stage 5 dedupe finding above is resolved deterministically by
+`d6f0603` (live re-confirmation pending); low extraction yield on walk
+evidence; failed identity resolutions re-attempted every run; POINT_RADIUS
 ROUTE/AREA relation UNDETERMINED; MultiLineString planner footprint;
 `required` columns; San Martín hardening; `catalog-reuse` flake;
 `representativePoint` first polygon; anchor `nominatim` namespace.
 
-**Stage status:** Stage 5 **DONE**. Milestone **COMPLETE**, with the Experience
-dedupe finding open for a separate policy decision.
+**Stage status:** Stage 5 **DONE**. Milestone **COMPLETE**. The Experience
+dedupe finding was intentionally left open at Stage 5 closure and was resolved
+post-milestone by `d6f0603`; deterministic validation is green and live
+re-confirmation remains pending.
 
 ### Cross-cutting product-shape note — simple, composite, and mixed Tour requests (2026-09-23)
 

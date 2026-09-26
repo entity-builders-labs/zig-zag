@@ -106,33 +106,54 @@ envelope fix (§4). All completed.
 | MultiLineString route reaching the planner | no ROUTE GeoEntity created | — (debt stays) |
 | Genuine KNOWLEDGE_DEFICIT | none: every live deficit is `NO_CANDIDATE_ACQUIRED / PENDING_CLASSIFICATION` | — |
 
-## 5. Finding — Experience dedupe blocks 2-stop composites (NOT fixed)
+## 5. Historical finding — Experience dedupe blocked 2-stop composites (fixed post-milestone; live re-confirmation pending)
 
-Observed live and reproduced deterministically
-(`experience-dedupe.util.spec.ts`, "OPEN FINDING"):
+Observed live under the Stage 5 code and reproduced deterministically:
 
 - COLD 1: composite {Lezama, Plaza Dorrego} persisted first → the
-  independently sourced single-venue "Plaza Dorrego" → `AMBIGUOUS_DEDUPE`.
+  independently sourced single-venue "Plaza Dorrego" →
+  `AMBIGUOUS_DEDUPE`.
 - COLD 4: single-venue Plaza Dorrego and Mercado persisted first → the
   complete, CGV-accepted composite {Plaza Dorrego, Mercado} →
   `AMBIGUOUS_DEDUPE`, never planner-visible.
 
-Cause: `setOverlap` divides by the larger set, so single {A} vs composite
-{A,B} scores `componentOverlap = 0.5`, exactly the AMBIGUOUS cutoff; a
-3-stop composite scores 1/3 and is unaffected. The result depends on stop
-count and catalog order, not identity, and contradicts the amendment ("the
-same GeoEntity can be shared by the composite and any independently
-discovered standalone Experience"). Pre-existing: same rule at the
-milestone's starting commit `286c859` (Gate 1 policy).
+Historical cause: `setOverlap` divides by the larger set, so single {A} vs
+composite {A,B} scores `componentOverlap = 0.5`; the old ambiguity gate let
+that structural membership signal fail-close the second Experience. A 3-stop
+composite scored 1/3, exposing the cardinality/order artifact. This contradicted
+the canonical rule that a standalone and composite may legitimately share the
+same GeoEntity.
 
-Not fixed in Stage 5: it is an Experience-identity policy change (the Gate 1
-dedupe went through four adversarial rounds; loosening an overlap rule is
-exactly where a minimal fix over-corrects). It fails closed (no corruption,
-no duplicate, no partial persistence) and is visible in the trace. It needs
-an explicit dedupe-policy decision (candidate rule to review: a
-single-component Experience and a multi-component Experience containing it
-are distinct identities unless name/concept identity evidence says
-otherwise).
+Stage 5 intentionally did **not** change that identity policy inline. The
+separate correction landed post-milestone in
+`d6f060344073eba101f16ee8ebc1a798a9aed378`
+(`fix(tours): separate membership from experience identity`), after
+regressions were added in
+`a690714b0e7f45af11f763d6b2426c981c21bdd0`.
+
+The fix is policy-scoped rather than a threshold adjustment:
+- `setOverlap` and the SAME rules are unchanged;
+- standalone-vs-composite is detected from **distinct GeoEntity count**;
+- shared component / role-aware overlap alone has no SAME/AMBIGUOUS authority
+  for that shape;
+- name/semantic identity evidence can still make the pair AMBIGUOUS;
+- composite-vs-composite partial-overlap behavior is preserved;
+- ambiguous evidence is reported from the candidate that actually triggered
+  ambiguity;
+- trace evidence includes `standalone_composite_shared_membership`.
+
+Deterministic validation on `d6f0603`:
+- `experience-dedupe.util.spec.ts`: **10/10**;
+- Gate 1 `experience-identity-dedupe.integration-spec.ts` on
+  `zigzag_test`: **19/19**;
+- full unit suite: **2045/2046**, with only the existing
+  `preference-first-architecture` baseline red.
+
+Therefore the defect is **fixed deterministically**. The original COLD 1/COLD 4
+rows above remain historical Stage 5 observations; they have not been rewritten
+as if the run happened under new code. No post-`d6f0603` live COLD has been
+run yet, so live confirmation that both legitimate Experiences now persist is
+still pending.
 
 ## 6. El Zanjón / Plaza de Mayo / Calle Defensa / Solar de French
 
@@ -177,7 +198,9 @@ Mafalda / Farmacia / Recoleta: not emitted; no verified-hint noise observed
 
 ## 10. Debt (carried / new)
 
-- NEW: Experience dedupe single-vs-2-stop composite (§5) — needs a policy decision.
+- RESOLVED POST-MILESTONE: Experience dedupe single-vs-2-stop composite (§5)
+  — fixed by `d6f0603`; deterministic validation green; bounded live
+  re-confirmation pending.
 - NEW: extraction yield is low on walk evidence (2/9 passes); extractor/prompt
   work is out of scope here, and nothing was steered.
 - NEW: failed identity resolutions are re-attempted every run (WARM re-queried
@@ -191,7 +214,8 @@ Mafalda / Farmacia / Recoleta: not emitted; no verified-hint noise observed
 
 ## 11. STOP conditions
 
-None triggered: no new lifecycle schema, identity authority, geography
-engine, provider fallback, taxonomy or persistence model was needed. The
-dedupe finding would change existing identity policy, so it is reported
-instead of folded into Stage 5.
+None triggered during Stage 5: no new lifecycle schema, identity authority,
+geography engine, provider fallback, taxonomy or persistence model was needed.
+The dedupe finding correctly remained reported rather than being folded into
+Stage 5. Its later resolution in `d6f0603` is a separate post-milestone
+policy correction and does not reopen or rewrite the completed Stage 5 run.
