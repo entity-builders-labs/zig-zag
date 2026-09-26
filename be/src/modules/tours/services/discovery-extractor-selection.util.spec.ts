@@ -5,12 +5,16 @@ describe('selectDiscoveryExtractor', () => {
     gemini: { extractExperiences: jest.fn(), _tag: 'gemini' } as any,
     groq: { extractExperiences: jest.fn(), _tag: 'groq' } as any,
     ollama: { extractExperiences: jest.fn(), _tag: 'ollama' } as any,
+    cloudflare: { extractExperiences: jest.fn(), _tag: 'cloudflare' } as any,
   };
 
   it('maps each DISCOVERY_EXTRACTOR_PROVIDER value to its own implementation', () => {
     expect(selectDiscoveryExtractor('gemini', impls)).toBe(impls.gemini);
     expect(selectDiscoveryExtractor('groq', impls)).toBe(impls.groq);
     expect(selectDiscoveryExtractor('ollama', impls)).toBe(impls.ollama);
+    expect(selectDiscoveryExtractor('cloudflare', impls)).toBe(
+      impls.cloudflare,
+    );
   });
 
   it('throws on an unsupported provider', () => {

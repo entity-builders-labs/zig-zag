@@ -52,6 +52,10 @@ describe('AiEmbeddingService Bedrock adapter', () => {
           model: 'qwen2.5:7b-instruct',
           timeoutMs: 240000,
         },
+        cloudflare: {
+          model: '@cf/qwen/qwen3.8-27b',
+          timeoutMs: 60000,
+        },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
       classification: {
@@ -95,6 +99,10 @@ describe('AiEmbeddingService Bedrock adapter', () => {
           baseUrl: 'http://localhost:11434',
           model: 'qwen2.5:7b-instruct',
           timeoutMs: 240000,
+        },
+        cloudflare: {
+          model: '@cf/qwen/qwen3.8-27b',
+          timeoutMs: 60000,
         },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
@@ -160,6 +168,10 @@ describe('AiEmbeddingService Bedrock adapter', () => {
           baseUrl: 'http://localhost:11434',
           model: 'qwen2.5:7b-instruct',
           timeoutMs: 240000,
+        },
+        cloudflare: {
+          model: '@cf/qwen/qwen3.8-27b',
+          timeoutMs: 60000,
         },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',

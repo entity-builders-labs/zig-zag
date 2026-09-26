@@ -170,6 +170,45 @@ describe('aiConfig embedding index contract', () => {
     );
   });
 
+  it('honors DISCOVERY_EXTRACTOR_PROVIDER=cloudflare with its own credentials and model', () => {
+    process.env.DISCOVERY_EXTRACTOR_PROVIDER = 'cloudflare';
+    process.env.CLOUDFLARE_ACCOUNT_ID = 'acct-1';
+    process.env.CLOUDFLARE_API_TOKEN = 'tok-1';
+    process.env.CLOUDFLARE_DISCOVERY_MODEL = '@cf/qwen/qwen3.8-27b';
+    process.env.CLOUDFLARE_DISCOVERY_TIMEOUT_MS = '12345';
+
+    expect(loadConfig()).toEqual(
+      expect.objectContaining({
+        discoveryExtractor: expect.objectContaining({
+          provider: 'cloudflare',
+          cloudflare: expect.objectContaining({
+            accountId: 'acct-1',
+            apiToken: 'tok-1',
+            model: '@cf/qwen/qwen3.8-27b',
+            timeoutMs: 12345,
+          }),
+        }),
+      }),
+    );
+  });
+
+  it('defaults the Cloudflare discovery model to @cf/qwen/qwen3.8-27b', () => {
+    process.env.DISCOVERY_EXTRACTOR_PROVIDER = 'cloudflare';
+    delete process.env.CLOUDFLARE_DISCOVERY_MODEL;
+    delete process.env.CLOUDFLARE_DISCOVERY_TIMEOUT_MS;
+
+    expect(loadConfig()).toEqual(
+      expect.objectContaining({
+        discoveryExtractor: expect.objectContaining({
+          provider: 'cloudflare',
+          cloudflare: expect.objectContaining({
+            model: '@cf/qwen/qwen3.8-27b',
+          }),
+        }),
+      }),
+    );
+  });
+
   it('rejects an unknown discovery extractor provider instead of falling back', () => {
     process.env.DISCOVERY_EXTRACTOR_PROVIDER = 'mystery-provider';
 

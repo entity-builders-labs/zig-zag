@@ -93,7 +93,7 @@ export interface ExperienceCandidate {
 
 /**
  * The shared boundary every grounded discovery extractor implements
- * (Gemini / Groq / Ollama). Selection is driven by
+ * (Gemini / Groq / Ollama / Cloudflare). Selection is driven by
  * `DISCOVERY_EXTRACTOR_PROVIDER`, never by the general `AI_PROVIDER`, and each
  * implementation is responsible for using its own configured transport +
  * model so the returned `provider` / `model` describe the real call.

@@ -20,6 +20,7 @@ import { CompositeGeographicValidationService } from './services/composite-geogr
 import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
 import { GeminiDiscoveryProvider } from './services/gemini-discovery.provider';
 import { OllamaDiscoveryProvider } from './services/ollama-discovery.provider';
+import { CloudflareDiscoveryProvider } from './services/cloudflare-discovery.provider';
 import { selectDiscoveryExtractor } from './services/discovery-extractor-selection.util';
 import { GreedyDailyPlanningSolver } from './services/greedy-daily-planning.solver';
 import { ApproximateTravelEstimateProvider } from './services/approximate-travel-estimate.provider';
@@ -95,6 +96,7 @@ import { MediaModule } from '../media/media.module';
     GroqDiscoveryProvider,
     GeminiDiscoveryProvider,
     OllamaDiscoveryProvider,
+    CloudflareDiscoveryProvider,
     GreedyDailyPlanningSolver,
     ApproximateTravelEstimateProvider,
     GeoapifyTravelEstimateProvider,
@@ -175,17 +177,20 @@ import { MediaModule } from '../media/media.module';
         gemini: GeminiDiscoveryProvider,
         groq: GroqDiscoveryProvider,
         ollama: OllamaDiscoveryProvider,
+        cloudflare: CloudflareDiscoveryProvider,
       ) =>
         selectDiscoveryExtractor(config.discoveryExtractor.provider, {
           gemini,
           groq,
           ollama,
+          cloudflare,
         }),
       inject: [
         aiConfig.KEY,
         GeminiDiscoveryProvider,
         GroqDiscoveryProvider,
         OllamaDiscoveryProvider,
+        CloudflareDiscoveryProvider,
       ],
     },
   ],

@@ -47,7 +47,11 @@ export interface ClassificationConfig {
   ollama?: { model: string };
 }
 
-export type DiscoveryExtractorProvider = 'gemini' | 'groq' | 'ollama';
+export type DiscoveryExtractorProvider =
+  | 'gemini'
+  | 'groq'
+  | 'ollama'
+  | 'cloudflare';
 
 export interface DiscoveryExtractorConfig {
   provider: DiscoveryExtractorProvider;
@@ -59,6 +63,12 @@ export interface DiscoveryExtractorConfig {
     model: string;
     timeoutMs: number;
     numCtx?: number;
+  };
+  cloudflare: {
+    accountId?: string;
+    apiToken?: string;
+    model: string;
+    timeoutMs: number;
   };
 }
 
@@ -149,9 +159,13 @@ export default registerAs('ai', (): AiConfig => {
 
   const discoveryExtractorProvider =
     process.env.DISCOVERY_EXTRACTOR_PROVIDER || 'gemini';
-  if (!['gemini', 'groq', 'ollama'].includes(discoveryExtractorProvider)) {
+  if (
+    !['gemini', 'groq', 'ollama', 'cloudflare'].includes(
+      discoveryExtractorProvider,
+    )
+  ) {
     throw new Error(
-      `Unsupported DISCOVERY_EXTRACTOR_PROVIDER "${discoveryExtractorProvider}". Expected gemini, groq or ollama.`,
+      `Unsupported DISCOVERY_EXTRACTOR_PROVIDER "${discoveryExtractorProvider}". Expected gemini, groq, ollama or cloudflare.`,
     );
   }
 
@@ -239,6 +253,14 @@ export default registerAs('ai', (): AiConfig => {
         numCtx: process.env.OLLAMA_NUM_CTX
           ? parseInt(process.env.OLLAMA_NUM_CTX, 10)
           : undefined,
+      },
+      cloudflare: {
+        accountId: process.env.CLOUDFLARE_ACCOUNT_ID,
+        apiToken: process.env.CLOUDFLARE_API_TOKEN,
+        model: process.env.CLOUDFLARE_DISCOVERY_MODEL || '@cf/qwen/qwen3.8-27b',
+        timeoutMs: process.env.CLOUDFLARE_DISCOVERY_TIMEOUT_MS
+          ? parseInt(process.env.CLOUDFLARE_DISCOVERY_TIMEOUT_MS, 10)
+          : baseTimeout,
       },
     },
     geminiGroundedSearchModel:
