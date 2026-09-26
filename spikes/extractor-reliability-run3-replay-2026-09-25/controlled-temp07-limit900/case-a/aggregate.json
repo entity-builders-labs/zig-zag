@@ -1,0 +1,31 @@
+{
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.7,
+  "maxCompletionTokens": 900,
+  "responseFormat": "json_object",
+  "runs": 10,
+  "distribution": {
+    "NO_CANDIDATE": 7,
+    "CANDIDATE": 3
+  },
+  "outcomes": [
+    "NO_CANDIDATE",
+    "NO_CANDIDATE",
+    "NO_CANDIDATE",
+    "CANDIDATE",
+    "NO_CANDIDATE",
+    "CANDIDATE",
+    "NO_CANDIDATE",
+    "NO_CANDIDATE",
+    "CANDIDATE",
+    "NO_CANDIDATE"
+  ],
+  "transport": {
+    "httpRequests": 17,
+    "httpStatus429": 7,
+    "httpStatus400": 0,
+    "hard429": 0,
+    "soft429Retries": 7,
+    "jsonValidateFailed": 0
+  }
+}

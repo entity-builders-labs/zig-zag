@@ -231,4 +231,82 @@ just unstably).
 No production code was changed. No fix is proposed yet — the next step is
 characterization under a corrected token budget, not a prompt edit.
 
+---
+
+## 11. Controlled matrix — temperature & token budget (partial, TPD-blocked)
+
+Method: `harness/controlled-matrix.ts` — same frozen inputs, same production
+semantic path (`buildDiscoverySystemPrompt` + `buildDiscoveryUserPrompt` +
+`LangChainService.generateChatResponse` groq transport +
+`extractExperienceCandidates`); only `temperature` and `max_completion_tokens`
+vary. HTTP requests are instrumented to count 429/400 status codes. Rendered
+prompts are byte-identical to the baseline (verified by `diff`).
+
+### Outcome distributions
+
+Legend: C = CANDIDATE, N = NO_CANDIDATE, J = INVALID_JSON, P = PROVIDER_FAILURE.
+
+| configuration | case-a | case-b | single-evidence |
+|---------------|--------|--------|-----------------|
+| .7 / 4096 (baseline) | 3C / 6N / 0J / 1P | 8C / 2N / 0J / 0P | 5C / 4N / 1J / 0P |
+| .7 / 900 (Control A) | 3C / 7N / 0J / 0P (10/10) | 2C / 1N / 0J / 2P (5/10) | — (0/10) |
+| 0 / 900 (Control B) | blocked | blocked | blocked |
+
+### New blocker: daily token quota (TPD)
+
+Control A was interrupted after **15/30** logical calls by a NEW tier limit:
+
+```
+Rate limit reached for model `qwen/qwen3.8-27b` ... service tier `on_demand`
+on tokens per day (TPD): Limit 200000, Used 197989, Requested 2525.
+Please try again in 3m42s.
+```
+
+The on-demand tier has **three** independent limits — OTPM (per-minute output,
+1000), TPM (per-minute rate), and **TPD (per-day, 200000)**. The daily quota was
+exhausted by the 4096 baseline (33 calls) plus the start of Control A. Control B
+(temperature isolation) therefore **could not be run** this session.
+
+Completed samples are preserved and reported exactly; the remainder is
+classified `PROVIDER_CAPACITY_STILL_BLOCKING`, never fabricated into 10/10.
+
+### Token-budget effect (Control A case-a, complete 10/10)
+
+- Hard OTPM 429 **disappeared**: 0 vs the baseline's 1 (case-a). `max=900`
+  stays under the 1000 OTPM ceiling.
+- Semantic yield **unchanged**: 3/10 CANDIDATE vs baseline 3/10. The hard-429
+  slot shifted to NO_CANDIDATE; no net yield gain.
+- INVALID_JSON: 0 (case-a), unchanged.
+- 900 tokens did **not** truncate: Control A case-b run-01/02 produced the full
+  3-component candidate (`Lezama Park`, `Plaza Dorrego`, `Mercado de San
+  Telmo`) at 900 tokens.
+- case-a candidate quality unchanged: still generic categories ("Oldest streets
+  of San Telmo", "San Telmo Market"), not concrete entities.
+
+Conclusion (partial, case-a only): **`TOKEN_BUDGET_FIXES_CAPACITY_ONLY`** —
+4096 is operationally wrong for the tier, but the token budget is not the main
+semantic-instability cause.
+
+### Temperature effect — NOT characterized
+
+Control B (`temperature=0`, `max=900`) was not executed because the TPD daily
+quota was exhausted. No conclusion about temperature can be drawn yet.
+
+## 12. Updated final classification
+
+```
+STOCHASTIC_EXTRACTION
+PROVIDER_CAPACITY_BLOCKER            (OTPM 1000 vs 4096)
+INVALID_OUTPUT_INSTABILITY
+EVIDENCE_DILUTION_OBSERVED           (weak/ambiguous)
+TOKEN_BUDGET_FIXES_CAPACITY_ONLY     (Control A case-a, partial)
+PROVIDER_CAPACITY_STILL_BLOCKING     (TPD daily 200000 exhausted)
+```
+
+Not yet supportable from evidence: `TEMPERATURE_IS_MAJOR_VARIANCE_SOURCE`,
+`MODEL_OR_PROVIDER_NONDETERMINISM_REMAINS`, `900_TOKEN_CAP_TOO_LOW`. The
+temperature experiment (Control B) and the remaining token-budget samples are
+blocked by the daily Groq quota.
+
+
 
