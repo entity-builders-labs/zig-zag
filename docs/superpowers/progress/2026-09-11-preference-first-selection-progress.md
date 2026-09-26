@@ -18,7 +18,7 @@ classification contract and deterministic validation are unchanged.
 
 ## Current execution verdict — 2026-09-26
 
-**Active track: extractor/provider reliability under Gate C.**
+**Active track: Gate C real-world generalization — RW2 executed 2026-09-26.**
 
 The component-resolution / RW1 milestone is **COMPLETE / CLOSED** and must not
 be reopened unless a real regression invalidates an accepted invariant. The
@@ -89,6 +89,14 @@ Current execution state:
    outcomes. Successful latency was approximately **22–40s**, versus roughly
    **1.5s** for the small successful Groq temperature-0 sample.
 
+8. **Cloudflare frozen case-b ×5 characterized.** Evidence in `7c5ed36c`
+   produced **5/5 CANDIDATE, 0 timeout, 0 HTTP 429** (latency 7.9–10.3s).
+   Component set **not stable**: `Lezama Park` omitted in 4/5 despite explicit
+   `ev-4` support; `Calle Defensa` present in `ev-1` but omitted from all
+   extracted composites. `temperature=0` does not eliminate
+   bundle-context/component-set sensitivity. `case-a` deferred / not required
+   before RW2.
+
 Interpretation stays deliberately bounded:
 
 ```text
@@ -102,19 +110,42 @@ Groq TPD / Cloudflare timeout
 → provider-capacity/operational failures, not semantic empty output
 ```
 
+### RW2 — Buenos Aires multi-area walk (executed 2026-09-26)
+
+Evidence: `spikes/rw2-buenos-aires-multi-area-walk-2026-09-26/` (1 COLD + 1 WARM
+on `zigzag_spike_rw2`; serpapi + cloudflare `@cf/qwen/qwen3.8-27b` +
+geoapify + groq classification + local Overpass/Nominatim).
+
+- Interpreter emitted both anchors (San Telmo, La Boca) as
+  `usage=geographic_scope`, `priority=soft`; both resolved to OSM areas
+  (`osm:relation:2223069`, `osm:relation:2223879`).
+- `intent:walk` deficit routed **GENERIC** (2 relevant area anchors →
+  `AREA_ROUTE_WALK=0`), reproducing the documented single-anchor precondition.
+- **Finding (routing):** the GENERIC `buildAcquisitionPlan` call drops the
+  structured anchors; both names survive only inside the free-text
+  `semanticQuery` string, not as `SourcePlan.web.anchorNames`.
+- Extractor produced a real source-backed `San Telmo to La Boca History Walk`
+  (7 components: Plaza de Mayo → Calle Defensa → Plaza Dorrego → Mercado de
+  San Telmo → Av. Almirante Brown → Caminito → Riachuelo), 7/7 resolved to OSM,
+  geo-ACCEPTED, persisted (id `b353fc85-…`), WARM-reused canonically (34s, no
+  SerpAPI/extraction re-run).
+- **Finding (quality):** the planner materialized 5 singleton La Boca museums
+  instead of the eligible composite walk.
+- Multi-area semantics PASS; crossing neighborhood boundaries was not rejected;
+  no proximity fabrication. Verdict MIXED (two named findings, no semantic
+  blocker).
+
 ### Open next steps
 
-- characterize the Cloudflare latency/timeout signal rather than hiding it with
-  an arbitrary timeout increase;
-- run the controlled `case-b ×5` Cloudflare fixture next if provider
-  characterization continues;
-- run `case-a` only if it remains informative after `case-b`;
+- next canonical gate: **RW3 — Caminito canonical OSM ROUTE**;
 - benchmark alternate Cloudflare models later through the already-configurable
   `CLOUDFLARE_DISCOVERY_MODEL`, using the same frozen corpus and parser;
 - design provider fallback separately, with explicit policy and observability;
   **no automatic fallback exists today**;
 - eventually re-attempt the bounded live dedupe shape when extraction actually
-  emits the required standalone+composite pair.
+  emits the required standalone+composite pair;
+- decide the two RW2 findings separately (GENERIC structured-anchor propagation;
+  planner composite selection) — no opportunistic fix landed during the spike.
 
 Do **not** reopen component-resolution, dedupe identity policy, geography or
 planner semantics to address extractor/provider variance.

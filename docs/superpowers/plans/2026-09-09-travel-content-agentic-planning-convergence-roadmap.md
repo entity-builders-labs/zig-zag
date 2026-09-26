@@ -883,8 +883,10 @@ Do not perform history rewrites or delete branches merely because this roadmap r
 
 # 11. Current execution pointer
 
-As of 2026-09-25, the component-resolution / RW1 milestone is complete on
-`feat/preference-first-selection`. Do not reopen its closed Progress for
+As of 2026-09-26, the component-resolution / RW1 milestone is complete on
+`feat/preference-first-selection`, and the Gate C extractor/provider
+characterization and the **RW2 (Buenos Aires multi-area walk) spike are
+executed**. Do not reopen the closed component-resolution Progress for
 post-milestone work unless a real regression disproves an accepted milestone
 fact.
 
@@ -894,11 +896,13 @@ milestone is complete.
 Sequence from the current frontier:
 
 ```text
-Experience dedupe policy correction
-→ focused deterministic regression
-→ focused live rerun
-→ RW2–RW6 generalization
-   + extractor reliability characterization
+Experience dedupe policy correction          (DONE)
+→ focused deterministic regression           (GREEN)
+→ focused live rerun                         (done, dedupe shape inconclusive)
+→ extractor/provider reliability             (bounded: case-b ×5 landed)
+→ RW2 multi-area walk                        (EXECUTED 2026-09-26, MIXED: 2 findings)
+→ RW3 Caminito canonical OSM ROUTE           (NEXT GATE)
+→ RW4–RW6 generalization
    + initial tour-quality evaluation
    + structural performance accounting
 → clean stale red baseline suites so green means green
