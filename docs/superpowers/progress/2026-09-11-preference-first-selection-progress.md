@@ -16,11 +16,16 @@ classification contract and deterministic validation are unchanged.
 >
 > Code wins over stale progress text. The cutover has progressed non-linearly: M4 is already landed and substantial M5 work is already landed. Do not revert later milestone work merely because an earlier milestone needed a forward correction.
 
-## Current execution verdict — 2026-09-26
+## Current execution verdict — 2026-09-27
 
-**Active track: Gate C real-world generalization — RW2 executed and closed
-2026-09-26; RW3 executed 2026-09-27 with verdict FAIL (blocker RW3-F1, see
-§RW3). RW3 is NOT done; RW4 is not authorized.**
+**Active track: Gate C real-world generalization — RW3 BLOCKED (outcome C,
+see §RW3). RW3 is NOT closed; RW4 is NOT authorized.** RW3 anchor resolution
+and the search → extractor anchor handoff now pass live, and the extractor
+emits a Caminito-related source-supported walk; the remaining blocker is at
+entity resolution (`INCOMPLETE_SOURCE_COMPOSITION` on a source-misspelled
+stop, RW3-N5). Current characterization provider pair: **Serper grounded
+search + Cloudflare discovery extractor** (`@cf/qwen/qwen3.8-27b`); SerpAPI
+runs are historical evidence only.
 
 The component-resolution / RW1 milestone is **COMPLETE / CLOSED** and must not
 be reopened unless a real regression invalidates an accepted invariant. The
@@ -47,9 +52,12 @@ Current execution state:
   (walking-constraint rejection, not "planner preferred museums"); Finding 3
   (bitácora composition gap) fixed; walking rejection now auditable with
   actual-vs-limit facts. Walking policy itself unchanged.
-- **Extractor/provider reliability:** ACTIVE CURRENT TRACK. The frozen Run-3
-  corpus is now the controlled boundary for isolating evidence, model,
-  transport and sampling behavior before broad RW2–RW6 continuation.
+- **RW3 Caminito route:** BLOCKED (outcome C) — F1 generalized, audit-free
+  fingerprints and typed anchor handoff landed in `d6149363`; live rerun
+  blocked by RW3-N5 at entity resolution. See §RW3.
+- **Extractor/provider reliability:** supporting evidence track. The frozen
+  Run-3 corpus remains the controlled boundary for isolating evidence, model,
+  transport and sampling behavior (e.g. the RW2 Serper → Cloudflare delta).
 
 ### Extractor/provider evidence landed
 
@@ -192,41 +200,80 @@ restrictive on continuous walking). Do not describe 5000/3000 as "the default".
   descriptions now derive from `WALKING_EFFORT_PRESETS` (2000/5000/10000 m),
   removing the stale "4 km"/"6 km" literals.
 
-### RW3 — Caminito canonical geographic ROUTE (executed 2026-09-27)
+### RW3 — Caminito canonical geographic ROUTE (three runs, 2026-09-27)
 
-Evidence: `spikes/rw3-caminito-canonical-route-2026-09-27/` (1 COLD on
-`zigzag_spike_rw3`; serpapi + cloudflare `@cf/qwen/qwen3.8-27b` + geoapify +
-gemini classification + local Overpass/Nominatim; walking caps 50000/20000
-as a non-binding experimental control only). WARM not run (nothing persisted).
+Chronological evidence (each directory is immutable; read its assessment):
 
-- Interpreter: Caminito → `named_path` / `must`; `intent:walk` preserved.
-- **RW3-F1 (blocker):** anchor resolution left Caminito unresolved
-  (`NO_CONFIDENT_GEO_ENTITY_MATCH`) although `discoverRoute` finds the real
-  `osm:way:144844726` (`highway=pedestrian`, MultiLineString, 9 coords,
-  ~143 m, destination-compatible). `discoverPlace` (Nominatim limit 5, only
-  `countryCode`, no destination point/compatibility) returns an Ezeiza street
-  ~32 km outside CABA as a `venue`; `selectCandidate` treats route vs venue as
-  ambiguity and discards both. Deterministic, reproduced read-only. General
-  (common street names), not Caminito-specific. Not fixed.
-- Routing: `AREA_ROUTE_WALK=1` in tourism_route mode; `SourcePlan.web` has no
-  `anchorNames` (planner forwards only resolved area/route anchors), Caminito
-  reaches the query only via `semanticQuery` (RW3-F4, observation).
-- SerpAPI Free Plan exhausted (429, 0/250) → 0 evidence, no extraction; the
-  discovery/composition half is INCONCLUSIVE.
-- **Bitácora defects:** RW3-F2 grounded-provider failure traced as
-  `status: success` / `providersFailed: []` / ACQ-ISOLATION-001 PASS (the
-  adapter's `failureReason` is dropped in `executeWebSourcePlan`); RW3-F3
-  `anchor_geo_resolution` exposes no per-branch discovery facts or selection
-  decision; minor: routing omits `anchorMode`, destination step omits the
-  boundary id.
-- Route-geometry membership, regional coherence and anti-fabrication were
-  never reached. Verdict **FAIL**. No production code changed.
+1. `spikes/rw3-caminito-canonical-route-2026-09-27/` — historical SerpAPI run,
+   verdict **FAIL**: RW3-F1 (Caminito discarded: an out-of-destination
+   Nominatim venue homonym vetoed the real route cross-branch), SerpAPI quota
+   429 hidden as success (F2), missing anchor-branch facts (F3), minor trace
+   omissions (F4).
+2. `spikes/rw3-rerun-serper-cloudflare-2026-09-27/` — after `b31f5f33`
+   (supporting report:
+   `docs/superpowers/progress/2026-09-27-rw-bitacora-defect-fixes-and-reruns-progress.md`,
+   evidence only, not an execution pointer). State after that run:
+   - **F1** observed Caminito/Ezeiza cross-branch defect: fixed and
+     live-proven for that case (route `osm:way:144844726` SELECTED; Ezeiza
+     homonym REJECTED, audit-only, never persisted);
+   - **F2**: deterministically test-proven; the live run had no grounded
+     provider failure (Serper succeeded, `providersFailed=[]`), so only the
+     successful provider identity was live-proven — the failure path was not
+     live-exercised;
+   - **F3 / F4**: live-proven;
+   - review found F1 only partially generic (a branch still picked its
+     favorite homonym before destination screening), audit `candidateFacts`
+     leaking into source-plan fingerprints, and N1 mis-diagnosed (the typed
+     anchor was lost at the search → extractor handoff, not missing from the
+     query);
+   - RW3 end-to-end: **NOT CLOSED**.
+3. `spikes/rw3-anchor-handoff-rerun-2026-09-27/` — after `d6149363`
+   (`fix(tours): preserve destination and anchor semantics`: per-candidate
+   destination screening before ranking in every anchor branch with
+   compatible-only multiplicity; `materialAnchorProjection` fingerprints —
+   `candidateFacts` behavioral consumers: NONE; typed
+   `ExperienceDiscoveryRequest.anchorNames` rendered in the shared prompt for
+   all extractors). Serper + Cloudflare, preflight-verified, fresh DB,
+   50000/20000 control. COLD failed closed in 40.5 s:
+   - anchor: route `osm:way:144844726` (MultiLineString) SELECTED; all 5
+     Nominatim homonyms individually REJECTED_DESTINATION_INCOMPATIBLE;
+   - routing `AREA_ROUTE_WALK=1`, `anchorMode: canonical`;
+     `SourcePlan.web.anchorNames` = `extractor.requestAnchorNames` =
+     `["Caminito"]` (handoff live-proven);
+   - Serper evidence overwhelmingly Caminito/La Boca-specific; Cloudflare
+     extracted `Private Caminito & La Boca Walking Tour` (ev-5; Caminito,
+     Benito Quinquela Martín Museum, "La Bambonera stadium"; 3/3 SUPPORTED) —
+     no longer the unrelated Avenida de Mayo route;
+   - **RW3-N5 (blocker):** "La Bambonera" (the source's own misspelling of
+     La Bombonera) is unresolvable by every strategy, so the composite is
+     rejected `INCOMPLETE_SOURCE_COMPOSITION` (2/3) before geographic
+     validation. Route-geometry membership, regional coherence and planning
+     were still not exercised. WARM not run.
+   - RW3-N6 (observation): Caminito persisted as ROUTE way (anchor) and as
+     PLACE node `osm:node:10303343309` (component).
+   - Bitácora gap (minor): verified `supportSpan` text is not in the trace.
+
+**RW3 gate: BLOCKED (outcome C) → RW4 NOT AUTHORIZED.**
+
+RW2 canonical-provider rerun (`spikes/rw2-rerun-serper-cloudflare-2026-09-27/`,
+corrected): Serper returned relevant San Telmo/La Boca walking evidence and
+Cloudflare extracted 0 web candidates; the composite delta is at the Serper
+evidence → Cloudflare extraction boundary (or their interaction) and is
+unisolated; classification cannot explain zero pre-classification
+candidates. That rerun used 5000/3000 m, not the 50000/20000 control (no
+effect on the extraction result). RW2 is not reopened.
 
 ### Open next steps
 
-- next canonical gate: **RW3 rerun** after fixing RW3-F1 (and preferably
-  RW3-F2/F3 so the rerun is auditable) and restoring grounded-search quota;
-  **RW4 is not authorized** until RW3 is done;
+- next canonical gate: **RW3 remains BLOCKED on RW3-N5** — decide how
+  source-explicit component names that the source itself misspells should be
+  handled (component-resolution name tolerance vs extractor same-entity
+  normalization), without special-casing names or weakening source-support /
+  `INCOMPLETE_SOURCE_COMPOSITION`; then rerun RW3 unchanged. **RW4 is not
+  authorized** until RW3 closes;
+- future frozen-corpus investigation of the RW2 Serper → Cloudflare
+  multi-area extraction delta (use `50000 / 20000` for any controlled RW2
+  rerun);
 - the walking feasibility policy itself remains **unchanged pending a separate
   product decision** — we now have correct diagnostics, not a threshold change;
 - benchmark alternate Cloudflare models later through the already-configurable

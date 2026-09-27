@@ -25,8 +25,11 @@ See `assessment.md` for the full characterization. Headline:
 - cold `completed` (74.5s): both anchors resolved as areas with bounded
   `candidateFacts` (F3 live: area `SELECTED/COMPATIBLE`, route/place
   `NO_CANDIDATE`); 14 VERIFIED Experiences (16 GeoEntities / 28 identities);
-  **no composites** (original serpapi+groq cold produced the 7-component
-  `San Telmo to La Boca History Walk`); facet coverage FAIL
+  **no composites** — Serper returned 9 applied evidence items (incl.
+  relevant San Telmo/La Boca walking pages) and Cloudflare extracted **0**
+  web candidates, before classification (the original SerpAPI evidence +
+  Cloudflare extraction cold produced the 7-component `San Telmo to La Boca
+  History Walk`; the Serper-vs-Cloudflare cause is not isolated); facet coverage FAIL
   (history/architecture/walk), portfolio sufficiency never reached; tour of
   5 Experiences with completeness WARN `Formato pedido sin cubrir: "walk"`.
 - warm `completed` (46.4s): full catalog/identity reuse — **0 new rows**
@@ -34,6 +37,10 @@ See `assessment.md` for the full characterization. Headline:
   reacquisition ran again (serper 1 + cloudflare 1 + wikivoyage 1);
   different 5-Experience selection, same WARN.
 - providersAttempted names `serper` (not generic `web`); providersFailed=[].
+- Mobility-control deviation: this rerun executed with `5000 / 3000` m, not
+  the intended non-binding `50000 / 20000` control; it does not affect the
+  extraction result (no multi-component candidate was emitted). Future
+  controlled RW2 reruns must use `50000 / 20000`.
 
 Artifact quirk: `run-manifest.json` runLabel strings say `rw3-cold`/`rw3-warm`
 because the copied `run.sh` hardcoded an `rw3-` label prefix. These are RW2

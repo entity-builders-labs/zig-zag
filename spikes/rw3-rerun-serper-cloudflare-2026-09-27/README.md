@@ -28,19 +28,24 @@ See `assessment.md` for the full characterization. Headline:
   resolves as `route` `osm:way:144844726` (route branch
   `ELIGIBLE/SELECTED`, `COMPATIBLE / WITHIN_DESTINATION_BOUNDARY`); the
   out-of-destination Ezeiza venue homonym (`osm:way:269972048`) is
-  `REJECTED_DESTINATION_INCOMPATIBLE` and never selectable (F1); rejected
-  candidate retained as evidence (persisted: 4 GeoEntities / 17 identities).
+  `REJECTED_DESTINATION_INCOMPATIBLE` and never selectable (F1); the rejected
+  candidate is retained only as Bitácora `candidateFacts` audit evidence,
+  **not** persisted (persisted: 4 GeoEntities / 17 identities = Caminito,
+  Avenida de Mayo ×14 segments, Casa Rosada, Congreso).
 - F3/F4 live: persisted `candidateFacts` per anchor branch; routing output
   carries `anchorMode: canonical` (AREA_ROUTE_WALK=1; GENERIC=0);
   destination step carries `boundaryId osm:relation:1224652`.
-- F2 observed (no failure this run): grounded search ran via Serper and
-  succeeded; `providersAttempted` names `serper`; `providersFailed=[]`.
+- F2 **not live-triggered** (no failure this run): grounded search ran via
+  Serper and succeeded; `providersAttempted` names `serper`;
+  `providersFailed=[]`. The failure path is deterministic-test-proven only.
 - Generation still **FAILS closed** (20.2s) at `coverage_analysis`
   (`intent:walk` without strong coverage): pass 1 produced one web candidate
   (`Avenida de Mayo to Congreso Walking Route`) that entity resolution
   accepted but geographic validation REJECTED (`external_scope_mismatch`);
   pass 2 produced none. Route-corridor membership was therefore still not
-  exercised end-to-end (new finding N1: extraction targeting, not anchors).
+  exercised end-to-end (N1, corrected: the query already contained
+  Caminito; the typed anchor was lost at the search → extractor handoff —
+  fixed in `d6149363`, re-tested in `rw3-anchor-handoff-rerun-2026-09-27`).
 - No substitute geometry was hand-supplied; failure recorded honestly.
 
 ## Layout

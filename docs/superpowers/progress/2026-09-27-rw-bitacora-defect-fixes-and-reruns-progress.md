@@ -1,5 +1,18 @@
 # RW3/Bitácora defect fixes (F1–F4) + RW2/RW3 canonical reruns — progress & gate report
 
+> **Status of this file: SUPPORTING EVIDENCE, not an execution pointer.** The
+> current execution pointer is
+> `docs/superpowers/progress/2026-09-11-preference-first-selection-progress.md`.
+> Post-hoc corrections (2026-09-27 review of `d1115a3b`): F2 was
+> deterministic-test-proven, not live-proven (no provider failure occurred);
+> the RW2 composite delta is at the Serper evidence → Cloudflare extraction
+> boundary (0 extracted web candidates before classification) and its cause
+> is unisolated; RW3 N1 was a lost typed anchor at the search → extractor
+> handoff, not missing query targeting; the rejected Ezeiza homonym was never
+> persisted; RW2 rerun used 5000/3000 m, not the 50000/20000 control. Follow-up
+> fixes and the next RW3 rerun: commit `d6149363` and
+> `spikes/rw3-anchor-handoff-rerun-2026-09-27/`.
+
 Date: 2026-09-27. Branch: `feat/preference-first-selection`.
 Scope: fix deterministic RW3/Bitácora defects F1–F4, then rerun RW2 and RW3
 with the canonical provider pair (Serper grounded search + Cloudflare
@@ -55,27 +68,39 @@ Verdict: **CHARACTERIZED** (cold+warm `completed`; details in the spike
 - warm: **0 new rows** (16/28/14/14 unchanged) — full identity/catalog
   reuse — but coverage FAIL still triggers one bounded reacquisition
   (serper 1 + cloudflare 1); different 5-Experience selection, same WARN.
-- Findings: N3 composite synthesis is sensitive to the grounded/classification
-  provider pair; N4 warm reruns reacquire while coverage FAILs.
+- Findings (N3 corrected): multi-area composite recovery was not reproduced
+  under the Serper→Cloudflare evidence/extraction boundary — Serper returned
+  9 applied items (incl. *Private La Boca & San Telmo Walking Tour*, *Guide
+  to visiting San Telmo & La Boca on foot*) and Cloudflare extracted 0 web
+  candidates, before classification, so classification cannot explain it;
+  Serper-bundle vs Cloudflare-context cause is unisolated. N4 warm reruns
+  reacquire while coverage FAILs.
+- Mobility-control deviation: this rerun executed with `5000 / 3000` m, not
+  the intended non-binding `50000 / 20000`; it does not affect the
+  extraction result (no multi-component candidate emitted).
 
 ## 4. RW3 rerun — `spikes/rw3-rerun-serper-cloudflare-2026-09-27`
 
-Verdict: **F1–F4 FIXED (live-proven)**; run still **fails closed**
-downstream (details in the spike `assessment.md`).
+Verdict (corrected): **F1, F3, F4 live-proven; F2 deterministic-test-proven**
+(successful provider identity live-proven; failure path not live-triggered);
+run still **fails closed** downstream (details in the spike `assessment.md`).
 
 - Caminito resolves as `route` `osm:way:144844726` (route branch
   `SELECTED`, `COMPATIBLE / WITHIN_DESTINATION_BOUNDARY`); the Ezeiza venue
-  homonym is `REJECTED_DESTINATION_INCOMPATIBLE`, never selectable, kept as
-  rejected evidence. The original deterministic anchor-discard defect is gone.
+  homonym is `REJECTED_DESTINATION_INCOMPATIBLE`, never selectable, kept only
+  as Bitácora `candidateFacts` audit evidence (not persisted). The original
+  deterministic anchor-discard defect is gone for this cross-branch case.
 - Live F3/F4: persisted `candidateFacts`; routing `AREA_ROUTE_WALK=1`,
   `anchorMode: canonical`; destination `boundaryId osm:relation:1224652`.
 - F2: serper named in `providersAttempted`, `providersFailed=[]` (no failure
   this run; failure path covered by tests).
-- Remaining failure (N1): the single extracted web candidate (`Avenida de
-  Mayo to Congreso Walking Route`) was rejected by geographic validation
-  (`external_scope_mismatch`); `intent:walk` stayed uncovered → explicit
-  fail-closed. Acquisition/extraction does not yet target the resolved
-  route corridor. No substitute geometry hand-supplied.
+- Remaining failure (N1, corrected): the single extracted web candidate
+  (`Avenida de Mayo to Congreso Walking Route`, from `ev-7`) was rejected by
+  geographic validation (`external_scope_mismatch`); `intent:walk` stayed
+  uncovered → explicit fail-closed. The query already contained Caminito and
+  Serper returned Caminito/La Boca results; the typed `anchorNames` reached
+  search but were dropped from the extractor request. No substitute geometry
+  hand-supplied.
 
 ## 5. Engineering-principles completion gate
 
@@ -92,7 +117,8 @@ downstream (details in the spike `assessment.md`).
 
 ## 6. Next (not started here)
 
-- N1: corridor-targeted grounded acquisition for resolved route anchors
-  (RW3 end-to-end proof).
-- N3: multi-area composite sensitivity to grounded/classification pair.
+- N1: done in `d6149363` (typed anchor handoff to the extractor) and
+  re-tested live in `spikes/rw3-anchor-handoff-rerun-2026-09-27/`.
+- N3: frozen-corpus investigation of the Serper-evidence → Cloudflare
+  extraction boundary for multi-area walks (future; not RW3).
 - RW4 (Mendoza `Ruta del Vino`) — explicitly out of scope until instructed.

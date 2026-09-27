@@ -890,14 +890,21 @@ executed**. RW2's two named findings plus its bitácora gap are now closed
 (GENERIC structured-anchor propagation fixed; planner walking-rejection wording
 corrected; bitácora composition/walking diagnostics added; walking policy
 unchanged).
-RW3 (Caminito) was executed 2026-09-27 with verdict **FAIL**: named-anchor
-resolution discards the real destination-scoped OSM route
-(`osm:way:144844726`) because an unscoped Nominatim venue branch returns a
-same-name street outside the destination (RW3-F1); the grounded-search half
-was blocked by SerpAPI quota exhaustion, and the Bitácora masked that
-provider failure as success (RW3-F2) and hides anchor-branch facts (RW3-F3).
-See `spikes/rw3-caminito-canonical-route-2026-09-27/assessment.md`. RW3 is
-not done; do not start RW4. Do not reopen the closed component-resolution Progress for
+RW3 (Caminito) has three immutable runs (2026-09-27). The historical SerpAPI
+run failed on RW3-F1 (a cross-branch out-of-destination homonym vetoed the
+real route). After `b31f5f33` the Caminito/Ezeiza case was fixed and
+live-proven (F1, F3, F4 live; F2 deterministic-test-proven, failure path not
+live-triggered). After `d6149363` (same-branch destination screening with
+compatible-only multiplicity, audit-free source-plan fingerprints, typed
+anchor handoff to the extractor) the canonical Serper + Cloudflare rerun
+proves anchor resolution and the search → extractor handoff live, and the
+extractor emits a Caminito-related source-supported walk; it is then
+rejected at entity resolution (`INCOMPLETE_SOURCE_COMPOSITION`) because the
+source misspells one stop (RW3-N5). **RW3 BLOCKED → RW4 NOT AUTHORIZED.**
+Current characterization provider pair: Serper + Cloudflare; SerpAPI runs
+are historical. See
+`spikes/rw3-anchor-handoff-rerun-2026-09-27/assessment.md` and the canonical
+Progress. Do not reopen the closed component-resolution Progress for
 post-milestone work unless a real regression disproves an accepted milestone
 fact.
 
@@ -912,8 +919,9 @@ Experience dedupe policy correction          (DONE)
 → focused live rerun                         (done, dedupe shape inconclusive)
 → extractor/provider reliability             (bounded: case-b ×5 landed)
 → RW2 multi-area walk                        (EXECUTED 2026-09-26; findings closed)
-→ RW3 Caminito canonical OSM ROUTE           (EXECUTED 2026-09-27: FAIL —
-                                               blocker RW3-F1; rerun after fix)
+→ RW3 Caminito canonical OSM ROUTE           (BLOCKED 2026-09-27: anchor +
+                                               handoff PASS; RW3-N5 entity-
+                                               resolution blocker open)
 → RW4–RW6 generalization
    + initial tour-quality evaluation
    + structural performance accounting
