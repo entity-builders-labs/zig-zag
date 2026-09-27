@@ -7,7 +7,8 @@
 #   run.sh <label> <db> fresh|reuse <port>
 # fresh = drop/create/migrate the DB (COLD); reuse = same DB as before (WARM).
 #
-# Providers pinned: GROUNDED_SEARCH_PROVIDER=serpapi (never Tavily),
+# Providers pinned: GROUNDED_SEARCH_PROVIDER=serpapi by default, or serper via
+# GROUNDED_SEARCH_PROVIDER_OVERRIDE (never Tavily),
 # DISCOVERY_EXTRACTOR_PROVIDER=cloudflare (@cf/qwen/qwen3.8-27b, 60s timeout),
 # PLACES_PROVIDER=geoapify. Classification uses the repo .env's current
 # CLASSIFICATION_PROVIDER unchanged. Credentials come from the gitignored
@@ -24,7 +25,7 @@ if [ "$MODE" = fresh ]; then
 fi
 ENV_FILE="$(mktemp)"
 cat > "$ENV_FILE" <<ENV
-GROUNDED_SEARCH_PROVIDER=serpapi
+GROUNDED_SEARCH_PROVIDER=${GROUNDED_SEARCH_PROVIDER_OVERRIDE:-serpapi}
 DISCOVERY_EXTRACTOR_PROVIDER=cloudflare
 CLOUDFLARE_DISCOVERY_MODEL=@cf/qwen/qwen3.8-27b
 CLOUDFLARE_DISCOVERY_TIMEOUT_MS=60000

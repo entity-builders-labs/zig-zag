@@ -1,0 +1,15 @@
+{
+  "runLabel": "rw3-cold-serper",
+  "tourId": "3110ff10-dab0-49e9-b531-b475b2ed7b7b",
+  "email": "rw3-spike-rw3-cold-serper-1790536119436@example.com",
+  "baseUrl": "http://localhost:4033",
+  "requestFile": "request.json",
+  "createHttpMs": 36,
+  "generationStatus": "failed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 20206,
+  "startedAt": "2026-09-27T19:08:39.594Z",
+  "finishedAt": "2026-09-27T19:08:59.803Z"
+}
