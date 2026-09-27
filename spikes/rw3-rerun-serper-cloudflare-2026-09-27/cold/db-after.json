@@ -1,0 +1,16 @@
+{
+  "database": "zigzag_spike_rw3_rerun",
+  "capturedAt": "2026-09-27T20:47:45Z",
+  "geoEntity": 4,
+  "geoEntityByKind": { "PLACE" : 2, "ROUTE" : 2 },
+  "geoEntityIdentity": 17,
+  "verifiedHintMemoryEntries": 3,
+  "duplicateIdentityRows": 0,
+  "duplicateVerifiedHintKeysWithinKind": [],
+  "experience": 0,
+  "experienceByStatus": {},
+  "experienceComponent": 0,
+  "duplicateExperienceNames": 0,
+  "experiences": [],
+  "geoEntities": [{"id":"8307d070-7c01-4871-8753-7e6e1175581d","name":"Antigua Sede del Congreso Nacional","kind":"PLACE","geometrytype":"Point","hints":["Congreso"],"identities":["openstreetmap:osm:node:2892504247"]}, {"id":"12eace3f-112e-4a49-973a-815323431f6b","name":"Avenida de Mayo","kind":"ROUTE","geometrytype":"MultiLineString","hints":["Avenida de Mayo"],"identities":["openstreetmap:osm:way:1217924063", "openstreetmap:osm:way:1231824343", "openstreetmap:osm:way:17442200", "openstreetmap:osm:way:211064925", "openstreetmap:osm:way:260546702", "openstreetmap:osm:way:275088547", "openstreetmap:osm:way:275088548", "openstreetmap:osm:way:325125728", "openstreetmap:osm:way:47011631", "openstreetmap:osm:way:47034541", "openstreetmap:osm:way:47263571", "openstreetmap:osm:way:476099423", "openstreetmap:osm:way:570571812", "openstreetmap:osm:way:697905449"]}, {"id":"3ecfcee6-6bf5-4f6f-9d17-f421b8ab16f5","name":"Caminito","kind":"ROUTE","geometrytype":"MultiLineString","hints":[],"identities":["openstreetmap:osm:way:144844726"]}, {"id":"3f08d677-d8b0-4dba-ad54-0be1927b5d75","name":"Casa Rosada","kind":"PLACE","geometrytype":"Point","hints":["Casa Rosada"],"identities":["openstreetmap:osm:way:185738988"]}]
+}
