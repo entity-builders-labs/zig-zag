@@ -883,13 +883,21 @@ Do not perform history rewrites or delete branches merely because this roadmap r
 
 # 11. Current execution pointer
 
-As of 2026-09-26, the component-resolution / RW1 milestone is complete on
+As of 2026-09-27, the component-resolution / RW1 milestone is complete on
 `feat/preference-first-selection`, and the Gate C extractor/provider
 characterization and the **RW2 (Buenos Aires multi-area walk) spike are
 executed**. RW2's two named findings plus its bitácora gap are now closed
 (GENERIC structured-anchor propagation fixed; planner walking-rejection wording
 corrected; bitácora composition/walking diagnostics added; walking policy
-unchanged). Do not reopen the closed component-resolution Progress for
+unchanged).
+RW3 (Caminito) was executed 2026-09-27 with verdict **FAIL**: named-anchor
+resolution discards the real destination-scoped OSM route
+(`osm:way:144844726`) because an unscoped Nominatim venue branch returns a
+same-name street outside the destination (RW3-F1); the grounded-search half
+was blocked by SerpAPI quota exhaustion, and the Bitácora masked that
+provider failure as success (RW3-F2) and hides anchor-branch facts (RW3-F3).
+See `spikes/rw3-caminito-canonical-route-2026-09-27/assessment.md`. RW3 is
+not done; do not start RW4. Do not reopen the closed component-resolution Progress for
 post-milestone work unless a real regression disproves an accepted milestone
 fact.
 
@@ -904,7 +912,8 @@ Experience dedupe policy correction          (DONE)
 → focused live rerun                         (done, dedupe shape inconclusive)
 → extractor/provider reliability             (bounded: case-b ×5 landed)
 → RW2 multi-area walk                        (EXECUTED 2026-09-26; findings closed)
-→ RW3 Caminito canonical OSM ROUTE           (NEXT GATE)
+→ RW3 Caminito canonical OSM ROUTE           (EXECUTED 2026-09-27: FAIL —
+                                               blocker RW3-F1; rerun after fix)
 → RW4–RW6 generalization
    + initial tour-quality evaluation
    + structural performance accounting

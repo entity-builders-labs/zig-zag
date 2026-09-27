@@ -1,0 +1,305 @@
+{
+  "runLabel": "rw3-cold",
+  "tourId": "3ebf172f-ef0f-46d8-91b7-4d75744cb031",
+  "generationStatus": "failed",
+  "pollElapsedMs": 6057,
+  "failure": "Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [intent:walk] has no strong catalog match yet.",
+  "stages": [
+    "preference_interpretation/PreferenceInterpreterService:PASS",
+    "tour_intent/TourGenerationRequest:None",
+    "destination_resolution/DestinationResolutionService:PASS",
+    "anchor_geo_resolution/AreaRouteAnchorResolverService:WARN",
+    "coverage_analysis/FacetRetrievalService:FAIL",
+    "db_search/ExperienceCatalog.findVerifiedWithin:WARN",
+    "coverage_analysis/partitionDeficitsByStrategy:INFO",
+    "area_route_walk_acquisition/AreaRouteWalkAcquisitionService:WARN",
+    "discovery/ExperienceAcquisitionService:PASS",
+    "entity_resolution/ExperienceProposalResolverService:INFO",
+    "geographic_validation/CompositeGeographicValidationService:WARN",
+    "catalog_materialization/ExperienceCatalogService:WARN",
+    "coverage_analysis/FacetRetrievalService:FAIL",
+    "coverage_analysis/partitionDeficitsByStrategy:INFO",
+    "area_route_walk_acquisition/AreaRouteWalkAcquisitionService:WARN",
+    "discovery/ExperienceAcquisitionService:INFO",
+    "entity_resolution/ExperienceProposalResolverService:INFO",
+    "geographic_validation/CompositeGeographicValidationService:WARN",
+    "catalog_materialization/ExperienceCatalogService:WARN",
+    "coverage_analysis/FacetRetrievalService:FAIL"
+  ],
+  "providerRequests": {
+    "es.wikivoyage.org": 1,
+    "groq": 1,
+    "nominatim.local/search": 3,
+    "overpass.local": 2,
+    "serpapi": 1,
+    "wikipedia(es.wikipedia.org)": 1
+  },
+  "coldPrecondition": {
+    "dbBefore": {
+      "geoEntity": 0,
+      "geoEntityIdentity": 0,
+      "experience": 0,
+      "experienceComponent": 0
+    },
+    "empty": true
+  },
+  "dbAfter": {
+    "geoEntity": 0,
+    "geoEntityIdentity": 0,
+    "experience": 0,
+    "experienceComponent": 0
+  },
+  "fromTrace": {
+    "wizardIntents": [
+      "walk"
+    ],
+    "interpretedAnchors": [
+      {
+        "usage": "named_path",
+        "rawName": "Caminito",
+        "priority": "must"
+      }
+    ],
+    "preferredFacets": [
+      [
+        "intent",
+        "walk",
+        "free_text"
+      ]
+    ],
+    "specFacets": [
+      {
+        "key": "walk",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "intent"
+      }
+    ],
+    "semanticQuery": "walking tour of the Caminito neighborhood focusing on representative landmarks",
+    "resolvedAnchors": [
+      {
+        "usage": "named_path",
+        "status": "unresolved",
+        "rawName": "Caminito",
+        "priority": "must",
+        "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+      }
+    ],
+    "coverageDeficits": [
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ],
+    "routingPerPass": [
+      "AREA_ROUTE_WALK=1; GENERIC=0.",
+      "AREA_ROUTE_WALK=1; GENERIC=0."
+    ],
+    "areaRouteWalkPerPass": [
+      {
+        "reason": "no_accepted_results",
+        "outcome": "no_result",
+        "diagnostics": {
+          "execution": {
+            "webResults": [
+              {
+                "status": "success",
+                "evidenceCount": 0,
+                "candidateCount": 0,
+                "groundingStatus": "failed",
+                "validationErrors": []
+              }
+            ],
+            "candidateCount": 0,
+            "webCandidateCount": 0,
+            "structuredCandidateCount": 0
+          },
+          "anchorResolved": false,
+          "materialization": {
+            "acceptedCount": 0,
+            "rejectedCount": 0,
+            "resolvedCount": 0,
+            "rejectionReasons": {},
+            "semanticallyEligibleCount": 0
+          },
+          "sourcePlanProviders": [
+            "wikivoyage",
+            "web"
+          ]
+        }
+      },
+      {
+        "reason": "no_accepted_results",
+        "outcome": "no_result",
+        "diagnostics": {
+          "execution": {
+            "webResults": [],
+            "candidateCount": 0
+          },
+          "anchorResolved": false,
+          "materialization": {
+            "acceptedCount": 0,
+            "rejectedCount": 0,
+            "resolvedCount": 0,
+            "rejectionReasons": {},
+            "semanticallyEligibleCount": 0
+          },
+          "sourcePlanProviders": [
+            "wikivoyage",
+            "web"
+          ]
+        }
+      }
+    ],
+    "discoveryPerPass": [
+      {
+        "summary": "Pase 1: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+        "routedProviders": [
+          "wikivoyage",
+          "web"
+        ],
+        "webResults": [
+          {
+            "query": "Buenos Aires walking tours walks walking tour of the Caminito neighborhood focusing on representative landmarks",
+            "status": "success",
+            "evidenceCount": 0,
+            "groundedModel": "google-ai-mode",
+            "candidateCount": 0,
+            "groundingStatus": "failed",
+            "groundedProvider": "serpapi",
+            "validationErrors": [],
+            "destinationCountryCode": "AR"
+          }
+        ],
+        "providersFailedSummary": [],
+        "isolationRule": {
+          "rule": "Una fuente que falla no aborta la adquisición",
+          "reason": "Todas las fuentes atendidas respondieron.",
+          "result": "PASS",
+          "ruleId": "ACQ-ISOLATION-001"
+        },
+        "webSourcePlanConfiguration": {
+          "query": "Buenos Aires walking tours walks walking tour of the Caminito neighborhood focusing on representative landmarks",
+          "semanticQuery": "walking tour of the Caminito neighborhood focusing on representative landmarks",
+          "requestedIntents": [
+            "walk"
+          ]
+        },
+        "evidenceCount": 0
+      },
+      {
+        "summary": "Pase 2: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+        "routedProviders": [
+          "wikivoyage",
+          "web"
+        ],
+        "webResults": [],
+        "providersFailedSummary": [],
+        "isolationRule": {
+          "rule": "Una fuente que falla no aborta la adquisición",
+          "reason": "Todas las fuentes atendidas respondieron.",
+          "result": "PASS",
+          "ruleId": "ACQ-ISOLATION-001"
+        },
+        "webSourcePlanConfiguration": {
+          "query": "Buenos Aires walking tours walks walking tour of the Caminito neighborhood focusing on representative landmarks",
+          "semanticQuery": "walking tour of the Caminito neighborhood focusing on representative landmarks",
+          "requestedIntents": [
+            "walk"
+          ]
+        },
+        "evidenceCount": 0
+      }
+    ]
+  },
+  "notFromTrace": {
+    "groundedSearchFailure": {
+      "source": "backend.log",
+      "fact": "SerpApiGroundedSearchService: google_ai_mode error 429 'Your account has run out of searches.' (plan_searches_left=0/250 per serpapi account endpoint, checked after the run)"
+    },
+    "anchorDiscoveryBranches": {
+      "source": "anchor-resolution-repro.json (compiled production resolver, read-only, same local providers + destination scope)",
+      "discoverArea": {
+        "status": "no_match",
+        "reason": "NO_CONFIDENT_AREA_MATCH"
+      },
+      "discoverRoute": {
+        "status": "match",
+        "kind": "route",
+        "canonicalName": "Caminito",
+        "provider": "openstreetmap",
+        "externalId": "osm:way:144844726",
+        "latitude": -34.6393481,
+        "longitude": -58.3626552,
+        "geometry": {
+          "type": "MultiLineString",
+          "coordinateCount": 9,
+          "bounds": [
+            -58.3632988,
+            -34.639397,
+            -58.3617988,
+            -34.6391307
+          ]
+        },
+        "routeIdentities": [
+          "openstreetmap:osm:way:144844726"
+        ]
+      },
+      "discoverPlace": {
+        "status": "match",
+        "kind": "venue",
+        "canonicalName": "Caminito",
+        "provider": "nominatim",
+        "externalId": "osm:way:269972048",
+        "latitude": -34.8878122,
+        "longitude": -58.5383852,
+        "geometry": {
+          "type": "Point",
+          "coordinateCount": 1,
+          "bounds": [
+            -58.5383852,
+            -34.8878122,
+            -58.5383852,
+            -34.8878122
+          ]
+        }
+      },
+      "selectCandidate": "undefined (no single identity across kinds)",
+      "nominatimResultCount": 5,
+      "targetedRouteResolver": {
+        "status": "RESOLVED",
+        "reason": "SINGLE_COMPATIBLE_CLUSTER"
+      }
+    },
+    "caminitoRouteGeometry": {
+      "osm": "way:144844726",
+      "tags": {
+        "highway": "pedestrian",
+        "name": "Caminito",
+        "tourism": "attraction",
+        "wikidata": "Q1029566",
+        "wikipedia": "es:Caminito"
+      },
+      "geometryType": "MultiLineString",
+      "lineCount": 1,
+      "coordinateCount": 9,
+      "bounds": [
+        -58.3632988,
+        -34.639397,
+        -58.3617988,
+        -34.6391307
+      ],
+      "lengthMetersHaversine": 143.0
+    },
+    "destinationBoundaryId": "osm:relation:1224652"
+  },
+  "traceGaps": [
+    "T1 anchor_geo_resolution exposes only unresolvedReason=NO_CONFIDENT_GEO_ENTITY_MATCH: no per-branch (area/route/place) candidates, provider ids, reasons, or the cross-kind selectCandidate ambiguity decision.",
+    "T2 grounded-search provider failure (SerpAPI 429 quota exhausted, failureReason) is dropped: web result status=success, no failureReason, providersFailed=[], ACQ-ISOLATION-001 PASS 'Todas las fuentes atendidas respondieron'.",
+    "T3 (minor) partitionDeficitsByStrategy output omits anchorMode (tourism_route vs canonical); inferable only from anchor.status.",
+    "T4 (minor) destination_resolution outputs omit the boundary identity (osm:relation:1224652); only boundaryName is traced."
+  ]
+}

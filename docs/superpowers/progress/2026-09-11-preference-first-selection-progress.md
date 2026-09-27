@@ -1,6 +1,6 @@
 # Preference-First Selection — CURRENT MAIN PROGRESS
 
-Updated: 2026-09-26
+Updated: 2026-09-27
 Branch: `feat/preference-first-selection`
 Repository: `jiseruk/zig-zag`
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
@@ -18,9 +18,9 @@ classification contract and deterministic validation are unchanged.
 
 ## Current execution verdict — 2026-09-26
 
-**Active track: Gate C real-world generalization — RW2 executed 2026-09-26; its
-two named findings plus the bitácora gap are now closed (see §RW2 findings
-closure).**
+**Active track: Gate C real-world generalization — RW2 executed and closed
+2026-09-26; RW3 executed 2026-09-27 with verdict FAIL (blocker RW3-F1, see
+§RW3). RW3 is NOT done; RW4 is not authorized.**
 
 The component-resolution / RW1 milestone is **COMPLETE / CLOSED** and must not
 be reopened unless a real regression invalidates an accepted invariant. The
@@ -42,7 +42,7 @@ Current execution state:
   VARIANCE**. Three bounded COLD reruns emitted no qualifying composite, so the
   target live shape was never reached. This does not reopen or invalidate the
   deterministic dedupe fix.
-- **RW2 findings closure:** DONE in this worktree (uncommitted). Finding 1
+- **RW2 findings closure:** DONE (committed in `b6d2e1ae`). Finding 1
   (GENERIC structured-anchor propagation) fixed; Finding 2 wording corrected
   (walking-constraint rejection, not "planner preferred museums"); Finding 3
   (bitácora composition gap) fixed; walking rejection now auditable with
@@ -192,10 +192,41 @@ restrictive on continuous walking). Do not describe 5000/3000 as "the default".
   descriptions now derive from `WALKING_EFFORT_PRESETS` (2000/5000/10000 m),
   removing the stale "4 km"/"6 km" literals.
 
+### RW3 — Caminito canonical geographic ROUTE (executed 2026-09-27)
+
+Evidence: `spikes/rw3-caminito-canonical-route-2026-09-27/` (1 COLD on
+`zigzag_spike_rw3`; serpapi + cloudflare `@cf/qwen/qwen3.8-27b` + geoapify +
+gemini classification + local Overpass/Nominatim; walking caps 50000/20000
+as a non-binding experimental control only). WARM not run (nothing persisted).
+
+- Interpreter: Caminito → `named_path` / `must`; `intent:walk` preserved.
+- **RW3-F1 (blocker):** anchor resolution left Caminito unresolved
+  (`NO_CONFIDENT_GEO_ENTITY_MATCH`) although `discoverRoute` finds the real
+  `osm:way:144844726` (`highway=pedestrian`, MultiLineString, 9 coords,
+  ~143 m, destination-compatible). `discoverPlace` (Nominatim limit 5, only
+  `countryCode`, no destination point/compatibility) returns an Ezeiza street
+  ~32 km outside CABA as a `venue`; `selectCandidate` treats route vs venue as
+  ambiguity and discards both. Deterministic, reproduced read-only. General
+  (common street names), not Caminito-specific. Not fixed.
+- Routing: `AREA_ROUTE_WALK=1` in tourism_route mode; `SourcePlan.web` has no
+  `anchorNames` (planner forwards only resolved area/route anchors), Caminito
+  reaches the query only via `semanticQuery` (RW3-F4, observation).
+- SerpAPI Free Plan exhausted (429, 0/250) → 0 evidence, no extraction; the
+  discovery/composition half is INCONCLUSIVE.
+- **Bitácora defects:** RW3-F2 grounded-provider failure traced as
+  `status: success` / `providersFailed: []` / ACQ-ISOLATION-001 PASS (the
+  adapter's `failureReason` is dropped in `executeWebSourcePlan`); RW3-F3
+  `anchor_geo_resolution` exposes no per-branch discovery facts or selection
+  decision; minor: routing omits `anchorMode`, destination step omits the
+  boundary id.
+- Route-geometry membership, regional coherence and anti-fabrication were
+  never reached. Verdict **FAIL**. No production code changed.
+
 ### Open next steps
 
-- next canonical gate: **RW3 — Caminito canonical OSM ROUTE** (still not
-  started; RW3 is not advanced by this task);
+- next canonical gate: **RW3 rerun** after fixing RW3-F1 (and preferably
+  RW3-F2/F3 so the rerun is auditable) and restoring grounded-search quota;
+  **RW4 is not authorized** until RW3 is done;
 - the walking feasibility policy itself remains **unchanged pending a separate
   product decision** — we now have correct diagnostics, not a threshold change;
 - benchmark alternate Cloudflare models later through the already-configurable

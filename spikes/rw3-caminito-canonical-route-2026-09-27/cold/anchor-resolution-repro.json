@@ -1,0 +1,177 @@
+{
+  "destination": {
+    "boundaryName": "Buenos Aires",
+    "boundaryId": "osm:relation:1224652",
+    "countryCode": "AR"
+  },
+  "nominatimSearchAsCalled": {
+    "query": "Caminito",
+    "countryCode": "AR",
+    "resultCount": 5,
+    "results": [
+      {
+        "osm": "way:269972048",
+        "displayName": "Caminito, La Unión, Partido de Ezeiza, Buenos Aires, B1803HAA, Argentina",
+        "latitude": -34.8878122,
+        "longitude": -58.5383852,
+        "type": "residential"
+      },
+      {
+        "osm": "way:190947717",
+        "displayName": "Caminito, Olta, Departamento General Belgrano, La Rioja, F5383, Argentina",
+        "latitude": -30.6313248,
+        "longitude": -66.2504344,
+        "type": "residential"
+      },
+      {
+        "osm": "way:46859224",
+        "displayName": "Caminito, Barrio Rincón, Chilecito, Departamento Chilecito, La Rioja, F5360, Argentina",
+        "latitude": -29.1691371,
+        "longitude": -67.4910124,
+        "type": "residential"
+      },
+      {
+        "osm": "way:205650907",
+        "displayName": "Caminito, Barrio Policial, San Antonio de Padua, Partido de Merlo, Buenos Aires, B1718EVD, Argentina",
+        "latitude": -34.6549927,
+        "longitude": -58.7119394,
+        "type": "residential"
+      },
+      {
+        "osm": "way:191914894",
+        "displayName": "Caminito, Central, Plaza Huincul, Municipio de Plaza Huincul, Departamento Confluencia, Neuquén, Q8318, Argentina",
+        "latitude": -38.9257732,
+        "longitude": -69.1961217,
+        "type": "residential"
+      }
+    ]
+  },
+  "discoverArea": {
+    "status": "no_match",
+    "reason": "NO_CONFIDENT_AREA_MATCH"
+  },
+  "discoverRoute": {
+    "status": "match",
+    "kind": "route",
+    "canonicalName": "Caminito",
+    "provider": "openstreetmap",
+    "externalId": "osm:way:144844726",
+    "latitude": -34.6393481,
+    "longitude": -58.3626552,
+    "geometry": {
+      "type": "MultiLineString",
+      "coordinateCount": 9,
+      "bounds": [
+        -58.3632988,
+        -34.639397,
+        -58.3617988,
+        -34.6391307
+      ]
+    },
+    "routeIdentities": [
+      "openstreetmap:osm:way:144844726"
+    ]
+  },
+  "discoverPlace": {
+    "status": "match",
+    "kind": "venue",
+    "canonicalName": "Caminito",
+    "provider": "nominatim",
+    "externalId": "osm:way:269972048",
+    "latitude": -34.8878122,
+    "longitude": -58.5383852,
+    "geometry": {
+      "type": "Point",
+      "coordinateCount": 1,
+      "bounds": [
+        -58.5383852,
+        -34.8878122,
+        -58.5383852,
+        -34.8878122
+      ]
+    }
+  },
+  "discoverRouteFullGeometry": {
+    "type": "MultiLineString",
+    "coordinates": [
+      [
+        [
+          -58.3632988,
+          -34.6391307
+        ],
+        [
+          -58.3632393,
+          -34.6391711
+        ],
+        [
+          -58.3630755,
+          -34.6392431
+        ],
+        [
+          -58.3629034,
+          -34.639299
+        ],
+        [
+          -58.3626552,
+          -34.6393481
+        ],
+        [
+          -58.3623762,
+          -34.6393831
+        ],
+        [
+          -58.3622584,
+          -34.6393874
+        ],
+        [
+          -58.3618064,
+          -34.6393968
+        ],
+        [
+          -58.3617988,
+          -34.639397
+        ]
+      ]
+    ]
+  },
+  "selectCandidate": "undefined (no single identity across kinds)",
+  "targetedRouteResolver": {
+    "status": "RESOLVED",
+    "reason": "SINGLE_COMPATIBLE_CLUSTER",
+    "variants": [
+      {
+        "variant": "RAW",
+        "name": "Caminito",
+        "query": {
+          "name": "Caminito",
+          "latitude": -34.6161845,
+          "longitude": -58.4332979,
+          "radiusMeters": 13421
+        },
+        "providerStatus": "success",
+        "rawCount": 1,
+        "acceptedCount": 1,
+        "accepted": [
+          {
+            "externalId": "osm:way:144844726",
+            "name": "Caminito",
+            "highway": "pedestrian"
+          }
+        ],
+        "rejected": []
+      }
+    ],
+    "clusters": [
+      {
+        "segmentExternalIds": [
+          "osm:way:144844726"
+        ],
+        "compatibility": {
+          "verdict": "COMPATIBLE",
+          "reason": "WITHIN_DESTINATION_BOUNDARY"
+        },
+        "geometry": null
+      }
+    ]
+  }
+}
