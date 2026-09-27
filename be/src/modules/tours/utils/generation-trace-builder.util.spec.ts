@@ -1274,6 +1274,48 @@ describe('buildAcquisitionStep', () => {
    * distinct from candidateDecisions (which only ever sees canonical
    * candidates that already passed the source-support gate).
    */
+  it('surfaces the anchor names the discovery extractor request carried', () => {
+    const step = buildAcquisitionStep({
+      passNumber: 1,
+      plan: {
+        sourcePlans: [
+          {
+            provider: 'web',
+            web: {
+              query: 'Buenos Aires Caminito walks',
+              anchorNames: ['Caminito'],
+            },
+          },
+        ],
+        deficits: [] as { reason: string }[],
+      },
+      execution: {
+        observations: [],
+        candidates: [],
+        providerResults: {},
+        webResults: [
+          {
+            status: 'success',
+            query: 'Buenos Aires Caminito walks',
+            evidenceKeys: ['ev-1'],
+            extractorProvider: 'cloudflare',
+            extractorRequestAnchorNames: ['Caminito'],
+            validationErrors: [],
+            extractedCandidateCount: 0,
+            candidateCount: 0,
+            candidateDecisions: [],
+          },
+        ],
+      },
+    });
+
+    const web = step.acquisition?.sourcePlans.find(
+      (source) => source.provider === 'web',
+    )?.web;
+    expect(web?.anchorNames).toEqual(['Caminito']);
+    expect(web?.extractor?.requestAnchorNames).toEqual(['Caminito']);
+  });
+
   it('surfaces sourceSupportAudits in the web extractor trace block', () => {
     const plan = {
       sourcePlans: [

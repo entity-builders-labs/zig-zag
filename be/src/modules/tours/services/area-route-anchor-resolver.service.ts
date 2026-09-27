@@ -1,6 +1,7 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import {
   DestinationCompatibility,
+  DestinationCompatibilityCandidate,
   evaluateDestinationCompatibility,
 } from '../utils/destination-compatibility.policy';
 import {
@@ -14,8 +15,14 @@ import {
   OsmCandidate,
 } from '@integrations/osm/services/osm-places.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
-import { INominatimApiService } from '@integrations/osm/interfaces/nominatim.interface';
-import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
+import {
+  INominatimApiService,
+  NominatimResult,
+} from '@integrations/osm/interfaces/nominatim.interface';
+import {
+  IPlacesApiService,
+  PlaceData,
+} from '@integrations/google-places/interfaces/places-api.interface';
 import { Coordinates } from '@shared/utils/distance.utils';
 import {
   AnchorCandidateFact,
@@ -32,10 +39,11 @@ import { ExperienceCatalogService } from './experience-catalog.service';
 import {
   bestNominatimMatch,
   candidateMatchCountToMultiplicity,
-  countNominatimExactMatches,
   extractWikidataQid,
   isAreaScaleEligible,
+  nominatimExactMatches,
   normalizeGeoName,
+  rankNominatimCandidates,
   countExactNormalizedMatches,
 } from '../utils/nominatim-match.util';
 import {
@@ -96,6 +104,110 @@ interface AnchorGeoCandidate {
   acquisitionEvidence?: IdentityEvidence[];
 }
 
+/**
+ * A real provider candidate that took part in one branch's selection but
+ * was excluded by the canonical destination-compatibility policy before
+ * ranking (same-branch homonym). Bounded audit evidence only: it never
+ * re-enters selection, identity multiplicity or any downstream decision.
+ */
+interface RejectedBranchCandidate {
+  canonicalName: string;
+  kind: 'area' | 'route' | 'venue';
+  provider: string;
+  externalId?: string;
+  compatibility: DestinationCompatibility;
+}
+
+/** Bitácora bound on rejected same-branch facts per branch. */
+const MAX_REJECTED_SAME_BRANCH_FACTS = 4;
+
+function boundedRejected(rejected: RejectedBranchCandidate[]): {
+  rejectedSameBranch?: RejectedBranchCandidate[];
+} {
+  return rejected.length > 0
+    ? { rejectedSameBranch: rejected.slice(0, MAX_REJECTED_SAME_BRANCH_FACTS) }
+    : {};
+}
+
+interface ScreenedCandidate<T> {
+  item: T;
+  compatibility: DestinationCompatibility;
+}
+
+/**
+ * Applies the canonical destination-compatibility policy to EVERY plausible
+ * provider candidate before any ranking, so a provider's favorite
+ * out-of-destination homonym can never hide a compatible same-name
+ * candidate later in the same result set. UNKNOWN stays eligible (e.g.
+ * point-radius destinations), exactly as the policy defines it; ordering
+ * is preserved.
+ */
+function screenByDestination<T>(
+  items: readonly T[],
+  probe: (item: T) => DestinationCompatibilityCandidate,
+  scope: GeographicScope,
+): {
+  eligible: ScreenedCandidate<T>[];
+  incompatible: ScreenedCandidate<T>[];
+} {
+  const screened = items.map((item) => ({
+    item,
+    compatibility: evaluateDestinationCompatibility(probe(item), scope),
+  }));
+  return {
+    eligible: screened.filter(
+      (e) => e.compatibility.verdict !== 'INCOMPATIBLE',
+    ),
+    incompatible: screened.filter(
+      (e) => e.compatibility.verdict === 'INCOMPATIBLE',
+    ),
+  };
+}
+
+function nominatimProbe(
+  result: NominatimResult,
+  withSelf = false,
+): DestinationCompatibilityCandidate {
+  return {
+    probePoints:
+      Number.isFinite(result.latitude) && Number.isFinite(result.longitude)
+        ? [
+            {
+              latitude: result.latitude as number,
+              longitude: result.longitude as number,
+            },
+          ]
+        : [],
+    ...(withSelf
+      ? { self: { osmType: result.osmType, osmId: result.osmId } }
+      : {}),
+  };
+}
+
+function nominatimCanonicalName(result: NominatimResult, fallback: string) {
+  return result.displayName.split(',')[0]?.trim() || fallback;
+}
+
+/**
+ * Exact-name identity multiplicity over the destination-compatible pool
+ * only: same-name results the canonical policy places outside the
+ * destination are unrelated places, not competing identities. Results whose
+ * compatibility is UNKNOWN still count (never more confident than the
+ * evidence allows); two compatible same-name results remain MULTIPLE.
+ */
+function compatibleNominatimExactNameCount(
+  name: string,
+  results: readonly NominatimResult[],
+  scope: GeographicScope,
+  withSelf: boolean,
+): number {
+  return nominatimExactMatches(name, results).filter(
+    (result) =>
+      evaluateDestinationCompatibility(nominatimProbe(result, withSelf), scope)
+        .verdict !== 'INCOMPATIBLE',
+  ).length;
+}
+
 type CandidateDiscovery =
   | {
       status: 'match';
@@ -106,6 +218,12 @@ type CandidateDiscovery =
        * evaluateDestinationCompatibility primitive).
        */
       compatibility: DestinationCompatibility;
+      /**
+       * Incompatible same-branch homonyms the canonical policy removed
+       * from the selectable set before this candidate was ranked/selected
+       * (audit evidence only; bounded).
+       */
+      rejectedSameBranch?: RejectedBranchCandidate[];
     }
   | {
       /**
@@ -117,6 +235,8 @@ type CandidateDiscovery =
       reason: 'DESTINATION_INCOMPATIBLE';
       candidate: AnchorGeoCandidate;
       compatibility: DestinationCompatibility;
+      /** Additional incompatible same-branch candidates (audit only). */
+      rejectedSameBranch?: RejectedBranchCandidate[];
     }
   | { status: 'no_match'; reason: string }
   | { status: 'unavailable'; reason: string };
@@ -140,60 +260,89 @@ function buildAnchorCandidateFacts(
   ambiguous: boolean,
   verificationFailed: boolean,
 ): AnchorCandidateFact[] {
-  return outcomes.map((outcome, index) => {
+  return outcomes.flatMap((outcome, index): AnchorCandidateFact[] => {
     const branch = ANCHOR_DISCOVERY_BRANCHES[index] ?? 'place';
+    // Same-branch incompatible homonyms get their own rows (several facts
+    // may share one branch), so the Bitácora shows which candidates were
+    // considered, which were destination-incompatible and which remained
+    // eligible. Audit output only, bounded.
+    const rejectedFacts: AnchorCandidateFact[] =
+      outcome.status === 'match' || outcome.status === 'rejected'
+        ? (outcome.rejectedSameBranch ?? []).map((rejected) => ({
+            branch,
+            discoveryStatus: 'rejected' as const,
+            eligibility: 'REJECTED_DESTINATION_INCOMPATIBLE' as const,
+            canonicalName: rejected.canonicalName,
+            kind: rejected.kind,
+            provider: rejected.provider,
+            ...(rejected.externalId ? { externalId: rejected.externalId } : {}),
+            compatibility: {
+              verdict: rejected.compatibility.verdict,
+              reason: rejected.compatibility.reason,
+            },
+            discoveryReason: 'DESTINATION_INCOMPATIBLE',
+          }))
+        : [];
     if (outcome.status === 'match') {
       const isSelected = outcome === selected;
-      return {
-        branch,
-        discoveryStatus: outcome.status,
-        eligibility: 'ELIGIBLE' as const,
-        decision: isSelected
-          ? verificationFailed
-            ? ('IDENTITY_NOT_VERIFIED' as const)
-            : ('SELECTED' as const)
-          : ambiguous
-            ? ('AMBIGUOUS_IDENTITY' as const)
-            : ('NOT_SELECTED' as const),
-        canonicalName: outcome.candidate.canonicalName,
-        kind: outcome.candidate.kind,
-        provider: outcome.candidate.provider,
-        ...(outcome.candidate.externalId
-          ? { externalId: outcome.candidate.externalId }
-          : {}),
-        compatibility: {
-          verdict: outcome.compatibility.verdict,
-          reason: outcome.compatibility.reason,
+      return [
+        {
+          branch,
+          discoveryStatus: outcome.status,
+          eligibility: 'ELIGIBLE' as const,
+          decision: isSelected
+            ? verificationFailed
+              ? ('IDENTITY_NOT_VERIFIED' as const)
+              : ('SELECTED' as const)
+            : ambiguous
+              ? ('AMBIGUOUS_IDENTITY' as const)
+              : ('NOT_SELECTED' as const),
+          canonicalName: outcome.candidate.canonicalName,
+          kind: outcome.candidate.kind,
+          provider: outcome.candidate.provider,
+          ...(outcome.candidate.externalId
+            ? { externalId: outcome.candidate.externalId }
+            : {}),
+          compatibility: {
+            verdict: outcome.compatibility.verdict,
+            reason: outcome.compatibility.reason,
+          },
         },
-      };
+        ...rejectedFacts,
+      ];
     }
     if (outcome.status === 'rejected') {
-      return {
+      return [
+        {
+          branch,
+          discoveryStatus: outcome.status,
+          eligibility: 'REJECTED_DESTINATION_INCOMPATIBLE' as const,
+          canonicalName: outcome.candidate.canonicalName,
+          kind: outcome.candidate.kind,
+          provider: outcome.candidate.provider,
+          ...(outcome.candidate.externalId
+            ? { externalId: outcome.candidate.externalId }
+            : {}),
+          compatibility: {
+            verdict: outcome.compatibility.verdict,
+            reason: outcome.compatibility.reason,
+          },
+          discoveryReason: outcome.reason,
+        },
+        ...rejectedFacts,
+      ];
+    }
+    return [
+      {
         branch,
         discoveryStatus: outcome.status,
-        eligibility: 'REJECTED_DESTINATION_INCOMPATIBLE' as const,
-        canonicalName: outcome.candidate.canonicalName,
-        kind: outcome.candidate.kind,
-        provider: outcome.candidate.provider,
-        ...(outcome.candidate.externalId
-          ? { externalId: outcome.candidate.externalId }
-          : {}),
-        compatibility: {
-          verdict: outcome.compatibility.verdict,
-          reason: outcome.compatibility.reason,
-        },
+        eligibility:
+          outcome.status === 'unavailable'
+            ? ('PROVIDER_UNAVAILABLE' as const)
+            : ('NO_CANDIDATE' as const),
         discoveryReason: outcome.reason,
-      };
-    }
-    return {
-      branch,
-      discoveryStatus: outcome.status,
-      eligibility:
-        outcome.status === 'unavailable'
-          ? ('PROVIDER_UNAVAILABLE' as const)
-          : ('NO_CANDIDATE' as const),
-      discoveryReason: outcome.reason,
-    };
+      },
+    ];
   });
 }
 
@@ -329,6 +478,9 @@ export class AreaRouteAnchorResolverService {
                 reason: 'DESTINATION_INCOMPATIBLE',
                 candidate: outcome.candidate,
                 compatibility: outcome.compatibility,
+                ...(outcome.rejectedSameBranch
+                  ? { rejectedSameBranch: outcome.rejectedSameBranch }
+                  : {}),
               }
             : outcome,
         );
@@ -401,60 +553,12 @@ export class AreaRouteAnchorResolverService {
             ? { countryCode: destinationCountryCode }
             : undefined,
         );
-        const match = bestNominatimMatch(anchor.rawName, results);
-        if (
-          match &&
-          Number.isFinite(match.latitude) &&
-          Number.isFinite(match.longitude) &&
-          !isAreaScaleEligible(match)
-        ) {
-          const canonicalName =
-            match.displayName.split(',')[0]?.trim() || anchor.rawName;
-          const externalId = `osm:${match.osmType}:${match.osmId}`;
-          // When multiple Nominatim results share the same normalized name,
-          // the exact-name match alone cannot confirm a unique identity.
-          const exactNameCount = countNominatimExactMatches(
-            anchor.rawName,
-            results,
-          );
-          const candidate: AnchorGeoCandidate = {
-            kind: 'venue',
-            canonicalName,
-            provider: 'nominatim',
-            externalId,
-            latitude: match.latitude,
-            longitude: match.longitude,
-            geometry: {
-              type: 'Point',
-              coordinates: [match.longitude, match.latitude],
-            },
-            nameEvidenceMultiplicity: {
-              exactName: candidateMatchCountToMultiplicity(exactNameCount),
-              declaredAlias: 'UNKNOWN',
-            },
-          };
-          // Bitácora F1: a venue discovered outside the resolved
-          // destination boundary is never an anchor candidate (homonym
-          // protection). UNKNOWN (e.g. point-radius destinations) keeps
-          // the venue eligible, as before.
-          const compatibility = evaluateDestinationCompatibility(
-            {
-              probePoints: [
-                { latitude: match.latitude, longitude: match.longitude },
-              ],
-            },
-            geographicScope,
-          );
-          if (compatibility.verdict === 'INCOMPATIBLE') {
-            return {
-              status: 'rejected',
-              reason: 'DESTINATION_INCOMPATIBLE',
-              candidate,
-              compatibility,
-            };
-          }
-          return { status: 'match', candidate, compatibility };
-        }
+        const venueOutcome = this.selectCompatibleNominatimVenue(
+          anchor,
+          results,
+          geographicScope,
+        );
+        if (venueOutcome) return venueOutcome;
         // A no-match from this provider is not authoritative: the Places
         // identity capability may still know the named destination.
       } catch {
@@ -475,70 +579,92 @@ export class AreaRouteAnchorResolverService {
         textQuery: anchor.rawName,
         maxResultCount: 3,
       });
-      const place = result.data[0];
-      if (!place?.location || !hasCrediblePlaceType(place))
+      const provider = placesAcquisitionLabel(this.placesApi.provider);
+      const nameOf = (place: PlaceData) =>
+        place.displayName?.text || place.name;
+      const probe = (place: PlaceData): DestinationCompatibilityCandidate => ({
+        probePoints: place.location
+          ? [
+              {
+                latitude: place.location.latitude,
+                longitude: place.location.longitude,
+              },
+            ]
+          : [],
+      });
+      // Plausibility first, then the canonical destination compatibility
+      // per candidate, then selection among compatible candidates only:
+      // item zero never wins blindly when it lies outside the destination.
+      const plausible = result.data.filter(
+        (place) => !!place?.location && hasCrediblePlaceType(place),
+      );
+      if (plausible.length === 0)
         return nominatimUnavailable
           ? {
               status: 'unavailable',
               reason: 'NOMINATIM_UNAVAILABLE;NO_CONFIDENT_PLACE_MATCH',
             }
           : { status: 'no_match', reason: 'NO_CONFIDENT_PLACE_MATCH' };
-      const canonicalName =
-        place.displayName?.text || place.name || anchor.rawName;
-      const provider = placesAcquisitionLabel(this.placesApi.provider);
-      const externalId = canonicalPlacesExternalId(
-        this.placesApi.provider,
-        place.id,
-      );
-      // When multiple Places results share the same normalized name,
-      // the exact-name match alone cannot confirm a unique identity.
-      const exactNameCount = countExactNormalizedMatches(
-        anchor.rawName,
-        result.data,
-        (p) => p.displayName?.text || p.name,
-      );
-      const candidate: AnchorGeoCandidate = {
-        kind: 'venue',
-        canonicalName,
-        provider,
-        externalId,
-        latitude: place.location.latitude,
-        longitude: place.location.longitude,
-        geometry: {
-          type: 'Point',
-          coordinates: [place.location.longitude, place.location.latitude],
-        },
-        placeTypes: [
-          ...(place.primaryType ? [place.primaryType] : []),
-          ...(place.types ?? []),
-        ],
-        nameEvidenceMultiplicity: {
-          exactName: candidateMatchCountToMultiplicity(exactNameCount),
-          declaredAlias: 'UNKNOWN',
-        },
-      };
-      // Bitácora F1: a venue discovered outside the resolved destination
-      // boundary is never an anchor candidate (homonym protection).
-      const compatibility = evaluateDestinationCompatibility(
-        {
-          probePoints: [
-            {
-              latitude: place.location.latitude,
-              longitude: place.location.longitude,
-            },
-          ],
-        },
+      const { eligible, incompatible } = screenByDestination(
+        plausible,
+        probe,
         geographicScope,
       );
-      if (compatibility.verdict === 'INCOMPATIBLE') {
+      const toCandidate = (
+        place: PlaceData,
+        exactNameCount: number,
+      ): AnchorGeoCandidate =>
+        this.buildPlacesVenueCandidate(
+          anchor,
+          place,
+          provider,
+          candidateMatchCountToMultiplicity(exactNameCount),
+        );
+      const toRejected = ({
+        item,
+        compatibility,
+      }: ScreenedCandidate<PlaceData>): RejectedBranchCandidate => ({
+        canonicalName: nameOf(item) || anchor.rawName,
+        kind: 'venue',
+        provider,
+        externalId: canonicalPlacesExternalId(
+          this.placesApi!.provider,
+          item.id,
+        ),
+        compatibility,
+      });
+      if (eligible.length === 0) {
+        // Every plausible candidate lies outside the destination: fail
+        // honestly, never fall back to the wrong geography.
+        const [primary, ...rest] = incompatible;
         return {
           status: 'rejected',
           reason: 'DESTINATION_INCOMPATIBLE',
-          candidate,
-          compatibility,
+          candidate: toCandidate(primary.item, 0),
+          compatibility: primary.compatibility,
+          ...boundedRejected(rest.map(toRejected)),
         };
       }
-      return { status: 'match', candidate, compatibility };
+      const selected = eligible[0];
+      // Identity multiplicity over the destination-compatible pool only:
+      // same-name places outside the destination are not part of this
+      // branch's selectable identity set, while two compatible same-name
+      // identities still count as MULTIPLE.
+      const exactNameCount = countExactNormalizedMatches(
+        anchor.rawName,
+        result.data.filter(
+          (place) =>
+            evaluateDestinationCompatibility(probe(place), geographicScope)
+              .verdict !== 'INCOMPATIBLE',
+        ),
+        nameOf,
+      );
+      return {
+        status: 'match',
+        candidate: toCandidate(selected.item, exactNameCount),
+        compatibility: selected.compatibility,
+        ...boundedRejected(incompatible.map(toRejected)),
+      };
     } catch {
       return {
         status: 'unavailable',
@@ -547,6 +673,148 @@ export class AreaRouteAnchorResolverService {
           : 'PLACES_SEARCH_FAILED',
       };
     }
+  }
+
+  /**
+   * Nominatim venue-branch selection: exact-name (or, when no exact name
+   * exists, the single fuzzy) candidates -> venue-scale plausibility ->
+   * canonical destination compatibility PER candidate -> rank among
+   * compatible candidates only -> multiplicity over the compatible pool
+   * only. Incompatible homonyms stay bounded rejected audit facts. Returns
+   * undefined when this branch has nothing to offer (the caller falls
+   * through to the Places capability).
+   */
+  private selectCompatibleNominatimVenue(
+    anchor: InterpretedAnchor,
+    results: NominatimResult[],
+    geographicScope: GeographicScope,
+  ): CandidateDiscovery | undefined {
+    const isPlausibleVenue = (result: NominatimResult): boolean =>
+      Number.isFinite(result.latitude) &&
+      Number.isFinite(result.longitude) &&
+      !isAreaScaleEligible(result);
+    const exact = nominatimExactMatches(anchor.rawName, results);
+    const fuzzy =
+      exact.length === 0
+        ? bestNominatimMatch(anchor.rawName, results)
+        : undefined;
+    const pool = (exact.length > 0 ? exact : fuzzy ? [fuzzy] : []).filter(
+      isPlausibleVenue,
+    );
+    if (pool.length === 0) return undefined;
+
+    const { eligible, incompatible } = screenByDestination(
+      pool,
+      (result) => nominatimProbe(result),
+      geographicScope,
+    );
+    const toRejected = ({
+      item,
+      compatibility,
+    }: ScreenedCandidate<NominatimResult>): RejectedBranchCandidate => ({
+      canonicalName: nominatimCanonicalName(item, anchor.rawName),
+      kind: 'venue',
+      provider: 'nominatim',
+      externalId: `osm:${item.osmType}:${item.osmId}`,
+      compatibility,
+    });
+    if (eligible.length === 0) {
+      // Every plausible same-name venue lies outside the destination: fail
+      // honestly, never fall back to the wrong geography.
+      const primaryResult = rankNominatimCandidates(
+        incompatible.map((entry) => entry.item),
+      )!;
+      const primary = incompatible.find(
+        (entry) => entry.item === primaryResult,
+      )!;
+      return {
+        status: 'rejected',
+        reason: 'DESTINATION_INCOMPATIBLE',
+        candidate: this.buildNominatimVenueCandidate(
+          anchor,
+          primary.item,
+          'UNKNOWN',
+        ),
+        compatibility: primary.compatibility,
+        ...boundedRejected(
+          incompatible.filter((entry) => entry !== primary).map(toRejected),
+        ),
+      };
+    }
+    // Rank among compatible candidates only: provider importance/order
+    // never overrides destination compatibility.
+    const selectedResult = rankNominatimCandidates(
+      eligible.map((entry) => entry.item),
+    )!;
+    const selected = eligible.find((entry) => entry.item === selectedResult)!;
+    return {
+      status: 'match',
+      candidate: this.buildNominatimVenueCandidate(
+        anchor,
+        selected.item,
+        candidateMatchCountToMultiplicity(
+          compatibleNominatimExactNameCount(
+            anchor.rawName,
+            results,
+            geographicScope,
+            false,
+          ),
+        ),
+      ),
+      compatibility: selected.compatibility,
+      ...boundedRejected(incompatible.map(toRejected)),
+    };
+  }
+
+  private buildNominatimVenueCandidate(
+    anchor: InterpretedAnchor,
+    match: NominatimResult,
+    exactNameMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN',
+  ): AnchorGeoCandidate {
+    return {
+      kind: 'venue',
+      canonicalName: nominatimCanonicalName(match, anchor.rawName),
+      provider: 'nominatim',
+      externalId: `osm:${match.osmType}:${match.osmId}`,
+      latitude: match.latitude,
+      longitude: match.longitude,
+      geometry: {
+        type: 'Point',
+        coordinates: [match.longitude as number, match.latitude as number],
+      },
+      nameEvidenceMultiplicity: {
+        exactName: exactNameMultiplicity,
+        declaredAlias: 'UNKNOWN',
+      },
+    };
+  }
+
+  private buildPlacesVenueCandidate(
+    anchor: InterpretedAnchor,
+    place: PlaceData,
+    provider: string,
+    exactNameMultiplicity: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN',
+  ): AnchorGeoCandidate {
+    return {
+      kind: 'venue',
+      canonicalName: place.displayName?.text || place.name || anchor.rawName,
+      provider,
+      externalId: canonicalPlacesExternalId(this.placesApi!.provider, place.id),
+      latitude: place.location.latitude,
+      longitude: place.location.longitude,
+      geometry: {
+        type: 'Point',
+        coordinates: [place.location.longitude, place.location.latitude],
+      },
+      placeTypes: [
+        ...(place.primaryType ? [place.primaryType] : []),
+        ...(place.types ?? []),
+      ],
+      nameEvidenceMultiplicity: {
+        exactName: exactNameMultiplicity,
+        declaredAlias: 'UNKNOWN',
+      },
+    };
   }
 
   private selectCandidate(
@@ -736,24 +1004,88 @@ export class AreaRouteAnchorResolverService {
           ? { countryCode: destinationCountryCode }
           : undefined,
       );
-      const match = bestNominatimMatch(
-        anchor.rawName,
-        results,
-        destinationPoint,
+      // Exact-name candidates (or, when no exact name exists, the single
+      // fuzzy best match) -> the canonical area-scale predicate
+      // DestinationResolutionService also uses (Cutover M3.5: a country/
+      // state-scale or non-urban/admin match is nonsensical as an area
+      // anchor) -> canonical destination compatibility PER candidate ->
+      // rank among compatible candidates only.
+      const exact = nominatimExactMatches(anchor.rawName, results);
+      const fuzzy =
+        exact.length === 0
+          ? bestNominatimMatch(anchor.rawName, results, destinationPoint)
+          : undefined;
+      const pool = (exact.length > 0 ? exact : fuzzy ? [fuzzy] : []).filter(
+        isAreaScaleEligible,
       );
-      // Cutover M3.5 -- the same canonical scope-acceptance predicate
-      // DestinationResolutionService uses (single source of policy truth,
-      // no dual scope authority). A country/state-scale or non-urban/
-      // admin match is equally nonsensical as a small area anchor.
-      if (!match || !isAreaScaleEligible(match)) {
+      if (pool.length === 0) {
         return { status: 'no_match', reason: 'NO_CONFIDENT_AREA_MATCH' };
       }
-
-      // When multiple Nominatim results share the same normalized name,
-      // the exact-name match alone cannot confirm a unique identity.
-      const exactNameCount = countNominatimExactMatches(
+      const { eligible, incompatible } = screenByDestination(
+        pool,
+        (result) => nominatimProbe(result, true),
+        destinationScope,
+      );
+      const toRejected = ({
+        item,
+        compatibility,
+      }: ScreenedCandidate<NominatimResult>): RejectedBranchCandidate => ({
+        canonicalName: nominatimCanonicalName(item, anchor.rawName),
+        kind: 'area',
+        provider: 'nominatim',
+        externalId: `osm:${item.osmType}:${item.osmId}`,
+        compatibility,
+      });
+      if (eligible.length === 0) {
+        // Every plausible area homonym lies outside the destination: fail
+        // honestly, never select the wrong geography. The rejected
+        // candidate is audit evidence only (never looked up or persisted).
+        const primaryResult = rankNominatimCandidates(
+          incompatible.map((entry) => entry.item),
+          destinationPoint,
+        )!;
+        const primary = incompatible.find(
+          (entry) => entry.item === primaryResult,
+        )!;
+        return {
+          status: 'rejected',
+          reason: 'DESTINATION_INCOMPATIBLE',
+          candidate: {
+            kind: 'area',
+            canonicalName: nominatimCanonicalName(primary.item, anchor.rawName),
+            provider: 'nominatim',
+            externalId: `osm:${primary.item.osmType}:${primary.item.osmId}`,
+            latitude: primary.item.latitude,
+            longitude: primary.item.longitude,
+            geometry: {
+              type: 'Point',
+              coordinates: [
+                primary.item.longitude as number,
+                primary.item.latitude as number,
+              ],
+            },
+            nameEvidenceMultiplicity: {
+              exactName: 'UNKNOWN',
+              declaredAlias: 'UNKNOWN',
+            },
+          },
+          compatibility: primary.compatibility,
+          ...boundedRejected(
+            incompatible.filter((entry) => entry !== primary).map(toRejected),
+          ),
+        };
+      }
+      const match = rankNominatimCandidates(
+        eligible.map((entry) => entry.item),
+        destinationPoint,
+      ) as NominatimResult & { osmType: 'way' | 'relation' };
+      const rejectedSameBranch = boundedRejected(incompatible.map(toRejected));
+      // Multiplicity over the destination-compatible pool only.
+      const exactNameCount = compatibleNominatimExactNameCount(
         anchor.rawName,
         results,
+        destinationScope,
+        true,
       );
 
       const boundary = await this.osmPlaces.lookupBoundaryById(
@@ -769,8 +1101,9 @@ export class AreaRouteAnchorResolverService {
           : { status: 'no_match', reason: 'NO_AREA_BOUNDARY' };
       }
 
-      // Single destination policy: an anchor AREA outside the resolved
-      // destination is never an anchor; UNKNOWN never counts as inside.
+      // Single destination policy on the real boundary (adds the admin
+      // level): an anchor AREA outside the resolved destination is never
+      // an anchor; UNKNOWN never counts as inside.
       const adminLevel = Number(boundary.value.tags?.admin_level);
       const compatibility = evaluateDestinationCompatibility(
         {
@@ -813,6 +1146,7 @@ export class AreaRouteAnchorResolverService {
           reason: 'DESTINATION_INCOMPATIBLE',
           candidate,
           compatibility,
+          ...rejectedSameBranch,
         };
       }
       if (compatibility.verdict !== 'COMPATIBLE') {
@@ -821,7 +1155,12 @@ export class AreaRouteAnchorResolverService {
           reason: 'DESTINATION_COMPATIBILITY_UNKNOWN',
         };
       }
-      return { status: 'match', candidate, compatibility };
+      return {
+        status: 'match',
+        candidate,
+        compatibility,
+        ...rejectedSameBranch,
+      };
     } catch {
       return { status: 'unavailable', reason: 'AREA_PROVIDER_FAILED' };
     }

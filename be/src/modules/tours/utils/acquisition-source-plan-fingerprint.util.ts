@@ -32,6 +32,43 @@ function canonical(value: unknown): unknown {
   return typeof value === 'string' ? value.trim() : value;
 }
 
+/**
+ * The material acquisition semantics of a resolved anchor: exactly the
+ * facts that change what a source plan acquires (which anchor, which
+ * canonical entity, which geometry/boundary scopes it). Explicit allow-list
+ * so audit/trace-only fields -- `candidateFacts`, and the unresolved
+ * anchor's diagnostic `unresolvedReason` -- can never alter a fingerprint
+ * and therefore never alter a DUPLICATE_SOURCE_PLAN_EXECUTION decision.
+ */
+export function materialAnchorProjection(anchor: ResolvedAnchor) {
+  if (anchor.status === 'unresolved') {
+    return {
+      status: anchor.status,
+      rawName: anchor.rawName,
+      usage: anchor.usage,
+      priority: anchor.priority,
+    };
+  }
+  return {
+    status: anchor.status,
+    rawName: anchor.rawName,
+    usage: anchor.usage,
+    priority: anchor.priority,
+    kind: anchor.kind,
+    canonicalName: anchor.canonicalName,
+    provider: anchor.provider,
+    externalId: anchor.externalId,
+    geoEntityId: anchor.geoEntityId,
+    geometry: anchor.geometry,
+    osmBoundary: anchor.osmBoundary
+      ? {
+          osmType: anchor.osmBoundary.osmType,
+          osmId: anchor.osmBoundary.osmId,
+        }
+      : undefined,
+  };
+}
+
 export function acquisitionSourcePlanFingerprint(
   sourcePlan: SourcePlan,
   context: SourcePlanFingerprintContext,
@@ -43,7 +80,7 @@ export function acquisitionSourcePlanFingerprint(
       sourcePlanPayload: sourcePlan,
       evidenceRequirements: context.evidenceRequirements,
       relevantDeficits: context.relevantDeficits,
-      relevantAnchors: context.relevantAnchors,
+      relevantAnchors: context.relevantAnchors.map(materialAnchorProjection),
     }),
   );
 }

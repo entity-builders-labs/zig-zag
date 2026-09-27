@@ -6,6 +6,7 @@ import {
   ExperienceAcquisitionPlan,
   SourcePlan,
 } from '../interfaces/experience-acquisition-plan.interface';
+import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 
 const plan = (query: string): ExperienceAcquisitionPlan => ({
   destination: { destinationName: 'Buenos Aires' },
@@ -74,5 +75,118 @@ describe('acquisitionSourcePlanFingerprint', () => {
     ];
     expect(fingerprint(firstPass[0])).toBe(fingerprint(secondPass[0]));
     expect(fingerprint(firstPass[1])).not.toBe(fingerprint(secondPass[1]));
+  });
+
+  describe('anchor context (audit fields never affect execution)', () => {
+    const caminito = (
+      overrides: Partial<Extract<ResolvedAnchor, { status: 'resolved' }>> = {},
+    ): ResolvedAnchor => ({
+      status: 'resolved',
+      rawName: 'Caminito',
+      usage: 'named_path',
+      priority: 'must',
+      canonicalName: 'Caminito',
+      kind: 'route',
+      geoEntityId: 'geo-caminito',
+      provider: 'openstreetmap',
+      externalId: 'osm:way:144844726',
+      geometry: {
+        type: 'MultiLineString',
+        coordinates: [
+          [
+            [-58.3633, -34.6394],
+            [-58.3618, -34.6391],
+          ],
+        ],
+      },
+      ...overrides,
+    });
+    const web: SourcePlan = {
+      provider: 'web',
+      web: { query: 'Buenos Aires Caminito walks', anchorNames: ['Caminito'] },
+    };
+    const withAnchors = (anchors: ResolvedAnchor[]) =>
+      acquisitionSourcePlanFingerprint(web, {
+        destination: { destinationName: 'Buenos Aires' },
+        evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+        relevantDeficits: [],
+        relevantAnchors: anchors,
+      });
+
+    it('is identical when only candidateFacts differ (B1)', () => {
+      const selectedOnly = caminito({
+        candidateFacts: [
+          {
+            branch: 'route',
+            discoveryStatus: 'match',
+            eligibility: 'ELIGIBLE',
+            decision: 'SELECTED',
+          },
+        ],
+      });
+      const withRejectedHomonyms = caminito({
+        candidateFacts: [
+          {
+            branch: 'route',
+            discoveryStatus: 'match',
+            eligibility: 'ELIGIBLE',
+            decision: 'SELECTED',
+          },
+          {
+            branch: 'place',
+            discoveryStatus: 'rejected',
+            eligibility: 'REJECTED_DESTINATION_INCOMPATIBLE',
+            externalId: 'osm:way:269972048',
+            compatibility: {
+              verdict: 'INCOMPATIBLE',
+              reason: 'OUTSIDE_DESTINATION_BOUNDARY',
+            },
+          },
+        ],
+      });
+      expect(withAnchors([selectedOnly])).toBe(
+        withAnchors([withRejectedHomonyms]),
+      );
+      expect(withAnchors([selectedOnly])).toBe(withAnchors([caminito()]));
+    });
+
+    it('is identical for unresolved anchors whose diagnostics differ', () => {
+      const unresolved = (reason: string): ResolvedAnchor => ({
+        status: 'unresolved',
+        rawName: 'Caminito',
+        usage: 'named_path',
+        priority: 'must',
+        unresolvedReason: reason,
+      });
+      expect(withAnchors([unresolved('NO_CONFIDENT_GEO_ENTITY_MATCH')])).toBe(
+        withAnchors([unresolved('DESTINATION_INCOMPATIBLE')]),
+      );
+    });
+
+    it('changes when the material anchor identity changes (B2)', () => {
+      expect(withAnchors([caminito()])).not.toBe(
+        withAnchors([
+          caminito({ externalId: 'osm:way:1', geoEntityId: 'geo-2' }),
+        ]),
+      );
+    });
+
+    it('changes when the material route geometry changes (B2)', () => {
+      expect(withAnchors([caminito()])).not.toBe(
+        withAnchors([
+          caminito({
+            geometry: {
+              type: 'MultiLineString',
+              coordinates: [
+                [
+                  [-58.37, -34.63],
+                  [-58.36, -34.62],
+                ],
+              ],
+            },
+          }),
+        ]),
+      );
+    });
   });
 });

@@ -130,6 +130,15 @@ describe('CloudflareDiscoveryProvider', () => {
     expect(body.messages[1].content).toContain('ev-1');
   });
 
+  it('sends the typed anchor context through the shared user prompt (C4)', async () => {
+    const provider = await makeProvider();
+    await provider.extractExperiences(
+      { ...request, anchorNames: ['Caminito'] },
+      searchResult,
+    );
+    expect(lastBody().messages[1].content).toContain('Named anchors: Caminito');
+  });
+
   it('uses temperature 0, max_completion_tokens 900, and disables thinking', async () => {
     const provider = await makeProvider();
     await provider.extractExperiences(request, searchResult);

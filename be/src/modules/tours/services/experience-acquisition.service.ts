@@ -117,6 +117,11 @@ export interface WebAcquisitionResult {
   normalizationAudit?: GroundingNormalizationAudit;
   extractorProvider?: string;
   extractorModel?: string;
+  /**
+   * The typed anchor names the discovery extractor request actually
+   * carried (`ExperienceDiscoveryRequest.anchorNames`), for the Bitácora.
+   */
+  extractorRequestAnchorNames?: string[];
   groundedRawOutput?: string;
   extractorRawOutput?: string;
   validationErrors: string[];
@@ -519,6 +524,9 @@ export class ExperienceAcquisitionService {
         requestedIntents: web.requestedIntents,
         preferredTraits: web.preferredTraits,
         semanticQuery: web.semanticQuery,
+        ...(web.anchorNames?.length
+          ? { anchorNames: [...web.anchorNames] }
+          : {}),
         coverageGaps: [
           ...new Set(
             plan.deficits
@@ -575,6 +583,9 @@ export class ExperienceAcquisitionService {
         ...base,
         extractorProvider: extracted.provider,
         extractorModel: extracted.model,
+        ...(request.anchorNames
+          ? { extractorRequestAnchorNames: request.anchorNames }
+          : {}),
         extractorRawOutput: extracted.rawOutput,
         validationErrors: extracted.validationErrors ?? [],
         extractedCandidateCount: extracted.candidates.length,

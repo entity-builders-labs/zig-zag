@@ -3,6 +3,7 @@ import {
   PREFERENCE_DIMENSIONS,
 } from '../preferences/preference-facet-vocabulary';
 import {
+  buildDiscoveryAnchorContext,
   buildDiscoveryEvidenceBlock,
   buildDiscoveryInstructions,
   buildDiscoveryRequestHeader,
@@ -105,6 +106,50 @@ describe('experience discovery extraction prompt (shared contract)', () => {
       'Preferences: none',
       'Required evidence shape: none',
     ]);
+  });
+
+  describe('structured anchor context (C2/C3)', () => {
+    const anchored = {
+      scope: { destinationName: 'Buenos Aires' },
+      requestedThemes: [],
+      requestedIntents: ['walk'],
+      anchorNames: ['Caminito'],
+      evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+      breadth: 'focused',
+      maxCandidates: 8,
+    } as any;
+
+    it('exposes the typed anchor names in the shared request header', () => {
+      const header = buildDiscoveryRequestHeader(anchored);
+      expect(header).toContain('Named anchors: Caminito');
+      expect(header.join('\n')).toMatch(
+        /materially about at least one named anchor/,
+      );
+    });
+
+    it('keeps anchors from licensing composition or fabricated stops', () => {
+      const context = buildDiscoveryAnchorContext(['Caminito']).join('\n');
+      expect(context).toMatch(/never licenses composition/);
+      expect(context).toMatch(/unless the cited evidence itself supports them/);
+    });
+
+    it('reaches the full user prompt every extractor sends', () => {
+      const prompt = buildDiscoveryUserPrompt(anchored, []);
+      expect(prompt).toContain('Named anchors: Caminito');
+      // The anchor context sits before the unchanged shared rules.
+      expect(prompt.indexOf('Named anchors: Caminito')).toBeLessThan(
+        prompt.indexOf('When MULTI_COMPONENT_EXPERIENCE is requested'),
+      );
+    });
+
+    it('adds nothing when there is no anchor (no invented default)', () => {
+      expect(buildDiscoveryAnchorContext(undefined)).toEqual([]);
+      expect(buildDiscoveryAnchorContext([])).toEqual([]);
+      expect(buildDiscoveryAnchorContext(['  '])).toEqual([]);
+      expect(
+        buildDiscoveryUserPrompt({ ...anchored, anchorNames: undefined }, []),
+      ).not.toContain('Named anchors');
+    });
   });
 
   it('evidence block renders one [key] line per item', () => {

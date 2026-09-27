@@ -1033,6 +1033,7 @@ export function buildAcquisitionStep(params: {
       evidenceKeys: string[];
       extractorProvider?: string;
       extractorModel?: string;
+      extractorRequestAnchorNames?: string[];
       validationErrors: string[];
       extractedCandidateCount?: number;
       candidateCount: number;
@@ -1171,6 +1172,12 @@ export function buildAcquisitionStep(params: {
                   ? {
                       provider: webResult.extractorProvider,
                       model: webResult.extractorModel,
+                      ...(webResult.extractorRequestAnchorNames
+                        ? {
+                            requestAnchorNames:
+                              webResult.extractorRequestAnchorNames,
+                          }
+                        : {}),
                       inputEvidenceKeys: webResult.evidenceKeys,
                       validationErrors: webResult.validationErrors,
                       extractedCandidateCount:

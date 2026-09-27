@@ -588,11 +588,52 @@ describe('ExperienceAcquisitionService', () => {
           { extractExperiences } as any,
         );
 
-        await service.executePlan(anchoredWebPlan);
+        const result = await service.executePlan(anchoredWebPlan);
 
         expect(search.mock.calls[0][0]).toMatchObject({
           anchorNames: ['San Telmo', 'La Boca'],
         });
+        // C1: the same typed anchors reach the discovery extractor request
+        // (not only the search query), and the Bitácora records them.
+        expect(extractExperiences.mock.calls[0][0]).toMatchObject({
+          anchorNames: ['San Telmo', 'La Boca'],
+        });
+        expect(result.webResults?.[0].extractorRequestAnchorNames).toEqual([
+          'San Telmo',
+          'La Boca',
+        ]);
+      });
+
+      it('never invents anchorNames for a generic web plan (C3)', async () => {
+        const search = jest.fn().mockResolvedValue(groundedResult);
+        const extractExperiences = jest.fn().mockResolvedValue({
+          candidates: [webCandidate],
+          validationErrors: [],
+          provider: 'cloudflare',
+          model: '@cf/qwen/qwen3.8-27b',
+          rawOutput: '{"candidates":[]}',
+        });
+        const service = new ExperienceAcquisitionService(
+          {} as any,
+          {} as any,
+          { acquire: jest.fn() } as any,
+          { acquire: jest.fn() } as any,
+          new StructuredExperienceCandidateSynthesizerService(),
+          new StructuredCandidateCorroborationService(),
+          undefined,
+          { search } as any,
+          { extractExperiences } as any,
+        );
+
+        const result = await service.executePlan(webPlan);
+
+        expect(extractExperiences).toHaveBeenCalledTimes(1);
+        expect(extractExperiences.mock.calls[0][0]).not.toHaveProperty(
+          'anchorNames',
+        );
+        expect(result.webResults?.[0]).not.toHaveProperty(
+          'extractorRequestAnchorNames',
+        );
       });
 
       it('forwards the resolved destination country code into the grounded-search request and records the applied locale', async () => {

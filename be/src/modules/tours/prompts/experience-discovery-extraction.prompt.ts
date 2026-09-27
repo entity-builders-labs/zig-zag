@@ -7,7 +7,7 @@ import {
 
 /**
  * The single *semantic* contract every Experience discovery extractor
- * (Gemini / Groq / Ollama) speaks. Provider modules add only transport,
+ * (Gemini / Groq / Ollama / Cloudflare) speaks. Provider modules add only transport,
  * response-format wiring, and response parsing on top of this — they never
  * carry their own copy of the ExperienceCandidate / componentHint / facet
  * rules, and never their own tourism taxonomy. Canonical vocabularies come
@@ -64,6 +64,27 @@ export function buildDiscoveryRequestHeader(
     `Requested intents: ${request.requestedIntents?.join(', ') || 'none'}`,
     `Preferences: ${(request.semanticQuery || request.preferredTraits?.join(', ')) ?? 'none'}`,
     `Required evidence shape: ${request.evidenceRequirements?.includes('MULTI_COMPONENT_EXPERIENCE') ? 'MULTI_COMPONENT_EXPERIENCE' : request.evidenceRequirements?.length ? 'SINGLE_PLACE' : 'none'}`,
+    ...buildDiscoveryAnchorContext(request.anchorNames),
+  ];
+}
+
+/**
+ * Anchor context for an acquisition that targets specific named places the
+ * user asked about. It narrows WHICH evidence-supported Experiences are
+ * relevant; it never licenses composition -- every source-support and
+ * multi-component rule still applies. Empty when there is no anchor.
+ */
+export function buildDiscoveryAnchorContext(
+  anchorNames: readonly string[] | undefined,
+): string[] {
+  const names = (anchorNames ?? [])
+    .map((name) => name.trim())
+    .filter((name) => name.length > 0);
+  if (names.length === 0) return [];
+  return [
+    `Named anchors: ${names.join(', ')}`,
+    'This request is specifically about the named anchors. Extract only evidence-supported Experiences that are materially about at least one named anchor: a walk, route or visit along, through or at that anchor, or the anchor itself. Do not emit an Experience that the evidence does not connect to any named anchor, even if it matches the requested themes or intents.',
+    'A named anchor never licenses composition: every rule below about source support, cited evidence and multi-component Experiences still applies. Never add the anchor, or places near it, as components unless the cited evidence itself supports them as part of that Experience.',
   ];
 }
 

@@ -388,10 +388,11 @@ describe('AreaRouteAnchorResolverService', () => {
         placeRank: 20,
         class: 'place',
         type: 'suburb',
-        displayName: 'Catedral San Juan Bautista, San Juan, Argentina',
+        displayName:
+          'Catedral San Juan Bautista, Mataderos, Buenos Aires, Argentina',
         importance: 0.199,
-        latitude: -31.5375,
-        longitude: -68.5364,
+        latitude: -34.66,
+        longitude: -58.51,
       };
       const far = {
         osmType: 'relation' as const,
@@ -400,10 +401,11 @@ describe('AreaRouteAnchorResolverService', () => {
         placeRank: 20,
         class: 'place',
         type: 'suburb',
-        displayName: 'Catedral San Juan Bautista, Buenos Aires, Argentina',
+        displayName:
+          'Catedral San Juan Bautista, Retiro, Buenos Aires, Argentina',
         importance: 0.208,
-        latitude: -34.6037,
-        longitude: -58.3816,
+        latitude: -34.59,
+        longitude: -58.37,
       };
       const nominatim = {
         search: jest.fn().mockResolvedValue([far, near]),
@@ -419,7 +421,7 @@ describe('AreaRouteAnchorResolverService', () => {
               name: 'Catedral',
               osmType: 'relation',
               osmId,
-              geometry: { type: 'Point', coordinates: [-68.5364, -31.5375] },
+              geometry: { type: 'Point', coordinates: [-58.51, -34.66] },
               tags: {},
             },
           })),
@@ -445,7 +447,7 @@ describe('AreaRouteAnchorResolverService', () => {
           priority: 'must',
         },
         undefined,
-        { latitude: -31.5375, longitude: -68.5364 },
+        { latitude: -34.66, longitude: -58.51 },
         BUENOS_AIRES_DESTINATION,
       );
 
@@ -1074,10 +1076,12 @@ describe('AreaRouteAnchorResolverService', () => {
             placeRank: 20,
             class: 'place',
             type: 'suburb',
-            displayName: 'San Telmo, La Plata, Argentina',
+            // A second exact-name area INSIDE the destination: genuine
+            // ambiguity (an out-of-destination homonym would not count).
+            displayName: 'San Telmo, Palermo, Buenos Aires, Argentina',
             importance: 0.25,
-            latitude: -34.92,
-            longitude: -57.95,
+            latitude: -34.58,
+            longitude: -58.43,
           },
         ]),
         reverse: jest.fn(),
@@ -1474,10 +1478,12 @@ describe('AreaRouteAnchorResolverService', () => {
             placeRank: 20,
             class: 'place',
             type: 'suburb',
-            displayName: 'San Telmo, La Plata, Argentina',
+            // A second exact-name area INSIDE the destination: genuine
+            // ambiguity (an out-of-destination homonym would not count).
+            displayName: 'San Telmo, Palermo, Buenos Aires, Argentina',
             importance: 0.25,
-            latitude: -34.92,
-            longitude: -57.95,
+            latitude: -34.58,
+            longitude: -58.43,
           },
         ]),
         reverse: jest.fn(),
@@ -1861,10 +1867,12 @@ describe('AreaRouteAnchorResolverService', () => {
             placeRank: 20,
             class: 'place',
             type: 'suburb',
-            displayName: 'San Telmo, La Plata, Argentina',
+            // A second exact-name area INSIDE the destination: genuine
+            // ambiguity (an out-of-destination homonym would not count).
+            displayName: 'San Telmo, Palermo, Buenos Aires, Argentina',
             importance: 0.25,
-            latitude: -34.92,
-            longitude: -57.95,
+            latitude: -34.58,
+            longitude: -58.43,
           },
         ]),
         reverse: jest.fn(),
@@ -1973,10 +1981,12 @@ describe('AreaRouteAnchorResolverService', () => {
             placeRank: 20,
             class: 'place',
             type: 'suburb',
-            displayName: 'San Telmo, La Plata, Argentina',
+            // A second exact-name area INSIDE the destination: genuine
+            // ambiguity (an out-of-destination homonym would not count).
+            displayName: 'San Telmo, Palermo, Buenos Aires, Argentina',
             importance: 0.25,
-            latitude: -34.92,
-            longitude: -57.95,
+            latitude: -34.58,
+            longitude: -58.43,
           },
         ]),
         reverse: jest.fn(),
@@ -2321,6 +2331,324 @@ describe('AreaRouteAnchorResolverService', () => {
         }),
       ]);
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('same-branch homonyms: destination compatibility before ranking', () => {
+    // Real-world shape: a common street/place name repeated across the
+    // country. Provider order/importance favors a homonym OUTSIDE the
+    // destination; a compatible same-name candidate follows it.
+    const anchor: InterpretedAnchor = {
+      rawName: 'Caminito',
+      usage: 'named_path',
+      priority: 'must',
+    };
+    const street = (
+      osmId: number,
+      displayName: string,
+      latitude: number,
+      longitude: number,
+      importance: number,
+    ) => ({
+      osmType: 'way',
+      osmId,
+      addresstype: 'road',
+      placeRank: 26,
+      class: 'highway',
+      type: 'pedestrian',
+      displayName,
+      importance,
+      latitude,
+      longitude,
+    });
+    const outsideEzeiza = street(
+      269972048,
+      'Caminito, La Unión, Partido de Ezeiza, Buenos Aires, Argentina',
+      -34.8878,
+      -58.5384,
+      0.4,
+    );
+    const outsideMerlo = street(
+      205650907,
+      'Caminito, San Antonio de Padua, Partido de Merlo, Buenos Aires, Argentina',
+      -34.655,
+      -58.7119,
+      0.39,
+    );
+    const insideLaBoca = street(
+      144844726,
+      'Caminito, La Boca, Ciudad Autónoma de Buenos Aires, Argentina',
+      -34.6394,
+      -58.3626,
+      0.2,
+    );
+    const insideOther = street(
+      999000111,
+      'Caminito, Villa Lugano, Ciudad Autónoma de Buenos Aires, Argentina',
+      -34.68,
+      -58.47,
+      0.1,
+    );
+    const build = (results: unknown[], placesApi?: unknown) => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue(results),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn(),
+        lookupHighwaysByName: noHighways(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-caminito' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        placesApi as any,
+      );
+      return { service, catalog };
+    };
+    const resolve = (service: AreaRouteAnchorResolverService) =>
+      service.resolveNamedAnchors([anchor], {
+        geographicScope: BUENOS_AIRES_DESTINATION,
+        destinationCountryCode: 'ar',
+      });
+
+    it('A1: selects the compatible homonym even when an incompatible one ranks first', async () => {
+      const { service, catalog } = build([outsideEzeiza, insideLaBoca]);
+
+      const [result] = await resolve(service);
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: 'resolved',
+          kind: 'venue',
+          externalId: 'osm:way:144844726',
+        }),
+      );
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+        expect.objectContaining({ externalId: 'osm:way:144844726' }),
+      );
+      const placeFacts = result.candidateFacts?.filter(
+        (fact) => fact.branch === 'place',
+      );
+      expect(placeFacts).toEqual([
+        expect.objectContaining({
+          eligibility: 'ELIGIBLE',
+          decision: 'SELECTED',
+          externalId: 'osm:way:144844726',
+          compatibility: {
+            verdict: 'COMPATIBLE',
+            reason: 'WITHIN_DESTINATION_BOUNDARY',
+          },
+        }),
+        expect.objectContaining({
+          discoveryStatus: 'rejected',
+          eligibility: 'REJECTED_DESTINATION_INCOMPATIBLE',
+          externalId: 'osm:way:269972048',
+          compatibility: {
+            verdict: 'INCOMPATIBLE',
+            reason: 'OUTSIDE_DESTINATION_BOUNDARY',
+          },
+        }),
+      ]);
+    });
+
+    it('A2: outside homonyms do not make the single compatible identity ambiguous', async () => {
+      // 3 raw exact-name matches, 1 destination-compatible: identity
+      // multiplicity is judged on the compatible pool (SINGLE), so the
+      // real identity verifies instead of failing as MULTIPLE.
+      const { service, catalog } = build([
+        outsideEzeiza,
+        outsideMerlo,
+        insideLaBoca,
+      ]);
+
+      const [result] = await resolve(service);
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: 'resolved',
+          externalId: 'osm:way:144844726',
+        }),
+      );
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+      expect(
+        result.candidateFacts?.filter(
+          (fact) => fact.eligibility === 'REJECTED_DESTINATION_INCOMPATIBLE',
+        ),
+      ).toHaveLength(2);
+    });
+
+    it('A3: two compatible same-name identities stay ambiguous (fail-closed)', async () => {
+      const { service, catalog } = build([
+        outsideEzeiza,
+        insideLaBoca,
+        insideOther,
+      ]);
+
+      const [result] = await resolve(service);
+
+      expect(result.status).toBe('unresolved');
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+
+    it('A4: only incompatible homonyms -> DESTINATION_INCOMPATIBLE, no wrong-geography fallback', async () => {
+      const { service, catalog } = build([outsideEzeiza, outsideMerlo]);
+
+      const [result] = await resolve(service);
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: 'unresolved',
+          unresolvedReason: 'DESTINATION_INCOMPATIBLE',
+        }),
+      );
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(
+        result.candidateFacts
+          ?.filter((fact) => fact.branch === 'place')
+          .map((fact) => [fact.eligibility, fact.externalId]),
+      ).toEqual([
+        ['REJECTED_DESTINATION_INCOMPATIBLE', 'osm:way:269972048'],
+        ['REJECTED_DESTINATION_INCOMPATIBLE', 'osm:way:205650907'],
+      ]);
+    });
+
+    it('A5: Places item zero outside the destination does not hide a compatible item', async () => {
+      const place = (id: string, latitude: number, longitude: number) => ({
+        id,
+        displayName: { text: 'Caminito' },
+        name: 'Caminito',
+        location: { latitude, longitude },
+        primaryType: 'tourist_attraction',
+        types: ['tourist_attraction', 'point_of_interest'],
+      });
+      const placesApi = {
+        provider: 'google',
+        searchText: jest.fn().mockResolvedValue({
+          data: [
+            place('place-ezeiza', -34.8878, -58.5384),
+            place('place-la-boca', -34.6394, -58.3626),
+          ],
+        }),
+      };
+      const { service, catalog } = build([], placesApi);
+
+      const [result] = await resolve(service);
+
+      expect(result).toEqual(
+        expect.objectContaining({ status: 'resolved', kind: 'venue' }),
+      );
+      expect(result.status === 'resolved' && result.externalId).toContain(
+        'place-la-boca',
+      );
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+      expect(
+        result.candidateFacts
+          ?.filter((fact) => fact.branch === 'place')
+          .map((fact) => fact.eligibility),
+      ).toEqual(['ELIGIBLE', 'REJECTED_DESTINATION_INCOMPATIBLE']);
+    });
+    it('A1/A2 (area branch): an outside homonym ranked first neither wins nor creates ambiguity', async () => {
+      const suburb = (
+        osmId: number,
+        displayName: string,
+        latitude: number,
+        longitude: number,
+        importance: number,
+      ) => ({
+        osmType: 'relation',
+        osmId,
+        addresstype: 'suburb',
+        placeRank: 20,
+        class: 'place',
+        type: 'suburb',
+        displayName,
+        importance,
+        latitude,
+        longitude,
+      });
+      const nominatim = {
+        search: jest
+          .fn()
+          .mockResolvedValue([
+            suburb(20, 'San Telmo, La Plata, Argentina', -34.92, -57.95, 0.4),
+            suburb(
+              10,
+              'San Telmo, Buenos Aires, Argentina',
+              -34.62,
+              -58.37,
+              0.3,
+            ),
+          ]),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: {
+            id: 'osm:relation:10',
+            name: 'San Telmo',
+            osmType: 'relation',
+            osmId: 10,
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [-58.38, -34.63],
+                  [-58.36, -34.63],
+                  [-58.36, -34.61],
+                  [-58.38, -34.61],
+                  [-58.38, -34.63],
+                ],
+              ],
+            },
+            tags: { boundary: 'administrative', admin_level: '10' },
+          },
+        }),
+        lookupHighwaysByName: noHighways(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-san-telmo' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+      );
+
+      const [result] = await service.resolveNamedAnchors(
+        [{ rawName: 'San Telmo', usage: 'geographic_scope', priority: 'soft' }],
+        {
+          geographicScope: BUENOS_AIRES_DESTINATION,
+          destinationCountryCode: 'ar',
+          destinationPoint: { latitude: -34.92, longitude: -57.95 },
+        },
+      );
+
+      expect(osmPlaces.lookupBoundaryById).toHaveBeenCalledWith('relation', 10);
+      expect(osmPlaces.lookupBoundaryById).not.toHaveBeenCalledWith(
+        'relation',
+        20,
+      );
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: 'resolved',
+          kind: 'area',
+          externalId: 'osm:relation:10',
+        }),
+      );
+      expect(
+        result.candidateFacts?.filter((fact) => fact.branch === 'area'),
+      ).toEqual([
+        expect.objectContaining({ decision: 'SELECTED' }),
+        expect.objectContaining({
+          eligibility: 'REJECTED_DESTINATION_INCOMPATIBLE',
+          externalId: 'osm:relation:20',
+        }),
+      ]);
     });
   });
 });

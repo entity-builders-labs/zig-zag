@@ -137,6 +137,13 @@ export interface ExperienceDiscoveryRequest {
   excludedThemes?: string[];
   excludedTraits?: string[];
   semanticQuery?: string;
+  /**
+   * Canonical names of the resolved area/route anchors this acquisition
+   * targets (from `SourcePlan.web.anchorNames`), carried as a typed fact
+   * independently of the free-form `semanticQuery`. Omitted when the
+   * acquisition has no relevant anchor; never defaulted.
+   */
+  anchorNames?: string[];
   coverageGaps?: string[];
   breadth: ExperienceDiscoveryBreadth;
   maxCandidates: number;

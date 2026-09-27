@@ -60,16 +60,34 @@ export function rankNominatimCandidates(
   return candidates.sort((a, b) => b.importance - a.importance)[0];
 }
 
+/**
+ * The exact-name bucket of `bestNominatimMatch`: every result whose
+ * normalized `displayName` equals the normalized name or starts with
+ * `name + ' '` — the SAME "exact" definition `bestNominatimMatch`'s exact
+ * path and `countNominatimExactMatches` use, so the three can never
+ * diverge. Callers that must apply a per-candidate policy (e.g. the
+ * canonical destination-compatibility gate) BEFORE ranking use this list
+ * to see every exact-name homonym, not just the provider's favorite.
+ */
+export function nominatimExactMatches(
+  name: string,
+  results: readonly NominatimResult[],
+): NominatimResult[] {
+  const needle = normalizeGeoName(name);
+  if (!needle) return [];
+  return results.filter((result) => {
+    const display = normalizeGeoName(result.displayName);
+    return display === needle || display.startsWith(`${needle} `);
+  });
+}
+
 export function bestNominatimMatch(
   name: string,
   results: NominatimResult[],
   destinationPoint?: Coordinates,
 ): NominatimResult | undefined {
   const needle = normalizeGeoName(name);
-  const exact = results.filter((result) => {
-    const display = normalizeGeoName(result.displayName);
-    return display === needle || display.startsWith(`${needle} `);
-  });
+  const exact = nominatimExactMatches(name, results);
   if (exact.length > 0) {
     return rankNominatimCandidates(exact, destinationPoint);
   }
@@ -320,12 +338,7 @@ export function countNominatimExactMatches(
   name: string,
   results: readonly NominatimResult[],
 ): number {
-  const needle = normalizeGeoName(name);
-  if (!needle) return 0;
-  return results.filter((result) => {
-    const display = normalizeGeoName(result.displayName);
-    return display === needle || display.startsWith(`${needle} `);
-  }).length;
+  return nominatimExactMatches(name, results).length;
 }
 
 /**

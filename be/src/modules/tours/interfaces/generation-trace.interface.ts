@@ -154,6 +154,8 @@ export interface TraceAcquisitionSource {
     extractor?: {
       provider?: string;
       model?: string;
+      /** `ExperienceDiscoveryRequest.anchorNames` the extractor received. */
+      requestAnchorNames?: string[];
       inputEvidenceKeys: string[];
       validationErrors: string[];
       extractedCandidateCount: number;
