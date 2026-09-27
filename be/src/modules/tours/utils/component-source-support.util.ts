@@ -36,7 +36,7 @@ export type ComponentSourceSupportReason =
   | 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE';
 
 export type ComponentSourceSupportResult =
-  | { supported: true }
+  | { supported: true; verifiedSupportSpan: string }
   | { supported: false; reason: ComponentSourceSupportReason };
 
 /**
@@ -87,7 +87,7 @@ export function verifyTextualComponentSourceSupport(
       if (typeof candidate !== 'string' || !candidate.trim()) continue;
       sawEvidenceText = true;
       if (normalize(candidate).includes(normalizedSpan)) {
-        return { supported: true };
+        return { supported: true, verifiedSupportSpan: trimmedSpan };
       }
     }
   }

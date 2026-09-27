@@ -81,34 +81,23 @@ export function nominatimExactMatches(
   });
 }
 
-export function bestNominatimMatch(
+/**
+ * Returns ALL fuzzy-matching Nominatim results (significant-token overlap
+ * against the place-name segment only) without ranking. Callers that must
+ * apply a per-candidate policy (e.g. the canonical destination-compatibility
+ * gate) BEFORE ranking use this to see every fuzzy homonym, not just the
+ * provider's favorite. The filtering logic is identical to the fuzzy path
+ * inside `bestNominatimMatch` so the two can never diverge.
+ */
+export function allFuzzyNominatimMatches(
   name: string,
-  results: NominatimResult[],
-  destinationPoint?: Coordinates,
-): NominatimResult | undefined {
+  results: readonly NominatimResult[],
+): NominatimResult[] {
   const needle = normalizeGeoName(name);
-  const exact = nominatimExactMatches(name, results);
-  if (exact.length > 0) {
-    return rankNominatimCandidates(exact, destinationPoint);
-  }
-
-  // A real landmark's grounded-evidence name and Nominatim's own canonical
-  // name can differ by more than word order or punctuation. Argentina's
-  // OSM data names places in Spanish ("Parque Provincial Ischigualasto")
-  // while English-language grounded search evidence — and the LLM
-  // extracting from it — surfaces the English form ("Ischigualasto
-  // Provincial Park"). Requiring an exact literal prefix silently
-  // discarded a real, unambiguous, single-result Nominatim match just
-  // because "Park" never literally becomes "Parque". Fall back to
-  // significant-token overlap against only the place-name segment of
-  // displayName (never the address hierarchy after it, which would let
-  // country/region tokens produce false positives on their own), guarded
-  // by requiring at least one long/specific shared token so a merely
-  // translated generic word can never match by itself.
   const needleTokens = needle.split(' ').filter((token) => token.length >= 4);
-  if (needleTokens.length === 0) return undefined;
+  if (needleTokens.length === 0) return [];
 
-  const fuzzyMatches = results
+  return results
     .map((result) => {
       const headSegment = normalizeGeoName(
         result.displayName.split(',')[0] ?? '',
@@ -125,7 +114,19 @@ export function bestNominatimMatch(
         candidate.matchedTokens.some((token) => token.length >= 5),
     )
     .map((candidate) => candidate.result);
-  return rankNominatimCandidates(fuzzyMatches, destinationPoint);
+}
+
+export function bestNominatimMatch(
+  name: string,
+  results: NominatimResult[],
+  destinationPoint?: Coordinates,
+): NominatimResult | undefined {
+  const exact = nominatimExactMatches(name, results);
+  if (exact.length > 0) {
+    return rankNominatimCandidates(exact, destinationPoint);
+  }
+  const fuzzy = allFuzzyNominatimMatches(name, results);
+  return rankNominatimCandidates(fuzzy, destinationPoint);
 }
 
 /**

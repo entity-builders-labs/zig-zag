@@ -15,7 +15,10 @@ describe('verifyTextualComponentSourceSupport', () => {
         ],
       ]),
     );
-    expect(result).toEqual({ supported: true });
+    expect(result).toEqual({
+      supported: true,
+      verifiedSupportSpan: 'Plaza Dorrego Antiques Fair',
+    });
   });
 
   it('accepts a supportSpan found only in the cited evidence record snippet, not its title', () => {
@@ -32,7 +35,10 @@ describe('verifyTextualComponentSourceSupport', () => {
         ],
       ]),
     );
-    expect(result).toEqual({ supported: true });
+    expect(result).toEqual({
+      supported: true,
+      verifiedSupportSpan: 'Plaza Dorrego hosts a Sunday antiques fair',
+    });
   });
 
   it('rejects a supportSpan that is real text (title or snippet) but only from a DIFFERENT, uncited evidence record', () => {

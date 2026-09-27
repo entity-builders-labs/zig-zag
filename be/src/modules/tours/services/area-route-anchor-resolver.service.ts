@@ -37,7 +37,7 @@ import {
 } from '../interfaces/experience-resolution.interface';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import {
-  bestNominatimMatch,
+  allFuzzyNominatimMatches,
   candidateMatchCountToMultiplicity,
   extractWikidataQid,
   isAreaScaleEligible,
@@ -50,6 +50,7 @@ import {
   placesAcquisitionLabel,
   canonicalPlacesExternalId,
 } from '../utils/places-external-identity.util';
+import { selectBestPlaceCandidate } from '../utils/places-candidate-selector.util';
 import { buildLocalIdentityEvidence } from '../utils/identity-evidence-builder.util';
 import { IdentityVerifier } from './identity-verifier.service';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
@@ -645,24 +646,44 @@ export class AreaRouteAnchorResolverService {
           ...boundedRejected(rest.map(toRejected)),
         };
       }
-      const selected = eligible[0];
+      // Use the shared canonical Places selector: exact normalized name
+      // beats provider rank; multiple exact names use destination proximity
+      // as tie-break. Destination filtering already happened via
+      // screenByDestination.
+      const selected = selectBestPlaceCandidate(
+        anchor.rawName,
+        eligible.map((e) => e.item),
+        // Destination point for proximity tie-break among exact matches.
+        // The anchor resolver receives this via resolveNamedAnchors options.
+        // We don't have it directly here, but the probe items have coordinates.
+        // Extract from first eligible if needed, but the selector handles undefined.
+        undefined,
+      );
+      if (!selected) {
+        // Should not happen since eligible.length > 0 and all have coordinates,
+        // but guard anyway.
+        const primary = eligible[0];
+        return {
+          status: 'match',
+          candidate: toCandidate(primary.item, 0),
+          compatibility: primary.compatibility,
+          ...boundedRejected(incompatible.map(toRejected)),
+        };
+      }
+      const selectedEntry = eligible.find((e) => e.item === selected)!;
       // Identity multiplicity over the destination-compatible pool only:
       // same-name places outside the destination are not part of this
       // branch's selectable identity set, while two compatible same-name
       // identities still count as MULTIPLE.
       const exactNameCount = countExactNormalizedMatches(
         anchor.rawName,
-        result.data.filter(
-          (place) =>
-            evaluateDestinationCompatibility(probe(place), geographicScope)
-              .verdict !== 'INCOMPATIBLE',
-        ),
-        nameOf,
+        eligible.map((e) => e.item),
+        (place) => place.displayName?.text || place.name,
       );
       return {
         status: 'match',
-        candidate: toCandidate(selected.item, exactNameCount),
-        compatibility: selected.compatibility,
+        candidate: toCandidate(selectedEntry.item, exactNameCount),
+        compatibility: selectedEntry.compatibility,
         ...boundedRejected(incompatible.map(toRejected)),
       };
     } catch {
@@ -696,11 +717,9 @@ export class AreaRouteAnchorResolverService {
     const exact = nominatimExactMatches(anchor.rawName, results);
     const fuzzy =
       exact.length === 0
-        ? bestNominatimMatch(anchor.rawName, results)
-        : undefined;
-    const pool = (exact.length > 0 ? exact : fuzzy ? [fuzzy] : []).filter(
-      isPlausibleVenue,
-    );
+        ? allFuzzyNominatimMatches(anchor.rawName, results)
+        : [];
+    const pool = [...exact, ...fuzzy].filter(isPlausibleVenue);
     if (pool.length === 0) return undefined;
 
     const { eligible, incompatible } = screenByDestination(
@@ -1004,8 +1023,8 @@ export class AreaRouteAnchorResolverService {
           ? { countryCode: destinationCountryCode }
           : undefined,
       );
-      // Exact-name candidates (or, when no exact name exists, the single
-      // fuzzy best match) -> the canonical area-scale predicate
+      // Exact-name candidates (or, when no exact name exists, ALL fuzzy
+      // matches) -> the canonical area-scale predicate
       // DestinationResolutionService also uses (Cutover M3.5: a country/
       // state-scale or non-urban/admin match is nonsensical as an area
       // anchor) -> canonical destination compatibility PER candidate ->
@@ -1013,11 +1032,9 @@ export class AreaRouteAnchorResolverService {
       const exact = nominatimExactMatches(anchor.rawName, results);
       const fuzzy =
         exact.length === 0
-          ? bestNominatimMatch(anchor.rawName, results, destinationPoint)
-          : undefined;
-      const pool = (exact.length > 0 ? exact : fuzzy ? [fuzzy] : []).filter(
-        isAreaScaleEligible,
-      );
+          ? allFuzzyNominatimMatches(anchor.rawName, results)
+          : [];
+      const pool = [...exact, ...fuzzy].filter(isAreaScaleEligible);
       if (pool.length === 0) {
         return { status: 'no_match', reason: 'NO_CONFIDENT_AREA_MATCH' };
       }

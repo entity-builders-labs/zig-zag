@@ -17,7 +17,7 @@ import {
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experience-embedding-indexer.service';
-import { calculateDistance, Coordinates } from '@shared/utils/distance.utils';
+import { Coordinates } from '@shared/utils/distance.utils';
 import {
   ExperienceEntityResolutionResponse,
   EntityCandidate,
@@ -50,6 +50,7 @@ import {
   matchOsmCandidateByName,
   normalizeGeoName,
 } from '../utils/nominatim-match.util';
+import { selectBestPlaceCandidate } from '../utils/places-candidate-selector.util';
 import { buildCompositeComponentResolution } from '../utils/component-resolution-facts.util';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
@@ -87,6 +88,25 @@ import {
 import { IdentityVerifier } from './identity-verifier.service';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
 import { traceCandidateKey } from '../utils/generation-trace-builder.util';
+
+/**
+ * Picks a real candidate out of the Places top-N instead of trusting
+ * provider rank as identity -- rank-0 is often a same-category business
+ * that merely searches well for the query, not the specific place the hint
+ * names. Among results with a usable coordinate: an exact (normalized)
+ * name match wins over rank; with more than one exact match (a real
+ * chain/franchise with multiple branches, all genuinely sharing that exact
+ * name), the one closest to the destination wins -- never a guess, this is
+ * the same distance-first tie-break `bestNominatimMatch` already uses
+ * elsewhere in this module. Falls back to rank-0 only when no result's
+ * name matches the hint at all, preserving prior behavior for the fuzzy
+ * case (still independently verified afterward by `IdentityVerifier`).
+ *
+ * RE-EXPORTED from the shared canonical selector utility so the single
+ * policy authority lives in one place and is reused by both
+ * ExperienceProposalResolverService and AreaRouteAnchorResolverService.
+ */
+export { selectBestPlaceCandidate } from '../utils/places-candidate-selector.util';
 
 type StrategyAcquisitionResult =
   | { status: 'not_applicable' }
@@ -152,55 +172,6 @@ type CatalogAcquisitionResult =
       /** Typed facts about HOW the catalog row was retrieved. */
       evidence: IdentityEvidence[];
     };
-
-/**
- * Picks a real candidate out of the Places top-N instead of trusting
- * provider rank as identity -- rank-0 is often a same-category business
- * that merely searches well for the query, not the specific place the hint
- * names. Among results with a usable coordinate: an exact (normalized)
- * name match wins over rank; with more than one exact match (a real
- * chain/franchise with multiple branches, all genuinely sharing that exact
- * name), the one closest to the destination wins -- never a guess, this is
- * the same distance-first tie-break `bestNominatimMatch` already uses
- * elsewhere in this module. Falls back to rank-0 only when no result's
- * name matches the hint at all, preserving prior behavior for the fuzzy
- * case (still independently verified afterward by `IdentityVerifier`).
- */
-export function selectBestPlaceCandidate(
-  hintName: string,
-  results: PlaceData[],
-  destinationPoint?: Coordinates,
-): PlaceData | undefined {
-  const withCoordinates = results.filter(
-    (place) =>
-      Number.isFinite(place.location?.latitude) &&
-      Number.isFinite(place.location?.longitude),
-  );
-  if (withCoordinates.length === 0) return undefined;
-
-  const needle = normalizeGeoName(hintName);
-  const exactMatches = withCoordinates.filter(
-    (place) =>
-      normalizeGeoName(place.displayName?.text || place.name || '') === needle,
-  );
-  if (exactMatches.length === 1) return exactMatches[0];
-  if (exactMatches.length > 1) {
-    if (!destinationPoint) return exactMatches[0];
-    return exactMatches.reduce((closest, candidate) =>
-      calculateDistance(destinationPoint, {
-        latitude: candidate.location!.latitude,
-        longitude: candidate.location!.longitude,
-      }) <
-      calculateDistance(destinationPoint, {
-        latitude: closest.location!.latitude,
-        longitude: closest.location!.longitude,
-      })
-        ? candidate
-        : closest,
-    );
-  }
-  return withCoordinates[0];
-}
 
 // Loose radius for biasing a Places text search toward the destination when
 // Nominatim/OSM had no usable match — wide enough to cover a metro area's

@@ -46,6 +46,11 @@ export interface ComponentSourceSupportAudit {
   evidenceKeys: string[];
   status: ComponentSourceSupportStatus;
   reason?: ComponentSourceSupportReason;
+  /** The exact source substring that verified this component's supportSpan.
+   * AUDIT / EVIDENCE ONLY — never enters identity, geography, ranking,
+   * fingerprints, dedupe, or planning. Populated only when verification
+   * succeeded. */
+  verifiedSupportSpan?: string;
 }
 
 /**
@@ -248,6 +253,7 @@ export function extractExperienceCandidates(
           expectedKind: hint.expectedKind,
           evidenceKeys: hintEvidenceKeys,
           status: 'SUPPORTED',
+          verifiedSupportSpan: support.verifiedSupportSpan,
         });
 
         const addressHint =
