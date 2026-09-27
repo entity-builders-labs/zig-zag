@@ -895,15 +895,21 @@ describe('AreaRouteAnchorResolverService', () => {
 
   describe('resolveNamedAnchors', () => {
     it('uses linguistic usage only as context and OSM facts as canonical kind', async () => {
+      // The fixture boundary is named Buenos Aires, so its geometry must
+      // actually cover central Buenos Aires — including both San Telmo
+      // (-34.62, -58.37) and MALBA (-34.578, -58.403). A boundary too
+      // small for its own claimed city would make the canonical
+      // destination-compatibility policy (Bitácora F1) correctly reject a
+      // venue that genuinely belongs to the destination.
       const areaGeometry = {
         type: 'Polygon' as const,
         coordinates: [
           [
-            [-58.38, -34.63],
-            [-58.36, -34.63],
-            [-58.36, -34.61],
-            [-58.38, -34.61],
-            [-58.38, -34.63],
+            [-58.47, -34.66],
+            [-58.35, -34.66],
+            [-58.35, -34.55],
+            [-58.47, -34.55],
+            [-58.47, -34.66],
           ],
         ],
       };
@@ -2031,6 +2037,289 @@ describe('AreaRouteAnchorResolverService', () => {
       expect(result).toEqual(
         expect.objectContaining({ resolved: false, status: 'no_match' }),
       );
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  // RW3-F1/F3: destination compatibility outranks incompatible
+  // homonyms; bounded Bitácora candidate facts
+  // ──────────────────────────────────────────────────────────────
+
+  describe('RW3-F1/F3: destination-compatible candidates outrank incompatible homonyms', () => {
+    // A homonymous village ~300km OUTSIDE the destination. Before
+    // Bitácora F1 it silently killed the real in-destination venue
+    // through cross-branch "ambiguity".
+    const farAwayBoundaryGeometry = {
+      type: 'Polygon' as const,
+      coordinates: [
+        [
+          [-6.5, 38.6],
+          [-6.1, 38.6],
+          [-6.1, 38.8],
+          [-6.5, 38.8],
+          [-6.5, 38.6],
+        ],
+      ],
+    };
+    // Málaga-province-like destination boundary, big enough to contain
+    // the real Caminito del Rey viewpoint (36.92, -4.77).
+    const malagaScope: GeographicScope = {
+      kind: 'AREA_BOUNDARY',
+      boundary: {
+        id: 'osm:relation:347835',
+        name: 'Málaga',
+        osmType: 'relation',
+        osmId: 347835,
+        tags: { admin_level: '6' },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [-5.6, 36.5],
+              [-4.3, 36.5],
+              [-4.3, 37.0],
+              [-5.6, 37.0],
+              [-5.6, 36.5],
+            ],
+          ],
+        },
+      },
+    };
+    const caminitoAnchor: InterpretedAnchor = {
+      rawName: 'Caminito del Rey',
+      usage: 'specific_destination',
+      priority: 'must',
+    };
+    // Area-eligible Nominatim homonym far outside Málaga.
+    const farVillageNominatim = [
+      {
+        osmType: 'relation',
+        osmId: 900,
+        addresstype: 'village',
+        placeRank: 18,
+        class: 'place',
+        type: 'village',
+        displayName: 'Caminito del Rey, Badajoz, Extremadura, España',
+        importance: 0.62,
+        latitude: 38.7,
+        longitude: -6.3,
+      },
+    ];
+    const farVillageBoundary = {
+      id: 'osm:relation:900',
+      name: 'Caminito del Rey',
+      osmType: 'relation' as const,
+      osmId: 900,
+      geometry: farAwayBoundaryGeometry,
+      tags: { boundary: 'administrative', admin_level: '8' },
+    };
+    const inDestinationVenuePlaces = {
+      provider: 'google',
+      searchText: jest.fn().mockResolvedValue({
+        data: [
+          {
+            id: 'place-caminito',
+            displayName: { text: 'Caminito del Rey' },
+            name: 'Caminito del Rey',
+            location: { latitude: 36.92, longitude: -4.77 },
+            primaryType: 'tourist_attraction',
+            types: ['tourist_attraction', 'point_of_interest'],
+          },
+        ],
+      }),
+    };
+    it('selects the compatible in-destination venue and records the incompatible homonym as rejected evidence', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue(farVillageNominatim),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: farVillageBoundary,
+        }),
+        lookupHighwaysByName: noHighways(),
+      };
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-caminito' }),
+      };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        inDestinationVenuePlaces as any,
+      );
+
+      const [result] = await service.resolveNamedAnchors([caminitoAnchor], {
+        geographicScope: malagaScope,
+        destinationCountryCode: 'es',
+      });
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: 'resolved',
+          kind: 'venue',
+          canonicalName: 'Caminito del Rey',
+        }),
+      );
+      // The homonym was discovered but recorded as REJECTED — it never
+      // became selectable and never killed the real venue.
+      expect(result.candidateFacts).toEqual([
+        expect.objectContaining({
+          branch: 'area',
+          discoveryStatus: 'rejected',
+          eligibility: 'REJECTED_DESTINATION_INCOMPATIBLE',
+          canonicalName: 'Caminito del Rey',
+          compatibility: {
+            verdict: 'INCOMPATIBLE',
+            reason: 'OUTSIDE_DESTINATION_BOUNDARY',
+          },
+        }),
+        expect.objectContaining({
+          branch: 'route',
+          eligibility: 'NO_CANDIDATE',
+        }),
+        expect.objectContaining({
+          branch: 'place',
+          discoveryStatus: 'match',
+          eligibility: 'ELIGIBLE',
+          decision: 'SELECTED',
+          compatibility: {
+            verdict: 'COMPATIBLE',
+            reason: 'WITHIN_DESTINATION_BOUNDARY',
+          },
+        }),
+      ]);
+    });
+    it('fails honestly with DESTINATION_INCOMPATIBLE when only out-of-destination homonyms were discovered', async () => {
+      const nominatim = {
+        search: jest.fn().mockResolvedValue(farVillageNominatim),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: farVillageBoundary,
+        }),
+        lookupHighwaysByName: noHighways(),
+      };
+      const catalog = { upsertGeoEntity: jest.fn() };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+      );
+
+      const [result] = await service.resolveNamedAnchors([caminitoAnchor], {
+        geographicScope: malagaScope,
+        destinationCountryCode: 'es',
+      });
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: 'unresolved',
+          unresolvedReason: 'DESTINATION_INCOMPATIBLE',
+        }),
+      );
+      expect(result.candidateFacts).toEqual([
+        expect.objectContaining({
+          branch: 'area',
+          discoveryStatus: 'rejected',
+          eligibility: 'REJECTED_DESTINATION_INCOMPATIBLE',
+        }),
+        expect.objectContaining({
+          branch: 'route',
+          eligibility: 'NO_CANDIDATE',
+        }),
+        expect.objectContaining({
+          branch: 'place',
+          eligibility: 'NO_CANDIDATE',
+        }),
+      ]);
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+    });
+    it('keeps genuine ambiguity among destination-compatible identities unresolved (fail-closed)', async () => {
+      // A homonymous village INSIDE the destination (area branch) plus
+      // the real attraction venue (Places branch): two compatible
+      // identities with the same name — a genuinely ambiguous choice.
+      const nominatim = {
+        search: jest.fn().mockResolvedValue([
+          {
+            osmType: 'relation',
+            osmId: 901,
+            addresstype: 'village',
+            placeRank: 18,
+            class: 'place',
+            type: 'village',
+            displayName: 'Caminito del Rey, Ardales, Málaga, España',
+            importance: 0.62,
+            latitude: 36.88,
+            longitude: -4.8,
+          },
+        ]),
+        reverse: jest.fn(),
+      };
+      const osmPlaces = {
+        lookupBoundaryById: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: {
+            id: 'osm:relation:901',
+            name: 'Caminito del Rey',
+            osmType: 'relation' as const,
+            osmId: 901,
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [-4.85, 36.85],
+                  [-4.75, 36.85],
+                  [-4.75, 36.91],
+                  [-4.85, 36.91],
+                  [-4.85, 36.85],
+                ],
+              ],
+            },
+            tags: { boundary: 'administrative', admin_level: '8' },
+          },
+        }),
+        lookupHighwaysByName: noHighways(),
+      };
+      const catalog = { upsertGeoEntity: jest.fn() };
+      const service = new AreaRouteAnchorResolverService(
+        osmPlaces as any,
+        catalog as any,
+        nominatim as any,
+        inDestinationVenuePlaces as any,
+      );
+
+      const [result] = await service.resolveNamedAnchors([caminitoAnchor], {
+        geographicScope: malagaScope,
+        destinationCountryCode: 'es',
+      });
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: 'unresolved',
+          unresolvedReason: 'NO_CONFIDENT_GEO_ENTITY_MATCH',
+        }),
+      );
+      expect(result.candidateFacts).toEqual([
+        expect.objectContaining({
+          branch: 'area',
+          eligibility: 'ELIGIBLE',
+          decision: 'AMBIGUOUS_IDENTITY',
+        }),
+        expect.objectContaining({
+          branch: 'route',
+          eligibility: 'NO_CANDIDATE',
+        }),
+        expect.objectContaining({
+          branch: 'place',
+          eligibility: 'ELIGIBLE',
+          decision: 'AMBIGUOUS_IDENTITY',
+        }),
+      ]);
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
     });
   });

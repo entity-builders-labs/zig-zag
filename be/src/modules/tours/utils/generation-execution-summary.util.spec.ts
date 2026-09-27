@@ -158,6 +158,27 @@ describe('buildGenerationExecutionSummary', () => {
     });
   });
 
+  it('names the failed grounded provider instead of the generic web label (RW3-F2)', () => {
+    const result = buildGenerationExecutionSummary({
+      status: 'completed',
+      steps: [
+        {
+          ...step('discovery', 'pase 1', {
+            observationCount: 0,
+            structuredCandidateCount: 0,
+            webCandidateCount: 0,
+            structuredProviders: [],
+            webResults: [{ status: 'failed', groundedProvider: 'serper' }],
+          }),
+          component: 'ExperienceAcquisitionService',
+        },
+      ],
+    });
+
+    expect(result.acquisition?.providersAttempted).toEqual(['serper']);
+    expect(result.acquisition?.providersFailed).toEqual(['serper']);
+  });
+
   it('omits the acquisition roll-up when acquisition never ran (catalog-first)', () => {
     const result = buildGenerationExecutionSummary({
       status: 'completed',

@@ -1,5 +1,8 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
-import { evaluateDestinationCompatibility } from '../utils/destination-compatibility.policy';
+import {
+  DestinationCompatibility,
+  evaluateDestinationCompatibility,
+} from '../utils/destination-compatibility.policy';
 import {
   buildRouteClusterCandidate,
   structuredRouteEvidence,
@@ -15,6 +18,7 @@ import { INominatimApiService } from '@integrations/osm/interfaces/nominatim.int
 import { IPlacesApiService } from '@integrations/google-places/interfaces/places-api.interface';
 import { Coordinates } from '@shared/utils/distance.utils';
 import {
+  AnchorCandidateFact,
   InterpretedAnchor,
   ResolvedAnchor,
 } from '../interfaces/preference-spec.interface';
@@ -93,8 +97,105 @@ interface AnchorGeoCandidate {
 }
 
 type CandidateDiscovery =
-  | { status: 'match'; candidate: AnchorGeoCandidate }
-  | { status: 'no_match' | 'unavailable'; reason: string };
+  | {
+      status: 'match';
+      candidate: AnchorGeoCandidate;
+      /**
+       * Canonical destination-compatibility fact for the discovered
+       * candidate (single policy authority: the shared
+       * evaluateDestinationCompatibility primitive).
+       */
+      compatibility: DestinationCompatibility;
+    }
+  | {
+      /**
+       * A real candidate WAS discovered but the canonical destination-
+       * compatibility policy excluded it (Bitácora F1): never selectable,
+       * kept as a bounded rejected fact for the Bitácora.
+       */
+      status: 'rejected';
+      reason: 'DESTINATION_INCOMPATIBLE';
+      candidate: AnchorGeoCandidate;
+      compatibility: DestinationCompatibility;
+    }
+  | { status: 'no_match'; reason: string }
+  | { status: 'unavailable'; reason: string };
+
+const ANCHOR_DISCOVERY_BRANCHES = ['area', 'route', 'place'] as const;
+
+/** Selection-ambiguity identity key: canonical kind + normalized name. */
+function candidateIdentityKey(candidate: AnchorGeoCandidate): string {
+  return `${candidate.kind}:${normalizeGeoName(candidate.canonicalName)}`;
+}
+
+/**
+ * Bounded per-branch discovery facts for the Bitácora (F3): what each
+ * branch matched, was rejected by the canonical destination-compatibility
+ * policy, found nothing, or could not ask its provider -- plus what the
+ * selection decided. Deterministic audit output only.
+ */
+function buildAnchorCandidateFacts(
+  outcomes: ReadonlyArray<CandidateDiscovery>,
+  selected: CandidateDiscovery | undefined,
+  ambiguous: boolean,
+  verificationFailed: boolean,
+): AnchorCandidateFact[] {
+  return outcomes.map((outcome, index) => {
+    const branch = ANCHOR_DISCOVERY_BRANCHES[index] ?? 'place';
+    if (outcome.status === 'match') {
+      const isSelected = outcome === selected;
+      return {
+        branch,
+        discoveryStatus: outcome.status,
+        eligibility: 'ELIGIBLE' as const,
+        decision: isSelected
+          ? verificationFailed
+            ? ('IDENTITY_NOT_VERIFIED' as const)
+            : ('SELECTED' as const)
+          : ambiguous
+            ? ('AMBIGUOUS_IDENTITY' as const)
+            : ('NOT_SELECTED' as const),
+        canonicalName: outcome.candidate.canonicalName,
+        kind: outcome.candidate.kind,
+        provider: outcome.candidate.provider,
+        ...(outcome.candidate.externalId
+          ? { externalId: outcome.candidate.externalId }
+          : {}),
+        compatibility: {
+          verdict: outcome.compatibility.verdict,
+          reason: outcome.compatibility.reason,
+        },
+      };
+    }
+    if (outcome.status === 'rejected') {
+      return {
+        branch,
+        discoveryStatus: outcome.status,
+        eligibility: 'REJECTED_DESTINATION_INCOMPATIBLE' as const,
+        canonicalName: outcome.candidate.canonicalName,
+        kind: outcome.candidate.kind,
+        provider: outcome.candidate.provider,
+        ...(outcome.candidate.externalId
+          ? { externalId: outcome.candidate.externalId }
+          : {}),
+        compatibility: {
+          verdict: outcome.compatibility.verdict,
+          reason: outcome.compatibility.reason,
+        },
+        discoveryReason: outcome.reason,
+      };
+    }
+    return {
+      branch,
+      discoveryStatus: outcome.status,
+      eligibility:
+        outcome.status === 'unavailable'
+          ? ('PROVIDER_UNAVAILABLE' as const)
+          : ('NO_CANDIDATE' as const),
+      discoveryReason: outcome.reason,
+    };
+  });
+}
 
 const NON_VENUE_PLACE_TYPES = new Set([
   'administrative_area_level_1',
@@ -207,22 +308,66 @@ export class AreaRouteAnchorResolverService {
             options.geographicScope,
           ),
           this.discoverRoute(anchor, options.geographicScope),
-          this.discoverPlace(anchor, options.destinationCountryCode),
+          this.discoverPlace(
+            anchor,
+            options.destinationCountryCode,
+            options.geographicScope,
+          ),
         ]);
-        const match = this.selectCandidate(outcomes);
+        // Canonical invariant (Bitácora F1): a candidate the canonical
+        // destination-compatibility policy marks INCOMPATIBLE is never an
+        // anchor, even when another branch found a real same-name entity
+        // inside the destination. Demoted centrally here so no single
+        // branch can select an out-of-destination candidate; the rejected
+        // discovery stays a bounded fact (F3) and drives the honest
+        // DESTINATION_INCOMPATIBLE reason when nothing else was found.
+        const evaluated: CandidateDiscovery[] = outcomes.map((outcome) =>
+          outcome.status === 'match' &&
+          outcome.compatibility.verdict === 'INCOMPATIBLE'
+            ? {
+                status: 'rejected',
+                reason: 'DESTINATION_INCOMPATIBLE',
+                candidate: outcome.candidate,
+                compatibility: outcome.compatibility,
+              }
+            : outcome,
+        );
+        const match = this.selectCandidate(evaluated);
+        // Ambiguity only ever exists among destination-compatible
+        // candidates (Bitácora F1).
+        const ambiguous = this.countEligibleIdentities(evaluated) > 1;
         let verificationFailed = false;
         if (match?.status === 'match') {
           const persisted = await this.persistCandidate(
             anchor,
             match.candidate,
           );
-          if (persisted) return persisted;
+          if (persisted) {
+            return {
+              ...persisted,
+              candidateFacts: buildAnchorCandidateFacts(
+                evaluated,
+                match,
+                ambiguous,
+                false,
+              ),
+            };
+          }
           // Verification failed — candidate was selected but could not be
           // confirmed. This is a distinct failure from provider unavailable.
           verificationFailed = true;
         }
-        const unavailable = outcomes.find(
+        const candidateFacts = buildAnchorCandidateFacts(
+          evaluated,
+          match,
+          ambiguous,
+          verificationFailed,
+        );
+        const unavailable = evaluated.find(
           (outcome) => outcome.status === 'unavailable',
+        );
+        const rejectedAny = evaluated.some(
+          (outcome) => outcome.status === 'rejected',
         );
         return {
           status: 'unresolved',
@@ -233,7 +378,10 @@ export class AreaRouteAnchorResolverService {
             ? 'IDENTITY_NOT_VERIFIED'
             : unavailable?.status === 'unavailable'
               ? `GEO_PROVIDER_UNAVAILABLE:${unavailable.reason}`
-              : 'NO_CONFIDENT_GEO_ENTITY_MATCH',
+              : rejectedAny
+                ? 'DESTINATION_INCOMPATIBLE'
+                : 'NO_CONFIDENT_GEO_ENTITY_MATCH',
+          candidateFacts,
         };
       }),
     );
@@ -241,7 +389,8 @@ export class AreaRouteAnchorResolverService {
 
   private async discoverPlace(
     anchor: InterpretedAnchor,
-    destinationCountryCode?: string,
+    destinationCountryCode: string | undefined,
+    geographicScope: GeographicScope,
   ): Promise<CandidateDiscovery> {
     let nominatimUnavailable = false;
     if (this.nominatim) {
@@ -268,25 +417,43 @@ export class AreaRouteAnchorResolverService {
             anchor.rawName,
             results,
           );
-          return {
-            status: 'match',
-            candidate: {
-              kind: 'venue',
-              canonicalName,
-              provider: 'nominatim',
-              externalId,
-              latitude: match.latitude,
-              longitude: match.longitude,
-              geometry: {
-                type: 'Point',
-                coordinates: [match.longitude, match.latitude],
-              },
-              nameEvidenceMultiplicity: {
-                exactName: candidateMatchCountToMultiplicity(exactNameCount),
-                declaredAlias: 'UNKNOWN',
-              },
+          const candidate: AnchorGeoCandidate = {
+            kind: 'venue',
+            canonicalName,
+            provider: 'nominatim',
+            externalId,
+            latitude: match.latitude,
+            longitude: match.longitude,
+            geometry: {
+              type: 'Point',
+              coordinates: [match.longitude, match.latitude],
+            },
+            nameEvidenceMultiplicity: {
+              exactName: candidateMatchCountToMultiplicity(exactNameCount),
+              declaredAlias: 'UNKNOWN',
             },
           };
+          // Bitácora F1: a venue discovered outside the resolved
+          // destination boundary is never an anchor candidate (homonym
+          // protection). UNKNOWN (e.g. point-radius destinations) keeps
+          // the venue eligible, as before.
+          const compatibility = evaluateDestinationCompatibility(
+            {
+              probePoints: [
+                { latitude: match.latitude, longitude: match.longitude },
+              ],
+            },
+            geographicScope,
+          );
+          if (compatibility.verdict === 'INCOMPATIBLE') {
+            return {
+              status: 'rejected',
+              reason: 'DESTINATION_INCOMPATIBLE',
+              candidate,
+              compatibility,
+            };
+          }
+          return { status: 'match', candidate, compatibility };
         }
         // A no-match from this provider is not authoritative: the Places
         // identity capability may still know the named destination.
@@ -330,29 +497,48 @@ export class AreaRouteAnchorResolverService {
         result.data,
         (p) => p.displayName?.text || p.name,
       );
-      return {
-        status: 'match',
-        candidate: {
-          kind: 'venue',
-          canonicalName,
-          provider,
-          externalId,
-          latitude: place.location.latitude,
-          longitude: place.location.longitude,
-          geometry: {
-            type: 'Point',
-            coordinates: [place.location.longitude, place.location.latitude],
-          },
-          placeTypes: [
-            ...(place.primaryType ? [place.primaryType] : []),
-            ...(place.types ?? []),
-          ],
-          nameEvidenceMultiplicity: {
-            exactName: candidateMatchCountToMultiplicity(exactNameCount),
-            declaredAlias: 'UNKNOWN',
-          },
+      const candidate: AnchorGeoCandidate = {
+        kind: 'venue',
+        canonicalName,
+        provider,
+        externalId,
+        latitude: place.location.latitude,
+        longitude: place.location.longitude,
+        geometry: {
+          type: 'Point',
+          coordinates: [place.location.longitude, place.location.latitude],
+        },
+        placeTypes: [
+          ...(place.primaryType ? [place.primaryType] : []),
+          ...(place.types ?? []),
+        ],
+        nameEvidenceMultiplicity: {
+          exactName: candidateMatchCountToMultiplicity(exactNameCount),
+          declaredAlias: 'UNKNOWN',
         },
       };
+      // Bitácora F1: a venue discovered outside the resolved destination
+      // boundary is never an anchor candidate (homonym protection).
+      const compatibility = evaluateDestinationCompatibility(
+        {
+          probePoints: [
+            {
+              latitude: place.location.latitude,
+              longitude: place.location.longitude,
+            },
+          ],
+        },
+        geographicScope,
+      );
+      if (compatibility.verdict === 'INCOMPATIBLE') {
+        return {
+          status: 'rejected',
+          reason: 'DESTINATION_INCOMPATIBLE',
+          candidate,
+          compatibility,
+        };
+      }
+      return { status: 'match', candidate, compatibility };
     } catch {
       return {
         status: 'unavailable',
@@ -372,13 +558,28 @@ export class AreaRouteAnchorResolverService {
     );
     if (matches.length === 0) return undefined;
     const identities = new Set(
-      matches.map(
-        ({ candidate }) =>
-          `${candidate.kind}:${normalizeGeoName(candidate.canonicalName)}`,
-      ),
+      matches.map(({ candidate }) => candidateIdentityKey(candidate)),
     );
     if (identities.size !== 1) return undefined;
     return matches[0];
+  }
+
+  /**
+   * Distinct eligible (destination-compatible) candidate identities across
+   * branches. More than one means the selection is genuinely ambiguous
+   * (Bitácora F1): ambiguity only exists among compatible candidates.
+   */
+  private countEligibleIdentities(outcomes: CandidateDiscovery[]): number {
+    return new Set(
+      outcomes
+        .filter(
+          (
+            outcome,
+          ): outcome is Extract<CandidateDiscovery, { status: 'match' }> =>
+            outcome.status === 'match',
+        )
+        .map(({ candidate }) => candidateIdentityKey(candidate)),
+    ).size;
   }
 
   /**
@@ -587,35 +788,40 @@ export class AreaRouteAnchorResolverService {
         },
         destinationScope,
       );
+      const point = representativePoint(boundary.value.geometry);
+      const candidate: AnchorGeoCandidate = {
+        kind: 'area',
+        canonicalName: boundary.value.name,
+        provider: 'openstreetmap',
+        externalId: boundary.value.id,
+        latitude: point?.latitude,
+        longitude: point?.longitude,
+        geometry: boundary.value.geometry,
+        metadata: boundary.value.tags,
+        osmBoundary: boundary.value,
+        nameEvidenceMultiplicity: {
+          exactName: candidateMatchCountToMultiplicity(exactNameCount),
+          declaredAlias: 'UNKNOWN',
+        },
+      };
+      // An INCOMPATIBLE discovery stays a bounded rejected fact (Bitácora
+      // F1/F3) -- never selectable. UNKNOWN never counts as inside for an
+      // AREA anchor, but it is a no-match, not a rejection.
+      if (compatibility.verdict === 'INCOMPATIBLE') {
+        return {
+          status: 'rejected',
+          reason: 'DESTINATION_INCOMPATIBLE',
+          candidate,
+          compatibility,
+        };
+      }
       if (compatibility.verdict !== 'COMPATIBLE') {
         return {
           status: 'no_match',
-          reason:
-            compatibility.verdict === 'INCOMPATIBLE'
-              ? 'DESTINATION_INCOMPATIBLE'
-              : 'DESTINATION_COMPATIBILITY_UNKNOWN',
+          reason: 'DESTINATION_COMPATIBILITY_UNKNOWN',
         };
       }
-
-      const point = representativePoint(boundary.value.geometry);
-      return {
-        status: 'match',
-        candidate: {
-          kind: 'area',
-          canonicalName: boundary.value.name,
-          provider: 'openstreetmap',
-          externalId: boundary.value.id,
-          latitude: point?.latitude,
-          longitude: point?.longitude,
-          geometry: boundary.value.geometry,
-          metadata: boundary.value.tags,
-          osmBoundary: boundary.value,
-          nameEvidenceMultiplicity: {
-            exactName: candidateMatchCountToMultiplicity(exactNameCount),
-            declaredAlias: 'UNKNOWN',
-          },
-        },
-      };
+      return { status: 'match', candidate, compatibility };
     } catch {
       return { status: 'unavailable', reason: 'AREA_PROVIDER_FAILED' };
     }
@@ -694,6 +900,7 @@ export class AreaRouteAnchorResolverService {
     );
     return {
       status: 'match',
+      compatibility: cluster.compatibility,
       candidate: {
         kind: 'route',
         canonicalName: routeEntity.canonicalName,

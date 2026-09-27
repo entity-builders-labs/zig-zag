@@ -44,6 +44,39 @@ export interface InterpretedAnchor {
 }
 
 /** Canonical geographic resolution, with unresolved kept free of fake kind/identity. */
+/**
+ * Bounded per-branch discovery fact for one named anchor (Bitácora F3):
+ * what each discovery branch (area / route / place) found, whether a
+ * discovered candidate was eligible under the canonical destination-
+ * compatibility policy, and what the selection decided. Deterministic
+ * audit output only -- never persisted and never an input to downstream
+ * acquisition or planning decisions.
+ */
+export type AnchorCandidateFact = {
+  branch: 'area' | 'route' | 'place';
+  discoveryStatus: 'match' | 'rejected' | 'no_match' | 'unavailable';
+  eligibility:
+    | 'ELIGIBLE'
+    | 'REJECTED_DESTINATION_INCOMPATIBLE'
+    | 'NO_CANDIDATE'
+    | 'PROVIDER_UNAVAILABLE';
+  /** Only set for discovered candidates that survived compatibility. */
+  decision?:
+    | 'SELECTED'
+    | 'NOT_SELECTED'
+    | 'AMBIGUOUS_IDENTITY'
+    | 'IDENTITY_NOT_VERIFIED';
+  canonicalName?: string;
+  kind?: string;
+  provider?: string;
+  externalId?: string;
+  compatibility?: {
+    verdict: 'COMPATIBLE' | 'INCOMPATIBLE' | 'UNKNOWN';
+    reason: string;
+  };
+  discoveryReason?: string;
+};
+
 export type ResolvedAnchor =
   | {
       status: 'resolved';
@@ -64,6 +97,8 @@ export type ResolvedAnchor =
       // whole destination -- geometry alone is not enough for that,
       // Overpass's "within area" query needs the real osmType/osmId.
       osmBoundary?: OsmCandidate;
+      /** Bounded Bitácora F3 diagnostics; audit only, never persisted. */
+      candidateFacts?: AnchorCandidateFact[];
     }
   | {
       status: 'unresolved';
@@ -71,6 +106,8 @@ export type ResolvedAnchor =
       usage: AnchorUsage;
       priority: AnchorPriority;
       unresolvedReason: string;
+      /** Bounded Bitácora F3 diagnostics; audit only, never persisted. */
+      candidateFacts?: AnchorCandidateFact[];
     };
 
 export interface PreferenceSpec {

@@ -274,6 +274,10 @@ describe('tour-generation integration · canonical orchestration', () => {
     const routing = harness
       .traceSteps(tour.trace)
       .find((step) => step.component === 'partitionDeficitsByStrategy');
+    const destination = harness
+      .traceSteps(tour.trace)
+      .find((step) => step.stage === 'destination_resolution');
+    expect(destination?.outputs).toHaveProperty('boundaryId');
     expect(interpretation.outputs.intent.anchoredPlaces).toEqual([
       {
         rawName: 'Historic District',
@@ -310,6 +314,9 @@ describe('tour-generation integration · canonical orchestration', () => {
           dimension: 'intent',
           key: 'walk',
         }),
+        // RW3-F4: a resolved canonical area anchor routes as 'canonical'
+        // (vs the 'tourism_route' fallback for unresolved named paths).
+        anchorMode: 'canonical',
       }),
     ]);
     expect(routing.outputs.generic).not.toEqual([

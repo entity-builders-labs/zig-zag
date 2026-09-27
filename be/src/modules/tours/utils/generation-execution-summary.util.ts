@@ -78,8 +78,12 @@ export function buildGenerationExecutionSummary(
         if (entry.status === 'failed') providersFailed.add(entry.provider);
       }
       for (const web of out.webResults ?? []) {
-        providersAttempted.add('web');
-        if (web.status === 'failed') providersFailed.add('web');
+        // RW3-F2: name the grounded provider actually attempted/failed
+        // (serper, serpapi, ...); fall back to the generic capability
+        // label only when the result never recorded one.
+        const webProvider = web.groundedProvider ?? 'web';
+        providersAttempted.add(webProvider);
+        if (web.status === 'failed') providersFailed.add(webProvider);
       }
     }
     const planningStep = input.steps.find(

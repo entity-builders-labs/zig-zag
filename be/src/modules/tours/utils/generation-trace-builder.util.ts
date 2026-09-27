@@ -630,6 +630,9 @@ export function buildDestinationResolutionStep(
     },
     outputs: {
       scale: resolution.scale,
+      // RW3-F4: bounded destination-boundary identity fact for the
+      // Bitácora (null for point-scale destinations).
+      boundaryId: area ? resolution.boundary.id : null,
       boundaryName: area ? resolution.boundary.name : null,
     },
     providerStatus: providerFailed ? 'failed' : undefined,
@@ -1067,9 +1070,12 @@ export function buildAcquisitionStep(params: {
     ...structuredEntries
       .filter((e) => e.status === 'failed')
       .map((e) => e.provider),
+    // RW3-F2: name the grounded provider that actually failed (serper,
+    // serpapi, ...); fall back to the generic capability label only when
+    // the failed source never recorded one.
     ...(execution.webResults ?? [])
       .filter((w) => w.status === 'failed')
-      .map(() => 'web'),
+      .map((w) => w.groundedProvider ?? 'web'),
   ];
   const anyAttempted =
     structuredEntries.length > 0 || (execution.webResults?.length ?? 0) > 0;

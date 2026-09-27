@@ -665,6 +665,75 @@ describe('ExperienceAcquisitionService', () => {
         expect(search.mock.calls[0][0].destinationCountryCode).toBeUndefined();
       });
 
+      it('RW3-F2: reports a failed grounded provider as a failed source, never a silent success', async () => {
+        const search = jest.fn().mockResolvedValue({
+          ...groundedResult,
+          provider: 'serper',
+          groundingStatus: 'failed',
+          failureReason: 'HTTP 401 Unauthorized',
+          evidence: undefined,
+        });
+        const extractExperiences = jest.fn();
+        const service = new ExperienceAcquisitionService(
+          {} as any,
+          {} as any,
+          { acquire: jest.fn() } as any,
+          { acquire: jest.fn() } as any,
+          new StructuredExperienceCandidateSynthesizerService(),
+          new StructuredCandidateCorroborationService(),
+          undefined,
+          { search } as any,
+          { extractExperiences } as any,
+        );
+
+        const result = await service.executePlan(webPlan);
+
+        expect(extractExperiences).not.toHaveBeenCalled();
+        expect(result.webResults?.[0]).toMatchObject({
+          status: 'failed',
+          query: 'Buenos Aires craft beer',
+          groundedProvider: 'serper',
+          groundingStatus: 'failed',
+          failureReason: 'HTTP 401 Unauthorized',
+        });
+        expect(result.webCandidateCount).toBe(0);
+        expect(result.candidates).toHaveLength(0);
+      });
+
+      it('RW3-F2: reports an unavailable grounded provider as failed with its provider identity', async () => {
+        const search = jest.fn().mockResolvedValue({
+          ...groundedResult,
+          provider: 'serper',
+          groundingStatus: 'unavailable',
+          failureReason: 'SERPER_API_KEY missing',
+          evidence: [],
+        });
+        const extractExperiences = jest.fn();
+        const service = new ExperienceAcquisitionService(
+          {} as any,
+          {} as any,
+          { acquire: jest.fn() } as any,
+          { acquire: jest.fn() } as any,
+          new StructuredExperienceCandidateSynthesizerService(),
+          new StructuredCandidateCorroborationService(),
+          undefined,
+          { search } as any,
+          { extractExperiences } as any,
+        );
+
+        const result = await service.executePlan(webPlan);
+
+        expect(extractExperiences).not.toHaveBeenCalled();
+        expect(result.webResults?.[0]).toMatchObject({
+          status: 'failed',
+          query: 'Buenos Aires craft beer',
+          groundedProvider: 'serper',
+          groundingStatus: 'unavailable',
+          failureReason: 'SERPER_API_KEY missing',
+        });
+        expect(result.candidates).toHaveLength(0);
+      });
+
       it('isolates a web failure — structured providers still contribute', async () => {
         const wikivoyageProvider = {
           acquire: jest.fn().mockResolvedValue({

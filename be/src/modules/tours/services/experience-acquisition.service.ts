@@ -466,8 +466,17 @@ export class ExperienceAcquisitionService {
         anchorNames: web.anchorNames,
       });
 
+      // RW3-F2: a grounded provider that reports failure or unavailability
+      // is a FAILED source. It must never surface as a silent success with
+      // zero evidence -- the typed failure provenance (groundingStatus +
+      // failureReason + provider identity) propagates to the trace and the
+      // execution summary.
+      const groundedFailed =
+        grounded.groundingStatus === 'failed' ||
+        grounded.groundingStatus === 'unavailable';
+
       const base: WebAcquisitionResult = {
-        status: 'success',
+        status: groundedFailed ? 'failed' : 'success',
         query: web.query,
         groundedProvider: grounded.provider,
         groundedModel: grounded.model,
@@ -491,8 +500,17 @@ export class ExperienceAcquisitionService {
         candidateDecisions: [],
       };
 
-      if (!grounded.evidence || grounded.evidence.length === 0) {
-        return base;
+      if (
+        groundedFailed ||
+        !grounded.evidence ||
+        grounded.evidence.length === 0
+      ) {
+        return {
+          ...base,
+          ...(grounded.failureReason
+            ? { failureReason: grounded.failureReason }
+            : {}),
+        };
       }
 
       const request: ExperienceDiscoveryRequest = {

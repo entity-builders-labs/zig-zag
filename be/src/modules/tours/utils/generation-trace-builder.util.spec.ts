@@ -1095,6 +1095,44 @@ describe('buildCatalogMaterializationStep', () => {
   });
 });
 
+describe('buildDestinationResolutionStep (RW3-F4 boundary identity)', () => {
+  it('records the destination boundaryId for area-scale resolutions', () => {
+    const step = buildDestinationResolutionStep('Málaga', {
+      scale: 'area',
+      boundary: {
+        id: 'osm:relation:347835',
+        name: 'Málaga',
+        osmType: 'relation',
+        osmId: 347835,
+        tags: { admin_level: '6' },
+      } as any,
+    });
+
+    expect(step.outputs).toEqual(
+      expect.objectContaining({
+        scale: 'area',
+        boundaryId: 'osm:relation:347835',
+        boundaryName: 'Málaga',
+      }),
+    );
+  });
+
+  it('records a null boundaryId for point-scale resolutions', () => {
+    const step = buildDestinationResolutionStep('Buenos Aires', {
+      scale: 'point',
+      degradationReason: 'no_area_candidate',
+    });
+
+    expect(step.outputs).toEqual(
+      expect.objectContaining({
+        scale: 'point',
+        boundaryId: null,
+        boundaryName: null,
+      }),
+    );
+  });
+});
+
 describe('buildAcquisitionStep', () => {
   const basePlan = {
     sourcePlans: [{ provider: 'wikivoyage' }, { provider: 'web' }],
@@ -1146,6 +1184,41 @@ describe('buildAcquisitionStep', () => {
       groundedProvider: 'tavily',
       extractorProvider: 'gemini',
       candidateCount: 1,
+    });
+  });
+
+  it('names the failed grounded provider in the failed source summary (RW3-F2)', () => {
+    const step = buildAcquisitionStep({
+      passNumber: 1,
+      acquisitionContext: { strategy: 'generic', passNumber: 1 },
+      plan: basePlan,
+      execution: {
+        observations: [],
+        candidates: [],
+        providerResults: {},
+        webResults: [
+          {
+            status: 'failed',
+            query: 'BA craft beer',
+            groundedProvider: 'serper',
+            groundingStatus: 'failed',
+            failureReason: 'HTTP 401 Unauthorized',
+            evidenceKeys: [],
+            validationErrors: [],
+            candidateCount: 0,
+          },
+        ],
+        structuredCandidateCount: 0,
+        webCandidateCount: 0,
+      },
+    });
+
+    expect(step.providerStatus).toBe('failed');
+    expect(step.degradedReason).toMatch(/serper/);
+    expect((step.outputs as any).webResults[0]).toMatchObject({
+      status: 'failed',
+      groundedProvider: 'serper',
+      failureReason: 'HTTP 401 Unauthorized',
     });
   });
 

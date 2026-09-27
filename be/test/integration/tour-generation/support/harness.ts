@@ -273,7 +273,10 @@ export class TourGenerationHarness {
       metadata,
       generationStatus: metadata.generationStatus,
       trace: metadata.generationTrace,
-      executionSummary: metadata.executionSummary,
+      // The canonical persistence location for the execution summary is
+      // inside the generation trace (metadata.generationTrace), not a
+      // top-level metadata key.
+      executionSummary: metadata.generationTrace?.executionSummary,
       tourExperiences: (tour.experiences ?? []).map((te: any) => ({
         id: te.id,
         experienceId: te.experienceId,

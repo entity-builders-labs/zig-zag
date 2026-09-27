@@ -671,8 +671,12 @@ export class ExperienceGenerationService {
       if (result?.status === 'failed') providerState.failed.add(provider);
     }
     for (const web of execution.webResults ?? []) {
-      providerState.attempted.add('web');
-      if (web.status === 'failed') providerState.failed.add('web');
+      // RW3-F2: name the grounded provider actually attempted/failed
+      // (serper, serpapi, ...); fall back to the generic capability label
+      // only when the result never recorded one.
+      const webProvider = web.groundedProvider ?? 'web';
+      providerState.attempted.add(webProvider);
+      if (web.status === 'failed') providerState.failed.add(webProvider);
     }
     const acquisitionContext = { strategy: 'generic' as const, passNumber };
     traceSteps.push(
@@ -1128,6 +1132,10 @@ export class ExperienceGenerationService {
                 outputs: {
                   areaRouteWalk: areaRouteWalk.map((routed) => ({
                     anchor: routed.anchor,
+                    // RW3-F4: bounded anchor-routing fact -- how this
+                    // routed anchor qualified (canonical area/route vs
+                    // the unresolved named-path tourism_route fallback).
+                    anchorMode: routed.anchorMode,
                     intentKey: routed.intentKey,
                     deficit: routed.deficit,
                   })),
