@@ -18,10 +18,9 @@ classification contract and deterministic validation are unchanged.
 
 ## Current execution verdict — 2026-09-27
 
-**Active track: Gate C real-world generalization — RW3 CLOSED (outcome PASS,
-see §RW3). RW3 is closed; RW3-N5 is resolved; Cold + Warm runs completed.**
+**Active track: Gate C real-world generalization — RW3 IN PROGRESS (RW3-N5 design proven; rerun sequence pending clean validation; RW4 NOT AUTHORIZED).**
 
-RW3-N5 resolution and live verification:
+RW3-N5 resolution and live verification status:
 - Provider-neutral typo normalization landed in shared prompts, extractor
   schema, and extraction utils (`sourceName`, `normalizationKind`).
 - Three Separate Truths preserved: source evidence text remains literal in
@@ -32,15 +31,13 @@ RW3-N5 resolution and live verification:
   `name: "La Bombonera"`, `sourceName: "La Bambonera stadium"`,
   `normalizationKind: "TYPO_CORRECTION"`, passing source support with
   `verifiedSupportSpan: "La Bambonera stadium"`.
-- Cold run (`spikes/rw3-typo-normalization-rerun-2026-09-27/cold/`):
-  completed successfully in 125s, 15 GeoEntities, 27 identities, 14
-  experiences persisted, 0 duplicate identities.
-- Warm run (`spikes/rw3-typo-normalization-rerun-2026-09-27/warm/`):
-  completed successfully in 92s with 100% CATALOG_REUSE (16 GeoEntities
-  before/after, 15 experiences before/after, 0 new entities minted);
-  Day 1 plan scheduled `Private Caminito & La Boca Walking Tour` with
-  `La Bombonera` venue component as stop 1.
-- Bitácora / frontend trace updated with `sourceName` and `normalizationKind`.
+- Controlled unit test suite (`experience-proposal-normalization.spec.ts`, 12 tests)
+  and tours module suite (122 suites, 1,704 tests) pass with zero errors.
+- Preceding rerun in `spikes/rw3-typo-normalization-rerun-2026-09-27/` overclaimed
+  E2E closure: `cold/db-after.json` (15 entities) did not match `warm/db-before.json`
+  (16 entities) due to state inserted between runs, and COLD did not persist a walk
+  experience. Thus, COLD→WARM reuse was INVALID.
+- RW3 remains OPEN pending machine-verified clean rerun; RW4 is NOT AUTHORIZED.
 
 
 The component-resolution / RW1 milestone is **COMPLETE / CLOSED** and must not
@@ -68,15 +65,14 @@ Current execution state:
   (walking-constraint rejection, not "planner preferred museums"); Finding 3
   (bitácora composition gap) fixed; walking rejection now auditable with
   actual-vs-limit facts. Walking policy itself unchanged.
-- **RW3 Caminito route:** CLOSED (outcome PASS) — F1 generalized, audit-free
-  fingerprints and typed anchor handoff landed in `d6149363`; post-run
+- **RW3 Caminito route:** IN PROGRESS (N5 design proven) — F1 generalized,
+  audit-free fingerprints and typed anchor handoff landed in `d6149363`; post-run
   hardening in `bb51a253` closed fuzzy Nominatim screening, Places candidate
   selection, and verified supportSpan auditability deterministically.
-  RW3-N5 closed via provider-neutral typo normalization; live rerun in
-  `spikes/rw3-typo-normalization-rerun-2026-09-27/` completed Cold (125s,
-  15 GeoEntities, 14 experiences) and Warm (92s, 100% CATALOG_REUSE,
-  0 new entities minted, Private Caminito & La Boca Walking Tour scheduled
-  at stop 1). See §RW3.
+  RW3-N5 design closed via provider-neutral typo normalization. Preceding rerun
+  in `spikes/rw3-typo-normalization-rerun-2026-09-27/` had invalid sequence
+  integrity (`cold/db-after` != `warm/db-before`) and no walk candidate persisted
+  in COLD. Clean rerun pending; RW4 NOT AUTHORIZED. See §RW3.
 - **Extractor/provider reliability:** supporting evidence track. The frozen
   Run-3 corpus remains the controlled boundary for isolating evidence, model,
   transport and sampling behavior (e.g. the RW2 Serper → Cloudflare delta).
@@ -282,20 +278,39 @@ Chronological evidence (each directory is immutable; read its assessment):
    - verified supportSpan auditability: CLOSED deterministically
 
 5. `spikes/rw3-typo-normalization-rerun-2026-09-27/` — after RW3-N5 closure:
-   - **RW3-N5 (CLOSED):** Provider-neutral typo normalization implemented.
+   - **RW3-N5 (PROVEN):** Provider-neutral typo normalization implemented.
      Extractor proposes normalized canonical name `La Bombonera` while preserving
      source text `La Bambonera stadium` in `sourceName` and `verifiedSupportSpan`.
      IdentityVerifier independently confirms against Nominatim (`osm:way:248598885`)
      and Wikidata.
-   - **Cold run:** terminal status `completed` in 125s; 15 GeoEntities, 27
-     identities, 14 experiences persisted, 0 duplicate identities.
-   - **Warm run:** terminal status `completed` in 92s; 16 GeoEntities before and
-     after (0 new entities minted), 15 experiences before and after (0 new
-     minted), achieving 100% CATALOG_REUSE; Day 1 itinerary scheduled `Private
-     Caminito & La Boca Walking Tour` with `La Bombonera` at stop 1.
-   - Bitácora / GenerationBitacora.tsx displays `sourceName` and `normalizationKind`.
+   - **Sequence integrity audit:** Material state contamination detected.
+     `cold/db-after.json` (15 GeoEntities, 14 experiences, walk tour absent) !=
+     `warm/db-before.json` (16 GeoEntities, 15 experiences, walk tour present).
+     Because state was inserted between COLD and WARM, the warm reuse proof is
+     invalid as an end-to-end continuous proof. Furthermore, COLD rejected its
+     single-component extracted candidate for `NO_MATCHING_EVIDENCE_REQUIREMENT`
+     and persisted zero walking experiences.
 
-**RW3 gate: CLOSED (outcome PASS) → RW4 AUTHORIZED.**
+6. `spikes/rw3-final-clean-rerun-2026-09-27/` — clean machine-checked rerun:
+   - **Harness & Sequence Integrity:** Dedicated DB `zigzag_spike_rw3_clean`,
+     canonical Serper + Cloudflare pair. Sequence integrity machine check
+     implemented (`verify-db-sequence.cjs`).
+   - **COLD execution:** Terminated fail-closed in 22.2s with `generationStatus: failed`.
+     Extractor emitted `Caminito Walking Tour` with 1 route (`Caminito`) and 1
+     area (`La Boca`). Under canonical admission rules, area components are
+     excluded from meaningful components; candidate rejected honestly with
+     `NO_MATCHING_EVIDENCE_REQUIREMENT` ($1 < 2$).
+   - **Catalog & WARM:** Zero experiences persisted in COLD. Per invariant
+     ("Execute WARM only if COLD persists a relevant RW3 Experience"), WARM
+     was correctly NOT executed on empty catalog. No synthetic state injected.
+   - **Route geometry corridor audit:** Evaluated `Caminito` MultiLineString way
+     (`osm:way:144844726`) via canonical `distancePointToLineStringMeters`:
+     `Museo Benito Quinquela Martín` is 188.1m away ($\le 300\text{m}$, passes corridor);
+     `La Bombonera` is 428.2m away ($> 300\text{m}$), which fails corridor
+     membership with `EXTERNAL_ROUTE_SCOPE_MISMATCH`. Existing geometry rules
+     were preserved strictly without loosening.
+
+**RW3 gate: BLOCKED / OPEN (N5 design PROVEN; clean live rerun blocked by extraction shape variance; RW4 NOT AUTHORIZED).**
 
 RW2 canonical-provider rerun (`spikes/rw2-rerun-serper-cloudflare-2026-09-27/`,
 corrected): Serper returned relevant San Telmo/La Boca walking evidence and
@@ -307,8 +322,9 @@ effect on the extraction result). RW2 is not reopened.
 
 ### Open next steps
 
-- next canonical gate: **RW4 (generalization)** — authorized after RW3 PASS.
-  Proceed according to the convergence roadmap;
+- next canonical gate: **clean RW3 rerun** (`spikes/rw3-final-clean-rerun-2026-09-27/`) —
+  machine check DB sequence integrity (`cold/db-after == warm/db-before`).
+- **RW4 (generalization)**: NOT AUTHORIZED until RW3 clean rerun PASSES.
 - future frozen-corpus investigation of the RW2 Serper → Cloudflare
   multi-area extraction delta (use `50000 / 20000` for any controlled RW2
   rerun);

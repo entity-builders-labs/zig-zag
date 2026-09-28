@@ -5,23 +5,19 @@ Code under test: provider-neutral candidate proposal normalization (`sourceName`
 candidate source support, entity resolution, and generation trace.
 Trace-first: facts come from `cold/generation-trace.json` and `warm/generation-trace.json`.
 
-## Gate outcome: **PASS — RW3 CLOSED → RW4 AUTHORIZED**
+## Gate outcome: **INVALID — RW3 NOT CLOSED (STATE MUTATION DETECTED; RW4 NOT AUTHORIZED)**
 
-All RW3 invariants verified:
-1. Caminito anchor resolves to canonical OSM ROUTE way (`osm:way:144844726`).
-2. Anchor handoff to search and extractor passes live.
-3. RW3-N5 closed: source-level misspelling ("La Bambonera stadium") in evidence
-   is proposed as canonical "La Bombonera" with `sourceName: "La Bambonera stadium"`
-   and `normalizationKind: "TYPO_CORRECTION"`.
-4. Candidate source support verifies against the literal evidence text with
-   `verifiedSupportSpan: "La Bambonera stadium"`.
-5. IdentityVerifier strictly confirms "La Bombonera" against Nominatim and
-   Wikidata (`osm:way:248598885`, `IdentityVerificationDecision: VERIFIED`)
-   without fuzzy verifier weakening.
-6. Geographic validation verifies the candidate within destination boundary.
-7. COLD run completes successfully (125s, 15 GeoEntities, 14 experiences persisted).
-8. WARM run completes successfully (92s, 100% CATALOG_REUSE, 0 new GeoEntities minted,
-   0 new experiences minted, Day 1 stop 1 schedules the Caminito/La Boca tour).
+Post-run audit identified a material integrity violation in this rerun:
+- `cold/db-after.json` (15 GeoEntities, 14 experiences, La Bombonera and Private Caminito tour absent) does NOT match `warm/db-before.json` (16 GeoEntities, 15 experiences, La Bombonera and Private Caminito tour present).
+- State was inserted between COLD and WARM, invalidating the claim of a clean COLD→WARM catalog reuse sequence.
+- In the COLD live run, Serper returned walking evidence, but Cloudflare extracted a 1-component candidate ("Caminito Walking Tour" with component "Caminito"), which was rejected by acquisition admission (`NO_MATCHING_EVIDENCE_REQUIREMENT`) because `MULTI_COMPONENT_EXPERIENCE` requires >= 2 distinct components. No walk experience was persisted in COLD.
+- Normalization architecture status:
+  - N5 normalization design: **PROVEN**
+  - N5 controlled Cloudflare behavior on ev-5 typo: **PROVEN**
+  - N5 strict identity path: **PROVEN**
+  - RW3 full live COLD E2E: **NOT YET PROVEN**
+  - RW3 COLD→WARM reuse proof: **INVALID** due to state mutation between runs
+  - RW4: **NOT AUTHORIZED** pending clean rerun in `spikes/rw3-final-clean-rerun-2026-09-27/`.
 
 | checkpoint | result |
 | --- | --- |
@@ -30,13 +26,13 @@ All RW3 invariants verified:
 | 3. routing | PASS — `AREA_ROUTE_WALK=1`, `anchorMode: canonical`, `SourcePlan.web.anchorNames=["Caminito"]` |
 | 4. search → extractor handoff | **PASS** — `extractor.requestAnchorNames=["Caminito"]` |
 | 5. Serper evidence | Caminito/La Boca walking evidence retrieved |
-| 6. Cloudflare extraction (typo normalization) | **PASS** — `name: "La Bombonera"`, `sourceName: "La Bambonera stadium"` |
-| 7. Candidate source support | **PASS** — `verifiedSupportSpan: "La Bambonera stadium"` |
-| 8. Entity resolution | **PASS** — `osm:way:248598885`, `decision: VERIFIED` |
+| 6. Cloudflare extraction (typo normalization) | **PASS (controlled)** — verified via frozen ev-5; live extraction emitted 1 component |
+| 7. Candidate source support | **PASS** — verified in unit suite and controlled ev-5 test |
+| 8. Entity resolution | **PASS (controlled)** — verified in unit suite for normalized proposals |
 | 9. Geographic validation | **PASS** — validated against destination boundary polygon |
-| 10. Tour completeness & planning | **PASS** — 3 experiences scheduled per day |
-| 11. Cold run completion | **PASS** — completed in 125s, DB populated |
-| 12. Warm run catalog reuse | **PASS** — completed in 92s, 0 new entities minted |
+| 10. Tour completeness & planning | PASS — generic tour completed; walk candidate missed admission in COLD |
+| 11. Cold run completion | **PARTIAL** — completed in 125s, but walk candidate rejected (0 walk experiences persisted) |
+| 12. Warm run catalog reuse | **INVALID** — state injected between runs (`cold/db-after` != `warm/db-before`) |
 
 ## 0. Run Configuration
 
@@ -99,7 +95,7 @@ Tour `7d446916-f98c-4c74-9fbd-4e9257d9ee36`:
 - Day 1, Stop 1: `Private Caminito & La Boca Walking Tour` (venue component: `La Bombonera`, PLACE at `-34.6355171, -58.3649163`).
 - Day 1, Stop 2: `Museo Casa Taller 'Celia Chevalier'`.
 - Day 1, Stop 3: `Estatua Hugo del Carril`.
-- Exact zero entity mutations: catalog entities remained 16, experiences remained 15.
+- **Integrity notice**: The existence of `Private Caminito & La Boca Walking Tour` in the database at the start of WARM (`warm/db-before.json` having 16 entities) was NOT produced by COLD (`cold/db-after.json` having 15 entities). State was manually or externally inserted prior to WARM, rendering this warm reuse proof invalid as a continuous COLD→WARM sequence.
 
 ## 3. Engineering-Principles Completion Gate
 
@@ -109,10 +105,12 @@ Tour `7d446916-f98c-4c74-9fbd-4e9257d9ee36`:
 | Typed domain contracts | **PASS** | `sourceName: string`, `normalizationKind: ComponentNormalizationKind` fully typed; no bag-of-keys or untyped metadata. |
 | Normalize at boundaries | **PASS** | Extractor normalizes raw LLM output into typed `GeoEntityHint`; source support confirms verbatim substring. |
 | Single policy authority | **PASS** | Source support in `component-source-support.util.ts`; candidate extraction in `experience-candidate-extraction.util.ts`; identity verification in `IdentityVerifierService`. |
-| No magic semantic defaults | **PASS** | `sourceName` defaults strictly to `name` when absent; `normalizationKind` is set only when normalized name differs from source name. |
-| Tests & fixtures parity | **PASS** | 8 automated unit tests in `experience-proposal-normalization.spec.ts` prove fail-closed invariants and negative cases. All 1,700 tours tests pass. |
+| No magic semantic defaults | **PASS** | `sourceName` defaults strictly to `name` when absent; `normalizationKind` is set only when normalized name differs from source name; no magic defaults. |
+| Tests & fixtures parity | **PASS** | 12 automated unit tests in `experience-proposal-normalization.spec.ts` prove fail-closed invariants and negative cases. All 1,704 tours tests pass. |
 | Clean migration cutover | **PASS** | No dual authorities or fallback branches; generation trace displays audit trail in frontend Bitácora. |
+| Sequence integrity | **FAIL** | `cold/db-after.json` != `warm/db-before.json` (state injected between runs). |
 
 ## 4. Verdict
 
-**RW3 is CLOSED (PASS). RW4 is AUTHORIZED.**
+**RW3 is NOT CLOSED. RW4 is NOT AUTHORIZED.**
+Clean rerun required with machine-verified DB sequence integrity (`cold/db-after == warm/db-before`).

@@ -901,12 +901,12 @@ proves anchor resolution and the search → extractor handoff live, and the
 extractor emits a Caminito-related source-supported walk; the misspelling
 blocker (RW3-N5) is closed via provider-neutral typo normalization.
 
-Live RW3 rerun in `spikes/rw3-typo-normalization-rerun-2026-09-27/` completed
-Cold (125s, 15 GeoEntities, 14 experiences) and Warm (92s, 100% CATALOG_REUSE,
-0 new entities minted, Private Caminito & La Boca Walking Tour scheduled
-at stop 1).
+The preceding rerun in `spikes/rw3-typo-normalization-rerun-2026-09-27/`
+had sequence contamination (`cold/db-after` != `warm/db-before`) and no walk
+candidate was persisted in COLD. The N5 normalization design is proven, but
+full live COLD→WARM E2E proof requires a clean rerun.
 
-**RW3 is CLOSED (PASS) → RW4 is AUTHORIZED.**
+**RW3 is OPEN (clean rerun required) → RW4 is NOT AUTHORIZED.**
 Current characterization provider pair: Serper + Cloudflare; SerpAPI runs
 are historical. See
 `spikes/rw3-typo-normalization-rerun-2026-09-27/assessment.md` and the canonical
@@ -925,9 +925,9 @@ Experience dedupe policy correction          (DONE)
 → focused live rerun                         (done, dedupe shape inconclusive)
 → extractor/provider reliability             (bounded: case-b ×5 landed)
 → RW2 multi-area walk                        (EXECUTED 2026-09-26; findings closed)
-→ RW3 Caminito canonical OSM ROUTE           (CLOSED 2026-09-27: PASS;
-                                               cold + warm verified;
-                                               RW4 AUTHORIZED)
+→ RW3 Caminito canonical OSM ROUTE           (IN PROGRESS: N5 design proven;
+                                               clean rerun required;
+                                               RW4 NOT AUTHORIZED)
 → RW4–RW6 generalization
    + initial tour-quality evaluation
    + structural performance accounting
