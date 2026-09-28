@@ -63,6 +63,7 @@ import { AreaRouteWalkAcquisitionService } from './area-route-walk-acquisition.s
 import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
 import { partitionDeficitsByStrategy } from '../utils/acquisition-strategy-selector.util';
 import { GenerationTraceRecorder } from '../utils/generation-trace-recorder.util';
+import { GenerationTraceV5 } from '../interfaces/generation-trace-v5.interface';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
 import { EmbeddingIndexIdentity } from '@shared/ai/interfaces/embedding-index.interface';
 import { findHardExclusionMatches } from '../utils/experience-preference-evaluator.util';
@@ -1804,95 +1805,103 @@ export class ExperienceGenerationService {
           };
         });
 
-      await this.prisma.$transaction(async (tx) => {
-        await tx.tourExperience.deleteMany({ where: { tourId } });
+      let generationTrace!: GenerationTraceV5;
+      const materializationCheckpoint = traceRecorder.checkpoint();
 
-        for (const selected of selectedExperiences) {
-          const experience = experienceEntities.find(
-            (candidate) => candidate.id === selected.experienceId,
-          );
-          if (!experience) {
-            this.logger.warn(
-              `Skipping unmaterialized planner item ${selected.experienceId}: V2 only persists verified Experiences.`,
+      try {
+        await this.prisma.$transaction(async (tx) => {
+          await tx.tourExperience.deleteMany({ where: { tourId } });
+
+          for (const selected of selectedExperiences) {
+            const experience = experienceEntities.find(
+              (candidate) => candidate.id === selected.experienceId,
             );
-            continue;
+            if (!experience) {
+              this.logger.warn(
+                `Skipping unmaterialized planner item ${selected.experienceId}: V2 only persists verified Experiences.`,
+              );
+              continue;
+            }
+            await tx.tourExperience.create({
+              data: buildTourExperienceCreateData(tourId, selected, experience),
+            });
           }
-          await tx.tourExperience.create({
-            data: buildTourExperienceCreateData(tourId, selected, experience),
-          });
-        }
 
-        if (this.outboxService) {
-          for (const experience of experienceEntities) {
-            if (experience.mediaStatus === 'PENDING') {
-              await this.outboxService.createInTx(tx, {
-                eventType: 'ExperienceMediaEnrichmentRequested',
-                payload: {
-                  experienceId: experience.id,
-                  name: experience.canonicalName,
-                  destinationLabel: request.destination?.label,
-                  latitude:
-                    experience.latitude ??
-                    experience.components[0]?.geoEntity?.latitude ??
-                    0,
-                  longitude:
-                    experience.longitude ??
-                    experience.components[0]?.geoEntity?.longitude ??
-                    0,
-                  category: experience.components[0]?.role,
-                },
-              });
+          if (this.outboxService) {
+            for (const experience of experienceEntities) {
+              if (experience.mediaStatus === 'PENDING') {
+                await this.outboxService.createInTx(tx, {
+                  eventType: 'ExperienceMediaEnrichmentRequested',
+                  payload: {
+                    experienceId: experience.id,
+                    name: experience.canonicalName,
+                    destinationLabel: request.destination?.label,
+                    latitude:
+                      experience.latitude ??
+                      experience.components[0]?.geoEntity?.latitude ??
+                      0,
+                    longitude:
+                      experience.longitude ??
+                      experience.components[0]?.geoEntity?.longitude ??
+                      0,
+                    category: experience.components[0]?.role,
+                  },
+                });
+              }
             }
           }
-        }
-      });
 
-      recordTourMaterializationStep(traceRecorder, {
-        tourId,
-        materializedTourExperiences,
-      });
-
-      const generationTrace = traceRecorder.build({
-        runtime: {
-          buildCommit: process.env.BUILD_COMMIT ?? 'unknown',
-          buildTimestamp: process.env.BUILD_TIMESTAMP ?? 'unknown',
-        },
-        canonicalRequest: request,
-        result: {
-          status: 'COMPLETED',
-          outcome: 'TOUR_EXPERIENCES_MATERIALIZED',
-          facts: {
+          recordTourMaterializationStep(traceRecorder, {
+            tourId,
             materializedTourExperiences,
-            tourCompleteness: {
-              ...completeness,
-              retryAttempted: correctiveRetryAttempted,
-            },
-            degradedAcquisitionReason,
-            acquisitionProvidersAttempted: Array.from(
-              acquisitionProvidersAttempted,
-            ),
-            acquisitionProvidersFailed: Array.from(
-              acquisitionProvidersFailed,
-            ),
-          },
-        },
-      });
+          });
 
-      await this.prisma.tour.update({
-        where: { id: tourId },
-        data: {
-          metadata: {
-            ...withoutGenerationFailure(metadata),
-            generationStatus: request.skipImageGeneration
-              ? 'finalizing'
-              : 'generating',
-            generationMessage: request.skipImageGeneration
-              ? 'Finalizando itinerario...'
-              : 'Generando imagen de portada...',
-            generationTrace,
-          },
-        },
-      });
+          generationTrace = traceRecorder.build({
+            runtime: {
+              buildCommit: process.env.BUILD_COMMIT ?? 'unknown',
+              buildTimestamp: process.env.BUILD_TIMESTAMP ?? 'unknown',
+            },
+            canonicalRequest: request,
+            result: {
+              status: 'COMPLETED',
+              outcome: 'TOUR_EXPERIENCES_MATERIALIZED',
+              facts: {
+                materializedTourExperiences,
+                tourCompleteness: {
+                  ...completeness,
+                  retryAttempted: correctiveRetryAttempted,
+                },
+                degradedAcquisitionReason,
+                acquisitionProvidersAttempted: Array.from(
+                  acquisitionProvidersAttempted,
+                ),
+                acquisitionProvidersFailed: Array.from(
+                  acquisitionProvidersFailed,
+                ),
+              },
+            },
+          });
+
+          await tx.tour.update({
+            where: { id: tourId },
+            data: {
+              metadata: {
+                ...withoutGenerationFailure(metadata),
+                generationStatus: request.skipImageGeneration
+                  ? 'finalizing'
+                  : 'generating',
+                generationMessage: request.skipImageGeneration
+                  ? 'Finalizando itinerario...'
+                  : 'Generando imagen de portada...',
+                generationTrace,
+              },
+            },
+          });
+        });
+      } catch (error) {
+        traceRecorder.rollback(materializationCheckpoint);
+        throw error;
+      }
 
       if (!request.skipImageGeneration) {
         try {

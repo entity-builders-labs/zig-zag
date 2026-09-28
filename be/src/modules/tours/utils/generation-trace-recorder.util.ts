@@ -173,10 +173,52 @@ function validStatus(value: unknown): TraceDecisionStatus {
     : 'INFO';
 }
 
+export interface TraceRecorderCheckpoint {
+  readonly stepCount: number;
+  readonly nextSequence: number;
+  readonly recordedIds: ReadonlyMap<string, string>;
+}
+
 export class GenerationTraceRecorder {
   private readonly steps: TraceStepV5[] = [];
   private readonly recordedIds = new Map<string, string>();
   private nextSequence = 1;
+
+  checkpoint(): TraceRecorderCheckpoint {
+    return {
+      stepCount: this.steps.length,
+      nextSequence: this.nextSequence,
+      recordedIds: new Map(this.recordedIds),
+    };
+  }
+
+  rollback(checkpoint: TraceRecorderCheckpoint): void {
+    if (
+      !checkpoint ||
+      typeof checkpoint.stepCount !== 'number' ||
+      typeof checkpoint.nextSequence !== 'number' ||
+      !checkpoint.recordedIds
+    ) {
+      throw new Error('Invalid trace recorder checkpoint');
+    }
+    if (checkpoint.stepCount > this.steps.length) {
+      throw new Error('Checkpoint step count cannot exceed current step count');
+    }
+    this.steps.length = checkpoint.stepCount;
+    this.nextSequence = checkpoint.nextSequence;
+    this.recordedIds.clear();
+    if (checkpoint.recordedIds instanceof Map) {
+      for (const [key, value] of checkpoint.recordedIds) {
+        this.recordedIds.set(key, value);
+      }
+    } else if (Symbol.iterator in Object(checkpoint.recordedIds)) {
+      for (const [key, value] of checkpoint.recordedIds as Iterable<
+        [string, string]
+      >) {
+        this.recordedIds.set(key, value);
+      }
+    }
+  }
 
   hasStep(id: string): boolean {
     const sanitized = sanitizeTraceText(id);

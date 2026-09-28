@@ -198,4 +198,124 @@ describe('GenerationTraceRecorder', () => {
       'Duplicate',
     );
   });
+
+  describe('checkpoint and rollback', () => {
+    it('restores steps, sequence numbering, and build output after rollback', () => {
+      const recorder = new GenerationTraceRecorder();
+      const step1 = recorder.record({ name: 'step.1' });
+      expect(step1.sequence).toBe(1);
+
+      const checkpoint = recorder.checkpoint();
+
+      const tempStep = recorder.record({ name: 'temp.step' });
+      expect(tempStep.sequence).toBe(2);
+      expect(recorder.hasStep(tempStep.id)).toBe(true);
+
+      recorder.rollback(checkpoint);
+
+      expect(recorder.hasStep(tempStep.id)).toBe(false);
+
+      const finalStep = recorder.record({ name: 'final.step' });
+      expect(finalStep.sequence).toBe(2);
+      expect(finalStep.id).toBe('trace-step-2');
+
+      const trace = recorder.build({ result: { status: 'COMPLETED' } });
+      expect(trace.steps).toHaveLength(2);
+      expect(trace.steps.map((s) => s.name)).toEqual(['step.1', 'final.step']);
+      expect(trace.steps.some((s) => s.name === 'temp.step')).toBe(false);
+    });
+
+    it('ensures rolled-back custom IDs no longer collide', () => {
+      const recorder = new GenerationTraceRecorder();
+      recorder.record({ id: 'stable-step', name: 'Stable' });
+
+      const checkpoint = recorder.checkpoint();
+
+      recorder.record({ id: 'tentative-step', name: 'Tentative' });
+      expect(recorder.hasStep('tentative-step')).toBe(true);
+
+      recorder.rollback(checkpoint);
+
+      expect(recorder.hasStep('tentative-step')).toBe(false);
+      expect(() =>
+        recorder.record({ id: 'tentative-step', name: 'Reused Tentative ID' }),
+      ).not.toThrow();
+
+      const trace = recorder.build({ result: { status: 'COMPLETED' } });
+      expect(trace.steps).toHaveLength(2);
+      expect(trace.steps[1].name).toBe('Reused Tentative ID');
+    });
+
+    it('restores parent lookup state so rolled-back steps cannot serve as parents', () => {
+      const recorder = new GenerationTraceRecorder();
+      const parent = recorder.record({ id: 'parent-1', name: 'P1' });
+
+      const checkpoint = recorder.checkpoint();
+
+      const rolledBack = recorder.record({
+        id: 'child-tentative',
+        parentId: parent.id,
+        name: 'Tentative Child',
+      });
+      expect(recorder.hasStep(rolledBack.id)).toBe(true);
+
+      recorder.rollback(checkpoint);
+
+      expect(() =>
+        recorder.record({
+          name: 'invalid-child',
+          parentId: 'child-tentative',
+        }),
+      ).toThrow('Trace parent child-tentative has not been recorded');
+
+      expect(() =>
+        recorder.record({
+          name: 'valid-child',
+          parentId: parent.id,
+        }),
+      ).not.toThrow();
+    });
+
+    it('supports nested checkpoints and sequential rollbacks', () => {
+      const recorder = new GenerationTraceRecorder();
+      const cp0 = recorder.checkpoint();
+
+      recorder.record({ name: 'A' });
+      const cp1 = recorder.checkpoint();
+
+      recorder.record({ name: 'B' });
+      const cp2 = recorder.checkpoint();
+
+      recorder.record({ name: 'C' });
+
+      // Rollback to cp2 -> only A and B remain
+      recorder.rollback(cp2);
+      let trace = recorder.build({ result: { status: 'COMPLETED' } });
+      expect(trace.steps.map((s) => s.name)).toEqual(['A', 'B']);
+
+      // Rollback to cp1 -> only A remains
+      recorder.rollback(cp1);
+      trace = recorder.build({ result: { status: 'COMPLETED' } });
+      expect(trace.steps.map((s) => s.name)).toEqual(['A']);
+
+      // Rollback to cp0 -> empty
+      recorder.rollback(cp0);
+      trace = recorder.build({ result: { status: 'COMPLETED' } });
+      expect(trace.steps).toHaveLength(0);
+    });
+
+    it('validates checkpoint arguments', () => {
+      const recorder = new GenerationTraceRecorder();
+      expect(() => recorder.rollback(null as any)).toThrow(
+        'Invalid trace recorder checkpoint',
+      );
+      expect(() =>
+        recorder.rollback({
+          stepCount: 5,
+          nextSequence: 5,
+          recordedIds: new Map(),
+        }),
+      ).toThrow('Checkpoint step count cannot exceed current step count');
+    });
+  });
 });
