@@ -12,6 +12,7 @@ import {
   ComponentAreaRelation,
   ComponentGeometryBasis,
 } from './area-scope-membership.interface';
+import { RouteScopeMembershipAudit } from './route-scope-membership.interface';
 import { SourceObservation } from './experience-acquisition.interface';
 import { GeographicValidationDecisionEntity } from './geographic-validation.interface';
 import type {
@@ -638,6 +639,7 @@ export interface ExperienceGeographicValidationResult {
   groundedEvidenceKeys: string[];
   rejectionReasons: string[];
   areaScopeMembership?: AreaScopeMembershipAudit;
+  routeScopeMembership?: RouteScopeMembershipAudit;
   /** Exact entities used by the canonical decision; trace never infers offenders. */
   decisionEntities?: GeographicValidationDecisionEntity[];
   validatorVersion: number;

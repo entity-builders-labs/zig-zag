@@ -28,7 +28,6 @@ import {
   coherenceMetrics,
   distanceMeters,
 } from '../utils/geographic-coherence.util';
-import { distancePointToLineStringMeters } from '../utils/route-geometry.util';
 import {
   classifyComponentAreaRelation,
   evaluateAreaScopeMembership,
@@ -39,6 +38,11 @@ import {
   AreaScopeMembershipPolicy,
   ComponentAreaRelationFact,
 } from '../interfaces/area-scope-membership.interface';
+import {
+  RouteScopeComponentFact,
+  RouteScopeMembershipAudit,
+} from '../interfaces/route-scope-membership.interface';
+import { evaluateRouteScopeMembership } from '../utils/route-scope-membership-policy';
 
 @Injectable()
 export class CompositeGeographicValidationService {
@@ -96,10 +100,12 @@ export class CompositeGeographicValidationService {
             validationScope,
             groundedEvidenceKeys,
             validationIntent,
+            destinationBoundary,
           )
         : undefined;
 
     const areaScopeMembership = externalScopeValidation?.areaScopeMembership;
+    const routeScopeMembership = externalScopeValidation?.routeScopeMembership;
     let result: GeographicValidationResult;
     if (compositionViolation) {
       result = compositionViolation;
@@ -154,13 +160,24 @@ export class CompositeGeographicValidationService {
     if (areaScopeMembership && !result.areaScopeMembership) {
       result = { ...result, areaScopeMembership };
     }
+    if (routeScopeMembership && !result.routeScopeMembership) {
+      result = { ...result, routeScopeMembership };
+    }
 
     if (!result.decisionEntities) {
-      result.decisionEntities = withCoordinates.map((entity) => ({
-        geoEntityId: entity.geoEntityId,
-        hintKey: entity.hintKey,
-        relation: 'evaluated' as const,
-      }));
+      result.decisionEntities = withCoordinates.map((entity) => {
+        const routeFact = routeScopeMembership?.decision.components.find(
+          (c) => c.hintKey === entity.hintKey,
+        );
+        return {
+          geoEntityId: entity.geoEntityId,
+          hintKey: entity.hintKey,
+          relation: 'evaluated' as const,
+          ...(routeFact?.distanceFromRouteMeters !== undefined
+            ? { distanceFromRouteMeters: routeFact.distanceFromRouteMeters }
+            : {}),
+        };
+      });
     }
 
     this.logger.log(
@@ -333,9 +350,11 @@ export class CompositeGeographicValidationService {
     validationScope: ExperienceValidationScope,
     evidenceKeys: string[],
     validationIntent?: 'walk' | 'route_like',
+    destinationBoundary?: OsmCandidate,
   ): {
     result?: GeographicValidationResult;
     areaScopeMembership?: AreaScopeMembershipAudit;
+    routeScopeMembership?: RouteScopeMembershipAudit;
   } {
     const proposalName = resolvedProposal.candidate.name;
     // The source composition is complete here (see
@@ -429,43 +448,63 @@ export class CompositeGeographicValidationService {
       return { areaScopeMembership };
     }
 
-    // ROUTE: real corridor-membership check via distancePointToLineStringMeters
-    // (NOT routeDestinationMismatch's regional destination-centroid/radius
-    // approximation — that policy still runs afterward, unchanged, as an
-    // additional regional-coherence guard once corridor membership passes).
-    // Applied ONLY to point-like (venue/waypoint) components, NEVER
-    // to the canonical ROUTE entity itself — its own representative/centroid
-    // coordinate is not guaranteed to lie on its own LineString, and its
-    // identity is already validationScope.geoEntityId + geometry.
-    const pointLikeEntities = withCoordinates.filter(
-      (entity) => entity.role !== 'route',
-    );
-    const tooFar = pointLikeEntities.filter(
-      (entity) =>
-        distancePointToLineStringMeters(
-          {
-            latitude: entity.latitude as number,
-            longitude: entity.longitude as number,
-          },
-          validationScope.geometry,
-        ) > this.thresholds.route.maxComponentDistanceFromRouteMeters,
-    );
-    if (tooFar.length > 0) {
-      return {
-        result: this.rejected(
-          proposalName,
-          'EXPERIENCE',
-          tooFar,
-          evidenceKeys,
-          ['external_scope_mismatch'],
-          undefined,
-          tooFar,
-          pointLikeEntities,
-          undefined,
-          'EXTERNAL_ROUTE_SCOPE_MISMATCH',
-        ),
+    if (validationScope.kind === 'ROUTE') {
+      const decision = evaluateRouteScopeMembership(
+        {
+          anchorName: validationScope.anchorName,
+          geoEntityId: validationScope.geoEntityId,
+          geometry: validationScope.geometry,
+        },
+        resolved.map(componentFact),
+        destinationBoundary,
+      );
+
+      const routeScopeMembership: RouteScopeMembershipAudit = {
+        decision,
+        routeGeometryPresent: true,
+        evaluatedComponentCount: resolved.length,
       };
+
+      if (!decision.passes) {
+        const offending = resolved.filter((entity) =>
+          decision.components.some(
+            (c) =>
+              c.hintKey === entity.hintKey &&
+              (c.relation === 'OUTSIDE_DESTINATION' ||
+                c.relation === 'NO_MATERIAL_ANCHOR_RELATION'),
+          ),
+        );
+
+        const mismatchReason: GeographicDecisionReason =
+          decision.rejectionReason ?? 'EXTERNAL_ROUTE_SCOPE_MISMATCH';
+
+        const rejectionReasons: GeographicValidationRejectionReason[] =
+          mismatchReason === 'OUTSIDE_DESTINATION_BOUNDARY'
+            ? ['destination_mismatch', 'external_scope_mismatch']
+            : ['external_scope_mismatch'];
+
+        return {
+          result: this.rejected(
+            proposalName,
+            'EXPERIENCE',
+            offending.length > 0 ? offending : resolved,
+            evidenceKeys,
+            rejectionReasons,
+            undefined,
+            offending.length > 0 ? offending : resolved,
+            resolved,
+            undefined,
+            mismatchReason,
+            destinationBoundary?.geometry,
+            routeScopeMembership,
+          ),
+          routeScopeMembership,
+        };
+      }
+
+      return { routeScopeMembership };
     }
+
     return {};
   }
 
@@ -1026,6 +1065,7 @@ export class CompositeGeographicValidationService {
     areaScopeMembership?: AreaScopeMembershipAudit,
     mismatchReason?: GeographicDecisionReason,
     distanceBoundaryGeometry?: GeoJsonGeometry,
+    routeScopeMembership?: RouteScopeMembershipAudit,
   ): GeographicValidationResult {
     const decisionEntities: GeographicValidationDecisionEntity[] =
       evaluatedEntities.map((entity) => {
@@ -1057,6 +1097,17 @@ export class CompositeGeographicValidationService {
             }
           }
         }
+
+        if (routeScopeMembership) {
+          const compFact = routeScopeMembership.decision.components.find(
+            (c) => c.hintKey === entity.hintKey,
+          );
+          if (compFact?.distanceFromRouteMeters !== undefined) {
+            baseEntity.distanceFromRouteMeters =
+              compFact.distanceFromRouteMeters;
+          }
+        }
+
         return baseEntity;
       });
 
@@ -1070,6 +1121,7 @@ export class CompositeGeographicValidationService {
       groundedEvidenceKeys: evidenceKeys,
       rejectionReasons,
       areaScopeMembership,
+      routeScopeMembership,
       decisionEntities,
       validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
     };
@@ -1085,14 +1137,21 @@ export class CompositeGeographicValidationService {
   }
 }
 
-function componentFact(entity: ResolvedGeoEntity): AreaScopeComponentFact {
+function componentFact(
+  entity: ResolvedGeoEntity,
+): AreaScopeComponentFact & RouteScopeComponentFact {
   return {
     hintKey: entity.hintKey,
+    hintName: entity.hintName,
+    canonicalName: entity.canonicalName,
     role: entity.role,
     kind: entity.kind,
+    geoEntityId: entity.geoEntityId,
+    externalId: entity.externalId,
     latitude: entity.latitude,
     longitude: entity.longitude,
     geometry: entity.geometry,
+    adminContext: entity.adminContext,
   };
 }
 

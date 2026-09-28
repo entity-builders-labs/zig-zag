@@ -5,6 +5,10 @@ import {
   GeographicScope,
   ExperienceValidationScope,
 } from '../interfaces/experience-resolution.interface';
+import { candidateSatisfiesEvidenceRequirement } from '../utils/acquisition-candidate-requirement.util';
+import { checkHardConstraints } from '../utils/daily-planning-placement.util';
+import { PlanningExperienceCandidate } from '../interfaces/daily-planning.interface';
+import { TransportationMode } from '../interfaces/tour-generation.interface';
 
 describe('CompositeGeographicValidationService', () => {
   const boundary: any = {
@@ -2427,10 +2431,9 @@ describe('Regression tests for forensic geographic trace evidence', () => {
       (e) => e.relation === 'offending',
     );
     expect(offendingEntity).toBeDefined();
-    expect(offendingEntity!.decisionReason).toBe(
-      'EXTERNAL_ROUTE_SCOPE_MISMATCH',
-    );
+    expect(offendingEntity!.decisionReason).toBe('NO_MATERIAL_ANCHOR_RELATION');
     expect(offendingEntity!.distanceToBoundaryMeters).toBeUndefined();
+    expect(offendingEntity!.distanceFromRouteMeters).toBeGreaterThan(1000);
   });
 
   it('never stores non-finite distance for degenerate polygon', () => {
@@ -2847,6 +2850,706 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           decisionReason: 'OUTSIDE_CANONICAL_AREA_BOUNDARY',
         });
       });
+    });
+  });
+
+  describe('Route-anchor geographic coherence & walking feasibility separation (G1-G6)', () => {
+    const destinationBoundary: any = {
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-58.5, -34.7],
+            [-58.3, -34.7],
+            [-58.3, -34.5],
+            [-58.5, -34.5],
+            [-58.5, -34.7],
+          ],
+        ],
+      },
+    };
+    const caminitoLineGeometry: GeoJsonGeometry = {
+      type: 'LineString',
+      coordinates: [
+        [-58.36306, -34.63935],
+        [-58.36287, -34.63972],
+        [-58.36268, -34.6401],
+      ],
+    };
+    const routeScope: ExperienceValidationScope = {
+      kind: 'ROUTE',
+      anchorName: 'Caminito',
+      geoEntityId: 'geo-caminito',
+      geometry: caminitoLineGeometry,
+    };
+
+    // G1: No 300m cliff — components at 299m and 301m both pass
+    it('G1: proves no 300m cliff — components at 299m and 301m both pass without threshold-based rejection', () => {
+      const validator = new CompositeGeographicValidationService();
+
+      const candidate299: ExperienceCandidate = {
+        name: 'Caminito Walk 299m',
+        themes: ['culture'],
+        traits: [],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'grounded',
+        componentHints: [
+          {
+            key: 'anchor',
+            name: 'Caminito',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'stop1',
+            name: 'Nearby Spot',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const candidate301: ExperienceCandidate = {
+        name: 'Caminito Walk 301m',
+        themes: ['culture'],
+        traits: [],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'grounded',
+        componentHints: [
+          {
+            key: 'anchor',
+            name: 'Caminito',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'stop1',
+            name: 'Slightly Further Spot',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const result299 = validator.validate(
+        {
+          candidate: candidate299,
+          status: 'accepted',
+          resolvedEntities: [
+            {
+              hintKey: 'anchor',
+              hintName: 'Caminito',
+              role: 'route',
+              provider: 'osm',
+              externalId: 'way:144844726',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.63972,
+              longitude: -58.36287,
+              geometry: caminitoLineGeometry,
+            },
+            {
+              hintKey: 'stop1',
+              hintName: 'Nearby Spot',
+              role: 'venue',
+              provider: 'osm',
+              externalId: 'node:299',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.63972 + 0.00268,
+              longitude: -58.36287,
+            },
+          ],
+          rejectionReasons: [],
+        },
+        destinationBoundary,
+        routeScope,
+      );
+
+      const result301 = validator.validate(
+        {
+          candidate: candidate301,
+          status: 'accepted',
+          resolvedEntities: [
+            {
+              hintKey: 'anchor',
+              hintName: 'Caminito',
+              role: 'route',
+              provider: 'osm',
+              externalId: 'way:144844726',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.63972,
+              longitude: -58.36287,
+              geometry: caminitoLineGeometry,
+            },
+            {
+              hintKey: 'stop1',
+              hintName: 'Slightly Further Spot',
+              role: 'venue',
+              provider: 'osm',
+              externalId: 'node:301',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.63972 + 0.00272,
+              longitude: -58.36287,
+            },
+          ],
+          rejectionReasons: [],
+        },
+        destinationBoundary,
+        routeScope,
+      );
+
+      expect(result299.accepted).toBe(true);
+      expect(result299.status).toBe('GEO_VERIFIED');
+      expect(result301.accepted).toBe(true);
+      expect(result301.status).toBe('GEO_VERIFIED');
+
+      // Observability: diagnostic distance recorded, NOT semantic reject authority
+      const entity299 = result299.decisionEntities?.find(
+        (e) => e.hintKey === 'stop1',
+      );
+      const entity301 = result301.decisionEntities?.find(
+        (e) => e.hintKey === 'stop1',
+      );
+      expect(entity299?.distanceFromRouteMeters).toBeGreaterThan(250);
+      expect(entity299?.distanceFromRouteMeters).toBeLessThan(350);
+      expect(entity301?.distanceFromRouteMeters).toBeGreaterThan(250);
+      expect(entity301?.distanceFromRouteMeters).toBeLessThan(350);
+    });
+
+    // G2: Real Caminito/Bombonera case
+    it('G2: accepts real Caminito route + Quinquela Martín (~188m) + La Bombonera (~428m)', () => {
+      const validator = new CompositeGeographicValidationService();
+      const candidate: ExperienceCandidate = {
+        name: 'Caminito & La Boca Iconic Walk',
+        themes: ['culture'],
+        traits: [],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'grounded',
+        componentHints: [
+          {
+            key: 'caminito',
+            name: 'Caminito',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'quinquela',
+            name: 'Museo Benito Quinquela Martín',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'bombonera',
+            name: 'Estadio La Bombonera',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const result = validator.validate(
+        {
+          candidate,
+          status: 'accepted',
+          resolvedEntities: [
+            {
+              hintKey: 'caminito',
+              hintName: 'Caminito',
+              role: 'route',
+              provider: 'osm',
+              externalId: 'way:144844726',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.63972,
+              longitude: -58.36287,
+              geometry: caminitoLineGeometry,
+              adminContext: {
+                locality: 'La Boca',
+                municipality: 'Buenos Aires',
+              },
+            },
+            {
+              hintKey: 'quinquela',
+              hintName: 'Museo Benito Quinquela Martín',
+              role: 'venue',
+              provider: 'osm',
+              externalId: 'node:quinquela',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.6385,
+              longitude: -58.3611, // ~188m
+              adminContext: {
+                locality: 'La Boca',
+                municipality: 'Buenos Aires',
+              },
+            },
+            {
+              hintKey: 'bombonera',
+              hintName: 'Estadio La Bombonera',
+              role: 'venue',
+              provider: 'osm',
+              externalId: 'node:bombonera',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.6356,
+              longitude: -58.3648, // ~428m
+              adminContext: {
+                locality: 'La Boca',
+                municipality: 'Buenos Aires',
+              },
+            },
+          ],
+          rejectionReasons: [],
+        },
+        destinationBoundary,
+        routeScope,
+      );
+
+      expect(result.accepted).toBe(true);
+      expect(result.status).toBe('GEO_VERIFIED');
+      expect(result.routeScopeMembership).toBeDefined();
+      expect(result.routeScopeMembership?.decision.passes).toBe(true);
+
+      const quinquelaFact =
+        result.routeScopeMembership?.decision.components.find(
+          (c) => c.hintKey === 'quinquela',
+        );
+      const bomboneraFact =
+        result.routeScopeMembership?.decision.components.find(
+          (c) => c.hintKey === 'bombonera',
+        );
+      expect(quinquelaFact?.distanceFromRouteMeters).toBeGreaterThan(150);
+      expect(quinquelaFact?.distanceFromRouteMeters).toBeLessThan(250);
+      expect(bomboneraFact?.distanceFromRouteMeters).toBeGreaterThan(400);
+      expect(bomboneraFact?.distanceFromRouteMeters).toBeLessThan(500);
+    });
+
+    // G3: Anchor required
+    it('G3: rejects unrelated Buenos Aires components with NO_MATERIAL_ANCHOR_RELATION when anchor is missing', () => {
+      const validator = new CompositeGeographicValidationService();
+      const candidate: ExperienceCandidate = {
+        name: 'Downtown BA Walk',
+        themes: ['culture'],
+        traits: [],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'grounded',
+        componentHints: [
+          {
+            key: 'obelisco',
+            name: 'Obelisco',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'colon',
+            name: 'Teatro Colón',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const result = validator.validate(
+        {
+          candidate,
+          status: 'accepted',
+          resolvedEntities: [
+            {
+              hintKey: 'obelisco',
+              hintName: 'Obelisco',
+              role: 'venue',
+              provider: 'osm',
+              externalId: 'node:obelisco',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.6037,
+              longitude: -58.3816,
+            },
+            {
+              hintKey: 'colon',
+              hintName: 'Teatro Colón',
+              role: 'venue',
+              provider: 'osm',
+              externalId: 'node:colon',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.6011,
+              longitude: -58.3831,
+            },
+          ],
+          rejectionReasons: [],
+        },
+        destinationBoundary,
+        routeScope,
+      );
+
+      expect(result.accepted).toBe(false);
+      expect(result.rejectionReasons).toContain('external_scope_mismatch');
+      const offending = result.decisionEntities?.find(
+        (e) => e.relation === 'offending',
+      );
+      expect(offending?.decisionReason).toBe('NO_MATERIAL_ANCHOR_RELATION');
+    });
+
+    // G4: Destination mismatch
+    it('G4: rejects component outside the destination boundary with OUTSIDE_DESTINATION_BOUNDARY', () => {
+      const validator = new CompositeGeographicValidationService();
+      const candidate: ExperienceCandidate = {
+        name: 'Caminito to Far Destination Homonym',
+        themes: ['culture'],
+        traits: [],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'grounded',
+        componentHints: [
+          {
+            key: 'anchor',
+            name: 'Caminito',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'remote',
+            name: 'Remote Stop',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const result = validator.validate(
+        {
+          candidate,
+          status: 'accepted',
+          resolvedEntities: [
+            {
+              hintKey: 'anchor',
+              hintName: 'Caminito',
+              role: 'route',
+              provider: 'osm',
+              externalId: 'way:144844726',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.6379,
+              longitude: -58.3632,
+              geometry: caminitoLineGeometry,
+            },
+            {
+              hintKey: 'remote',
+              hintName: 'Remote Stop',
+              role: 'venue',
+              provider: 'osm',
+              externalId: 'node:remote',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -31.42, // Córdoba - far outside Buenos Aires boundary
+              longitude: -64.18,
+            },
+          ],
+          rejectionReasons: [],
+        },
+        destinationBoundary,
+        routeScope,
+      );
+
+      expect(result.accepted).toBe(false);
+      expect(result.rejectionReasons).toContain('destination_mismatch');
+      const remoteEntity = result.decisionEntities?.find(
+        (e) => e.hintKey === 'remote',
+      );
+      expect(remoteEntity?.relation).toBe('offending');
+      expect(remoteEntity?.decisionReason).toBe('OUTSIDE_DESTINATION_BOUNDARY');
+      expect(remoteEntity?.distanceToBoundaryMeters).toBeGreaterThan(100000);
+    });
+
+    // G5: Area context does not fake cardinality
+    it('G5: proves area context does not count toward multi-component cardinality', () => {
+      const singleStopWithArea: ExperienceCandidate = {
+        name: 'Caminito in La Boca',
+        themes: ['culture'],
+        traits: [],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'grounded',
+        componentHints: [
+          {
+            key: 'caminito',
+            name: 'Caminito',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'boca',
+            name: 'La Boca',
+            role: 'area',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      const twoStopsWithArea: ExperienceCandidate = {
+        name: 'Caminito & Bombonera in La Boca',
+        themes: ['culture'],
+        traits: [],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'grounded',
+        componentHints: [
+          {
+            key: 'caminito',
+            name: 'Caminito',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'boca',
+            name: 'La Boca',
+            role: 'area',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'bombonera',
+            name: 'La Bombonera',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      // 1 real stop + 1 area fails multi-component requirement
+      expect(
+        candidateSatisfiesEvidenceRequirement(
+          singleStopWithArea,
+          'MULTI_COMPONENT_EXPERIENCE',
+        ),
+      ).toBe(false);
+
+      // 2 real stops + 1 area satisfies multi-component requirement
+      expect(
+        candidateSatisfiesEvidenceRequirement(
+          twoStopsWithArea,
+          'MULTI_COMPONENT_EXPERIENCE',
+        ),
+      ).toBe(true);
+    });
+
+    // G6: Planner owns walking feasibility
+    it('G6: proves geographic validation passes long walk while planner rejects via mobility constraints', async () => {
+      const validator = new CompositeGeographicValidationService();
+
+      const longWalkCandidate: ExperienceCandidate = {
+        name: 'Across Buenos Aires Epic Walk',
+        themes: ['culture'],
+        traits: [],
+        evidenceKeys: ['ev-1'],
+        shortReason: 'grounded',
+        componentHints: [
+          {
+            key: 'caminito',
+            name: 'Caminito',
+            role: 'route',
+            expectedKind: 'ROUTE',
+            evidenceKeys: ['ev-1'],
+          },
+          {
+            key: 'belgrano',
+            name: 'Belgrano Landmark',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      };
+
+      // 1. Geographic validation passes because both belong to Buenos Aires and anchor is satisfied
+      const geoResult = validator.validate(
+        {
+          candidate: longWalkCandidate,
+          status: 'accepted',
+          resolvedEntities: [
+            {
+              hintKey: 'caminito',
+              hintName: 'Caminito',
+              role: 'route',
+              provider: 'osm',
+              externalId: 'way:144844726',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.6379,
+              longitude: -58.3632,
+              geometry: caminitoLineGeometry,
+            },
+            {
+              hintKey: 'belgrano',
+              hintName: 'Belgrano Landmark',
+              role: 'venue',
+              provider: 'osm',
+              externalId: 'node:belgrano',
+              nameEvidenceMultiplicity: {
+                exactName: 'UNKNOWN',
+                declaredAlias: 'UNKNOWN',
+              } as const,
+              status: 'resolved',
+              latitude: -34.56,
+              longitude: -58.45, // ~12km away in Buenos Aires
+            },
+          ],
+          rejectionReasons: [],
+        },
+        destinationBoundary,
+        routeScope,
+      );
+
+      expect(geoResult.accepted).toBe(true);
+      expect(geoResult.status).toBe('GEO_VERIFIED');
+
+      // 2. Planner evaluates walking feasibility and rejects with canonical MAX_WALKING_PER_DAY_EXCEEDED
+      const plannerCandidate: PlanningExperienceCandidate = {
+        experienceId: 'exp-long-walk',
+        title: 'Across Buenos Aires Epic Walk',
+        durationMinutes: 90,
+        semanticScore: 1,
+        spatialFootprint: {
+          type: 'POINT',
+          centroid: { lat: -34.56, lng: -58.45 },
+        },
+        startFootprint: {
+          type: 'POINT',
+          centroid: { lat: -34.6379, lng: -58.3632 },
+        },
+        endFootprint: {
+          type: 'POINT',
+          centroid: { lat: -34.56, lng: -58.45 },
+        },
+        mobility: {
+          internalWalkingDistanceMeters: 12500, // 12.5km internal walk
+        },
+      };
+
+      const dayAcc = {
+        dayNumber: 1,
+        assigned: [] as PlanningExperienceCandidate[],
+        totalExperienceMinutes: 0,
+        totalWalkingMeters: 0,
+      };
+
+      const planningContext = {
+        policy: {
+          paceTargets: {
+            relaxed: { preferredExperiencesMin: 2, preferredExperiencesMax: 4 },
+            moderate: {
+              preferredExperiencesMin: 3,
+              preferredExperiencesMax: 5,
+            },
+            fast: { preferredExperiencesMin: 4, preferredExperiencesMax: 7 },
+          },
+          travel: {
+            detourFactor: 1.3,
+            walkingSpeedKmh: 4.5,
+            bikeSpeedKmh: 13,
+            carUrbanSpeedKmh: 25,
+          },
+          internalWalking: { unknownFallbackMinutes: 20 },
+          compositeDefaultDurationMinutes: 90,
+          scoring: {
+            semanticWeight: 1,
+            qualityWeight: 0.5,
+            dayBalanceWeight: 0.25,
+          },
+          localImprovement: { maxIterations: 50 },
+          backfill: {
+            minimumUsefulResidualMinutes: 60,
+            maxReservoirPromotionAttempts: 50,
+            maxAcquisitionPasses: 1,
+          },
+          window: {
+            startMinutesFromMidnight: 540,
+            endMinutesFromMidnight: 1200,
+          },
+        },
+        mobility: {
+          allowedTransportationModes: [TransportationMode.WALKING],
+          maxWalkingDistancePerDayMeters: 8000, // 8km limit
+          maxContinuousWalkingDistanceMeters: 5000,
+          travelPace: 'moderate' as any,
+          accessibilityNeeds: [] as string[],
+        },
+        planningWindow: {
+          startMinutesFromMidnight: 540,
+          endMinutesFromMidnight: 1200,
+        },
+        travelEstimateProvider: {
+          estimate: jest.fn().mockResolvedValue({
+            durationMinutes: 15,
+            walkingDistanceMeters: 500,
+            mode: TransportationMode.WALKING,
+          }),
+        },
+        startDates: [] as string[],
+      };
+
+      const plannerResult = await checkHardConstraints(
+        plannerCandidate,
+        dayAcc,
+        planningContext,
+      );
+      expect(plannerResult.feasible).toBe(false);
+      expect(plannerResult.reasons).toContain('MAX_WALKING_PER_DAY_EXCEEDED');
+      expect(
+        plannerResult.walkingDiagnostics?.dailyWalkingMeters,
+      ).toBeGreaterThan(8000);
     });
   });
 });

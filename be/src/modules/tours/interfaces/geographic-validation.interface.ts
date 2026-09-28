@@ -1,5 +1,6 @@
 import { ResolvedGeoEntity } from './experience-resolution.interface';
 import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
+import { RouteScopeMembershipAudit } from './route-scope-membership.interface';
 
 export type GeographicValidationStatus =
   | 'UNVERIFIED'
@@ -47,7 +48,8 @@ export type GeographicDecisionReason =
   | 'LOCALITY_CONFLICT'
   | 'OUTSIDE_ROUTE_DESTINATION_RADIUS'
   | 'EXTERNAL_AREA_SCOPE_MISMATCH'
-  | 'EXTERNAL_ROUTE_SCOPE_MISMATCH';
+  | 'EXTERNAL_ROUTE_SCOPE_MISMATCH'
+  | 'NO_MATERIAL_ANCHOR_RELATION';
 
 export interface GeographicPoint {
   latitude: number;
@@ -75,6 +77,12 @@ export interface GeographicValidationDecisionEntity {
    * Absent when unknown or not applicable.
    */
   distanceToBoundaryMeters?: number;
+  /**
+   * Shortest distance in meters from the resolved point to the route anchor line.
+   * Strict invariant: distance is evidence/diagnostic for observability, never
+   * a semantic cutoff threshold.
+   */
+  distanceFromRouteMeters?: number;
 }
 
 export interface GeographicValidationResult {
@@ -89,6 +97,7 @@ export interface GeographicValidationResult {
   groundedEvidenceKeys: string[];
   rejectionReasons: GeographicValidationRejectionReason[];
   areaScopeMembership?: AreaScopeMembershipAudit;
+  routeScopeMembership?: RouteScopeMembershipAudit;
   decisionEntities?: GeographicValidationDecisionEntity[];
   validatorVersion: number;
 }
@@ -109,12 +118,6 @@ export interface GeographicValidationThresholds {
     minAnchors: number;
     maxRadiusMeters: number;
     maxPairwiseDistanceMeters: number;
-    // Task B5: max distance (meters) a point-like component may
-    // sit from a resolved canonical ROUTE's own LineString geometry to
-    // still count as "on/along the route" -- a real corridor-membership
-    // check, distinct from the regional destination-centroid/radius policy
-    // above (`maxRadiusMeters`/`maxPairwiseDistanceMeters`).
-    maxComponentDistanceFromRouteMeters: number;
   };
   experience: {
     minAnchors: number;
@@ -134,11 +137,6 @@ export const DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS: GeographicValidationThres
       minAnchors: 3,
       maxRadiusMeters: 80_000,
       maxPairwiseDistanceMeters: 160_000,
-      // A real stop genuinely "on" a walkable street-scale route sits
-      // within a couple hundred meters of it -- wide enough for a street's
-      // own width/nearby frontage, narrow enough that a stop from an
-      // unrelated part of the city cannot pass as belonging to this route.
-      maxComponentDistanceFromRouteMeters: 300,
     },
     experience: {
       minAnchors: 2,

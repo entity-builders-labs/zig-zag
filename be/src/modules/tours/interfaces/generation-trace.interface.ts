@@ -16,6 +16,7 @@ import {
 } from './experience-resolution.interface';
 import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requirement.interface';
 import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
+import { RouteScopeMembershipAudit } from './route-scope-membership.interface';
 import { GeographicDecisionReason } from './geographic-validation.interface';
 import { CandidateSourceSupportAudit } from '../utils/experience-candidate-extraction.util';
 import {
@@ -324,6 +325,7 @@ export interface TraceGeographicValidationDecision {
   strategy?: string;
   scope?: { kind: string; anchorName?: string; geoEntityId?: string };
   areaScopeMembership?: AreaScopeMembershipAudit;
+  routeScopeMembership?: RouteScopeMembershipAudit;
   groundedEvidenceKeys: string[];
   rejectionReasons: string[];
   /**
@@ -357,6 +359,12 @@ export interface TraceGeographicValidationDecision {
      * Absent when unknown or not applicable.
      */
     distanceToBoundaryMeters?: number;
+    /**
+     * Shortest distance in meters from the resolved point to the route anchor line.
+     * Strict invariant: distance is evidence/diagnostic for observability, never
+     * a semantic cutoff threshold.
+     */
+    distanceFromRouteMeters?: number;
   }>;
 }
 

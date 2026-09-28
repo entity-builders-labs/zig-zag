@@ -62,7 +62,8 @@ type GeographicDecisionReason =
   | "LOCALITY_CONFLICT"
   | "OUTSIDE_ROUTE_DESTINATION_RADIUS"
   | "EXTERNAL_AREA_SCOPE_MISMATCH"
-  | "EXTERNAL_ROUTE_SCOPE_MISMATCH";
+  | "EXTERNAL_ROUTE_SCOPE_MISMATCH"
+  | "NO_MATERIAL_ANCHOR_RELATION";
 
 interface GenerationBitacoraProps {
   trace: GenerationTrace;
@@ -200,6 +201,7 @@ const GEOGRAPHIC_REASON_LABELS: Record<GeographicDecisionReason, string> = {
   OUTSIDE_ROUTE_DESTINATION_RADIUS: "Fuera del radio regional de la ruta",
   EXTERNAL_AREA_SCOPE_MISMATCH: "Fuera del área solicitada",
   EXTERNAL_ROUTE_SCOPE_MISMATCH: "Fuera del corredor de la ruta",
+  NO_MATERIAL_ANCHOR_RELATION: "Sin relación material con el ancla solicitada",
 };
 
 function humanGeographicReason(reason?: string): string | undefined {
@@ -633,6 +635,7 @@ function GeographicComponentRow({
 }) {
   const visual = relationVisual(component.relation);
   const distance = formatDistanceMeters(component.distanceToBoundaryMeters);
+  const routeDistance = formatDistanceMeters(component.distanceFromRouteMeters);
   const humanReason = humanGeographicReason(component.decisionReason);
 
   return (
@@ -696,6 +699,12 @@ function GeographicComponentRow({
       {distance ? (
         <Text size="2xs" color={COLORS.amber} mt="$1">
           {distance}
+        </Text>
+      ) : null}
+
+      {routeDistance ? (
+        <Text size="2xs" color={COLORS.textDim} mt="$1">
+          {routeDistance} a la ruta
         </Text>
       ) : null}
     </Box>

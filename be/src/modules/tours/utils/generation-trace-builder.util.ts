@@ -1633,6 +1633,7 @@ export function buildGeographicValidationStep(
       validationIntent: result.validationIntent,
       destinationBoundary: result.destinationBoundary,
       areaScopeMembership: entry.areaScopeMembership,
+      routeScopeMembership: entry.routeScopeMembership,
       groundedEvidenceKeys: [...entry.groundedEvidenceKeys],
       rejectionReasons: [...entry.rejectionReasons],
       components: (resolvedCandidate?.resolvedEntities ?? []).map((entity) => {
@@ -1647,6 +1648,7 @@ export function buildGeographicValidationStep(
           relation: decision?.relation ?? 'evaluated',
           decisionReason: decision?.decisionReason,
           distanceToBoundaryMeters: decision?.distanceToBoundaryMeters,
+          distanceFromRouteMeters: decision?.distanceFromRouteMeters,
         };
       }),
     };

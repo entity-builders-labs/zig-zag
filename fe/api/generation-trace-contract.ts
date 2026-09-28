@@ -271,6 +271,7 @@ export interface TraceGeographicComponent {
   relation?: "accepted" | "offending" | "evaluated";
   decisionReason?: string;
   distanceToBoundaryMeters?: number;
+  distanceFromRouteMeters?: number;
 }
 
 export interface TraceGeographicValidationDecision {
