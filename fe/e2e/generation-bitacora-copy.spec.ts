@@ -1,52 +1,49 @@
-import { expect, test } from '@playwright/test';
-import { API_URL } from './playwright.config';
-import { apiLogin, seedAuthSession } from './auth-helper';
+import { expect, test } from "@playwright/test";
+import { API_URL } from "./playwright.config";
+import { apiLogin, seedAuthSession } from "./auth-helper";
 
-test('clicking the generation bitacora copies its complete text', async ({ context, page, request }) => {
+test("renders generic v5 facts and unknown future steps", async ({
+  context,
+  page,
+  request,
+}) => {
   const session = await apiLogin(request);
   const createResponse = await request.post(`${API_URL}/tours`, {
     headers: { Authorization: `Bearer ${session.accessToken}` },
     data: {
-      name: 'Bitacora clipboard fixture',
+      name: "Bitacora v5 fixture",
       totalDays: 1,
       metadata: {
         generationTrace: {
+          version: 5,
+          runtime: { buildCommit: "fixture" },
+          result: {
+            status: "COMPLETED",
+            outcome: "TOUR_MATERIALIZED",
+            reasonCodes: ["COMPLETE"],
+            facts: { materialized: 1 },
+          },
           steps: [
             {
-              stage: 'destination_resolution',
-              label: 'Resolución del destino',
-              summary: '"San Juan" resolvió a un límite real de ciudad.',
-            },
-            {
-              stage: 'places_crawl',
-              label: 'Catalog refill · Google Places',
-              summary:
-                'Google Places recibió 2 resultados y persistió 1. Rechazos totales registrados: 1. Motivos registrados (un candidato puede tener más de uno): generic_name=1.',
-              candidates: [
+              id: "future-1",
+              sequence: 1,
+              name: "future.producer.step",
+              decision: {
+                status: "WARN",
+                outcome: "DEGRADED",
+                reasonCodes: ["PROVIDER_UNAVAILABLE"],
+              },
+              rules: [
                 {
-                  source: 'google_places',
-                  id: 'activity-1',
-                  name: 'Museo Histórico Provincial',
-                  detail:
-                    'tipo proveedor museum · categoría cultural · rating 4.7/5 (240 reviews)',
-                  offered: true,
-                  chosen: true,
+                  id: "expected-actual",
+                  name: "Expected versus actual",
+                  status: "WARN",
+                  facts: { input: "x", expected: "y", actual: "z" },
                 },
               ],
+              facts: { provider: "gemini", httpStatus: 503 },
             },
           ],
-          hallucinatedCount: 0,
-          duplicateCount: 0,
-          auditFindings: {
-            perActivity: [
-              {
-                activityId: 'activity-1',
-                activityName: 'Museo Histórico Provincial',
-                openingHoursCheck: 'no_data',
-                priceLevelCheck: 'ok',
-              },
-            ],
-          },
         },
       },
     },
@@ -54,69 +51,41 @@ test('clicking the generation bitacora copies its complete text', async ({ conte
   expect(createResponse.ok()).toBeTruthy();
   const { id: tourId } = await createResponse.json();
 
-  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await seedAuthSession(page, session);
   await page.goto(`/tours/${tourId}`);
-  await page.getByTestId('bitacora-toggle').first().click();
+  await page.getByTestId("bitacora-toggle").first().click();
 
-  await expect(page.getByText('Bitácora de Generación').first()).toBeVisible();
-  await expect(page.getByText('Resolución del destino').first()).toBeVisible();
-  await page.getByText('Catalog refill · Google Places').first().click();
-  await expect(page.getByText('Museo Histórico Provincial').first()).toBeVisible();
+  await expect(page.getByText("future.producer.step").first()).toBeVisible();
+  await expect(page.getByText("PROVIDER_UNAVAILABLE").first()).toBeVisible();
+  await page.getByText("Rule facts").click();
+  await expect(page.getByText(/"expected": "y"/).first()).toBeVisible();
+  await page.getByText("Result facts").click();
+  await expect(page.getByText(/"materialized": 1/).first()).toBeVisible();
 });
 
-test('collapsible execution summary toggles open and closed', async ({ context, page, request }) => {
+test("does not render historical v1-v4 data as v5", async ({
+  page,
+  request,
+}) => {
   const session = await apiLogin(request);
   const createResponse = await request.post(`${API_URL}/tours`, {
     headers: { Authorization: `Bearer ${session.accessToken}` },
     data: {
-      name: 'Bitacora summary collapse fixture',
+      name: "Legacy bitacora fixture",
       totalDays: 1,
-      metadata: {
-        generationTrace: {
-          steps: [
-            {
-              stage: 'destination_resolution',
-              label: 'Resolución del destino',
-              summary: '"Mendoza" resolvió a un límite real de ciudad.',
-            },
-          ],
-          hallucinatedCount: 0,
-          duplicateCount: 0,
-          executionSummary: {
-            status: 'completed',
-            steps: ['Destino resuelto a Mendoza.'],
-            narrative: '1. Destino resuelto a Mendoza.',
-            acceptedExperiences: 4,
-            selectedExperiences: 3,
-            rejectedProposals: 1,
-          },
-        },
-      },
+      metadata: { generationTrace: { version: 4, steps: [] } },
     },
   });
   expect(createResponse.ok()).toBeTruthy();
   const { id: tourId } = await createResponse.json();
-
   await seedAuthSession(page, session);
   await page.goto(`/tours/${tourId}`);
-  await page.getByTestId('bitacora-toggle').first().click();
 
-  await expect(page.getByText('Bitácora de Generación').first()).toBeVisible();
-  await expect(page.getByTestId('bitacora-summary-toggle')).toBeVisible();
-  await expect(page.getByText('3 seleccionadas')).toBeVisible();
-  await expect(page.getByText('4 validadas')).toBeVisible();
-
-  // Initially collapsed: 'Ver detalle' is visible
-  await expect(page.getByText('Ver detalle')).toBeVisible();
-
-  // Click to expand
-  await page.getByTestId('bitacora-summary-toggle').click();
-  await expect(page.getByText('Ocultar')).toBeVisible();
-  await expect(page.getByText('Validación Geográfica')).toBeVisible();
-
-  // Click to collapse
-  await page.getByTestId('bitacora-summary-toggle').click();
-  await expect(page.getByText('Ver detalle')).toBeVisible();
+  await expect(
+    page.getByText(
+      "Esta Bitácora pertenece a una versión histórica no compatible.",
+    ),
+  ).toBeVisible();
+  await expect(page.getByTestId("bitacora-toggle")).toHaveCount(0);
 });
-

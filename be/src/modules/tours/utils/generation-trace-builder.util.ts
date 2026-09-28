@@ -15,6 +15,7 @@ import {
   TraceAcquisitionContext,
   TraceCompositeOutcome,
 } from '../interfaces/generation-trace.interface';
+import { redactTraceText } from './generation-trace-recorder.util';
 import {
   TourCompletenessIssue,
   TourCompletenessResult,
@@ -144,13 +145,6 @@ function rule(
 
 const TRACE_SNIPPET_MAX_CHARS = 500;
 const TRACE_RAW_OUTPUT_MAX_CHARS = 8000;
-
-function redactTraceText(value: string): string {
-  return value.replace(
-    /(authorization|api[-_ ]?key|token|cookie)\s*[:=]\s*[^\s,;]+/gi,
-    '$1:[REDACTED]',
-  );
-}
 
 function traceSnippet(value?: string): string | undefined {
   if (!value) return undefined;

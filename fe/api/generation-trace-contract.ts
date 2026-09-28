@@ -61,3 +61,21 @@ export interface GenerationTrace {
   };
   steps: GenerationTraceStep[];
 }
+
+/** Boundary guard: the native Bitácora deliberately supports v5 only. */
+export function isGenerationTraceV5(value: unknown): value is GenerationTrace {
+  if (!value || typeof value !== "object") return false;
+  const trace = value as { version?: unknown; steps?: unknown };
+  return (
+    trace.version === 5 &&
+    Array.isArray(trace.steps) &&
+    trace.steps.every(
+      (step) =>
+        !!step &&
+        typeof step === "object" &&
+        typeof (step as { id?: unknown }).id === "string" &&
+        typeof (step as { sequence?: unknown }).sequence === "number" &&
+        typeof (step as { name?: unknown }).name === "string",
+    )
+  );
+}

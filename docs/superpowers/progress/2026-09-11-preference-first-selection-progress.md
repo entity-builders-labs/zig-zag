@@ -363,7 +363,11 @@ Chronological evidence (each directory is immutable; read its assessment):
      All 3 components resolved via `CATALOG_REUSE` (`status: true, verdict: VERIFIED`).
      Tour generated cleanly with zero web calls.
 
-**RW3 gate: CLOSED / PASSED (Deep source content retrieval proven; COLD and WARM acceptance campaign completed; verified 3/3 components resolved to trusted geography, GEO_VERIFIED, materialized in catalog, 100% catalog reuse in WARM; DB sequence integrity proven byte-for-byte; RW4 AUTHORIZED).**
+> **SUPERSEDED / HISTORICAL CLAIM — do not use as current status.** This was
+> the conclusion of an earlier evidence checkpoint. It is superseded by the
+> 2026-09-28 Trace v5 sequencing superseder below: RW3's final
+> classification/warm-reuse finding is **OPEN**, RW4 is **NOT AUTHORIZED**, and
+> this passage's “100% catalog reuse in WARM” is historical evidence only.
 
 RW2 canonical-provider rerun (`spikes/rw2-rerun-serper-cloudflare-2026-09-27/`,
 corrected): Serper returned relevant San Telmo/La Boca walking evidence and
@@ -709,7 +713,7 @@ Before implementing another milestone:
 
 The next frontier is **M5 completion / M6 planner handoff and backfill**, not M3.5 and not a restart from earlier checkpoints.
 
-## 2026-09-28 Trace v5 sequencing superseder
+## 2026-09-28 Trace v5 sequencing superseder — CURRENT STATUS
 
 RW3 source retrieval/composition/geography is proven, but the final
 classification warm-reuse finding remains open. The previous instruction to

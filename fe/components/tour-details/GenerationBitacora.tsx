@@ -10,6 +10,7 @@ import type {
   TraceDecisionStatus,
 } from "@/api/generation-trace-contract";
 export type { GenerationTrace } from "@/api/generation-trace-contract";
+export { isGenerationTraceV5 } from "@/api/generation-trace-contract";
 
 const C = {
   page: "#08111E",
@@ -140,10 +141,13 @@ function Step({ step, depth }: { step: GenerationTraceStep; depth: number }) {
         </Text>
       ) : null}
       {step.rules?.map((r, i) => (
-        <Text key={`${r.id}-${i}`} color={color(r.status)} size="2xs" mt="$1">
-          [{r.status}] {r.name}
-          {r.reason ? ` — ${r.reason}` : ""}
-        </Text>
+        <Box key={`${r.id}-${i}`} mt="$1">
+          <Text color={color(r.status)} size="2xs">
+            [{r.status}] {r.name}
+            {r.reason ? ` — ${r.reason}` : ""}
+          </Text>
+          <JsonBlock title="Rule facts" value={r.facts} />
+        </Box>
       ))}
       <Refs title="References" values={step.references} />
       {step.subjects?.map((s, i) => (
@@ -237,15 +241,26 @@ export const GenerationBitacora = ({
             Generation Trace v5
           </Text>
           {trace.result ? (
-            <Text
-              color={color(trace.result.status === "FAILED" ? "FAIL" : "PASS")}
-              size="xs"
-            >
-              {trace.result.status} · {trace.result.outcome}{" "}
-              {trace.result.reason ? `— ${trace.result.reason}` : ""}
-            </Text>
+            <>
+              <Text
+                color={color(
+                  trace.result.status === "FAILED" ? "FAIL" : "PASS",
+                )}
+                size="xs"
+              >
+                {trace.result.status} · {trace.result.outcome}{" "}
+                {trace.result.reason ? `— ${trace.result.reason}` : ""}
+              </Text>
+              {trace.result.reasonCodes?.length ? (
+                <Text color={C.amber} size="2xs">
+                  {trace.result.reasonCodes.join(", ")}
+                </Text>
+              ) : null}
+              <JsonBlock title="Result facts" value={trace.result.facts} />
+            </>
           ) : null}
           <ScrollView>
+            <JsonBlock title="Runtime" value={trace.runtime} />
             <JsonBlock
               title="Canonical request"
               value={trace.canonicalRequest}

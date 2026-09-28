@@ -74,7 +74,6 @@ RW3 source-depth/composition/geography proven; warm-reuse finding open
 → RW5
 → RW6
 → Preference-First Core CLOSED
-→ Generation Trace v5 maintainability cutover
 → unified agentic branch from accepted Preference-First HEAD
 → selective agent capability port/adaptation
 → unified Agentic E2E
@@ -229,12 +228,14 @@ tracks independent and identifies one pointer per track.
 
 ---
 
-## 8. Planned maintainability cleanup: Generation Trace v5
+## 8. Active maintainability cutover: Generation Trace v5
 
-Trace v4 is intentionally frozen as the active forensic contract through
-Preference-First real-world acceptance.
+The native persisted envelope is **provisional v5**. Many producer
+projections still pass through the temporary v4 bridge, and v5 acceptance is
+**NOT COMPLETE**. Do not describe v4 as the current forensic authority or v5
+as complete.
 
-After Preference-First Core closes, simplify the Bitácora around a generic
+The active cutover is simplifying Bitácora around a generic
 execution/decision-step model instead of continuing to mirror every engine
 subsystem in `generation-trace.interface.ts` and
 `generation-trace-builder.util.ts`.
