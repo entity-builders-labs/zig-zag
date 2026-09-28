@@ -1,6 +1,6 @@
 # Preference-First Selection — CURRENT MAIN PROGRESS
 
-Updated: 2026-09-27
+Updated: 2026-09-28
 Branch: `feat/preference-first-selection`
 Repository: `jiseruk/zig-zag`
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
@@ -16,28 +16,38 @@ classification contract and deterministic validation are unchanged.
 >
 > Code wins over stale progress text. The cutover has progressed non-linearly: M4 is already landed and substantial M5 work is already landed. Do not revert later milestone work merely because an earlier milestone needed a forward correction.
 
-## Current execution verdict — 2026-09-27
+## Current execution verdict — 2026-09-28
 
-**Active track: Gate C real-world generalization — RW3 IN PROGRESS (RW3-N5 design proven; rerun sequence pending clean validation; RW4 NOT AUTHORIZED).**
+**Active track: Gate C real-world generalization — RW3 IN PROGRESS (RW3-N6 route-scope policy fixed; clean rerun executed; RW4 NOT AUTHORIZED).**
 
-RW3-N5 resolution and live verification status:
-- Provider-neutral typo normalization landed in shared prompts, extractor
-  schema, and extraction utils (`sourceName`, `normalizationKind`).
-- Three Separate Truths preserved: source evidence text remains literal in
-  `verifiedSupportSpan` and `sourceName`; extractor proposes normalized
-  canonical name `La Bombonera`; IdentityVerifier strictly confirms against
-  trusted geography (Nominatim / OSM `osm:way:248598885` + Wikidata).
-- Live Cloudflare Workers AI (`@cf/qwen/qwen3.8-27b`) on `ev-5` text emitted
-  `name: "La Bombonera"`, `sourceName: "La Bambonera stadium"`,
-  `normalizationKind: "TYPO_CORRECTION"`, passing source support with
-  `verifiedSupportSpan: "La Bambonera stadium"`.
-- Controlled unit test suite (`experience-proposal-normalization.spec.ts`, 12 tests)
-  and tours module suite (122 suites, 1,704 tests) pass with zero errors.
-- Preceding rerun in `spikes/rw3-typo-normalization-rerun-2026-09-27/` overclaimed
-  E2E closure: `cold/db-after.json` (15 entities) did not match `warm/db-before.json`
-  (16 entities) due to state inserted between runs, and COLD did not persist a walk
-  experience. Thus, COLD→WARM reuse was INVALID.
-- RW3 remains OPEN pending machine-verified clean rerun; RW4 is NOT AUTHORIZED.
+RW3-N6 resolution and live verification status:
+- **Defect:** `RW3-N6 — fixed-distance route corridor encoded semantic scope`.
+- **Root cause:** A geometric diagnostic (distance from canonical route) was elevated
+  into domain identity/scope policy through an arbitrary fixed 300m threshold,
+  arbitrarily rejecting coherent walking components (e.g. La Bombonera at 428m from
+  Caminito while accepting Quinquela Martín at 188m).
+- **Architectural correction:** Pure policy `evaluateRouteScopeMembership` separates
+  responsibilities cleanly:
+  1. Geographic validation answers: *Does this source-backed Experience belong
+     coherently to the requested geographic scope?* Anchor satisfaction is
+     evaluated via real canonical identity / name match / street proximity, destination
+     boundary compatibility is enforced, and coherent stops in the enclosing area
+     or destination are accepted (`SAME_LOCAL_SCOPE`, `DESTINATION_COMPATIBLE_EXTENSION`).
+  2. Planner mobility answers: *Can the user realistically walk this itinerary under
+     their mobility constraints?* The canonical walking constraints
+     (`maxWalkingDistancePerDayMeters`, `maxContinuousWalkingDistanceMeters`) remain
+     the authority for walking feasibility (`MAX_WALKING_PER_DAY_EXCEEDED`).
+  3. Distance from route is preserved strictly as diagnostic evidence
+     (`distanceFromRouteMeters`), never an arbitrary cut-off threshold.
+- **Deterministic regressions (G1–G6):** All GREEN across 50 tests in
+  `composite-geographic-validation.service.spec.ts` and 5 in
+  `route-scope-membership-policy.spec.ts`.
+- **Clean live rerun:** Executed in `spikes/rw3-route-scope-rerun-2026-09-28/` on dedicated
+  database `zigzag_spike_rw3_routescope`. Preflight confirmed canonical Serper + Cloudflare
+  pair. Serper returned 10 relevant Caminito results. Cloudflare extraction returned 0
+  candidates on this run. Fail-closed termination preserved. Sequence integrity preserved
+  (no synthetic DB injection; WARM not run on empty catalog).
+- RW3 remains OPEN pending live multi-component admission closure; RW4 NOT AUTHORIZED.
 
 
 The component-resolution / RW1 milestone is **COMPLETE / CLOSED** and must not
@@ -308,9 +318,28 @@ Chronological evidence (each directory is immutable; read its assessment):
      `Museo Benito Quinquela Martín` is 188.1m away ($\le 300\text{m}$, passes corridor);
      `La Bombonera` is 428.2m away ($> 300\text{m}$), which fails corridor
      membership with `EXTERNAL_ROUTE_SCOPE_MISMATCH`. Existing geometry rules
-     were preserved strictly without loosening.
+     were preserved strictly without loosening, exposing defect RW3-N6.
 
-**RW3 gate: BLOCKED / OPEN (N5 design PROVEN; clean live rerun blocked by extraction shape variance; RW4 NOT AUTHORIZED).**
+7. `spikes/rw3-route-scope-rerun-2026-09-28/` — route-scope policy & feasibility separation:
+   - **Defect resolution (RW3-N6):** Removed arbitrary 300m hard cliff. Implemented
+     pure policy `evaluateRouteScopeMembership` combining real anchor satisfaction
+     (`ANCHOR_COMPONENT` / `ON_ROUTE`), destination boundary compatibility
+     (`OUTSIDE_DESTINATION_BOUNDARY`), local scope sharing (`SAME_LOCAL_SCOPE`),
+     and coherent extensions (`DESTINATION_COMPATIBLE_EXTENSION`).
+   - **Separation of concerns:** Geographic validation verifies spatial scope
+     coherence; planner owns walking feasibility via canonical constraints
+     (`maxWalkingDistancePerDayMeters`, `maxContinuousWalkingDistanceMeters`).
+     Distance from route is preserved as diagnostic evidence (`distanceFromRouteMeters`),
+     never semantic reject authority.
+   - **Deterministic regressions (G1–G6):** All GREEN (G1 no 300m cliff, G2 real
+     Caminito/Bombonera case, G3 anchor required, G4 destination mismatch, G5 area
+     context does not fake cardinality, G6 planner owns walking feasibility).
+   - **COLD execution:** Terminated fail-closed in 10.1s on dedicated DB
+     `zigzag_spike_rw3_routescope`. Serper returned 10 relevant Caminito results.
+     Cloudflare extractor yielded 0 candidates on this run. No synthetic DB
+     injection; WARM not run on empty catalog.
+
+**RW3 gate: BLOCKED / OPEN (N5 design PROVEN; N6 route-scope policy PROVEN; clean live rerun blocked by extraction shape variance; RW4 NOT AUTHORIZED).**
 
 RW2 canonical-provider rerun (`spikes/rw2-rerun-serper-cloudflare-2026-09-27/`,
 corrected): Serper returned relevant San Telmo/La Boca walking evidence and
@@ -322,8 +351,8 @@ effect on the extraction result). RW2 is not reopened.
 
 ### Open next steps
 
-- next canonical gate: **clean RW3 rerun** (`spikes/rw3-final-clean-rerun-2026-09-27/`) —
-  machine check DB sequence integrity (`cold/db-after == warm/db-before`).
+- next canonical gate: **clean RW3 rerun** — machine check DB sequence integrity
+  (`cold/db-after == warm/db-before`).
 - **RW4 (generalization)**: NOT AUTHORIZED until RW3 clean rerun PASSES.
 - future frozen-corpus investigation of the RW2 Serper → Cloudflare
   multi-area extraction delta (use `50000 / 20000` for any controlled RW2

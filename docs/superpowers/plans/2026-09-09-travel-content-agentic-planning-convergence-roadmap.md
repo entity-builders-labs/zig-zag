@@ -890,7 +890,7 @@ executed**. RW2's two named findings plus its bitácora gap are now closed
 (GENERIC structured-anchor propagation fixed; planner walking-rejection wording
 corrected; bitácora composition/walking diagnostics added; walking policy
 unchanged).
-RW3 (Caminito) has three immutable runs (2026-09-27). The historical SerpAPI
+RW3 (Caminito) has multiple characterized runs (2026-09-27 and 2026-09-28). The historical SerpAPI
 run failed on RW3-F1 (a cross-branch out-of-destination homonym vetoed the
 real route). After `b31f5f33` the Caminito/Ezeiza case was fixed and
 live-proven (F1, F3, F4 live; F2 deterministic-test-proven, failure path not
@@ -899,17 +899,25 @@ compatible-only multiplicity, audit-free source-plan fingerprints, typed
 anchor handoff to the extractor) the canonical Serper + Cloudflare rerun
 proves anchor resolution and the search → extractor handoff live, and the
 extractor emits a Caminito-related source-supported walk; the misspelling
-blocker (RW3-N5) is closed via provider-neutral typo normalization.
+blocker (RW3-N5) was closed via provider-neutral typo normalization.
 
-The preceding rerun in `spikes/rw3-typo-normalization-rerun-2026-09-27/`
-had sequence contamination (`cold/db-after` != `warm/db-before`) and no walk
-candidate was persisted in COLD. The N5 normalization design is proven, but
-full live COLD→WARM E2E proof requires a clean rerun.
+Following the N5 fix, geometry audits exposed defect `RW3-N6 — fixed-distance route corridor encoded semantic scope`:
+a geometric diagnostic (distance from canonical route) was elevated into domain identity/scope policy
+through an arbitrary fixed 300m threshold, rejecting coherent walking components (La Bombonera at 428m)
+while accepting Quinquela Martín at 188m. This defect was resolved via pure policy
+`evaluateRouteScopeMembership` for route-anchor coherence (anchor satisfaction, destination boundary
+compatibility, local scope sharing, coherent extensions), preserving `distanceFromRouteMeters` strictly as
+observational evidence, and keeping walking feasibility ownership strictly in the mobility planner.
+Deterministic regressions G1–G6 all pass green.
 
-**RW3 is OPEN (clean rerun required) → RW4 is NOT AUTHORIZED.**
+Clean rerun executed in `spikes/rw3-route-scope-rerun-2026-09-28/` on dedicated DB
+`zigzag_spike_rw3_routescope` with canonical Serper + Cloudflare pair. Sequence integrity
+was strictly preserved (no synthetic state injected; WARM not run on empty catalog).
+
+**RW3 is OPEN (live multi-component admission required) → RW4 is NOT AUTHORIZED.**
 Current characterization provider pair: Serper + Cloudflare; SerpAPI runs
 are historical. See
-`spikes/rw3-typo-normalization-rerun-2026-09-27/assessment.md` and the canonical
+`spikes/rw3-route-scope-rerun-2026-09-28/assessment.md` and the canonical
 Progress. Do not reopen the closed component-resolution Progress for
 post-milestone work unless a real regression disproves an accepted milestone
 fact.
@@ -925,8 +933,8 @@ Experience dedupe policy correction          (DONE)
 → focused live rerun                         (done, dedupe shape inconclusive)
 → extractor/provider reliability             (bounded: case-b ×5 landed)
 → RW2 multi-area walk                        (EXECUTED 2026-09-26; findings closed)
-→ RW3 Caminito canonical OSM ROUTE           (IN PROGRESS: N5 design proven;
-                                               clean rerun required;
+→ RW3 Caminito canonical OSM ROUTE           (IN PROGRESS: N5 & N6 resolved;
+                                               live multi-component admission pending;
                                                RW4 NOT AUTHORIZED)
 → RW4–RW6 generalization
    + initial tour-quality evaluation
