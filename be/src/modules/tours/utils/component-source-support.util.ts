@@ -33,7 +33,9 @@
 export type ComponentSourceSupportReason =
   | 'NO_SUPPORT_SPAN'
   | 'MISSING_EVIDENCE_TEXT'
-  | 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE';
+  | 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE'
+  | 'MISSING_NORMALIZATION_KIND'
+  | 'INVALID_NORMALIZATION_KIND';
 
 export type ComponentSourceSupportResult =
   | { supported: true; verifiedSupportSpan: string }

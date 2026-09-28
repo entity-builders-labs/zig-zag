@@ -13,6 +13,11 @@ import {
 const ROLES = new Set(['area', 'waypoint', 'route', 'venue']);
 const KINDS = new Set(['PLACE', 'AREA', 'ROUTE']);
 const MAX_HINTS = 8;
+const VALID_NORMALIZATION_KINDS = new Set<string>([
+  'TYPO_CORRECTION',
+  'TRANSLATION',
+  'CANONICAL_NAME',
+]);
 
 /** One evidence record's key and its real captured title/snippet text, used
  * only for the deterministic source-support gate (see
@@ -240,15 +245,42 @@ export function extractExperienceCandidates(
             ? hint.sourceName.trim()
             : undefined;
         const sourceName = rawSourceName ?? name;
-        const isNormalized = sourceName.toLowerCase() !== name.toLowerCase();
+        const isNormalized = sourceName !== name;
+        const rawNormalizationKind =
+          typeof hint.normalizationKind === 'string' &&
+          hint.normalizationKind.trim()
+            ? hint.normalizationKind.trim()
+            : undefined;
+        const isValidNormalizationKind =
+          rawNormalizationKind &&
+          VALID_NORMALIZATION_KINDS.has(rawNormalizationKind);
+
+        // Strict generic normalization contract (Finding 1):
+        // 1. sourceName absent -> sourceName = name, normalizationKind absent
+        // 2. sourceName == name -> normalizationKind absent
+        // 3. sourceName != name AND valid explicit kind -> accept typed normalization
+        // 4. sourceName != name AND kind missing/invalid -> SOURCE CONTRACT VIOLATION / reject candidate
+        if (isNormalized && !isValidNormalizationKind) {
+          const reason: ComponentSourceSupportReason = !rawNormalizationKind
+            ? 'MISSING_NORMALIZATION_KIND'
+            : 'INVALID_NORMALIZATION_KIND';
+          componentAudits.push({
+            index: hintIndex,
+            key,
+            name,
+            sourceName,
+            role: hint.role,
+            expectedKind: hint.expectedKind,
+            evidenceKeys: hintEvidenceKeys,
+            status: 'UNSUPPORTED',
+            reason,
+          });
+          continue;
+        }
+
         const normalizationKind: ComponentNormalizationKind | undefined =
           isNormalized
-            ? hint.normalizationKind &&
-              ['TYPO_CORRECTION', 'TRANSLATION', 'CANONICAL_NAME'].includes(
-                hint.normalizationKind,
-              )
-              ? (hint.normalizationKind as ComponentNormalizationKind)
-              : 'TYPO_CORRECTION'
+            ? (rawNormalizationKind as ComponentNormalizationKind)
             : undefined;
 
         if (isUnsupportedComponentSourceSupportResult(support)) {

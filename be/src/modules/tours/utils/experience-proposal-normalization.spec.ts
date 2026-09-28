@@ -523,4 +523,192 @@ describe('RW3-N5 Source Typo Normalization Contract', () => {
     expect(traceHint.status).toBe('resolved');
     expect(traceHint.resolvedGeoEntity?.canonicalName).toBe('La Bombonera');
   });
+
+  // Test 9: sourceName == name results in normalizationKind absent, even if an explicit kind was supplied
+  it('9. sourceName == name results in normalizationKind absent, even if kind was supplied', () => {
+    const rawCandidate = {
+      candidates: [
+        {
+          name: 'Caminito Tour',
+          themes: ['culture'],
+          traits: [] as string[],
+          intents: ['walk'],
+          componentHints: [
+            {
+              key: 'caminito',
+              name: 'Caminito',
+              sourceName: 'Caminito',
+              normalizationKind: 'TYPO_CORRECTION' as const, // Should be discarded because sourceName == name
+              role: 'waypoint',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'Caminito',
+            },
+          ],
+          evidenceKeys: ['ev-1'],
+          shortReason: 'Identical sourceName and name',
+        },
+      ],
+    };
+
+    const result = extractExperienceCandidates(
+      rawCandidate,
+      [ev('ev-1', 'Explore Caminito in La Boca.')],
+      8,
+    );
+    expect(result.candidates).toHaveLength(1);
+    const hint = result.candidates[0].componentHints[0];
+    expect(hint.name).toBe('Caminito');
+    expect(hint.sourceName).toBe('Caminito');
+    expect(hint.normalizationKind).toBeUndefined();
+    expect(
+      result.sourceSupportAudits[0].components[0].normalizationKind,
+    ).toBeUndefined();
+  });
+
+  // Test 10: sourceName != name with valid TRANSLATION and CANONICAL_NAME are accepted
+  it('10. sourceName != name with valid TRANSLATION and CANONICAL_NAME are accepted', () => {
+    const rawCandidate = {
+      candidates: [
+        {
+          name: 'Translated Tour',
+          themes: ['nature'],
+          traits: [] as string[],
+          intents: ['visit'],
+          componentHints: [
+            {
+              key: 'park',
+              name: 'Parque Nacional El Leoncito',
+              sourceName: 'El Leoncito National Park',
+              normalizationKind: 'TRANSLATION' as const,
+              role: 'area',
+              expectedKind: 'AREA',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'El Leoncito National Park',
+            },
+            {
+              key: 'catedral',
+              name: 'Catedral Metropolitana de Buenos Aires',
+              sourceName: 'Metropolitan Cathedral',
+              normalizationKind: 'CANONICAL_NAME' as const,
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'Metropolitan Cathedral',
+            },
+          ],
+          evidenceKeys: ['ev-1'],
+          shortReason: 'Valid translation and canonical naming',
+        },
+      ],
+    };
+
+    const result = extractExperienceCandidates(
+      rawCandidate,
+      [
+        ev(
+          'ev-1',
+          'Visit El Leoncito National Park and Metropolitan Cathedral.',
+        ),
+      ],
+      8,
+    );
+    expect(result.candidates).toHaveLength(1);
+    const hints = result.candidates[0].componentHints;
+    expect(hints[0].normalizationKind).toBe('TRANSLATION');
+    expect(hints[0].sourceName).toBe('El Leoncito National Park');
+    expect(hints[0].name).toBe('Parque Nacional El Leoncito');
+    expect(hints[1].normalizationKind).toBe('CANONICAL_NAME');
+    expect(hints[1].sourceName).toBe('Metropolitan Cathedral');
+  });
+
+  // Test 11: sourceName != name with missing normalizationKind is rejected as SOURCE_CONTRACT_VIOLATION
+  it('11. sourceName != name with missing normalizationKind is rejected as SOURCE_CONTRACT_VIOLATION', () => {
+    const rawCandidate = {
+      candidates: [
+        {
+          name: 'Missing Kind Candidate',
+          themes: ['culture'],
+          traits: [] as string[],
+          intents: ['walk'],
+          componentHints: [
+            {
+              key: 'bombonera',
+              name: 'La Bombonera',
+              sourceName: 'La Bambonera stadium',
+              // normalizationKind is missing!
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'La Bambonera stadium',
+            },
+          ],
+          evidenceKeys: ['ev-1'],
+          shortReason: 'Missing normalizationKind on changed name',
+        },
+      ],
+    };
+
+    const result = extractExperienceCandidates(
+      rawCandidate,
+      [ev('ev-1', 'Visit La Bambonera stadium.')],
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.sourceSupportAudits).toHaveLength(1);
+    expect(result.sourceSupportAudits[0].status).toBe(
+      'SOURCE_CONTRACT_VIOLATION',
+    );
+    expect(result.sourceSupportAudits[0].components[0].status).toBe(
+      'UNSUPPORTED',
+    );
+    expect(result.sourceSupportAudits[0].components[0].reason).toBe(
+      'MISSING_NORMALIZATION_KIND',
+    );
+  });
+
+  // Test 12: sourceName != name with invalid normalizationKind is rejected as SOURCE_CONTRACT_VIOLATION
+  it('12. sourceName != name with invalid normalizationKind is rejected as SOURCE_CONTRACT_VIOLATION', () => {
+    const rawCandidate = {
+      candidates: [
+        {
+          name: 'Invalid Kind Candidate',
+          themes: ['culture'],
+          traits: [] as string[],
+          intents: ['walk'],
+          componentHints: [
+            {
+              key: 'bombonera',
+              name: 'La Bombonera',
+              sourceName: 'La Bambonera stadium',
+              normalizationKind: 'MAGIC_INVENTED_KIND' as any,
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'La Bambonera stadium',
+            },
+          ],
+          evidenceKeys: ['ev-1'],
+          shortReason: 'Invalid normalizationKind on changed name',
+        },
+      ],
+    };
+
+    const result = extractExperienceCandidates(
+      rawCandidate,
+      [ev('ev-1', 'Visit La Bambonera stadium.')],
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.sourceSupportAudits).toHaveLength(1);
+    expect(result.sourceSupportAudits[0].status).toBe(
+      'SOURCE_CONTRACT_VIOLATION',
+    );
+    expect(result.sourceSupportAudits[0].components[0].status).toBe(
+      'UNSUPPORTED',
+    );
+    expect(result.sourceSupportAudits[0].components[0].reason).toBe(
+      'INVALID_NORMALIZATION_KIND',
+    );
+  });
 });
