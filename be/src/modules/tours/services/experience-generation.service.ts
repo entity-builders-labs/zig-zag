@@ -60,8 +60,7 @@ import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.int
 import { AreaRouteWalkAcquisitionService } from './area-route-walk-acquisition.service';
 import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
 import { partitionDeficitsByStrategy } from '../utils/acquisition-strategy-selector.util';
-import { redactTracePayload } from '../utils/trace-redaction.util';
-import { buildGenerationExecutionSummary } from '../utils/generation-execution-summary.util';
+import { GenerationTraceRecorder } from '../utils/generation-trace-recorder.util';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
 import { EmbeddingIndexIdentity } from '@shared/ai/interfaces/embedding-index.interface';
 import { findHardExclusionMatches } from '../utils/experience-preference-evaluator.util';
@@ -123,6 +122,50 @@ interface CandidateSelection {
   preferenceWeightById: Map<string, number>;
   mustIncludeExperienceIds: Set<string>;
   compositionOrderScoreById: Map<string, number>;
+}
+
+function buildV5TraceFromExistingProjections(input: {
+  request: TourGenerationRequest;
+  steps: GenerationTraceStep[];
+  status: 'COMPLETED' | 'FAILED';
+  outcome: string;
+  reason?: string;
+  facts?: unknown;
+}) {
+  const recorder = new GenerationTraceRecorder();
+  const acquisitionParents = new Map<number, string>();
+  for (const step of input.steps) {
+    const passNumber = step.acquisitionContext?.passNumber;
+    let parentId: string | undefined;
+    if (passNumber !== undefined) {
+      parentId = acquisitionParents.get(passNumber);
+      if (!parentId) {
+        parentId = `acquisition-pass-${passNumber}`;
+        recorder.record({
+          id: parentId,
+          name: 'acquisition.pass',
+          description: `Acquisition pass ${passNumber}`,
+          component: 'ExperienceGenerationService',
+          facts: { passNumber, strategy: step.acquisitionContext?.strategy },
+        });
+        acquisitionParents.set(passNumber, parentId);
+      }
+    }
+    recorder.recordLegacyProjection(step, parentId);
+  }
+  return recorder.build({
+    runtime: {
+      buildCommit: process.env.BUILD_COMMIT ?? 'unknown',
+      buildTimestamp: process.env.BUILD_TIMESTAMP ?? 'unknown',
+    },
+    canonicalRequest: input.request,
+    result: {
+      status: input.status,
+      outcome: input.outcome,
+      reason: input.reason,
+      facts: input.facts,
+    },
+  });
 }
 
 function formatExperienceForPrompt(experience: any): string {
@@ -1928,18 +1971,17 @@ export class ExperienceGenerationService {
           };
         });
 
-      const generationTrace = redactTracePayload({
-        version: 4,
-        runtime: {
-          buildCommit: process.env.BUILD_COMMIT ?? 'unknown',
-          buildTimestamp: process.env.BUILD_TIMESTAMP ?? 'unknown',
-        },
-        canonicalRequest: request,
+      const generationTrace = buildV5TraceFromExistingProjections({
+        request,
         steps: traceSteps,
-        materializedTourExperiences,
-        tourCompleteness: {
-          ...completeness,
-          retryAttempted: correctiveRetryAttempted,
+        status: 'COMPLETED',
+        outcome: 'TOUR_EXPERIENCES_MATERIALIZED',
+        facts: {
+          materializedTourExperiences,
+          tourCompleteness: {
+            ...completeness,
+            retryAttempted: correctiveRetryAttempted,
+          },
         },
       });
 
@@ -2018,37 +2060,6 @@ export class ExperienceGenerationService {
       }
 
       const completedMessage = `¡Listo! ${selectedExperiences.length} experiencias generadas exitosamente.`;
-      const traceStepList = (generationTrace as any).steps ?? [];
-      const acceptedExperiences = Math.max(
-        selectedExperiences.length,
-        traceStepList
-          .filter((step: any) => step.stage === 'entity_resolution')
-          .reduce(
-            (sum: number, step: any) =>
-              sum +
-              (step.entityResolutionAudit ?? []).filter(
-                (audit: { accepted: boolean }) => audit.accepted,
-              ).length,
-            0,
-          ),
-      );
-      const rejectedProposals = traceStepList
-        .filter((step: any) => step.stage === 'entity_resolution')
-        .reduce(
-          (sum: number, step: any) =>
-            sum +
-            (step.entityResolutionAudit ?? []).filter(
-              (audit: { accepted: boolean }) => !audit.accepted,
-            ).length,
-          0,
-        );
-      const executionSummary = buildGenerationExecutionSummary({
-        status: 'completed',
-        steps: traceSteps,
-        materializedTourExperiences,
-        acceptedExperiences,
-        rejectedProposals,
-      });
       const completedTour = await this.toursService.findOne(tourId);
       const effectiveMetadata =
         (completedTour?.metadata as any) || (metadata as any) || {};
@@ -2058,10 +2069,7 @@ export class ExperienceGenerationService {
           data: {
             metadata: {
               ...withoutGenerationFailure(effectiveMetadata),
-              generationTrace: {
-                ...(generationTrace as any),
-                executionSummary,
-              },
+              generationTrace,
               generationStatus: 'completed',
               generationMessage: completedMessage,
               generationCompletedAt: new Date().toISOString(),
@@ -2107,20 +2115,14 @@ export class ExperienceGenerationService {
                 generationMessage: failureMessage,
                 generationError: error?.message || String(error),
                 generationFailedAt: new Date().toISOString(),
-                generationTrace: redactTracePayload({
-                  ...((latestTour?.metadata as any)?.generationTrace ?? {}),
+                generationTrace: buildV5TraceFromExistingProjections({
+                  request: ((latestTour?.metadata as any)?.generationRequest ??
+                    metadata?.generationRequest ??
+                    {}) as TourGenerationRequest,
                   steps: traceSteps,
-                  version: 4,
-                  canonicalRequest: redactTracePayload(
-                    (latestTour?.metadata as any)?.generationRequest ??
-                      metadata?.generationRequest ??
-                      {},
-                  ),
-                  executionSummary: buildGenerationExecutionSummary({
-                    status: 'failed',
-                    steps: traceSteps,
-                    failure: error?.message || String(error),
-                  }),
+                  status: 'FAILED',
+                  outcome: 'GENERATION_FAILED',
+                  reason: error?.message || String(error),
                 }),
               },
             },

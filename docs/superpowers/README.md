@@ -34,7 +34,7 @@ RW4                               NOT AUTHORIZED
 RW5                               PENDING
 RW6 anti-fabrication              PENDING
 Preference-First Core CLOSED      PENDING
-Trace v5 maintainability cutover  PENDING AFTER PF CORE
+Trace v5 maintainability cutover  IN PROGRESS (pulled forward from PF close)
 Agentic convergence               PENDING AFTER TRACE V5
 ```
 
@@ -67,7 +67,9 @@ explicitly demoting the old pointer.
 ## 3. Canonical forward sequence
 
 ```text
-RW3
+RW3 source-depth/composition/geography proven; warm-reuse finding open
+→ Generation Trace v5 cutover
+→ RW3 final acceptance
 → RW4
 → RW5
 → RW6
@@ -80,10 +82,10 @@ RW3
 → post-convergence product capabilities
 ```
 
-The Trace v5 gate is deliberately **after** RW3–RW6. Trace v4 remains the
-forensic contract used to close Preference-First. The v5 cleanup is then done
-before agentic convergence so dynamic research/tool execution does not expand
-the current stage-specific trace model.
+The prior Trace v5 sequencing was explicitly superseded on 2026-09-28 after
+RW3 demonstrated that v4 lost a classifier HTTP 503 cause. Trace v5 now occurs
+before RW3 final acceptance; RW4 remains unauthorized. See
+`specs/2026-09-28-generation-trace-v5-cutover.md`.
 
 The detailed reasoning and acceptance invariants for Trace v5 live in the
 canonical convergence roadmap.

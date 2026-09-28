@@ -709,6 +709,14 @@ Before implementing another milestone:
 
 The next frontier is **M5 completion / M6 planner handoff and backfill**, not M3.5 and not a restart from earlier checkpoints.
 
+## 2026-09-28 Trace v5 sequencing superseder
+
+RW3 source retrieval/composition/geography is proven, but the final
+classification warm-reuse finding remains open. The previous instruction to
+defer Trace v5 until after RW3–RW6 is superseded: Trace v5 is the current
+maintenance cutover because v4 lost the canonical Gemini HTTP 503 failure
+cause. RW3 is not closed and RW4 is **NOT AUTHORIZED**.
+
 ## STOP condition
 
 Do not run RW1 and do not call the full live cutover complete until the later M5–M9 gates required by the canonical live-cutover plan are satisfied.
