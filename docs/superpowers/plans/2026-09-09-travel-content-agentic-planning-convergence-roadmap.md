@@ -713,12 +713,10 @@ It:
 
 Status: **COMPLETED — 2026-09-28.** Native trace v5 cutover is complete
 and legacy v4 builders/interfaces have been deleted per the early-stage deletion rule.
+Generation Trace v5 is now the active forensic and machine authority.
 RW3 final classification/warm-reuse finding remains OPEN; RW4 is NOT AUTHORIZED.
 
-The current Bitácora/Generation Trace v4 remains the forensic authority for the
-real-world gates. Do not destabilize it while those gates still depend on it.
-
-However, v4 has accumulated a structural maintainability defect. The trace
+Historically, v4 accumulated a structural maintainability defect. The trace
 originally had the right generic shape:
 
 ```text

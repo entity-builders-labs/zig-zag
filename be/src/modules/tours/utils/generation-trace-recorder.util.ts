@@ -178,6 +178,11 @@ export class GenerationTraceRecorder {
   private readonly recordedIds = new Map<string, string>();
   private nextSequence = 1;
 
+  hasStep(id: string): boolean {
+    const sanitized = sanitizeTraceText(id);
+    return this.steps.some((step) => step.id === sanitized);
+  }
+
   record(input: SerializableTraceStepInput): TraceStepV5 {
     if (!input.name.trim()) throw new Error('Trace step name is required');
     const parentId = input.parentId

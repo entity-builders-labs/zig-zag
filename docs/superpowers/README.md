@@ -2,7 +2,8 @@
 
 Status: **canonical navigation index; not an execution log**.  
 Updated: 2026-09-28.  
-Active tour-engine branch: `feat/preference-first-selection`.
+Active tour-engine branch: `feat/preference-first-selection`.  
+Repository remotes: upstream canonical `origin` is `entity-builders-labs/zig-zag`, development `fork` is `jiseruk/zig-zag`.
 
 This file answers four questions before an engineer or agent reads the large
 historical document set:
@@ -29,13 +30,13 @@ As of 2026-09-28 its gate-level state is:
 Component-resolution / RW1        CLOSED
 Experience dedupe correction      DONE
 RW2                               CLOSED
-RW3 Caminito route                IN PROGRESS
+RW3 Caminito route                IN PROGRESS (warm-reuse finding OPEN)
 RW4                               NOT AUTHORIZED
 RW5                               PENDING
 RW6 anti-fabrication              PENDING
 Preference-First Core CLOSED      PENDING
-Trace v5 maintainability cutover  COMPLETE
-Agentic convergence               PENDING AFTER TRACE V5
+Trace v5 maintainability cutover  COMPLETE / ACTIVE TRACE AUTHORITY
+Agentic convergence               PENDING AFTER RW3-RW6
 ```
 
 When this summary disagrees with the execution pointer or code, the execution
@@ -228,17 +229,23 @@ tracks independent and identifies one pointer per track.
 
 ---
 
-## 8. Active maintainability cutover: Generation Trace v5
+## 8. Generation Trace v5: COMPLETE / ACTIVE TRACE AUTHORITY
 
-The native persisted envelope is **provisional v5**. Many producer
-projections still pass through the temporary v4 bridge, and v5 acceptance is
-**NOT COMPLETE**. Do not describe v4 as the current forensic authority or v5
-as complete.
+Generation Trace v5 is the single canonical trace authority across the backend
+and frontend. Legacy Trace v4 has been completely removed: `generation-trace.interface.ts`,
+`generation-trace-builder.util.ts`, `generation-execution-summary.util.ts`,
+and all v4 projections and bridges have been deleted.
 
-The active cutover is simplifying Bitácora around a generic
-execution/decision-step model instead of continuing to mirror every engine
-subsystem in `generation-trace.interface.ts` and
-`generation-trace-builder.util.ts`.
+Bitácora and the tour generation pipeline are fully cut over to native v5:
+- Native persisted envelope: `version: 5`
+- Generic execution/decision-step model
+- Modular, domain-owned audit projections (`be/src/modules/tours/utils/generation-trace/`)
+- Frontend generic renderer consuming v5 steps natively
+
+Current status:
+- Trace v5: **COMPLETE / ACTIVE TRACE AUTHORITY**
+- RW3 final warm classification-reuse finding: **OPEN**
+- RW4: **NOT AUTHORIZED**
 
 The canonical roadmap owns the detailed design direction. The core intent is:
 
@@ -255,10 +262,9 @@ parent-child correlation
 ```
 
 Decision owners produce their canonical reasons and audit facts; the trace
-recorder records them instead of reconstructing policy.
-
-This is a maintainability refactor, not permission to weaken typed domain
-contracts or lose the forensic evidence accumulated during RW1–RW6.
+recorder records them instead of reconstructing policy. This was achieved while
+strictly preserving typed domain contracts and the forensic evidence accumulated
+during RW1–RW6.
 
 ---
 

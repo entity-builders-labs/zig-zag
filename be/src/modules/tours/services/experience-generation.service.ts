@@ -618,6 +618,7 @@ export class ExperienceGenerationService {
       failed: Set<string>;
     },
     executionLedger: AcquisitionExecutionLedger,
+    strategy: 'generic' | 'planner_capacity' = 'generic',
   ): Promise<ExecuteAcquisitionPlanResult> {
     const execution = await this.experienceAcquisition.executePlan(
       plan,
@@ -646,7 +647,7 @@ export class ExperienceGenerationService {
     }
     recordAcquisitionLifecycle(traceRecorder, {
       passNumber,
-      strategy: 'generic',
+      strategy,
       plan,
       execution,
       resolution,
@@ -1557,6 +1558,7 @@ export class ExperienceGenerationService {
               failed: acquisitionProvidersFailed,
             },
             acquisitionExecutionLedger,
+            'planner_capacity',
           );
 
           const refreshed = await this.refreshCatalogAndRecompose(
@@ -1802,30 +1804,6 @@ export class ExperienceGenerationService {
           };
         });
 
-      recordTourMaterializationStep(traceRecorder, {
-        tourId,
-        materializedTourExperiences,
-      });
-
-      const generationTrace = traceRecorder.build({
-        runtime: {
-          buildCommit: process.env.BUILD_COMMIT ?? 'unknown',
-          buildTimestamp: process.env.BUILD_TIMESTAMP ?? 'unknown',
-        },
-        canonicalRequest: request,
-        result: {
-          status: 'COMPLETED',
-          outcome: 'TOUR_EXPERIENCES_MATERIALIZED',
-          facts: {
-            materializedTourExperiences,
-            tourCompleteness: {
-              ...completeness,
-              retryAttempted: correctiveRetryAttempted,
-            },
-          },
-        },
-      });
-
       await this.prisma.$transaction(async (tx) => {
         await tx.tourExperience.deleteMany({ where: { tourId } });
 
@@ -1843,22 +1821,6 @@ export class ExperienceGenerationService {
             data: buildTourExperienceCreateData(tourId, selected, experience),
           });
         }
-
-        await tx.tour.update({
-          where: { id: tourId },
-          data: {
-            metadata: {
-              ...withoutGenerationFailure(metadata),
-              generationStatus: request.skipImageGeneration
-                ? 'finalizing'
-                : 'generating',
-              generationMessage: request.skipImageGeneration
-                ? 'Finalizando itinerario...'
-                : 'Generando imagen de portada...',
-              generationTrace,
-            },
-          },
-        });
 
         if (this.outboxService) {
           for (const experience of experienceEntities) {
@@ -1883,6 +1845,53 @@ export class ExperienceGenerationService {
             }
           }
         }
+      });
+
+      recordTourMaterializationStep(traceRecorder, {
+        tourId,
+        materializedTourExperiences,
+      });
+
+      const generationTrace = traceRecorder.build({
+        runtime: {
+          buildCommit: process.env.BUILD_COMMIT ?? 'unknown',
+          buildTimestamp: process.env.BUILD_TIMESTAMP ?? 'unknown',
+        },
+        canonicalRequest: request,
+        result: {
+          status: 'COMPLETED',
+          outcome: 'TOUR_EXPERIENCES_MATERIALIZED',
+          facts: {
+            materializedTourExperiences,
+            tourCompleteness: {
+              ...completeness,
+              retryAttempted: correctiveRetryAttempted,
+            },
+            degradedAcquisitionReason,
+            acquisitionProvidersAttempted: Array.from(
+              acquisitionProvidersAttempted,
+            ),
+            acquisitionProvidersFailed: Array.from(
+              acquisitionProvidersFailed,
+            ),
+          },
+        },
+      });
+
+      await this.prisma.tour.update({
+        where: { id: tourId },
+        data: {
+          metadata: {
+            ...withoutGenerationFailure(metadata),
+            generationStatus: request.skipImageGeneration
+              ? 'finalizing'
+              : 'generating',
+            generationMessage: request.skipImageGeneration
+              ? 'Finalizando itinerario...'
+              : 'Generando imagen de portada...',
+            generationTrace,
+          },
+        },
       });
 
       if (!request.skipImageGeneration) {

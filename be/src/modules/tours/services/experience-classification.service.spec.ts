@@ -407,6 +407,64 @@ describe('ExperienceClassificationService', () => {
     });
   });
 
+  it('captures typed degradation provenance when provider call fails with 429 RATE_LIMITED', async () => {
+    const error = new AiProviderError({
+      message: 'Groq error 429: rate limit exceeded',
+      provider: 'groq',
+      httpStatus: 429,
+      providerStatus: 'RATE_LIMITED',
+    });
+    generateChatResponse.mockRejectedValueOnce(error);
+
+    const result = await service.classify('X', EVIDENCE);
+
+    expect(result.state).toBe('degraded');
+    expect(result.failure).toEqual({
+      stage: 'provider_call',
+      reason: 'RATE_LIMITED',
+      httpStatus: 429,
+      providerStatus: 'RATE_LIMITED',
+    });
+  });
+
+  it('captures typed degradation provenance when provider call times out with AiProviderError (providerStatus: TIMEOUT)', async () => {
+    const error = new AiProviderError({
+      message: 'Gemini call timed out',
+      provider: 'gemini',
+      providerStatus: 'TIMEOUT',
+    });
+    generateChatResponse.mockRejectedValueOnce(error);
+
+    const result = await service.classify('X', EVIDENCE);
+
+    expect(result.state).toBe('degraded');
+    expect(result.failure).toEqual({
+      stage: 'provider_call',
+      reason: 'TIMEOUT',
+      providerStatus: 'TIMEOUT',
+    });
+  });
+
+  it('captures typed degradation provenance when provider call fails with AUTH_ERROR', async () => {
+    const error = new AiProviderError({
+      message: 'Groq error 401: unauthorized',
+      provider: 'groq',
+      httpStatus: 401,
+      providerStatus: 'AUTH_ERROR',
+    });
+    generateChatResponse.mockRejectedValueOnce(error);
+
+    const result = await service.classify('X', EVIDENCE);
+
+    expect(result.state).toBe('degraded');
+    expect(result.failure).toEqual({
+      stage: 'provider_call',
+      reason: 'AUTH_ERROR',
+      httpStatus: 401,
+      providerStatus: 'AUTH_ERROR',
+    });
+  });
+
   it('captures typed degradation provenance when response is non-JSON', async () => {
     generateChatResponse.mockResolvedValueOnce('<html>502 Bad Gateway</html>');
 

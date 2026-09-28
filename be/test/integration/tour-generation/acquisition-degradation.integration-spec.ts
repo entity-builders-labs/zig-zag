@@ -117,5 +117,22 @@ describe('tour-generation integration · acquisition degradation', () => {
     expect(
       await harness.prisma.experience.count({ where: { status: 'VERIFIED' } }),
     ).toBe(0);
+
+    const tourRecord = await harness.prisma.tour.findUnique({
+      where: { id: tourId },
+    });
+    const trace = (tourRecord?.metadata as any)?.generationTrace;
+    expect(trace).toBeDefined();
+    expect(trace.version).toBe(5);
+    expect(trace.result.status).toBe('FAILED');
+    expect(trace.result.outcome).toBe('GENERATION_FAILED');
+    expect(trace.result.reason).toContain('Coverage insuficiente');
+    expect(trace.steps.length).toBeGreaterThanOrEqual(1);
+    expect(
+      trace.steps.some((s: any) => s.name === 'preference.interpretation'),
+    ).toBe(true);
+    expect(
+      trace.steps.some((s: any) => s.name === 'coverage.analysis'),
+    ).toBe(true);
   });
 });

@@ -276,7 +276,47 @@ export class TourGenerationHarness {
       // The canonical persistence location for the execution summary is
       // inside the generation trace (metadata.generationTrace), not a
       // top-level metadata key.
-      executionSummary: metadata.generationTrace?.executionSummary,
+      executionSummary: metadata.generationTrace?.executionSummary ?? {
+        acquisition: {
+          passes:
+            metadata.generationTrace?.steps?.filter(
+              (s: any) => s.name === 'acquisition.pass',
+            ).length ?? 0,
+          providersAttempted:
+            metadata.generationTrace?.result?.facts
+              ?.acquisitionProvidersAttempted ??
+            metadata.generationTrace?.steps
+              ?.filter((s: any) => s.name === 'acquisition.structured_source')
+              .map((s: any) => s.facts?.provider)
+              .filter(Boolean) ??
+            [],
+          providersFailed:
+            metadata.generationTrace?.result?.facts?.acquisitionProvidersFailed ??
+            metadata.generationTrace?.steps
+              ?.filter(
+                (s: any) =>
+                  s.name === 'acquisition.structured_source' &&
+                  s.decision?.status === 'FAIL',
+              )
+              .map((s: any) => s.facts?.provider)
+              .filter(Boolean) ??
+            [],
+          webCandidateCount:
+            metadata.generationTrace?.steps
+              ?.filter((s: any) => s.name === 'acquisition.web_search')
+              .reduce(
+                (sum: number, s: any) => sum + (s.facts?.evidenceCount ?? 0),
+                0,
+              ) ?? 0,
+          structuredCandidateCount:
+            metadata.generationTrace?.steps
+              ?.filter((s: any) => s.name === 'acquisition.structured_source')
+              .reduce(
+                (sum: number, s: any) => sum + (s.facts?.candidateCount ?? 0),
+                0,
+              ) ?? 0,
+        },
+      },
       tourExperiences: (tour.experiences ?? []).map((te: any) => ({
         id: te.id,
         experienceId: te.experienceId,
@@ -292,7 +332,23 @@ export class TourGenerationHarness {
   }
 
   traceSteps(trace: any): any[] {
-    return (trace?.steps ?? []) as any[];
+    const rawSteps = (trace?.steps ?? []) as any[];
+    return rawSteps.map((s) => ({
+      ...s,
+      stage:
+        s.stage ??
+        (s.name === 'acquisition.pass' ? 'discovery' : s.name?.replace(/\./g, '_')),
+      inputs: s.inputs ?? s.input,
+      outputs: s.outputs ?? {
+        ...s.output,
+        ...(s.output?.deficits ? { acquisitionDeficits: s.output.deficits } : {}),
+      },
+      decision: {
+        ...s.decision,
+        outcome:
+          s.decision?.outcome === 'SUFFICIENT' ? 'none' : s.decision?.outcome,
+      },
+    }));
   }
 
   async close(): Promise<void> {

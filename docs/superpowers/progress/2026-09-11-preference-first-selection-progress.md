@@ -18,7 +18,7 @@ classification contract and deterministic validation are unchanged.
 
 ## Current execution verdict — 2026-09-28
 
-**Trace v5 cutover — CURRENT (native producer cutover complete; v4 legacy paths deleted).**  
+**Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY (native producer cutover complete; v4 legacy paths deleted; modular domain audit split complete; zero avoidable `any`).**  
 **RW3 final classification/warm-reuse finding — OPEN (live multi-component admission closure pending).**  
 **RW4 — NOT AUTHORIZED.**
 
@@ -418,7 +418,7 @@ are no longer the current execution pointer.
 | M5 | **IN PROGRESS / PARTIALLY LANDED** | `09616dd...` adds preference-first composition; `3a7e965...` adds canonical venue-anchor resolution; `a7b841...` adds venue-anchor tests/hardening. P1 C5 semantic handoff and pinned-MUST implementation are implemented in the current worktree, awaiting package commit/review; C5b remains pending. |
 | M6 | **C4 CORRECTED — awaiting independent review** | Independent review found weak-facet weighting and ignored typed planner signals; correction landed in `827b3ce`. P1 implements C5 semantic handoff and pinned MUST lifecycle; C5b duration-aware reservoir backfill remains pending. |
 | M7 | NOT COMPLETE | Superseded legacy deletion milestone not yet closed against the current checklist. |
-| M8 | NOT COMPLETE | Trace v4 + Bitácora v4. |
+| M8 | **SUPERSEDED / CUTOVER TO V5** | Trace v4 superseded by Generation Trace v5 cutover (COMPLETE / ACTIVE TRACE AUTHORITY). |
 | M9 | NOT COMPLETE | Full verification matrix + no-dual-pipeline architecture acceptance. |
 | M10 | BLOCKED | RW1 rerun only after the required cutover gate and separate authorization. |
 
@@ -717,13 +717,17 @@ Before implementing another milestone:
 
 The next frontier is **M5 completion / M6 planner handoff and backfill**, not M3.5 and not a restart from earlier checkpoints.
 
-## 2026-09-28 Trace v5 sequencing superseder — CURRENT STATUS
+## 2026-09-28 Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY
 
-RW3 source retrieval/composition/geography is proven, but the final
-classification warm-reuse finding remains open. The previous instruction to
-defer Trace v5 until after RW3–RW6 is superseded: Trace v5 is the current
-maintenance cutover because v4 lost the canonical Gemini HTTP 503 failure
-cause. RW3 is not closed and RW4 is **NOT AUTHORIZED**.
+Generation Trace v5 cutover is COMPLETE and is the single active trace authority.
+Native envelope version 5 is emitted across the backend pipeline and rendered natively
+by the Bitácora. All legacy v4 interfaces, builders, projections, and types have been
+permanently removed.
+
+Status summary:
+- **Trace v5: COMPLETE / ACTIVE TRACE AUTHORITY**
+- **RW3 final warm classification-reuse finding: OPEN**
+- **RW4: NOT AUTHORIZED**
 
 ## STOP condition
 

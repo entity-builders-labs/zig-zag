@@ -47,7 +47,17 @@ async function seedCloseCatalog(
 }
 
 function dailyPlanningStep(harness: TourGenerationHarness, trace: any): any {
-  return harness.traceSteps(trace).find((s) => s.stage === 'daily_planning');
+  const step = harness
+    .traceSteps(trace)
+    .find((s) => s.stage === 'daily_planning' || s.name === 'planning.daily');
+  if (!step) return undefined;
+  return {
+    ...step,
+    dailyPlanning: step.dailyPlanning ?? {
+      routing: step.facts?.routing,
+      approximateTravel: step.facts?.approximateTravel,
+    },
+  };
 }
 
 describe('tour-generation integration · routing boundary', () => {

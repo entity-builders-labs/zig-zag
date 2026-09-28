@@ -285,12 +285,7 @@ export class ExperienceClassificationService {
         providerStatus === 'AUTH_ERROR'
       ) {
         reason = 'AUTH_ERROR';
-      } else if (
-        providerStatus === 'TIMEOUT' ||
-        error?.name === 'TimeoutError' ||
-        error?.name === 'AbortError' ||
-        /timeout/i.test(error?.message ?? '')
-      ) {
+      } else if (providerStatus === 'TIMEOUT') {
         reason = 'TIMEOUT';
       } else if (httpStatus !== undefined) {
         reason = 'HTTP_ERROR';

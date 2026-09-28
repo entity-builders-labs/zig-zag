@@ -113,10 +113,29 @@ export class LangChainService {
 
   private async fetchGroq(init: RequestInit): Promise<Response> {
     for (let attempt = 0; ; attempt++) {
-      const resp = await fetch(
-        'https://api.groq.com/openai/v1/chat/completions',
-        init,
-      );
+      let resp: Response;
+      try {
+        resp = await fetch(
+          'https://api.groq.com/openai/v1/chat/completions',
+          init,
+        );
+      } catch (error: any) {
+        if (error instanceof AiProviderError) throw error;
+        if (
+          error?.name === 'TimeoutError' ||
+          error?.name === 'AbortError' ||
+          error?.code === 'ETIMEDOUT' ||
+          /timeout/i.test(error?.message ?? '')
+        ) {
+          throw new AiProviderError({
+            message: `Groq call timed out: ${error?.message}`,
+            provider: 'groq',
+            providerStatus: 'TIMEOUT',
+            cause: error,
+          });
+        }
+        throw error;
+      }
       if (resp.ok) return resp;
 
       const errorBody = await resp.text();
@@ -421,17 +440,36 @@ export class LangChainService {
           },
         };
 
-        const resp = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.config.geminiApiKey}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-            signal: AbortSignal.timeout(this.config.timeout),
-          } as any,
-        );
+        let resp: Response;
+        try {
+          resp = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.config.geminiApiKey}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+              signal: AbortSignal.timeout(this.config.timeout),
+            } as any,
+          );
+        } catch (error: any) {
+          if (error instanceof AiProviderError) throw error;
+          if (
+            error?.name === 'TimeoutError' ||
+            error?.name === 'AbortError' ||
+            error?.code === 'ETIMEDOUT' ||
+            /timeout/i.test(error?.message ?? '')
+          ) {
+            throw new AiProviderError({
+              message: `Gemini call timed out: ${error?.message}`,
+              provider: 'gemini',
+              providerStatus: 'TIMEOUT',
+              cause: error,
+            });
+          }
+          throw error;
+        }
 
         if (!resp.ok) {
           const errorBody = await resp.text();
@@ -540,8 +578,27 @@ export class LangChainService {
         });
       }
       return response;
-    } catch (error) {
-      this.logger.error(`Error generating chat response: ${error.message}`);
+    } catch (error: any) {
+      if (
+        !(error instanceof AiProviderError) &&
+        (error?.name === 'TimeoutError' ||
+          error?.name === 'AbortError' ||
+          error?.code === 'ETIMEDOUT' ||
+          /timeout/i.test(error?.message ?? ''))
+      ) {
+        const provider = providerOverride ?? this.config.provider;
+        const normalizedError = new AiProviderError({
+          message: `${provider} call timed out: ${error?.message}`,
+          provider,
+          providerStatus: 'TIMEOUT',
+          cause: error,
+        });
+        this.logger.error(
+          `Error generating chat response: ${normalizedError.message}`,
+        );
+        throw normalizedError;
+      }
+      this.logger.error(`Error generating chat response: ${error?.message}`);
       throw error;
     }
   }
@@ -584,17 +641,36 @@ export class LangChainService {
           },
         };
 
-        const resp = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.config.geminiApiKey}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-            signal: AbortSignal.timeout(this.config.timeout),
-          } as any,
-        );
+        let resp: Response;
+        try {
+          resp = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.config.geminiApiKey}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+              signal: AbortSignal.timeout(this.config.timeout),
+            } as any,
+          );
+        } catch (error: any) {
+          if (error instanceof AiProviderError) throw error;
+          if (
+            error?.name === 'TimeoutError' ||
+            error?.name === 'AbortError' ||
+            error?.code === 'ETIMEDOUT' ||
+            /timeout/i.test(error?.message ?? '')
+          ) {
+            throw new AiProviderError({
+              message: `Gemini completion timed out: ${error?.message}`,
+              provider: 'gemini',
+              providerStatus: 'TIMEOUT',
+              cause: error,
+            });
+          }
+          throw error;
+        }
 
         if (!resp.ok) {
           const errorBody = await resp.text();
@@ -654,10 +730,29 @@ export class LangChainService {
         variables,
       });
       return response;
-    } catch (error) {
+    } catch (error: any) {
+      if (
+        !(error instanceof AiProviderError) &&
+        (error?.name === 'TimeoutError' ||
+          error?.name === 'AbortError' ||
+          error?.code === 'ETIMEDOUT' ||
+          /timeout/i.test(error?.message ?? ''))
+      ) {
+        const provider = this.config.provider;
+        const normalizedError = new AiProviderError({
+          message: `${provider} completion timed out: ${error?.message}`,
+          provider,
+          providerStatus: 'TIMEOUT',
+          cause: error,
+        });
+        this.logger.error(
+          `Error generating completion response: ${normalizedError.message}`,
+        );
+        throw normalizedError;
+      }
       this.logger.error(
-        `Error generating completion response: ${error.message}`,
-        error.stack,
+        `Error generating completion response: ${error?.message}`,
+        error?.stack,
       );
       throw error;
     }

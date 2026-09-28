@@ -59,12 +59,12 @@ describe('tour-generation integration · catalog-first', () => {
 
     const coverage = harness
       .traceSteps(tour.trace)
-      .find((s) => s.stage === 'coverage_analysis');
+      .find((s) => s.stage === 'coverage_analysis' || s.name === 'coverage.analysis');
     // Canonical preference-first coverage result (cutover M2 cleanup) --
     // no legacy `coverageReport` projection is produced by the live path.
     expect(coverage?.coverageReport).toBeUndefined();
-    expect(coverage?.decision?.outcome).toBe('none');
-    expect(coverage?.outputs?.sufficient).toBe(true);
+    expect(['none', 'SUFFICIENT']).toContain(coverage?.decision?.outcome);
+    expect(coverage?.outputs?.sufficient ?? coverage?.output?.sufficient).toBe(true);
 
     // Zero external transport calls — catalog-first short-circuit.
     expect(harness.fakes.wikivoyage.fetchArticle).not.toHaveBeenCalled();
@@ -79,7 +79,9 @@ describe('tour-generation integration · catalog-first', () => {
 
     // No acquisition step, and a Tour was still planned from the catalog.
     expect(
-      harness.traceSteps(tour.trace).some((s) => s.stage === 'discovery'),
+      harness
+        .traceSteps(tour.trace)
+        .some((s) => s.stage === 'discovery' || s.name?.startsWith('acquisition.')),
     ).toBe(false);
     expect(tour.tourExperiences.length).toBeGreaterThanOrEqual(1);
   });
