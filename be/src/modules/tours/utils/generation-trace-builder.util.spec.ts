@@ -1393,6 +1393,47 @@ describe('buildAcquisitionStep', () => {
     expect(webSource?.web?.extractor?.candidateDecisions).toEqual([]);
   });
 
+  it('surfaces bounded and redacted rawOutput in the web extractor trace block', () => {
+    const plan = {
+      sourcePlans: [
+        {
+          provider: 'web',
+          web: { query: 'Buenos Aires Caminito walks' },
+        },
+      ],
+      deficits: [] as { reason: string }[],
+    };
+    const step = buildAcquisitionStep({
+      passNumber: 1,
+      plan,
+      execution: {
+        observations: [],
+        candidates: [],
+        providerResults: {},
+        webResults: [
+          {
+            status: 'success',
+            query: 'Buenos Aires Caminito walks',
+            evidenceKeys: ['ev-1'],
+            extractorProvider: 'cloudflare',
+            extractorRawOutput: '{"candidates":[{"name":"Caminito Tour"}]}',
+            validationErrors: [],
+            extractedCandidateCount: 1,
+            candidateCount: 1,
+            candidateDecisions: [],
+          },
+        ],
+      },
+    });
+
+    const webSource = step.acquisition?.sourcePlans.find(
+      (source) => source.provider === 'web',
+    );
+    expect(webSource?.web?.extractor?.rawOutput).toBe(
+      '{"candidates":[{"name":"Caminito Tour"}]}',
+    );
+  });
+
   it('keeps the source-to-candidate forensic chain typed, bounded, and serializable', () => {
     const candidate: Partial<ExperienceCandidate> = {
       name: 'Historic District Walk',

@@ -1,0 +1,22 @@
+{
+  "scope": {
+    "destinationName": "Buenos Aires"
+  },
+  "requestedThemes": [],
+  "requestedIntents": [
+    "walk"
+  ],
+  "preferredTraits": null,
+  "semanticQuery": "walk caminito landmarks",
+  "anchorNames": [
+    "Caminito"
+  ],
+  "coverageGaps": [
+    "walk"
+  ],
+  "breadth": "focused",
+  "maxCandidates": 8,
+  "evidenceRequirements": [
+    "MULTI_COMPONENT_EXPERIENCE"
+  ]
+}

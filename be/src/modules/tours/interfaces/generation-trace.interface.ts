@@ -161,6 +161,8 @@ export interface TraceAcquisitionSource {
       /** `ExperienceDiscoveryRequest.anchorNames` the extractor received. */
       requestAnchorNames?: string[];
       inputEvidenceKeys: string[];
+      /** Raw text emitted by the discovery extractor LLM, bounded and redacted. */
+      rawOutput?: string;
       validationErrors: string[];
       extractedCandidateCount: number;
       admittedCandidateCount: number;

@@ -142,6 +142,7 @@ function rule(
 }
 
 const TRACE_SNIPPET_MAX_CHARS = 500;
+const TRACE_RAW_OUTPUT_MAX_CHARS = 8000;
 
 function redactTraceText(value: string): string {
   return value.replace(
@@ -155,6 +156,14 @@ function traceSnippet(value?: string): string | undefined {
   const redacted = redactTraceText(value);
   return redacted.length > TRACE_SNIPPET_MAX_CHARS
     ? `${redacted.slice(0, TRACE_SNIPPET_MAX_CHARS)}…`
+    : redacted;
+}
+
+function traceRawOutput(value?: string): string | undefined {
+  if (!value) return undefined;
+  const redacted = redactTraceText(value);
+  return redacted.length > TRACE_RAW_OUTPUT_MAX_CHARS
+    ? `${redacted.slice(0, TRACE_RAW_OUTPUT_MAX_CHARS)}…`
     : redacted;
 }
 
@@ -1038,6 +1047,7 @@ export function buildAcquisitionStep(params: {
       extractorProvider?: string;
       extractorModel?: string;
       extractorRequestAnchorNames?: string[];
+      extractorRawOutput?: string;
       validationErrors: string[];
       extractedCandidateCount?: number;
       candidateCount: number;
@@ -1183,6 +1193,13 @@ export function buildAcquisitionStep(params: {
                           }
                         : {}),
                       inputEvidenceKeys: webResult.evidenceKeys,
+                      ...(webResult.extractorRawOutput
+                        ? {
+                            rawOutput: traceRawOutput(
+                              webResult.extractorRawOutput,
+                            ),
+                          }
+                        : {}),
                       validationErrors: webResult.validationErrors,
                       extractedCandidateCount:
                         webResult.extractedCandidateCount ??
