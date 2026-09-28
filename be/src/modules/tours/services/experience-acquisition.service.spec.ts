@@ -1014,6 +1014,52 @@ describe('ExperienceAcquisitionService', () => {
           )).toBe(false);
         });
 
+        it('does not refine without both an anchor and the multi-component requirement', async () => {
+          const cases: ExperienceAcquisitionPlan[] = [
+            {
+              ...anchoredMultiPlan,
+              sourcePlans: [
+                {
+                  provider: 'web',
+                  web: {
+                    query: 'Buenos Aires walking tour',
+                    requestedIntents: ['walk'],
+                    semanticQuery: 'street art and neighborhood history',
+                  },
+                },
+              ],
+            },
+            {
+              ...anchoredMultiPlan,
+              evidenceRequirements: ['SINGLE_PLACE'],
+            },
+          ];
+
+          for (const plan of cases) {
+            const search = jest.fn().mockResolvedValue(
+              grounded('Relevant but composition-light evidence.', 'initial'),
+            );
+            const extractExperiences = jest.fn().mockResolvedValue({
+              candidates: [],
+              validationErrors: [],
+              provider: 'cloudflare',
+              model: '@cf/qwen/qwen3.8-27b',
+            });
+            const service = makeService(search, extractExperiences);
+
+            const result = await service.executePlan(plan);
+
+            expect(search).toHaveBeenCalledTimes(1);
+            expect(extractExperiences).toHaveBeenCalledTimes(1);
+            expect(result.webResults?.[0]).toMatchObject({
+              initialEvidenceCount: 1,
+              initialExtractedCandidateCount: 0,
+              refinementTriggered: false,
+              boundedAttemptCount: 1,
+            });
+          }
+        });
+
         it('does not refine when grounded search has no evidence', async () => {
           const search = jest.fn().mockResolvedValue({
             provider: 'serper',
