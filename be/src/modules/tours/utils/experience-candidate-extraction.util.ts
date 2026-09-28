@@ -1,4 +1,5 @@
 import {
+  ComponentNormalizationKind,
   ExperienceCandidate,
   GeoEntityHint,
 } from '../interfaces/experience-discovery.interface';
@@ -41,6 +42,8 @@ export interface ComponentSourceSupportAudit {
   index: number;
   key: string;
   name: string;
+  sourceName?: string;
+  normalizationKind?: ComponentNormalizationKind;
   role: GeoEntityHint['role'];
   expectedKind: GeoEntityHint['expectedKind'];
   evidenceKeys: string[];
@@ -232,11 +235,29 @@ export function extractExperienceCandidates(
         );
         const key = String(hint.key || `component-${hintIndex + 1}`);
         const name = hint.name.trim();
+        const rawSourceName =
+          typeof hint.sourceName === 'string' && hint.sourceName.trim()
+            ? hint.sourceName.trim()
+            : undefined;
+        const sourceName = rawSourceName ?? name;
+        const isNormalized = sourceName.toLowerCase() !== name.toLowerCase();
+        const normalizationKind: ComponentNormalizationKind | undefined =
+          isNormalized
+            ? hint.normalizationKind &&
+              ['TYPO_CORRECTION', 'TRANSLATION', 'CANONICAL_NAME'].includes(
+                hint.normalizationKind,
+              )
+              ? (hint.normalizationKind as ComponentNormalizationKind)
+              : 'TYPO_CORRECTION'
+            : undefined;
+
         if (isUnsupportedComponentSourceSupportResult(support)) {
           componentAudits.push({
             index: hintIndex,
             key,
             name,
+            sourceName,
+            ...(normalizationKind ? { normalizationKind } : {}),
             role: hint.role,
             expectedKind: hint.expectedKind,
             evidenceKeys: hintEvidenceKeys,
@@ -249,6 +270,8 @@ export function extractExperienceCandidates(
           index: hintIndex,
           key,
           name,
+          sourceName,
+          ...(normalizationKind ? { normalizationKind } : {}),
           role: hint.role,
           expectedKind: hint.expectedKind,
           evidenceKeys: hintEvidenceKeys,
@@ -263,6 +286,8 @@ export function extractExperienceCandidates(
         hints.push({
           key,
           name,
+          sourceName,
+          ...(normalizationKind ? { normalizationKind } : {}),
           role: hint.role,
           expectedKind: hint.expectedKind,
           evidenceKeys: hintEvidenceKeys,

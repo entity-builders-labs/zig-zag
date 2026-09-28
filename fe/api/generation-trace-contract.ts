@@ -149,6 +149,8 @@ export interface TraceEntityResolutionAttempt {
 export interface TraceComponentHint {
   key: string;
   name: string;
+  sourceName?: string;
+  normalizationKind?: 'TYPO_CORRECTION' | 'TRANSLATION' | 'CANONICAL_NAME';
   role: string;
   expectedKind?: string;
   evidenceKeys: string[];

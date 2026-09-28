@@ -687,6 +687,10 @@ export class ExperienceProposalResolverService
         const audit: ComponentResolutionAudit = {
           hintKey: hint.key,
           hintName: hint.name,
+          ...(hint.sourceName ? { sourceName: hint.sourceName } : {}),
+          ...(hint.normalizationKind
+            ? { normalizationKind: hint.normalizationKind }
+            : {}),
           role: hint.role,
           expectedKind: hint.expectedKind,
           evidenceKeys: [...hint.evidenceKeys],

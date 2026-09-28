@@ -158,7 +158,8 @@ describe('NominatimApiService', () => {
 
     // The last call, not calls[0] — this spec's other tests share the same
     // mocked axios.get and never reset its call history between tests.
-    const call = mockedAxios.get.mock.calls.at(-1)!;
+    const calls = mockedAxios.get.mock.calls;
+    const call = calls[calls.length - 1]!;
     expect(typeof call[1].params.viewbox).toBe('string');
     expect(call[1].params.viewbox.split(',')).toHaveLength(4);
     // Deliberately soft: no `bounded` param, so a real match outside the
@@ -172,7 +173,8 @@ describe('NominatimApiService', () => {
 
     await service.search('Barcelona');
 
-    const call = mockedAxios.get.mock.calls.at(-1)!;
+    const calls = mockedAxios.get.mock.calls;
+    const call = calls[calls.length - 1]!;
     expect(call[1].params).not.toHaveProperty('viewbox');
   });
 
@@ -188,7 +190,8 @@ describe('NominatimApiService', () => {
         },
       );
 
-      const call = mockedAxios.get.mock.calls.at(-1)!;
+      const calls = mockedAxios.get.mock.calls;
+      const call = calls[calls.length - 1]!;
       expect(call[1].params).toEqual(
         expect.objectContaining({
           street: 'Defensa',
@@ -209,7 +212,8 @@ describe('NominatimApiService', () => {
 
       await service.searchStructured({ street: 'Defensa' });
 
-      const call = mockedAxios.get.mock.calls.at(-1)!;
+      const calls = mockedAxios.get.mock.calls;
+      const call = calls[calls.length - 1]!;
       expect(call[1].params).not.toHaveProperty('city');
       expect(call[1].params).not.toHaveProperty('state');
       expect(call[1].params).not.toHaveProperty('q');

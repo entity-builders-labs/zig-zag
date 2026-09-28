@@ -1,7 +1,10 @@
 import { TourCompletenessResult } from './tour-completeness.interface';
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { PreferenceInterpretationTrace } from './preference-interpretation.interface';
-import { GeoEntityHint } from './experience-discovery.interface';
+import {
+  ComponentNormalizationKind,
+  GeoEntityHint,
+} from './experience-discovery.interface';
 import {
   ComponentGeographicScope,
   ComponentResolutionFact,
@@ -196,6 +199,8 @@ export interface TraceEvidenceReference {
 export interface TraceComponentHint {
   key: string;
   name: string;
+  sourceName?: string;
+  normalizationKind?: ComponentNormalizationKind;
   role: GeoEntityHint['role'];
   order?: number;
   evidenceKeys: string[];

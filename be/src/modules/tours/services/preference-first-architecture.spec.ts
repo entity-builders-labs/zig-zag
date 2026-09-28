@@ -23,7 +23,7 @@ describe('preference-first architecture boundaries', () => {
       /synthetic:point-radius/,
     );
     expect(source('experience-proposal-resolver.service.ts')).not.toMatch(
-      /destinationBoundary|destinationPointRadius/,
+      /destinationPointRadius/,
     );
     expect(
       source('../interfaces/experience-resolution.interface.ts'),

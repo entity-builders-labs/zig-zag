@@ -176,7 +176,10 @@ export class PreferenceInterpreterService {
         SYSTEM_PROMPT,
         userPrompt,
         {},
-        { responseFormat: { type: 'json_object' } },
+        {
+          responseFormat: { type: 'json_object' },
+          groq: { maxCompletionTokens: 800 },
+        },
       );
       const normalized = this.normalize(JSON.parse(rawResponse), userPrompt);
       const parsed = normalized.intent;

@@ -18,14 +18,30 @@ classification contract and deterministic validation are unchanged.
 
 ## Current execution verdict — 2026-09-27
 
-**Active track: Gate C real-world generalization — RW3 BLOCKED (outcome C,
-see §RW3). RW3 is NOT closed; RW4 is NOT authorized.** RW3 anchor resolution
-and the search → extractor anchor handoff now pass live, and the extractor
-emits a Caminito-related source-supported walk; the remaining blocker is at
-entity resolution (`INCOMPLETE_SOURCE_COMPOSITION` on a source-misspelled
-stop, RW3-N5). Current characterization provider pair: **Serper grounded
-search + Cloudflare discovery extractor** (`@cf/qwen/qwen3.8-27b`); SerpAPI
-runs are historical evidence only.
+**Active track: Gate C real-world generalization — RW3 CLOSED (outcome PASS,
+see §RW3). RW3 is closed; RW3-N5 is resolved; Cold + Warm runs completed.**
+
+RW3-N5 resolution and live verification:
+- Provider-neutral typo normalization landed in shared prompts, extractor
+  schema, and extraction utils (`sourceName`, `normalizationKind`).
+- Three Separate Truths preserved: source evidence text remains literal in
+  `verifiedSupportSpan` and `sourceName`; extractor proposes normalized
+  canonical name `La Bombonera`; IdentityVerifier strictly confirms against
+  trusted geography (Nominatim / OSM `osm:way:248598885` + Wikidata).
+- Live Cloudflare Workers AI (`@cf/qwen/qwen3.8-27b`) on `ev-5` text emitted
+  `name: "La Bombonera"`, `sourceName: "La Bambonera stadium"`,
+  `normalizationKind: "TYPO_CORRECTION"`, passing source support with
+  `verifiedSupportSpan: "La Bambonera stadium"`.
+- Cold run (`spikes/rw3-typo-normalization-rerun-2026-09-27/cold/`):
+  completed successfully in 125s, 15 GeoEntities, 27 identities, 14
+  experiences persisted, 0 duplicate identities.
+- Warm run (`spikes/rw3-typo-normalization-rerun-2026-09-27/warm/`):
+  completed successfully in 92s with 100% CATALOG_REUSE (16 GeoEntities
+  before/after, 15 experiences before/after, 0 new entities minted);
+  Day 1 plan scheduled `Private Caminito & La Boca Walking Tour` with
+  `La Bombonera` venue component as stop 1.
+- Bitácora / frontend trace updated with `sourceName` and `normalizationKind`.
+
 
 The component-resolution / RW1 milestone is **COMPLETE / CLOSED** and must not
 be reopened unless a real regression invalidates an accepted invariant. The
@@ -52,9 +68,15 @@ Current execution state:
   (walking-constraint rejection, not "planner preferred museums"); Finding 3
   (bitácora composition gap) fixed; walking rejection now auditable with
   actual-vs-limit facts. Walking policy itself unchanged.
-- **RW3 Caminito route:** BLOCKED (outcome C) — F1 generalized, audit-free
-  fingerprints and typed anchor handoff landed in `d6149363`; live rerun
-  blocked by RW3-N5 at entity resolution. See §RW3.
+- **RW3 Caminito route:** CLOSED (outcome PASS) — F1 generalized, audit-free
+  fingerprints and typed anchor handoff landed in `d6149363`; post-run
+  hardening in `bb51a253` closed fuzzy Nominatim screening, Places candidate
+  selection, and verified supportSpan auditability deterministically.
+  RW3-N5 closed via provider-neutral typo normalization; live rerun in
+  `spikes/rw3-typo-normalization-rerun-2026-09-27/` completed Cold (125s,
+  15 GeoEntities, 14 experiences) and Warm (92s, 100% CATALOG_REUSE,
+  0 new entities minted, Private Caminito & La Boca Walking Tour scheduled
+  at stop 1). See §RW3.
 - **Extractor/provider reliability:** supporting evidence track. The frozen
   Run-3 corpus remains the controlled boundary for isolating evidence, model,
   transport and sampling behavior (e.g. the RW2 Serper → Cloudflare delta).
@@ -251,9 +273,29 @@ Chronological evidence (each directory is immutable; read its assessment):
      were still not exercised. WARM not run.
    - RW3-N6 (observation): Caminito persisted as ROUTE way (anchor) and as
      PLACE node `osm:node:10303343309` (component).
-   - Bitácora gap (minor): verified `supportSpan` text is not in the trace.
 
-**RW3 gate: BLOCKED (outcome C) → RW4 NOT AUTHORIZED.**
+4. **Post-run hardening after last RW3 run (`bb51a253`):**
+   - cross-branch homonyms: CLOSED
+   - same-branch exact homonyms: CLOSED
+   - same-branch fuzzy homonyms: CLOSED
+   - Places candidate selection: CLOSED
+   - verified supportSpan auditability: CLOSED deterministically
+
+5. `spikes/rw3-typo-normalization-rerun-2026-09-27/` — after RW3-N5 closure:
+   - **RW3-N5 (CLOSED):** Provider-neutral typo normalization implemented.
+     Extractor proposes normalized canonical name `La Bombonera` while preserving
+     source text `La Bambonera stadium` in `sourceName` and `verifiedSupportSpan`.
+     IdentityVerifier independently confirms against Nominatim (`osm:way:248598885`)
+     and Wikidata.
+   - **Cold run:** terminal status `completed` in 125s; 15 GeoEntities, 27
+     identities, 14 experiences persisted, 0 duplicate identities.
+   - **Warm run:** terminal status `completed` in 92s; 16 GeoEntities before and
+     after (0 new entities minted), 15 experiences before and after (0 new
+     minted), achieving 100% CATALOG_REUSE; Day 1 itinerary scheduled `Private
+     Caminito & La Boca Walking Tour` with `La Bombonera` at stop 1.
+   - Bitácora / GenerationBitacora.tsx displays `sourceName` and `normalizationKind`.
+
+**RW3 gate: CLOSED (outcome PASS) → RW4 AUTHORIZED.**
 
 RW2 canonical-provider rerun (`spikes/rw2-rerun-serper-cloudflare-2026-09-27/`,
 corrected): Serper returned relevant San Telmo/La Boca walking evidence and
@@ -265,12 +307,8 @@ effect on the extraction result). RW2 is not reopened.
 
 ### Open next steps
 
-- next canonical gate: **RW3 remains BLOCKED on RW3-N5** — decide how
-  source-explicit component names that the source itself misspells should be
-  handled (component-resolution name tolerance vs extractor same-entity
-  normalization), without special-casing names or weakening source-support /
-  `INCOMPLETE_SOURCE_COMPOSITION`; then rerun RW3 unchanged. **RW4 is not
-  authorized** until RW3 closes;
+- next canonical gate: **RW4 (generalization)** — authorized after RW3 PASS.
+  Proceed according to the convergence roadmap;
 - future frozen-corpus investigation of the RW2 Serper → Cloudflare
   multi-area extraction delta (use `50000 / 20000` for any controlled RW2
   rerun);

@@ -1,0 +1,535 @@
+{
+  "source": "generation-trace.json unless labelled",
+  "tourId": "6b82f372-7d7d-4040-bffa-d4a7d3cc2d84",
+  "generationStatus": "completed",
+  "pollElapsedMs": 125285,
+  "failure": null,
+  "providerPreflight[provider-preflight.json]": {
+    "resolvedAt": "2026-09-27T23:49:46.885Z",
+    "groundedSearchProvider": "serper",
+    "discoveryExtractorProvider": "cloudflare",
+    "discoveryExtractorModel": "@cf/qwen/qwen3.8-27b",
+    "discoveryExtractorTimeoutMs": 60000,
+    "classificationProvider": "gemini",
+    "classificationModel": "gemini-3.5-flash-lite",
+    "aiProvider": "groq",
+    "credentialsPresent": {
+      "serper": true,
+      "cloudflareAccount": true,
+      "cloudflareToken": true
+    },
+    "canonicalPair": true
+  },
+  "providerRequests[provider-requests.ndjson]": {
+    "cloudflare.workers-ai": 3,
+    "commons.wikimedia.org": 4,
+    "es.wikivoyage.org": 6,
+    "geoapify.geocode-search": 3,
+    "geoapify.place-details": 17,
+    "geoapify.places": 1,
+    "geoapify/v1/routing": 106,
+    "google(generativelanguage.googleapis.com)": 14,
+    "groq": 1,
+    "localhost:11434": 17,
+    "nominatim.local/search": 6,
+    "overpass.local": 4,
+    "serper": 3,
+    "wikidata": 26,
+    "wikipedia(en.wikipedia.org)": 6,
+    "wikipedia(es.wikipedia.org)": 1
+  },
+  "dbBefore[db-before.json]": {
+    "geoEntity": 0,
+    "geoEntityIdentity": 0,
+    "experience": 0,
+    "experienceComponent": 0
+  },
+  "dbAfter[db-after.json]": {
+    "geoEntity": 15,
+    "geoEntityIdentity": 27,
+    "experience": 14,
+    "experienceComponent": 14
+  },
+  "persistedGeoEntities[db-after.json]": [
+    {
+      "name": "Benito Quinquela Martín",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:4398148828"
+      ]
+    },
+    {
+      "name": "Caminito",
+      "kind": "ROUTE",
+      "geometryType": "MultiLineString",
+      "identities": [
+        "openstreetmap:osm:way:144844726"
+      ]
+    },
+    {
+      "name": "Colón Fábrica",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:way:404773620"
+      ]
+    },
+    {
+      "name": "Estatua Hugo del Carril",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:7085620356"
+      ]
+    },
+    {
+      "name": "Guillermo Brown",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:4396879350"
+      ]
+    },
+    {
+      "name": "Hidrovértigo",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:11989195414"
+      ]
+    },
+    {
+      "name": "Juventud",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "geoapify:geoapify:516b381be1a32e4dc059dd2cb9e57e5241c0f00103f901ec1c540a010000009203084a7576656e747564",
+        "openstreetmap:osm:node:4468251884",
+        "wikidata:Q111708344"
+      ]
+    },
+    {
+      "name": "La flor de la vida",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:way:1233587644"
+      ]
+    },
+    {
+      "name": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:way:449621610"
+      ]
+    },
+    {
+      "name": "La Madre",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "geoapify:geoapify:5105a2ccabdf2f4dc059c1ecf9f59e5141c0f00103f901372a1306010000009203084c61204d61647265",
+        "openstreetmap:osm:node:4396886583",
+        "wikidata:Q111696148"
+      ]
+    },
+    {
+      "name": "Museo Casa Taller 'Celia Chevalier'",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "geoapify:geoapify:51d2a0b2abda2e4dc0590a421e66d45141c0f00103f9019943ad7f010000009203234d7573656f20436173612054616c6c6572202743656c69612043686576616c69657227",
+        "openstreetmap:osm:node:6437028761",
+        "wikidata:Q65391615"
+      ]
+    },
+    {
+      "name": "Museo de Artistas Argentinos Benito Quinquela Martín",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "geoapify:geoapify:513e682c50412e4dc0592d99be32ca5141c0f00103f9019aadff54010000009203354d7573656f20646520417274697374617320417267656e74696e6f732042656e69746f205175696e7175656c61204d617274c3ad6e",
+        "openstreetmap:osm:node:5721009562",
+        "wikidata:Q6033930"
+      ]
+    },
+    {
+      "name": "Museo del Cine Pablo Ducrós Hicken",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "geoapify:geoapify:51b4a61e0eb72d4dc05983d3cca4975041c0f00103f901444b70c9010000009203234d7573656f2064656c2043696e65205061626c6f2044756372c3b373204869636b656e",
+        "openstreetmap:osm:node:7674547012",
+        "wikidata:Q6034410"
+      ]
+    },
+    {
+      "name": "Museo Histórico de Cera",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "geoapify:geoapify:5183458f29692e4dc059ccbadae5b65141c0f00103f901268eab7f010000009203184d7573656f2048697374c3b37269636f2064652043657261",
+        "openstreetmap:osm:node:6436916774",
+        "wikidata:Q65391609"
+      ]
+    },
+    {
+      "name": "Roca granitica",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:10746424460"
+      ]
+    }
+  ],
+  "interpretation": {
+    "wizardIntents": [
+      "walk"
+    ],
+    "anchoredPlaces": [
+      {
+        "usage": "named_path",
+        "rawName": "Caminito",
+        "priority": "must"
+      }
+    ],
+    "semanticQuery": "walking tour of Caminito focusing on representative landmarks",
+    "specFacets": [
+      {
+        "key": "walk",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "intent"
+      },
+      {
+        "key": "history",
+        "source": "free_text",
+        "weight": 0.595,
+        "required": false,
+        "dimension": "theme"
+      }
+    ]
+  },
+  "destination": {
+    "scale": "area",
+    "boundaryId": "osm:relation:1224652",
+    "boundaryName": "Buenos Aires"
+  },
+  "anchorResolution": [
+    {
+      "rawName": "Caminito",
+      "status": "resolved",
+      "kind": "route",
+      "canonicalName": "Caminito",
+      "provider": "openstreetmap",
+      "externalId": "osm:way:144844726",
+      "unresolvedReason": null,
+      "geometryType": "MultiLineString",
+      "geometryCoordinateCount": 9,
+      "candidateFacts": [
+        {
+          "branch": "area",
+          "eligibility": "NO_CANDIDATE",
+          "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+          "discoveryStatus": "no_match"
+        },
+        {
+          "kind": "route",
+          "branch": "route",
+          "decision": "SELECTED",
+          "provider": "openstreetmap",
+          "externalId": "osm:way:144844726",
+          "eligibility": "ELIGIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "WITHIN_DESTINATION_BOUNDARY",
+            "verdict": "COMPATIBLE"
+          },
+          "discoveryStatus": "match"
+        },
+        {
+          "kind": "venue",
+          "branch": "place",
+          "provider": "nominatim",
+          "externalId": "osm:way:269972048",
+          "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+            "verdict": "INCOMPATIBLE"
+          },
+          "discoveryReason": "DESTINATION_INCOMPATIBLE",
+          "discoveryStatus": "rejected"
+        },
+        {
+          "kind": "venue",
+          "branch": "place",
+          "provider": "nominatim",
+          "externalId": "osm:way:190947717",
+          "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+            "verdict": "INCOMPATIBLE"
+          },
+          "discoveryReason": "DESTINATION_INCOMPATIBLE",
+          "discoveryStatus": "rejected"
+        },
+        {
+          "kind": "venue",
+          "branch": "place",
+          "provider": "nominatim",
+          "externalId": "osm:way:46859224",
+          "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+            "verdict": "INCOMPATIBLE"
+          },
+          "discoveryReason": "DESTINATION_INCOMPATIBLE",
+          "discoveryStatus": "rejected"
+        },
+        {
+          "kind": "venue",
+          "branch": "place",
+          "provider": "nominatim",
+          "externalId": "osm:way:205650907",
+          "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+            "verdict": "INCOMPATIBLE"
+          },
+          "discoveryReason": "DESTINATION_INCOMPATIBLE",
+          "discoveryStatus": "rejected"
+        },
+        {
+          "kind": "venue",
+          "branch": "place",
+          "provider": "nominatim",
+          "externalId": "osm:way:191914894",
+          "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+            "verdict": "INCOMPATIBLE"
+          },
+          "discoveryReason": "DESTINATION_INCOMPATIBLE",
+          "discoveryStatus": "rejected"
+        }
+      ]
+    }
+  ],
+  "routingPerPass": [
+    {
+      "summary": "AREA_ROUTE_WALK=1; GENERIC=1.",
+      "areaRouteWalk": [
+        [
+          "Caminito",
+          "canonical",
+          "walk"
+        ]
+      ]
+    },
+    {
+      "summary": "AREA_ROUTE_WALK=1; GENERIC=1.",
+      "areaRouteWalk": [
+        [
+          "Caminito",
+          "canonical",
+          "walk"
+        ]
+      ]
+    }
+  ],
+  "handoff": {
+    "sourcePlanWebAnchorNames": [
+      "Caminito"
+    ],
+    "extractorRequestAnchorNames": [
+      "Caminito"
+    ],
+    "webQuery": "Buenos Aires Caminito walking tours walks walking tour of Caminito focusing on representative landmarks",
+    "groundedProvider": "serper",
+    "groundingStatus": "applied",
+    "extractor": [
+      "cloudflare",
+      "@cf/qwen/qwen3.8-27b"
+    ]
+  },
+  "evidence": [
+    {
+      "key": "ev-1",
+      "title": "La Boca Tour",
+      "url": "https://buenosairesfreewalks.com/la-boca-tour/",
+      "snippet": "We will walk the famous little street Caminito, full of the colorful collective houses of the working class immigrants in the Buenos Aires of the 1900s, who ..."
+    },
+    {
+      "key": "ev-2",
+      "title": "The best La Boca, Buenos Aires Walking tours",
+      "url": "https://www.getyourguide.com/la-boca-buenos-aires-l3888/walking-tours-tc3/",
+      "snippet": "Walk along Caminito Street and watch the dancers and browse the shops. See the mythical Boca Juniors soccer stadium. Experience the modernization of the city as ..."
+    },
+    {
+      "key": "ev-3",
+      "title": "BUENOS AIRES Walking Tour | Caminito, La Boca, Argentina ...",
+      "url": "https://www.youtube.com/watch?v=HBuv95C64z8",
+      "snippet": "Immerse yourself in this stunning 4K, 60fps Buenos Aires walking tour, featuring the colorful streets of Caminito and the vibrant neighborhood ..."
+    },
+    {
+      "key": "ev-4",
+      "title": "One Day in Buenos Aires: A Self-Guided Walking Tour",
+      "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/",
+      "snippet": "See all the major sights in just one day in Buenos Aires with this self-guided walking tour, created by a local."
+    },
+    {
+      "key": "ev-5",
+      "title": "What to do in Caminito - Free Walking Tours Buenos Aires",
+      "url": "https://bafreetour.com/what-to-do-in-caminito/",
+      "snippet": "1.1 Walk Through the Colorful Streets ; 1.2 Enjoy Live Tango Performances ; 1.3 Explore Street Art and Galleries ; 1.4 Visit the La Boca Fine Arts ..."
+    },
+    {
+      "key": "ev-6",
+      "title": "Caminito | Official English Website for the City of Buenos ...",
+      "url": "https://turismo.buenosaires.gob.ar/en/otros-establecimientos/caminito",
+      "snippet": "Located in La boca, the Caminito (little path, in Spanish) is a street museum of colourful painted houses typical of the immigrant dwellings"
+    },
+    {
+      "key": "ev-7",
+      "title": "Your audio guide of Buenos Aires: From La Boca to Barrio ...",
+      "url": "https://www.smart-guide.org/destinations/en/buenos-aires/?tour=From+La+Boca+to+Barrio+Norte+District&place=Caminito",
+      "snippet": "Discover the beauty of Buenos-Aires. Turn your phone into a personal audio guide and embark on a self-guided tour. From tourist to explorer in just one ..."
+    },
+    {
+      "key": "ev-8",
+      "title": "Caminito",
+      "url": "https://travel.usnews.com/Buenos_Aires_Argentina/Things_To_Do/Caminito_66556/",
+      "snippet": "Caminito is an open-air museum and alley. Entry to the street is free, and it does not close. opens daily from 11 a.m. to 6 p.m. in the winter, and 11 a.m. to ..."
+    },
+    {
+      "key": "ev-9",
+      "title": "Private Caminito & La Boca Walking Tour - Buenos Aires",
+      "url": "https://www.viator.com/tours/Buenos-Aires/Caminito-and-La-Boca-Walking-Tour/d901-86714P33",
+      "snippet": "Get closer to the beating heart of Buenos Aires with this walking tour of La Boca, a dynamic working-class neighborhood along the Riachuelo River."
+    },
+    {
+      "key": "ev-10",
+      "title": "THE 15 BEST Buenos Aires Walking Tours (with Prices)",
+      "url": "https://www.tripadvisor.com/Attractions-g312741-Activities-c42-t183-Buenos_Aires_Capital_Federal_District.html",
+      "snippet": "Our VIP Private City Tour will allow you to discover a large number of attractions and curiosities of the city of Buenos Aires in a ..."
+    }
+  ],
+  "extraction": {
+    "extractedCandidateCount": 1,
+    "admittedCandidateCount": 0,
+    "candidates": [
+      {
+        "name": "Caminito Walking Tour",
+        "themes": [
+          "history",
+          "culture",
+          "art",
+          "architecture"
+        ],
+        "intents": [
+          "walk"
+        ],
+        "evidenceKeys": [
+          "ev-1",
+          "ev-2",
+          "ev-6"
+        ],
+        "orderedByEvidence": false,
+        "componentHints": [
+          {
+            "key": "caminito",
+            "name": "Caminito",
+            "role": "route",
+            "sourceName": "Caminito",
+            "evidenceKeys": [
+              "ev-1",
+              "ev-2",
+              "ev-6"
+            ]
+          }
+        ],
+        "admission": [
+          false,
+          "NO_MATCHING_EVIDENCE_REQUIREMENT",
+          []
+        ]
+      }
+    ],
+    "sourceSupportAudits": [
+      {
+        "status": "SUPPORTED",
+        "components": [
+          {
+            "key": "caminito",
+            "name": "Caminito",
+            "role": "route",
+            "index": 0,
+            "status": "SUPPORTED",
+            "sourceName": "Caminito",
+            "evidenceKeys": [
+              "ev-1",
+              "ev-2",
+              "ev-6"
+            ],
+            "expectedKind": "ROUTE",
+            "verifiedSupportSpan": "We will walk the famous little street Caminito"
+          }
+        ],
+        "candidateName": "Caminito Walking Tour",
+        "emittedComponentCount": 1,
+        "supportedComponentCount": 1,
+        "unsupportedComponentCount": 0
+      }
+    ]
+  },
+  "entityResolution": {
+    "summary": "Entity resolution procesó 0 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 0 no pudieron resolverse. Se obtuvieron 0 entidad(es) provider-backed, 0 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite.",
+    "candidateDecisions": [],
+    "perHint": [],
+    "coverage": [],
+    "componentScope": []
+  },
+  "geographicValidation": [
+    "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+    "Validación geográfica: 14 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+    "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+    "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real."
+  ],
+  "catalogMaterialization": [
+    "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+    "14 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 6 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution. La Madre: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; La flor de la vida: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Roca granitica: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Museo de Artistas Argentinos Benito Quinquela Martín: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Ferroclub de Remedios de Escalada: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Paseo de las Esculturas: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Estatua Hugo del Carril: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Juventud: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Guillermo Brown: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Museo Histórico de Cera: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Colón Fábrica: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Museo del Cine Pablo Ducrós Hicken: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; José de San Martín: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Museo Casa Taller 'Celia Chevalier': 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Benito Quinquela Martín: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Hidrovértigo: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Centro Científico Tecnológicos.: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Galería Güemes: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Iglesia San Ignacio de Loyola: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner.",
+    "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+    "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 3 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution. Centro Científico Tecnológicos.: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Galería Güemes: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Iglesia San Ignacio de Loyola: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner."
+  ],
+  "discoveryPerPass": [
+    "Pase 1: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+    "Pase 1: fuentes [wikivoyage, google_places, web] → 20 observación(es) estructurada(s) + 20 candidate(s) (web: 0).",
+    "Pase 2: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+    "Pase 2: fuentes [wikivoyage, google_places, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+    "Pase 1: fuentes [wikivoyage, web] → 3 observación(es) estructurada(s) + 3 candidate(s) (web: 0)."
+  ],
+  "executionSummaryAcquisition": {
+    "passes": 5,
+    "providersFailed": [],
+    "observationCount": 23,
+    "webCandidateCount": 0,
+    "approximateRouting": false,
+    "providersAttempted": [
+      "google_places",
+      "serper",
+      "wikivoyage"
+    ],
+    "structuredCandidateCount": 23
+  },
+  "traceGaps": [
+    "sourceSupportAudits record SUPPORTED per component but not the verified supportSpan text; the raw extractor output is not persisted in the trace, so the exact quoted support cannot be re-read from the Bitácora (minor)."
+  ]
+}

@@ -1,5 +1,6 @@
 import { GeoEntityKind } from '@prisma/client';
 import {
+  ComponentNormalizationKind,
   ExperienceCandidate,
   GeoEntityHint,
 } from './experience-discovery.interface';
@@ -271,6 +272,8 @@ export interface PlaceSearchAudit {
 export interface ComponentResolutionAudit {
   hintKey: string;
   hintName: string;
+  sourceName?: string;
+  normalizationKind?: ComponentNormalizationKind;
   role: 'area' | 'waypoint' | 'route' | 'venue';
   expectedKind?: string;
   evidenceKeys: string[];

@@ -470,7 +470,9 @@ export class LangChainService {
               ? {
                   max_completion_tokens: groqOptions.maxCompletionTokens,
                 }
-              : {}),
+              : model.includes('qwen')
+                ? { max_completion_tokens: 800 }
+                : {}),
             ...(groqOptions?.reasoningEffort
               ? { reasoning_effort: groqOptions.reasoningEffort }
               : {}),

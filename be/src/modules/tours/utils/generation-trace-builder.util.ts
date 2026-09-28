@@ -182,6 +182,10 @@ function traceHint(
   return {
     key: hint.key,
     name: hint.name,
+    ...(hint.sourceName ? { sourceName: hint.sourceName } : {}),
+    ...(hint.normalizationKind
+      ? { normalizationKind: hint.normalizationKind }
+      : {}),
     role: hint.role,
     order,
     evidenceKeys: [...hint.evidenceKeys],
@@ -1530,6 +1534,12 @@ export function buildEntityResolutionStep(
           return {
             key: component.hintKey,
             name: component.hintName,
+            ...(component.sourceName
+              ? { sourceName: component.sourceName }
+              : {}),
+            ...(component.normalizationKind
+              ? { normalizationKind: component.normalizationKind }
+              : {}),
             role: component.role,
             expectedKind: component.expectedKind,
             evidenceKeys: [...component.evidenceKeys],

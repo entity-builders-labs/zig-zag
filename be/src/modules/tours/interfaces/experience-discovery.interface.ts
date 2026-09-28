@@ -14,9 +14,16 @@ import { QualityEvidence } from './experience-acquisition.interface';
  * from source-backed composition (`acquisition-candidate-requirement.util.ts`),
  * not from a per-component authored flag.
  */
+export type ComponentNormalizationKind =
+  | 'TYPO_CORRECTION'
+  | 'TRANSLATION'
+  | 'CANONICAL_NAME';
+
 export interface GeoEntityHint {
   key: string;
   name: string;
+  sourceName?: string;
+  normalizationKind?: ComponentNormalizationKind;
   role: 'area' | 'waypoint' | 'route' | 'venue';
   expectedKind: 'PLACE' | 'AREA' | 'ROUTE';
   evidenceKeys: string[];

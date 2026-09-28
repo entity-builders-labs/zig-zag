@@ -983,6 +983,12 @@ function EntityResolutionAuditPanel({
                     {hint.identityStatus ? ` · ${hint.identityStatus}` : ""}
                   </Text>
                 </HStack>
+                {hint.sourceName && hint.sourceName !== hint.name ? (
+                  <Text size="2xs" color={COLORS.amber ?? COLORS.textMuted} mt="$1">
+                    fuente: &quot;{hint.sourceName}&quot;
+                    {hint.normalizationKind ? ` (${hint.normalizationKind})` : ""}
+                  </Text>
+                ) : null}
                 {hint.evidenceKeys.length ? (
                   <Text size="2xs" color={COLORS.textDim} mt="$1">
                     evidence: {hint.evidenceKeys.join(", ")}

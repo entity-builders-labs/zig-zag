@@ -87,6 +87,26 @@ export function verifyTextualComponentSourceSupport(
       if (typeof candidate !== 'string' || !candidate.trim()) continue;
       sawEvidenceText = true;
       if (normalize(candidate).includes(normalizedSpan)) {
+        // Preferred: extract the actual matching substring from the captured
+        // raw source text so verifiedSupportSpan reflects true source wording.
+        const tokens = trimmedSpan
+          .split(/\s+/)
+          .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        try {
+          const pattern = new RegExp(tokens.join('\\s+'), 'i');
+          const match = candidate.match(pattern);
+          if (match && typeof match.index === 'number') {
+            return {
+              supported: true,
+              verifiedSupportSpan: candidate.slice(
+                match.index,
+                match.index + match[0].length,
+              ),
+            };
+          }
+        } catch {
+          // Fall back to trimmedSpan if regex pattern construction fails
+        }
         return { supported: true, verifiedSupportSpan: trimmedSpan };
       }
     }
