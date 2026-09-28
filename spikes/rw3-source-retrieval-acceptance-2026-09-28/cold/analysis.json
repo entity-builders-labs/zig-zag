@@ -1,0 +1,720 @@
+{
+  "source": "generation-trace.json unless labelled",
+  "tourId": "2fb948ba-b52b-42f2-93f5-6ce59460dcb8",
+  "generationStatus": "completed",
+  "pollElapsedMs": 159102,
+  "failure": null,
+  "providerPreflight[provider-preflight.json]": {
+    "resolvedAt": "2026-09-28T16:11:36.770Z",
+    "groundedSearchProvider": "serper",
+    "discoveryExtractorProvider": "groq",
+    "discoveryExtractorModel": "qwen/qwen3.8-27b",
+    "discoveryExtractorTimeoutMs": 60000,
+    "webSourceContentProvider": "tavily",
+    "classificationProvider": "gemini",
+    "classificationModel": "gemini-3.5-flash-lite",
+    "aiProvider": "groq",
+    "credentialsPresent": {
+      "serper": true,
+      "groq": true,
+      "cloudflareAccount": true,
+      "cloudflareToken": true,
+      "tavily": true
+    },
+    "canonicalSelection": true
+  },
+  "providerRequests[provider-requests.ndjson]": {
+    "commons.wikimedia.org": 6,
+    "es.wikivoyage.org": 4,
+    "geoapify.geocode-search": 2,
+    "geoapify.place-details": 13,
+    "geoapify.places": 1,
+    "geoapify/v1/routing": 16,
+    "google(generativelanguage.googleapis.com)": 14,
+    "groq": 8,
+    "localhost:11434": 16,
+    "nominatim.local/search": 8,
+    "overpass.local": 4,
+    "serper": 2,
+    "tavily": 2,
+    "wikidata": 25,
+    "wikipedia(en.wikipedia.org)": 2,
+    "wikipedia(es.wikipedia.org)": 1
+  },
+  "dbBefore[db-before.json]": {
+    "geoEntity": 0,
+    "geoEntityIdentity": 0,
+    "experience": 0,
+    "experienceComponent": 0
+  },
+  "dbAfter[db-after.json]": {
+    "geoEntity": 18,
+    "geoEntityIdentity": 22,
+    "experience": 14,
+    "experienceComponent": 18
+  },
+  "persistedGeoEntities[db-after.json]": [
+    {
+      "name": "Benito Quinquela Martín",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:4398148828"
+      ]
+    },
+    {
+      "name": "Caminito",
+      "kind": "ROUTE",
+      "geometryType": "MultiLineString",
+      "identities": [
+        "openstreetmap:osm:way:144844726"
+      ]
+    },
+    {
+      "name": "Caminito",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:10303343309"
+      ]
+    },
+    {
+      "name": "Colón Fábrica",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:way:404773620"
+      ]
+    },
+    {
+      "name": "Estatua Hugo del Carril",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:7085620356"
+      ]
+    },
+    {
+      "name": "Guillermo Brown",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:4396879350"
+      ]
+    },
+    {
+      "name": "Hidrovértigo",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:11989195414"
+      ]
+    },
+    {
+      "name": "Himalaya",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:11989195458"
+      ]
+    },
+    {
+      "name": "Juventud",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "geoapify:geoapify:516b381be1a32e4dc059dd2cb9e57e5241c0f00103f901ec1c540a010000009203084a7576656e747564",
+        "openstreetmap:osm:node:4468251884",
+        "wikidata:Q111708344"
+      ]
+    },
+    {
+      "name": "La Bombonera",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:way:248598885"
+      ]
+    },
+    {
+      "name": "La flor de la vida",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:way:1233587644"
+      ]
+    },
+    {
+      "name": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:way:449621622"
+      ]
+    },
+    {
+      "name": "La Madre",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "geoapify:geoapify:5105a2ccabdf2f4dc059c1ecf9f59e5141c0f00103f901372a1306010000009203084c61204d61647265",
+        "openstreetmap:osm:node:4396886583",
+        "wikidata:Q111696148"
+      ]
+    },
+    {
+      "name": "Mafalda, Susanita y Manolito",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:2472979623"
+      ]
+    },
+    {
+      "name": "Mercado de San Telmo",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:way:158893271"
+      ]
+    },
+    {
+      "name": "Nestor Kirchner",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:11882654552"
+      ]
+    },
+    {
+      "name": "Plazoleta Bomberos Voluntarios de La Boca",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:way:450506706"
+      ]
+    },
+    {
+      "name": "Roca granitica",
+      "kind": "PLACE",
+      "geometryType": "Point",
+      "identities": [
+        "openstreetmap:osm:node:10746424460"
+      ]
+    }
+  ],
+  "interpretation": {
+    "wizardIntents": [
+      "walk"
+    ],
+    "anchoredPlaces": [
+      {
+        "usage": "named_path",
+        "rawName": "Caminito",
+        "priority": "must"
+      }
+    ],
+    "semanticQuery": "walking tour caminito representative spots",
+    "specFacets": [
+      {
+        "key": "walk",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "intent"
+      },
+      {
+        "key": "architecture",
+        "source": "free_text",
+        "weight": 0.3,
+        "required": false,
+        "dimension": "theme"
+      }
+    ]
+  },
+  "destination": {
+    "scale": "area",
+    "boundaryId": "osm:relation:1224652",
+    "boundaryName": "Buenos Aires"
+  },
+  "anchorResolution": [
+    {
+      "rawName": "Caminito",
+      "status": "resolved",
+      "kind": "route",
+      "canonicalName": "Caminito",
+      "provider": "openstreetmap",
+      "externalId": "osm:way:144844726",
+      "unresolvedReason": null,
+      "geometryType": "MultiLineString",
+      "geometryCoordinateCount": 9,
+      "candidateFacts": [
+        {
+          "branch": "area",
+          "eligibility": "NO_CANDIDATE",
+          "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+          "discoveryStatus": "no_match"
+        },
+        {
+          "kind": "route",
+          "branch": "route",
+          "decision": "SELECTED",
+          "provider": "openstreetmap",
+          "externalId": "osm:way:144844726",
+          "eligibility": "ELIGIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "WITHIN_DESTINATION_BOUNDARY",
+            "verdict": "COMPATIBLE"
+          },
+          "discoveryStatus": "match"
+        },
+        {
+          "kind": "venue",
+          "branch": "place",
+          "provider": "nominatim",
+          "externalId": "osm:way:269972048",
+          "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+            "verdict": "INCOMPATIBLE"
+          },
+          "discoveryReason": "DESTINATION_INCOMPATIBLE",
+          "discoveryStatus": "rejected"
+        },
+        {
+          "kind": "venue",
+          "branch": "place",
+          "provider": "nominatim",
+          "externalId": "osm:way:190947717",
+          "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+            "verdict": "INCOMPATIBLE"
+          },
+          "discoveryReason": "DESTINATION_INCOMPATIBLE",
+          "discoveryStatus": "rejected"
+        },
+        {
+          "kind": "venue",
+          "branch": "place",
+          "provider": "nominatim",
+          "externalId": "osm:way:46859224",
+          "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+            "verdict": "INCOMPATIBLE"
+          },
+          "discoveryReason": "DESTINATION_INCOMPATIBLE",
+          "discoveryStatus": "rejected"
+        },
+        {
+          "kind": "venue",
+          "branch": "place",
+          "provider": "nominatim",
+          "externalId": "osm:way:205650907",
+          "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+            "verdict": "INCOMPATIBLE"
+          },
+          "discoveryReason": "DESTINATION_INCOMPATIBLE",
+          "discoveryStatus": "rejected"
+        },
+        {
+          "kind": "venue",
+          "branch": "place",
+          "provider": "nominatim",
+          "externalId": "osm:way:191914894",
+          "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+          "canonicalName": "Caminito",
+          "compatibility": {
+            "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+            "verdict": "INCOMPATIBLE"
+          },
+          "discoveryReason": "DESTINATION_INCOMPATIBLE",
+          "discoveryStatus": "rejected"
+        }
+      ]
+    }
+  ],
+  "routingPerPass": [
+    {
+      "summary": "AREA_ROUTE_WALK=1; GENERIC=1.",
+      "areaRouteWalk": [
+        [
+          "Caminito",
+          "canonical",
+          "walk"
+        ]
+      ]
+    },
+    {
+      "summary": "AREA_ROUTE_WALK=1; GENERIC=1.",
+      "areaRouteWalk": [
+        [
+          "Caminito",
+          "canonical",
+          "walk"
+        ]
+      ]
+    }
+  ],
+  "handoff": {
+    "sourcePlanWebAnchorNames": [
+      "Caminito"
+    ],
+    "extractorRequestAnchorNames": [
+      "Caminito"
+    ],
+    "webQuery": "Buenos Aires Caminito walking tours walks",
+    "groundedProvider": "serper",
+    "groundingStatus": "applied",
+    "extractor": [
+      "groq",
+      "qwen/qwen3.8-27b"
+    ]
+  },
+  "sourceContentRetrieval": {
+    "items": [
+      {
+        "status": "retrieved",
+        "provider": "tavily",
+        "truncated": false,
+        "durationMs": 2013,
+        "contentChars": 2980,
+        "requestedUrl": "https://buenosairesfreewalks.com/la-boca-tour/"
+      },
+      {
+        "status": "retrieved",
+        "provider": "tavily",
+        "truncated": true,
+        "durationMs": 2013,
+        "contentChars": 32121,
+        "requestedUrl": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+      }
+    ],
+    "provider": "tavily",
+    "attempted": true,
+    "failedUrls": [],
+    "requestedUrls": [
+      "https://buenosairesfreewalks.com/la-boca-tour/",
+      "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+    ],
+    "retrievedUrls": [
+      "https://buenosairesfreewalks.com/la-boca-tour/",
+      "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+    ],
+    "triggerReason": "MULTI_COMPONENT_EXPERIENCE required but initial extraction produced no admissible multi-component candidate",
+    "totalDurationMs": 2166,
+    "reExtractionAttempted": true
+  },
+  "evidence": [
+    {
+      "key": "ev-1",
+      "title": "La Boca Tour",
+      "url": "https://buenosairesfreewalks.com/la-boca-tour/",
+      "snippet": "[Skip to content](#main)\n\n\n[![Buenos Aires Free Walks](https://buenosairesfreewalks.com/wp-content/uploads/2026/05/logo-horizontal-bafw.png)](https://buenosairesfreewalks.com/)\n\n[![Buenos Aires Free Walks](https://buenosairesfreewalks.com/wp-content/uploads/2026/05/logo-horizontal-bafw.png)](https://buenosairesfreewalks.com/)\n\n\n\n## *la boca* tour\n\n### **4.9/5 ⭐**\n\n[+9833 en Trip Advisor Reviews  \n+6130 Google Reviews ↗️](https://buenosairesfreewalks.com/reviews/)\n\n## WALKING Tour through la boca…",
+      "evidenceQuality": "original_content"
+    },
+    {
+      "key": "ev-2",
+      "title": "Caminito Tourist Assistance Center",
+      "url": "https://turismo.buenosaires.gob.ar/en/atractivo/caminito-tourist-assistance-center",
+      "snippet": "Open every day, 9am - 6pm. La Boca guided walking tour Urban Trekking - complete circuit Bici Tour",
+      "evidenceQuality": null
+    },
+    {
+      "key": "ev-3",
+      "title": "One Day in Buenos Aires: A Self-Guided Walking Tour",
+      "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/",
+      "snippet": "[Skip to content](#content \"Skip to content\")\n\n\n[![solsalute.com](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAAAyAQAAAABdLPtJAAAAAnRSTlMAAHaTzTgAAAAVSURBVDjLY2AYBaNgFIyCUTAK6AEABnIAAXaE8bwAAAAASUVORK5CYII=)](https://solsalute.com/)\n\n# One day in Buenos Aires: A Self-Guided Walking Tour\n\n236 shares\n\n* [10](https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fsolsalute.com%2Fblog%2Fone-day-in-buenos-aires-walking-tour%2F&t=Only%20one%20day%20in%20Buenos%20Aires%3F%20Do%20THIS%20Self-G…",
+      "evidenceQuality": "original_content"
+    },
+    {
+      "key": "ev-4",
+      "title": "What to do in Caminito - Free Walking Tours Buenos Aires",
+      "url": "https://bafreetour.com/what-to-do-in-caminito/",
+      "snippet": "1.1 Walk Through the Colorful Streets ; 1.2 Enjoy Live Tango Performances ; 1.3 Explore Street Art and Galleries ; 1.4 Visit the La Boca Fine Arts ...",
+      "evidenceQuality": null
+    },
+    {
+      "key": "ev-5",
+      "title": "BUENOS AIRES Walking Tour | Caminito, La Boca, Argentina ...",
+      "url": "https://www.youtube.com/watch?v=HBuv95C64z8",
+      "snippet": "Immerse yourself in this stunning 4K, 60fps Buenos Aires walking tour, featuring the colorful streets of Caminito and the vibrant neighborhood ...",
+      "evidenceQuality": null
+    },
+    {
+      "key": "ev-6",
+      "title": "Buenos Aires Free Walks: Home",
+      "url": "https://buenosairesfreewalks.com/",
+      "snippet": "Free Walking Tours in Buenos Aires. Price: $14,000 ARS / $10 USD or EUR per person Schedule: Monday to Saturday Start: 11 am in English. Corner of Magallanes ...",
+      "evidenceQuality": null
+    },
+    {
+      "key": "ev-7",
+      "title": "Explore the Best Walks in Buenos Aires",
+      "url": "https://www.getyourguide.com/explorer/buenos-aires-ttd1/best-walks-in-buenos-aires/",
+      "snippet": "Begin your walk at Caminito, a street known for its brightly colored buildings, tango dancers, and local artists. Explore the surrounding area, including art ...",
+      "evidenceQuality": null
+    },
+    {
+      "key": "ev-8",
+      "title": "Private Caminito & La Boca Walking Tour (with Reviews)",
+      "url": "https://www.tripadvisor.com/AttractionProductReview-g312741-d15305345-Private_Caminito_La_Boca_Walking_Tour-Buenos_Aires_Capital_Federal_District.html",
+      "snippet": "Very picturesque neighborhood, full of beautiful places and walks to tour with very good places to eat typical Argentine foods and lots and lots of tango!",
+      "evidenceQuality": null
+    },
+    {
+      "key": "ev-9",
+      "title": "【4K】Buenos Aires Walk, LA BOCA y CAMINITO | [Walking Tour ...",
+      "url": "https://www.youtube.com/watch?v=1iRxYhsoRdU",
+      "snippet": "BUENOS AIRES | CAMINITO | 4K UHD | Walking Virtual Tour Argentina 2024 ... Go to channel Tiseo de paseo. Buenos Aires | Al corazón de La Boca.",
+      "evidenceQuality": null
+    },
+    {
+      "key": "ev-10",
+      "title": "Caminito",
+      "url": "https://travel.usnews.com/Buenos_Aires_Argentina/Things_To_Do/Caminito_66556/",
+      "snippet": "Popular Tours · Buenos Aires Hop-On Hop-Off Bus and Free Walking Tours. (2376 reviews). from $39.00. Read More.",
+      "evidenceQuality": null
+    }
+  ],
+  "extraction": {
+    "extractedCandidateCount": 1,
+    "admittedCandidateCount": 1,
+    "candidates": [
+      {
+        "name": "La Boca Walking Tour",
+        "themes": [
+          "tango",
+          "art",
+          "history",
+          "architecture"
+        ],
+        "intents": [
+          "walk"
+        ],
+        "evidenceKeys": [
+          "ev-1"
+        ],
+        "orderedByEvidence": true,
+        "componentHints": [
+          {
+            "key": "caminito",
+            "name": "Caminito",
+            "role": "route",
+            "order": 1,
+            "sourceName": "Caminito",
+            "evidenceKeys": [
+              "ev-1"
+            ]
+          },
+          {
+            "key": "volunteer-firefighters-plaza",
+            "name": "Plazoleta Bomberos Voluntarios de La Boca",
+            "role": "venue",
+            "order": 2,
+            "sourceName": "Volunteer Firefighters Plaza",
+            "evidenceKeys": [
+              "ev-1"
+            ],
+            "normalizationKind": "TRANSLATION"
+          },
+          {
+            "key": "boca-juniors-stadium",
+            "name": "La Bombonera",
+            "role": "venue",
+            "order": 3,
+            "sourceName": "Boca Juniors stadium",
+            "evidenceKeys": [
+              "ev-1"
+            ],
+            "normalizationKind": "CANONICAL_NAME"
+          }
+        ],
+        "admission": [
+          true,
+          "MATCHING_EVIDENCE_REQUIREMENT",
+          [
+            "MULTI_COMPONENT_EXPERIENCE"
+          ]
+        ]
+      }
+    ],
+    "rawOutput": "{\n  \"candidates\": [\n    {\n      \"name\": \"La Boca Walking Tour\",\n      \"description\": \"A 2-hour guided walking tour through the La Boca neighborhood, starting at the corner of Magallanes and Caminito. The route includes walking the famous Caminito street, viewing the colorful houses, visiting the Volunteer Firefighters Plaza, and ending at the Boca Juniors stadium.\",\n      \"themes\": [\n        \"tango\",\n        \"art\",\n        \"history\",\n        \"architecture\"\n      ],\n      \"traits\": [\n        \"guided tour\",\n        \"colorful houses\",\n        \"street art\",\n        \"football culture\"\n      ],\n      \"intents\": [\n        \"walk\"\n      ],\n      \"suggestedDurationMinutes\": 120,\n      \"componentHints\": [\n        {\n          \"key\": \"caminito\",\n          \"name\": \"Caminito\",\n          \"role\": \"route\",\n          \"expectedKind\": \"ROUTE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"We will walk the**famous little street Caminito**\"\n        },\n        {\n          \"key\": \"volunteer-firefighters-plaza\",\n          \"name\": \"Plazoleta Bomberos Voluntarios de La Boca\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"sourceName\": \"Volunteer Firefighters Plaza\",\n          \"normalizationKind\": \"TRANSLATION\",\n          \"supportSpan\": \"Our tour continues with visit to the square of the **volunteer Fire Fighters**\"\n        },\n        {\n          \"key\": \"boca-juniors-stadium\",\n          \"name\": \"La Bombonera\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"sourceName\": \"Boca Juniors stadium\",\n          \"normalizationKind\": \"CANONICAL_NAME\",\n          \"supportSpan\": \"we will finish our tour seeing the **Boca Juniors Football Stadium**\"\n        }\n      ],\n      \"evidenceKeys\": [\n        \"ev-1\"\n      ],\n      \"shortReason\": \"Evidence explicitly describes a single walking tour itinerary starting at Caminito and visiting specific landmarks including the Volunteer Firefighters Plaza and Boca Juniors stadium.\",\n      \"orderedByEvidence\": true\n    }\n  ]\n}"
+  },
+  "entityResolution": {
+    "summary": "Entity resolution procesó 1 candidato(s): 1 quedaron con entidades concretas suficientes para continuar y 0 no pudieron resolverse. Se obtuvieron 3 entidad(es) provider-backed, 3 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite.",
+    "candidateDecisions": [
+      {
+        "id": "La Boca Walking Tour",
+        "name": "La Boca Walking Tour",
+        "reason": "3 entidad(es) provider-backed resueltas; pendiente validación geográfica. [resueltos 3/3: Caminito=RESOLVED/INSIDE, Plazoleta Bomberos Voluntarios de La Boca=RESOLVED/INSIDE, La Bombonera=RESOLVED/INSIDE]",
+        "source": "discovery",
+        "status": "ELIGIBLE",
+        "reasonCodes": [
+          "ENTITY_RESOLUTION_READY"
+        ]
+      }
+    ],
+    "perHint": [
+      {
+        "name": "Caminito",
+        "status": "resolved",
+        "resolvedGeoEntity": {
+          "provider": "openstreetmap",
+          "externalId": "osm:way:144844726",
+          "geoEntityId": "b6c4e075-9c04-4de2-ac1d-69c793e8a993",
+          "canonicalName": "Caminito"
+        },
+        "geography": {
+          "geoEntityId": "b6c4e075-9c04-4de2-ac1d-69c793e8a993",
+          "geoEntityKind": "ROUTE",
+          "canonicalGeometry": "LINE",
+          "geographicRelation": "INSIDE"
+        },
+        "attempts": [
+          [
+            "CATALOG_REUSE",
+            "catalog",
+            true,
+            "VERIFIED"
+          ]
+        ]
+      },
+      {
+        "name": "Plazoleta Bomberos Voluntarios de La Boca",
+        "status": "resolved",
+        "resolvedGeoEntity": {
+          "provider": "openstreetmap",
+          "externalId": "osm:way:450506706",
+          "geoEntityId": "dfe1af29-1801-4148-9966-054a2008c10d",
+          "canonicalName": "Plazoleta Bomberos Voluntarios de La Boca"
+        },
+        "geography": {
+          "geoEntityId": "dfe1af29-1801-4148-9966-054a2008c10d",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "geographicRelation": "INSIDE"
+        },
+        "attempts": [
+          [
+            "CATALOG_REUSE",
+            "catalog",
+            false,
+            null
+          ],
+          [
+            "TRUSTED_OBSERVATION_REUSE",
+            "trusted_observation",
+            false,
+            null
+          ],
+          [
+            "LOCAL_OSM_POOL",
+            "openstreetmap",
+            true,
+            "VERIFIED"
+          ]
+        ]
+      },
+      {
+        "name": "La Bombonera",
+        "status": "resolved",
+        "resolvedGeoEntity": {
+          "provider": "openstreetmap",
+          "externalId": "osm:way:248598885",
+          "geoEntityId": "38a70574-8a2a-4159-93a7-f496e687b577",
+          "canonicalName": "La Bombonera"
+        },
+        "geography": {
+          "geoEntityId": "38a70574-8a2a-4159-93a7-f496e687b577",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "geographicRelation": "INSIDE"
+        },
+        "attempts": [
+          [
+            "CATALOG_REUSE",
+            "catalog",
+            false,
+            null
+          ],
+          [
+            "TRUSTED_OBSERVATION_REUSE",
+            "trusted_observation",
+            false,
+            null
+          ],
+          [
+            "LOCAL_OSM_POOL",
+            "openstreetmap",
+            false,
+            null
+          ],
+          [
+            "NOMINATIM",
+            "nominatim",
+            true,
+            "VERIFIED"
+          ]
+        ]
+      }
+    ],
+    "coverage": [
+      {
+        "resolutionRatio": 1,
+        "totalComponents": 3,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 3,
+        "geographicallyAcceptedComponents": 3
+      }
+    ],
+    "componentScope": [
+      {
+        "kind": "DESTINATION_AREA",
+        "name": "Buenos Aires"
+      }
+    ]
+  },
+  "geographicValidation": [
+    "Validación geográfica: 1 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+    "Validación geográfica: 13 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+    "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real."
+  ],
+  "catalogMaterialization": [
+    "1 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution. La Boca Walking Tour: 3/3 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner.",
+    "13 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 6 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution. La Madre: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Himalaya: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; La flor de la vida: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Roca granitica: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Paseo de las Esculturas: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Estatua Hugo del Carril: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Juventud: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Mirador Eco Área Municipal: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Guillermo Brown: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Colón Fábrica: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; José de San Martín: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Nestor Kirchner: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Benito Quinquela Martín: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Hidrovértigo: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Centro Científico Tecnológicos.: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Galería Güemes: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Iglesia San Ignacio de Loyola: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; San Telmo + Caminito Local Walking Tour: 3/3 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner.",
+    "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution."
+  ],
+  "discoveryPerPass": [
+    "Pase 1: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 1 candidate(s) (web: 1).",
+    "Pase 1: fuentes [wikivoyage, google_places, web] → 19 observación(es) estructurada(s) + 19 candidate(s) (web: 1).",
+    "Pase 2: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+    "Pase 2: fuentes [wikivoyage, google_places, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0)."
+  ],
+  "executionSummaryAcquisition": {
+    "passes": 4,
+    "providersFailed": [],
+    "observationCount": 19,
+    "webCandidateCount": 2,
+    "approximateRouting": false,
+    "providersAttempted": [
+      "google_places",
+      "serper",
+      "wikivoyage"
+    ],
+    "structuredCandidateCount": 18
+  },
+  "traceGaps": []
+}

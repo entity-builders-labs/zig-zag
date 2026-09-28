@@ -341,7 +341,29 @@ Chronological evidence (each directory is immutable; read its assessment):
      Cloudflare extractor yielded 0 candidates on this run. No synthetic DB
      injection; WARM not run on empty catalog.
 
-**RW3 gate: BLOCKED / OPEN (N5 design PROVEN; N6 route-scope policy PROVEN; clean live rerun blocked by extraction shape variance; RW4 NOT AUTHORIZED).**
+8. `spikes/rw3-acceptance-rerun-2026-09-28/` — extractor characterization & observability:
+   - Positive control verified (5/5 admitted on frozen multi-component evidence).
+   - Trace observability gap (Case D) resolved: `rawOutput` captured in generation trace.
+   - COLD run honestly failed closed when search snippets lacked 2nd component (Case A).
+
+9. `spikes/rw3-source-retrieval-acceptance-2026-09-28/` — deep source content retrieval & acceptance campaign:
+   - **Source Retrieval Boundary**: Provider-neutral `IWebSourceContentService` with
+     `TavilyExtractService` (and Cloudflare Browser Run capability).
+   - **Deterministic Gated Trigger**: Fires only when `MULTI_COMPONENT_EXPERIENCE` is
+     required and initial snippet extraction yields no admissible multi-component candidate.
+     Never wired unconditionally into top-N search results.
+   - **Live COLD Run**: Triggered deep retrieval, fetched full markdown (`solsalute.com` 32,121 chars,
+     `buenosairesfreewalks.com` 2,980 chars) in 2,166ms. Extracted `La Boca Walking Tour`
+     with 3 components: `Caminito` (ROUTE), `Plazoleta Bomberos Voluntarios de La Boca` (PLACE),
+     `La Bombonera` (PLACE) with verified support spans.
+   - **Resolution & Materialization**: All 3 components resolved against trusted geography,
+     passed spatial validation as `GEO_VERIFIED`, and persisted in PostgreSQL catalog (18 GeoEntities,
+     14 Experiences, 18 ExperienceComponents).
+   - **Live WARM Run & Catalog Reuse**: Sequence integrity proven (`cold/db-after == warm/db-before`).
+     All 3 components resolved via `CATALOG_REUSE` (`status: true, verdict: VERIFIED`).
+     Tour generated cleanly with zero web calls.
+
+**RW3 gate: CLOSED / PASSED (Deep source content retrieval proven; COLD and WARM acceptance campaign completed; verified 3/3 components resolved to trusted geography, GEO_VERIFIED, materialized in catalog, 100% catalog reuse in WARM; DB sequence integrity proven byte-for-byte; RW4 AUTHORIZED).**
 
 RW2 canonical-provider rerun (`spikes/rw2-rerun-serper-cloudflare-2026-09-27/`,
 corrected): Serper returned relevant San Telmo/La Boca walking evidence and
@@ -353,9 +375,7 @@ effect on the extraction result). RW2 is not reopened.
 
 ### Open next steps
 
-- next canonical gate: **clean RW3 rerun** — machine check DB sequence integrity
-  (`cold/db-after == warm/db-before`).
-- **RW4 (generalization)**: NOT AUTHORIZED until RW3 clean rerun PASSES.
+- next canonical gate: **RW4 (generalization)** — AUTHORIZED.
 - future frozen-corpus investigation of the RW2 Serper → Cloudflare
   multi-area extraction delta (use `50000 / 20000` for any controlled RW2
   rerun);
