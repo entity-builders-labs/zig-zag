@@ -840,6 +840,351 @@ describe('ExperienceAcquisitionService', () => {
         expect(result.candidates).toHaveLength(0);
       });
 
+      describe('RW3-N7 bounded evidence refinement', () => {
+        const anchoredMultiPlan: ExperienceAcquisitionPlan = {
+          destination: {
+            destinationName: 'Buenos Aires',
+            destinationCountryCode: 'AR',
+          },
+          deficits: [
+            {
+              origin: 'preference_facet',
+              dimension: 'intent',
+              key: 'walk',
+              reason: 'missing anchored walk',
+            },
+          ],
+          evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+          breadth: 'focused',
+          sourcePlans: [
+            {
+              provider: 'web',
+              web: {
+                query: 'Buenos Aires Caminito walking tour',
+                requestedIntents: ['walk'],
+                semanticQuery: 'street art and neighborhood history',
+                anchorNames: ['Caminito'],
+              },
+            },
+          ],
+        };
+
+        const grounded = (
+          snippet: string,
+          queryLabel: string,
+        ) => ({
+          provider: 'serper',
+          model: 'google-search',
+          groundingStatus: 'applied' as const,
+          evidence: [
+            {
+              key: 'ev-1',
+              source: 'example.org',
+              title: queryLabel,
+              snippet,
+              url: `https://example.org/${queryLabel}`,
+            },
+          ],
+          rawOutput: { queryLabel },
+          providerLocale: { gl: 'ar' },
+        });
+
+        const validComposite = {
+          name: 'Caminito neighborhood walk',
+          themes: ['history'],
+          traits: [],
+          intents: ['walk'],
+          componentHints: [
+            {
+              key: 'anchor',
+              name: 'Caminito',
+              role: 'route' as const,
+              expectedKind: 'ROUTE' as const,
+              evidenceKeys: ['ev-1'],
+            },
+            {
+              key: 'museum',
+              name: 'Museo Benito Quinquela Martín',
+              role: 'venue' as const,
+              expectedKind: 'PLACE' as const,
+              evidenceKeys: ['ev-1'],
+            },
+          ],
+          evidenceKeys: ['ev-1'],
+          shortReason: 'The source names both stops as part of one walk.',
+        };
+
+        const makeService = (search: jest.Mock, extractExperiences: jest.Mock) =>
+          new ExperienceAcquisitionService(
+            {} as any,
+            {} as any,
+            { acquire: jest.fn() } as any,
+            { acquire: jest.fn() } as any,
+            new StructuredExperienceCandidateSynthesizerService(),
+            new StructuredCandidateCorroborationService(),
+            undefined,
+            { search } as any,
+            { extractExperiences } as any,
+          );
+
+        it('refines once after grounded evidence yields zero extracted anchored multi-component candidates', async () => {
+          const search = jest
+            .fn()
+            .mockResolvedValueOnce(
+              grounded('Initial generic evidence.', 'initial'),
+            )
+            .mockResolvedValueOnce(
+              grounded(
+                'Route itinerary names Caminito then Museo Benito Quinquela Martín.',
+                'refined',
+              ),
+            );
+          const extractExperiences = jest
+            .fn()
+            .mockResolvedValueOnce({
+              candidates: [],
+              validationErrors: [],
+              provider: 'cloudflare',
+              model: '@cf/qwen/qwen3.8-27b',
+              rawOutput: '{"candidates":[]}',
+            })
+            .mockResolvedValueOnce({
+              candidates: [validComposite],
+              validationErrors: [],
+              provider: 'cloudflare',
+              model: '@cf/qwen/qwen3.8-27b',
+              rawOutput: '{"candidates":[{"name":"Caminito neighborhood walk"}]}',
+            });
+          const service = makeService(search, extractExperiences);
+
+          const result = await service.executePlan(anchoredMultiPlan);
+          const web = result.webResults?.[0];
+
+          expect(search).toHaveBeenCalledTimes(2);
+          expect(extractExperiences).toHaveBeenCalledTimes(2);
+          expect(search.mock.calls[1][0]).toMatchObject({
+            destinationName: 'Buenos Aires',
+            destinationCountryCode: 'AR',
+            requestedIntents: ['walk'],
+            additionalPreferences: 'street art and neighborhood history',
+            anchorNames: ['Caminito'],
+          });
+          expect(search.mock.calls[1][0].query).not.toBe(
+            search.mock.calls[0][0].query,
+          );
+          expect(search.mock.calls[1][0].query).toContain('route stops');
+          expect(search.mock.calls[1][0].query).toContain('landmarks');
+          expect(search.mock.calls[1][0].query).toContain('itinerary');
+          expect(extractExperiences.mock.calls[1][0]).toMatchObject({
+            requestedIntents: ['walk'],
+            semanticQuery: 'street art and neighborhood history',
+            anchorNames: ['Caminito'],
+            evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+          });
+
+          expect(web).toMatchObject({
+            status: 'success',
+            query: 'Buenos Aires Caminito walking tour',
+            initialQuery: 'Buenos Aires Caminito walking tour',
+            initialEvidenceCount: 1,
+            initialExtractedCandidateCount: 0,
+            refinementTriggered: true,
+            refinementReason: 'EMPTY_ANCHORED_MULTI_COMPONENT_EXTRACTION',
+            refinementStatus: 'success',
+            refinementEvidenceCount: 1,
+            refinementExtractedCandidateCount: 1,
+            boundedAttemptCount: 2,
+            candidateCount: 1,
+          });
+          expect(web?.refinementQuery).toBe(search.mock.calls[1][0].query);
+          expect(result.candidates).toEqual([validComposite]);
+
+          // Both Serper calls used provider-local ev-1. Only the evidence
+          // that can actually be cited by the emitted refinement candidate
+          // crosses into resolver evidence; the initial ev-1 is audit-only.
+          expect(result.evidence).toEqual([
+            expect.objectContaining({
+              key: 'ev-1',
+              snippet:
+                'Route itinerary names Caminito then Museo Benito Quinquela Martín.',
+            }),
+          ]);
+          expect(result.evidence?.some((item) =>
+            item.snippet?.includes('Initial generic evidence'),
+          )).toBe(false);
+        });
+
+        it('does not refine when grounded search has no evidence', async () => {
+          const search = jest.fn().mockResolvedValue({
+            provider: 'serper',
+            model: 'google-search',
+            groundingStatus: 'no_usable_evidence',
+            evidence: [],
+          });
+          const extractExperiences = jest.fn();
+          const service = makeService(search, extractExperiences);
+
+          const result = await service.executePlan(anchoredMultiPlan);
+
+          expect(search).toHaveBeenCalledTimes(1);
+          expect(extractExperiences).not.toHaveBeenCalled();
+          expect(result.webResults?.[0]).toMatchObject({
+            initialEvidenceCount: 0,
+            initialExtractedCandidateCount: 0,
+            refinementTriggered: false,
+            boundedAttemptCount: 1,
+          });
+        });
+
+        it('does not refine after a grounded-provider failure', async () => {
+          const search = jest.fn().mockResolvedValue({
+            provider: 'serper',
+            model: 'google-search',
+            groundingStatus: 'failed',
+            evidence: [],
+            failureReason: 'serper_error_500',
+          });
+          const extractExperiences = jest.fn();
+          const service = makeService(search, extractExperiences);
+
+          const result = await service.executePlan(anchoredMultiPlan);
+
+          expect(search).toHaveBeenCalledTimes(1);
+          expect(extractExperiences).not.toHaveBeenCalled();
+          expect(result.webResults?.[0]).toMatchObject({
+            status: 'failed',
+            refinementTriggered: false,
+            boundedAttemptCount: 1,
+          });
+        });
+
+        it('does not refine when the initial extractor already emitted a candidate', async () => {
+          const search = jest.fn().mockResolvedValue(
+            grounded('A complete named route.', 'initial'),
+          );
+          const extractExperiences = jest.fn().mockResolvedValue({
+            candidates: [validComposite],
+            validationErrors: [],
+            provider: 'cloudflare',
+            model: '@cf/qwen/qwen3.8-27b',
+          });
+          const service = makeService(search, extractExperiences);
+
+          const result = await service.executePlan(anchoredMultiPlan);
+
+          expect(search).toHaveBeenCalledTimes(1);
+          expect(extractExperiences).toHaveBeenCalledTimes(1);
+          expect(result.webResults?.[0]).toMatchObject({
+            initialExtractedCandidateCount: 1,
+            refinementTriggered: false,
+            boundedAttemptCount: 1,
+            candidateCount: 1,
+          });
+        });
+
+        it('stops after one refinement when extraction remains empty', async () => {
+          const search = jest
+            .fn()
+            .mockResolvedValueOnce(grounded('Initial evidence.', 'initial'))
+            .mockResolvedValueOnce(grounded('Richer evidence.', 'refined'));
+          const extractExperiences = jest.fn().mockResolvedValue({
+            candidates: [],
+            validationErrors: [],
+            provider: 'cloudflare',
+            model: '@cf/qwen/qwen3.8-27b',
+          });
+          const service = makeService(search, extractExperiences);
+
+          const result = await service.executePlan(anchoredMultiPlan);
+
+          expect(search).toHaveBeenCalledTimes(2);
+          expect(extractExperiences).toHaveBeenCalledTimes(2);
+          expect(result.webResults?.[0]).toMatchObject({
+            refinementTriggered: true,
+            refinementEvidenceCount: 1,
+            refinementExtractedCandidateCount: 0,
+            boundedAttemptCount: 2,
+            candidateCount: 0,
+          });
+          expect(result.candidates).toEqual([]);
+        });
+
+        it('keeps strict multi-component admission on refinement and never opens a third attempt', async () => {
+          const search = jest
+            .fn()
+            .mockResolvedValueOnce(grounded('Initial evidence.', 'initial'))
+            .mockResolvedValueOnce(
+              grounded('Only one real named stop is supported.', 'refined'),
+            );
+          const singlePlace = {
+            ...validComposite,
+            name: 'Caminito visit',
+            componentHints: [validComposite.componentHints[0]],
+          };
+          const extractExperiences = jest
+            .fn()
+            .mockResolvedValueOnce({
+              candidates: [],
+              validationErrors: [],
+              provider: 'cloudflare',
+              model: '@cf/qwen/qwen3.8-27b',
+            })
+            .mockResolvedValueOnce({
+              candidates: [singlePlace],
+              validationErrors: [],
+              provider: 'cloudflare',
+              model: '@cf/qwen/qwen3.8-27b',
+            });
+          const service = makeService(search, extractExperiences);
+
+          const result = await service.executePlan(anchoredMultiPlan);
+
+          expect(search).toHaveBeenCalledTimes(2);
+          expect(extractExperiences).toHaveBeenCalledTimes(2);
+          expect(result.candidates).toEqual([]);
+          expect(result.webResults?.[0]).toMatchObject({
+            refinementTriggered: true,
+            refinementExtractedCandidateCount: 1,
+            boundedAttemptCount: 2,
+            candidateCount: 0,
+            candidateDecisions: [
+              expect.objectContaining({
+                accepted: false,
+                reason: 'NO_MATCHING_EVIDENCE_REQUIREMENT',
+              }),
+            ],
+          });
+        });
+
+        it('keeps identical source-plan execution suppressed by the ledger after the bounded refinement', async () => {
+          const search = jest
+            .fn()
+            .mockResolvedValueOnce(grounded('Initial evidence.', 'initial'))
+            .mockResolvedValueOnce(grounded('Richer evidence.', 'refined'));
+          const extractExperiences = jest.fn().mockResolvedValue({
+            candidates: [],
+            validationErrors: [],
+            provider: 'cloudflare',
+            model: '@cf/qwen/qwen3.8-27b',
+          });
+          const service = makeService(search, extractExperiences);
+          const ledger: AcquisitionExecutionLedger = {
+            executedSourcePlanFingerprints: new Set(),
+          };
+
+          await service.executePlan(anchoredMultiPlan, ledger);
+          const second = await service.executePlan(anchoredMultiPlan, ledger);
+
+          expect(search).toHaveBeenCalledTimes(2);
+          expect(extractExperiences).toHaveBeenCalledTimes(2);
+          expect(second.executionSkipped).toEqual(
+            expect.objectContaining({
+              reason: 'DUPLICATE_SOURCE_PLAN_EXECUTION',
+            }),
+          );
+        });
+      });
+
       /**
        * Source-composition-authority correction seam test: a raw extracted
        * candidate that fails the deterministic source-support gate never
