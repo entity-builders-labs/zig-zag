@@ -7,14 +7,29 @@ Current branch of record for the tour engine: `feat/preference-first-selection`.
 
 This document replaces the obsolete sequencing that treated `feat/experience-domain-v2` as the branch to merge back into before agentic convergence. Git history established the opposite: `feat/preference-first-selection` is a descendant of `feat/experience-domain-v2` and has become the active, forward-moving tour-engine line. `feat/experience-domain-v2` is now historical ancestry, not an integration target.
 
-The current through-M10 implementation authority remains:
+Documentation navigation and current authority are indexed in:
 
-- `docs/superpowers/plans/2026-09-14-preference-first-m5-to-m10-master-implementation.md`
-- `docs/superpowers/progress/2026-09-11-preference-first-selection-progress.md`
-- `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
-- `docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`
+- `docs/superpowers/README.md`
 
-This roadmap begins where that work leaves off and defines the convergence path to the autonomous product.
+For the active Preference-First track, the current authority set is:
+
+- execution state:
+  `docs/superpowers/progress/2026-09-11-preference-first-selection-progress.md`;
+- implementation plan:
+  `docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md`;
+- live-cutover plan/reference:
+  `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`;
+- canonical design:
+  `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`;
+- real-world acceptance gate:
+  `docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md`.
+
+Do not infer current execution state from another dated `progress/` file. Older
+progress documents are historical/supporting evidence unless the documentation
+index explicitly promotes them.
+
+This roadmap begins where that work leaves off and defines the convergence path
+to the autonomous product.
 
 ---
 
@@ -102,6 +117,9 @@ RW2–RW6 real-world generalization
         + structural performance accounting
         ↓
 PREFERENCE-FIRST CORE CLOSED
+        ↓
+Generation Trace v5 maintainability cutover
+(generic decision-step trace; no domain mirror)
         ↓
 create/recreate unified agentic branch
 FROM accepted Preference-First HEAD
@@ -688,6 +706,188 @@ It:
 - does not create acquisition deficits;
 - does not become Experience truth;
 - only projects over independent grounded exploration signals after factual eligibility/matching.
+
+---
+
+## 6.1 Generation Trace v5 maintainability gate
+
+Status: **PLANNED AFTER PREFERENCE-FIRST CORE CLOSURE; DO NOT START DURING
+RW3–RW6.**
+
+The current Bitácora/Generation Trace v4 remains the forensic authority for the
+real-world gates. Do not destabilize it while those gates still depend on it.
+
+However, v4 has accumulated a structural maintainability defect. The trace
+originally had the right generic shape:
+
+```text
+stage / name
+input
+decision
+reason
+output
+timing
+```
+
+Over successive debugging milestones it also became a parallel typed model of
+many engine internals. `GenerationTraceStep` and the central trace builder now
+know stage-specific structures for acquisition, entity resolution, geographic
+validation, classification, candidate-pool composition, daily planning,
+provider grounding and other domain details.
+
+That creates the wrong dependency:
+
+```text
+engine behavior changes
+        ↓
+domain contract changes
+        ↓
+central GenerationTrace schema changes
+        ↓
+central trace builder changes
+        ↓
+trace tests/UI projections change
+```
+
+The Bitácora must observe decisions; it must not become a second implementation
+or structural mirror of every engine subsystem.
+
+### Target model
+
+Trace v5 should be an ordered, optionally nested sequence of generic execution
+and decision steps. The stable envelope should carry concepts such as:
+
+```text
+id / parentId / sequence
+name / description / component
+input
+output
+decision:
+  status
+  outcome
+  reason
+  reasonCodes
+rules
+subjects / candidate decisions
+facts
+references
+timing
+```
+
+The exact contract requires its own focused design before implementation. The
+important boundary is:
+
+```text
+domain decision owner
+        ↓
+typed domain result + producer-owned audit facts/reason
+        ↓
+generic TraceRecorder
+        ↓
+append trace step
+```
+
+The central trace layer must not re-run or reverse-engineer domain policy to
+explain a result. The service/policy that owns the decision owns the canonical
+reason and the bounded facts needed to audit it.
+
+### Producer-owned typing, generic trace envelope
+
+Do not solve the v4 problem by turning all meaningful domain contracts into
+untyped metadata bags.
+
+Canonical decision inputs and outputs remain strongly typed in their owning
+domain. Each producer may expose a small typed audit projection local to that
+component. The generic trace envelope may serialize those bounded facts as JSON,
+but downstream business behavior must never consume trace payloads as hidden
+domain APIs.
+
+In other words:
+
+```text
+typed domain contract
+→ typed local audit projection
+→ generic trace serialization
+```
+
+not:
+
+```text
+Record<string, unknown>
+→ new hidden policy API
+```
+
+### Correlation and nesting
+
+Candidates/Experiences/components need stable correlation references so their
+history can be reconstructed across independent steps without nesting the whole
+pipeline inside one giant `TraceAcquisitionAudit`.
+
+A real acquisition may therefore read naturally as:
+
+```text
+acquisition pass
+  ├─ source_plan
+  ├─ web_search
+  ├─ evidence_assessment
+  ├─ fetch_web_source
+  ├─ semantic_extraction
+  ├─ candidate_admission
+  ├─ entity_resolution
+  ├─ geographic_validation
+  └─ materialization
+```
+
+Adding a future step such as `fetch_web_source`, a Viator lookup, an AI
+Researcher tool execution, or a provider fallback decision must not require
+editing the central GenerationTrace schema merely to teach it the internal
+shape of that capability.
+
+### Trace v5 acceptance invariants
+
+The v5 cutover is accepted only if:
+
+- adding a new engine/tool step normally requires no central trace-schema
+  change;
+- every decision can record the input/facts it actually evaluated, its output,
+  canonical reason and machine-readable reason codes;
+- candidate/Experience correlation survives across steps;
+- parent/child steps can represent loops and tool executions without bespoke
+  nesting for each capability;
+- redaction and payload-size bounds are centralized;
+- provider/model/runtime provenance remains observable;
+- forensic facts currently proven useful in RW1–RW6 are preserved where still
+  relevant (for example support evidence, identity attempts, geographic
+  diagnostics, planner actual-vs-limit facts and bounded model output);
+- the Bitácora remains audit-only and is never a policy authority;
+- the frontend can render the generic timeline without requiring every backend
+  algorithm to become part of one frontend DTO;
+- the cutover has one trace-writing authority. Do not leave indefinite v4/v5
+  dual-write paths.
+
+Historical persisted development traces are not, by themselves, a reason to
+preserve obsolete internal contracts. Apply the repository early-stage deletion
+rule unless an explicit product requirement requires old-tour trace
+compatibility.
+
+### Why this gate precedes agentic convergence
+
+Agentic convergence will introduce more dynamic execution shapes: research
+gaps, independent tools, bounded retries, source retrieval, provider policy and
+other future capabilities. Carrying the current stage-specific v4 schema into
+that phase would multiply its maintenance cost.
+
+Therefore the canonical order is:
+
+```text
+RW3–RW6
+→ PREFERENCE-FIRST CORE CLOSED
+→ Trace v5 generic decision-step cutover
+→ unified agentic convergence
+```
+
+Do not use this planned cleanup to delay or reopen accepted Preference-First
+domain semantics.
 
 ---
 

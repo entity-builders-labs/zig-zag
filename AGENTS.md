@@ -20,6 +20,22 @@ When an architectural rule can be checked mechanically, prefer enforcing it
 with lint/architecture tests/CI in addition to documenting it. A green test
 suite does not justify violating documented architectural boundaries.
 
+### Superpowers documentation navigation
+
+Before using a dated file under `docs/superpowers/` to determine current
+project state, read:
+
+- `docs/superpowers/README.md`
+
+That index identifies the single current execution pointer, the canonical
+roadmap and the active authority set. Do not infer authority from a filename,
+date, or a document calling itself "progress". Older progress files are
+historical/supporting evidence unless the index explicitly marks them current.
+
+When a new plan/progress document becomes an active authority, update the index
+in the same change and explicitly demote/supersede the previous pointer. Avoid
+creating multiple competing "current" progress documents.
+
 For backend architecture and maintainability work, also read:
 
 - `docs/architecture/engineering-principles.md`
