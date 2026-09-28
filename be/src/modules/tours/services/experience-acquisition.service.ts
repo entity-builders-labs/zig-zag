@@ -102,9 +102,6 @@ export interface ResolverEvidenceItem {
  * ExperienceCandidates — so it is reported separately rather than faked into
  * `providerResults<SourceObservation>`.
  */
-export type WebEvidenceRefinementReason =
-  'EMPTY_ANCHORED_MULTI_COMPONENT_EXTRACTION';
-
 export interface WebAcquisitionResult {
   status: 'success' | 'failed' | 'skipped';
   query: string;
@@ -141,21 +138,6 @@ export interface WebAcquisitionResult {
    * it is only observable here.
    */
   sourceSupportAudits?: CandidateSourceSupportAudit[];
-  /**
-   * RW3-N7: facts for the bounded evidence-refinement decision. These fields
-   * describe provider attempts only; they never relax candidate admission.
-   */
-  initialQuery?: string;
-  initialEvidenceCount?: number;
-  initialExtractedCandidateCount?: number;
-  refinementTriggered?: boolean;
-  refinementReason?: WebEvidenceRefinementReason;
-  refinementQuery?: string;
-  refinementStatus?: 'success' | 'failed' | 'skipped';
-  refinementEvidenceCount?: number;
-  refinementExtractedCandidateCount?: number;
-  refinementFailureReason?: string;
-  boundedAttemptCount?: 1 | 2;
   failureReason?: string;
 }
 
@@ -452,106 +434,6 @@ export class ExperienceAcquisitionService {
   }
 
   private async executeWebSourcePlan(
-    plan: ExperienceAcquisitionPlan,
-    web: NonNullable<
-      Extract<
-        ExperienceAcquisitionPlan['sourcePlans'][number],
-        { provider: 'web' }
-      >['web']
-    >,
-    sink: {
-      webCandidates: ExperienceCandidate[];
-      webEvidence: ResolverEvidenceItem[];
-    },
-  ): Promise<WebAcquisitionResult> {
-    const initialSink = {
-      webCandidates: [] as ExperienceCandidate[],
-      webEvidence: [] as ResolverEvidenceItem[],
-    };
-    const initial = await this.executeWebSourcePlanAttempt(
-      plan,
-      web,
-      initialSink,
-    );
-    const initialAudit = {
-      initialQuery: web.query,
-      initialEvidenceCount: initial.evidenceKeys.length,
-      initialExtractedCandidateCount: initial.extractedCandidateCount,
-      refinementTriggered: false,
-      boundedAttemptCount: 1 as const,
-    };
-
-    const shouldRefine =
-      initial.status === 'success' &&
-      initial.evidenceKeys.length > 0 &&
-      initial.extractedCandidateCount === 0 &&
-      plan.evidenceRequirements.includes('MULTI_COMPONENT_EXPERIENCE') &&
-      (web.anchorNames?.length ?? 0) > 0;
-
-    if (!shouldRefine) {
-      sink.webCandidates.push(...initialSink.webCandidates);
-      sink.webEvidence.push(...initialSink.webEvidence);
-      return { ...initial, ...initialAudit };
-    }
-
-    const refinementQuery = this.buildEvidenceRefinementQuery(web.query);
-    const refinementSink = {
-      webCandidates: [] as ExperienceCandidate[],
-      webEvidence: [] as ResolverEvidenceItem[],
-    };
-    const refinement = await this.executeWebSourcePlanAttempt(
-      plan,
-      { ...web, query: refinementQuery },
-      refinementSink,
-    );
-
-    // Serper and other providers may scope evidence keys to a single search
-    // (e.g. ev-1..ev-N). The initial attempt emitted no candidates by
-    // definition, so none can cite its evidence. Only the refinement evidence
-    // enters the resolver sink; the initial attempt remains audit-only. This
-    // preserves provider-owned evidence keys without cross-attempt collisions.
-    sink.webCandidates.push(...refinementSink.webCandidates);
-    sink.webEvidence.push(...refinementSink.webEvidence);
-
-    return {
-      ...refinement,
-      // Keep SourcePlan identity stable for trace/ledger joins. The materially
-      // different provider query is recorded separately below.
-      query: web.query,
-      ...initialAudit,
-      refinementTriggered: true,
-      refinementReason: 'EMPTY_ANCHORED_MULTI_COMPONENT_EXTRACTION',
-      refinementQuery,
-      refinementStatus: refinement.status,
-      refinementEvidenceCount: refinement.evidenceKeys.length,
-      refinementExtractedCandidateCount: refinement.extractedCandidateCount,
-      ...(refinement.failureReason
-        ? { refinementFailureReason: refinement.failureReason }
-        : {}),
-      boundedAttemptCount: 2,
-    };
-  }
-
-  private buildEvidenceRefinementQuery(initialQuery: string): string {
-    const base = initialQuery.trim();
-    const normalized = base.toLocaleLowerCase();
-    const structuralTerms = [
-      'route stops',
-      'landmarks',
-      'itinerary',
-      'named stops',
-    ];
-    const missingTerms = structuralTerms.filter(
-      (term) => !normalized.includes(term),
-    );
-    const suffix =
-      missingTerms.length > 0
-        ? missingTerms.join(' ')
-        : 'stop-by-stop sequence';
-    return `${base} ${suffix}`.trim();
-  }
-
-  private async executeWebSourcePlanAttempt(
     plan: ExperienceAcquisitionPlan,
     web: NonNullable<
       Extract<

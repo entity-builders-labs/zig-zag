@@ -1035,17 +1035,6 @@ export function buildAcquisitionStep(params: {
       destinationCountryCode?: string;
       groundedProviderLocale?: { gl?: string; hl?: string };
       evidenceKeys: string[];
-      initialQuery?: string;
-      initialEvidenceCount?: number;
-      initialExtractedCandidateCount?: number;
-      refinementTriggered?: boolean;
-      refinementReason?: 'EMPTY_ANCHORED_MULTI_COMPONENT_EXTRACTION';
-      refinementQuery?: string;
-      refinementStatus?: 'success' | 'failed' | 'skipped';
-      refinementEvidenceCount?: number;
-      refinementExtractedCandidateCount?: number;
-      refinementFailureReason?: string;
-      boundedAttemptCount?: 1 | 2;
       extractorProvider?: string;
       extractorModel?: string;
       extractorRequestAnchorNames?: string[];
@@ -1178,31 +1167,6 @@ export function buildAcquisitionStep(params: {
                 groundingStatus: webResult?.groundingStatus,
                 destinationCountryCode: webResult?.destinationCountryCode,
                 groundedProviderLocale: webResult?.groundedProviderLocale,
-                ...(webResult
-                  ? {
-                      initialQuery: webResult.initialQuery ?? sourcePlan.web.query,
-                      initialEvidenceCount:
-                        webResult.initialEvidenceCount ??
-                        webResult.evidenceKeys.length,
-                      initialExtractedCandidateCount:
-                        webResult.initialExtractedCandidateCount ??
-                        webResult.extractedCandidateCount ??
-                        webResult.candidateCount,
-                      refinementTriggered:
-                        webResult.refinementTriggered ?? false,
-                      refinementReason: webResult.refinementReason,
-                      refinementQuery: webResult.refinementQuery,
-                      refinementStatus: webResult.refinementStatus,
-                      refinementEvidenceCount:
-                        webResult.refinementEvidenceCount,
-                      refinementExtractedCandidateCount:
-                        webResult.refinementExtractedCandidateCount,
-                      refinementFailureReason:
-                        webResult.refinementFailureReason,
-                      boundedAttemptCount:
-                        webResult.boundedAttemptCount ?? 1,
-                    }
-                  : {}),
                 evidence: evidence
                   .filter((item) =>
                     (webResult?.evidenceKeys ?? []).includes(item.key ?? ''),
@@ -1400,21 +1364,6 @@ export function buildAcquisitionStep(params: {
         destinationCountryCode: w.destinationCountryCode,
         groundedProviderLocale: w.groundedProviderLocale,
         evidenceCount: w.evidenceKeys.length,
-        initialQuery: w.initialQuery ?? w.query,
-        initialEvidenceCount: w.initialEvidenceCount ?? w.evidenceKeys.length,
-        initialExtractedCandidateCount:
-          w.initialExtractedCandidateCount ??
-          w.extractedCandidateCount ??
-          w.candidateCount,
-        refinementTriggered: w.refinementTriggered ?? false,
-        refinementReason: w.refinementReason,
-        refinementQuery: w.refinementQuery,
-        refinementStatus: w.refinementStatus,
-        refinementEvidenceCount: w.refinementEvidenceCount,
-        refinementExtractedCandidateCount:
-          w.refinementExtractedCandidateCount,
-        refinementFailureReason: w.refinementFailureReason,
-        boundedAttemptCount: w.boundedAttemptCount ?? 1,
         extractorProvider: w.extractorProvider,
         extractorModel: w.extractorModel,
         validationErrors: w.validationErrors,
