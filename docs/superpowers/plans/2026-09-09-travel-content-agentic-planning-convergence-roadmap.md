@@ -906,9 +906,9 @@ a geometric diagnostic (distance from canonical route) was elevated into domain 
 through an arbitrary fixed 300m threshold, rejecting coherent walking components (La Bombonera at 428m)
 while accepting Quinquela Martín at 188m. This defect was resolved via pure policy
 `evaluateRouteScopeMembership` for route-anchor coherence (anchor satisfaction, destination boundary
-compatibility, local scope sharing, coherent extensions), preserving `distanceFromRouteMeters` strictly as
-observational evidence, and keeping walking feasibility ownership strictly in the mobility planner.
-Deterministic regressions G1–G6 all pass green.
+compatibility, local scope sharing, coherent extensions; residual 20m ON_ROUTE proximity threshold removed),
+preserving `distanceFromRouteMeters` strictly as observational evidence, and keeping walking feasibility
+ownership strictly in the mobility planner. Deterministic regressions G1–G6 & M1–M5 all pass green.
 
 Clean rerun executed in `spikes/rw3-route-scope-rerun-2026-09-28/` on dedicated DB
 `zigzag_spike_rw3_routescope` with canonical Serper + Cloudflare pair. Sequence integrity

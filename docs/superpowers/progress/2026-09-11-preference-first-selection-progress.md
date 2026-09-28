@@ -30,17 +30,19 @@ RW3-N6 resolution and live verification status:
   responsibilities cleanly:
   1. Geographic validation answers: *Does this source-backed Experience belong
      coherently to the requested geographic scope?* Anchor satisfaction is
-     evaluated via real canonical identity / name match / street proximity, destination
-     boundary compatibility is enforced, and coherent stops in the enclosing area
-     or destination are accepted (`SAME_LOCAL_SCOPE`, `DESTINATION_COMPATIBLE_EXTENSION`).
+     evaluated via real canonical identity / name match / polygon topology (`ANCHOR_COMPONENT` /
+     `ON_ROUTE`), destination boundary compatibility is enforced, and coherent stops in the
+     enclosing area or destination are accepted (`SAME_LOCAL_SCOPE`, `DESTINATION_COMPATIBLE_EXTENSION`).
+     The residual 20m ON_ROUTE proximity threshold was removed: metric proximity never creates
+     anchor truth or alters semantic membership.
   2. Planner mobility answers: *Can the user realistically walk this itinerary under
      their mobility constraints?* The canonical walking constraints
      (`maxWalkingDistancePerDayMeters`, `maxContinuousWalkingDistanceMeters`) remain
      the authority for walking feasibility (`MAX_WALKING_PER_DAY_EXCEEDED`).
   3. Distance from route is preserved strictly as diagnostic evidence
-     (`distanceFromRouteMeters`), never an arbitrary cut-off threshold.
-- **Deterministic regressions (G1–G6):** All GREEN across 50 tests in
-  `composite-geographic-validation.service.spec.ts` and 5 in
+     (`distanceFromRouteMeters`), never an arbitrary semantic cut-off threshold.
+- **Deterministic regressions (G1–G6 & M1–M5):** All GREEN across 50 tests in
+  `composite-geographic-validation.service.spec.ts` and 10 in
   `route-scope-membership-policy.spec.ts`.
 - **Clean live rerun:** Executed in `spikes/rw3-route-scope-rerun-2026-09-28/` on dedicated
   database `zigzag_spike_rw3_routescope`. Preflight confirmed canonical Serper + Cloudflare

@@ -1673,7 +1673,7 @@ describe('CompositeGeographicValidationService', () => {
       expect(result.rejectionReasons).toContain('external_scope_mismatch');
     });
 
-    it('accepts (N1) when a required component is genuinely close to (on/adjacent to) the external ROUTE scope', () => {
+    it('rejects (N1 / M2) when a required component is genuinely close to the external ROUTE scope but lacks the anchor component (proximity does not satisfy anchor)', () => {
       const candidate = unscopedCandidate([
         {
           key: 'p1',
@@ -1708,7 +1708,14 @@ describe('CompositeGeographicValidationService', () => {
         boundary,
         routeScopeObj,
       );
-      expect(result.accepted).toBe(true);
+      expect(result.accepted).toBe(false);
+      expect(result.rejectionReasons).toContain('external_scope_mismatch');
+      const offending = result.decisionEntities?.find(
+        (e) => e.relation === 'offending',
+      );
+      expect(offending).toBeDefined();
+      expect(offending?.decisionReason).toBe('NO_MATERIAL_ANCHOR_RELATION');
+      expect(offending?.distanceFromRouteMeters).toBeLessThan(20);
     });
 
     it('excludes the canonical ROUTE entity itself from the corridor-distance check (its own representative point need not lie on its own line)', () => {

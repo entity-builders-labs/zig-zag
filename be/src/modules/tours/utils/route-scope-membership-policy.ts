@@ -90,13 +90,13 @@ function isAnchorComponent(
  * 1. The anchor itself must be represented by real canonical geography and remain
  *    required by the request.
  * 2. The Experience must have a material relationship to that anchor (at least one
- *    component is ANCHOR_COMPONENT or physically ON_ROUTE).
+ *    component is ANCHOR_COMPONENT or physically ON_ROUTE via real topology).
  * 3. Additional source-backed components may extend beyond the literal route
  *    geometry if they remain geographically coherent with the anchor context
  *    (e.g. within the destination and sharing local scope).
  * 4. Destination compatibility remains mandatory.
  * 5. Distance is evidence/diagnostic for observability (Bitácora), NEVER an arbitrary
- *    semantic cutoff for validity.
+ *    semantic cutoff for validity. Metric proximity does NOT create anchor truth.
  * 6. Walking feasibility belongs strictly to the planner.
  */
 export function evaluateRouteScopeMembership(
@@ -211,18 +211,31 @@ export function evaluateRouteScopeMembership(
       }
     }
 
-    // 3. Is component physically on route (within street-level contact)?
+    // 3. Does component have an authoritative areal footprint intersecting or containing the route?
+    // Physical route intersection is topological/geometric, NEVER metric proximity.
+    // POINT-only components lack topological proof and fall through to scope/extension relations.
     if (
-      distanceToRoute !== undefined &&
-      Number.isFinite(distanceToRoute) &&
-      distanceToRoute <= 20
+      basis === 'POLYGON' &&
+      component.role !== 'area' &&
+      isAreaGeometry(component.geometry)
     ) {
-      relationFacts.push({
-        ...baseFact,
-        relation: 'ON_ROUTE',
-        distanceFromRouteMeters: distanceToRoute,
-      });
-      continue;
+      const intersectionRel = classifyComponentAreaRelation(
+        component.geometry as GeoJsonGeometry,
+        routeComponentFact,
+      );
+      if (
+        intersectionRel.relation === 'INSIDE' ||
+        intersectionRel.relation === 'INTERSECTS'
+      ) {
+        relationFacts.push({
+          ...baseFact,
+          relation: 'ON_ROUTE',
+          ...(distanceToRoute !== undefined
+            ? { distanceFromRouteMeters: distanceToRoute }
+            : {}),
+        });
+        continue;
+      }
     }
 
     // 4. Does it share an enclosing area with the route (e.g. La Boca neighborhood)?

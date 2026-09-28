@@ -266,4 +266,258 @@ describe('evaluateRouteScopeMembership', () => {
     expect(bomboneraFact?.distanceFromRouteMeters).toBeGreaterThan(400);
     expect(bomboneraFact?.distanceFromRouteMeters).toBeLessThan(500);
   });
+
+  describe('M1 - M5: route proximity removal and diagnostic preservation', () => {
+    // Northern endpoint of Caminito LineString: [-58.36306, -34.63935]
+    // Moving north from here (latitude > -34.63935) projects directly onto this endpoint.
+    const refLat = -34.63935;
+    const refLng = -58.36306;
+    const metersToDegLat = 1 / 111139;
+
+    it('M1: proves no 20m cliff — components at 19m, 20m, 21m receive the identical semantic relation', () => {
+      const stop19m: RouteScopeComponentFact = {
+        hintKey: 'stop_19m',
+        hintName: 'Stop at 19m',
+        role: 'venue',
+        latitude: refLat + 19 * metersToDegLat,
+        longitude: refLng,
+      };
+      const stop20m: RouteScopeComponentFact = {
+        hintKey: 'stop_20m',
+        hintName: 'Stop at 20m',
+        role: 'venue',
+        latitude: refLat + 20 * metersToDegLat,
+        longitude: refLng,
+      };
+      const stop21m: RouteScopeComponentFact = {
+        hintKey: 'stop_21m',
+        hintName: 'Stop at 21m',
+        role: 'venue',
+        latitude: refLat + 21 * metersToDegLat,
+        longitude: refLng,
+      };
+
+      const components: RouteScopeComponentFact[] = [
+        {
+          hintKey: 'caminito',
+          hintName: 'Caminito',
+          role: 'route',
+          geoEntityId: 'geo-caminito-1',
+          latitude: -34.63972,
+          longitude: -58.36287,
+        },
+        stop19m,
+        stop20m,
+        stop21m,
+      ];
+
+      const decision = evaluateRouteScopeMembership(
+        routeScope,
+        components,
+        buenosAiresBoundary,
+      );
+
+      expect(decision.passes).toBe(true);
+
+      const f19 = decision.components.find((c) => c.hintKey === 'stop_19m');
+      const f20 = decision.components.find((c) => c.hintKey === 'stop_20m');
+      const f21 = decision.components.find((c) => c.hintKey === 'stop_21m');
+
+      // Crucial: all receive the EXACT SAME semantic classification
+      expect(f19?.relation).toBe('DESTINATION_COMPATIBLE_EXTENSION');
+      expect(f20?.relation).toBe('DESTINATION_COMPATIBLE_EXTENSION');
+      expect(f21?.relation).toBe('DESTINATION_COMPATIBLE_EXTENSION');
+
+      // None received ON_ROUTE merely from being < 20m
+      expect(f19?.relation).not.toBe('ON_ROUTE');
+      expect(f20?.relation).not.toBe('ON_ROUTE');
+      expect(f21?.relation).not.toBe('ON_ROUTE');
+
+      // Distances are preserved diagnostically:
+      expect(f19?.distanceFromRouteMeters).toBeGreaterThan(18.5);
+      expect(f19?.distanceFromRouteMeters).toBeLessThan(19.5);
+      expect(f20?.distanceFromRouteMeters).toBeGreaterThan(19.5);
+      expect(f20?.distanceFromRouteMeters).toBeLessThan(20.5);
+      expect(f21?.distanceFromRouteMeters).toBeGreaterThan(20.5);
+      expect(f21?.distanceFromRouteMeters).toBeLessThan(21.5);
+    });
+
+    it('M2: proximity alone does not satisfy anchor — near stops without anchor fail closed', () => {
+      // Candidate with stops at ~5m and ~10m from route, but NO anchor component
+      const stop5m: RouteScopeComponentFact = {
+        hintKey: 'stop_5m',
+        hintName: 'Stop at 5m',
+        role: 'venue',
+        latitude: refLat + 5 * metersToDegLat,
+        longitude: refLng,
+      };
+      const stop10m: RouteScopeComponentFact = {
+        hintKey: 'stop_10m',
+        hintName: 'Stop at 10m',
+        role: 'venue',
+        latitude: refLat + 10 * metersToDegLat,
+        longitude: refLng,
+      };
+
+      const decision = evaluateRouteScopeMembership(
+        routeScope,
+        [stop5m, stop10m],
+        buenosAiresBoundary,
+      );
+
+      expect(decision.passes).toBe(false);
+      expect(decision.hasAnchorSatisfaction).toBe(false);
+      expect(decision.rejectionReason).toBe('NO_MATERIAL_ANCHOR_RELATION');
+
+      const f5 = decision.components.find((c) => c.hintKey === 'stop_5m');
+      const f10 = decision.components.find((c) => c.hintKey === 'stop_10m');
+
+      // Neither receives ON_ROUTE
+      expect(f5?.relation).toBe('DESTINATION_COMPATIBLE_EXTENSION');
+      expect(f10?.relation).toBe('DESTINATION_COMPATIBLE_EXTENSION');
+
+      // Distance retained diagnostically for observability
+      expect(f5?.distanceFromRouteMeters).toBeGreaterThan(4.5);
+      expect(f5?.distanceFromRouteMeters).toBeLessThan(5.5);
+      expect(f10?.distanceFromRouteMeters).toBeGreaterThan(9.5);
+      expect(f10?.distanceFromRouteMeters).toBeLessThan(10.5);
+    });
+
+    it('M3: explicit anchor still satisfies route scope with distant components', () => {
+      // Caminito anchor + venue 100m away + venue 500m away
+      const stop100m: RouteScopeComponentFact = {
+        hintKey: 'stop_100m',
+        hintName: 'Stop at 100m',
+        role: 'venue',
+        latitude: refLat + 100 * metersToDegLat,
+        longitude: refLng,
+      };
+      const stop500m: RouteScopeComponentFact = {
+        hintKey: 'stop_500m',
+        hintName: 'Stop at 500m',
+        role: 'venue',
+        latitude: refLat + 500 * metersToDegLat,
+        longitude: refLng,
+      };
+
+      const components: RouteScopeComponentFact[] = [
+        {
+          hintKey: 'caminito',
+          hintName: 'Caminito',
+          role: 'route',
+          geoEntityId: 'geo-caminito-1',
+          latitude: -34.63972,
+          longitude: -58.36287,
+        },
+        stop100m,
+        stop500m,
+      ];
+
+      const decision = evaluateRouteScopeMembership(
+        routeScope,
+        components,
+        buenosAiresBoundary,
+      );
+
+      expect(decision.passes).toBe(true);
+      expect(decision.hasAnchorSatisfaction).toBe(true);
+      expect(decision.hasDestinationMismatch).toBe(false);
+
+      const fAnchor = decision.components.find((c) => c.hintKey === 'caminito');
+      const f100 = decision.components.find((c) => c.hintKey === 'stop_100m');
+      const f500 = decision.components.find((c) => c.hintKey === 'stop_500m');
+
+      expect(fAnchor?.relation).toBe('ANCHOR_COMPONENT');
+      expect(f100?.relation).toBe('DESTINATION_COMPATIBLE_EXTENSION');
+      expect(f500?.relation).toBe('DESTINATION_COMPATIBLE_EXTENSION');
+
+      expect(f100?.distanceFromRouteMeters).toBeGreaterThan(99);
+      expect(f100?.distanceFromRouteMeters).toBeLessThan(101);
+      expect(f500?.distanceFromRouteMeters).toBeGreaterThan(495);
+      expect(f500?.distanceFromRouteMeters).toBeLessThan(505);
+    });
+
+    it('M4: real topology produces ON_ROUTE when component polygon intersects the route line', () => {
+      // A venue with real polygon geometry covering/intersecting Caminito:
+      // Caminito coordinates:
+      // [-58.36306, -34.63935] -> [-58.36287, -34.63972] -> [-58.36268, -34.6401]
+      const plazaFootprint: GeoJsonGeometry = {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-58.3632, -34.6392],
+            [-58.3625, -34.6392],
+            [-58.3625, -34.6402],
+            [-58.3632, -34.6402],
+            [-58.3632, -34.6392],
+          ],
+        ],
+      };
+
+      const plazaVenue: RouteScopeComponentFact = {
+        hintKey: 'plaza',
+        hintName: 'Plaza del Paseo',
+        role: 'venue',
+        geometry: plazaFootprint,
+        latitude: -34.6397,
+        longitude: -58.3628,
+      };
+
+      // Real topology produces ON_ROUTE and satisfies route anchor
+      const decision = evaluateRouteScopeMembership(
+        routeScope,
+        [plazaVenue],
+        buenosAiresBoundary,
+      );
+
+      expect(decision.passes).toBe(true);
+      expect(decision.hasAnchorSatisfaction).toBe(true);
+
+      const plazaFact = decision.components.find((c) => c.hintKey === 'plaza');
+      expect(plazaFact?.relation).toBe('ON_ROUTE');
+      expect(plazaFact?.basis).toBe('POLYGON');
+    });
+
+    it('M5: diagnostic distance is retained on all POINT components for observability', () => {
+      const point1: RouteScopeComponentFact = {
+        hintKey: 'p1',
+        hintName: 'Point 1',
+        role: 'venue',
+        latitude: -34.63972 + 0.001,
+        longitude: -58.36287,
+      };
+      const point2: RouteScopeComponentFact = {
+        hintKey: 'p2',
+        hintName: 'Point 2',
+        role: 'venue',
+        latitude: -34.63972 + 0.002,
+        longitude: -58.36287,
+      };
+
+      const decision = evaluateRouteScopeMembership(
+        routeScope,
+        [
+          {
+            hintKey: 'caminito',
+            hintName: 'Caminito',
+            role: 'route',
+            geoEntityId: 'geo-caminito-1',
+            latitude: -34.63972,
+            longitude: -58.36287,
+          },
+          point1,
+          point2,
+        ],
+        buenosAiresBoundary,
+      );
+
+      const f1 = decision.components.find((c) => c.hintKey === 'p1');
+      const f2 = decision.components.find((c) => c.hintKey === 'p2');
+
+      expect(f1?.distanceFromRouteMeters).toBeDefined();
+      expect(Number.isFinite(f1?.distanceFromRouteMeters)).toBe(true);
+      expect(f2?.distanceFromRouteMeters).toBeDefined();
+      expect(Number.isFinite(f2?.distanceFromRouteMeters)).toBe(true);
+    });
+  });
 });
