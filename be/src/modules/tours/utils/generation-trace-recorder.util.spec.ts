@@ -2,7 +2,6 @@ import {
   GenerationTraceRecorder,
   TRACE_LIMITS,
 } from './generation-trace-recorder.util';
-import { GenerationTraceStep } from '../interfaces/generation-trace.interface';
 
 describe('GenerationTraceRecorder', () => {
   it('records open-ended nested steps with monotonic sequence', () => {
@@ -44,6 +43,26 @@ describe('GenerationTraceRecorder', () => {
     expect(JSON.stringify(step)).not.toContain('signature=private');
     expect(JSON.stringify(step)).not.toContain('token=secret');
     expect(JSON.stringify(step)).not.toContain('signed-credential');
+  });
+
+  it('preserves benign keys like database and connection while redacting sensitive variants', () => {
+    const recorder = new GenerationTraceRecorder();
+    const step = recorder.record({
+      name: 'database.check',
+      facts: {
+        database: 'postgres',
+        connection: 'direct',
+        databaseUrl: 'postgres://user:pass@localhost:5432/app',
+        connectionString: 'Server=myServerAddress;Database=myDataBase;',
+        db_url: 'postgres://secret@host/db',
+      },
+    });
+    const facts = step.facts as Record<string, unknown>;
+    expect(facts.database).toBe('postgres');
+    expect(facts.connection).toBe('direct');
+    expect(facts.databaseUrl).toBe('[REDACTED]');
+    expect(facts.connectionString).toBe('[REDACTED]');
+    expect(facts.db_url).toBe('[REDACTED]');
   });
 
   it('redacts secrets in every persisted v5 string boundary', () => {
@@ -167,26 +186,6 @@ describe('GenerationTraceRecorder', () => {
       truncated: true,
       reason: 'MAX_STEP_PAYLOAD_CHARS',
     });
-  });
-
-  it('uses populated legacy candidates when candidate decisions are empty', () => {
-    const recorder = new GenerationTraceRecorder();
-    const step = recorder.recordLegacyProjection({
-      stage: 'candidate_pool',
-      label: 'Candidates',
-      summary: 'legacy bridge',
-      candidateDecisions: [],
-      candidates: [
-        {
-          id: 'legacy-candidate',
-          name: 'Legacy candidate',
-          offered: true,
-          chosen: true,
-        },
-      ],
-    } as unknown as GenerationTraceStep);
-    expect(step.subjects).toHaveLength(1);
-    expect(step.subjects?.[0].subject.id).toBe('legacy-candidate');
   });
 
   it('rejects invalid parents and duplicate ids', () => {

@@ -19,25 +19,27 @@ import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
 import { filterOverlappingExperienceCandidates } from '../utils/candidate-overlap-filter.util';
 import {
-  buildExperienceCandidatePoolStep,
-  buildPreferenceCoverageStep,
-  buildDailyPlanningStep,
-  buildAcquisitionStep,
-  buildDbSearchStep,
-  buildDestinationResolutionStep,
-  buildEmbeddingsStep,
-  buildEntityResolutionStep,
-  buildGeographicValidationStep,
-  buildCatalogMaterializationStep,
-  buildTourIntentStep,
-  buildTourCompletenessStep,
-} from '../utils/generation-trace-builder.util';
+  recordPreferenceInterpretationStep,
+  recordRequestIntentStep,
+  recordDestinationResolutionStep,
+  recordAnchorResolutionStep,
+  recordCatalogSearchStep,
+  recordPreferenceCoverageStep,
+  recordDeficitRoutingStep,
+  recordAreaRouteWalkStep,
+  recordAcquisitionLifecycle,
+  recordCandidatePoolSelectionStep,
+  recordSemanticRankingStep,
+  recordDailyPlanningStep,
+  recordTourCompletenessStep,
+  recordTourMaterializationStep,
+} from '../utils/experience-generation-trace.util';
 import { TourCompletenessValidator } from './tour-completeness-validator.service';
 import {
   TourCompletenessInput,
   UnmetRequestedFormatIssue,
 } from '../interfaces/tour-completeness.interface';
-import { GenerationTraceStep } from '../interfaces/generation-trace.interface';
+import { FinalExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
 import { PlanningCandidateNormalizerService } from './planning-candidate-normalizer.service';
 import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
 import {
@@ -122,50 +124,6 @@ interface CandidateSelection {
   preferenceWeightById: Map<string, number>;
   mustIncludeExperienceIds: Set<string>;
   compositionOrderScoreById: Map<string, number>;
-}
-
-function buildV5TraceFromExistingProjections(input: {
-  request: TourGenerationRequest;
-  steps: GenerationTraceStep[];
-  status: 'COMPLETED' | 'FAILED';
-  outcome: string;
-  reason?: string;
-  facts?: unknown;
-}) {
-  const recorder = new GenerationTraceRecorder();
-  const acquisitionParents = new Map<number, string>();
-  for (const step of input.steps) {
-    const passNumber = step.acquisitionContext?.passNumber;
-    let parentId: string | undefined;
-    if (passNumber !== undefined) {
-      parentId = acquisitionParents.get(passNumber);
-      if (!parentId) {
-        parentId = `acquisition-pass-${passNumber}`;
-        recorder.record({
-          id: parentId,
-          name: 'acquisition.pass',
-          description: `Acquisition pass ${passNumber}`,
-          component: 'ExperienceGenerationService',
-          facts: { passNumber, strategy: step.acquisitionContext?.strategy },
-        });
-        acquisitionParents.set(passNumber, parentId);
-      }
-    }
-    recorder.recordLegacyProjection(step, parentId);
-  }
-  return recorder.build({
-    runtime: {
-      buildCommit: process.env.BUILD_COMMIT ?? 'unknown',
-      buildTimestamp: process.env.BUILD_TIMESTAMP ?? 'unknown',
-    },
-    canonicalRequest: input.request,
-    result: {
-      status: input.status,
-      outcome: input.outcome,
-      reason: input.reason,
-      facts: input.facts,
-    },
-  });
 }
 
 function formatExperienceForPrompt(experience: any): string {
@@ -508,48 +466,6 @@ export class ExperienceGenerationService {
     return count;
   }
 
-  private buildCandidatePoolTraceStep(
-    selection: CandidateSelection,
-    discoveryResolvedExperienceIds: Set<string>,
-    newlyAcquiredExperienceIds: Set<string>,
-    crawlProvider: 'google' | 'geoapify' | undefined,
-    request: TourGenerationRequest,
-    initialCatalogCount: number,
-    postAcquisitionCatalogCount: number,
-    eligibleCount: number,
-  ): GenerationTraceStep {
-    const offeredCandidates = [
-      ...selection.initialExperiences,
-      ...selection.reservoirExperiences,
-    ].map((experience: any) => ({
-      id: experience.id,
-      name: experience.name,
-      metadata: {
-        ...(experience.metadata ?? {}),
-        preferenceEvaluation: selection.preferenceEvaluationById.get(
-          experience.id,
-        ),
-        hardExclusionRelaxed: selection.hardExclusionRelaxed,
-      },
-      traceSource: discoveryResolvedExperienceIds.has(experience.id)
-        ? ('discovery' as const)
-        : newlyAcquiredExperienceIds.has(experience.id)
-          ? crawlProvider === 'google'
-            ? ('google_places' as const)
-            : ('geoapify' as const)
-          : ('db' as const),
-      scoreBreakdown: selection.scoreBreakdownById.get(experience.id)!,
-    }));
-    return buildExperienceCandidatePoolStep({
-      initialCatalogCount,
-      postAcquisitionCatalogCount,
-      eligibleCount,
-      offeredCandidates,
-      requestedThemes: request.intent.interests,
-      composition: selection.compositionResult,
-    });
-  }
-
   private async withTimeout<T>(
     operation: Promise<T>,
     timeoutMs: number,
@@ -696,7 +612,7 @@ export class ExperienceGenerationService {
       destinationCountryCode?: string;
       geographicScope: GeographicScope;
     },
-    traceSteps: GenerationTraceStep[],
+    traceRecorder: GenerationTraceRecorder,
     providerState: {
       attempted: Set<string>;
       failed: Set<string>;
@@ -721,21 +637,20 @@ export class ExperienceGenerationService {
       providerState.attempted.add(webProvider);
       if (web.status === 'failed') providerState.failed.add(webProvider);
     }
-    const acquisitionContext = { strategy: 'generic' as const, passNumber };
-    traceSteps.push(
-      buildAcquisitionStep({ passNumber, plan, execution, acquisitionContext }),
-    );
+    let resolution: FinalExperienceResolutionResponse | undefined;
     if (execution.candidates.length > 0) {
-      const resolution = await this.experienceAcquisition.materializeExecution(
+      resolution = await this.experienceAcquisition.materializeExecution(
         execution,
         context,
       );
-      traceSteps.push(
-        buildEntityResolutionStep(resolution, acquisitionContext),
-        buildGeographicValidationStep(resolution, acquisitionContext),
-        buildCatalogMaterializationStep(resolution, acquisitionContext),
-      );
     }
+    recordAcquisitionLifecycle(traceRecorder, {
+      passNumber,
+      strategy: 'generic',
+      plan,
+      execution,
+      resolution,
+    });
     return execution;
   }
 
@@ -789,7 +704,10 @@ export class ExperienceGenerationService {
       throw new BadRequestException('Experiences have already been generated');
     }
 
-    const traceSteps: GenerationTraceStep[] = [];
+    const traceRecorder = new GenerationTraceRecorder();
+    const acquisitionProvidersAttempted = new Set<string>();
+    const acquisitionProvidersFailed = new Set<string>();
+    let degradedAcquisitionReason: string | null = null;
 
     await this.updateGenerationStatus(
       tourId,
@@ -823,15 +741,9 @@ export class ExperienceGenerationService {
       const offeredCompositionOrderScoreById = new Map<string, number>();
       const allEligibleExperiencesById = new Map<string, any>();
       const discoveryResolvedExperienceIds = new Set<string>();
-      // Canonical multi-source acquisition bookkeeping (was: placesRefillError).
-      // Per-pass detail lands in the trace via buildAcquisitionStep; only the
-      // degraded-all-providers signal needs to survive to the failure branch.
-      const acquisitionProvidersAttempted = new Set<string>();
-      const acquisitionProvidersFailed = new Set<string>();
       const acquisitionExecutionLedger: AcquisitionExecutionLedger = {
         executedSourcePlanFingerprints: new Set(),
       };
-      let degradedAcquisitionReason: string | null = null;
 
       const recordOfferedCandidates = (selection: CandidateSelection) => {
         selection.preferenceWeightById.forEach((weight, id) =>
@@ -899,42 +811,16 @@ export class ExperienceGenerationService {
         request,
         preferenceInterpretation.intent,
       );
-      const normalizedPreferences = preferenceInterpretation.intent;
 
-      traceSteps.push({
-        stage: 'preference_interpretation',
-        label: 'Interpretación de preferencias',
-        summary:
-          preferenceInterpretation.trace.status === 'applied'
-            ? 'Preferencias libres normalizadas y combinadas con filtros.'
-            : preferenceInterpretation.trace.status === 'fallback'
-              ? 'Preferencias estructuradas aplicadas con respaldo determinístico.'
-              : 'Filtros estructurados aplicados.',
-        component: 'PreferenceInterpreterService',
-        status:
-          preferenceInterpretation.trace.status === 'applied'
-            ? 'PASS'
-            : preferenceInterpretation.trace.status === 'fallback'
-              ? 'WARN'
-              : 'INFO',
-        inputs: {
-          hasAdditionalPreferences: Boolean(
-            request.intent.additionalPreferences?.trim(),
-          ),
-          intents: request.intent.intents ?? [],
-          dietaryRestrictions: request.dietaryRestrictions,
-          accessibilityNeeds: request.mobility.accessibilityNeeds,
-          budgetLevel: request.budgetLevel,
-          groupType: request.groupType,
-        },
-        outputs: { intent: normalizedPreferences, preferenceSpec },
-        preferenceInterpretation: {
-          ...preferenceInterpretation.trace,
-          parsedResponse: normalizedPreferences,
-        },
-        timing: { durationMs: preferenceInterpretation.trace.durationMs },
+      recordPreferenceInterpretationStep(traceRecorder, {
+        preferenceInterpretation,
+        preferenceSpec,
+        request,
       });
-      traceSteps.push(buildTourIntentStep(request));
+      recordRequestIntentStep(traceRecorder, {
+        request,
+        preferenceSpec,
+      });
 
       const destinationResolution =
         await this.destinationResolutionService.resolveDestination(
@@ -945,17 +831,16 @@ export class ExperienceGenerationService {
           },
           request.destination.scaleHint,
         );
-      traceSteps.push(
-        buildDestinationResolutionStep(
-          request.destination.label,
-          destinationResolution,
-        ),
-      );
       const canonicalDestinationName =
         destinationResolution.scale === 'area'
           ? destinationResolution.boundary.name
           : (destinationResolution.selectedResult?.displayName ??
             request.destination.label);
+      recordDestinationResolutionStep(traceRecorder, {
+        destinationText: request.destination.label,
+        resolution: destinationResolution,
+        canonicalDestinationName,
+      });
 
       // Asynchronously resolve authentic destination cover photo in background
       void this.tourImageService
@@ -1007,17 +892,9 @@ export class ExperienceGenerationService {
       // Keep interpreted linguistic facts and canonical geographic facts in
       // separate PreferenceSpec fields. Downstream geographic consumers must
       // read resolvedAnchors; trace keeps both projections explicit.
-      traceSteps.push({
-        stage: 'anchor_geo_resolution',
-        label: 'Resolución geográfica de anchors',
-        summary:
-          'La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.',
-        component: 'AreaRouteAnchorResolverService',
-        status: resolvedAnchors.some((anchor) => anchor.status === 'unresolved')
-          ? 'WARN'
-          : 'PASS',
-        inputs: { anchors: preferenceInterpretation.intent.anchoredPlaces },
-        outputs: { anchors: resolvedAnchors },
+      recordAnchorResolutionStep(traceRecorder, {
+        requestedAnchors: preferenceInterpretation.intent.anchoredPlaces,
+        resolvedAnchors,
       });
       const venueAnchorResolution = await this.venueAnchorResolution.resolve({
         anchors: resolvedAnchors,
@@ -1081,13 +958,14 @@ export class ExperienceGenerationService {
               searchArea,
               venueAnchorResolution.resolvedMustIds,
             );
-          traceSteps.push(
-            buildPreferenceCoverageStep(initialPreferenceCoverage, {
+          recordPreferenceCoverageStep(traceRecorder, {
+            coverage: initialPreferenceCoverage,
+            context: {
               offeredCandidateCount: nearbyExperiencesSample.length,
               semanticRanking: semanticRankingOutcome,
               providerHealth: { status: 'healthy' },
-            }),
-          );
+            },
+          });
 
           if (initialPreferenceCoverage.sufficient) {
             await this.updateGenerationStatus(
@@ -1100,23 +978,26 @@ export class ExperienceGenerationService {
             availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyExperiencesSample
               .map((experience: any) => formatExperienceForPrompt(experience))
               .join('\n')}`;
-            traceSteps.push(
-              buildDbSearchStep(nearbyExperiencesSample, radius / 1000),
-              this.buildCandidatePoolTraceStep(
-                selection,
-                discoveryResolvedExperienceIds,
-                new Set(),
-                undefined,
-                request,
-                nearbyExperiences.length,
-                nearbyExperiences.length,
+            recordCatalogSearchStep(traceRecorder, {
+              candidates: nearbyExperiencesSample,
+              radiusKm: radius / 1000,
+            });
+            recordCandidatePoolSelectionStep(traceRecorder, {
+              selection,
+              request,
+              initialCatalogCount: nearbyExperiences.length,
+              postAcquisitionCatalogCount: nearbyExperiences.length,
+              eligibleCount:
                 initialPreferenceCoverage.totalDistinctEligibleExperiences,
-              ),
-            );
+              discoveryResolvedExperienceIds,
+              newlyAcquiredExperienceIds: new Set(),
+              crawlProvider: undefined,
+            });
           } else {
-            traceSteps.push(
-              buildDbSearchStep(nearbyExperiences, radius / 1000),
-            );
+            recordCatalogSearchStep(traceRecorder, {
+              candidates: nearbyExperiences,
+              radiusKm: radius / 1000,
+            });
 
             // ── Canonical bounded multi-source acquisition loop ──
             // Replaces the former hand-rolled discovery + Places-only refill
@@ -1161,29 +1042,12 @@ export class ExperienceGenerationService {
                 currentPreferenceCoverage.acquisitionDeficits,
                 resolvedAnchors,
               );
-              traceSteps.push({
-                stage: 'coverage_analysis',
-                label: 'Enrutamiento de déficits de adquisición',
-                summary: `AREA_ROUTE_WALK=${areaRouteWalk.length}; GENERIC=${generic.length}.`,
-                component: 'partitionDeficitsByStrategy',
-                status: 'INFO',
-                inputs: {
-                  anchors: resolvedAnchors,
-                  acquisitionDeficits:
-                    currentPreferenceCoverage.acquisitionDeficits,
-                },
-                outputs: {
-                  areaRouteWalk: areaRouteWalk.map((routed) => ({
-                    anchor: routed.anchor,
-                    // RW3-F4: bounded anchor-routing fact -- how this
-                    // routed anchor qualified (canonical area/route vs
-                    // the unresolved named-path tourism_route fallback).
-                    anchorMode: routed.anchorMode,
-                    intentKey: routed.intentKey,
-                    deficit: routed.deficit,
-                  })),
-                  generic,
-                },
+              recordDeficitRoutingStep(traceRecorder, {
+                areaRouteWalk,
+                generic,
+                resolvedAnchors,
+                acquisitionDeficits:
+                  currentPreferenceCoverage.acquisitionDeficits,
               });
 
               // M2 (preference-first live cutover): deficits are now the
@@ -1228,57 +1092,25 @@ export class ExperienceGenerationService {
                     semanticQuery: preferenceSpec.semanticQuery,
                     executionLedger: acquisitionExecutionLedger,
                   });
-                const areaRouteWalkTraceResult = Object.fromEntries(
-                  Object.entries(areaRouteWalkResult).filter(
-                    ([key]) => key !== 'lifecycle',
-                  ),
-                );
-                traceSteps.push({
-                  stage: 'area_route_walk_acquisition',
-                  label: 'Adquisición o reutilización de walk/ruta',
-                  summary: `Resultado AREA_ROUTE_WALK: ${areaRouteWalkResult.outcome}.`,
-                  component: 'AreaRouteWalkAcquisitionService',
-                  status:
-                    areaRouteWalkResult.outcome === 'no_result'
-                      ? 'WARN'
-                      : 'PASS',
-                  inputs: {
-                    anchor: routed.anchor,
-                    intentKey: routed.intentKey,
-                    deficit: routed.deficit,
-                  },
-                  outputs: areaRouteWalkTraceResult,
+                recordAreaRouteWalkStep(traceRecorder, {
+                  anchor: routed.anchor,
+                  intentKey: routed.intentKey,
+                  deficit: routed.deficit,
+                  result: areaRouteWalkResult,
                 });
 
                 if (
                   'lifecycle' in areaRouteWalkResult &&
                   areaRouteWalkResult.lifecycle
                 ) {
-                  const lifecycleContext = {
-                    strategy: 'area_route_walk' as const,
+                  recordAcquisitionLifecycle(traceRecorder, {
                     passNumber: pass,
+                    strategy: 'area_route_walk',
                     anchor: routed.anchor,
-                  };
-                  traceSteps.push(
-                    buildAcquisitionStep({
-                      passNumber: pass,
-                      plan: areaRouteWalkResult.lifecycle.plan,
-                      execution: areaRouteWalkResult.lifecycle.execution,
-                      acquisitionContext: lifecycleContext,
-                    }),
-                    buildEntityResolutionStep(
-                      areaRouteWalkResult.lifecycle.materialization,
-                      lifecycleContext,
-                    ),
-                    buildGeographicValidationStep(
-                      areaRouteWalkResult.lifecycle.materialization,
-                      lifecycleContext,
-                    ),
-                    buildCatalogMaterializationStep(
-                      areaRouteWalkResult.lifecycle.materialization,
-                      lifecycleContext,
-                    ),
-                  );
+                    plan: areaRouteWalkResult.lifecycle.plan,
+                    execution: areaRouteWalkResult.lifecycle.execution,
+                    resolution: areaRouteWalkResult.lifecycle.materialization,
+                  });
                 }
 
                 if (areaRouteWalkResult.outcome !== 'no_result') {
@@ -1319,7 +1151,7 @@ export class ExperienceGenerationService {
                     destinationCountryCode: destinationResolution.countryCode,
                     geographicScope,
                   },
-                  traceSteps,
+                  traceRecorder,
                   {
                     attempted: acquisitionProvidersAttempted,
                     failed: acquisitionProvidersFailed,
@@ -1370,14 +1202,15 @@ export class ExperienceGenerationService {
                 searchArea,
                 venueAnchorResolution.resolvedMustIds,
               );
-              traceSteps.push(
-                buildPreferenceCoverageStep(currentPreferenceCoverage, {
+              recordPreferenceCoverageStep(traceRecorder, {
+                coverage: currentPreferenceCoverage,
+                context: {
                   offeredCandidateCount:
                     currentSelection.initialExperiences.length,
                   semanticRanking: semanticRankingOutcome,
                   providerHealth: currentProviderHealth,
-                }),
-              );
+                },
+              });
             }
 
             // A requested soft theme/trait/intent still missing after catalog +
@@ -1400,18 +1233,17 @@ export class ExperienceGenerationService {
             availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${currentSelection.initialExperiences
               .map((experience: any) => formatExperienceForPrompt(experience))
               .join('\n')}`;
-            traceSteps.push(
-              this.buildCandidatePoolTraceStep(
-                currentSelection,
-                discoveryResolvedExperienceIds,
-                new Set(),
-                undefined,
-                request,
-                nearbyExperiences.length,
-                currentPool.length,
+            recordCandidatePoolSelectionStep(traceRecorder, {
+              selection: currentSelection,
+              request,
+              initialCatalogCount: nearbyExperiences.length,
+              postAcquisitionCatalogCount: currentPool.length,
+              eligibleCount:
                 currentPreferenceCoverage.totalDistinctEligibleExperiences,
-              ),
-            );
+              discoveryResolvedExperienceIds,
+              newlyAcquiredExperienceIds: new Set(),
+              crawlProvider: undefined,
+            });
           }
         } catch (error: any) {
           this.logger.warn(
@@ -1422,12 +1254,10 @@ export class ExperienceGenerationService {
           }
         }
 
-        traceSteps.push(
-          buildEmbeddingsStep(
-            semanticRankingOutcome,
-            candidateExperienceIds.size,
-          ),
-        );
+        recordSemanticRankingStep(traceRecorder, {
+          semanticRankingOutcome,
+          candidateCount: candidateExperienceIds.size,
+        });
       }
 
       if (!availableExperiencesText) {
@@ -1721,7 +1551,7 @@ export class ExperienceGenerationService {
               destinationCountryCode: destinationResolution.countryCode,
               geographicScope,
             },
-            traceSteps,
+            traceRecorder,
             {
               attempted: acquisitionProvidersAttempted,
               failed: acquisitionProvidersFailed,
@@ -1830,7 +1660,7 @@ export class ExperienceGenerationService {
         );
       }
 
-      traceSteps.push(buildDailyPlanningStep(planningSolution));
+      recordDailyPlanningStep(traceRecorder, { planningSolution });
 
       await this.updateGenerationStatus(
         tourId,
@@ -1899,9 +1729,10 @@ export class ExperienceGenerationService {
       const completeness =
         this.tourCompletenessValidator.validate(completenessInput);
       const correctiveRetryAttempted = false;
-      traceSteps.push(
-        buildTourCompletenessStep(completeness, correctiveRetryAttempted),
-      );
+      recordTourCompletenessStep(traceRecorder, {
+        completeness,
+        retryAttempted: correctiveRetryAttempted,
+      });
       // Plain, user-facing summary — never nested under generationTrace,
       // which is __DEV__-only. This is the one signal a real user gets when
       // a format they explicitly asked for didn't make it into their tour.
@@ -1971,16 +1802,26 @@ export class ExperienceGenerationService {
           };
         });
 
-      const generationTrace = buildV5TraceFromExistingProjections({
-        request,
-        steps: traceSteps,
-        status: 'COMPLETED',
-        outcome: 'TOUR_EXPERIENCES_MATERIALIZED',
-        facts: {
-          materializedTourExperiences,
-          tourCompleteness: {
-            ...completeness,
-            retryAttempted: correctiveRetryAttempted,
+      recordTourMaterializationStep(traceRecorder, {
+        tourId,
+        materializedTourExperiences,
+      });
+
+      const generationTrace = traceRecorder.build({
+        runtime: {
+          buildCommit: process.env.BUILD_COMMIT ?? 'unknown',
+          buildTimestamp: process.env.BUILD_TIMESTAMP ?? 'unknown',
+        },
+        canonicalRequest: request,
+        result: {
+          status: 'COMPLETED',
+          outcome: 'TOUR_EXPERIENCES_MATERIALIZED',
+          facts: {
+            materializedTourExperiences,
+            tourCompleteness: {
+              ...completeness,
+              retryAttempted: correctiveRetryAttempted,
+            },
           },
         },
       });
@@ -2115,14 +1956,30 @@ export class ExperienceGenerationService {
                 generationMessage: failureMessage,
                 generationError: error?.message || String(error),
                 generationFailedAt: new Date().toISOString(),
-                generationTrace: buildV5TraceFromExistingProjections({
-                  request: ((latestTour?.metadata as any)?.generationRequest ??
+                generationTrace: traceRecorder.build({
+                  runtime: {
+                    buildCommit: process.env.BUILD_COMMIT ?? 'unknown',
+                    buildTimestamp: process.env.BUILD_TIMESTAMP ?? 'unknown',
+                  },
+                  canonicalRequest: ((latestTour?.metadata as any)
+                    ?.generationRequest ??
                     metadata?.generationRequest ??
                     {}) as TourGenerationRequest,
-                  steps: traceSteps,
-                  status: 'FAILED',
-                  outcome: 'GENERATION_FAILED',
-                  reason: error?.message || String(error),
+                  result: {
+                    status: 'FAILED',
+                    outcome: 'GENERATION_FAILED',
+                    reason: error?.message || String(error),
+                    facts: {
+                      error: error?.message || String(error),
+                      degradedAcquisitionReason,
+                      acquisitionProvidersAttempted: Array.from(
+                        acquisitionProvidersAttempted,
+                      ),
+                      acquisitionProvidersFailed: Array.from(
+                        acquisitionProvidersFailed,
+                      ),
+                    },
+                  },
                 }),
               },
             },

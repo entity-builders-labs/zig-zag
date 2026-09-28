@@ -15,6 +15,7 @@ import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import aiConfig from './ai.config';
 import { AiCacheService } from './services/ai-cache.service';
 import { normalizeOllamaStructuredResponse } from './ollama-response.util';
+import { AiProviderError } from './ai-provider.error';
 
 export type GroqResponseFormat =
   | { type: 'json_object' }
@@ -128,8 +129,18 @@ export class LangChainService {
         continue;
       }
 
+      let providerStatus: string | undefined;
+      try {
+        const parsed = JSON.parse(errorBody);
+        providerStatus = parsed?.error?.code ?? parsed?.error?.type;
+      } catch {}
       this.logger.error(`Groq error ${resp.status}: ${errorBody}`);
-      throw new Error(`Groq error ${resp.status}: ${errorBody}`);
+      throw new AiProviderError({
+        message: `Groq error ${resp.status}: ${errorBody}`,
+        provider: 'groq',
+        httpStatus: resp.status,
+        providerStatus,
+      });
     }
   }
 
@@ -424,8 +435,18 @@ export class LangChainService {
 
         if (!resp.ok) {
           const errorBody = await resp.text();
+          let providerStatus: string | undefined;
+          try {
+            const parsed = JSON.parse(errorBody);
+            providerStatus = parsed?.error?.status;
+          } catch {}
           this.logger.error(`Gemini error ${resp.status}: ${errorBody}`);
-          throw new Error(`Gemini error ${resp.status}: ${errorBody}`);
+          throw new AiProviderError({
+            message: `Gemini error ${resp.status}: ${errorBody}`,
+            provider: 'gemini',
+            httpStatus: resp.status,
+            providerStatus,
+          });
         }
 
         const data = await resp.json();
@@ -577,12 +598,20 @@ export class LangChainService {
 
         if (!resp.ok) {
           const errorBody = await resp.text();
+          let providerStatus: string | undefined;
+          try {
+            const parsed = JSON.parse(errorBody);
+            providerStatus = parsed?.error?.status;
+          } catch {}
           this.logger.error(
             `Gemini completion error ${resp.status}: ${errorBody}`,
           );
-          throw new Error(
-            `Gemini completion error ${resp.status}: ${errorBody}`,
-          );
+          throw new AiProviderError({
+            message: `Gemini completion error ${resp.status}: ${errorBody}`,
+            provider: 'gemini',
+            httpStatus: resp.status,
+            providerStatus,
+          });
         }
 
         const data = await resp.json();

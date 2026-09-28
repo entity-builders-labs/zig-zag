@@ -1,9 +1,9 @@
 import {
-  buildDiscoveryStep,
-  buildEntityResolutionStep,
-  buildTourCompletenessStep,
-  buildGeographicValidationStep,
-} from './generation-trace-builder.util';
+  projectEntityResolutionStepInput,
+  projectGeographicValidationStepInput,
+  recordTourCompletenessStep,
+} from './experience-generation-trace.util';
+import { GenerationTraceRecorder } from './generation-trace-recorder.util';
 import { ExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import {
@@ -11,7 +11,7 @@ import {
   GeographicDecisionReason,
 } from '../interfaces/geographic-validation.interface';
 
-describe('GenerationTrace V2 decision audit coverage', () => {
+describe('GenerationTrace V5 decision audit coverage', () => {
   it('projects the actual entity-resolution attempt chain without fabricated strategies', () => {
     const result: any = {
       totalCandidates: 1,
@@ -131,8 +131,9 @@ describe('GenerationTrace V2 decision audit coverage', () => {
       forensicAudit: result.forensicAudit,
     };
     delete result.forensicAudit;
-    const step = buildEntityResolutionStep(result);
-    const hint = step.entityResolutionAudit?.[0].hints[0];
+    const step = projectEntityResolutionStepInput(result);
+    const facts = step.facts as any;
+    const hint = facts.entityResolutionAudit?.[0].hints[0];
     expect(hint?.attempts).toHaveLength(2);
     expect(hint?.attempts?.[0].verificationDecision).toBe(
       'INSUFFICIENT_EVIDENCE',
@@ -140,68 +141,8 @@ describe('GenerationTrace V2 decision audit coverage', () => {
     expect(hint?.attempts?.[0].candidateAcquired).toBe(true);
     expect(hint?.attempts?.[1].candidateAcquired).toBe(false);
     expect(
-      hint?.attempts?.some((attempt) => attempt.strategy === 'PLACES'),
+      hint?.attempts?.some((attempt: any) => attempt.strategy === 'PLACES'),
     ).toBe(false);
-  });
-
-  it('records grounded discovery provenance and the resolution handoff', () => {
-    const result: any = {
-      candidates: [
-        {
-          name: 'Whale watching excursion',
-          themes: ['nature', 'wildlife'],
-          componentHints: [
-            {
-              key: 'venue-1',
-              name: 'Whale watching excursion',
-              role: 'venue',
-              expectedType: 'tour_operator',
-              evidenceKeys: ['e1'],
-            },
-          ],
-          suggestedDurationMinutes: 240,
-          shortReason: 'Matches the requested marine wildlife intent.',
-          evidenceKeys: ['e1'],
-        },
-      ],
-      provider: 'gemini',
-      model: 'gemini-test',
-      groundingStatus: 'applied',
-      groundingProvider: 'serpapi',
-      groundingModel: 'google_ai_mode',
-      groundingEvidence: [
-        {
-          key: 'e1',
-          source: 'search',
-          snippet: 'Grounded evidence for a real whale watching excursion.',
-        },
-      ],
-      searchTrace: [
-        {
-          query: 'real whale watching experiences near Puerto Madryn',
-          provider: 'serpapi',
-          model: 'google_ai_mode',
-          groundingStatus: 'applied',
-          evidenceCount: 1,
-        },
-      ],
-    };
-
-    const step = buildDiscoveryStep(result);
-
-    expect(step.component).toBe('ExperienceDiscoveryService');
-    expect(
-      step.rules?.find((rule) => rule.ruleId === 'DISC-GROUNDED-001')?.result,
-    ).toBe('PASS');
-    expect(step.decision?.outcome).toBe('CANDIDATES_READY_FOR_RESOLUTION');
-    expect(step.decision?.triggeredActions).toContain('RESOLVE_ENTITIES');
-    expect(step.candidateDecisions?.[0]).toEqual(
-      expect.objectContaining({
-        name: 'Whale watching excursion',
-        status: 'ELIGIBLE',
-        reasonCodes: ['CANDIDATE_PENDING_RESOLUTION'],
-      }),
-    );
   });
 
   it('keeps entity resolution rejection reasons attached to the rejected candidate', () => {
@@ -227,22 +168,27 @@ describe('GenerationTrace V2 decision audit coverage', () => {
       ],
     };
 
-    const step = buildEntityResolutionStep(result);
+    const step = projectEntityResolutionStepInput(result);
 
-    expect(step.decision?.outcome).toBe('NO_PROPOSALS_RESOLVED');
+    expect(step.decision?.outcome).toBe('NO_ENTITIES_RESOLVED');
     expect(step.decision?.reasonCodes).toContain('missing_required_hint');
-    expect(step.candidateDecisions?.[0]).toEqual(
+    expect(step.subjects?.[0]).toEqual(
       expect.objectContaining({
-        name: 'Invented route',
-        status: 'REJECTED',
-        reasonCodes: ['missing_required_hint'],
+        subject: expect.objectContaining({
+          label: 'Invented route',
+        }),
+        decision: expect.objectContaining({
+          outcome: 'REJECTED',
+          reasonCodes: ['missing_required_hint'],
+        }),
       }),
     );
   });
 
   it('records completeness shortfall as a warning instead of hiding it behind completed status', () => {
-    const step = buildTourCompletenessStep(
-      {
+    const recorder = new GenerationTraceRecorder();
+    recordTourCompletenessStep(recorder, {
+      completeness: {
         complete: false,
         issues: [
           {
@@ -257,14 +203,20 @@ describe('GenerationTrace V2 decision audit coverage', () => {
           },
         ],
       },
-      false,
-    );
+      retryAttempted: false,
+    });
+    const trace = recorder.build({
+      canonicalRequest: {},
+      runtime: { buildCommit: 'test' },
+      result: { status: 'COMPLETED', outcome: 'SUCCESS' },
+    });
+    const step = trace.steps.find((s) => s.name === 'tour.completeness')!;
 
-    expect(step.status).toBe('WARN');
-    expect(step.decision?.outcome).toBe('TOUR_UNDERFILLED');
-    expect(step.decision?.reasonCodes).toContain('UNDERFILLED_DAY');
+    expect(step.decision.status).toBe('WARN');
+    expect(step.decision.outcome).toBe('TOUR_UNDERFILLED');
+    expect(step.decision.reasonCodes).toContain('UNDERFILLED_DAY');
     expect(
-      step.rules?.find((rule) => rule.ruleId === 'COMP-DAY-USAGE-001')?.result,
+      step.rules?.find((rule) => rule.id === 'COMP-DAY-USAGE-001')?.status,
     ).toBe('WARN');
   });
 
@@ -374,17 +326,20 @@ describe('GenerationTrace V2 decision audit coverage', () => {
       },
     };
 
-    const step = buildGeographicValidationStep(resolution);
+    const step = projectGeographicValidationStepInput(resolution as any);
 
     // Native audit preserves forensic fields
-    const audit = step.geographicValidationAudit![0];
+    const facts = step.facts as any;
+    const audit = facts.geographicValidationAudit![0];
     expect(audit.validationIntent).toBe('walk');
     expect(audit.destinationBoundary).toEqual({
       name: 'San Telmo',
       externalId: 'osm:relation:2223069',
     });
 
-    const offending = audit.components.find((c) => c.relation === 'offending');
+    const offending = audit.components.find(
+      (c: any) => c.relation === 'offending',
+    );
     expect(offending).toBeDefined();
     expect(offending!.decisionReason).toBe('OUTSIDE_DESTINATION_BOUNDARY');
     expect(offending!.distanceToBoundaryMeters).toBe(83.4);

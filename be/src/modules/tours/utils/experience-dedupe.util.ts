@@ -194,8 +194,10 @@ export function decideExperienceDedupe(
     // Independent identity signals still apply: the same/similar name or
     // strong semantic overlap may still make the pair AMBIGUOUS. And
     // composite-vs-composite overlap keeps the existing conservative policy.
-    const standaloneComposite =
-      isStandaloneCompositeComparison(incoming, candidate);
+    const standaloneComposite = isStandaloneCompositeComparison(
+      incoming,
+      candidate,
+    );
     return (
       evidence.nameSimilarity >= 0.72 ||
       evidence.semanticSimilarity >= 0.58 ||
@@ -376,8 +378,7 @@ function isStandaloneCompositeComparison(
     right.components.map((component) => component.geoEntityId),
   ).size;
   return (
-    (leftCount === 1 && rightCount > 1) ||
-    (rightCount === 1 && leftCount > 1)
+    (leftCount === 1 && rightCount > 1) || (rightCount === 1 && leftCount > 1)
   );
 }
 

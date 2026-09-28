@@ -34,7 +34,7 @@ RW4                               NOT AUTHORIZED
 RW5                               PENDING
 RW6 anti-fabrication              PENDING
 Preference-First Core CLOSED      PENDING
-Trace v5 maintainability cutover  IN PROGRESS (pulled forward from PF close)
+Trace v5 maintainability cutover  COMPLETE
 Agentic convergence               PENDING AFTER TRACE V5
 ```
 

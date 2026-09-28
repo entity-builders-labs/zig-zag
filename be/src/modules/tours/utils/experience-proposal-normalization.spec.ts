@@ -5,7 +5,7 @@ import {
 } from './component-source-support.util';
 import { buildDiscoveryInstructions } from '../prompts/experience-discovery-extraction.prompt';
 import { ExperienceProposalResolverService } from '../services/experience-proposal-resolver.service';
-import { buildEntityResolutionStep } from './generation-trace-builder.util';
+import { projectEntityResolutionStepInput } from './experience-generation-trace.util';
 
 const ev = (key: string, text: string, title?: string) => ({
   key,
@@ -514,9 +514,10 @@ describe('RW3-N5 Source Typo Normalization Contract', () => {
     );
 
     // Generation trace reflects the sourceName and normalizationKind
-    const traceStep = buildEntityResolutionStep(resolutionResponse);
-    expect(traceStep.entityResolutionAudit).toBeDefined();
-    const traceHint = traceStep.entityResolutionAudit![0].hints[0];
+    const traceStep = projectEntityResolutionStepInput(resolutionResponse);
+    const facts = traceStep.facts as any;
+    expect(facts.entityResolutionAudit).toBeDefined();
+    const traceHint = facts.entityResolutionAudit[0].hints[0];
     expect(traceHint.name).toBe('La Bombonera');
     expect(traceHint.sourceName).toBe('La Bambonera stadium');
     expect(traceHint.normalizationKind).toBe('TYPO_CORRECTION');

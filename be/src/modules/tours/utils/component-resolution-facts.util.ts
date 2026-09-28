@@ -12,8 +12,11 @@ import {
   ComponentResolutionAudit,
   ComponentResolutionFact,
   CompositeComponentResolution,
+  CompositeResolutionCoverage,
+  ExperienceGeographicValidationResult,
   ExperienceValidationScope,
   GeographicScope,
+  ResolvedExperienceCandidate,
   ResolvedGeoEntity,
 } from '../interfaces/experience-resolution.interface';
 import {
@@ -239,4 +242,140 @@ function deficitClassification(
   if (reason === 'AMBIGUOUS_CANDIDATES') return 'KNOWLEDGE_DEFICIT';
   if (reason === 'PROVIDER_FAILURE') return 'OPERATIONAL_FAILURE';
   return 'PENDING_CLASSIFICATION';
+}
+
+export interface CompositeOutcome {
+  coverage?: CompositeResolutionCoverage;
+  geographicDecision:
+    | {
+        status: 'NOT_EVALUATED';
+        reason: 'INCOMPLETE_SOURCE_COMPOSITION' | 'NO_VALIDATION_RESULT';
+      }
+    | { status: 'ACCEPTED'; strategy?: string }
+    | { status: 'REJECTED'; reasons: string[] };
+  persistence:
+    | {
+        status: 'PERSISTED';
+        experienceId: string;
+        dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
+      }
+    | {
+        status: 'NOT_PERSISTED';
+        reasons: string[];
+        dedupe?: {
+          conflictingExperienceIds: string[];
+          evidence?: {
+            nameSimilarity: number;
+            semanticSimilarity: number;
+            componentOverlap: number;
+            roleAwareComponentOverlap: number;
+            reasons: string[];
+          };
+        };
+      };
+  plannerEligible: boolean;
+}
+
+export function buildCompositeOutcome(
+  entry: ResolvedExperienceCandidate,
+  validation: ExperienceGeographicValidationResult | undefined,
+): CompositeOutcome {
+  const coverage = entry.componentResolution?.coverage;
+  const complete = coverage?.sourceCompositionComplete ?? false;
+  const geographicDecision: CompositeOutcome['geographicDecision'] = !complete
+    ? { status: 'NOT_EVALUATED', reason: 'INCOMPLETE_SOURCE_COMPOSITION' }
+    : !validation
+      ? { status: 'NOT_EVALUATED', reason: 'NO_VALIDATION_RESULT' }
+      : validation.accepted
+        ? {
+            status: 'ACCEPTED',
+            ...(validation.strategy ? { strategy: validation.strategy } : {}),
+          }
+        : { status: 'REJECTED', reasons: [...validation.rejectionReasons] };
+  const persisted = entry.status === 'accepted' && Boolean(entry.experienceId);
+  return {
+    ...(coverage ? { coverage } : {}),
+    geographicDecision,
+    persistence: persisted
+      ? {
+          status: 'PERSISTED',
+          experienceId: entry.experienceId as string,
+          ...(entry.dedupeDecision
+            ? { dedupeDecision: entry.dedupeDecision }
+            : {}),
+        }
+      : {
+          status: 'NOT_PERSISTED',
+          reasons: [...entry.rejectionReasons],
+          ...(entry.dedupeDecision === 'AMBIGUOUS' ||
+          entry.rejectionReasons.includes('AMBIGUOUS_DEDUPE')
+            ? {
+                dedupe: {
+                  conflictingExperienceIds: [...(entry.dedupeCandidates ?? [])],
+                  ...(entry.dedupeEvidence
+                    ? {
+                        evidence: {
+                          nameSimilarity: entry.dedupeEvidence.nameSimilarity,
+                          semanticSimilarity:
+                            entry.dedupeEvidence.semanticSimilarity,
+                          componentOverlap:
+                            entry.dedupeEvidence.componentOverlap,
+                          roleAwareComponentOverlap:
+                            entry.dedupeEvidence.roleAwareComponentOverlap,
+                          reasons: [...entry.dedupeEvidence.reasons],
+                        },
+                      }
+                    : {}),
+                },
+              }
+            : {}),
+        },
+    plannerEligible: persisted,
+  };
+}
+
+export function describeComponentFact(fact: ComponentResolutionFact): string {
+  if (fact.resolved) {
+    const distance =
+      fact.resolved.distanceToBoundaryMeters !== undefined
+        ? ` ${Math.round(fact.resolved.distanceToBoundaryMeters)}m`
+        : '';
+    return `${fact.hintName}=${fact.identityStatus}/${fact.resolved.geographicRelation}${distance}`;
+  }
+  return fact.deficit
+    ? `${fact.hintName}=${fact.identityStatus}/${fact.deficit.reason}(${fact.deficit.classification})`
+    : `${fact.hintName}=${fact.identityStatus}`;
+}
+
+export function describeComponentResolution(
+  resolution: CompositeComponentResolution | undefined,
+): string {
+  if (!resolution?.components.length) return '';
+  const { coverage } = resolution;
+  return (
+    ` [resueltos ${coverage.identityResolvedComponents}/${coverage.totalComponents}: ` +
+    `${resolution.components.map(describeComponentFact).join(', ')}]`
+  );
+}
+
+export function describeCompositeOutcome(
+  name: string,
+  outcome: CompositeOutcome,
+): string {
+  const coverage = outcome.coverage;
+  const counts = coverage
+    ? `${coverage.identityResolvedComponents}/${coverage.totalComponents} componentes resueltos, composición ${coverage.sourceCompositionComplete ? 'completa' : 'incompleta'}`
+    : 'sin cobertura registrada';
+  const geography =
+    outcome.geographicDecision.status === 'NOT_EVALUATED'
+      ? 'no evaluada geográficamente'
+      : outcome.geographicDecision.status === 'ACCEPTED'
+        ? 'geografía ACCEPTED'
+        : `geografía REJECTED (${outcome.geographicDecision.reasons.join(', ')})`;
+  const persistence =
+    outcome.persistence.status === 'PERSISTED' ? 'persistida' : 'no persistida';
+  const planner = outcome.plannerEligible
+    ? 'elegible para planner'
+    : 'no elegible para planner';
+  return `${name}: ${counts} → ${geography}, ${persistence}, ${planner}`;
 }

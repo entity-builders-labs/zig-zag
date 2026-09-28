@@ -130,10 +130,9 @@ describe('decideExperienceDedupe', () => {
     });
 
     it('[A,B] then [A]: persistence order does not change the identity result', () => {
-      const decision = decideExperienceDedupe(
-        single(undefined, plazaDorrego),
-        [walk('exp-walk', [plazaDorrego, mercado])],
-      );
+      const decision = decideExperienceDedupe(single(undefined, plazaDorrego), [
+        walk('exp-walk', [plazaDorrego, mercado]),
+      ]);
 
       expect(decision.decision).toBe('NEW');
       expect(decision.evidence.componentOverlap).toBe(0.5);
@@ -151,10 +150,9 @@ describe('decideExperienceDedupe', () => {
     });
 
     it('same [A] vs same [A] preserves exact duplicate behavior', () => {
-      const decision = decideExperienceDedupe(
-        single(undefined, plazaDorrego),
-        [single('exp-plaza', plazaDorrego)],
-      );
+      const decision = decideExperienceDedupe(single(undefined, plazaDorrego), [
+        single('exp-plaza', plazaDorrego),
+      ]);
 
       expect(decision.decision).toBe('SAME');
       if (decision.decision === 'SAME') {
@@ -202,6 +200,5 @@ describe('decideExperienceDedupe', () => {
 
       expect(decision.decision).toBe('AMBIGUOUS');
     });
-
   });
 });

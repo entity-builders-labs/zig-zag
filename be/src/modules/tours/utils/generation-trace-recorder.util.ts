@@ -5,9 +5,8 @@ import {
   TraceStepInput,
   TraceStepV5,
 } from '../interfaces/generation-trace-v5.interface';
-import { GenerationTraceStep as LegacyGenerationTraceStep } from '../interfaces/generation-trace.interface';
 
-type SerializableTraceStepInput = Omit<
+export type SerializableTraceStepInput = Omit<
   TraceStepInput,
   'input' | 'output' | 'facts' | 'rules' | 'subjects' | 'references' | 'timing'
 > & {
@@ -51,13 +50,13 @@ export const TRACE_LIMITS = {
 } as const;
 
 const SECRET_KEY =
-  /authorization|api[-_ ]?key|cookie|token|password|secrets?|credentials?|dsn|connection(?:[-_ ]?string)?|database(?:[-_ ]?url)?/i;
+  /authorization|api[-_ ]?key|cookie|token|password|secrets?|credentials?|dsn|connection[-_ ]?strings?|(?:db|database)[-_ ]?urls?/i;
 
 /** Shared text safety primitive for every persisted trace projection. */
 export function redactTraceText(value: string): string {
   return value
     .replace(
-      /(authorization|api[-_ ]?key|token|cookie|password|secrets?|credentials?|dsn|connection(?:[-_ ]?string)?)\s*[:=]\s*(?:Bearer\s+)?[^\s,;]+/gi,
+      /(authorization|api[-_ ]?key|token|cookie|password|secrets?|credentials?|dsn|connection[-_ ]?strings?|(?:db|database)[-_ ]?urls?)\s*[:=]\s*(?:Bearer\s+)?[^\s,;]+/gi,
       '$1:[REDACTED]',
     )
     .replace(
@@ -344,108 +343,5 @@ export class GenerationTraceRecorder {
         ?.slice(0, 20)
         .map((code) => sanitizeTraceText(code, 256));
     }
-  }
-
-  /**
-   * Temporary cutover projection for existing producers. It is intentionally
-   * mechanical: it neither evaluates policy nor infers reasons. New producers
-   * call record() directly with their typed local audit projection.
-   */
-  recordLegacyProjection(
-    step: LegacyGenerationTraceStep,
-    parentId?: string,
-  ): TraceStepV5 {
-    const candidates: Array<{
-      id: string;
-      name: string;
-      status: string;
-      reason?: string;
-      reasonCodes?: string[];
-      scoreBreakdown?: unknown;
-    }> =
-      (step.candidateDecisions?.length
-        ? step.candidateDecisions
-        : undefined
-      )?.map((candidate) => ({
-        id: candidate.id,
-        name: candidate.name,
-        status: candidate.status,
-        reason: candidate.reason,
-        reasonCodes: candidate.reasonCodes,
-        scoreBreakdown: candidate.scoreBreakdown,
-      })) ??
-      step.candidates?.map((candidate) => ({
-        id: candidate.id,
-        name: candidate.name,
-        status: candidate.chosen
-          ? 'SELECTED'
-          : candidate.offered
-            ? 'ELIGIBLE'
-            : 'REJECTED',
-        reason: candidate.detail,
-      })) ??
-      [];
-    const {
-      stage,
-      label,
-      summary,
-      inputs,
-      outputs,
-      rules,
-      decision,
-      timing,
-      candidateDecisions,
-      candidates: ignoredCandidates,
-      component,
-      status,
-      ...facts
-    } = step;
-    void candidateDecisions;
-    void ignoredCandidates;
-    return this.record({
-      parentId,
-      name: String(stage).replace(/_/g, '.'),
-      description: `${label}. ${summary}`,
-      component,
-      input: inputs,
-      output: outputs,
-      decision: decision
-        ? {
-            status: validStatus(decision.status),
-            outcome: decision.outcome,
-            reason: decision.reason,
-            reasonCodes: decision.reasonCodes,
-          }
-        : status
-          ? {
-              status: validStatus(status),
-              outcome: String(status),
-              reason: summary,
-            }
-          : undefined,
-      rules: rules?.map((rule) => ({
-        id: rule.ruleId,
-        name: rule.rule,
-        status: validStatus(rule.result),
-        reason: rule.reason,
-        facts: {
-          inputs: rule.inputs,
-          expected: rule.expected,
-          actual: rule.actual,
-        },
-      })),
-      subjects: candidates.map((candidate) => ({
-        subject: { kind: 'candidate', id: candidate.id, label: candidate.name },
-        decision: {
-          status: candidate.status === 'REJECTED' ? 'FAIL' : 'PASS',
-          outcome: candidate.status,
-          reason: candidate.reason,
-          reasonCodes: candidate.reasonCodes,
-        },
-        facts: candidate.scoreBreakdown,
-      })),
-      facts,
-      timing,
-    });
   }
 }

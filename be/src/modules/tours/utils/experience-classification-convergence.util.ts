@@ -19,6 +19,7 @@ import {
   ExperienceClassificationService,
   canReuseClassification,
   readPersistedClassification,
+  ClassificationFailure,
 } from '../services/experience-classification.service';
 import { ResolverEvidenceItem } from '../services/experience-acquisition.service';
 import { ResolvedExperienceCandidate } from '../interfaces/experience-resolution.interface';
@@ -46,6 +47,7 @@ export interface ClassificationAuditRecord {
     evidenceKeys: string[];
     reason: string;
   }>;
+  failure?: ClassificationFailure;
 }
 
 /**
@@ -154,6 +156,7 @@ export async function classifyAcceptedResultsByExperience(
       intents: classification.intents,
       traits: classification.traits,
       reasoningEvidence: classification.reasoningEvidence,
+      ...(classification.failure ? { failure: classification.failure } : {}),
     });
   }
   return audit;

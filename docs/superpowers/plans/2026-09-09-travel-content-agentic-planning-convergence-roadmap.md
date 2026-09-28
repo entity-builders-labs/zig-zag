@@ -711,10 +711,9 @@ It:
 
 ## 6.1 Generation Trace v5 maintainability gate
 
-Status: **IN PROGRESS — sequencing superseded 2026-09-28.** Trace v5 was
-pulled forward after RW3 showed v4 discarded the canonical Gemini HTTP 503
-failure cause. It must finish before RW3 final acceptance; it does not close
-RW3 or authorize RW4.
+Status: **COMPLETED — 2026-09-28.** Native trace v5 cutover is complete
+and legacy v4 builders/interfaces have been deleted per the early-stage deletion rule.
+RW3 final classification/warm-reuse finding remains OPEN; RW4 is NOT AUTHORIZED.
 
 The current Bitácora/Generation Trace v4 remains the forensic authority for the
 real-world gates. Do not destabilize it while those gates still depend on it.

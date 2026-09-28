@@ -102,11 +102,8 @@ export type ExperienceGroundingStatus =
  * (evidenceQuality: 'reduced'); and TavilyGroundedSearchService, which
  * replaces its own short relevance snippet with the full article (also
  * 'original_content') for the top-scored handful of results only — a plain
- * snippet rarely contains a walking route's actual stop-by-stop detail.
- * Nested under the discovery step's per-query searchTrace entry in the
- * generation trace (GenerationTraceStep.inputs.searchTrace[i]), not a
- * separate TraceStage — see generation-trace-builder.util.ts's
- * buildDiscoveryStep().
+ * Nested under discovery / acquisition search facts in the
+ * generation trace — see experience-generation-trace.util.ts.
  */
 export interface ExperienceEvidenceProvenance {
   provider: string;

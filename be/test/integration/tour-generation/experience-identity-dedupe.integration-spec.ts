@@ -560,28 +560,24 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
     }
 
     it('[A] then [A,B] persists both canonical Experiences', async () => {
-      const standalone = await catalog.persistVerifiedExperience(
-        standaloneInput(),
-      );
+      const standalone =
+        await catalog.persistVerifiedExperience(standaloneInput());
       expect((standalone as any).dedupeDecision).toBe('NEW');
 
-      const composite = await catalog.persistVerifiedExperience(
-        compositeInput(),
-      );
+      const composite =
+        await catalog.persistVerifiedExperience(compositeInput());
       expect((composite as any).dedupeDecision).toBe('NEW');
 
       await expectBothPersisted(standalone.id, composite.id);
     });
 
     it('[A,B] then [A] reaches the same final catalog result', async () => {
-      const composite = await catalog.persistVerifiedExperience(
-        compositeInput(),
-      );
+      const composite =
+        await catalog.persistVerifiedExperience(compositeInput());
       expect((composite as any).dedupeDecision).toBe('NEW');
 
-      const standalone = await catalog.persistVerifiedExperience(
-        standaloneInput(),
-      );
+      const standalone =
+        await catalog.persistVerifiedExperience(standaloneInput());
       expect((standalone as any).dedupeDecision).toBe('NEW');
 
       await expectBothPersisted(standalone.id, composite.id);

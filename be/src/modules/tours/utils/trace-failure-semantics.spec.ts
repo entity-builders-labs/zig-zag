@@ -13,10 +13,10 @@ import {
 import { ExperienceProposalResolverService } from '../services/experience-proposal-resolver.service';
 import { buildCompositeComponentResolution } from './component-resolution-facts.util';
 import {
-  buildCatalogMaterializationStep,
-  buildEntityResolutionStep,
-  traceCandidateKey,
-} from './generation-trace-builder.util';
+  projectCatalogMaterializationStepInput,
+  projectEntityResolutionStepInput,
+} from './experience-generation-trace.util';
+import { traceCandidateKey } from './experience-candidate-correlation.util';
 
 /**
  * Stage 5 trace fidelity: every way a source-backed component can end
@@ -304,14 +304,15 @@ describe('Stage 5 trace failure semantics', () => {
         forensicAudit: [composite.audit],
       },
     };
-    const step = buildEntityResolutionStep(response);
-    const decision = step.entityResolutionAudit![0];
+    const step = projectEntityResolutionStepInput(response);
+    const facts = step.facts as any;
+    const decision = facts.entityResolutionAudit[0];
     const byKey = Object.fromEntries(
-      decision.hints.map((item) => [item.key, item]),
+      decision.hints.map((item: any) => [item.key, item]),
     );
 
     it('keeps every source component, including the unresolved ones, in the audit', () => {
-      expect(decision.hints.map((item) => item.key)).toEqual([
+      expect(decision.hints.map((item: any) => item.key)).toEqual([
         'A',
         'B',
         'C',
@@ -375,12 +376,14 @@ describe('Stage 5 trace failure semantics', () => {
         'G=UNRESOLVED/CANDIDATE_REJECTED',
         'resueltos 2/7',
       ]) {
-        expect(step.summary).toContain(fragment);
+        expect(step.description).toContain(fragment);
       }
-      const rejected = step.candidateDecisions!.find(
-        (item) => item.name === 'San Telmo Historic Walk',
+      const rejected = step.subjects!.find(
+        (item: any) => item.subject.label === 'San Telmo Historic Walk',
       )!;
-      expect(rejected.reason).toContain('C=UNRESOLVED/NO_CANDIDATE_ACQUIRED');
+      expect(rejected.decision.reason).toContain(
+        'C=UNRESOLVED/NO_CANDIDATE_ACQUIRED',
+      );
     });
   });
 
@@ -436,7 +439,7 @@ describe('Stage 5 trace failure semantics', () => {
         rejectionReasons: ['OUTSIDE_VALIDATION_SCOPE'],
       },
     ];
-    const step = buildCatalogMaterializationStep({
+    const step = projectCatalogMaterializationStepInput({
       totalCandidates: 3,
       acceptedCount: 1,
       rejectedCount: 2,
@@ -452,9 +455,11 @@ describe('Stage 5 trace failure semantics', () => {
       },
       materialization: { resolved: finalResolved },
     });
+    const facts = step.facts as any;
     const outcome = (name: string) =>
-      step.materializationAudit!.find((item) => item.candidateName === name)!
-        .compositeOutcome;
+      facts.materializationAudit.find(
+        (item: any) => item.candidateName === name,
+      )!.compositeOutcome;
 
     it('a partial composite is never evaluated, persisted or planner-eligible, and says why', () => {
       expect(outcome('Partial walk')).toEqual({
@@ -505,7 +510,7 @@ describe('Stage 5 trace failure semantics', () => {
     });
 
     it('an AMBIGUOUS_DEDUPE outcome names the conflicting Experiences and the dedupe signals', () => {
-      const dedupe = buildCatalogMaterializationStep({
+      const dedupe = projectCatalogMaterializationStepInput({
         totalCandidates: 1,
         acceptedCount: 0,
         rejectedCount: 1,
@@ -538,7 +543,10 @@ describe('Stage 5 trace failure semantics', () => {
           ],
         },
       });
-      expect(dedupe.materializationAudit![0].compositeOutcome).toMatchObject({
+      const dedupeFacts = dedupe.facts as any;
+      expect(
+        dedupeFacts.materializationAudit[0].compositeOutcome,
+      ).toMatchObject({
         geographicDecision: { status: 'ACCEPTED' },
         persistence: {
           status: 'NOT_PERSISTED',
@@ -557,10 +565,10 @@ describe('Stage 5 trace failure semantics', () => {
     });
 
     it('states each composite decision in the summary', () => {
-      expect(step.summary).toContain(
+      expect(step.description).toContain(
         'Partial walk: 2/3 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner',
       );
-      expect(step.summary).toContain(
+      expect(step.description).toContain(
         'Complete walk: 2/2 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner',
       );
     });

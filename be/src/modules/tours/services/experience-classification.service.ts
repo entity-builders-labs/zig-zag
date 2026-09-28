@@ -53,6 +53,42 @@ export interface ClassificationReasoningEvidence {
   reason: string;
 }
 
+export type ClassificationFailureReason =
+  | 'PROVIDER_UNAVAILABLE'
+  | 'RATE_LIMITED'
+  | 'AUTH_ERROR'
+  | 'TIMEOUT'
+  | 'HTTP_ERROR'
+  | 'PROVIDER_ERROR'
+  | 'NON_JSON_RESPONSE'
+  | 'MALFORMED_RESPONSE';
+
+export type ClassificationFailure =
+  | {
+      stage: 'provider_call';
+      reason:
+        | 'PROVIDER_UNAVAILABLE'
+        | 'RATE_LIMITED'
+        | 'AUTH_ERROR'
+        | 'TIMEOUT'
+        | 'HTTP_ERROR'
+        | 'PROVIDER_ERROR';
+      httpStatus?: number;
+      providerStatus?: string;
+    }
+  | {
+      stage: 'response_parse';
+      reason: 'NON_JSON_RESPONSE';
+      httpStatus?: number;
+      providerStatus?: string;
+    }
+  | {
+      stage: 'response_validation';
+      reason: 'MALFORMED_RESPONSE';
+      httpStatus?: number;
+      providerStatus?: string;
+    };
+
 export interface ClassificationResult {
   themes: string[];
   intents: string[];
@@ -61,6 +97,7 @@ export interface ClassificationResult {
   modelId: string;
   promptVersion: number;
   state: 'classified' | 'degraded';
+  failure?: ClassificationFailure;
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -166,7 +203,10 @@ export class ExperienceClassificationService {
     return { provider: this.provider, model: this.model };
   }
 
-  private emptyResult(state: 'classified' | 'degraded'): ClassificationResult {
+  private emptyResult(
+    state: 'classified' | 'degraded',
+    failure?: ClassificationFailure,
+  ): ClassificationResult {
     return {
       themes: [],
       intents: [],
@@ -175,6 +215,7 @@ export class ExperienceClassificationService {
       modelId: this.model,
       promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
       state,
+      ...(failure ? { failure } : {}),
     };
   }
 
@@ -216,7 +257,51 @@ export class ExperienceClassificationService {
       this.logger.warn(
         `Experience classification failed for "${canonicalName}": ${error.message}`,
       );
-      return this.emptyResult('degraded');
+      let reason:
+        | 'PROVIDER_UNAVAILABLE'
+        | 'RATE_LIMITED'
+        | 'AUTH_ERROR'
+        | 'TIMEOUT'
+        | 'HTTP_ERROR'
+        | 'PROVIDER_ERROR' = 'PROVIDER_ERROR';
+      const httpStatus =
+        typeof error?.httpStatus === 'number'
+          ? error.httpStatus
+          : typeof error?.status === 'number'
+            ? error.status
+            : undefined;
+      const providerStatus =
+        typeof error?.providerStatus === 'string'
+          ? error.providerStatus
+          : undefined;
+
+      if (httpStatus === 503 || providerStatus === 'UNAVAILABLE') {
+        reason = 'PROVIDER_UNAVAILABLE';
+      } else if (httpStatus === 429 || providerStatus === 'RATE_LIMITED') {
+        reason = 'RATE_LIMITED';
+      } else if (
+        httpStatus === 401 ||
+        httpStatus === 403 ||
+        providerStatus === 'AUTH_ERROR'
+      ) {
+        reason = 'AUTH_ERROR';
+      } else if (
+        providerStatus === 'TIMEOUT' ||
+        error?.name === 'TimeoutError' ||
+        error?.name === 'AbortError' ||
+        /timeout/i.test(error?.message ?? '')
+      ) {
+        reason = 'TIMEOUT';
+      } else if (httpStatus !== undefined) {
+        reason = 'HTTP_ERROR';
+      }
+
+      return this.emptyResult('degraded', {
+        stage: 'provider_call',
+        reason,
+        httpStatus,
+        providerStatus,
+      });
     }
 
     let parsed: unknown;
@@ -226,7 +311,10 @@ export class ExperienceClassificationService {
       this.logger.warn(
         `Experience classification returned non-JSON output for "${canonicalName}"`,
       );
-      return this.emptyResult('degraded');
+      return this.emptyResult('degraded', {
+        stage: 'response_parse',
+        reason: 'NON_JSON_RESPONSE',
+      });
     }
 
     if (
@@ -236,7 +324,10 @@ export class ExperienceClassificationService {
       this.logger.warn(
         `Experience classification returned a malformed envelope for "${canonicalName}"`,
       );
-      return this.emptyResult('degraded');
+      return this.emptyResult('degraded', {
+        stage: 'response_validation',
+        reason: 'MALFORMED_RESPONSE',
+      });
     }
 
     const sanitizedEvidence = sanitizeReasoningEvidence(

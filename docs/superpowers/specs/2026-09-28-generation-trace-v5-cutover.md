@@ -1,6 +1,6 @@
 # Generation Trace / Bitácora v5 cutover
 
-Status: **IMPLEMENTATION IN PROGRESS — current trace design authority**.
+Status: **ACCEPTED / COMPLETED — current trace design authority**.
 
 ## Migration inventory
 
@@ -49,13 +49,11 @@ names need no component or switch case.
 
 ## Cutover/migration
 
-The native persistence writer emits v5 only. Existing v4 producer projections
-are mechanically serialized during this in-progress cutover so behavior is not
-changed; the bridge does not recompute policy or infer reasons. It is a
-temporary migration seam, not a v4 read/write compatibility contract. The next
-implementation slice must move those projections beside their decision owners
-and delete the bridge, v4 interface, builder, and v4-only tests. Historical
-v1-v4 development traces are intentionally unsupported by the v5 UI.
+The native persistence writer emits v5 only. All pipeline producers record
+native v5 steps directly at their decision boundaries. Per the repository's
+early-stage deletion rule, the temporary legacy projection bridge, v4
+interfaces, builder, and v4-only tests have been deleted. Historical v1-v4
+development traces are intentionally unsupported by the v5 UI.
 
 ## Acceptance examples
 

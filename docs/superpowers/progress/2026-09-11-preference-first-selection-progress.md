@@ -18,6 +18,10 @@ classification contract and deterministic validation are unchanged.
 
 ## Current execution verdict — 2026-09-28
 
+**Trace v5 cutover — CURRENT (native producer cutover complete; v4 legacy paths deleted).**  
+**RW3 final classification/warm-reuse finding — OPEN (live multi-component admission closure pending).**  
+**RW4 — NOT AUTHORIZED.**
+
 **Active track: Gate C real-world generalization — RW3 IN PROGRESS (RW3-N6 route-scope policy fixed; clean rerun executed; RW4 NOT AUTHORIZED).**
 
 RW3-N6 resolution and live verification status:
@@ -379,7 +383,7 @@ effect on the extraction result). RW2 is not reopened.
 
 ### Open next steps
 
-- next canonical gate: **RW4 (generalization)** — AUTHORIZED.
+- next canonical gate: **RW4 (generalization)** — NOT AUTHORIZED (superseded: RW3 final classification/warm-reuse finding remains OPEN).
 - future frozen-corpus investigation of the RW2 Serper → Cloudflare
   multi-area extraction delta (use `50000 / 20000` for any controlled RW2
   rerun);

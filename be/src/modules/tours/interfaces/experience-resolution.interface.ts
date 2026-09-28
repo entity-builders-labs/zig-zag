@@ -21,6 +21,7 @@ import type {
 } from '../utils/destination-compatibility.policy';
 import type { PlaceFeatureClass } from '@integrations/google-places/interfaces/places-api.interface';
 import type { RouteRetrievalVariantKind } from '../utils/route-retrieval-name.util';
+import type { ClassificationFailure } from '../services/experience-classification.service';
 
 /**
  * Task B5 — a request-level, non-authoritative geographic scope resolved
@@ -691,6 +692,7 @@ export interface ExperienceResolutionResponse {
       evidenceKeys: string[];
       reason: string;
     }>;
+    failure?: ClassificationFailure;
   }>;
 }
 

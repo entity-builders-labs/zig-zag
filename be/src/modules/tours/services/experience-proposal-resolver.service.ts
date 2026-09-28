@@ -87,7 +87,7 @@ import {
 } from '../utils/strong-identity.util';
 import { IdentityVerifier } from './identity-verifier.service';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
-import { traceCandidateKey } from '../utils/generation-trace-builder.util';
+import { traceCandidateKey } from '../utils/experience-candidate-correlation.util';
 
 /**
  * Picks a real candidate out of the Places top-N instead of trusting

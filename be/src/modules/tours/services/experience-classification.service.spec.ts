@@ -6,6 +6,7 @@ import {
   CURRENT_CLASSIFICATION_PROMPT_VERSION,
   canReuseClassification,
 } from './experience-classification.service';
+import { AiProviderError } from '@shared/ai/ai-provider.error';
 
 describe('ExperienceClassificationService', () => {
   let service: ExperienceClassificationService;
@@ -384,6 +385,52 @@ describe('ExperienceClassificationService', () => {
     expect(result.intents).toEqual([]);
     expect(result.traits).toEqual([]);
     expect(result.reasoningEvidence).toEqual([]);
+  });
+
+  it('captures typed degradation provenance when provider call fails with AiProviderError (e.g. Gemini 503 UNAVAILABLE)', async () => {
+    const error = new AiProviderError({
+      message: 'Gemini error 503: overloaded',
+      provider: 'gemini',
+      httpStatus: 503,
+      providerStatus: 'UNAVAILABLE',
+    });
+    generateChatResponse.mockRejectedValueOnce(error);
+
+    const result = await service.classify('X', EVIDENCE);
+
+    expect(result.state).toBe('degraded');
+    expect(result.failure).toEqual({
+      stage: 'provider_call',
+      reason: 'PROVIDER_UNAVAILABLE',
+      httpStatus: 503,
+      providerStatus: 'UNAVAILABLE',
+    });
+  });
+
+  it('captures typed degradation provenance when response is non-JSON', async () => {
+    generateChatResponse.mockResolvedValueOnce('<html>502 Bad Gateway</html>');
+
+    const result = await service.classify('X', EVIDENCE);
+
+    expect(result.state).toBe('degraded');
+    expect(result.failure).toEqual({
+      stage: 'response_parse',
+      reason: 'NON_JSON_RESPONSE',
+    });
+  });
+
+  it('captures typed degradation provenance when response envelope is malformed', async () => {
+    generateChatResponse.mockResolvedValueOnce(
+      JSON.stringify({ notAnEnvelope: true }),
+    );
+
+    const result = await service.classify('X', EVIDENCE);
+
+    expect(result.state).toBe('degraded');
+    expect(result.failure).toEqual({
+      stage: 'response_validation',
+      reason: 'MALFORMED_RESPONSE',
+    });
   });
 
   it('never sends traveler preferences to the classifier -- classify() has no such parameter', () => {
