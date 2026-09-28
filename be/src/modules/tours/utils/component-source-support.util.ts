@@ -60,7 +60,11 @@ export interface EvidenceSupportText {
 }
 
 function normalize(value: string): string {
-  return value.toLowerCase().replace(/\s+/g, ' ').trim();
+  return value
+    .toLowerCase()
+    .replace(/[*_~`#]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**
@@ -92,10 +96,12 @@ export function verifyTextualComponentSourceSupport(
         // Preferred: extract the actual matching substring from the captured
         // raw source text so verifiedSupportSpan reflects true source wording.
         const tokens = trimmedSpan
+          .replace(/[*_~`#]+/g, ' ')
           .split(/\s+/)
+          .filter(Boolean)
           .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
         try {
-          const pattern = new RegExp(tokens.join('\\s+'), 'i');
+          const pattern = new RegExp(tokens.join('[\\s*_~`#]+'), 'i');
           const match = candidate.match(pattern);
           if (match && typeof match.index === 'number') {
             return {

@@ -268,7 +268,6 @@ export class AreaRouteWalkAcquisitionService {
     const planInput: BuildPlanInput = {
       destination: input.destination,
       deficits: [input.deficit],
-      semanticQuery: input.semanticQuery,
       anchors: [input.anchor],
       breadth: 'focused',
     };

@@ -36,10 +36,11 @@ import {
 import { CandidateScoreBreakdown } from './candidate-ranking.util';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
-import { CandidateSourceSupportAudit } from './experience-candidate-extraction.util';
-import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 import type { CorroborationGroupTrace } from '../services/structured-candidate-corroboration.service';
-import type { StructuredPairDecisionSummary } from '../services/experience-acquisition.service';
+import type {
+  StructuredPairDecisionSummary,
+  WebAcquisitionResult,
+} from '../services/experience-acquisition.service';
 import { PLACES_ACQUISITION_PROVIDER_LABELS } from './places-external-identity.util';
 
 /**
@@ -213,6 +214,7 @@ function traceEvidence(item: {
   kind?: string;
   order?: number;
   contextHeading?: string;
+  evidenceQuality?: 'original_content' | 'reduced';
 }): TraceEvidenceReference {
   return {
     evidenceKey:
@@ -226,6 +228,7 @@ function traceEvidence(item: {
     kind: item.kind,
     order: item.order,
     contextHeading: item.contextHeading,
+    evidenceQuality: item.evidenceQuality,
   };
 }
 
@@ -1035,34 +1038,7 @@ export function buildAcquisitionStep(params: {
         }
       | undefined
     >;
-    webResults?: Array<{
-      status: string;
-      query: string;
-      groundedProvider?: string;
-      groundedModel?: string;
-      groundingStatus?: string;
-      destinationCountryCode?: string;
-      groundedProviderLocale?: { gl?: string; hl?: string };
-      evidenceKeys: string[];
-      extractorProvider?: string;
-      extractorModel?: string;
-      extractorRequestAnchorNames?: string[];
-      extractorRawOutput?: string;
-      validationErrors: string[];
-      extractedCandidateCount?: number;
-      candidateCount: number;
-      candidateDecisions?: Array<{
-        candidate: ExperienceCandidate;
-        requestedRequirements: AcquisitionEvidenceRequirement[];
-        candidateShapeMatches: AcquisitionEvidenceRequirement[];
-        accepted: boolean;
-        reason:
-          | 'MATCHING_EVIDENCE_REQUIREMENT'
-          | 'NO_MATCHING_EVIDENCE_REQUIREMENT';
-      }>;
-      sourceSupportAudits?: CandidateSourceSupportAudit[];
-      failureReason?: string;
-    }>;
+    webResults?: WebAcquisitionResult[];
     structuredCandidateCount?: number;
     webCandidateCount?: number;
     structuredAudit?: {
@@ -1228,6 +1204,40 @@ export function buildAcquisitionStep(params: {
                       sourceSupportAudits: webResult.sourceSupportAudits ?? [],
                     }
                   : undefined,
+                sourceContentRetrieval: webResult?.sourceContentRetrieval
+                  ? {
+                      attempted: webResult.sourceContentRetrieval.attempted,
+                      provider: webResult.sourceContentRetrieval.provider,
+                      triggerReason:
+                        webResult.sourceContentRetrieval.triggerReason,
+                      requestedUrls: [
+                        ...webResult.sourceContentRetrieval.requestedUrls,
+                      ],
+                      retrievedUrls: [
+                        ...webResult.sourceContentRetrieval.retrievedUrls,
+                      ],
+                      failedUrls: [
+                        ...webResult.sourceContentRetrieval.failedUrls,
+                      ],
+                      items: (webResult.sourceContentRetrieval.items ?? []).map(
+                        (item) => ({
+                          requestedUrl: item.requestedUrl,
+                          finalUrl: item.finalUrl,
+                          status: item.status,
+                          provider: item.provider,
+                          contentChars: item.contentChars,
+                          truncated: item.truncated,
+                          failureReason: item.failureReason,
+                          failureDetail: item.failureDetail,
+                          durationMs: item.durationMs,
+                        }),
+                      ),
+                      totalDurationMs:
+                        webResult.sourceContentRetrieval.totalDurationMs,
+                      reExtractionAttempted:
+                        webResult.sourceContentRetrieval.reExtractionAttempted,
+                    }
+                  : undefined,
               }
             : undefined,
       };
@@ -1386,6 +1396,14 @@ export function buildAcquisitionStep(params: {
         validationErrors: w.validationErrors,
         candidateCount: w.candidateCount,
         failureReason: w.failureReason,
+        sourceContentRetrieval: w.sourceContentRetrieval
+          ? {
+              attempted: w.sourceContentRetrieval.attempted,
+              provider: w.sourceContentRetrieval.provider,
+              retrievedCount: w.sourceContentRetrieval.retrievedUrls.length,
+              failedCount: w.sourceContentRetrieval.failedUrls.length,
+            }
+          : undefined,
       })),
     },
     acquisition,

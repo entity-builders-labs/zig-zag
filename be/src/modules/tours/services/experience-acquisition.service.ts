@@ -26,6 +26,13 @@ import {
   GroundingNormalizationAudit,
   ExperienceGroundingEvidenceKind,
 } from '../interfaces/experience-grounding.interface';
+import {
+  DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+  EXPERIENCE_WEB_SOURCE_CONTENT_PROVIDER,
+  WebSourceContentProvider,
+  WebSourceContentProviderName,
+  WebSourceContentResultItem,
+} from '../interfaces/web-source-content.interface';
 import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acquisition.provider';
 import { WikivoyageAcquisitionProvider } from '../providers/wikivoyage-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
@@ -94,6 +101,7 @@ export interface ResolverEvidenceItem {
   kind?: ExperienceGroundingEvidenceKind;
   order?: number;
   contextHeading?: string;
+  evidenceQuality?: 'original_content' | 'reduced';
 }
 
 /**
@@ -125,9 +133,9 @@ export interface WebAcquisitionResult {
   groundedRawOutput?: string;
   extractorRawOutput?: string;
   validationErrors: string[];
-  extractedCandidateCount: number;
+  extractedCandidateCount?: number;
   candidateCount: number;
-  candidateDecisions: WebCandidateAdmissionDecision[];
+  candidateDecisions?: WebCandidateAdmissionDecision[];
   /**
    * Source-composition-authority audit per raw extracted candidate (see
    * `CandidateSourceSupportAudit`). Distinct from `candidateDecisions`:
@@ -138,6 +146,17 @@ export interface WebAcquisitionResult {
    * it is only observable here.
    */
   sourceSupportAudits?: CandidateSourceSupportAudit[];
+  sourceContentRetrieval?: {
+    attempted: boolean;
+    provider?: WebSourceContentProviderName;
+    triggerReason?: string;
+    requestedUrls: string[];
+    retrievedUrls: string[];
+    failedUrls: string[];
+    items: WebSourceContentResultItem[];
+    totalDurationMs?: number;
+    reExtractionAttempted?: boolean;
+  };
   failureReason?: string;
 }
 
@@ -197,6 +216,55 @@ export interface AcquireNearbyInput {
   [key: string]: unknown;
 }
 
+const NON_EDITORIAL_DOMAINS: readonly string[] = [
+  'getyourguide.',
+  'viator.',
+  'tripadvisor.',
+  'booking.',
+  'expedia.',
+  'civitatis.',
+  'klook.',
+  'airbnb.',
+  'gpsmycity.com',
+  'youtube.com',
+  'facebook.com',
+  'instagram.com',
+];
+
+function isEditorialTourUrl(urlStr: string): boolean {
+  try {
+    const host = new URL(urlStr).hostname.toLowerCase();
+    return !NON_EDITORIAL_DOMAINS.some((d) => host.includes(d));
+  } catch {
+    return false;
+  }
+}
+
+function scoreUrlForTourContent(
+  urlStr: string,
+  anchorNames?: readonly string[],
+): number {
+  try {
+    const parsed = new URL(urlStr);
+    const path = parsed.pathname.toLowerCase();
+    let score = 0;
+    if (path.length > 1 && path !== '/') score += 5;
+    if (/tour|walk|itinerary|recorrido|paseo/i.test(path)) score += 10;
+    if (/center|centro|assistance|contact|about|faq/i.test(path)) score -= 10;
+    if (anchorNames) {
+      for (const anchor of anchorNames) {
+        const slug = anchor.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (slug && path.includes(slug)) {
+          score += 8;
+        }
+      }
+    }
+    return score;
+  } catch {
+    return 0;
+  }
+}
+
 /**
  * First-class acquisition boundary for the V2 catalog.
  * Tour generation may request a refill, but acquisition itself is reusable by
@@ -232,6 +300,9 @@ export class ExperienceAcquisitionService {
     private readonly discoveryExtractor?: ExperienceDiscoveryExtractor,
     @Optional()
     private readonly classifier?: ExperienceClassificationService,
+    @Optional()
+    @Inject(EXPERIENCE_WEB_SOURCE_CONTENT_PROVIDER)
+    private readonly webSourceContentProvider?: WebSourceContentProvider,
   ) {}
 
   async executePlan(
@@ -539,13 +610,13 @@ export class ExperienceAcquisitionService {
         evidenceRequirements: [...plan.evidenceRequirements],
       };
 
-      const extracted = await this.discoveryExtractor.extractExperiences(
+      let extracted = await this.discoveryExtractor.extractExperiences(
         request,
         grounded,
         { bypassCache: true },
       );
 
-      const candidateDecisions: WebCandidateAdmissionDecision[] =
+      let candidateDecisions: WebCandidateAdmissionDecision[] =
         extracted.candidates.map((candidate) => {
           const candidateShapeMatches = plan.evidenceRequirements.filter(
             (requirement) =>
@@ -562,9 +633,143 @@ export class ExperienceAcquisitionService {
               : 'NO_MATCHING_EVIDENCE_REQUIREMENT',
           };
         });
-      const admissibleCandidates = candidateDecisions
+      let admissibleCandidates = candidateDecisions
         .filter((decision) => decision.accepted)
         .map((decision) => decision.candidate);
+
+      let sourceContentRetrievalTrace: WebAcquisitionResult['sourceContentRetrieval'];
+
+      const isMultiComponentRequested = plan.evidenceRequirements.includes(
+        'MULTI_COMPONENT_EXPERIENCE',
+      );
+      const satisfiesMultiComponent = admissibleCandidates.some((c) =>
+        candidateSatisfiesEvidenceRequirement(c, 'MULTI_COMPONENT_EXPERIENCE'),
+      );
+      const hasExtractionErrors = (extracted.validationErrors?.length ?? 0) > 0;
+
+      // Condition 1: Grounded search returned usable evidence (verified above)
+      // Condition 2: Active requirement is MULTI_COMPONENT_EXPERIENCE, not yet satisfied by admitted candidates,
+      //              and extractor had no transport/validation errors.
+      // Condition 3: webSourceContentProvider is registered and configured.
+      const hasCompositionGap =
+        isMultiComponentRequested &&
+        !satisfiesMultiComponent &&
+        !hasExtractionErrors &&
+        Boolean(this.webSourceContentProvider);
+
+      if (hasCompositionGap && this.webSourceContentProvider) {
+        const rejectedWalkCandidate = candidateDecisions.find(
+          (d) =>
+            !d.accepted &&
+            d.reason === 'NO_MATCHING_EVIDENCE_REQUIREMENT' &&
+            d.candidate.evidenceKeys?.length > 0,
+        );
+
+        const candidateCitedKeys = new Set(
+          rejectedWalkCandidate?.candidate.evidenceKeys ?? [],
+        );
+
+        const validEvidenceItems = (grounded.evidence ?? []).filter(
+          (ev) =>
+            ev.url &&
+            /^https?:\/\//i.test(ev.url) &&
+            isEditorialTourUrl(ev.url),
+        );
+
+        const rankedEvidenceItems = [...validEvidenceItems].sort((a, b) => {
+          const aScore =
+            scoreUrlForTourContent(a.url!, web.anchorNames) +
+            (candidateCitedKeys.has(a.key) ? 1 : 0);
+          const bScore =
+            scoreUrlForTourContent(b.url!, web.anchorNames) +
+            (candidateCitedKeys.has(b.key) ? 1 : 0);
+          return bScore - aScore;
+        });
+
+        const targetUrls = Array.from(
+          new Set(rankedEvidenceItems.map((ev) => ev.url!)),
+        ).slice(0, 2);
+
+        if (targetUrls.length > 0) {
+          const triggerReason = rejectedWalkCandidate
+            ? `MULTI_COMPONENT_EXPERIENCE candidate rejected for lack of required stops (${rejectedWalkCandidate.candidate.componentHints.length} component hints)`
+            : 'MULTI_COMPONENT_EXPERIENCE required but initial extraction produced no admissible multi-component candidate';
+
+          const retrievalResult = await this.webSourceContentProvider.retrieve({
+            urls: targetUrls,
+            maxContentChars: DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+          });
+
+          const retrievedItems = retrievalResult.items.filter(
+            (item) => item.status === 'retrieved' && item.content,
+          );
+
+          sourceContentRetrievalTrace = {
+            attempted: true,
+            provider: this.webSourceContentProvider.providerName,
+            triggerReason,
+            requestedUrls: targetUrls,
+            retrievedUrls: retrievedItems.map((i) => i.requestedUrl),
+            failedUrls: retrievalResult.items
+              .filter((i) => i.status === 'failed')
+              .map((i) => i.requestedUrl),
+            items: retrievalResult.items,
+            totalDurationMs: retrievalResult.totalDurationMs,
+            reExtractionAttempted: false,
+          };
+
+          if (retrievedItems.length > 0) {
+            sourceContentRetrievalTrace.reExtractionAttempted = true;
+
+            const contentByUrl = new Map<string, string>();
+            for (const item of retrievedItems) {
+              contentByUrl.set(item.requestedUrl, item.content!);
+            }
+
+            // Update grounded.evidence in place, preserving URL identity and source
+            grounded.evidence = grounded.evidence.map((item) => {
+              if (item.url && contentByUrl.has(item.url)) {
+                return {
+                  ...item,
+                  snippet: contentByUrl.get(item.url)!,
+                  evidenceQuality: 'original_content' as const,
+                };
+              }
+              return item;
+            });
+
+            // Re-run semantic extraction with enriched grounded evidence
+            extracted = await this.discoveryExtractor.extractExperiences(
+              request,
+              grounded,
+              { bypassCache: true },
+            );
+
+            // Recompute candidate decisions
+            candidateDecisions = extracted.candidates.map((candidate) => {
+              const candidateShapeMatches = plan.evidenceRequirements.filter(
+                (requirement) =>
+                  candidateSatisfiesEvidenceRequirement(candidate, requirement),
+              );
+              const accepted = candidateShapeMatches.length > 0;
+              return {
+                candidate,
+                requestedRequirements: [...plan.evidenceRequirements],
+                candidateShapeMatches,
+                accepted,
+                reason: accepted
+                  ? 'MATCHING_EVIDENCE_REQUIREMENT'
+                  : 'NO_MATCHING_EVIDENCE_REQUIREMENT',
+              };
+            });
+
+            admissibleCandidates = candidateDecisions
+              .filter((decision) => decision.accepted)
+              .map((decision) => decision.candidate);
+          }
+        }
+      }
+
       sink.webCandidates.push(...admissibleCandidates);
       for (const ev of grounded.evidence) {
         sink.webEvidence.push({
@@ -576,6 +781,7 @@ export class ExperienceAcquisitionService {
           kind: ev.kind,
           order: ev.order,
           contextHeading: ev.contextHeading,
+          evidenceQuality: ev.evidenceQuality,
         });
       }
 
@@ -592,6 +798,7 @@ export class ExperienceAcquisitionService {
         candidateCount: admissibleCandidates.length,
         candidateDecisions,
         sourceSupportAudits: extracted.sourceSupportAudits,
+        sourceContentRetrieval: sourceContentRetrievalTrace,
       };
     } catch (error: any) {
       this.logger.warn(

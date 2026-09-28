@@ -50,6 +50,7 @@ export class GroqDiscoveryProvider {
         bypassCache: options?.bypassCache,
         responseFormat: { type: 'json_object' },
         groq: { maxCompletionTokens: 4096 },
+        temperature: 0,
       },
     );
     let parsed: unknown;

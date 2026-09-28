@@ -23,6 +23,11 @@ import {
   PlannerConstraintSnapshot,
   PlanningWalkingDiagnostics,
 } from './daily-planning.interface';
+import {
+  WebSourceContentFailureReason,
+  WebSourceContentProviderName,
+  WebSourceContentStatus,
+} from './web-source-content.interface';
 
 export type TraceStage =
   | 'preference_interpretation'
@@ -177,7 +182,32 @@ export interface TraceAcquisitionSource {
        */
       sourceSupportAudits: CandidateSourceSupportAudit[];
     };
+    sourceContentRetrieval?: TraceWebSourceContentRetrieval;
   };
+}
+
+export interface TraceWebSourceContentItem {
+  requestedUrl: string;
+  finalUrl?: string;
+  status: WebSourceContentStatus;
+  provider: WebSourceContentProviderName;
+  contentChars?: number;
+  truncated?: boolean;
+  failureReason?: WebSourceContentFailureReason;
+  failureDetail?: string;
+  durationMs?: number;
+}
+
+export interface TraceWebSourceContentRetrieval {
+  attempted: boolean;
+  provider?: WebSourceContentProviderName;
+  triggerReason?: string;
+  requestedUrls: string[];
+  retrievedUrls: string[];
+  failedUrls: string[];
+  items: TraceWebSourceContentItem[];
+  totalDurationMs?: number;
+  reExtractionAttempted?: boolean;
 }
 
 export interface TraceWebCandidateAdmissionDecision {
@@ -197,6 +227,7 @@ export interface TraceEvidenceReference {
   kind?: string;
   order?: number;
   contextHeading?: string;
+  evidenceQuality?: 'original_content' | 'reduced';
 }
 
 export interface TraceComponentHint {

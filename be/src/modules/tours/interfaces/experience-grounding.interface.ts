@@ -43,6 +43,7 @@ export interface ExperienceGroundingEvidence {
   kind?: ExperienceGroundingEvidenceKind;
   order?: number;
   contextHeading?: string;
+  evidenceQuality?: 'original_content' | 'reduced';
 }
 
 export type ExperienceGroundingEvidenceKind =

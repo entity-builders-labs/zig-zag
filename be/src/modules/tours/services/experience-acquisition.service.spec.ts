@@ -914,6 +914,310 @@ describe('ExperienceAcquisitionService', () => {
           'SOURCE_CONTRACT_VIOLATION',
         );
       });
+
+      describe('deep source content retrieval on composition gap', () => {
+        const multiComponentWebPlan: ExperienceAcquisitionPlan = {
+          destination: { destinationName: 'Buenos Aires' },
+          deficits: [],
+          evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+          breadth: 'focused',
+          sourcePlans: [
+            {
+              provider: 'web',
+              web: {
+                query: 'Buenos Aires historic walk',
+                requestedThemes: ['history'],
+              },
+            },
+          ],
+        };
+
+        const groundedWithUrls = {
+          provider: 'tavily',
+          model: 'n/a',
+          groundingStatus: 'applied',
+          evidence: [
+            {
+              key: 'ev-1',
+              source: 'buenosaires.travel',
+              title: 'San Telmo Walk',
+              snippet: 'A great walk in San Telmo',
+              url: 'https://buenosaires.travel/san-telmo-walk',
+            },
+            {
+              key: 'ev-2',
+              source: 'travelblog.com',
+              title: 'La Boca Walk',
+              snippet: 'Walk through Caminito',
+              url: 'https://travelblog.com/la-boca',
+            },
+            {
+              key: 'ev-3',
+              source: 'other.com',
+              title: 'Recoleta Walk',
+              snippet: 'Walk around cemetery',
+              url: 'https://other.com/recoleta',
+            },
+          ],
+          rawOutput: 'grounded raw fixture',
+        };
+
+        it('triggers deep retrieval when MULTI_COMPONENT_EXPERIENCE has a composition gap, enriches evidence, and re-extracts', async () => {
+          const search = jest.fn().mockResolvedValue(groundedWithUrls);
+          const singleComponentCandidate = {
+            name: 'San Telmo partial walk',
+            themes: ['history'],
+            componentHints: [
+              {
+                key: 'c1',
+                name: 'Plaza Dorrego',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'Single stop found in snippet',
+          };
+
+          const fullMultiComponentCandidate = {
+            name: 'San Telmo complete walk',
+            themes: ['history'],
+            componentHints: [
+              {
+                key: 'c1',
+                name: 'Plaza Dorrego',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+              {
+                key: 'c2',
+                name: 'Parque Lezama',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'Multi-stop route found in full text',
+          };
+
+          const extractExperiences = jest
+            .fn()
+            .mockResolvedValueOnce({
+              candidates: [singleComponentCandidate],
+              validationErrors: [],
+              provider: 'gemini',
+              model: 'gemini-x',
+              rawOutput: '{"candidates":[...]}',
+            })
+            .mockResolvedValueOnce({
+              candidates: [fullMultiComponentCandidate],
+              validationErrors: [],
+              provider: 'gemini',
+              model: 'gemini-x',
+              rawOutput: '{"candidates":[...]}',
+            });
+
+          const webSourceContentProvider: any = {
+            providerName: 'tavily',
+            retrieve: jest.fn().mockResolvedValue({
+              provider: 'tavily',
+              requestedCount: 2,
+              retrievedCount: 1,
+              items: [
+                {
+                  requestedUrl: 'https://buenosaires.travel/san-telmo-walk',
+                  status: 'retrieved',
+                  contentType: 'markdown',
+                  content:
+                    'Full article: Start at Plaza Dorrego, explore the antique market, then walk along Defensa to Parque Lezama.',
+                  contentChars: 120,
+                  truncated: false,
+                  provider: 'tavily',
+                  durationMs: 50,
+                },
+              ],
+              totalDurationMs: 60,
+            }),
+          };
+
+          const service = new ExperienceAcquisitionService(
+            {} as any,
+            {} as any,
+            { acquire: jest.fn() } as any,
+            { acquire: jest.fn() } as any,
+            new StructuredExperienceCandidateSynthesizerService(),
+            new StructuredCandidateCorroborationService(),
+            undefined,
+            { search } as any,
+            { extractExperiences } as any,
+            undefined,
+            webSourceContentProvider,
+          );
+
+          const result = await service.executePlan(multiComponentWebPlan);
+
+          expect(webSourceContentProvider.retrieve).toHaveBeenCalledTimes(1);
+          expect(
+            webSourceContentProvider.retrieve.mock.calls[0][0].urls,
+          ).toHaveLength(2);
+          expect(extractExperiences).toHaveBeenCalledTimes(2);
+
+          const secondExtractionEvidence =
+            extractExperiences.mock.calls[1][1].evidence;
+          const enrichedItem = secondExtractionEvidence.find(
+            (e: any) => e.key === 'ev-1',
+          );
+          expect(enrichedItem.evidenceQuality).toBe('original_content');
+          expect(enrichedItem.snippet).toContain(
+            'Full article: Start at Plaza Dorrego',
+          );
+
+          expect(result.webResults?.[0].sourceContentRetrieval).toMatchObject({
+            attempted: true,
+            provider: 'tavily',
+            reExtractionAttempted: true,
+            requestedUrls: [
+              'https://buenosaires.travel/san-telmo-walk',
+              'https://travelblog.com/la-boca',
+            ],
+            retrievedUrls: ['https://buenosaires.travel/san-telmo-walk'],
+          });
+          expect(result.candidates).toHaveLength(1);
+          expect(result.candidates[0].name).toBe('San Telmo complete walk');
+        });
+
+        it('skips deep retrieval when MULTI_COMPONENT_EXPERIENCE is already satisfied on the first pass', async () => {
+          const search = jest.fn().mockResolvedValue(groundedWithUrls);
+          const multiComponentCandidate = {
+            name: 'San Telmo complete walk',
+            themes: ['history'],
+            componentHints: [
+              {
+                key: 'c1',
+                name: 'Plaza Dorrego',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+              {
+                key: 'c2',
+                name: 'Parque Lezama',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'Two stops in snippet',
+          };
+
+          const extractExperiences = jest.fn().mockResolvedValue({
+            candidates: [multiComponentCandidate],
+            validationErrors: [],
+            provider: 'gemini',
+            model: 'gemini-x',
+            rawOutput: '{"candidates":[...]}',
+          });
+
+          const webSourceContentProvider: any = {
+            providerName: 'cloudflare',
+            retrieve: jest.fn(),
+          };
+
+          const service = new ExperienceAcquisitionService(
+            {} as any,
+            {} as any,
+            { acquire: jest.fn() } as any,
+            { acquire: jest.fn() } as any,
+            new StructuredExperienceCandidateSynthesizerService(),
+            new StructuredCandidateCorroborationService(),
+            undefined,
+            { search } as any,
+            { extractExperiences } as any,
+            undefined,
+            webSourceContentProvider,
+          );
+
+          const result = await service.executePlan(multiComponentWebPlan);
+
+          expect(webSourceContentProvider.retrieve).not.toHaveBeenCalled();
+          expect(extractExperiences).toHaveBeenCalledTimes(1);
+          expect(result.candidates).toHaveLength(1);
+          expect(result.webResults?.[0].sourceContentRetrieval).toBeUndefined();
+        });
+
+        it('skips deep retrieval when MULTI_COMPONENT_EXPERIENCE was not requested', async () => {
+          const search = jest.fn().mockResolvedValue(groundedWithUrls);
+          const extractExperiences = jest.fn().mockResolvedValue({
+            candidates: [],
+            validationErrors: [],
+            provider: 'gemini',
+            model: 'gemini-x',
+            rawOutput: '{"candidates":[]}',
+          });
+
+          const webSourceContentProvider: any = {
+            providerName: 'tavily',
+            retrieve: jest.fn(),
+          };
+
+          const service = new ExperienceAcquisitionService(
+            {} as any,
+            {} as any,
+            { acquire: jest.fn() } as any,
+            { acquire: jest.fn() } as any,
+            new StructuredExperienceCandidateSynthesizerService(),
+            new StructuredCandidateCorroborationService(),
+            undefined,
+            { search } as any,
+            { extractExperiences } as any,
+            undefined,
+            webSourceContentProvider,
+          );
+
+          await service.executePlan(webPlan);
+
+          expect(webSourceContentProvider.retrieve).not.toHaveBeenCalled();
+        });
+
+        it('skips deep retrieval when extraction had validation errors (anti-N7 fail-closed)', async () => {
+          const search = jest.fn().mockResolvedValue(groundedWithUrls);
+          const extractExperiences = jest.fn().mockResolvedValue({
+            candidates: [],
+            validationErrors: ['Schema syntax error in LLM output'],
+            provider: 'gemini',
+            model: 'gemini-x',
+            rawOutput: 'bad json',
+          });
+
+          const webSourceContentProvider: any = {
+            providerName: 'tavily',
+            retrieve: jest.fn(),
+          };
+
+          const service = new ExperienceAcquisitionService(
+            {} as any,
+            {} as any,
+            { acquire: jest.fn() } as any,
+            { acquire: jest.fn() } as any,
+            new StructuredExperienceCandidateSynthesizerService(),
+            new StructuredCandidateCorroborationService(),
+            undefined,
+            { search } as any,
+            { extractExperiences } as any,
+            undefined,
+            webSourceContentProvider,
+          );
+
+          await service.executePlan(multiComponentWebPlan);
+
+          expect(webSourceContentProvider.retrieve).not.toHaveBeenCalled();
+          expect(extractExperiences).toHaveBeenCalledTimes(1);
+        });
+      });
     });
 
     describe('acquireNearby with ExperienceProposalResolver', () => {
