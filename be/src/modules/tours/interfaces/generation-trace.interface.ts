@@ -154,6 +154,18 @@ export interface TraceAcquisitionSource {
     destinationCountryCode?: string;
     /** Locale parameters the grounded provider actually sent (e.g. gl). */
     groundedProviderLocale?: { gl?: string; hl?: string };
+    /** RW3-N7 bounded evidence-refinement facts; absent on older traces. */
+    initialQuery?: string;
+    initialEvidenceCount?: number;
+    initialExtractedCandidateCount?: number;
+    refinementTriggered?: boolean;
+    refinementReason?: 'EMPTY_ANCHORED_MULTI_COMPONENT_EXTRACTION';
+    refinementQuery?: string;
+    refinementStatus?: 'success' | 'failed' | 'skipped';
+    refinementEvidenceCount?: number;
+    refinementExtractedCandidateCount?: number;
+    refinementFailureReason?: string;
+    boundedAttemptCount?: 1 | 2;
     evidence: TraceEvidenceReference[];
     extractor?: {
       provider?: string;
