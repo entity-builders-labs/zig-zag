@@ -38,6 +38,45 @@ export interface AiConfig {
   geminiGroundedSearchModel: string;
   // Evidence-only semantic classification (Stage 6 / plan Task B2).
   classification: ClassificationConfig;
+  // Web source content retrieval: fetch more of an already-discovered URL's
+  // own readable text than the search snippet carried, so an experience that
+  // is a sequence of stops can actually be evidenced stop by stop.
+  webSourceContent?: WebSourceContentConfig;
+}
+
+/**
+ * Web source content retrieval configuration. The inline name union mirrors
+ * `WebSourceContentProviderName` in the tours capability contract (same
+ * established pattern as `groundedSearchProvider` above); an unknown value is
+ * rejected by `selectWebSourceContentProvider` at module wiring.
+ *
+ * Deliberately NOT auto-selected from key presence: unlike
+ * `groundedSearchProvider`, a bare `TAVILY_API_KEY` or `CLOUDFLARE_API_TOKEN`
+ * never turns this capability on. Retrieval is an extra billed transport per
+ * URL, so it exists only when an operator explicitly asked for it. Unset ->
+ * `undefined` -> the capability is not registered and evidence-depth gaps
+ * stay observable instead of being silently papered over.
+ */
+export interface WebSourceContentConfig {
+  provider?: 'tavily' | 'cloudflare';
+  cloudflare: {
+    accountId?: string;
+    apiToken?: string;
+    /** Per-URL transport timeout. Browser Run renders a real page. */
+    timeoutMs: number;
+    /**
+     * Minimum spacing between Browser Run quick-action requests. Live-verified
+     * 2026-09-28: this account's plan allows 1 quick-action request per 10s,
+     * and a back-to-back second `/markdown` call returned HTTP 429
+     * (`errors: [{ code: 2001, message: "Rate limit exceeded" }]`) while the
+     * same call after an 11s gap succeeded.
+     */
+    minRequestIntervalMs: number;
+  };
+  tavily: {
+    apiKey?: string;
+    timeoutMs: number;
+  };
 }
 
 export interface ClassificationConfig {
@@ -193,6 +232,24 @@ export default registerAs('ai', (): AiConfig => {
     );
   }
 
+  // Web source content retrieval. Explicit selection only: unlike
+  // GROUNDED_SEARCH_PROVIDER, no key presence ever turns this on (a bare
+  // TAVILY_API_KEY/CLOUDFLARE_API_TOKEN must not silently start billing an
+  // extra transport call per URL). Unset -> undefined -> the capability is not
+  // registered, and an evidence-depth gap stays visible instead of being
+  // papered over.
+  const webSourceContentProvider = (
+    process.env.WEB_SOURCE_CONTENT_PROVIDER || ''
+  ).toLowerCase();
+  if (
+    webSourceContentProvider &&
+    !['tavily', 'cloudflare'].includes(webSourceContentProvider)
+  ) {
+    throw new Error(
+      `Unsupported WEB_SOURCE_CONTENT_PROVIDER "${webSourceContentProvider}". Expected tavily or cloudflare.`,
+    );
+  }
+
   return {
     enableAi: process.env.ENABLE_AI !== 'false',
     provider,
@@ -283,6 +340,28 @@ export default registerAs('ai', (): AiConfig => {
           process.env.OLLAMA_CLASSIFICATION_MODEL ||
           process.env.OLLAMA_MODEL ||
           'qwen2.5:7b-instruct',
+      },
+    },
+    webSourceContent: {
+      // Explicit selection only — never inferred from a key being present.
+      provider: webSourceContentProvider as WebSourceContentConfig['provider'],
+      cloudflare: {
+        // Browser Run shares the account credentials Workers AI already uses;
+        // they are separate Cloudflare products on the same account/token.
+        accountId: process.env.CLOUDFLARE_ACCOUNT_ID,
+        apiToken: process.env.CLOUDFLARE_API_TOKEN,
+        timeoutMs: process.env.WEB_SOURCE_CONTENT_TIMEOUT_MS
+          ? parseInt(process.env.WEB_SOURCE_CONTENT_TIMEOUT_MS, 10)
+          : 30000,
+        minRequestIntervalMs: process.env.CLOUDFLARE_BROWSER_RUN_MIN_INTERVAL_MS
+          ? parseInt(process.env.CLOUDFLARE_BROWSER_RUN_MIN_INTERVAL_MS, 10)
+          : 10000,
+      },
+      tavily: {
+        apiKey: process.env.TAVILY_API_KEY,
+        timeoutMs: process.env.WEB_SOURCE_CONTENT_TIMEOUT_MS
+          ? parseInt(process.env.WEB_SOURCE_CONTENT_TIMEOUT_MS, 10)
+          : 15000,
       },
     },
   };

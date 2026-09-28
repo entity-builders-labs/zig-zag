@@ -1,13 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-  ExperienceEvidenceProvenance,
   ExperienceGroundedSearchProvider as GroundedSearchProvider,
   ExperienceGroundedSearchRequest as GroundedSearchRequest,
   ExperienceGroundedSearchResult as GroundedSearchResult,
   ExperienceGroundingEvidence as GroundingEvidence,
 } from '../interfaces/experience-grounding.interface';
-import { TavilyExtractService } from './tavily-extract.service';
 
 interface TavilySearchResult {
   title?: string;
@@ -22,22 +20,19 @@ interface TavilySearchResponse {
   response_time?: number;
 }
 
-// A plain search snippet (~150-300 chars, Tavily's own "most relevant
-// fragment") almost never contains a walking tour's actual list of stops —
-// verified live: San Telmo evidence never named "Calle Defensa"'s role or
-// any other stop-by-stop detail, because that detail typically lives further
-// into the article than the fragment Tavily's search endpoint returns.
-// Extracting the *full* article for every one of Tavily's up to 20 results
-// would fix that but at real, mostly-wasted cost — most results aren't the
-// one article that actually enumerates a route's stops. Only the top-scored
-// handful are worth the extra /extract call.
-const MAX_EXTRACT_CANDIDATES = 5;
-// Bounds how much of one extracted article reaches the extractor prompt —
-// generous enough to cover a listicle's itemized stops (which usually sit
-// well before this point in a real travel-blog article), small enough that
-// enriching several evidence entries in one query doesn't blow up the
-// extractor's own prompt budget.
-const MAX_EXTRACTED_CONTENT_CHARS = 6000;
+// This service is the web SEARCH capability only: it turns a query into cited
+// URLs plus each result's short relevance snippet.
+//
+// It deliberately does NOT fetch page content. That snippet is the provider's
+// own "most relevant fragment" (~150-300 chars), and the detail that proves an
+// experience is a sequence of stops — the actual street/plaza names, in order —
+// usually sits further into the article than the fragment reaches. Retrieving
+// more of an already-discovered URL's own text is a separate capability,
+// `WebSourceContentProvider` (selected by WEB_SOURCE_CONTENT_PROVIDER), which
+// the acquisition orchestration invokes only when search produced usable URLs
+// but an evidence requirement is still unresolved. Keeping the two apart means
+// any search backend can pair with any retrieval transport, and no retrieval
+// call is spent when the snippet already carried enough evidence.
 
 // destinationCountry carries Nominatim's own English-language `address.country`
 // field (see DestinationResolutionAudit's own doc comment) — matched here in
@@ -95,10 +90,7 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
   private readonly timeoutMs = 15000;
   private readonly model = 'tavily-search-basic';
 
-  constructor(
-    private readonly config: ConfigService,
-    private readonly tavilyExtract: TavilyExtractService,
-  ) {}
+  constructor(private readonly config: ConfigService) {}
 
   async search(request: GroundedSearchRequest): Promise<GroundedSearchResult> {
     const apiKey =
@@ -170,20 +162,12 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
 
       const data = (await response.json()) as TavilySearchResponse;
       const evidence = this.extractEvidence(data.results);
-      const { evidence: enrichedEvidence, evidenceProvenance } =
-        await this.enrichTopResultsWithFullContent(
-          evidence,
-          data.results ?? [],
-          query,
-        );
 
       return {
         provider: 'tavily',
         model: this.model,
-        groundingStatus:
-          enrichedEvidence.length > 0 ? 'applied' : 'no_usable_evidence',
-        evidence: enrichedEvidence,
-        evidenceProvenance,
+        groundingStatus: evidence.length > 0 ? 'applied' : 'no_usable_evidence',
+        evidence,
         rawOutput: data,
       };
     } catch (error: any) {
@@ -327,71 +311,5 @@ export class TavilyGroundedSearchService implements GroundedSearchProvider {
         title: result.title,
         url: result.url,
       }));
-  }
-
-  /**
-   * A walking/route Experience's actual stop-by-stop detail (street names,
-   * specific plazas/landmarks) rarely survives into Tavily's own short
-   * relevance snippet — it typically sits further into the source article.
-   * Replaces the snippet of the top-scored handful of results (by Tavily's
-   * own relevance score, not just result order) with the full article text
-   * via TavilyExtractService, so the extraction LLM can actually see it.
-   * Matched by url (not array index) because extractEvidence's own filtering
-   * can shift indices relative to the raw results array.
-   */
-  private async enrichTopResultsWithFullContent(
-    evidence: GroundingEvidence[],
-    results: TavilySearchResult[],
-    query: string,
-  ): Promise<{
-    evidence: GroundingEvidence[];
-    evidenceProvenance: ExperienceEvidenceProvenance[];
-  }> {
-    const scoreByUrl = new Map<string, number>();
-    for (const result of results) {
-      if (result.url) scoreByUrl.set(result.url, result.score ?? 0);
-    }
-
-    const topUrls = evidence
-      .filter((item): item is GroundingEvidence & { url: string } =>
-        Boolean(item.url),
-      )
-      .slice()
-      .sort(
-        (a, b) => (scoreByUrl.get(b.url) ?? 0) - (scoreByUrl.get(a.url) ?? 0),
-      )
-      .slice(0, MAX_EXTRACT_CANDIDATES)
-      .map((item) => item.url);
-
-    if (topUrls.length === 0) {
-      return { evidence, evidenceProvenance: [] };
-    }
-
-    const extracted = await this.tavilyExtract.extract(topUrls);
-    const evidenceProvenance: ExperienceEvidenceProvenance[] = [];
-
-    const enrichedEvidence = evidence.map((item) => {
-      if (!item.url) return item;
-      const result = extracted.get(item.url);
-      if (!result || result.status !== 'success' || !result.content?.trim()) {
-        return item;
-      }
-      evidenceProvenance.push({
-        provider: 'tavily',
-        searchQueries: [query],
-        url: item.url,
-        title: item.title,
-        extractionProvider: 'tavily',
-        extractionStatus: 'success',
-        evidenceQuality: 'original_content',
-        evidenceKeys: [item.key],
-      });
-      return {
-        ...item,
-        snippet: result.content.slice(0, MAX_EXTRACTED_CONTENT_CHARS).trim(),
-      };
-    });
-
-    return { evidence: enrichedEvidence, evidenceProvenance };
   }
 }

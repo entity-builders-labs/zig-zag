@@ -15,7 +15,13 @@ import { SerperGroundedSearchService } from './services/serper-grounded-search.s
 import { selectGroundedSearchProvider } from './services/grounded-search-provider-selection.util';
 import { TavilyGroundedSearchService } from './services/tavily-grounded-search.service';
 import { GeminiGroundedSearchService } from './services/gemini-grounded-search.service';
-import { TavilyExtractService } from './services/tavily-extract.service';
+import {
+  EXPERIENCE_WEB_SOURCE_CONTENT_PROVIDER,
+  WebSourceContentProvider,
+} from './interfaces/web-source-content.interface';
+import { TavilyWebSourceContentProvider } from './services/tavily-extract.service';
+import { CloudflareWebSourceContentProvider } from './services/cloudflare-web-source-content.provider';
+import { selectWebSourceContentProvider } from './services/web-source-content-provider-selection.util';
 import { CompositeGeographicValidationService } from './services/composite-geographic-validation.service';
 import { GroqDiscoveryProvider } from './services/groq-discovery.provider';
 import { GeminiDiscoveryProvider } from './services/gemini-discovery.provider';
@@ -88,7 +94,30 @@ import { MediaModule } from '../media/media.module';
     SerperGroundedSearchService,
     TavilyGroundedSearchService,
     GeminiGroundedSearchService,
-    TavilyExtractService,
+    TavilyWebSourceContentProvider,
+    CloudflareWebSourceContentProvider,
+    {
+      provide: EXPERIENCE_WEB_SOURCE_CONTENT_PROVIDER,
+      useFactory: (
+        config: AiConfig,
+        tavily: TavilyWebSourceContentProvider,
+        cloudflare: CloudflareWebSourceContentProvider,
+      ): WebSourceContentProvider | undefined => {
+        const providerName = config.webSourceContent?.provider;
+        if (!providerName) {
+          return undefined;
+        }
+        return selectWebSourceContentProvider(providerName, {
+          tavily,
+          cloudflare,
+        });
+      },
+      inject: [
+        aiConfig.KEY,
+        TavilyWebSourceContentProvider,
+        CloudflareWebSourceContentProvider,
+      ],
+    },
     {
       provide: CompositeGeographicValidationService,
       useFactory: () => new CompositeGeographicValidationService(),
@@ -212,6 +241,9 @@ import { MediaModule } from '../media/media.module';
     ExperienceClassificationService,
     AreaRouteAnchorResolverService,
     AreaRouteWalkAcquisitionService,
+    TavilyWebSourceContentProvider,
+    CloudflareWebSourceContentProvider,
+    EXPERIENCE_WEB_SOURCE_CONTENT_PROVIDER,
   ],
 })
 export class ToursModule {}

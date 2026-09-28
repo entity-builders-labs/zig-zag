@@ -1,9 +1,5 @@
 import { ConfigService } from '@nestjs/config';
 import { TavilyGroundedSearchService } from './tavily-grounded-search.service';
-import {
-  TavilyExtractResult,
-  TavilyExtractService,
-} from './tavily-extract.service';
 import { ExperienceGroundedSearchRequest } from '../interfaces/experience-grounding.interface';
 
 const request: ExperienceGroundedSearchRequest = {
@@ -13,18 +9,6 @@ const request: ExperienceGroundedSearchRequest = {
   query:
     'Find real thematic walking routes in Gualeguaychú, Argentina focused on history and architecture.',
 };
-
-// Most tests don't care about the top-K full-content enrichment step — an
-// empty extract result map keeps their existing snippet-based assertions
-// intact, since enrichTopResultsWithFullContent leaves an item's evidence
-// snippet untouched when extraction didn't return anything for its url.
-function tavilyExtract(
-  results: Record<string, TavilyExtractResult> = {},
-): TavilyExtractService {
-  return {
-    extract: jest.fn().mockResolvedValue(new Map(Object.entries(results))),
-  } as unknown as TavilyExtractService;
-}
 
 describe('TavilyGroundedSearchService', () => {
   const originalFetch = global.fetch;
@@ -38,7 +22,7 @@ describe('TavilyGroundedSearchService', () => {
     const config = {
       get: jest.fn().mockReturnValue(undefined),
     } as unknown as ConfigService;
-    const service = new TavilyGroundedSearchService(config, tavilyExtract());
+    const service = new TavilyGroundedSearchService(config);
 
     const result = await service.search(request);
 
@@ -54,7 +38,7 @@ describe('TavilyGroundedSearchService', () => {
     const config = {
       get: jest.fn().mockReturnValue('tvly-test'),
     } as unknown as ConfigService;
-    const service = new TavilyGroundedSearchService(config, tavilyExtract());
+    const service = new TavilyGroundedSearchService(config);
 
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
@@ -101,7 +85,7 @@ describe('TavilyGroundedSearchService', () => {
     const config = {
       get: jest.fn().mockReturnValue('tvly-test'),
     } as unknown as ConfigService;
-    const service = new TavilyGroundedSearchService(config, tavilyExtract());
+    const service = new TavilyGroundedSearchService(config);
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ results: [] as any[] }),
@@ -118,7 +102,7 @@ describe('TavilyGroundedSearchService', () => {
     const config = {
       get: jest.fn().mockReturnValue('tvly-test'),
     } as unknown as ConfigService;
-    const service = new TavilyGroundedSearchService(config, tavilyExtract());
+    const service = new TavilyGroundedSearchService(config);
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ results: [] as any[] }),
@@ -135,7 +119,7 @@ describe('TavilyGroundedSearchService', () => {
     const config = {
       get: jest.fn().mockReturnValue('tvly-test'),
     } as unknown as ConfigService;
-    const service = new TavilyGroundedSearchService(config, tavilyExtract());
+    const service = new TavilyGroundedSearchService(config);
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ results: [] as any[] }),
@@ -156,7 +140,7 @@ describe('TavilyGroundedSearchService', () => {
     const config = {
       get: jest.fn().mockReturnValue('tvly-test'),
     } as unknown as ConfigService;
-    const service = new TavilyGroundedSearchService(config, tavilyExtract());
+    const service = new TavilyGroundedSearchService(config);
 
     global.fetch = jest.fn().mockResolvedValue({
       ok: false,
@@ -174,97 +158,11 @@ describe('TavilyGroundedSearchService', () => {
     });
   });
 
-  it("replaces a top-scored result's short snippet with the full extracted article, and records provenance for it — a walking route's actual stop-by-stop detail rarely survives into Tavily's own relevance snippet", async () => {
+  it('does NOT automatically extract or enrich URLs — Tavily search is a pure discovery transport', async () => {
     const config = {
       get: jest.fn().mockReturnValue('tvly-test'),
     } as unknown as ConfigService;
-    const extract = tavilyExtract({
-      'https://example.com/walk': {
-        status: 'success',
-        content:
-          'Full article: start at Plaza Dorrego, then walk down Calle Defensa to the Feria de San Telmo, ending at Parque Lezama.',
-      },
-    });
-    const service = new TavilyGroundedSearchService(config, extract);
-
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        results: [
-          {
-            title: 'San Telmo walking tour',
-            url: 'https://example.com/walk',
-            content: 'A historic walk through San Telmo.',
-            score: 0.9,
-          },
-        ],
-      }),
-    }) as jest.Mock;
-
-    const result = await service.search(request);
-
-    expect(extract.extract).toHaveBeenCalledWith(['https://example.com/walk']);
-    expect(result.evidence).toEqual([
-      expect.objectContaining({
-        key: 'ev-1',
-        snippet:
-          'Full article: start at Plaza Dorrego, then walk down Calle Defensa to the Feria de San Telmo, ending at Parque Lezama.',
-      }),
-    ]);
-    expect(result.evidenceProvenance).toEqual([
-      expect.objectContaining({
-        provider: 'tavily',
-        url: 'https://example.com/walk',
-        extractionProvider: 'tavily',
-        extractionStatus: 'success',
-        evidenceQuality: 'original_content',
-        evidenceKeys: ['ev-1'],
-      }),
-    ]);
-  });
-
-  it('only sends the top 5 results (by score, not result order) to extract, and leaves the rest with their original short snippet', async () => {
-    const config = {
-      get: jest.fn().mockReturnValue('tvly-test'),
-    } as unknown as ConfigService;
-    const extract = tavilyExtract();
-    const service = new TavilyGroundedSearchService(config, extract);
-
-    const results = Array.from({ length: 8 }, (_, index) => ({
-      title: `Result ${index + 1}`,
-      url: `https://example.com/${index + 1}`,
-      content: `Snippet ${index + 1}`,
-      // Deliberately out of order relative to array position — the top 5
-      // by score are 8, 7, 6, 5, 4 (scores 8..1), not results[0..4].
-      score: 8 - index,
-    }));
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ results }),
-    }) as jest.Mock;
-
-    await service.search(request);
-
-    expect(extract.extract).toHaveBeenCalledWith([
-      'https://example.com/1',
-      'https://example.com/2',
-      'https://example.com/3',
-      'https://example.com/4',
-      'https://example.com/5',
-    ]);
-  });
-
-  it('leaves a snippet untouched when extraction fails for its url instead of dropping the evidence', async () => {
-    const config = {
-      get: jest.fn().mockReturnValue('tvly-test'),
-    } as unknown as ConfigService;
-    const extract = tavilyExtract({
-      'https://example.com/walk': {
-        status: 'failed',
-        error: 'tavily_extract_error_500',
-      },
-    });
-    const service = new TavilyGroundedSearchService(config, extract);
+    const service = new TavilyGroundedSearchService(config);
 
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
@@ -286,39 +184,10 @@ describe('TavilyGroundedSearchService', () => {
       expect.objectContaining({
         key: 'ev-1',
         snippet: 'A historic walk through San Telmo.',
+        url: 'https://example.com/walk',
       }),
     ]);
-    expect(result.evidenceProvenance ?? []).toEqual([]);
-  });
-
-  it('caps extracted content length so one very long article cannot blow up the extractor prompt', async () => {
-    const config = {
-      get: jest.fn().mockReturnValue('tvly-test'),
-    } as unknown as ConfigService;
-    const longContent = 'x'.repeat(20000);
-    const extract = tavilyExtract({
-      'https://example.com/walk': { status: 'success', content: longContent },
-    });
-    const service = new TavilyGroundedSearchService(config, extract);
-
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        results: [
-          {
-            title: 'San Telmo walking tour',
-            url: 'https://example.com/walk',
-            content: 'A historic walk through San Telmo.',
-            score: 0.9,
-          },
-        ],
-      }),
-    }) as jest.Mock;
-
-    const result = await service.search(request);
-
-    expect(result.evidence[0].snippet.length).toBeLessThan(longContent.length);
-    expect(result.evidence[0].snippet.length).toBeLessThanOrEqual(6000);
+    expect(result.groundingStatus).toBe('applied');
   });
 
   describe('walk/route_like query phrasing', () => {
@@ -339,10 +208,7 @@ describe('TavilyGroundedSearchService', () => {
         const config = {
           get: jest.fn().mockReturnValue('tvly-test'),
         } as unknown as ConfigService;
-        const service = new TavilyGroundedSearchService(
-          config,
-          tavilyExtract(),
-        );
+        const service = new TavilyGroundedSearchService(config);
         global.fetch = jest.fn().mockResolvedValue({
           ok: true,
           json: async () => ({ results: [] as any[] }),

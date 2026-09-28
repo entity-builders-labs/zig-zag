@@ -166,4 +166,55 @@ describe('TavilyExtractService', () => {
     expect(fetchMock).not.toHaveBeenCalled();
     expect(aiCache.getCachedResponse).not.toHaveBeenCalled();
   });
+
+  describe('retrieve()', () => {
+    it('returns typed WebSourceContentResult with truncated items when content exceeds maxContentChars', async () => {
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          results: [
+            {
+              url: 'https://example.com/walk',
+              raw_content: 'A'.repeat(100),
+            },
+          ],
+        }),
+      });
+
+      const res = await service.retrieve({
+        urls: ['https://example.com/walk'],
+        maxContentChars: 50,
+      });
+
+      expect(res.provider).toBe('tavily');
+      expect(res.requestedCount).toBe(1);
+      expect(res.retrievedCount).toBe(1);
+      expect(res.items).toHaveLength(1);
+      expect(res.items[0]).toMatchObject({
+        requestedUrl: 'https://example.com/walk',
+        status: 'retrieved',
+        contentType: 'markdown',
+        contentChars: 100,
+        truncated: true,
+        content: 'A'.repeat(50),
+      });
+    });
+
+    it('returns typed missing_credentials failure when API key is missing', async () => {
+      config.get.mockReturnValue(undefined);
+      const noKeyService = new TavilyExtractService(
+        config as any,
+        aiCache as any,
+      );
+
+      const res = await noKeyService.retrieve({
+        urls: ['https://example.com/walk'],
+      });
+
+      expect(res.items[0]).toMatchObject({
+        status: 'failed',
+        failureReason: 'missing_credentials',
+      });
+    });
+  });
 });
