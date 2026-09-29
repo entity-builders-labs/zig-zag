@@ -16,13 +16,46 @@ classification contract and deterministic validation are unchanged.
 >
 > Code wins over stale progress text. The cutover has progressed non-linearly: M4 is already landed and substantial M5 work is already landed. Do not revert later milestone work merely because an earlier milestone needed a forward correction.
 
-## Current execution verdict — 2026-09-28
+## Current execution verdict — 2026-09-29
 
 **Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY (native producer cutover complete; v4 legacy paths deleted; modular domain audit split complete; zero avoidable `any`).**  
 **RW3 final classification/warm-reuse gate — CLOSED / ACCEPTED.**  
 **RW4 — AUTHORIZED / NEXT GATE.**
 
 **Active track: Gate C real-world generalization — RW4 NEXT. RW3 final live COLD/WARM acceptance passed on 2026-09-29 with sequence integrity, canonical catalog reuse, zero WARM walk acquisition/classifier calls, and Generation Trace v5 evidence.**
+
+### Product finish-line clarification — 2026-09-29
+
+The canonical roadmap now distinguishes two closures that must not be conflated:
+
+```text
+RW4 → RW5 → RW6
+        ↓
+Preference-First Core CLOSED
+(research / knowledge / canonical Experience core)
+        ↓
+Planner Product Acceptance
+        ↓
+Tour Engine v1 COMPLETE
+        ↓
+Agentic convergence
+```
+
+RW4 remains the current execution gate. Planner Product Acceptance is **future
+work, not authorization to interrupt RW4**, but it is now a mandatory product
+gate before declaring Tour Engine v1 complete.
+
+That planner gate must live-prove semantic preference influence, real routing /
+travel estimates, duration/opening-hours feasibility, coherent multi-day
+planning and Generation Trace v5 explainability.
+
+The semantic-catalog retrieval choice is deliberately **DEFERRED** until that
+gate. Current behavior remains embedding similarity as ranking over the
+already-retrieved candidate pool. During Planner Product Acceptance, evidence
+must determine whether ranking-only is sufficient or whether a VERIFIED,
+destination-scoped top-K vector retrieval stage is necessary because relevant
+Experiences are being excluded before semantic ranking. No change to the current
+ranking-only contract is authorized merely by this documentation update.
 
 RW3-N6 resolution and live verification status:
 - **Defect:** `RW3-N6 — fixed-distance route corridor encoded semantic scope`.
