@@ -277,12 +277,15 @@ export function extractExperienceCandidates(
             sourceName,
             role: hint.role,
             expectedKind: hint.expectedKind,
-            evidenceKeys: hintEvidenceKeys,
-            declaredEvidenceKeys: hintEvidenceKeys,
-            verifiedEvidenceKeys: [],
-            attributionStatus: 'NO_SUPPORTING_EVIDENCE',
+            evidenceKeys: support.verifiedEvidenceKeys,
+            declaredEvidenceKeys: support.declaredEvidenceKeys,
+            verifiedEvidenceKeys: support.verifiedEvidenceKeys,
+            attributionStatus: support.attributionStatus,
             status: 'UNSUPPORTED',
             reason,
+            ...(isUnsupportedComponentSourceSupportResult(support)
+              ? {}
+              : { verifiedSupportSpan: support.verifiedSupportSpan }),
           });
           continue;
         }

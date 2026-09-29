@@ -863,6 +863,84 @@ describe('extractExperienceCandidates', () => {
       });
     });
 
+    it('Case H: preserves declared verified source support when normalizationKind is missing', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(
+          [
+            {
+              key: 'normalized-venue',
+              name: 'Normalized wording',
+              sourceName: 'source wording',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'source wording appears in the evidence',
+            },
+          ],
+          ['ev-1'],
+        ),
+        [ev('ev-1', 'The source wording appears in the evidence.')],
+        8,
+      );
+
+      expect(result.candidates).toHaveLength(0);
+      expect(result.validationErrors.join(' ')).toMatch(
+        /SOURCE_CONTRACT_VIOLATION.*MISSING_NORMALIZATION_KIND/,
+      );
+      expect(result.sourceSupportAudits[0].status).toBe(
+        'SOURCE_CONTRACT_VIOLATION',
+      );
+      expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+        status: 'UNSUPPORTED',
+        reason: 'MISSING_NORMALIZATION_KIND',
+        declaredEvidenceKeys: ['ev-1'],
+        verifiedEvidenceKeys: ['ev-1'],
+        attributionStatus: 'DECLARED_KEY_VERIFIED',
+        verifiedSupportSpan: 'source wording appears in the evidence',
+      });
+    });
+
+    it('Case I: preserves uniquely re-attributed source support when normalizationKind is invalid', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(
+          [
+            {
+              key: 'normalized-venue',
+              name: 'Normalized wording',
+              sourceName: 'source wording',
+              normalizationKind: 'NOT_A_NORMALIZATION_KIND',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'source wording appears in the evidence',
+            },
+          ],
+          ['ev-1'],
+        ),
+        [
+          ev('ev-1', 'This declared record has no supporting span.'),
+          ev('ev-2', 'The source wording appears in the evidence.'),
+        ],
+        8,
+      );
+
+      expect(result.candidates).toHaveLength(0);
+      expect(result.validationErrors.join(' ')).toMatch(
+        /SOURCE_CONTRACT_VIOLATION.*INVALID_NORMALIZATION_KIND/,
+      );
+      expect(result.sourceSupportAudits[0].status).toBe(
+        'SOURCE_CONTRACT_VIOLATION',
+      );
+      expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+        status: 'UNSUPPORTED',
+        reason: 'INVALID_NORMALIZATION_KIND',
+        declaredEvidenceKeys: ['ev-1'],
+        verifiedEvidenceKeys: ['ev-2'],
+        attributionStatus: 'REATTRIBUTED_UNIQUE_EXACT_SPAN',
+        verifiedSupportSpan: 'source wording appears in the evidence',
+      });
+    });
+
     it('Santa Mónica remains blocked before any identity/provider acquisition (no candidate reaches componentHints downstream)', () => {
       const result = extractExperienceCandidates(
         santaMonicaWalk(),
