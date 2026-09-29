@@ -1,0 +1,237 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ALLOW_DIRTY=0
+NO_FETCH=0
+BOOTSTRAP=0
+CI_MODE=0
+
+for arg in "$@"; do
+  case "$arg" in
+    --allow-dirty) ALLOW_DIRTY=1 ;;
+    --no-fetch) NO_FETCH=1 ;;
+    --bootstrap) BOOTSTRAP=1 ;;
+    --ci) CI_MODE=1 ;;
+    -h|--help)
+      cat <<'EOF'
+Usage: bash scripts/agent-preflight [options]
+
+Options:
+  --allow-dirty  Do not fail when the worktree has local modifications.
+  --no-fetch     Skip git fetch origin --prune.
+  --bootstrap    Allow an unregistered branch only to register a new initiative.
+  --ci           Prefer GitHub Actions branch environment variables.
+EOF
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $arg" >&2
+      exit 2
+      ;;
+  esac
+done
+
+failures=0
+warnings=0
+
+pass() { printf 'PASS  %-24s %s\n' "$1" "${2:-}"; }
+warn() { printf 'WARN  %-24s %s\n' "$1" "${2:-}"; warnings=$((warnings + 1)); }
+fail() { printf 'FAIL  %-24s %s\n' "$1" "${2:-}"; failures=$((failures + 1)); }
+
+field() {
+  local line="$1"
+  local key="$2"
+  printf '%s\n' "$line" \
+    | sed -n "s/.*[; ]${key}=\([^;]*\).*/\1/p" \
+    | sed 's/^ *//;s/ *$//'
+}
+
+token_overlap() {
+  local left="$1"
+  local right="$2"
+  local token
+  local old_ifs="$IFS"
+  IFS=','
+  for token in $left; do
+    IFS="$old_ifs"
+    token="$(printf '%s' "$token" | sed 's/^ *//;s/ *$//')"
+    if [ -n "$token" ] && printf ',%s,' "$right" | grep -Fq ",$token,"; then
+      printf '%s' "$token"
+      IFS="$old_ifs"
+      return 0
+    fi
+    IFS=','
+  done
+  IFS="$old_ifs"
+  return 1
+}
+
+TOP="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -z "$TOP" ]; then
+  echo "Not inside a Git worktree." >&2
+  exit 1
+fi
+
+CURRENT_BRANCH="$(git branch --show-current)"
+if [ "$CI_MODE" -eq 1 ] && [ -n "${GITHUB_HEAD_REF:-}" ]; then
+  CURRENT_BRANCH="$GITHUB_HEAD_REF"
+fi
+
+if [ -z "$CURRENT_BRANCH" ]; then
+  fail "branch" "detached HEAD; no initiative branch can be resolved"
+else
+  pass "branch" "$CURRENT_BRANCH"
+fi
+
+pass "worktree" "$TOP"
+
+ORIGIN_URL="$(git remote get-url origin 2>/dev/null || true)"
+case "$ORIGIN_URL" in
+  *github.com:entity-builders-labs/zig-zag.git|*github.com/entity-builders-labs/zig-zag.git|*github.com/entity-builders-labs/zig-zag)
+    pass "origin" "$ORIGIN_URL"
+    ;;
+  *)
+    fail "origin" "expected entity-builders-labs/zig-zag, got: ${ORIGIN_URL:-<missing>}"
+    ;;
+esac
+
+if [ "$ALLOW_DIRTY" -eq 0 ] && [ -n "$(git status --porcelain)" ]; then
+  fail "working tree" "dirty; commit/stash intentional prior work or rerun with --allow-dirty for inspection only"
+else
+  pass "working tree" "clean or explicitly allowed"
+fi
+
+if [ "$NO_FETCH" -eq 0 ]; then
+  if git fetch origin --prune >/dev/null 2>&1; then
+    pass "remote refs" "fetched origin --prune"
+  else
+    fail "remote refs" "git fetch origin --prune failed"
+  fi
+else
+  warn "remote refs" "fetch skipped by --no-fetch"
+fi
+
+REGISTRY="$TOP/docs/superpowers/README.md"
+if [ ! -f "$REGISTRY" ]; then
+  fail "initiative registry" "missing docs/superpowers/README.md"
+  MARKERS=""
+else
+  MARKERS="$(grep '^<!-- agent-initiative:' "$REGISTRY" || true)"
+fi
+
+CURRENT_MARKER=""
+if [ -n "$MARKERS" ] && [ -n "$CURRENT_BRANCH" ]; then
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    status="$(field "$line" status)"
+    branch="$(field "$line" branch)"
+    if [ "$status" = "active" ] && [ "$branch" = "$CURRENT_BRANCH" ]; then
+      CURRENT_MARKER="$line"
+      break
+    fi
+  done <<EOF
+$MARKERS
+EOF
+fi
+
+if [ -z "$CURRENT_MARKER" ]; then
+  if [ "$BOOTSTRAP" -eq 1 ]; then
+    warn "initiative registry" "branch is not registered; bootstrap mode permits registry-only setup"
+  else
+    fail "initiative registry" "no ACTIVE initiative registered for $CURRENT_BRANCH"
+  fi
+else
+  INITIATIVE_ID="$(field "$CURRENT_MARKER" id)"
+  BASE_BRANCH="$(field "$CURRENT_MARKER" base)"
+  INTEGRATION_BRANCH="$(field "$CURRENT_MARKER" integration)"
+  CURRENT_OWNS="$(field "$CURRENT_MARKER" owns)"
+  pass "initiative" "$INITIATIVE_ID"
+  pass "declared base" "$BASE_BRANCH"
+  pass "integration target" "$INTEGRATION_BRANCH"
+
+  BASE_REF="origin/$BASE_BRANCH"
+  if ! git show-ref --verify --quiet "refs/remotes/$BASE_REF"; then
+    fail "declared base ref" "$BASE_REF does not exist locally after fetch"
+  elif git merge-base --is-ancestor "$BASE_REF" HEAD; then
+    pass "base ancestry" "$BASE_REF is an ancestor of HEAD"
+  else
+    fail "base ancestry" "HEAD does not contain declared base $BASE_REF"
+  fi
+
+  INTEGRATION_REF="origin/$INTEGRATION_BRANCH"
+  if git show-ref --verify --quiet "refs/remotes/$INTEGRATION_REF"; then
+    if git merge-tree -h 2>&1 | grep -q -- '--write-tree'; then
+      merge_status=0
+      merge_output="$(git merge-tree --write-tree HEAD "$INTEGRATION_REF" 2>&1)" || merge_status=$?
+      if [ "$merge_status" -eq 0 ]; then
+        pass "integration conflict" "non-mutating merge-tree clean vs $INTEGRATION_REF"
+      else
+        fail "integration conflict" "merge-tree reports conflicts vs $INTEGRATION_REF"
+        printf '%s\n' "$merge_output" | sed -n '1,20p'
+      fi
+    else
+      warn "integration conflict" "git merge-tree --write-tree unsupported; check not enforced"
+    fi
+  else
+    fail "integration target ref" "$INTEGRATION_REF does not exist locally after fetch"
+  fi
+
+  if git show-ref --verify --quiet refs/remotes/origin/main; then
+    if git merge-base --is-ancestor origin/main HEAD; then
+      pass "main relationship" "HEAD contains current origin/main"
+    else
+      warn "main relationship" "HEAD does not contain current origin/main; do not auto-rebase/merge"
+    fi
+  fi
+
+  CURRENT_FILES=""
+  if git show-ref --verify --quiet "refs/remotes/$BASE_REF"; then
+    CURRENT_FILES="$(git diff --name-only "$BASE_REF"...HEAD | sort -u)"
+  fi
+
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    other_status="$(field "$line" status)"
+    other_branch="$(field "$line" branch)"
+    other_id="$(field "$line" id)"
+    other_base="$(field "$line" base)"
+    other_owns="$(field "$line" owns)"
+    other_touches="$(field "$line" touches)"
+
+    [ "$other_status" != "active" ] && continue
+    [ "$other_branch" = "$CURRENT_BRANCH" ] && continue
+    [ "$other_branch" = "$BASE_BRANCH" ] && continue
+    [ "$other_branch" = "$INTEGRATION_BRANCH" ] && continue
+
+    overlap_token="$(token_overlap "$CURRENT_OWNS" "$other_owns,$other_touches" || true)"
+    if [ -n "$overlap_token" ]; then
+      fail "semantic ownership" "$INITIATIVE_ID overlaps $other_id on '$overlap_token'"
+    fi
+
+    OTHER_REF="origin/$other_branch"
+    OTHER_BASE_REF="origin/$other_base"
+    if [ -n "$CURRENT_FILES" ] \
+      && git show-ref --verify --quiet "refs/remotes/$OTHER_REF" \
+      && git show-ref --verify --quiet "refs/remotes/$OTHER_BASE_REF"; then
+      OTHER_FILES="$(git diff --name-only "$OTHER_BASE_REF"..."$OTHER_REF" | sort -u)"
+      if [ -n "$OTHER_FILES" ]; then
+        FILE_OVERLAP="$(comm -12 \
+          <(printf '%s\n' "$CURRENT_FILES" | sed '/^$/d' | sort -u) \
+          <(printf '%s\n' "$OTHER_FILES" | sed '/^$/d' | sort -u) || true)"
+        if [ -n "$FILE_OVERLAP" ]; then
+          warn "file overlap: $other_id" "$(printf '%s' "$FILE_OVERLAP" | tr '\n' ' ')"
+        fi
+      fi
+    fi
+  done <<EOF
+$MARKERS
+EOF
+fi
+
+printf '\n'
+if [ "$failures" -gt 0 ]; then
+  printf 'STOP BEFORE WRITE — %d hard failure(s), %d warning(s).\n' "$failures" "$warnings"
+  exit 1
+fi
+
+printf 'WRITE AUTHORIZED — 0 hard failures, %d warning(s).\n' "$warnings"
