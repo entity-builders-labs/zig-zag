@@ -35,8 +35,10 @@ RW4                               AUTHORIZED / NEXT GATE
 RW5                               PENDING
 RW6 anti-fabrication              PENDING
 Preference-First Core CLOSED      PENDING
+Planner Product Acceptance        PENDING AFTER RW4-RW6
+Tour Engine v1 COMPLETE           PENDING
 Trace v5 maintainability cutover  COMPLETE / ACTIVE TRACE AUTHORITY
-Agentic convergence               PENDING AFTER RW3-RW6
+Agentic convergence               PENDING AFTER TOUR ENGINE V1
 ```
 
 When this summary disagrees with the execution pointer or code, the execution
@@ -73,7 +75,14 @@ RW3 final acceptance CLOSED (2026-09-29)
 → RW5
 → RW6
 → Preference-First Core CLOSED
-→ unified agentic branch from accepted Preference-First HEAD
+→ Planner Product Acceptance
+   - live semantic preference matching
+   - semantic catalog retrieval decision checkpoint
+   - real routing / travel estimates
+   - duration + opening-hours feasibility
+   - multi-day planner quality + Bitácora proof
+→ Tour Engine v1 COMPLETE
+→ unified agentic branch from accepted Tour Engine v1 HEAD
 → selective agent capability port/adaptation
 → unified Agentic E2E
 → Autonomous Preference-First Tours
@@ -195,6 +204,25 @@ Read:
 - `specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`;
 - `plans/2026-09-11-preference-first-selection-implementation.md`;
 - current progress for what is actually landed/accepted.
+
+### "When is the Tour Engine v1 actually complete?"
+
+`Preference-First Core CLOSED` is necessary but is **not** the product-level
+Tour Engine v1 finish line. After RW4–RW6 close, the canonical convergence
+roadmap requires a dedicated **Planner Product Acceptance** gate proving live
+semantic preference influence, routing-backed travel feasibility, planning
+duration/opening-hours semantics, multi-day sequencing quality, and Bitácora
+explainability.
+
+The open semantic-catalog question (ranking-only vs scoped vector retrieval) is
+resolved inside that gate from evidence; it is not a prerequisite decision for
+RW4–RW6 and must not be guessed early.
+
+Read:
+
+- `plans/2026-09-09-travel-content-agentic-planning-convergence-roadmap.md`,
+  section **Planner Product Acceptance / Tour Engine v1**;
+- then the current execution pointer.
 
 ### "Why was an old architecture changed?"
 
