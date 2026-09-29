@@ -210,9 +210,9 @@ export async function classifyAcceptedResultsByExperience(
 }
 
 export interface ClassificationSemantics {
-  themes?: string[];
-  intents?: string[];
-  traits?: string[];
+  themes: readonly string[];
+  intents: readonly string[];
+  traits: readonly string[];
 }
 
 export interface ClassificationSemanticView {
@@ -230,30 +230,28 @@ export interface ClassificationSemanticView {
  * Pure projection helper that projects ONLY classifier-owned semantics into
  * the facet matcher candidate shape.
  *
+ * The contract is intentionally strict: missing semantic arrays are malformed
+ * classification state, not an implicit empty classification. Explicit empty
+ * arrays remain valid.
+ *
  * Ensures stale/discovery-era metadata (archetypes, old intents/themes/traits)
  * cannot override an authoritative evidence-only classification verdict.
  */
 export function classificationSemanticView(
   classification: ClassificationSemantics,
 ): ClassificationSemanticView {
-  const themes = Array.isArray(classification?.themes)
-    ? classification.themes
-    : [];
-  const intents = Array.isArray(classification?.intents)
-    ? classification.intents
-    : [];
-  const traits = Array.isArray(classification?.traits)
-    ? classification.traits
-    : [];
+  const themes = [...classification.themes];
+  const intents = [...classification.intents];
+  const traits = [...classification.traits];
 
   return {
     themes,
     intents,
     traits,
     metadata: {
-      themes,
-      intents,
-      traits,
+      themes: [...themes],
+      intents: [...intents],
+      traits: [...traits],
     },
   };
 }
