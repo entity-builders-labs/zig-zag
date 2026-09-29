@@ -9,6 +9,10 @@
  * (Task B5) previously implemented this exact grouping/classification
  * logic as its own local step; that step is now deleted in favor of this
  * shared primitive (single source of policy truth).
+ *
+ * This primitive also owns warm persisted classification refresh: when a
+ * canonical Experience exists but its classification is degraded/stale/
+ * malformed, the same convergence path runs using persisted evidence.
  */
 import {
   ExperienceCatalogService,
@@ -23,11 +27,14 @@ import {
 } from '../services/experience-classification.service';
 import { ResolverEvidenceItem } from '../services/experience-acquisition.service';
 import { ResolvedExperienceCandidate } from '../interfaces/experience-resolution.interface';
+import { ExperienceGroundingEvidence } from '../interfaces/experience-grounding.interface';
 
 export interface ClassificationConvergenceDeps {
   catalog: Pick<
     ExperienceCatalogService,
-    'findVerifiedByIds' | 'applyEvidenceClassification'
+    | 'findVerifiedByIds'
+    | 'applyEvidenceClassification'
+    | 'findClassificationContextById'
   >;
   classifier: Pick<ExperienceClassificationService, 'classify'> &
     Partial<Pick<ExperienceClassificationService, 'getAuditIdentity'>>;
@@ -48,6 +55,82 @@ export interface ClassificationAuditRecord {
     reason: string;
   }>;
   failure?: ClassificationFailure;
+}
+
+/**
+ * The ONE canonical classification convergence primitive.
+ *
+ * Owns: canReuseClassification, classifier.classify, applyEvidenceClassification,
+ * provider/model audit identity, classified/degraded/reused result projection.
+ *
+ * Used by both:
+ * - COLD acquisition classification (via classifyAcceptedResultsByExperience)
+ * - WARM persisted classification refresh (via AreaRouteWalkAcquisitionService)
+ *
+ * Behavior:
+ * - canReuseClassification == true → return reused, classifier NOT called
+ * - Non-reusable + usable evidence → classify → persist → return classified/degraded
+ * - Non-reusable + no usable evidence → return degraded (honest empty)
+ */
+export async function convergeExperienceClassification(
+  experienceId: string,
+  groundingEvidence: ExperienceGroundingEvidence[],
+  deps: ClassificationConvergenceDeps,
+): Promise<ClassificationAuditRecord> {
+  const [experience]: VerifiedExperienceRow[] =
+    await deps.catalog.findVerifiedByIds([experienceId]);
+  if (!experience) {
+    return {
+      experienceId,
+      state: 'degraded',
+      themes: [],
+      intents: [],
+      traits: [],
+      reasoningEvidence: [],
+      failure: {
+        stage: 'response_validation',
+        reason: 'MALFORMED_RESPONSE',
+      },
+    };
+  }
+
+  if (
+    canReuseClassification(
+      experience.metadata,
+      CURRENT_CLASSIFICATION_PROMPT_VERSION,
+    )
+  ) {
+    const persisted = readPersistedClassification(experience.metadata);
+    return {
+      experienceId,
+      state: 'reused',
+      themes: persisted?.themes ?? [],
+      intents: persisted?.intents ?? [],
+      traits: persisted?.traits ?? [],
+      reasoningEvidence: persisted?.reasoningEvidence ?? [],
+      promptVersion: persisted?.promptVersion,
+      model: persisted?.modelId || undefined,
+    };
+  }
+
+  const classification = await deps.classifier.classify(
+    experience.canonicalName,
+    groundingEvidence,
+  );
+  await deps.catalog.applyEvidenceClassification(experienceId, classification);
+  const identity = deps.classifier.getAuditIdentity?.();
+  return {
+    experienceId,
+    state: classification.state,
+    provider: identity?.provider,
+    model: identity?.model ?? classification.modelId,
+    promptVersion: classification.promptVersion,
+    themes: classification.themes,
+    intents: classification.intents,
+    traits: classification.traits,
+    reasoningEvidence: classification.reasoningEvidence,
+    ...(classification.failure ? { failure: classification.failure } : {}),
+  };
 }
 
 /**
@@ -103,30 +186,6 @@ export async function classifyAcceptedResultsByExperience(
   }
 
   for (const [experienceId, results] of acceptedByExperienceId) {
-    const [experience]: VerifiedExperienceRow[] =
-      await deps.catalog.findVerifiedByIds([experienceId]);
-    if (!experience) continue;
-
-    if (
-      canReuseClassification(
-        experience.metadata,
-        CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      )
-    ) {
-      const persisted = readPersistedClassification(experience.metadata);
-      audit.push({
-        experienceId,
-        state: 'reused',
-        themes: persisted?.themes ?? [],
-        intents: persisted?.intents ?? [],
-        traits: persisted?.traits ?? [],
-        reasoningEvidence: persisted?.reasoningEvidence ?? [],
-        promptVersion: persisted?.promptVersion,
-        model: persisted?.modelId || undefined,
-      });
-      continue;
-    }
-
     const evidenceKeys = Array.from(
       new Set(results.flatMap((result) => result.candidate.evidenceKeys)),
     ).sort();
@@ -137,27 +196,12 @@ export async function classifyAcceptedResultsByExperience(
           typeof item?.snippet === 'string',
       );
 
-    const classification = await deps.classifier.classify(
-      experience.canonicalName,
+    const record = await convergeExperienceClassification(
+      experienceId,
       candidateEvidence,
+      deps,
     );
-    await deps.catalog.applyEvidenceClassification(
-      experienceId,
-      classification,
-    );
-    const identity = deps.classifier.getAuditIdentity?.();
-    audit.push({
-      experienceId,
-      state: classification.state,
-      provider: identity?.provider,
-      model: identity?.model ?? classification.modelId,
-      promptVersion: classification.promptVersion,
-      themes: classification.themes,
-      intents: classification.intents,
-      traits: classification.traits,
-      reasoningEvidence: classification.reasoningEvidence,
-      ...(classification.failure ? { failure: classification.failure } : {}),
-    });
+    audit.push(record);
   }
   return audit;
 }

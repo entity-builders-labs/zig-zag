@@ -25,9 +25,9 @@ import { normalizeWizardFacet } from '../utils/preference-facet-merge.util';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
 import {
-  refreshClassificationFromPersistedEvidence,
-  ClassificationRefreshResult,
-} from '../utils/classification-refresh-convergence.util';
+  convergeExperienceClassification,
+  ClassificationAuditRecord,
+} from '../utils/experience-classification-convergence.util';
 import { ExperienceClassificationService } from './experience-classification.service';
 
 export interface AreaRouteWalkAcquisitionInput {
@@ -58,7 +58,7 @@ export type AreaRouteWalkAcquisitionResult =
   | {
       outcome: 'classification_refreshed';
       experienceId: string;
-      refreshResult: ClassificationRefreshResult;
+      refreshResult: ClassificationAuditRecord;
     }
   | {
       outcome: 'acquired';
@@ -120,8 +120,8 @@ export interface AreaRouteWalkAcquisitionDiagnostics {
  * canonical geographic ROUTE, and a named tourism-route Experience with no
  * canonical ROUTE geometry (mode C) — the last of which requires a real,
  * evidence-only Stage-6 classification pass to converge before warm reuse
- * works. Cutover M4: that classification pass is no longer owned here — it
- * runs inside `ExperienceAcquisitionService.materializeExecution()`, the
+ * works. Cutover M4: that classification pass is no longer owned here —
+ * it runs inside `ExperienceAcquisitionService.materializeExecution()`, the
  * shared canonical materialization boundary every acquisition strategy
  * converges on. This service holds no classification authority of its own.
  */
@@ -278,37 +278,63 @@ export class AreaRouteWalkAcquisitionService {
     // CLASSIFICATION REFRESH: a geographically/identity-compatible Experience
     // exists but its classification is degraded/stale/malformed. Attempt a
     // refresh using ONLY persisted evidence before falling back to Internet
-    // reacquisition. This is NOT a second classification authority — it
-    // delegates to the canonical ExperienceClassificationService and persists
-    // through the canonical applyEvidenceClassification path.
-    const refreshCandidate = geographicCandidates[0];
-    if (refreshCandidate) {
-      const refreshResult = await refreshClassificationFromPersistedEvidence(
-        refreshCandidate.id,
+    // reacquisition. This delegates to the canonical convergence primitive.
+    for (const candidate of geographicCandidates) {
+      const context = await this.catalog.findClassificationContextById(
+        candidate.id,
+      );
+      if (!context || context.evidence.length === 0) {
+        continue;
+      }
+
+      const refreshResult = await convergeExperienceClassification(
+        candidate.id,
+        context.evidence,
         {
           catalog: this.catalog,
           classifier: this.classificationService,
         },
       );
-      if (refreshResult.status === 'refreshed') {
+
+      if (refreshResult.state === 'degraded') {
+        continue;
+      }
+
+      // Check if the refreshed classification satisfies the requested facet.
+      const refreshedRow = {
+        id: candidate.id,
+        metadata: {
+          ...(context.metadata as Record<string, unknown>),
+          themes: refreshResult.themes,
+          intents: refreshResult.intents,
+          classification: {
+            state: refreshResult.state,
+            promptVersion: refreshResult.promptVersion,
+            modelId: refreshResult.model,
+            themes: refreshResult.themes,
+            intents: refreshResult.intents,
+            traits: refreshResult.traits,
+            reasoningEvidence: refreshResult.reasoningEvidence,
+          },
+        },
+      };
+      if (candidateMatchesPreferenceFacet(refreshedRow, facet)) {
         return {
           outcome: 'classification_refreshed',
-          experienceId: refreshCandidate.id,
+          experienceId: candidate.id,
           refreshResult,
         };
       }
-      // Refresh failed or insufficient evidence — return honest bounded outcome
-      // rather than triggering Internet reacquisition for a classification-only
-      // concern. The canonical Experience remains persisted.
-      if (refreshResult.status === 'insufficient_evidence') {
-        return {
-          outcome: 'no_result',
-          reason: 'insufficient_persisted_evidence',
-        };
-      }
+    }
+
+    // If at least one canonical geographic candidate existed but none can
+    // satisfy the requested facet after valid/reusable classification or
+    // bounded refresh, return no_result. Do NOT Internet reacquire merely
+    // because classification was degraded.
+    if (geographicCandidates.length > 0) {
       return {
         outcome: 'no_result',
-        reason: 'classification_refresh_failed',
+        reason: 'no_semantically_eligible_result',
       };
     }
 

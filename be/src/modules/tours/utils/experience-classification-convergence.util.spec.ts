@@ -1,4 +1,7 @@
-import { classifyAcceptedResultsByExperience } from './experience-classification-convergence.util';
+import {
+  classifyAcceptedResultsByExperience,
+  convergeExperienceClassification,
+} from './experience-classification-convergence.util';
 import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from '../services/experience-classification.service';
 import { ResolvedExperienceCandidate } from '../interfaces/experience-resolution.interface';
 import { ResolverEvidenceItem } from '../services/experience-acquisition.service';
@@ -73,6 +76,7 @@ function buildDeps() {
   const catalog = {
     findVerifiedByIds: jest.fn(),
     applyEvidenceClassification: jest.fn().mockResolvedValue(undefined),
+    findClassificationContextById: jest.fn(),
   };
   const classifier = {
     classify: jest.fn(),
@@ -174,7 +178,6 @@ describe('classifyAcceptedResultsByExperience', () => {
     ]);
   });
 
-  // 3. valid current classification is reused
   it('reuses a valid current classification -- never recomputes it', async () => {
     const { catalog, classifier } = buildDeps();
     catalog.findVerifiedByIds.mockResolvedValue([
@@ -230,7 +233,6 @@ describe('classifyAcceptedResultsByExperience', () => {
     });
   });
 
-  // 4. stale/missing classification is recomputed
   it('recomputes when the current classification is stale (old prompt version)', async () => {
     const { catalog, classifier } = buildDeps();
     catalog.findVerifiedByIds.mockResolvedValue([
@@ -292,7 +294,6 @@ describe('classifyAcceptedResultsByExperience', () => {
     expect(classifier.classify).toHaveBeenCalledTimes(1);
   });
 
-  // 5. insufficient evidence does not fabricate themes/intents
   it('drops evidence items with no snippet text before classifying -- never fabricates evidence to fill the gap', async () => {
     const { catalog, classifier } = buildDeps();
     catalog.findVerifiedByIds.mockResolvedValue([
@@ -343,6 +344,110 @@ describe('classifyAcceptedResultsByExperience', () => {
       { catalog: catalog as any, classifier: classifier as any },
     );
 
+    expect(classifier.classify).not.toHaveBeenCalled();
+  });
+});
+
+describe('convergeExperienceClassification', () => {
+  it('returns reused when canReuseClassification is true', async () => {
+    const { catalog, classifier } = buildDeps();
+    catalog.findVerifiedByIds.mockResolvedValue([
+      {
+        id: 'exp-1',
+        canonicalName: 'Test',
+        metadata: validClassificationMetadata(['walk']),
+      },
+    ]);
+
+    const result = await convergeExperienceClassification(
+      'exp-1',
+      [],
+      { catalog: catalog as any, classifier: classifier as any },
+    );
+
+    expect(result.state).toBe('reused');
+    expect(classifier.classify).not.toHaveBeenCalled();
+    expect(catalog.applyEvidenceClassification).not.toHaveBeenCalled();
+  });
+
+  it('classifies and persists when classification is not reusable', async () => {
+    const { catalog, classifier } = buildDeps();
+    catalog.findVerifiedByIds.mockResolvedValue([
+      { id: 'exp-1', canonicalName: 'Test', metadata: {} },
+    ]);
+    classifier.classify.mockResolvedValue({
+      state: 'classified',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      modelId: 'groq/qwen',
+      themes: [],
+      intents: ['walk'],
+      traits: [],
+      reasoningEvidence: [
+        { facet: 'intent:walk', evidenceKeys: ['ev-1'], reason: 'evidence' },
+      ],
+    });
+
+    const result = await convergeExperienceClassification(
+      'exp-1',
+      [evidenceItem('ev-1') as any],
+      { catalog: catalog as any, classifier: classifier as any },
+    );
+
+    expect(result.state).toBe('classified');
+    expect(classifier.classify).toHaveBeenCalledTimes(1);
+    expect(catalog.applyEvidenceClassification).toHaveBeenCalledTimes(1);
+    expect(catalog.applyEvidenceClassification).toHaveBeenCalledWith(
+      'exp-1',
+      expect.objectContaining({ state: 'classified', intents: ['walk'] }),
+    );
+  });
+
+  it('persists degraded classification through the same path', async () => {
+    const { catalog, classifier } = buildDeps();
+    catalog.findVerifiedByIds.mockResolvedValue([
+      { id: 'exp-1', canonicalName: 'Test', metadata: {} },
+    ]);
+    classifier.classify.mockResolvedValue({
+      state: 'degraded',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      modelId: 'groq/qwen',
+      themes: [],
+      intents: [],
+      traits: [],
+      reasoningEvidence: [],
+      failure: {
+        stage: 'provider_call',
+        reason: 'PROVIDER_UNAVAILABLE',
+        httpStatus: 503,
+      },
+    });
+
+    const result = await convergeExperienceClassification(
+      'exp-1',
+      [evidenceItem('ev-1') as any],
+      { catalog: catalog as any, classifier: classifier as any },
+    );
+
+    expect(result.state).toBe('degraded');
+    expect(result.failure?.reason).toBe('PROVIDER_UNAVAILABLE');
+    expect(catalog.applyEvidenceClassification).toHaveBeenCalledTimes(1);
+    expect(catalog.applyEvidenceClassification).toHaveBeenCalledWith(
+      'exp-1',
+      expect.objectContaining({ state: 'degraded' }),
+    );
+  });
+
+  it('returns degraded when experience is not found', async () => {
+    const { catalog, classifier } = buildDeps();
+    catalog.findVerifiedByIds.mockResolvedValue([]);
+
+    const result = await convergeExperienceClassification(
+      'exp-missing',
+      [],
+      { catalog: catalog as any, classifier: classifier as any },
+    );
+
+    expect(result.state).toBe('degraded');
     expect(classifier.classify).not.toHaveBeenCalled();
   });
 });

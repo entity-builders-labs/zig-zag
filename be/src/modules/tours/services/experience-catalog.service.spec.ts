@@ -1212,6 +1212,63 @@ describe('ExperienceCatalogService.findVerifiedByIds', () => {
   });
 });
 
+describe('ExperienceCatalogService.findClassificationContextById', () => {
+  it('T1: maps persisted ExperienceEvidence rows to ExperienceGroundingEvidence with persisted row ID as key', async () => {
+    const prisma: any = {
+      experience: {
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'exp-1',
+          canonicalName: 'Caminito Walking Tour',
+          metadata: {},
+          evidence: [
+            {
+              id: 'ev-persisted-1',
+              source: 'serper',
+              url: 'https://example.com',
+              title: 'Caminito',
+              snippet: 'Caminito is a colorful street museum in La Boca',
+            },
+            {
+              id: 'ev-persisted-2',
+              source: 'serper',
+              snippet: '',
+            },
+          ],
+        }),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findClassificationContextById('exp-1');
+
+    expect(result).not.toBeNull();
+    expect(result!.experienceId).toBe('exp-1');
+    expect(result!.canonicalName).toBe('Caminito Walking Tour');
+    expect(result!.evidence).toEqual([
+      {
+        key: 'ev-persisted-1',
+        source: 'serper',
+        snippet: 'Caminito is a colorful street museum in La Boca',
+        title: 'Caminito',
+        url: 'https://example.com',
+      },
+    ]);
+  });
+
+  it('returns null when experience is not found', async () => {
+    const prisma: any = {
+      experience: {
+        findUnique: jest.fn().mockResolvedValue(null),
+      },
+    };
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    const result = await service.findClassificationContextById('exp-missing');
+
+    expect(result).toBeNull();
+  });
+});
+
 describe('ExperienceCatalogService.findVerifiedMultiComponentByExactComponent (Task B5)', () => {
   it('finds a multi-component verified Experience with the exact required ROUTE component', async () => {
     const prisma: any = {

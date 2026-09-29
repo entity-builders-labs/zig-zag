@@ -30,6 +30,7 @@ import {
 import { mergeExperienceMetadata } from '../utils/experience-metadata-merge.util';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
 import { ClassificationResult } from './experience-classification.service';
+import { ExperienceGroundingEvidence } from '../interfaces/experience-grounding.interface';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
@@ -503,7 +504,6 @@ export class ExperienceCatalogService {
       include: {
         components: { include: { geoEntity: true } },
         traits: { include: { traitDefinition: true } },
-        evidence: true,
       },
     });
     const byId = new Map(rows.map((row) => [row.id, row]));
@@ -511,6 +511,48 @@ export class ExperienceCatalogService {
       .map((id) => byId.get(id))
       .filter((row): row is NonNullable<typeof row> => !!row)
       .map((experience) => this.projectVerifiedExperienceRow(experience));
+  }
+
+  /**
+   * Typed persisted classification context for warm classification refresh.
+   *
+   * Loads a VERIFIED Experience and its persisted ExperienceEvidence rows,
+   * mapping the persistence shape to the canonical ExperienceGroundingEvidence
+   * contract used by ExperienceClassificationService.classify().
+   *
+   * The persisted ExperienceEvidence.id is the stable canonical evidence key
+   * for future persisted-evidence classification runs. The original transient
+   * ResolverEvidenceItem.key is not persisted; once evidence becomes durable,
+   * ExperienceEvidence.id becomes the canonical stable evidence key.
+   */
+  async findClassificationContextById(experienceId: string): Promise<{
+    experienceId: string;
+    canonicalName: string;
+    metadata: unknown;
+    evidence: ExperienceGroundingEvidence[];
+  } | null> {
+    const experience = await this.prisma.experience.findUnique({
+      where: { id: experienceId, status: ExperienceStatus.VERIFIED },
+      include: { evidence: true },
+    });
+    if (!experience) return null;
+    const evidence: ExperienceGroundingEvidence[] = experience.evidence
+      .filter(
+        (item) => typeof item.snippet === 'string' && item.snippet.length > 0,
+      )
+      .map((item) => ({
+        key: item.id,
+        source: item.source,
+        snippet: item.snippet,
+        ...(item.title ? { title: item.title } : {}),
+        ...(item.url ? { url: item.url } : {}),
+      }));
+    return {
+      experienceId: experience.id,
+      canonicalName: experience.canonicalName,
+      metadata: experience.metadata,
+      evidence,
+    };
   }
 
   /**
