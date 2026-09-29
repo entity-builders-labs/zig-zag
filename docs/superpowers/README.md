@@ -24,7 +24,7 @@ The single current execution pointer is:
 
 `docs/superpowers/progress/2026-09-11-preference-first-selection-progress.md`
 
-As of 2026-09-28 its gate-level state is:
+As of 2026-09-29 its gate-level state is:
 
 ```text
 Component-resolution / RW1        CLOSED
