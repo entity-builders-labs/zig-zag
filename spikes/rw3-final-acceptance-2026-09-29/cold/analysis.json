@@ -1,0 +1,82 @@
+{
+  "tourId": "30d9df68-a790-4607-bc96-6562039a8c8b",
+  "generationStatus": "completed",
+  "pollElapsedMs": 195961,
+  "traceVersion": 5,
+  "totalSteps": 58,
+  "dbBefore": {
+    "geoEntities": 0,
+    "experiences": 0,
+    "identities": 0,
+    "components": 0
+  },
+  "dbAfter": {
+    "geoEntities": 18,
+    "experiences": 15,
+    "identities": 30,
+    "components": 18,
+    "duplicateExperienceNames": 0,
+    "duplicateIdentities": 0
+  },
+  "providerRequests": {
+    "groq": 9,
+    "nominatim.local/search": 7,
+    "overpass.local": 5,
+    "wikipedia(es.wikipedia.org)": 1,
+    "es.wikivoyage.org": 6,
+    "serper": 3,
+    "tavily": 2,
+    "wikidata": 28,
+    "geoapify.geocode-search": 4,
+    "geoapify.place-details": 17,
+    "wikipedia(en.wikipedia.org)": 8,
+    "localhost:11434": 17,
+    "google(generativelanguage.googleapis.com)": 15,
+    "geoapify.places": 1,
+    "geoapify/v1/routing": 142,
+    "commons.wikimedia.org": 5
+  },
+  "initialCoverage": {
+    "sufficient": false,
+    "outcome": "NEEDS_ACQUISITION",
+    "deficits": [
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      },
+      {
+        "key": "history",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:history] has no strong catalog match yet.",
+        "dimension": "theme"
+      }
+    ]
+  },
+  "finalCoverage": {
+    "sufficient": true,
+    "outcome": "SUFFICIENT",
+    "deficits": []
+  },
+  "scheduledExperiences": [
+    {
+      "name": "La Boca Walking Tour: Caminito, Museum, and Bridge",
+      "id": "f5dee6f9-6070-437e-bdf1-e8262af6d27d",
+      "order": 1,
+      "day": 1
+    },
+    {
+      "name": "Benito Quinquela Martín",
+      "id": "9f1c68ed-28d8-452e-9fb2-1e83032971e7",
+      "order": 2,
+      "day": 1
+    },
+    {
+      "name": "Estatua Hugo del Carril",
+      "id": "5187a8e8-8919-44f0-ac40-d99a6a75fb7b",
+      "order": 3,
+      "day": 1
+    }
+  ]
+}

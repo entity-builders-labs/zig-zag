@@ -1,0 +1,28 @@
+{
+  "destination": {
+    "label": "Buenos Aires, Argentina",
+    "latitude": -34.6037,
+    "longitude": -58.3816,
+    "scaleHint": "settlement"
+  },
+  "days": 1,
+  "budgetLevel": "medium",
+  "groupType": "solo",
+  "intent": {
+    "interests": [],
+    "intents": [
+      "walk"
+    ],
+    "explorationStyle": "balanced",
+    "additionalPreferences": "Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido."
+  },
+  "mobility": {
+    "allowedTransportationModes": [
+      "walking"
+    ],
+    "maxWalkingDistancePerDayMeters": 50000,
+    "maxContinuousWalkingDistanceMeters": 20000,
+    "travelPace": "moderate"
+  },
+  "skipImageGeneration": true
+}

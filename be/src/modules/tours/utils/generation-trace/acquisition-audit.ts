@@ -240,7 +240,10 @@ export function recordAcquisitionLifecycle(
 ): void {
   const { passNumber, strategy, anchor, plan, execution, resolution } = input;
   const anchorSlug = anchor?.rawName
-    ? `-${anchor.rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`
+    ? `-${anchor.rawName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')}`
     : '';
   let passId = `acquisition-pass-${passNumber}-${strategy}${anchorSlug}`;
   if (recorder.hasStep(passId)) {
