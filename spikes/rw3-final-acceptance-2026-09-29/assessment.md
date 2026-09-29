@@ -1,8 +1,8 @@
 # RW3 Final Acceptance Gate Assessment (Caminito Walking Tour)
 
 Date: 2026-09-29
-Starting HEAD: cf2e9567663b39541b943f333b16a4833a00b03e
-Final HEAD: cf2e9567663b39541b943f333b16a4833a00b03e
+Acceptance run code HEAD: cf2e9567663b39541b943f333b16a4833a00b03e
+Evidence commit: e3d54b846db191b3ce852a17fc84260e28da44e4
 Dedicated Database: zigzag_spike_rw3_final_acceptance
 Provider Pair: Serper (`groundedSearchProvider`), Groq (`discoveryExtractorProvider`, `qwen/qwen3.8-27b`), Tavily Extract (`webSourceContentProvider`), Geoapify (Places, Routing), Google Gemini (`gemini-3.5-flash-lite`, semantic classification), local Overpass & Nominatim.
 
@@ -10,7 +10,7 @@ Provider Pair: Serper (`groundedSearchProvider`), Groq (`discoveryExtractorProvi
 
 ## 1. Executive Summary & Verdict
 
-### Gate Verdict: **RW3 = CLOSED / ACCEPTED — RW4 = NOT AUTHORIZED**
+### Gate Verdict: **RW3 = CLOSED / ACCEPTED — RW4 = AUTHORIZED AFTER INDEPENDENT REVIEW**
 
 All deterministic verification suites, live COLD and WARM runs, database sequence integrity checks, classifier-owned semantic projection, Generation Trace v5 invariants, and architectural boundaries PASSED completely.
 
@@ -47,7 +47,7 @@ All deterministic verification suites, live COLD and WARM runs, database sequenc
    - Final tour scheduled `"La Boca Walking Tour: Caminito, Museum, and Bridge"` as stop #1 in the itinerary.
    - Generation Trace v5 captured 20 steps.
 
-4. **RW4 Authorization Status**: **NOT AUTHORIZED**.
+4. **RW4 Authorization Status**: **AUTHORIZED / NEXT GATE** after independent review of the committed evidence and current execution pointer update.
 
 ---
 

@@ -1,8 +1,8 @@
 # Preference-First Selection — CURRENT MAIN PROGRESS
 
-Updated: 2026-09-28
+Updated: 2026-09-29
 Branch: `feat/preference-first-selection`
-Repository: `jiseruk/zig-zag`
+Repository: `entity-builders-labs/zig-zag`
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
 Canonical implementation plan: `docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md`
 Canonical design: `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
@@ -19,10 +19,10 @@ classification contract and deterministic validation are unchanged.
 ## Current execution verdict — 2026-09-28
 
 **Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY (native producer cutover complete; v4 legacy paths deleted; modular domain audit split complete; zero avoidable `any`).**  
-**RW3 final classification/warm-reuse finding — OPEN (live multi-component admission closure pending).**  
-**RW4 — NOT AUTHORIZED.**
+**RW3 final classification/warm-reuse gate — CLOSED / ACCEPTED.**  
+**RW4 — AUTHORIZED / NEXT GATE.**
 
-**Active track: Gate C real-world generalization — RW3 IN PROGRESS (RW3-N6 route-scope policy fixed; clean rerun executed; RW4 NOT AUTHORIZED).**
+**Active track: Gate C real-world generalization — RW4 NEXT. RW3 final live COLD/WARM acceptance passed on 2026-09-29 with sequence integrity, canonical catalog reuse, zero WARM walk acquisition/classifier calls, and Generation Trace v5 evidence.**
 
 RW3-N6 resolution and live verification status:
 - **Defect:** `RW3-N6 — fixed-distance route corridor encoded semantic scope`.
@@ -53,8 +53,28 @@ RW3-N6 resolution and live verification status:
   pair. Serper returned 10 relevant Caminito results. Cloudflare extraction returned 0
   candidates on this run. Fail-closed termination preserved. Sequence integrity preserved
   (no synthetic DB injection; WARM not run on empty catalog).
-- RW3 remains OPEN pending live multi-component admission closure; RW4 NOT AUTHORIZED.
+- Historical 2026-09-28 state: RW3 remained OPEN at this checkpoint. Superseded by the 2026-09-29 final acceptance below.
 
+
+## RW3 final acceptance — 2026-09-29
+
+**RW3 = CLOSED / ACCEPTED. RW4 = AUTHORIZED / NEXT GATE.**
+
+Canonical evidence: `spikes/rw3-final-acceptance-2026-09-29/`.
+
+Acceptance facts:
+
+- deterministic verification passed: 126 tours suites / 1737 tests, targeted invariant suites, typecheck, lint, build and `git diff --check`;
+- COLD started from an empty dedicated database and materialized the verified 4-component Experience `f5dee6f9-6070-437e-bdf1-e8262af6d27d` (`La Boca Walking Tour: Caminito, Museum, and Bridge`);
+- COLD persisted current evidence-only classification including `intent:walk`;
+- `cold/db-after.json` matched `warm/db-before.json` byte-for-byte; no inter-run patching or reset occurred;
+- WARM initial catalog coverage was sufficient and reused the same canonical Experience;
+- WARM performed zero Caminito/walk web acquisition, zero Tavily extraction and zero Gemini classification calls;
+- WARM database cardinalities did not grow and the same Experience was scheduled as Day 1 stop #1;
+- both runs completed through the real HTTP/outbox/processor path with native Generation Trace v5;
+- no production behavior change was required for acceptance; the only non-spike source changes in the evidence commit were formatting-only.
+
+The final acceptance supersedes every earlier RW3 OPEN / pending-rerun statement below. Historical RW3 defect/rerun detail remains evidence, not current status.
 
 The component-resolution / RW1 milestone is **COMPLETE / CLOSED** and must not
 be reopened unless a real regression invalidates an accepted invariant. The

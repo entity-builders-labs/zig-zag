@@ -1,7 +1,7 @@
 # Superpowers documentation map
 
 Status: **canonical navigation index; not an execution log**.  
-Updated: 2026-09-28.  
+Updated: 2026-09-29.  
 Active tour-engine branch: `feat/preference-first-selection`.  
 Repository remotes: upstream canonical `origin` is `entity-builders-labs/zig-zag`, development `fork` is `jiseruk/zig-zag`.
 
@@ -30,8 +30,8 @@ As of 2026-09-28 its gate-level state is:
 Component-resolution / RW1        CLOSED
 Experience dedupe correction      DONE
 RW2                               CLOSED
-RW3 Caminito route                IN PROGRESS (warm-reuse finding OPEN)
-RW4                               NOT AUTHORIZED
+RW3 Caminito route                CLOSED / ACCEPTED
+RW4                               AUTHORIZED / NEXT GATE
 RW5                               PENDING
 RW6 anti-fabrication              PENDING
 Preference-First Core CLOSED      PENDING
@@ -68,9 +68,7 @@ explicitly demoting the old pointer.
 ## 3. Canonical forward sequence
 
 ```text
-RW3 source-depth/composition/geography proven; warm-reuse finding open
-→ Generation Trace v5 cutover
-→ RW3 final acceptance
+RW3 final acceptance CLOSED (2026-09-29)
 → RW4
 → RW5
 → RW6
@@ -83,8 +81,9 @@ RW3 source-depth/composition/geography proven; warm-reuse finding open
 ```
 
 The prior Trace v5 sequencing was explicitly superseded on 2026-09-28 after
-RW3 demonstrated that v4 lost a classifier HTTP 503 cause. Trace v5 now occurs
-before RW3 final acceptance; RW4 remains unauthorized. See
+RW3 demonstrated that v4 lost a classifier HTTP 503 cause. Trace v5 completed
+before RW3 final acceptance. RW3 then passed its final COLD/WARM gate on
+2026-09-29; RW4 is now the authorized next gate. See
 `specs/2026-09-28-generation-trace-v5-cutover.md`.
 
 The detailed reasoning and acceptance invariants for Trace v5 live in the
@@ -244,8 +243,8 @@ Bitácora and the tour generation pipeline are fully cut over to native v5:
 
 Current status:
 - Trace v5: **COMPLETE / ACTIVE TRACE AUTHORITY**
-- RW3 final warm classification-reuse finding: **OPEN**
-- RW4: **NOT AUTHORIZED**
+- RW3 final warm classification-reuse gate: **CLOSED / ACCEPTED**
+- RW4: **AUTHORIZED / NEXT GATE**
 
 The canonical roadmap owns the detailed design direction. The core intent is:
 
