@@ -70,7 +70,10 @@ export interface ClassificationAuditRecord {
  * Behavior:
  * - canReuseClassification == true → return reused, classifier NOT called
  * - Non-reusable + usable evidence → classify → persist → return classified/degraded
- * - Non-reusable + no usable evidence → return degraded (honest empty)
+ * - Non-reusable + no usable evidence → classifier returns honest empty
+ *   classified result (state=classified, empty facets); the WARM path
+ *   intentionally stops before calling convergence when persisted evidence
+ *   is empty, recording insufficient_evidence instead.
  */
 export async function convergeExperienceClassification(
   experienceId: string,
