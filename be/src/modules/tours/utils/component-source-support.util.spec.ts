@@ -130,4 +130,20 @@ describe('verifyTextualComponentSourceSupport', () => {
       );
     }
   });
+
+  it('verifies support spans when markdown delimiter directly touches punctuation like bold followed by colon', () => {
+    const result = verifyTextualComponentSourceSupport(
+      'Featured wineries: López (1898), Trapiche, Familia Zuccardi, Norton, Rutini, Tempus Alba',
+      ['ev-1'],
+      new Map([
+        [
+          'ev-1',
+          {
+            text: '* **Featured wineries**: López (1898), Trapiche, Familia Zuccardi, Norton, Rutini, Tempus Alba',
+          },
+        ],
+      ]),
+    );
+    expect(result.supported).toBe(true);
+  });
 });

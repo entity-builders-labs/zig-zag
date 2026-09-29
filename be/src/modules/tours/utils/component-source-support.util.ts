@@ -63,6 +63,7 @@ function normalize(value: string): string {
   return value
     .toLowerCase()
     .replace(/[*_~`#]+/g, ' ')
+    .replace(/\s+([,.:;?!])/g, '$1')
     .replace(/\s+/g, ' ')
     .trim();
 }

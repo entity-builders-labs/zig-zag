@@ -334,6 +334,7 @@ export class ExperienceProposalResolverService
           evidence,
           input.destinationCountryCode,
           input.observations ?? [],
+          input.validationIntent,
         ),
     );
 
@@ -601,7 +602,9 @@ export class ExperienceProposalResolverService
     evidence: ExperienceResolutionRequest['evidence'] = [],
     destinationCountryCode?: string,
     observations: SourceObservation[] = [],
+    validationIntent?: 'walk' | 'route_like',
   ): Promise<ResolvedCandidateWithAudit> {
+    const routeScale = validationIntent === 'route_like';
     const entities: ResolvedGeoEntity[] = [];
     const componentAudits: CandidateResolutionAudit['componentAudits'] = [];
     const destinationAssociationVerified =
@@ -1016,6 +1019,7 @@ export class ExperienceProposalResolverService
           destinationScope,
           destinationCountryCode,
           this.representativePoint(boundary),
+          routeScale,
         );
         if (nominatimResolved.status === 'candidate') {
           const verification = await this.isVerified(
@@ -1075,6 +1079,7 @@ export class ExperienceProposalResolverService
           hint,
           destinationScope,
           this.representativePoint(boundary),
+          routeScale,
         );
         if (placesResolved.status === 'candidate') {
           const verification = await this.isVerified(
@@ -1822,6 +1827,7 @@ export class ExperienceProposalResolverService
     destinationScope: GeographicScope,
     destinationCountryCode?: string,
     destinationPoint?: Coordinates,
+    routeScale?: boolean,
   ): Promise<StrategyAcquisitionResult> {
     if (!this.nominatim || hint.expectedKind === 'ROUTE') {
       return { status: 'not_applicable' };
@@ -1958,6 +1964,7 @@ export class ExperienceProposalResolverService
           ],
         },
         destinationScope,
+        { routeScale },
       );
       if (placeDestinationCompatibility.verdict === 'INCOMPATIBLE') {
         return {
@@ -2462,6 +2469,7 @@ export class ExperienceProposalResolverService
     hint: any,
     destinationScope: GeographicScope,
     destinationPoint?: Coordinates,
+    routeScale?: boolean,
   ): Promise<StrategyAcquisitionResult> {
     if (!this.placesApi || hint.expectedKind !== 'PLACE') {
       return { status: 'not_applicable' };
@@ -2503,6 +2511,7 @@ export class ExperienceProposalResolverService
             probePoints: place.location ? [place.location] : [],
           },
           destinationScope,
+          { routeScale },
         );
         if (destination.verdict === 'INCOMPATIBLE') {
           placeSearch.rejected.push({
