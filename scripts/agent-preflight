@@ -43,7 +43,7 @@ field() {
   local key="$2"
   printf '%s\n' "$line" \
     | sed -n "s/.*[; ]${key}=\([^;]*\).*/\1/p" \
-    | sed 's/^ *//;s/ *$//'
+    | sed 's/ *--> *$//;s/^ *//;s/ *$//'
 }
 
 token_overlap() {
@@ -143,19 +143,33 @@ if [ -z "$CURRENT_MARKER" ]; then
 else
   INITIATIVE_ID="$(field "$CURRENT_MARKER" id)"
   BASE_BRANCH="$(field "$CURRENT_MARKER" base)"
+  BASE_SHA="$(field "$CURRENT_MARKER" base_sha)"
   INTEGRATION_BRANCH="$(field "$CURRENT_MARKER" integration)"
   CURRENT_OWNS="$(field "$CURRENT_MARKER" owns)"
   pass "initiative" "$INITIATIVE_ID"
   pass "declared base" "$BASE_BRANCH"
+  pass "base snapshot" "$BASE_SHA"
   pass "integration target" "$INTEGRATION_BRANCH"
 
   BASE_REF="origin/$BASE_BRANCH"
-  if ! git show-ref --verify --quiet "refs/remotes/$BASE_REF"; then
-    fail "declared base ref" "$BASE_REF does not exist locally after fetch"
-  elif git merge-base --is-ancestor "$BASE_REF" HEAD; then
-    pass "base ancestry" "$BASE_REF is an ancestor of HEAD"
+  if [ -z "$BASE_SHA" ]; then
+    fail "base snapshot" "initiative is missing base_sha"
+  elif ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+    fail "base snapshot" "$BASE_SHA is not available as a commit after fetch"
+  elif git merge-base --is-ancestor "$BASE_SHA" HEAD; then
+    pass "base ancestry" "$BASE_SHA is an ancestor of HEAD"
   else
-    fail "base ancestry" "HEAD does not contain declared base $BASE_REF"
+    fail "base ancestry" "HEAD does not contain declared base snapshot $BASE_SHA"
+  fi
+
+  if git show-ref --verify --quiet "refs/remotes/$BASE_REF"; then
+    if git merge-base --is-ancestor "$BASE_REF" HEAD; then
+      pass "base branch head" "HEAD contains current $BASE_REF"
+    else
+      warn "base branch head" "$BASE_REF advanced after this initiative started"
+    fi
+  else
+    fail "declared base ref" "$BASE_REF does not exist locally after fetch"
   fi
 
   INTEGRATION_REF="origin/$INTEGRATION_BRANCH"
@@ -185,8 +199,8 @@ else
   fi
 
   CURRENT_FILES=""
-  if git show-ref --verify --quiet "refs/remotes/$BASE_REF"; then
-    CURRENT_FILES="$(git diff --name-only "$BASE_REF"...HEAD | sort -u)"
+  if [ -n "$BASE_SHA" ] && git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+    CURRENT_FILES="$(git diff --name-only "$BASE_SHA"...HEAD | sort -u)"
   fi
 
   while IFS= read -r line; do
@@ -195,6 +209,7 @@ else
     other_branch="$(field "$line" branch)"
     other_id="$(field "$line" id)"
     other_base="$(field "$line" base)"
+    other_base_sha="$(field "$line" base_sha)"
     other_owns="$(field "$line" owns)"
     other_touches="$(field "$line" touches)"
 
@@ -209,11 +224,11 @@ else
     fi
 
     OTHER_REF="origin/$other_branch"
-    OTHER_BASE_REF="origin/$other_base"
     if [ -n "$CURRENT_FILES" ] \
       && git show-ref --verify --quiet "refs/remotes/$OTHER_REF" \
-      && git show-ref --verify --quiet "refs/remotes/$OTHER_BASE_REF"; then
-      OTHER_FILES="$(git diff --name-only "$OTHER_BASE_REF"..."$OTHER_REF" | sort -u)"
+      && [ -n "$other_base_sha" ] \
+      && git cat-file -e "${other_base_sha}^{commit}" 2>/dev/null; then
+      OTHER_FILES="$(git diff --name-only "$other_base_sha"..."$OTHER_REF" | sort -u)"
       if [ -n "$OTHER_FILES" ]; then
         FILE_OVERLAP="$(comm -12 \
           <(printf '%s\n' "$CURRENT_FILES" | sed '/^$/d' | sort -u) \
