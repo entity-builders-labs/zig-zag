@@ -55,20 +55,23 @@ The HTML markers are intentionally machine-readable by
 facts. Update both in the same commit when starting, closing, rebasing, or
 changing ownership of an initiative.
 
-<!-- agent-initiative: id=preference-first-rw3; status=active; branch=feat/preference-first-selection; base=main; integration=main; owns=classification-convergence,catalog-reuse,area-route-walk-reuse; touches=tour-generation,experience-classification,experience-catalog -->
-<!-- agent-initiative: id=agent-collaboration-foundation; status=active; branch=chore/agent-collaboration-foundation; base=feat/preference-first-selection; integration=feat/preference-first-selection; owns=agent-workflow,initiative-governance; touches=repository-instructions,documentation-navigation,agent-preflight -->
+<!-- agent-initiative: id=preference-first-rw3; status=active; branch=feat/preference-first-selection; base=main; base_sha=016f10586d4faf9fe7e703a2d28684136cf99abe; integration=main; owns=classification-convergence,catalog-reuse,area-route-walk-reuse; touches=tour-generation,experience-classification,experience-catalog; -->
+<!-- agent-initiative: id=agent-collaboration-foundation; status=active; branch=chore/agent-collaboration-foundation; base=feat/preference-first-selection; base_sha=74a545f2f4b1f724fe4cfa6f23c804b281b90f02; integration=feat/preference-first-selection; owns=agent-workflow,initiative-governance; touches=repository-instructions,documentation-navigation,agent-preflight; -->
 
-| Initiative | Status | Branch | Integration target | Semantic ownership | Scope |
-| --- | --- | --- | --- | --- | --- |
-| Preference-First RW3 | ACTIVE | `feat/preference-first-selection` | `main` | classification convergence; catalog reuse; AREA/ROUTE warm reuse | Finish RW3 live acceptance; RW4 remains blocked |
-| Agent Collaboration Foundation | ACTIVE | `chore/agent-collaboration-foundation` | `feat/preference-first-selection` | agent workflow; initiative governance | Cross-agent worktree/preflight contract only; no product behavior |
+| Initiative | Status | Branch | Base snapshot | Integration target | Semantic ownership | Scope |
+| --- | --- | --- | --- | --- | --- | --- |
+| Preference-First RW3 | ACTIVE | `feat/preference-first-selection` | `016f1058` (`main`) | `main` | classification convergence; catalog reuse; AREA/ROUTE warm reuse | Finish RW3 live acceptance; RW4 remains blocked |
+| Agent Collaboration Foundation | ACTIVE | `chore/agent-collaboration-foundation` | `74a545f2` (`feat/preference-first-selection`) | `feat/preference-first-selection` | agent workflow; initiative governance | Cross-agent worktree/preflight contract only; no product behavior |
 
 Rules:
 
 - Every branch that will receive concurrent human/agent writes must map to one
   active initiative before ordinary implementation begins.
-- `base` is the branch whose accepted state the initiative starts from;
-  `integration` is where this initiative is intended to converge next.
+- `base` names the lineage branch and `base_sha` freezes the exact accepted
+  snapshot the initiative started from. The lineage branch may advance while
+  the initiative works; `base_sha` must remain an ancestor of the initiative.
+- `integration` is the moving branch where this initiative is intended to
+  converge next; preflight checks mergeability against its current remote HEAD.
 - A child initiative may intentionally use another active initiative as its
   base/integration target. Its inherited changes are not an overlap defect.
 - Two unrelated active initiatives must not claim the same semantic owner.
