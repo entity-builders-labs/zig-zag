@@ -1,7 +1,7 @@
 # Superpowers documentation map
 
 Status: **canonical navigation index; not an execution log**.  
-Updated: 2026-09-28.  
+Updated: 2026-09-29.  
 Active tour-engine branch: `feat/preference-first-selection`.  
 Canonical repository: `entity-builders-labs/zig-zag`. A personal fork may exist as a backup, but it is not the active development authority.
 
@@ -73,7 +73,8 @@ Rules:
 - `integration` is the moving branch where this initiative is intended to
   converge next; preflight checks mergeability against its current remote HEAD.
 - A child initiative may intentionally use another active initiative as its
-  base/integration target. Its inherited changes are not an overlap defect.
+  base/integration target. Its inherited file history is not an overlap defect,
+  but semantic ownership remains exclusive even between parent and child.
 - Two unrelated active initiatives must not claim the same semantic owner.
 - `touches` is advisory scope; `owns` is the stronger semantic authority
   used by preflight conflict detection.
