@@ -1,6 +1,7 @@
 import {
   classifyAcceptedResultsByExperience,
   convergeExperienceClassification,
+  classificationSemanticView,
 } from './experience-classification-convergence.util';
 import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from '../services/experience-classification.service';
 import { ResolvedExperienceCandidate } from '../interfaces/experience-resolution.interface';
@@ -359,11 +360,10 @@ describe('convergeExperienceClassification', () => {
       },
     ]);
 
-    const result = await convergeExperienceClassification(
-      'exp-1',
-      [],
-      { catalog: catalog as any, classifier: classifier as any },
-    );
+    const result = await convergeExperienceClassification('exp-1', [], {
+      catalog: catalog as any,
+      classifier: classifier as any,
+    });
 
     expect(result.state).toBe('reused');
     expect(classifier.classify).not.toHaveBeenCalled();
@@ -441,13 +441,50 @@ describe('convergeExperienceClassification', () => {
     const { catalog, classifier } = buildDeps();
     catalog.findVerifiedByIds.mockResolvedValue([]);
 
-    const result = await convergeExperienceClassification(
-      'exp-missing',
-      [],
-      { catalog: catalog as any, classifier: classifier as any },
-    );
+    const result = await convergeExperienceClassification('exp-missing', [], {
+      catalog: catalog as any,
+      classifier: classifier as any,
+    });
 
     expect(result.state).toBe('degraded');
     expect(classifier.classify).not.toHaveBeenCalled();
+  });
+});
+
+describe('classificationSemanticView', () => {
+  it('projects only classifier-owned semantics into top-level and metadata', () => {
+    const view = classificationSemanticView({
+      themes: ['culture', 'history'],
+      intents: ['walk'],
+      traits: ['outdoor'],
+    });
+
+    expect(view).toEqual({
+      themes: ['culture', 'history'],
+      intents: ['walk'],
+      traits: ['outdoor'],
+      metadata: {
+        themes: ['culture', 'history'],
+        intents: ['walk'],
+        traits: ['outdoor'],
+      },
+    });
+    // Ensure no legacy fields exist
+    expect((view.metadata as any).archetypes).toBeUndefined();
+  });
+
+  it('handles empty or missing arrays safely', () => {
+    const view = classificationSemanticView({});
+
+    expect(view).toEqual({
+      themes: [],
+      intents: [],
+      traits: [],
+      metadata: {
+        themes: [],
+        intents: [],
+        traits: [],
+      },
+    });
   });
 });

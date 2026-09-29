@@ -10,6 +10,7 @@ import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fin
 import {
   CURRENT_CLASSIFICATION_PROMPT_VERSION,
   canReuseClassification,
+  readPersistedClassification,
 } from './experience-classification.service';
 import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
@@ -27,6 +28,7 @@ import { normalizeGeoName } from '../utils/nominatim-match.util';
 import {
   convergeExperienceClassification,
   ClassificationAuditRecord,
+  classificationSemanticView,
 } from '../utils/experience-classification-convergence.util';
 import { ExperienceClassificationService } from './experience-classification.service';
 import { ClassificationFailure } from './experience-classification.service';
@@ -274,36 +276,54 @@ export class AreaRouteWalkAcquisitionService {
     // (canReuseClassification, the same B2 validity gate used everywhere
     // else) that actually satisfies the requested intent. A stale/
     // degraded/malformed/never-classified row is a conservative MISS here,
-    // never trusted from a legacy metadata.intents value.
+    // evaluated strictly against classifier-owned semantics (never legacy
+    // metadata.intents or metadata.archetypes).
     const isSemanticallyEligible = (row: {
       id: string;
       metadata?: unknown;
-    }): boolean =>
-      !!facet &&
-      canReuseClassification(
-        row.metadata,
-        CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      ) &&
-      candidateMatchesPreferenceFacet(row, facet);
+    }): boolean => {
+      if (
+        !facet ||
+        !canReuseClassification(
+          row.metadata,
+          CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        )
+      ) {
+        return false;
+      }
+      const persisted = readPersistedClassification(row.metadata);
+      if (!persisted) return false;
+      return candidateMatchesPreferenceFacet(
+        classificationSemanticView(persisted),
+        facet,
+      );
+    };
 
-    // WARM check: geography/identity AND current semantic eligibility. A
-    // pre-existing row may have been persisted for an unrelated purpose
-    // (wrong intent) or classified into something else entirely -- both
-    // are real, valid MISSes, not bugs.
+    // WARM check: geography/identity AND current semantic eligibility.
+    // Candidates with reusable classifications are evaluated directly. Only
+    // candidates whose classification is NOT reusable enter classification
+    // refresh using persisted evidence.
     const geographicCandidates = await geographicMatches();
-    const warmHit = geographicCandidates.find(isSemanticallyEligible);
-    if (warmHit) return { outcome: 'reused', experienceId: warmHit.id };
-
-    // CLASSIFICATION REFRESH: a geographically/identity-compatible Experience
-    // exists but its classification is degraded/stale/malformed. Attempt a
-    // refresh using ONLY persisted evidence before falling back to Internet
-    // reacquisition. This delegates to the canonical convergence primitive.
     const refreshAttempts: ClassificationRefreshAttempt[] = [];
     let sawSemanticMismatch = false;
     let sawRefreshFailure = false;
     let sawInsufficientEvidence = false;
 
     for (const candidate of geographicCandidates) {
+      if (
+        canReuseClassification(
+          candidate.metadata,
+          CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        )
+      ) {
+        if (isSemanticallyEligible(candidate)) {
+          return { outcome: 'reused', experienceId: candidate.id };
+        }
+        sawSemanticMismatch = true;
+        continue;
+      }
+
+      // Classification is NOT reusable -> attempt refresh using persisted evidence
       const context = await this.catalog.findClassificationContextById(
         candidate.id,
       );
@@ -337,25 +357,21 @@ export class AreaRouteWalkAcquisitionService {
         continue;
       }
 
-      // Check if the refreshed classification satisfies the requested facet.
-      const refreshedRow = {
-        id: candidate.id,
-        metadata: {
-          ...(context.metadata as Record<string, unknown>),
-          themes: refreshResult.themes,
-          intents: refreshResult.intents,
-          classification: {
-            state: refreshResult.state,
-            promptVersion: refreshResult.promptVersion,
-            modelId: refreshResult.model,
-            themes: refreshResult.themes,
-            intents: refreshResult.intents,
-            traits: refreshResult.traits,
-            reasoningEvidence: refreshResult.reasoningEvidence,
-          },
-        },
-      };
-      if (candidateMatchesPreferenceFacet(refreshedRow, facet)) {
+      // Check if the refreshed classification satisfies the requested facet
+      // using classification-owned semantic truth ONLY.
+      if (
+        facet &&
+        candidateMatchesPreferenceFacet(
+          classificationSemanticView(refreshResult),
+          facet,
+        )
+      ) {
+        refreshAttempts.push({
+          experienceId: candidate.id,
+          outcome: 'classified_match',
+          provider: refreshResult.provider,
+          model: refreshResult.model,
+        });
         return {
           outcome: 'classification_refreshed',
           experienceId: candidate.id,

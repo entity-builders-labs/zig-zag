@@ -208,3 +208,52 @@ export async function classifyAcceptedResultsByExperience(
   }
   return audit;
 }
+
+export interface ClassificationSemantics {
+  themes?: string[];
+  intents?: string[];
+  traits?: string[];
+}
+
+export interface ClassificationSemanticView {
+  themes: string[];
+  intents: string[];
+  traits: string[];
+  metadata: {
+    themes: string[];
+    intents: string[];
+    traits: string[];
+  };
+}
+
+/**
+ * Pure projection helper that projects ONLY classifier-owned semantics into
+ * the facet matcher candidate shape.
+ *
+ * Ensures stale/discovery-era metadata (archetypes, old intents/themes/traits)
+ * cannot override an authoritative evidence-only classification verdict.
+ */
+export function classificationSemanticView(
+  classification: ClassificationSemantics,
+): ClassificationSemanticView {
+  const themes = Array.isArray(classification?.themes)
+    ? classification.themes
+    : [];
+  const intents = Array.isArray(classification?.intents)
+    ? classification.intents
+    : [];
+  const traits = Array.isArray(classification?.traits)
+    ? classification.traits
+    : [];
+
+  return {
+    themes,
+    intents,
+    traits,
+    metadata: {
+      themes,
+      intents,
+      traits,
+    },
+  };
+}

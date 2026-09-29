@@ -681,12 +681,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
 
     // No plan sourcePlans -> no_result; the important assertion is that the
     // warm check never matched despite a "compatible" row existing.
-    // With no reusable classification and no usable facet, the service
-    // returns insufficient_persisted_evidence without Internet reacquisition.
+    // With no usable facet, the candidate's classification cannot match,
+    // yielding no_semantically_eligible_result without refresh or acquisition.
     expect(result).toEqual(
       expect.objectContaining({
         outcome: 'no_result',
-        reason: 'insufficient_persisted_evidence',
+        reason: 'no_semantically_eligible_result',
       }),
     );
   });
@@ -870,7 +870,11 @@ describe('AreaRouteWalkAcquisitionService', () => {
       themes: [] as string[],
       intents: [] as string[],
       traits: [] as string[],
-      reasoningEvidence: [] as Array<{ facet: string; evidenceKeys: string[]; reason: string }>,
+      reasoningEvidence: [] as Array<{
+        facet: string;
+        evidenceKeys: string[];
+        reason: string;
+      }>,
       modelId: 'groq/qwen',
       promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
       state: 'degraded',
@@ -993,9 +997,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
           },
         ],
       );
-      expect(
-        mocks.catalog.applyEvidenceClassification,
-      ).toHaveBeenCalledWith(
+      expect(mocks.catalog.applyEvidenceClassification).toHaveBeenCalledWith(
         'exp-degraded',
         expect.objectContaining({ state: 'classified' }),
       );
@@ -1085,32 +1087,33 @@ describe('AreaRouteWalkAcquisitionService', () => {
         degradedRow('exp-food'),
         degradedRow('exp-walk'),
       ]);
-      mocks.catalog.findVerifiedByIds.mockImplementation(async (ids: string[]) =>
-        ids.map((id) => {
-          const isFood = id.includes('food');
-          return {
-            id,
-            canonicalName: `Experience ${id}`,
-            metadata: {
-              ...degradedRow(id).metadata,
-              classification: {
-                state: 'classified',
-                promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-                modelId: 'groq/qwen',
-                themes: isFood ? ['food'] : ['history'],
-                intents: isFood ? ['food'] : ['walk'],
-                traits: [] as string[],
-                reasoningEvidence: [
-                  {
-                    facet: `intent:${isFood ? 'food' : 'walk'}`,
-                    evidenceKeys: ['ev-1'],
-                    reason: 'evidence supports it',
-                  },
-                ],
+      mocks.catalog.findVerifiedByIds.mockImplementation(
+        async (ids: string[]) =>
+          ids.map((id) => {
+            const isFood = id.includes('food');
+            return {
+              id,
+              canonicalName: `Experience ${id}`,
+              metadata: {
+                ...degradedRow(id).metadata,
+                classification: {
+                  state: 'classified',
+                  promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+                  modelId: 'groq/qwen',
+                  themes: isFood ? ['food'] : ['history'],
+                  intents: isFood ? ['food'] : ['walk'],
+                  traits: [] as string[],
+                  reasoningEvidence: [
+                    {
+                      facet: `intent:${isFood ? 'food' : 'walk'}`,
+                      evidenceKeys: ['ev-1'],
+                      reason: 'evidence supports it',
+                    },
+                  ],
+                },
               },
-            },
-          };
-        }),
+            };
+          }),
       );
       mocks.catalog.findClassificationContextById.mockImplementation(
         async (id: string) => ({
@@ -1191,7 +1194,11 @@ describe('AreaRouteWalkAcquisitionService', () => {
           themes: [] as string[],
           intents: [] as string[],
           traits: [] as string[],
-          reasoningEvidence: [] as Array<{ facet: string; evidenceKeys: string[]; reason: string }>,
+          reasoningEvidence: [] as Array<{
+            facet: string;
+            evidenceKeys: string[];
+            reason: string;
+          }>,
         },
       };
       mocks.catalog.findVerifiedByIds.mockResolvedValue([
@@ -1217,7 +1224,11 @@ describe('AreaRouteWalkAcquisitionService', () => {
         themes: [] as string[],
         intents: [] as string[],
         traits: [] as string[],
-        reasoningEvidence: [] as Array<{ facet: string; evidenceKeys: string[]; reason: string }>,
+        reasoningEvidence: [] as Array<{
+          facet: string;
+          evidenceKeys: string[];
+          reason: string;
+        }>,
         modelId: 'groq/qwen',
         promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
         state: 'degraded',
@@ -1239,9 +1250,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
         }),
       );
       expect(mocks.classificationService.classify).toHaveBeenCalledTimes(1);
-      expect(
-        mocks.catalog.applyEvidenceClassification,
-      ).toHaveBeenCalledWith(
+      expect(mocks.catalog.applyEvidenceClassification).toHaveBeenCalledWith(
         'exp-degraded',
         expect.objectContaining({ state: 'degraded' }),
       );
@@ -1385,9 +1394,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
         });
       }
       expect(mocks.classificationService.classify).toHaveBeenCalledTimes(1);
-      expect(
-        mocks.catalog.applyEvidenceClassification,
-      ).toHaveBeenCalledWith(
+      expect(mocks.catalog.applyEvidenceClassification).toHaveBeenCalledWith(
         'exp-degraded',
         expect.objectContaining({ state: 'degraded' }),
       );
@@ -1503,12 +1510,13 @@ describe('AreaRouteWalkAcquisitionService', () => {
         degradedRow('exp-food'),
         degradedRow('exp-walk'),
       ]);
-      mocks.catalog.findVerifiedByIds.mockImplementation(async (ids: string[]) =>
-        ids.map((id) => ({
-          id,
-          canonicalName: `Experience ${id}`,
-          metadata: degradedRow(id).metadata,
-        })),
+      mocks.catalog.findVerifiedByIds.mockImplementation(
+        async (ids: string[]) =>
+          ids.map((id) => ({
+            id,
+            canonicalName: `Experience ${id}`,
+            metadata: degradedRow(id).metadata,
+          })),
       );
       mocks.catalog.findClassificationContextById.mockImplementation(
         async (id: string) => ({
@@ -1604,12 +1612,13 @@ describe('AreaRouteWalkAcquisitionService', () => {
         degradedRow('exp-fail'),
         degradedRow('exp-walk'),
       ]);
-      mocks.catalog.findVerifiedByIds.mockImplementation(async (ids: string[]) =>
-        ids.map((id) => ({
-          id,
-          canonicalName: `Experience ${id}`,
-          metadata: degradedRow(id).metadata,
-        })),
+      mocks.catalog.findVerifiedByIds.mockImplementation(
+        async (ids: string[]) =>
+          ids.map((id) => ({
+            id,
+            canonicalName: `Experience ${id}`,
+            metadata: degradedRow(id).metadata,
+          })),
       );
       mocks.catalog.findClassificationContextById.mockImplementation(
         async (id: string) => ({
@@ -1673,7 +1682,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
       if (result.outcome === 'classification_refreshed') {
         expect(result.experienceId).toBe('exp-walk');
         expect(result.classificationRefresh).toBeDefined();
-        expect(result.classificationRefresh!.attempts).toHaveLength(1);
+        expect(result.classificationRefresh!.attempts).toHaveLength(2);
         expect(result.classificationRefresh!.attempts[0]).toEqual({
           experienceId: 'exp-fail',
           outcome: 'degraded',
@@ -1685,6 +1694,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
             httpStatus: 503,
             providerStatus: 'UNAVAILABLE',
           },
+        });
+        expect(result.classificationRefresh!.attempts[1]).toEqual({
+          experienceId: 'exp-walk',
+          outcome: 'classified_match',
+          provider: 'groq',
+          model: 'qwen/qwen3.8-27b',
         });
       }
       expect(
@@ -1737,6 +1752,307 @@ describe('AreaRouteWalkAcquisitionService', () => {
       expect(mocks.classificationService.classify).not.toHaveBeenCalled();
       expect(mocks.acquisitionPlanner.buildAcquisitionPlan).toHaveBeenCalled();
       expect(mocks.acquisitionService.executePlan).toHaveBeenCalled();
+    });
+  });
+
+  describe('Classifier-owned WARM eligibility (F1-F8)', () => {
+    it('F1: successful refresh appears in audit with classified_match', async () => {
+      const mocks = buildMocks();
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
+        degradedRow('exp-a'),
+        degradedRow('exp-b'),
+      ]);
+      mocks.catalog.findVerifiedByIds.mockImplementation(
+        async (ids: string[]) =>
+          ids.map((id) => ({
+            id,
+            canonicalName: `Experience ${id}`,
+            metadata: degradedRow(id).metadata,
+          })),
+      );
+      mocks.catalog.findClassificationContextById.mockImplementation(
+        async (id: string) => ({
+          experienceId: id,
+          canonicalName: `Experience ${id}`,
+          metadata: degradedRow(id).metadata,
+          evidence: [
+            {
+              key: 'ev-1',
+              source: 'serper',
+              snippet: 'Grounding evidence',
+            },
+          ],
+        }),
+      );
+      mocks.classificationService.classify.mockImplementation(
+        async (name: string) => {
+          if (name.includes('exp-a')) {
+            return {
+              themes: [] as string[],
+              intents: [] as string[],
+              traits: [] as string[],
+              reasoningEvidence: [] as Array<{
+                facet: string;
+                evidenceKeys: string[];
+                reason: string;
+              }>,
+              modelId: 'groq/qwen',
+              promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+              state: 'degraded',
+              failure: {
+                stage: 'provider_call',
+                reason: 'PROVIDER_UNAVAILABLE',
+                httpStatus: 503,
+                providerStatus: 'UNAVAILABLE',
+              },
+            };
+          }
+          return {
+            themes: ['history'],
+            intents: ['walk'],
+            traits: [] as string[],
+            reasoningEvidence: [
+              {
+                facet: 'intent:walk',
+                evidenceKeys: ['ev-1'],
+                reason: 'walking evidence',
+              },
+            ],
+            modelId: 'groq/qwen',
+            promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+            state: 'classified',
+          };
+        },
+      );
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result.outcome).toBe('classification_refreshed');
+      if (result.outcome === 'classification_refreshed') {
+        expect(result.experienceId).toBe('exp-b');
+        expect(result.classificationRefresh).toBeDefined();
+        expect(result.classificationRefresh!.attempts).toEqual([
+          {
+            experienceId: 'exp-a',
+            outcome: 'degraded',
+            provider: 'groq',
+            model: 'qwen/qwen3.8-27b',
+            failure: {
+              stage: 'provider_call',
+              reason: 'PROVIDER_UNAVAILABLE',
+              httpStatus: 503,
+              providerStatus: 'UNAVAILABLE',
+            },
+          },
+          {
+            experienceId: 'exp-b',
+            outcome: 'classified_match',
+            provider: 'groq',
+            model: 'qwen/qwen3.8-27b',
+          },
+        ]);
+        expect(
+          (result.classificationRefresh!.attempts[1] as any).failure,
+        ).toBeUndefined();
+      }
+    });
+
+    it('F2: valid wrong-facet candidate is NOT refreshed', async () => {
+      const mocks = buildMocks();
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
+        classifiedRow('exp-food', 'food'),
+      ]);
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result.outcome).toBe('no_result');
+      if (result.outcome === 'no_result') {
+        expect(result.reason).toBe('no_semantically_eligible_result');
+      }
+      expect(mocks.classificationService.classify).not.toHaveBeenCalled();
+      expect(
+        mocks.catalog.findClassificationContextById,
+      ).not.toHaveBeenCalled();
+      expect(
+        mocks.acquisitionPlanner.buildAcquisitionPlan,
+      ).not.toHaveBeenCalled();
+      expect(mocks.acquisitionService.executePlan).not.toHaveBeenCalled();
+    });
+
+    it('F3: valid wrong-facet + no evidence still semantic mismatch', async () => {
+      const mocks = buildMocks();
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
+        classifiedRow('exp-food', 'food'),
+      ]);
+      mocks.catalog.findClassificationContextById.mockResolvedValue({
+        experienceId: 'exp-food',
+        canonicalName: 'Food Experience',
+        metadata: classifiedRow('exp-food', 'food').metadata,
+        evidence: [],
+      });
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result.outcome).toBe('no_result');
+      if (result.outcome === 'no_result') {
+        expect(result.reason).toBe('no_semantically_eligible_result');
+      }
+      expect(mocks.classificationService.classify).not.toHaveBeenCalled();
+      expect(
+        mocks.catalog.findClassificationContextById,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('F4: legacy archetype cannot override valid classification', async () => {
+      const mocks = buildMocks();
+      const row = classifiedRow('exp-archetype', 'food');
+      (row.metadata as any).archetypes = ['walk'];
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([row]);
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result.outcome).toBe('no_result');
+      if (result.outcome === 'no_result') {
+        expect(result.reason).toBe('no_semantically_eligible_result');
+      }
+      expect(mocks.classificationService.classify).not.toHaveBeenCalled();
+    });
+
+    it('F5: legacy archetype cannot override refreshed classification', async () => {
+      const mocks = buildMocks();
+      const row = degradedRow('exp-degraded-with-archetype');
+      (row.metadata as any).archetypes = ['walk'];
+
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([row]);
+      mocks.catalog.findVerifiedByIds.mockResolvedValue([
+        {
+          id: 'exp-degraded-with-archetype',
+          canonicalName: 'Caminito Tour',
+          metadata: row.metadata,
+        },
+      ]);
+      mocks.catalog.findClassificationContextById.mockResolvedValue({
+        experienceId: 'exp-degraded-with-archetype',
+        canonicalName: 'Caminito Tour',
+        metadata: row.metadata,
+        evidence: [
+          {
+            key: 'ev-1',
+            source: 'serper',
+            snippet: 'Food market in Caminito',
+          },
+        ],
+      });
+      mocks.classificationService.classify.mockResolvedValue({
+        themes: ['food'],
+        intents: ['food'],
+        traits: [] as string[],
+        reasoningEvidence: [
+          {
+            facet: 'intent:food',
+            evidenceKeys: ['ev-1'],
+            reason: 'food market',
+          },
+        ],
+        modelId: 'groq/qwen',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      });
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result.outcome).toBe('no_result');
+      if (result.outcome === 'no_result') {
+        expect(result.reason).toBe('no_semantically_eligible_result');
+        expect(result.classificationRefresh).toBeDefined();
+        expect(result.classificationRefresh!.attempts).toEqual([
+          {
+            experienceId: 'exp-degraded-with-archetype',
+            outcome: 'classified_mismatch',
+            provider: 'groq',
+            model: 'qwen/qwen3.8-27b',
+          },
+        ]);
+      }
+    });
+
+    it('F6: positive direct reuse still works with classifier 0 calls', async () => {
+      const mocks = buildMocks();
+      const row = classifiedRow('exp-walk', 'walk');
+      (row.metadata as any).archetypes = ['food'];
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([row]);
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result).toEqual({ outcome: 'reused', experienceId: 'exp-walk' });
+      expect(mocks.classificationService.classify).not.toHaveBeenCalled();
+      expect(
+        mocks.catalog.findClassificationContextById,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('F7: positive refresh still works with classified_match in audit', async () => {
+      const mocks = buildMocks();
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
+        degradedRow('exp-refresh-walk'),
+      ]);
+      mocks.catalog.findVerifiedByIds.mockResolvedValue([
+        {
+          id: 'exp-refresh-walk',
+          canonicalName: 'Walking Tour',
+          metadata: degradedRow('exp-refresh-walk').metadata,
+        },
+      ]);
+      mocks.catalog.findClassificationContextById.mockResolvedValue({
+        experienceId: 'exp-refresh-walk',
+        canonicalName: 'Walking Tour',
+        metadata: degradedRow('exp-refresh-walk').metadata,
+        evidence: [
+          {
+            key: 'ev-1',
+            source: 'serper',
+            snippet: 'Historic walking route',
+          },
+        ],
+      });
+      mocks.classificationService.classify.mockResolvedValue({
+        themes: ['history'],
+        intents: ['walk'],
+        traits: [] as string[],
+        reasoningEvidence: [
+          {
+            facet: 'intent:walk',
+            evidenceKeys: ['ev-1'],
+            reason: 'walking route',
+          },
+        ],
+        modelId: 'groq/qwen',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      });
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result.outcome).toBe('classification_refreshed');
+      if (result.outcome === 'classification_refreshed') {
+        expect(result.experienceId).toBe('exp-refresh-walk');
+        expect(result.classificationRefresh).toBeDefined();
+        expect(result.classificationRefresh!.attempts).toEqual([
+          {
+            experienceId: 'exp-refresh-walk',
+            outcome: 'classified_match',
+            provider: 'groq',
+            model: 'qwen/qwen3.8-27b',
+          },
+        ]);
+      }
     });
   });
 });
