@@ -25,6 +25,7 @@ import {
   ExperienceGroundedSearchProvider,
   GroundingNormalizationAudit,
   ExperienceGroundingEvidenceKind,
+  ExperienceGroundingEvidence,
 } from '../interfaces/experience-grounding.interface';
 import {
   DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
@@ -146,6 +147,12 @@ export interface WebAcquisitionResult {
    * it is only observable here.
    */
   sourceSupportAudits?: CandidateSourceSupportAudit[];
+  /**
+   * Deep source selection audit for Generation Trace v5 / Bitácora.
+   * Records the production decision to select URLs from grounded evidence
+   * for source content retrieval when a composition gap exists.
+   */
+  deepSourceSelection?: WebDeepSourceSelectionAudit;
   sourceContentRetrieval?: {
     attempted: boolean;
     provider?: WebSourceContentProviderName;
@@ -156,8 +163,38 @@ export interface WebAcquisitionResult {
     items: WebSourceContentResultItem[];
     totalDurationMs?: number;
     reExtractionAttempted?: boolean;
+    selectionAudit?: WebDeepSourceSelectionAudit;
   };
   failureReason?: string;
+}
+
+export type WebDeepSourceDecisionReason =
+  | 'SELECTED'
+  | 'INVALID_OR_NON_HTTP_URL'
+  | 'NON_EDITORIAL_SOURCE'
+  | 'DUPLICATE_URL'
+  | 'BELOW_SELECTION_LIMIT';
+
+export interface WebDeepSourceItemAudit {
+  evidenceKey: string;
+  title?: string;
+  url?: string;
+  originalRank: number;
+  editorialEligible: boolean;
+  tourContentScore: number;
+  citedCandidateBonus: number;
+  finalScore: number;
+  rankedPosition?: number;
+  selected: boolean;
+  decisionReason: WebDeepSourceDecisionReason;
+}
+
+export interface WebDeepSourceSelectionAudit {
+  evidenceCount: number;
+  anchorNames?: string[];
+  selectionLimit: number;
+  selectedUrls: string[];
+  items: WebDeepSourceItemAudit[];
 }
 
 export interface WebCandidateAdmissionDecision {
@@ -637,6 +674,7 @@ export class ExperienceAcquisitionService {
         .filter((decision) => decision.accepted)
         .map((decision) => decision.candidate);
 
+      let deepSourceSelectionTrace: WebDeepSourceSelectionAudit | undefined;
       let sourceContentRetrievalTrace: WebAcquisitionResult['sourceContentRetrieval'];
 
       const isMultiComponentRequested = plan.evidenceRequirements.includes(
@@ -669,26 +707,120 @@ export class ExperienceAcquisitionService {
           rejectedWalkCandidate?.candidate.evidenceKeys ?? [],
         );
 
-        const validEvidenceItems = (grounded.evidence ?? []).filter(
-          (ev) =>
-            ev.url &&
-            /^https?:\/\//i.test(ev.url) &&
-            isEditorialTourUrl(ev.url),
+        const rawEvidence = grounded.evidence ?? [];
+        const selectionLimit = 2;
+
+        interface ScoredEligibleEvidence {
+          ev: ExperienceGroundingEvidence;
+          originalIndex: number;
+          originalRank: number;
+          tourContentScore: number;
+          citedCandidateBonus: number;
+          finalScore: number;
+        }
+
+        const eligibleItems: ScoredEligibleEvidence[] = [];
+        const itemAuditsByIndex: WebDeepSourceItemAudit[] = new Array(
+          rawEvidence.length,
         );
 
-        const rankedEvidenceItems = [...validEvidenceItems].sort((a, b) => {
-          const aScore =
-            scoreUrlForTourContent(a.url!, web.anchorNames) +
-            (candidateCitedKeys.has(a.key) ? 1 : 0);
-          const bScore =
-            scoreUrlForTourContent(b.url!, web.anchorNames) +
-            (candidateCitedKeys.has(b.key) ? 1 : 0);
-          return bScore - aScore;
+        rawEvidence.forEach((ev, index) => {
+          const originalRank =
+            typeof ev.order === 'number' ? ev.order : index + 1;
+          const hasValidUrl = Boolean(ev.url && /^https?:\/\//i.test(ev.url));
+          const isEditorial = hasValidUrl && isEditorialTourUrl(ev.url!);
+          const tourContentScore = ev.url
+            ? scoreUrlForTourContent(ev.url, web.anchorNames)
+            : 0;
+          const citedCandidateBonus = candidateCitedKeys.has(ev.key) ? 1 : 0;
+          const finalScore = tourContentScore + citedCandidateBonus;
+
+          if (!hasValidUrl) {
+            itemAuditsByIndex[index] = {
+              evidenceKey: ev.key,
+              title: ev.title,
+              url: ev.url,
+              originalRank,
+              editorialEligible: false,
+              tourContentScore,
+              citedCandidateBonus,
+              finalScore,
+              selected: false,
+              decisionReason: 'INVALID_OR_NON_HTTP_URL',
+            };
+          } else if (!isEditorial) {
+            itemAuditsByIndex[index] = {
+              evidenceKey: ev.key,
+              title: ev.title,
+              url: ev.url,
+              originalRank,
+              editorialEligible: false,
+              tourContentScore,
+              citedCandidateBonus,
+              finalScore,
+              selected: false,
+              decisionReason: 'NON_EDITORIAL_SOURCE',
+            };
+          } else {
+            eligibleItems.push({
+              ev,
+              originalIndex: index,
+              originalRank,
+              tourContentScore,
+              citedCandidateBonus,
+              finalScore,
+            });
+          }
         });
 
-        const targetUrls = Array.from(
-          new Set(rankedEvidenceItems.map((ev) => ev.url!)),
-        ).slice(0, 2);
+        eligibleItems.sort((a, b) => b.finalScore - a.finalScore);
+
+        const targetUrls: string[] = [];
+        const seenUrls = new Set<string>();
+
+        eligibleItems.forEach((item, rankedIndex) => {
+          const rankedPosition = rankedIndex + 1;
+          const url = item.ev.url!;
+          let selected = false;
+          let decisionReason: WebDeepSourceDecisionReason;
+
+          if (seenUrls.has(url)) {
+            decisionReason = 'DUPLICATE_URL';
+          } else {
+            seenUrls.add(url);
+            if (targetUrls.length < selectionLimit) {
+              selected = true;
+              decisionReason = 'SELECTED';
+              targetUrls.push(url);
+            } else {
+              decisionReason = 'BELOW_SELECTION_LIMIT';
+            }
+          }
+
+          itemAuditsByIndex[item.originalIndex] = {
+            evidenceKey: item.ev.key,
+            title: item.ev.title,
+            url: item.ev.url,
+            originalRank: item.originalRank,
+            editorialEligible: true,
+            tourContentScore: item.tourContentScore,
+            citedCandidateBonus: item.citedCandidateBonus,
+            finalScore: item.finalScore,
+            rankedPosition,
+            selected,
+            decisionReason,
+          };
+        });
+
+        deepSourceSelectionTrace = {
+          evidenceCount: rawEvidence.length,
+          ...(web.anchorNames?.length
+            ? { anchorNames: [...web.anchorNames] }
+            : {}),
+          selectionLimit,
+          selectedUrls: [...targetUrls],
+          items: itemAuditsByIndex,
+        };
 
         if (targetUrls.length > 0) {
           const triggerReason = rejectedWalkCandidate
@@ -716,6 +848,7 @@ export class ExperienceAcquisitionService {
             items: retrievalResult.items,
             totalDurationMs: retrievalResult.totalDurationMs,
             reExtractionAttempted: false,
+            selectionAudit: deepSourceSelectionTrace,
           };
 
           if (retrievedItems.length > 0) {
@@ -798,6 +931,7 @@ export class ExperienceAcquisitionService {
         candidateCount: admissibleCandidates.length,
         candidateDecisions,
         sourceSupportAudits: extracted.sourceSupportAudits,
+        deepSourceSelection: deepSourceSelectionTrace,
         sourceContentRetrieval: sourceContentRetrievalTrace,
       };
     } catch (error: any) {
