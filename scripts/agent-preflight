@@ -215,13 +215,17 @@ else
 
     [ "$other_status" != "active" ] && continue
     [ "$other_branch" = "$CURRENT_BRANCH" ] && continue
-    [ "$other_branch" = "$BASE_BRANCH" ] && continue
-    [ "$other_branch" = "$INTEGRATION_BRANCH" ] && continue
 
     overlap_token="$(token_overlap "$CURRENT_OWNS" "$other_owns,$other_touches" || true)"
     if [ -n "$overlap_token" ]; then
       fail "semantic ownership" "$INITIATIVE_ID overlaps $other_id on '$overlap_token'"
     fi
+
+    # Parent/integration branches are inherited structurally, so comparing
+    # their full file deltas would create false positives. Semantic ownership
+    # was still checked above and may never be silently shared.
+    [ "$other_branch" = "$BASE_BRANCH" ] && continue
+    [ "$other_branch" = "$INTEGRATION_BRANCH" ] && continue
 
     OTHER_REF="origin/$other_branch"
     if [ -n "$CURRENT_FILES" ] \
