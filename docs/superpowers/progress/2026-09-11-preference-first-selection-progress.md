@@ -2,7 +2,7 @@
 
 Updated: 2026-09-28
 Branch: `feat/preference-first-selection`
-Repository: `jiseruk/zig-zag`
+Repository: `entity-builders-labs/zig-zag`
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
 Canonical implementation plan: `docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md`
 Canonical design: `docs/superpowers/specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md`
