@@ -5,6 +5,7 @@ import {
 } from '../interfaces/experience-discovery.interface';
 import { normalizeExperienceCandidateFacets } from './experience-candidate-facet-normalizer.util';
 import {
+  ComponentEvidenceAttributionStatus,
   ComponentSourceSupportReason,
   isUnsupportedComponentSourceSupportResult,
   verifyTextualComponentSourceSupport,
@@ -52,6 +53,9 @@ export interface ComponentSourceSupportAudit {
   role: GeoEntityHint['role'];
   expectedKind: GeoEntityHint['expectedKind'];
   evidenceKeys: string[];
+  declaredEvidenceKeys: string[];
+  verifiedEvidenceKeys: string[];
+  attributionStatus: ComponentEvidenceAttributionStatus;
   status: ComponentSourceSupportStatus;
   reason?: ComponentSourceSupportReason;
   /** The exact source substring that verified this component's supportSpan.
@@ -80,6 +84,8 @@ export interface CandidateSourceSupportAudit {
   emittedComponentCount: number;
   supportedComponentCount: number;
   unsupportedComponentCount: number;
+  declaredEvidenceKeys?: string[];
+  verifiedEvidenceKeys?: string[];
   components: ComponentSourceSupportAudit[];
 }
 
@@ -272,6 +278,9 @@ export function extractExperienceCandidates(
             role: hint.role,
             expectedKind: hint.expectedKind,
             evidenceKeys: hintEvidenceKeys,
+            declaredEvidenceKeys: hintEvidenceKeys,
+            verifiedEvidenceKeys: [],
+            attributionStatus: 'NO_SUPPORTING_EVIDENCE',
             status: 'UNSUPPORTED',
             reason,
           });
@@ -293,6 +302,9 @@ export function extractExperienceCandidates(
             role: hint.role,
             expectedKind: hint.expectedKind,
             evidenceKeys: hintEvidenceKeys,
+            declaredEvidenceKeys: support.declaredEvidenceKeys,
+            verifiedEvidenceKeys: support.verifiedEvidenceKeys,
+            attributionStatus: support.attributionStatus,
             status: 'UNSUPPORTED',
             reason: support.reason,
           });
@@ -306,7 +318,10 @@ export function extractExperienceCandidates(
           ...(normalizationKind ? { normalizationKind } : {}),
           role: hint.role,
           expectedKind: hint.expectedKind,
-          evidenceKeys: hintEvidenceKeys,
+          evidenceKeys: support.verifiedEvidenceKeys,
+          declaredEvidenceKeys: support.declaredEvidenceKeys,
+          verifiedEvidenceKeys: support.verifiedEvidenceKeys,
+          attributionStatus: support.attributionStatus,
           status: 'SUPPORTED',
           verifiedSupportSpan: support.verifiedSupportSpan,
         });
@@ -322,7 +337,8 @@ export function extractExperienceCandidates(
           ...(normalizationKind ? { normalizationKind } : {}),
           role: hint.role,
           expectedKind: hint.expectedKind,
-          evidenceKeys: hintEvidenceKeys,
+          evidenceKeys: support.verifiedEvidenceKeys,
+          declaredEvidenceKeys: support.declaredEvidenceKeys,
           ...(addressHint ? { addressHint } : {}),
         });
       }
@@ -332,6 +348,50 @@ export function extractExperienceCandidates(
       (audit) => audit.status === 'UNSUPPORTED',
     );
     const hasSourceContractViolation = unsupportedAudits.length > 0;
+
+    const declaredCandidateKeys = Array.isArray(candidate.evidenceKeys)
+      ? candidate.evidenceKeys.map(String)
+      : [];
+
+    const reattributedKeys = new Map<string, Set<string>>();
+    for (const audit of componentAudits) {
+      if (audit.attributionStatus === 'REATTRIBUTED_UNIQUE_EXACT_SPAN') {
+        for (const declared of audit.declaredEvidenceKeys) {
+          if (!reattributedKeys.has(declared)) {
+            reattributedKeys.set(declared, new Set());
+          }
+          for (const verified of audit.verifiedEvidenceKeys) {
+            reattributedKeys.get(declared)!.add(verified);
+          }
+        }
+      }
+    }
+
+    const verifiedCandidateKeysSet = new Set<string>();
+    for (const declared of declaredCandidateKeys) {
+      if (reattributedKeys.has(declared)) {
+        const alsoVerified = componentAudits.some(
+          (a) =>
+            a.attributionStatus === 'DECLARED_KEY_VERIFIED' &&
+            a.verifiedEvidenceKeys.includes(declared),
+        );
+        if (alsoVerified) {
+          verifiedCandidateKeysSet.add(declared);
+        }
+        for (const replacement of reattributedKeys.get(declared)!) {
+          verifiedCandidateKeysSet.add(replacement);
+        }
+      } else {
+        verifiedCandidateKeysSet.add(declared);
+      }
+    }
+    for (const hint of hints) {
+      for (const k of hint.evidenceKeys) {
+        verifiedCandidateKeysSet.add(k);
+      }
+    }
+    const finalCandidateEvidenceKeys = Array.from(verifiedCandidateKeysSet);
+
     if (componentAudits.length > 0) {
       sourceSupportAudits.push({
         candidateName,
@@ -342,6 +402,10 @@ export function extractExperienceCandidates(
         supportedComponentCount:
           componentAudits.length - unsupportedAudits.length,
         unsupportedComponentCount: unsupportedAudits.length,
+        declaredEvidenceKeys: declaredCandidateKeys,
+        verifiedEvidenceKeys: hasSourceContractViolation
+          ? []
+          : finalCandidateEvidenceKeys,
         components: componentAudits,
       });
     }
@@ -384,7 +448,8 @@ export function extractExperienceCandidates(
         ? candidate.suggestedDurationMinutes
         : undefined,
       componentHints: hints,
-      evidenceKeys: candidate.evidenceKeys.map(String),
+      evidenceKeys: finalCandidateEvidenceKeys,
+      declaredEvidenceKeys: declaredCandidateKeys,
       shortReason:
         typeof candidate.shortReason === 'string'
           ? candidate.shortReason.trim()

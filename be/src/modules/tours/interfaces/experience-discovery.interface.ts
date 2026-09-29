@@ -28,6 +28,11 @@ export interface GeoEntityHint {
   expectedKind: 'PLACE' | 'AREA' | 'ROUTE';
   evidenceKeys: string[];
   /**
+   * The original evidence keys declared by the extractor before backend verification.
+   * Preserved for audit provenance and forensic visibility when unique exact re-attribution occurs.
+   */
+  declaredEvidenceKeys?: string[];
+  /**
    * A street address the cited evidence explicitly gives for this hint
    * (e.g. "Junín 1760"), when it does — never fabricated, never derived
    * from the venue name itself. Descriptive text extracted from evidence,
@@ -74,6 +79,11 @@ export interface ExperienceCandidate {
   suggestedDurationMinutes?: number;
   componentHints: GeoEntityHint[];
   evidenceKeys: string[];
+  /**
+   * The original candidate-level evidence keys declared by the extractor before backend verification.
+   * Preserved for audit provenance and forensic visibility when unique exact re-attribution occurs.
+   */
+  declaredEvidenceKeys?: string[];
   shortReason: string;
   /**
    * True only when the cited evidence explicitly describes a visiting
