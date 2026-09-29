@@ -74,7 +74,9 @@ It owns the live convergence of:
 - Bitácora v4;
 - single live orchestration ownership.
 
-After the Preference-First acceptance and real-world gates close, this branch — or a direct descendant of its accepted HEAD — is the base for agentic convergence.
+After Preference-First acceptance, **Planner Product Acceptance**, and Tour
+Engine v1 closure, this branch — or a direct descendant of its accepted HEAD —
+is the base for agentic convergence.
 
 ### `feat/agentic-travel-planning`
 
@@ -693,7 +695,7 @@ At closure the research/knowledge core must satisfy, at minimum:
 - resolved feasible MUST anchors are protected;
 - final tour cardinality comes from planner feasibility, not a fixed candidate quota;
 - reservoir/backfill/acquisition convergence is bounded;
-- trace v4/Bitácora v4 explain the real decisions;
+- Generation Trace v5 / Bitácora explain the real decisions;
 - no second legacy tour-generation authority remains.
 
 ## 6a. Planner Product Acceptance — required before Tour Engine v1
@@ -1060,24 +1062,30 @@ preserve obsolete internal contracts. Apply the repository early-stage deletion
 rule unless an explicit product requirement requires old-tour trace
 compatibility.
 
-### Why this gate precedes agentic convergence
+### Trace v5 sequencing status — completed ahead of the remaining product gates
 
 Agentic convergence will introduce more dynamic execution shapes: research
 gaps, independent tools, bounded retries, source retrieval, provider policy and
-other future capabilities. Carrying the current stage-specific v4 schema into
-that phase would multiply its maintenance cost.
+other future capabilities. That was the reason Trace v5 had to exist before
+agentic convergence.
 
-Therefore the canonical order is:
+The Trace v5 cutover is now **COMPLETE / ACTIVE TRACE AUTHORITY**. It is not a
+future gate and must not be reinserted between Preference-First closure and
+Planner Product Acceptance.
+
+The current canonical order is:
 
 ```text
-RW3–RW6
+Trace v5 COMPLETE
+→ RW4–RW6
 → PREFERENCE-FIRST CORE CLOSED
-→ Trace v5 generic decision-step cutover
+→ PLANNER PRODUCT ACCEPTANCE
+→ TOUR ENGINE V1 COMPLETE
 → unified agentic convergence
 ```
 
-Do not use this planned cleanup to delay or reopen accepted Preference-First
-domain semantics.
+Do not use trace cleanup to delay or reopen accepted Preference-First domain
+semantics.
 
 ---
 
