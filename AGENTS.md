@@ -59,8 +59,10 @@ preflight before other writes.
 
 Treat the checks as follows:
 
-- declared-base mismatch or non-mutating merge conflict with the integration
-  target: hard stop;
+- declared base-snapshot mismatch or non-mutating merge conflict with the
+  current integration target: hard stop;
+- the lineage base branch advancing after initiative creation: warning; do not
+  auto-rebase/merge solely to silence it;
 - semantic ownership collision with another active initiative: hard stop;
 - overlapping changed files across otherwise-independent initiatives: warning
   requiring explicit review before integration;
