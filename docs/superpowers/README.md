@@ -3,7 +3,7 @@
 Status: **canonical navigation index; not an execution log**.  
 Updated: 2026-09-28.  
 Active tour-engine branch: `feat/preference-first-selection`.  
-Repository remotes: upstream canonical `origin` is `entity-builders-labs/zig-zag`, development `fork` is `jiseruk/zig-zag`.
+Canonical repository: `entity-builders-labs/zig-zag`. A personal fork may exist as a backup, but it is not the active development authority.
 
 This file answers four questions before an engineer or agent reads the large
 historical document set:
@@ -47,7 +47,40 @@ evidence, not execution authority.
 
 ---
 
-## 2. Current authority set
+## 2. Active initiatives
+
+This section is the canonical registry for concurrently-written initiatives.
+The HTML markers are intentionally machine-readable by
+`scripts/agent-preflight`; the table is the human-readable view of the same
+facts. Update both in the same commit when starting, closing, rebasing, or
+changing ownership of an initiative.
+
+<!-- agent-initiative: id=preference-first-rw3; status=active; branch=feat/preference-first-selection; base=main; integration=main; owns=classification-convergence,catalog-reuse,area-route-walk-reuse; touches=tour-generation,experience-classification,experience-catalog -->
+<!-- agent-initiative: id=agent-collaboration-foundation; status=active; branch=chore/agent-collaboration-foundation; base=feat/preference-first-selection; integration=feat/preference-first-selection; owns=agent-workflow,initiative-governance; touches=repository-instructions,documentation-navigation,agent-preflight -->
+
+| Initiative | Status | Branch | Integration target | Semantic ownership | Scope |
+| --- | --- | --- | --- | --- | --- |
+| Preference-First RW3 | ACTIVE | `feat/preference-first-selection` | `main` | classification convergence; catalog reuse; AREA/ROUTE warm reuse | Finish RW3 live acceptance; RW4 remains blocked |
+| Agent Collaboration Foundation | ACTIVE | `chore/agent-collaboration-foundation` | `feat/preference-first-selection` | agent workflow; initiative governance | Cross-agent worktree/preflight contract only; no product behavior |
+
+Rules:
+
+- Every branch that will receive concurrent human/agent writes must map to one
+  active initiative before ordinary implementation begins.
+- `base` is the branch whose accepted state the initiative starts from;
+  `integration` is where this initiative is intended to converge next.
+- A child initiative may intentionally use another active initiative as its
+  base/integration target. Its inherited changes are not an overlap defect.
+- Two unrelated active initiatives must not claim the same semantic owner.
+- `touches` is advisory scope; `owns` is the stronger semantic authority
+  used by preflight conflict detection.
+- Same-file overlap is a review signal, not proof of semantic conflict.
+- Closing an initiative means changing its registry status and documenting its
+  integration result; do not leave abandoned branches marked ACTIVE.
+
+---
+
+## 3. Current authority set
 
 | Role | Document | Authority |
 | --- | --- | --- |
@@ -65,7 +98,7 @@ explicitly demoting the old pointer.
 
 ---
 
-## 3. Canonical forward sequence
+## 4. Canonical forward sequence
 
 ```text
 RW3 source-depth/composition/geography proven; warm-reuse finding open
@@ -92,7 +125,7 @@ canonical convergence roadmap.
 
 ---
 
-## 4. Document lifecycle rules
+## 5. Document lifecycle rules
 
 Every `docs/superpowers/` document should be interpreted as one of these
 classes:
@@ -140,7 +173,7 @@ Rules:
 
 ---
 
-## 5. Progress-file inventory
+## 6. Progress-file inventory
 
 Only one of the existing files below is the current execution pointer.
 
@@ -164,7 +197,7 @@ document; do not promote the old file itself back to current authority.
 
 ---
 
-## 6. How to navigate by task
+## 7. How to navigate by task
 
 ### "Where are we?"
 
@@ -204,7 +237,7 @@ supporting evidence. Do not let them silently override current authority.
 
 ---
 
-## 7. Plan completion and status discipline
+## 8. Plan completion and status discipline
 
 A plan being present in `plans/` does not mean it is pending. A plan may be:
 
@@ -229,7 +262,7 @@ tracks independent and identifies one pointer per track.
 
 ---
 
-## 8. Generation Trace v5: COMPLETE / ACTIVE TRACE AUTHORITY
+## 9. Generation Trace v5: COMPLETE / ACTIVE TRACE AUTHORITY
 
 Generation Trace v5 is the single canonical trace authority across the backend
 and frontend. Legacy Trace v4 has been completely removed: `generation-trace.interface.ts`,
@@ -268,7 +301,7 @@ during RW1–RW6.
 
 ---
 
-## 9. Directory semantics
+## 10. Directory semantics
 
 ```text
 specs/
