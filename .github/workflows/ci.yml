@@ -14,6 +14,18 @@ permissions:
   contents: read
 
 jobs:
+  agent-governance:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The canonical preflight reasons about declared base snapshots and
+          # active integration branches, so CI needs full branch history.
+          fetch-depth: 0
+      - name: Agent collaboration preflight
+        run: bash scripts/agent-preflight --ci
+
   backend:
     runs-on: ubuntu-latest
     steps:

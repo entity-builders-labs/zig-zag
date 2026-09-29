@@ -1,0 +1,13 @@
+# Human review routing only.
+#
+# Semantic initiative ownership is declared by the ACTIVE `owns=` marker in
+# docs/superpowers/README.md and enforced by scripts/agent-preflight.
+# CODEOWNERS must never be treated as a domain-policy or initiative authority.
+
+/AGENTS.md @jiseruk
+/docs/architecture/ @jiseruk
+/docs/superpowers/ @jiseruk
+/scripts/agent-preflight @jiseruk
+/.github/workflows/ @jiseruk
+/.github/CODEOWNERS @jiseruk
+/.github/pull_request_template.md @jiseruk

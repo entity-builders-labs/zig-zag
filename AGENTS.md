@@ -82,6 +82,26 @@ another branch, or weakening an architectural owner.
 - Use the initiative's declared integration target; do not assume every branch
   integrates directly into `main`.
 
+### Pull request integration contract
+
+Pull requests are the integration boundary for initiative work.
+
+- Target the `integration=` branch declared by the initiative registry; do not
+  default mechanically to `main`.
+- Fill the initiative contract in `.github/pull_request_template.md` from the
+  branch's ACTIVE registry marker.
+- Keep `scripts/agent-preflight` as the single collaboration-policy primitive.
+  Local agents run it directly; CI runs the same script with `--ci`.
+- A CI failure in the `agent-governance` job is a hard integration stop. Do
+  not duplicate or weaken the policy inside workflow YAML to make the check
+  pass.
+- `CODEOWNERS` is human review routing only. It does not assign semantic
+  initiative ownership and must never be used to resolve an `owns=`
+  collision.
+- Registry changes that intentionally transfer semantic ownership must make
+  that transfer explicit; do not broaden ownership as a workaround for a
+  conflict.
+
 ### Superpowers documentation navigation
 
 Before using a dated file under `docs/superpowers/` to determine current

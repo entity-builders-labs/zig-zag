@@ -56,12 +56,12 @@ facts. Update both in the same commit when starting, closing, rebasing, or
 changing ownership of an initiative.
 
 <!-- agent-initiative: id=preference-first-rw3; status=active; branch=feat/preference-first-selection; base=main; base_sha=016f10586d4faf9fe7e703a2d28684136cf99abe; integration=main; owns=classification-convergence,catalog-reuse,area-route-walk-reuse; touches=tour-generation,experience-classification,experience-catalog; -->
-<!-- agent-initiative: id=agent-collaboration-foundation; status=active; branch=chore/agent-collaboration-foundation; base=feat/preference-first-selection; base_sha=74a545f2f4b1f724fe4cfa6f23c804b281b90f02; integration=feat/preference-first-selection; owns=agent-workflow,initiative-governance; touches=repository-instructions,documentation-navigation,agent-preflight; -->
+<!-- agent-initiative: id=agent-collaboration-foundation; status=active; branch=chore/agent-collaboration-foundation; base=feat/preference-first-selection; base_sha=74a545f2f4b1f724fe4cfa6f23c804b281b90f02; integration=feat/preference-first-selection; owns=agent-workflow,initiative-governance,github-governance; touches=repository-instructions,documentation-navigation,agent-preflight,github-actions,codeowners,pr-contract; -->
 
 | Initiative | Status | Branch | Base snapshot | Integration target | Semantic ownership | Scope |
 | --- | --- | --- | --- | --- | --- | --- |
 | Preference-First RW3 | ACTIVE | `feat/preference-first-selection` | `016f1058` (`main`) | `main` | classification convergence; catalog reuse; AREA/ROUTE warm reuse | Finish RW3 live acceptance; RW4 remains blocked |
-| Agent Collaboration Foundation | ACTIVE | `chore/agent-collaboration-foundation` | `74a545f2` (`feat/preference-first-selection`) | `feat/preference-first-selection` | agent workflow; initiative governance | Cross-agent worktree/preflight contract only; no product behavior |
+| Agent Collaboration Foundation | ACTIVE | `chore/agent-collaboration-foundation` | `74a545f2` (`feat/preference-first-selection`) | `feat/preference-first-selection` | agent workflow; initiative governance; GitHub governance | Cross-agent worktree/preflight, PR review contract and CI enforcement; no product behavior |
 
 Rules:
 
@@ -81,6 +81,21 @@ Rules:
 - Same-file overlap is a review signal, not proof of semantic conflict.
 - Closing an initiative means changing its registry status and documenting its
   integration result; do not leave abandoned branches marked ACTIVE.
+
+GitHub enforcement rules:
+
+- `scripts/agent-preflight` is the single collaboration-policy primitive.
+  Local execution and CI must call the same script; workflow YAML may prepare
+  the checkout but must not reimplement initiative semantics.
+- `.github/CODEOWNERS` routes human review for critical governance and
+  architecture surfaces. It is intentionally separate from registry
+  `owns=`, which is the semantic write-authority contract between active
+  initiatives.
+- Pull requests target the initiative's declared `integration=` branch and
+  carry the registry contract in the repository PR template.
+- Repository rulesets / required checks are activated only after the
+  corresponding CI status has run successfully at least once; do not create a
+  required check that cannot yet execute.
 
 ---
 
