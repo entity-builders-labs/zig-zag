@@ -151,6 +151,14 @@ else
   pass "base snapshot" "$BASE_SHA"
   pass "integration target" "$INTEGRATION_BRANCH"
 
+  if [ "$CI_MODE" -eq 1 ] && [ -n "${GITHUB_BASE_REF:-}" ]; then
+    if [ "$GITHUB_BASE_REF" = "$INTEGRATION_BRANCH" ]; then
+      pass "PR integration target" "$GITHUB_BASE_REF matches declared integration"
+    else
+      fail "PR integration target" "PR targets $GITHUB_BASE_REF but initiative declares $INTEGRATION_BRANCH"
+    fi
+  fi
+
   BASE_REF="origin/$BASE_BRANCH"
   if [ -z "$BASE_SHA" ]; then
     fail "base snapshot" "initiative is missing base_sha"
