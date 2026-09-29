@@ -174,18 +174,21 @@ else
 
   INTEGRATION_REF="origin/$INTEGRATION_BRANCH"
   if git show-ref --verify --quiet "refs/remotes/$INTEGRATION_REF"; then
-    if git merge-tree -h 2>&1 | grep -q -- '--write-tree'; then
-      merge_status=0
-      merge_output="$(git merge-tree --write-tree HEAD "$INTEGRATION_REF" 2>&1)" || merge_status=$?
-      if [ "$merge_status" -eq 0 ]; then
+    merge_status=0
+    merge_output="$(git merge-tree --write-tree HEAD "$INTEGRATION_REF" 2>&1)" || merge_status=$?
+    case "$merge_status" in
+      0)
         pass "integration conflict" "non-mutating merge-tree clean vs $INTEGRATION_REF"
-      else
+        ;;
+      1)
         fail "integration conflict" "merge-tree reports conflicts vs $INTEGRATION_REF"
         printf '%s\n' "$merge_output" | sed -n '1,20p'
-      fi
-    else
-      warn "integration conflict" "git merge-tree --write-tree unsupported; check not enforced"
-    fi
+        ;;
+      *)
+        fail "integration conflict" "git merge-tree --write-tree failed with status $merge_status"
+        printf '%s\n' "$merge_output" | sed -n '1,20p'
+        ;;
+    esac
   else
     fail "integration target ref" "$INTEGRATION_REF does not exist locally after fetch"
   fi
