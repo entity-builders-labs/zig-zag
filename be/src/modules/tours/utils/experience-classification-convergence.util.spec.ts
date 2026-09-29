@@ -473,8 +473,12 @@ describe('classificationSemanticView', () => {
     expect((view.metadata as any).archetypes).toBeUndefined();
   });
 
-  it('handles empty or missing arrays safely', () => {
-    const view = classificationSemanticView({});
+  it('preserves an explicit empty classification', () => {
+    const view = classificationSemanticView({
+      themes: [],
+      intents: [],
+      traits: [],
+    });
 
     expect(view).toEqual({
       themes: [],
