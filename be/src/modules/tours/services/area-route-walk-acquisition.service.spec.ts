@@ -75,6 +75,8 @@ function buildMocks() {
     findVerifiedMultiComponentInArea: jest.fn(),
     findVerifiedMultiComponentByExactComponent: jest.fn(),
     findVerifiedTourismRouteByName: jest.fn(),
+    findVerifiedByIds: jest.fn(),
+    applyEvidenceClassification: jest.fn(),
   };
   const acquisitionPlanner = {
     buildAcquisitionPlan: jest.fn(),
@@ -83,11 +85,16 @@ function buildMocks() {
     executePlan: jest.fn(),
     materializeExecution: jest.fn(),
   };
+  const classificationService = {
+    classify: jest.fn(),
+    getAuditIdentity: jest.fn(),
+  };
   return {
     anchorResolver,
     catalog,
     acquisitionPlanner,
     acquisitionService,
+    classificationService,
   };
 }
 
@@ -96,6 +103,7 @@ function buildService(mocks: ReturnType<typeof buildMocks>) {
     mocks.catalog as any,
     mocks.acquisitionPlanner as any,
     mocks.acquisitionService as any,
+    mocks.classificationService as any,
   );
 }
 
@@ -654,6 +662,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
     mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
       classifiedRow('exp-1', 'walk'),
     ]);
+    mocks.catalog.findVerifiedByIds.mockResolvedValue([]);
     mocks.acquisitionPlanner.buildAcquisitionPlan.mockReturnValue({
       destination: {},
       deficits: [],
@@ -668,10 +677,11 @@ describe('AreaRouteWalkAcquisitionService', () => {
 
     // No plan sourcePlans -> no_result; the important assertion is that the
     // warm check never matched despite a "compatible" row existing.
+    // With no persisted evidence, the refresh path returns insufficient_evidence.
     expect(result).toEqual(
       expect.objectContaining({
         outcome: 'no_result',
-        reason: 'no_source_plan',
+        reason: 'insufficient_persisted_evidence',
       }),
     );
   });
@@ -838,6 +848,34 @@ describe('AreaRouteWalkAcquisitionService', () => {
       .mockResolvedValueOnce([degradedRow('exp-1')]) // round 1 post-check
       .mockResolvedValueOnce([degradedRow('exp-1')]) // round 2 warm check
       .mockResolvedValueOnce([degradedRow('exp-1')]); // round 2 post-check (re-attempted acquisition)
+    mocks.catalog.findVerifiedByIds.mockResolvedValue([
+      {
+        id: 'exp-1',
+        canonicalName: 'Test Experience',
+        evidence: [
+          {
+            id: 'ev-1',
+            source: 'serper',
+            snippet: 'Some evidence',
+          },
+        ],
+      },
+    ]);
+    mocks.classificationService.classify.mockResolvedValue({
+      themes: [],
+      intents: [],
+      traits: [],
+      reasoningEvidence: [],
+      modelId: 'groq/qwen',
+      promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+      state: 'degraded',
+      failure: {
+        stage: 'provider_call',
+        reason: 'PROVIDER_UNAVAILABLE',
+        httpStatus: 503,
+        providerStatus: 'UNAVAILABLE',
+      },
+    });
     const service = buildService(mocks);
 
     const round1 = await service.acquireOrReuse(baseInput());
@@ -853,5 +891,199 @@ describe('AreaRouteWalkAcquisitionService', () => {
     // acquisition.
     const round2 = await service.acquireOrReuse(baseInput());
     expect(round2.outcome).not.toBe('reused');
+  });
+
+  describe('Classification refresh (warm reuse with degraded classification)', () => {
+    it('R1: existing Experience + valid classification -> direct reuse (no classifier call)', async () => {
+      const mocks = buildMocks();
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
+        classifiedRow('exp-warm', 'walk'),
+      ]);
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result).toEqual({ outcome: 'reused', experienceId: 'exp-warm' });
+      expect(mocks.classificationService.classify).not.toHaveBeenCalled();
+      expect(
+        mocks.acquisitionPlanner.buildAcquisitionPlan,
+      ).not.toHaveBeenCalled();
+      expect(mocks.acquisitionService.executePlan).not.toHaveBeenCalled();
+    });
+
+    it('R2: existing Experience + degraded classification + successful refresh -> reuse', async () => {
+      const mocks = buildMocks();
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
+        degradedRow('exp-degraded'),
+      ]);
+      mocks.catalog.findVerifiedByIds.mockResolvedValue([
+        {
+          id: 'exp-degraded',
+          canonicalName: 'Caminito Walking Tour',
+          evidence: [
+            {
+              id: 'ev-1',
+              source: 'serper',
+              snippet: 'Caminito is a colorful street museum in La Boca',
+            },
+          ],
+        },
+      ]);
+      mocks.classificationService.classify.mockResolvedValue({
+        themes: ['history'],
+        intents: ['walk'],
+        traits: [],
+        reasoningEvidence: [
+          {
+            facet: 'intent:walk',
+            evidenceKeys: ['ev-1'],
+            reason: 'evidence supports walking route',
+          },
+        ],
+        modelId: 'groq/qwen',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'classified',
+      });
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result.outcome).toBe('classification_refreshed');
+      if (result.outcome === 'classification_refreshed') {
+        expect(result.experienceId).toBe('exp-degraded');
+        expect(result.refreshResult.status).toBe('refreshed');
+      }
+      expect(mocks.classificationService.classify).toHaveBeenCalledTimes(1);
+      expect(mocks.classificationService.classify).toHaveBeenCalledWith(
+        'Caminito Walking Tour',
+        [
+          {
+            key: 'ev-1',
+            source: 'serper',
+            snippet: 'Caminito is a colorful street museum in La Boca',
+          },
+        ],
+      );
+      expect(
+        mocks.catalog.applyEvidenceClassification,
+      ).toHaveBeenCalledWith(
+        'exp-degraded',
+        expect.objectContaining({ state: 'classified' }),
+      );
+      expect(
+        mocks.acquisitionPlanner.buildAcquisitionPlan,
+      ).not.toHaveBeenCalled();
+      expect(mocks.acquisitionService.executePlan).not.toHaveBeenCalled();
+    });
+
+    it('R3: refresh provider unavailable -> no false reuse, no acquisition', async () => {
+      const mocks = buildMocks();
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
+        degradedRow('exp-degraded'),
+      ]);
+      mocks.catalog.findVerifiedByIds.mockResolvedValue([
+        {
+          id: 'exp-degraded',
+          canonicalName: 'Caminito Walking Tour',
+          evidence: [
+            {
+              id: 'ev-1',
+              source: 'serper',
+              snippet: 'Caminito is a colorful street museum in La Boca',
+            },
+          ],
+        },
+      ]);
+      mocks.classificationService.classify.mockResolvedValue({
+        themes: [],
+        intents: [],
+        traits: [],
+        reasoningEvidence: [],
+        modelId: 'groq/qwen',
+        promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        state: 'degraded',
+        failure: {
+          stage: 'provider_call',
+          reason: 'PROVIDER_UNAVAILABLE',
+          httpStatus: 503,
+          providerStatus: 'UNAVAILABLE',
+        },
+      });
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          outcome: 'no_result',
+          reason: 'classification_refresh_failed',
+        }),
+      );
+      expect(mocks.classificationService.classify).toHaveBeenCalledTimes(1);
+      expect(
+        mocks.acquisitionPlanner.buildAcquisitionPlan,
+      ).not.toHaveBeenCalled();
+      expect(mocks.acquisitionService.executePlan).not.toHaveBeenCalled();
+    });
+
+    it('R4: insufficient persisted evidence -> typed outcome', async () => {
+      const mocks = buildMocks();
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
+        degradedRow('exp-degraded'),
+      ]);
+      mocks.catalog.findVerifiedByIds.mockResolvedValue([
+        {
+          id: 'exp-degraded',
+          canonicalName: 'Caminito Walking Tour',
+          evidence: [],
+        },
+      ]);
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          outcome: 'no_result',
+          reason: 'insufficient_persisted_evidence',
+        }),
+      );
+      expect(mocks.classificationService.classify).not.toHaveBeenCalled();
+      expect(
+        mocks.acquisitionPlanner.buildAcquisitionPlan,
+      ).not.toHaveBeenCalled();
+      expect(mocks.acquisitionService.executePlan).not.toHaveBeenCalled();
+    });
+
+    it('R5: true catalog miss -> normal acquisition path still executes', async () => {
+      const mocks = buildMocks();
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([]);
+      mocks.acquisitionPlanner.buildAcquisitionPlan.mockReturnValue({
+        destination: {},
+        deficits: [],
+        sourcePlans: [{ provider: 'web', web: { query: 'q' } }],
+        breadth: 'focused',
+      });
+      mocks.acquisitionService.executePlan.mockResolvedValue({
+        evidence: [],
+        candidates: [],
+      });
+      mocks.acquisitionService.materializeExecution.mockResolvedValue({
+        resolved: [],
+      });
+      const service = buildService(mocks);
+
+      const result = await service.acquireOrReuse(baseInput());
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          outcome: 'no_result',
+          reason: 'no_accepted_results',
+        }),
+      );
+      expect(mocks.classificationService.classify).not.toHaveBeenCalled();
+      expect(mocks.acquisitionPlanner.buildAcquisitionPlan).toHaveBeenCalled();
+      expect(mocks.acquisitionService.executePlan).toHaveBeenCalled();
+    });
   });
 });

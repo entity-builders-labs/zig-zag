@@ -503,6 +503,7 @@ export class ExperienceCatalogService {
       include: {
         components: { include: { geoEntity: true } },
         traits: { include: { traitDefinition: true } },
+        evidence: true,
       },
     });
     const byId = new Map(rows.map((row) => [row.id, row]));

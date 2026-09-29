@@ -24,6 +24,11 @@ import { ExecuteAcquisitionPlanResult } from './experience-acquisition.service';
 import { normalizeWizardFacet } from '../utils/preference-facet-merge.util';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
+import {
+  refreshClassificationFromPersistedEvidence,
+  ClassificationRefreshResult,
+} from '../utils/classification-refresh-convergence.util';
+import { ExperienceClassificationService } from './experience-classification.service';
 
 export interface AreaRouteWalkAcquisitionInput {
   /**
@@ -51,6 +56,11 @@ export interface AreaRouteWalkAcquisitionInput {
 export type AreaRouteWalkAcquisitionResult =
   | { outcome: 'reused'; experienceId: string }
   | {
+      outcome: 'classification_refreshed';
+      experienceId: string;
+      refreshResult: ClassificationRefreshResult;
+    }
+  | {
       outcome: 'acquired';
       experienceId: string;
       lifecycle: AreaRouteWalkAcquisitionLifecycle;
@@ -61,7 +71,9 @@ export type AreaRouteWalkAcquisitionResult =
         | 'anchor_unresolved'
         | 'no_source_plan'
         | 'no_accepted_results'
-        | 'no_semantically_eligible_result';
+        | 'no_semantically_eligible_result'
+        | 'classification_refresh_failed'
+        | 'insufficient_persisted_evidence';
       diagnostics?: AreaRouteWalkAcquisitionDiagnostics;
       lifecycle?: AreaRouteWalkAcquisitionLifecycle;
     };
@@ -119,6 +131,7 @@ export class AreaRouteWalkAcquisitionService {
     private readonly catalog: ExperienceCatalogService,
     private readonly acquisitionPlanner: ExperienceAcquisitionPlannerService,
     private readonly acquisitionService: ExperienceAcquisitionService,
+    private readonly classificationService: ExperienceClassificationService,
   ) {}
 
   async acquireOrReuse(
@@ -258,8 +271,46 @@ export class AreaRouteWalkAcquisitionService {
     // pre-existing row may have been persisted for an unrelated purpose
     // (wrong intent) or classified into something else entirely -- both
     // are real, valid MISSes, not bugs.
-    const warmHit = (await geographicMatches()).find(isSemanticallyEligible);
+    const geographicCandidates = await geographicMatches();
+    const warmHit = geographicCandidates.find(isSemanticallyEligible);
     if (warmHit) return { outcome: 'reused', experienceId: warmHit.id };
+
+    // CLASSIFICATION REFRESH: a geographically/identity-compatible Experience
+    // exists but its classification is degraded/stale/malformed. Attempt a
+    // refresh using ONLY persisted evidence before falling back to Internet
+    // reacquisition. This is NOT a second classification authority — it
+    // delegates to the canonical ExperienceClassificationService and persists
+    // through the canonical applyEvidenceClassification path.
+    const refreshCandidate = geographicCandidates[0];
+    if (refreshCandidate) {
+      const refreshResult = await refreshClassificationFromPersistedEvidence(
+        refreshCandidate.id,
+        {
+          catalog: this.catalog,
+          classifier: this.classificationService,
+        },
+      );
+      if (refreshResult.status === 'refreshed') {
+        return {
+          outcome: 'classification_refreshed',
+          experienceId: refreshCandidate.id,
+          refreshResult,
+        };
+      }
+      // Refresh failed or insufficient evidence — return honest bounded outcome
+      // rather than triggering Internet reacquisition for a classification-only
+      // concern. The canonical Experience remains persisted.
+      if (refreshResult.status === 'insufficient_evidence') {
+        return {
+          outcome: 'no_result',
+          reason: 'insufficient_persisted_evidence',
+        };
+      }
+      return {
+        outcome: 'no_result',
+        reason: 'classification_refresh_failed',
+      };
+    }
 
     // MISS: delegate to the existing, unchanged acquisition pipeline,
     // anchor name(s) flowing into the web query (routing changes), plus

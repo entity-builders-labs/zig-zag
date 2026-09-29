@@ -1237,6 +1237,7 @@ describe('tour-generation integration · area/route walk geographic validation (
         catalog,
         acquisitionPlanner,
         acquisitionService,
+        classifier as any,
       );
 
       const walkCandidate: ExperienceCandidate = {
@@ -1371,6 +1372,7 @@ describe('tour-generation integration · area/route walk geographic validation (
         catalog,
         acquisitionPlanner,
         acquisitionService,
+        classifier as any,
       );
 
       const rutaCandidate: ExperienceCandidate = {
