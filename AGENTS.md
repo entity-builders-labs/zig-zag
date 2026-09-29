@@ -20,6 +20,66 @@ When an architectural rule can be checked mechanically, prefer enforcing it
 with lint/architecture tests/CI in addition to documenting it. A green test
 suite does not justify violating documented architectural boundaries.
 
+## Multi-agent collaboration workflow
+
+Zig-Zag supports multiple human and AI collaborators working concurrently.
+Isolation is mandatory: collaboration must not depend on agents remembering
+which checkout is safe.
+
+### Current worktree authority
+
+- The current Git worktree is the authoritative checkout for the task.
+- Do not `cd` to another checkout, repository root, or sibling worktree to
+  perform the task.
+- Every concurrently-written initiative must use its own branch and worktree.
+- Two writing agents must never mutate the same worktree concurrently.
+- Sequential agents may reuse an initiative worktree only after the previous
+  writer has stopped and the incoming agent has inspected the existing state.
+- Parallel work inside one larger initiative must use separate sub-branches /
+  worktrees and converge through an explicit integration step.
+
+### Required collaboration preflight
+
+Before modifying source code or durable documentation, run:
+
+```bash
+bash scripts/agent-preflight
+```
+
+The preflight may fetch remote refs, but it must not modify tracked files, the
+index, commits, or branch history. If it exits non-zero, **STOP before writing**
+and report the failed gate.
+
+The canonical active-initiative registry lives in
+`docs/superpowers/README.md`. A writing branch must be registered there with
+its base/integration branch and semantic ownership before ordinary
+implementation begins. The only bootstrap exception is the bounded change that
+creates/registers a new initiative; after registration, rerun the normal
+preflight before other writes.
+
+Treat the checks as follows:
+
+- declared-base mismatch or non-mutating merge conflict with the integration
+  target: hard stop;
+- semantic ownership collision with another active initiative: hard stop;
+- overlapping changed files across otherwise-independent initiatives: warning
+  requiring explicit review before integration;
+- being behind `origin/main`: visible warning, not by itself permission to
+  rebase/merge or switch checkouts.
+
+Do not resolve an initiative conflict by silently broadening scope, changing
+another branch, or weakening an architectural owner.
+
+### Git safety
+
+- Never push directly to `main`.
+- Never force-push or rewrite shared history unless the human owner explicitly
+  authorizes that exact operation.
+- Never modify another initiative's worktree.
+- Do not change repository remotes as part of feature work.
+- Use the initiative's declared integration target; do not assume every branch
+  integrates directly into `main`.
+
 ### Superpowers documentation navigation
 
 Before using a dated file under `docs/superpowers/` to determine current
