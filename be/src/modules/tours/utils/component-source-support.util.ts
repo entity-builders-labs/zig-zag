@@ -12,10 +12,24 @@
  *
  * A textual (web-extraction) componentHint must supply `supportSpan`: a
  * short phrase/sentence the extractor claims is copied verbatim from one of
- * its own cited evidence records. This backend verifies that claim by exact
- * (case/whitespace-normalized) substring containment against the REAL
- * captured text of that specific cited evidence record -- never a fuzzy
- * name match, never checked against evidence the component did not cite.
+ * its own cited evidence records. This backend applies the following
+ * deterministic attribution contract:
+ *
+ * 1. The extractor proposes evidence key(s) plus a supportSpan.
+ * 2. The backend first verifies that exact normalized span against the
+ *    declared key(s).
+ * 3. If declared attribution verifies, it stops.
+ * 4. Otherwise, it may search that SAME exact normalized span across the
+ *    active evidence set supplied to this extraction.
+ * 5. Exactly one active match permits deterministic re-attribution.
+ * 6. Zero active matches reject the component.
+ * 7. Multiple active matches reject the component as ambiguous.
+ * 8. No fuzzy, name, semantic, or geographic rescue is allowed.
+ *
+ * Both checks use exact (case/whitespace-normalized) substring containment
+ * against real captured evidence text. The active-set fallback is solely a
+ * correction of a proven extractor attribution error; it never introduces a
+ * new matching algorithm or accepts an unverified span.
  *
  * The extractor is shown each evidence record as `[key] title-or-source:
  * snippet` (buildDiscoveryEvidenceBlock), so a real, verbatim supportSpan

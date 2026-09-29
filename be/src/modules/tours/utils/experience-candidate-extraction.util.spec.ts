@@ -987,6 +987,104 @@ describe('extractExperienceCandidates', () => {
     });
   });
 
+  it('replaces a candidate-declared key when its only component attribution is uniquely re-attributed', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Walk',
+            themes: [],
+            traits: [],
+            intents: [],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Wrong Record Venue',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan: 'Lezama Park anchors the southern end',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      [
+        ev('ev-1', 'This street is known for its colonial architecture.'),
+        ev('ev-2', 'Lezama Park anchors the southern end of the walk.'),
+      ],
+      8,
+    );
+
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      evidenceKeys: ['ev-2'],
+    });
+    expect(result.candidates[0].componentHints[0]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      evidenceKeys: ['ev-2'],
+    });
+    expect(result.sourceSupportAudits[0]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      verifiedEvidenceKeys: ['ev-2'],
+    });
+    expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+      attributionStatus: 'REATTRIBUTED_UNIQUE_EXACT_SPAN',
+    });
+  });
+
+  it('retains a candidate-declared key only when another component independently verifies it', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Walk',
+            themes: [],
+            traits: [],
+            intents: [],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Wrong Record Venue',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan: 'Lezama Park anchors the southern end',
+              },
+              {
+                key: 'b',
+                name: 'Verified Record Venue',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan:
+                  'This street is known for its colonial architecture',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      [
+        ev('ev-1', 'This street is known for its colonial architecture.'),
+        ev('ev-2', 'Lezama Park anchors the southern end of the walk.'),
+      ],
+      8,
+    );
+
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      evidenceKeys: ['ev-1', 'ev-2'],
+    });
+    expect(result.sourceSupportAudits[0]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      verifiedEvidenceKeys: ['ev-1', 'ev-2'],
+    });
+  });
+
   it('drops a candidate when componentHint supportSpan exists in multiple active evidence items (AMBIGUOUS_SUPPORTING_EVIDENCE)', () => {
     const result = extractExperienceCandidates(
       {

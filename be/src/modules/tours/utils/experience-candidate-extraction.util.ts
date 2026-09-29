@@ -353,6 +353,14 @@ export function extractExperienceCandidates(
       ? candidate.evidenceKeys.map(String)
       : [];
 
+    // Candidate-level evidence is canonical downstream provenance, not a
+    // second unverified extractor assertion. Start with the extractor's
+    // declared candidate keys, but a key proven wrong for a component cannot
+    // remain canonical solely because the extractor also listed it here.
+    // Replace each such key with its deterministically verified key(s);
+    // retain the declared key only when another component independently
+    // verified it. Then include every verified component key and preserve
+    // insertion order through Set-based deterministic deduplication.
     const reattributedKeys = new Map<string, Set<string>>();
     for (const audit of componentAudits) {
       if (audit.attributionStatus === 'REATTRIBUTED_UNIQUE_EXACT_SPAN') {
