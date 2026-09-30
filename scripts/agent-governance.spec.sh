@@ -40,6 +40,7 @@ git -C "$TMP" add docs shared.txt && git -C "$TMP" commit -qm current
 CURRENT="$(git -C "$TMP" rev-parse HEAD)"
 
 git -C "$TMP" checkout -qb feat/other "$BASE"
+mkdir -p "$TMP/docs/superpowers/progress"
 printf '%s\n' \
   '# Other' \
   "<!-- agent-track: id=other; status=ACTIVE; branch=feat/other; integration=main; base=$BASE; plan=docs/superpowers/plans/other.md -->" \
@@ -90,6 +91,7 @@ pass 'same changed file on a branch-local peer produces warning'
 git -C "$TMP" checkout -q main
 git -C "$TMP" branch -f feat/other "$BASE"
 git -C "$TMP" checkout -q feat/other
+mkdir -p "$TMP/docs/superpowers/progress"
 printf '%s\n' \
   '# Other' \
   "<!-- agent-track: id=other; status=ACTIVE; branch=feat/other; integration=main; base=$BASE; plan=docs/superpowers/plans/other.md -->" \
