@@ -95,17 +95,24 @@ else
     git diff --name-only "$merge_base".."$ref" | sort -u
   }
   CURRENT_FILES="$(changed_files HEAD "$INTEGRATION_BRANCH")"
-  while IFS=$'\t' read -r _OTHER_PROGRESS OTHER_MARKER; do
-    OTHER_STATUS="$(track_field "$OTHER_MARKER" status)"; OTHER_BRANCH="$(track_field "$OTHER_MARKER" branch)"
-    OTHER_ID="$(track_field "$OTHER_MARKER" id)"; OTHER_INTEGRATION="$(track_field "$OTHER_MARKER" integration)"
-    [ "$OTHER_STATUS" = "ACTIVE" ] && [ "$OTHER_BRANCH" != "$CURRENT_BRANCH" ] && [ -n "$OTHER_INTEGRATION" ] || continue
-    OTHER_REF="origin/$OTHER_BRANCH"
-    if [ -n "$CURRENT_FILES" ] && git show-ref --verify --quiet "refs/remotes/$OTHER_REF"; then
+  while IFS=fi
+
+printf '\n'
+if [ "$failures" -gt 0 ]; then
+  printf 'STOP BEFORE WRITE — %d hard failure(s), %d warning(s).\n' "$failures" "$warnings"; exit 1
+fi
+printf 'WRITE AUTHORIZED — 0 hard failures, %d warning(s).\n' "$warnings"
+\t' read -r OTHER_BRANCH _OTHER_PROGRESS OTHER_MARKER; do
+    OTHER_ID="$(track_field "$OTHER_MARKER" id)"
+    OTHER_INTEGRATION="$(track_field "$OTHER_MARKER" integration)"
+    [ "$OTHER_BRANCH" != "$CURRENT_BRANCH" ] && [ -n "$OTHER_INTEGRATION" ] || continue
+    OTHER_REF="$(track_ref_for_branch "$TOP" "$OTHER_BRANCH" || true)"
+    if [ -n "$CURRENT_FILES" ] && [ -n "$OTHER_REF" ]; then
       OTHER_FILES="$(changed_files "$OTHER_REF" "$OTHER_INTEGRATION")"
       FILE_OVERLAP="$(comm -12 <(printf '%s\n' "$CURRENT_FILES" | sed '/^$/d') <(printf '%s\n' "$OTHER_FILES" | sed '/^$/d') || true)"
       [ -z "$FILE_OVERLAP" ] || warn "file overlap: $OTHER_ID" "$(printf '%s' "$FILE_OVERLAP" | tr '\n' ' ')"
     fi
-  done < <(track_records "$TOP")
+  done < <(discover_active_track_records "$TOP")
 fi
 
 printf '\n'
