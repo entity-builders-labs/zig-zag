@@ -61,9 +61,9 @@ interface CloudflareChatCompletionResponse {
  *
  * The completion token budget is configured via `discoveryExtractor.cloudflare.maxCompletionTokens`
  * (default 4096), giving multi-candidate extractions adequate transport headroom.
- * If Cloudflare reports `finish_reason: "length"` and the returned content fails
- * JSON parsing, the provider reports an explicit truncation validation error instead
- * of a generic parse failure.
+ * If Cloudflare reports `finish_reason: "length"`, generation was truncated by the
+ * completion token limit and the provider reports an explicit truncation validation
+ * error before candidate admission rather than admitting partial output.
  */
 @Injectable()
 export class CloudflareDiscoveryProvider {
@@ -124,17 +124,26 @@ export class CloudflareDiscoveryProvider {
       user,
     );
 
+    if (finishReason === 'length') {
+      return {
+        candidates: [],
+        validationErrors: [
+          'Cloudflare discovery response truncated at completion token limit',
+        ],
+        sourceSupportAudits: [],
+        provider: 'cloudflare',
+        model,
+        rawOutput: raw,
+      };
+    }
+
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
     } catch {
-      const errorMessage =
-        finishReason === 'length'
-          ? 'Cloudflare discovery response truncated at completion token limit'
-          : 'Failed to parse JSON response';
       return {
         candidates: [],
-        validationErrors: [errorMessage],
+        validationErrors: ['Failed to parse JSON response'],
         sourceSupportAudits: [],
         provider: 'cloudflare',
         model,

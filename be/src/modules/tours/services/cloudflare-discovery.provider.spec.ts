@@ -171,18 +171,20 @@ describe('CloudflareDiscoveryProvider', () => {
     expect(lastBody().max_completion_tokens).toBe(2048);
   });
 
-  it('parses a multi-candidate payload materially larger than the historical 900-token budget', async () => {
+  it('parses a multi-candidate payload exceeding the previous truncated RW4 size (payload-size regression)', async () => {
     const multiCandidatePayload = {
       candidates: [
         {
           name: 'Maipú Wine Route Tour',
           description:
-            'A traditional wine route experience in eastern Mendoza, visiting century-old wineries known for classic Malbec and Bonarda. The route covers the historic wine region of Maipú, featuring stops at renowned estates like Trapiche and Norton.',
+            'A traditional wine route experience in eastern Mendoza, visiting century-old wineries known for classic Malbec, Cabernet Sauvignon, and Bonarda. The route covers the historic wine region of Maipú, featuring guided tastings at renowned estates like Bodega Trapiche, Bodega Norton, and Bodega Santa Julia, accompanied by regional gastronomy.',
           themes: ['wine', 'history', 'gastronomy'],
           traits: [
             'traditional wineries',
             'classic Malbec',
             'century-old estates',
+            'guided cellar visits',
+            'olive oil tastings',
           ],
           intents: ['route_like', 'visit'],
           suggestedDurationMinutes: 360,
@@ -197,7 +199,23 @@ describe('CloudflareDiscoveryProvider', () => {
             },
             {
               key: 'trapiche',
-              name: 'Trapiche',
+              name: 'Bodega Trapiche',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'Historic barrio',
+            },
+            {
+              key: 'norton',
+              name: 'Bodega Norton',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'Historic barrio',
+            },
+            {
+              key: 'santa-julia',
+              name: 'Bodega Santa Julia',
               role: 'venue',
               expectedKind: 'PLACE',
               evidenceKeys: ['ev-1'],
@@ -206,15 +224,21 @@ describe('CloudflareDiscoveryProvider', () => {
           ],
           evidenceKeys: ['ev-1'],
           shortReason:
-            'Evidence explicitly describes the Maipú Wine Route as a distinct circuit.',
+            'Evidence explicitly describes the Maipú Wine Route as a distinct circuit visiting historic estates.',
           orderedByEvidence: false,
         },
         {
           name: 'Luján de Cuyo Wine Route Tour',
           description:
-            'A premium wine route experience in the First Zone of Argentine Malbec. This route visits world-class boutique wineries and signature cuisine restaurants in Luján de Cuyo, known for high-end blends and premium Malbec.',
-          themes: ['wine', 'gastronomy'],
-          traits: ['boutique wineries', 'premium Malbec', 'signature cuisine'],
+            'A premium wine route experience in the First Zone of Argentine Malbec. This circuit visits world-class boutique wineries and signature cuisine restaurants situated at the foothills of the Andes in Luján de Cuyo, celebrated for high-altitude terroirs, iconic single-vineyard bottlings, and refined cellar dining.',
+          themes: ['wine', 'gastronomy', 'scenic'],
+          traits: [
+            'boutique wineries',
+            'premium Malbec',
+            'signature cuisine',
+            'high-altitude terroirs',
+            'architectural cellars',
+          ],
           intents: ['route_like', 'visit'],
           suggestedDurationMinutes: 360,
           componentHints: [
@@ -234,17 +258,35 @@ describe('CloudflareDiscoveryProvider', () => {
               evidenceKeys: ['ev-1'],
               supportSpan: 'Historic barrio',
             },
+            {
+              key: 'vina-cobos',
+              name: 'Viña Cobos',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'Historic barrio',
+            },
+            {
+              key: 'achaval-ferrer',
+              name: 'Achaval-Ferrer',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'Historic barrio',
+            },
           ],
           evidenceKeys: ['ev-1'],
           shortReason:
-            'Evidence explicitly describes the Luján de Cuyo Wine Route as a distinct circuit.',
+            'Evidence explicitly describes the Luján de Cuyo Wine Route as an independent high-altitude wine circuit.',
           orderedByEvidence: false,
         },
       ],
     };
 
     const serialized = JSON.stringify(multiCandidatePayload, null, 2);
-    expect(serialized.length).toBeGreaterThan(1500);
+    // Payload-size regression: verify extraction succeeds on serialized JSON larger
+    // than the live-observed RW4 truncated output (~3150 characters).
+    expect(serialized.length).toBeGreaterThan(3200);
 
     fetchSpy.mockResolvedValue({
       ok: true,
@@ -339,14 +381,15 @@ describe('CloudflareDiscoveryProvider', () => {
     expect(result.model).toBe('@cf/qwen/qwen3.8-27b');
   });
 
-  it('evaluates normally when content is valid JSON even if finish_reason is length', async () => {
+  it('diagnoses truncation when finish_reason is length even if content is syntactically valid JSON', async () => {
+    const validJson = JSON.stringify(VALID_CANDIDATE);
     fetchSpy.mockResolvedValue({
       ok: true,
       status: 200,
       json: async () => ({
         choices: [
           {
-            message: { content: JSON.stringify(VALID_CANDIDATE) },
+            message: { content: validJson },
             finish_reason: 'length',
           },
         ],
@@ -355,9 +398,13 @@ describe('CloudflareDiscoveryProvider', () => {
 
     const provider = await makeProvider();
     const result = await provider.extractExperiences(request, searchResult);
-    expect(result.validationErrors).toHaveLength(0);
-    expect(result.candidates).toHaveLength(1);
-    expect(result.candidates[0].name).toBe('Paseo');
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors).toContain(
+      'Cloudflare discovery response truncated at completion token limit',
+    );
+    expect(result.rawOutput).toBe(validJson);
+    expect(result.provider).toBe('cloudflare');
+    expect(result.model).toBe('@cf/qwen/qwen3.8-27b');
   });
 
   it('throws a provider failure on a non-2xx Cloudflare response', async () => {
