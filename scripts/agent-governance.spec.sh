@@ -22,7 +22,18 @@ printf '# Plan\n' >"$TMP/docs/superpowers/plans/other.md"
 git -C "$TMP" add . && git -C "$TMP" commit -qm base
 BASE="$(git -C "$TMP" rev-parse HEAD)"
 
-printf '%s\n' '# Current' "<!-- agent-track: id=current; status=ACTIVE; branch=feat/current; integration=main; base=$BASE; plan=docs/superpowers/plans/current.md -->" >"$TMP/docs/superpowers/progress/current.md"
+printf '%s\n' \
+  '# Current' \
+  "<!-- agent-track: id=current; status=ACTIVE; branch=feat/current; integration=main; base=$BASE; plan=docs/superpowers/plans/current.md -->" \
+  '## Current execution verdict' \
+  '**Milestone 2B — COMPLETE.**' \
+  '## Current checkpoint' \
+  'Resume contract checkpoint.' \
+  '## Next authorized action' \
+  'Implement the bounded resume-state change.' \
+  '## Open findings / blockers' \
+  '- GOV-1: preserve track isolation.' \
+  >"$TMP/docs/superpowers/progress/current.md"
 printf '%s\n' '# Other' "<!-- agent-track: id=other; status=ACTIVE; branch=feat/other; integration=main; base=$BASE; plan=docs/superpowers/plans/other.md -->" >"$TMP/docs/superpowers/progress/other.md"
 git -C "$TMP" add docs && git -C "$TMP" commit -qm tracks
 git -C "$TMP" checkout -qb feat/current
@@ -41,6 +52,9 @@ git -C "$TMP" update-ref refs/remotes/origin/feat/other "$OTHER"
 
 expect_ok bash -c "cd '$TMP' && scripts/agent-track context | grep -q 'Track: current'"
 pass 'current branch resolves exactly one active track and context reports it'
+expect_ok bash -c "cd '$TMP' && scripts/agent-track context | grep -q 'Implement the bounded resume-state change.'"
+expect_ok bash -c "cd '$TMP' && scripts/agent-track context | grep -q 'GOV-1: preserve track isolation.'"
+pass 'agent-track context exposes next authorized action and open findings'
 expect_fail bash -c "cd '$TMP' && git checkout -q -b feat/missing && bash scripts/agent-preflight --no-fetch"
 git -C "$TMP" checkout -q feat/current
 pass 'missing track fails before write'
