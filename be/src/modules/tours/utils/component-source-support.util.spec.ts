@@ -264,6 +264,133 @@ describe('verifyTextualComponentSourceSupport', () => {
     }
   });
 
+  it('verifies support spans across inline markdown links in rich source content (canonical live regression)', () => {
+    const result = verifyTextualComponentSourceSupport(
+      'Casa Tano is an urban winery run from an old chassis and paint shop',
+      ['ev-1'],
+      new Map([
+        [
+          'ev-1',
+          {
+            text: '[Casa Tano](https://www.instagram.com/casa_tano/?hl=es) is an urban winery run from an old chassis and paint shop that used to belong to the family of one of the partners.',
+          },
+        ],
+      ]),
+    );
+    expect(result).toEqual({
+      supported: true,
+      verifiedSupportSpan:
+        '[Casa Tano](https://www.instagram.com/casa_tano/?hl=es) is an urban winery run from an old chassis and paint shop',
+      declaredEvidenceKeys: ['ev-1'],
+      verifiedEvidenceKeys: ['ev-1'],
+      attributionStatus: 'DECLARED_KEY_VERIFIED',
+    });
+  });
+
+  it('verifies exact match between markdown inline link and plain support span', () => {
+    const result = verifyTextualComponentSourceSupport(
+      'Casa Tano is an urban winery',
+      ['ev-1'],
+      new Map([
+        [
+          'ev-1',
+          {
+            text: '[Casa Tano](https://example.com) is an urban winery',
+          },
+        ],
+      ]),
+    );
+    expect(result).toMatchObject({
+      supported: true,
+      attributionStatus: 'DECLARED_KEY_VERIFIED',
+      verifiedEvidenceKeys: ['ev-1'],
+    });
+  });
+
+  it('fails closed when factual continuation differs from markdown link source', () => {
+    const result = verifyTextualComponentSourceSupport(
+      'Casa Tano is a hotel',
+      ['ev-1'],
+      new Map([
+        [
+          'ev-1',
+          {
+            text: '[Casa Tano](https://example.com) is an urban winery',
+          },
+        ],
+      ]),
+    );
+    expect(result).toMatchObject({
+      supported: false,
+      reason: 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+      attributionStatus: 'NO_SUPPORTING_EVIDENCE',
+    });
+  });
+
+  it('re-attributes when declared key misses but exactly one active evidence item contains markdown inline link', () => {
+    const result = verifyTextualComponentSourceSupport(
+      'Casa Tano is an urban winery',
+      ['ev-1'],
+      new Map([
+        [
+          'ev-1',
+          {
+            title: 'Unrelated title',
+            text: 'Unrelated snippet text.',
+          },
+        ],
+        [
+          'ev-2',
+          {
+            text: '[Casa Tano](https://example.com) is an urban winery',
+          },
+        ],
+      ]),
+    );
+    expect(result).toMatchObject({
+      supported: true,
+      declaredEvidenceKeys: ['ev-1'],
+      verifiedEvidenceKeys: ['ev-2'],
+      attributionStatus: 'REATTRIBUTED_UNIQUE_EXACT_SPAN',
+      verifiedSupportSpan:
+        '[Casa Tano](https://example.com) is an urban winery',
+    });
+  });
+
+  it('fails closed as ambiguous when two active evidence items contain the same markdown-normalized span', () => {
+    const result = verifyTextualComponentSourceSupport(
+      'Casa Tano is an urban winery',
+      ['ev-1'],
+      new Map([
+        [
+          'ev-1',
+          {
+            text: 'Other winery entirely.',
+          },
+        ],
+        [
+          'ev-2',
+          {
+            text: '[Casa Tano](https://example.com) is an urban winery',
+          },
+        ],
+        [
+          'ev-3',
+          {
+            text: '[Casa Tano](https://other-guide.com) is an urban winery',
+          },
+        ],
+      ]),
+    );
+    expect(result).toMatchObject({
+      supported: false,
+      reason: 'AMBIGUOUS_SUPPORTING_EVIDENCE',
+      declaredEvidenceKeys: ['ev-1'],
+      verifiedEvidenceKeys: [],
+      attributionStatus: 'AMBIGUOUS_SUPPORTING_EVIDENCE',
+    });
+  });
+
   describe('windowed source content (non-contiguous excerpts)', () => {
     const windowed = new Map([
       [
@@ -296,6 +423,30 @@ describe('verifyTextualComponentSourceSupport', () => {
         'for a tasting. […] Finish at Bodega Azul',
         ['ev-1'],
         windowed,
+      );
+      expect(result).toMatchObject({
+        supported: false,
+        reason: 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+      });
+    });
+
+    it('rejects a span with markdown links that bridges two excerpts across the structural separator', () => {
+      const windowedWithLinks = new Map([
+        [
+          'ev-1',
+          {
+            title: 'A guide',
+            text: [
+              'Start at [Alfa Crux](https://alfacrux.com) for a tasting.',
+              'Finish at [Bodega Azul](https://bodegaazul.com) at sunset.',
+            ].join(SOURCE_EXCERPT_SEPARATOR),
+          },
+        ],
+      ]);
+      const result = verifyTextualComponentSourceSupport(
+        'for a tasting. Finish at Bodega Azul',
+        ['ev-1'],
+        windowedWithLinks,
       );
       expect(result).toMatchObject({
         supported: false,

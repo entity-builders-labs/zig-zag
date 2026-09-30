@@ -104,23 +104,54 @@ export interface EvidenceSupportText {
   text: string;
 }
 
-function normalize(value: string): string {
+/**
+ * Normalizes Markdown representation down to visible textual content.
+ * Inline links `[label](target)` resolve to their visible anchor `label`,
+ * while inline formatting delimiters (*, _, ~, `, #) become whitespace.
+ */
+function stripMarkdownFormatting(value: string): string {
   return value
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/[*_~`#]+/g, ' ');
+}
+
+function normalize(value: string): string {
+  return stripMarkdownFormatting(value)
     .toLowerCase()
-    .replace(/[*_~`#]+/g, ' ')
     .replace(/\s+([,.:;?!])/g, '$1')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
+function toTokenPattern(token: string): string {
+  const match = token.match(/^([("‘“]*)(.*?)([,.:;?!)"’”]*)$/);
+  if (!match) {
+    return token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+  const [, lead, core, trail] = match;
+  if (!core) {
+    return token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const leadPart = lead ? escapeRegex(lead) + '(?:[*_~`#]|\\[)*' : '';
+  const trailPart = trail
+    ? '(?:[*_~`#]|\\]\\([^)]*\\))*' + escapeRegex(trail)
+    : '';
+  return `${leadPart}${escapeRegex(core)}${trailPart}`;
+}
+
 function extractMatchingSpan(candidate: string, trimmedSpan: string): string {
-  const tokens = trimmedSpan
-    .replace(/[*_~`#]+/g, ' ')
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const visibleSpan = stripMarkdownFormatting(trimmedSpan);
+  const tokens = visibleSpan.split(/\s+/).filter(Boolean).map(toTokenPattern);
+  if (tokens.length === 0) return trimmedSpan;
   try {
-    const pattern = new RegExp(tokens.join('[\\s*_~`#]+'), 'i');
+    const pattern = new RegExp(
+      '(?:\\[)?' +
+        tokens.join('(?:[\\s*_~`#]|\\]\\([^)]*\\)|\\[)+') +
+        '(?:\\]\\([^)]*\\))?',
+      'i',
+    );
     const match = candidate.match(pattern);
     if (match && typeof match.index === 'number') {
       return candidate.slice(match.index, match.index + match[0].length);
