@@ -197,12 +197,46 @@ agent_track_context() {
   printf 'Git HEAD: %s\nWorking tree: %s\nRemote relationship: %s\nOpen PR: %s\n' "$head" "$tree_state" "$remote" "$(local_open_pr)"
 }
 
+agent_track_locate() {
+  local top="$1" requested_id="$2" branch progress marker id status integration base plan worktree matches=0 record=""
+  while IFS=$'\t' read -r branch progress marker; do
+    id="$(track_field "$marker" id)"
+    [ "$id" = "$requested_id" ] || continue
+    matches=$((matches + 1))
+    record="$branch"$'\t'"$progress"$'\t'"$marker"
+  done < <(discover_active_track_records "$top")
+
+  if [ "$matches" -eq 0 ]; then
+    printf 'TRACK LOCATION UNAVAILABLE: no ACTIVE track with id %s\n' "$requested_id" >&2
+    return 1
+  fi
+  if [ "$matches" -gt 1 ]; then
+    printf 'TRACK LOCATION AMBIGUOUS: %d ACTIVE branches declare id %s\n' "$matches" "$requested_id" >&2
+    return 1
+  fi
+
+  IFS=$'\t' read -r branch progress marker <<<"$record"
+  id="$(track_field "$marker" id)"
+  status="$(track_field "$marker" status)"
+  integration="$(track_field "$marker" integration)"
+  base="$(track_field "$marker" base)"
+  plan="$(track_field "$marker" plan)"
+  worktree="$(track_worktree_for_branch "$top" "$branch" || true)"
+  printf 'TRACK LOCATION READY\n\n'
+  printf 'Track: %s\nStatus: %s\nBranch: %s\nWorktree: %s\n' "$id" "$status" "$branch" "${worktree:-<not registered>}"
+  printf 'Integration target: %s\nBase snapshot: %s\nProgress: %s\nPlan: %s\n' "$integration" "$base" "$progress" "$plan"
+}
+
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then
   TOP="$(git rev-parse --show-toplevel 2>/dev/null || true)"
   [ -n "$TOP" ] || { echo 'Not inside a Git worktree.' >&2; exit 1; }
   case "${1:-}" in
     list) agent_track_list "$TOP" ;;
     context) agent_track_context "$TOP" "${2:-}" ;;
-    *) echo 'Usage: scripts/agent-track {list|context [track-id]}' >&2; exit 2 ;;
+    locate)
+      [ -n "${2:-}" ] || { echo 'Usage: scripts/agent-track locate <track-id>' >&2; exit 2; }
+      agent_track_locate "$TOP" "$2"
+      ;;
+    *) echo 'Usage: scripts/agent-track {list|locate <track-id>|context [track-id]}' >&2; exit 2 ;;
   esac
 fi

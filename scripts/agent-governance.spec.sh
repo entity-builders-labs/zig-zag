@@ -131,3 +131,54 @@ pass 'agent-track list reports active tracks across refs'
 
 expect_ok bash -c "cd '$TMP' && scripts/agent-track context | grep -q 'Progress: docs/superpowers/progress/current.md'"
 pass 'agent-track context reports progress, plan, and current branch'
+
+HEAD_BEFORE="$(git -C "$TMP" rev-parse HEAD)"
+BRANCH_BEFORE="$(git -C "$TMP" branch --show-current)"
+STATUS_BEFORE="$(git -C "$TMP" status --porcelain)"
+INDEX_BEFORE="$(git -C "$TMP" diff --cached --binary)"
+WORKTREES_BEFORE="$(git -C "$TMP" worktree list --porcelain)"
+CURRENT_WORKTREE="$(printf '%s\n' "$WORKTREES_BEFORE" | sed -n 's/^worktree //p' | sed -n '1p')"
+LOCATE_CURRENT="$(cd "$TMP" && scripts/agent-track locate current)"
+LOCATE_OTHER="$(cd "$TMP" && scripts/agent-track locate other)"
+[ "$HEAD_BEFORE" = "$(git -C "$TMP" rev-parse HEAD)" ]
+[ "$BRANCH_BEFORE" = "$(git -C "$TMP" branch --show-current)" ]
+[ "$STATUS_BEFORE" = "$(git -C "$TMP" status --porcelain)" ]
+[ "$INDEX_BEFORE" = "$(git -C "$TMP" diff --cached --binary)" ]
+[ "$WORKTREES_BEFORE" = "$(git -C "$TMP" worktree list --porcelain)" ]
+printf '%s\n' "$LOCATE_CURRENT" | grep -q "Worktree: $CURRENT_WORKTREE"
+pass 'locate finds the current ACTIVE track without mutating Git state'
+
+test ! -e "$TMP/docs/superpowers/progress/other.md"
+printf '%s\n' "$LOCATE_OTHER" | grep -q 'Track: other'
+printf '%s\n' "$LOCATE_OTHER" | grep -q 'Worktree: <not registered>'
+pass 'locate finds a remote-only peer without creating a worktree'
+
+expect_fail bash -c "cd '$TMP' && scripts/agent-track locate unknown"
+UNKNOWN_OUTPUT="$(cd "$TMP" && scripts/agent-track locate unknown 2>&1 || true)"
+printf '%s\n' "$UNKNOWN_OUTPUT" | grep -q 'TRACK LOCATION UNAVAILABLE'
+pass 'unknown track ID fails explicitly'
+
+TMP_PEER="$TMP.peer"
+git -C "$TMP" worktree add -q "$TMP_PEER" feat/other
+TMP_PEER_REAL="$(cd "$TMP_PEER" && pwd -P)"
+LOCATE_REGISTERED="$(cd "$TMP" && scripts/agent-track locate other)"
+printf '%s\n' "$LOCATE_REGISTERED" | grep -q "Worktree: $TMP_PEER_REAL"
+[ "$(printf '%s\n' "$LOCATE_REGISTERED" | grep -c '^Track: other$')" -eq 1 ]
+pass 'locate reports a registered peer once across worktree and origin discovery'
+
+TMP_DUPLICATE="$TMP.duplicate"
+git -C "$TMP" worktree add -q -b feat/duplicate "$TMP_DUPLICATE" "$BASE"
+mkdir -p "$TMP_DUPLICATE/docs/superpowers/progress"
+printf '%s\n' \
+  '# Duplicate' \
+  "<!-- agent-track: id=other; status=ACTIVE; branch=feat/duplicate; integration=main; base=$BASE; plan=docs/superpowers/plans/other.md -->" \
+  >"$TMP_DUPLICATE/docs/superpowers/progress/duplicate.md"
+git -C "$TMP_DUPLICATE" add docs && git -C "$TMP_DUPLICATE" commit -qm duplicate
+git -C "$TMP" update-ref refs/remotes/origin/feat/duplicate "$(git -C "$TMP_DUPLICATE" rev-parse HEAD)"
+expect_fail bash -c "cd '$TMP' && scripts/agent-track locate other"
+AMBIGUOUS_OUTPUT="$(cd "$TMP" && scripts/agent-track locate other 2>&1 || true)"
+printf '%s\n' "$AMBIGUOUS_OUTPUT" | grep -q 'TRACK LOCATION AMBIGUOUS'
+pass 'duplicate ACTIVE track IDs across branches fail as ambiguous'
+
+git -C "$TMP" worktree remove --force "$TMP_DUPLICATE"
+git -C "$TMP" worktree remove --force "$TMP_PEER"

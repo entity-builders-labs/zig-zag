@@ -59,6 +59,13 @@ current gate, branch/worktree, integration target, Git state and any locally
 discoverable PR context. Read the referenced plan/progress/specs, then run
 `bash scripts/agent-preflight` before modifying source or durable docs.
 
+When asked to continue a named track from another checkout, run
+`scripts/agent-track locate <track-id>` first. It discovers the ACTIVE track
+and its registered worktree without switching checkouts; the agent then
+uses/opens that worktree, runs `agent-track context`, reads plan/progress, runs
+preflight, and executes the next authorized action. Do not add shell-level
+switch or resume behavior to `agent-track`.
+
 Each writing branch must have exactly one ACTIVE `agent-track` header in its
 progress document. The header declares its ID, branch, integration target,
 base snapshot and plan reference. `docs/superpowers/README.md` is navigation,

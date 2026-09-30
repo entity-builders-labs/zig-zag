@@ -80,6 +80,11 @@ destructive Git operations. Automatic checkout switching is not required for
 this foundation. A future agent skill may use `agent-track` facts to select/open
 the correct registered worktree, then run context + preflight there.
 
+`agent-track locate <id>` resolves one ACTIVE discovered track by ID and reports
+its branch, worktree registration, progress, and plan. It is discovery only:
+the agent—not the shell primitive—selects/opens the registered worktree before
+continuing with context and preflight.
+
 Preflight has two independent results. Local execution blocks writes only for
 an unsafe or invalid current checkout; an integration merge conflict remains
 visible as **INTEGRATION BLOCKED** while isolated work may continue. CI runs
