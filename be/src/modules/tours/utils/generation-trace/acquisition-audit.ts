@@ -240,7 +240,10 @@ export function recordAcquisitionLifecycle(
 ): void {
   const { passNumber, strategy, anchor, plan, execution, resolution } = input;
   const anchorSlug = anchor?.rawName
-    ? `-${anchor.rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`
+    ? `-${anchor.rawName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')}`
     : '';
   let passId = `acquisition-pass-${passNumber}-${strategy}${anchorSlug}`;
   if (recorder.hasStep(passId)) {
@@ -367,7 +370,70 @@ export function recordAcquisitionLifecycle(
       },
     });
 
-    // 5b. acquisition.source_retrieval (if content retrieval attempted)
+    // 5b. acquisition.deep_source_selection (if deep source selection was performed)
+    if (webResult.deepSourceSelection) {
+      const selection = webResult.deepSourceSelection;
+      const hasSelected = selection.selectedUrls.length > 0;
+      recorder.record({
+        parentId: passId,
+        name: 'acquisition.deep_source_selection',
+        description: `Selección de fuentes web para contenido profundo (${selection.selectedUrls.length} de ${selection.evidenceCount} candidatas seleccionadas)`,
+        component: 'ExperienceAcquisitionService',
+        input: {
+          evidenceCount: selection.evidenceCount,
+          ...(selection.anchorNames
+            ? { anchorNames: selection.anchorNames }
+            : {}),
+          selectionLimit: selection.selectionLimit,
+        },
+        decision: {
+          status: hasSelected ? 'PASS' : 'WARN',
+          outcome: hasSelected ? 'SOURCES_SELECTED' : 'NO_ELIGIBLE_SOURCES',
+          reason: hasSelected
+            ? `${selection.selectedUrls.length} fuentes seleccionadas para recuperación profunda.`
+            : 'No hay fuentes editoriales elegibles para recuperación profunda.',
+        },
+        facts: {
+          evidenceCount: selection.evidenceCount,
+          anchorNames: selection.anchorNames,
+          selectionLimit: selection.selectionLimit,
+          selectedUrls: selection.selectedUrls,
+        },
+        subjects: selection.items.map((item) => ({
+          subject: {
+            kind: 'grounded_evidence',
+            id: item.evidenceKey,
+            ...(item.title ? { label: item.title } : {}),
+            ...(item.url ? { url: item.url } : {}),
+          },
+          decision: {
+            status: item.selected
+              ? ('PASS' as const)
+              : item.editorialEligible
+                ? ('INFO' as const)
+                : ('FAIL' as const),
+            outcome: item.decisionReason,
+          },
+          facts: {
+            evidenceKey: item.evidenceKey,
+            ...(item.title ? { title: item.title } : {}),
+            ...(item.url ? { url: item.url } : {}),
+            originalRank: item.originalRank,
+            editorialEligible: item.editorialEligible,
+            tourContentScore: item.tourContentScore,
+            citedCandidateBonus: item.citedCandidateBonus,
+            finalScore: item.finalScore,
+            ...(item.rankedPosition !== undefined
+              ? { rankedPosition: item.rankedPosition }
+              : {}),
+            selected: item.selected,
+            decisionReason: item.decisionReason,
+          },
+        })),
+      });
+    }
+
+    // 5c. acquisition.source_retrieval (if content retrieval attempted)
     if (webResult.sourceContentRetrieval?.attempted) {
       recorder.record({
         parentId: passId,

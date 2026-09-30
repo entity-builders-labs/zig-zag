@@ -209,6 +209,62 @@ describe('aiConfig embedding index contract', () => {
     );
   });
 
+  it('defaults the Cloudflare discovery maxCompletionTokens to 4096 when unset', () => {
+    process.env.DISCOVERY_EXTRACTOR_PROVIDER = 'cloudflare';
+    delete process.env.CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS;
+
+    expect(loadConfig()).toEqual(
+      expect.objectContaining({
+        discoveryExtractor: expect.objectContaining({
+          provider: 'cloudflare',
+          cloudflare: expect.objectContaining({
+            maxCompletionTokens: 4096,
+          }),
+        }),
+      }),
+    );
+  });
+
+  it('honors an explicit CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS override', () => {
+    process.env.DISCOVERY_EXTRACTOR_PROVIDER = 'cloudflare';
+    process.env.CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS = '2048';
+
+    expect(loadConfig()).toEqual(
+      expect.objectContaining({
+        discoveryExtractor: expect.objectContaining({
+          provider: 'cloudflare',
+          cloudflare: expect.objectContaining({
+            maxCompletionTokens: 2048,
+          }),
+        }),
+      }),
+    );
+  });
+
+  it('rejects non-positive or invalid CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS values', () => {
+    process.env.DISCOVERY_EXTRACTOR_PROVIDER = 'cloudflare';
+
+    process.env.CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS = '0';
+    expect(loadConfig).toThrow(
+      'Invalid CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS',
+    );
+
+    process.env.CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS = '-50';
+    expect(loadConfig).toThrow(
+      'Invalid CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS',
+    );
+
+    process.env.CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS = 'not-a-number';
+    expect(loadConfig).toThrow(
+      'Invalid CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS',
+    );
+
+    process.env.CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS = '1024.5';
+    expect(loadConfig).toThrow(
+      'Invalid CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS',
+    );
+  });
+
   it('rejects an unknown discovery extractor provider instead of falling back', () => {
     process.env.DISCOVERY_EXTRACTOR_PROVIDER = 'mystery-provider';
 

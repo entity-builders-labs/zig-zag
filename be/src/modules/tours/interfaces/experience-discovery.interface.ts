@@ -28,6 +28,11 @@ export interface GeoEntityHint {
   expectedKind: 'PLACE' | 'AREA' | 'ROUTE';
   evidenceKeys: string[];
   /**
+   * The original evidence keys declared by the extractor before backend verification.
+   * Preserved for audit provenance and forensic visibility when unique exact re-attribution occurs.
+   */
+  declaredEvidenceKeys?: string[];
+  /**
    * A street address the cited evidence explicitly gives for this hint
    * (e.g. "Junín 1760"), when it does — never fabricated, never derived
    * from the venue name itself. Descriptive text extracted from evidence,
@@ -74,6 +79,11 @@ export interface ExperienceCandidate {
   suggestedDurationMinutes?: number;
   componentHints: GeoEntityHint[];
   evidenceKeys: string[];
+  /**
+   * The original candidate-level evidence keys declared by the extractor before backend verification.
+   * Preserved for audit provenance and forensic visibility when unique exact re-attribution occurs.
+   */
+  declaredEvidenceKeys?: string[];
   shortReason: string;
   /**
    * True only when the cited evidence explicitly describes a visiting
@@ -145,10 +155,13 @@ export interface ExperienceDiscoveryRequest {
   excludedTraits?: string[];
   semanticQuery?: string;
   /**
-   * Canonical names of the resolved area/route anchors this acquisition
-   * targets (from `SourcePlan.web.anchorNames`), carried as a typed fact
-   * independently of the free-form `semanticQuery`. Omitted when the
-   * acquisition has no relevant anchor; never defaulted.
+   * Names of the relevant anchors this acquisition targets (from
+   * `SourcePlan.web.anchorNames`): a resolved area/route anchor contributes
+   * its `canonicalName`; an unresolved `named_path` anchor (e.g. a tourism
+   * route with no geographic object) contributes its `rawName`. Carried as
+   * a typed acquisition-context fact independently of the free-form
+   * `semanticQuery`. Omitted when the acquisition has no relevant anchor;
+   * never defaulted.
    */
   anchorNames?: string[];
   coverageGaps?: string[];

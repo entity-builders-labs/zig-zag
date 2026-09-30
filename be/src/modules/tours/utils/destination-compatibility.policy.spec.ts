@@ -132,7 +132,7 @@ describe('evaluateDestinationCompatibility (single destination-scope owner)', ()
     ).toEqual({ verdict: 'UNKNOWN', reason: 'CANDIDATE_LOCATION_UNKNOWN' });
   });
 
-  it('never uses distance: a probe just inside a far corner is COMPATIBLE, a probe just outside a near edge is not', () => {
+  it('never uses distance by default: a probe just inside a far corner is COMPATIBLE, a probe just outside a near edge is not', () => {
     expect(
       evaluateDestinationCompatibility(
         { probePoints: [{ latitude: -34.705, longitude: -58.525 }] },
@@ -145,5 +145,64 @@ describe('evaluateDestinationCompatibility (single destination-scope owner)', ()
         DESTINATION,
       ).verdict,
     ).toBe('INCOMPATIBLE');
+  });
+
+  describe('routeScale evaluation', () => {
+    it('COMPATIBLE with WITHIN_DESTINATION_BOUNDARY when probe is inside polygon even with routeScale: true', () => {
+      expect(
+        evaluateDestinationCompatibility(
+          { probePoints: [INSIDE] },
+          DESTINATION,
+          { routeScale: true },
+        ),
+      ).toEqual({
+        verdict: 'COMPATIBLE',
+        reason: 'WITHIN_DESTINATION_BOUNDARY',
+      });
+    });
+
+    it('COMPATIBLE with WITHIN_ROUTE_DESTINATION_RADIUS when probe is outside polygon but within route radius', () => {
+      // OUTSIDE is ~15 km from center (-34.62, -58.43)
+      expect(
+        evaluateDestinationCompatibility(
+          { probePoints: [OUTSIDE] },
+          DESTINATION,
+          { routeScale: true },
+        ),
+      ).toEqual({
+        verdict: 'COMPATIBLE',
+        reason: 'WITHIN_ROUTE_DESTINATION_RADIUS',
+      });
+    });
+
+    it('INCOMPATIBLE with OUTSIDE_ROUTE_DESTINATION_RADIUS when probe is outside route radius (e.g. 200 km away)', () => {
+      const farAway = { latitude: -36.0, longitude: -60.0 };
+      expect(
+        evaluateDestinationCompatibility(
+          { probePoints: [farAway] },
+          DESTINATION,
+          { routeScale: true },
+        ),
+      ).toEqual({
+        verdict: 'INCOMPATIBLE',
+        reason: 'OUTSIDE_ROUTE_DESTINATION_RADIUS',
+      });
+    });
+
+    it('INCOMPATIBLE with OUTSIDE_DESTINATION_BOUNDARY for AREA candidates with self even under routeScale', () => {
+      expect(
+        evaluateDestinationCompatibility(
+          {
+            self: { osmType: 'relation', osmId: 9999, adminLevel: 8 },
+            probePoints: [OUTSIDE],
+          },
+          DESTINATION,
+          { routeScale: true },
+        ),
+      ).toEqual({
+        verdict: 'INCOMPATIBLE',
+        reason: 'OUTSIDE_DESTINATION_BOUNDARY',
+      });
+    });
   });
 });

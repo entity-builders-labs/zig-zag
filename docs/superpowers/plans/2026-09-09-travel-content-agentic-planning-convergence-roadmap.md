@@ -74,7 +74,9 @@ It owns the live convergence of:
 - Bitácora v4;
 - single live orchestration ownership.
 
-After the Preference-First acceptance and real-world gates close, this branch — or a direct descendant of its accepted HEAD — is the base for agentic convergence.
+After Preference-First acceptance, **Planner Product Acceptance**, and Tour
+Engine v1 closure, this branch — or a direct descendant of its accepted HEAD —
+is the base for agentic convergence.
 
 ### `feat/agentic-travel-planning`
 
@@ -117,12 +119,14 @@ RW2–RW6 real-world generalization
         + structural performance accounting
         ↓
 PREFERENCE-FIRST CORE CLOSED
+(research / knowledge / canonical Experience core)
         ↓
-Generation Trace v5 maintainability cutover
-(generic decision-step trace; no domain mirror)
+PLANNER PRODUCT ACCEPTANCE
+        ↓
+TOUR ENGINE V1 COMPLETE
         ↓
 create/recreate unified agentic branch
-FROM accepted Preference-First HEAD
+FROM accepted Tour Engine v1 HEAD
         ↓
 port useful agent capabilities selectively
         ↓
@@ -136,6 +140,9 @@ AUTONOMOUS PREFERENCE-FIRST TOURS
         ↓
 post-convergence product capabilities
 ```
+
+Generation Trace v5 is already **COMPLETE / ACTIVE TRACE AUTHORITY** and is
+therefore not a future sequencing gate anymore.
 
 There is no required `preference-first → experience-domain-v2 → unified` detour.
 
@@ -651,7 +658,7 @@ Preference-First core closure requires:
 
 ---
 
-# 6. Preference-First Core CLOSED
+# 6. Preference-First Core CLOSED — research/knowledge core, not Tour Engine v1
 
 The old definition `Phase 7 CLOSED = merge back to feat/experience-domain-v2` is superseded.
 
@@ -672,7 +679,7 @@ PREFERENCE-FIRST CORE CLOSED =
   + structural performance accounting separated from environment
 ```
 
-At closure the engine must satisfy, at minimum:
+At closure the research/knowledge core must satisfy, at minimum:
 
 - preference-first retrieval rather than bounded geo-pool-first selection;
 - one factual facet-match authority;
@@ -680,14 +687,200 @@ At closure the engine must satisfy, at minimum:
 - all new knowledge goes through canonical evidence → resolve → validate → classify → dedupe → persist → re-read;
 - catalog is reusable cumulative knowledge;
 - multi-component Experience existence/composition is evidence-backed;
-- embeddings only rank;
+- embeddings only rank **at this core boundary** over the already-retrieved
+  candidate set; Planner Product Acceptance owns the later evidence-based
+  decision on whether v1 also needs scoped semantic catalog retrieval;
 - exploration style only ranks and is **not** a facet;
 - hard exclusions and feasibility win;
 - resolved feasible MUST anchors are protected;
 - final tour cardinality comes from planner feasibility, not a fixed candidate quota;
 - reservoir/backfill/acquisition convergence is bounded;
-- trace v4/Bitácora v4 explain the real decisions;
+- Generation Trace v5 / Bitácora explain the real decisions;
 - no second legacy tour-generation authority remains.
+
+## 6a. Planner Product Acceptance — required before Tour Engine v1
+
+Closing RW4–RW6 proves the canonical Experience research/knowledge system. It
+does **not** by itself prove that the traveler-facing planner is good enough to
+call the first product version of the tour engine complete.
+
+The product-level finish line is deliberately separate:
+
+```text
+PREFERENCE-FIRST CORE CLOSED
+        ↓
+PLANNER PRODUCT ACCEPTANCE
+        ↓
+TOUR ENGINE V1 COMPLETE
+```
+
+This gate must be executed against the real live tour-generation path and native
+Generation Trace v5 / Bitácora. Unit tests are necessary but not sufficient.
+
+### 6a.1 Semantic preference matching must be visible live
+
+The current implementation already has the intended ranking path:
+
+```text
+PreferenceSpec.semanticQuery
+→ query embedding
+→ pgvector cosine distance against compatible Experience embeddings
+→ semanticSimilarity
+→ composition ordering
+→ PlanningExperienceCandidate.semanticScore
+→ plannerRelevanceScore()
+```
+
+V1 acceptance requires at least one controlled live/catalog-backed scenario
+where:
+
+- multiple VERIFIED, destination-compatible Experiences are otherwise eligible;
+- the user expresses a meaningful free-text preference that is not reducible to
+  a single strong facet;
+- embedding similarity is actually `applied`, not silently unavailable;
+- the semantic scores are visible in Bitácora;
+- the higher semantic relevance materially affects composition and/or planner
+  ordering among otherwise eligible choices;
+- hard exclusions, factual facet truth, MUST semantics and feasibility remain
+  authoritative over semantic similarity.
+
+A wired code path alone is not product acceptance.
+
+### 6a.2 Semantic catalog retrieval decision checkpoint — intentionally deferred
+
+There is **no requirement to decide this before RW4–RW6**.
+
+The current canonical behavior is:
+
+```text
+factual/geographic retrieval builds a candidate pool
+→ embeddings rank that pool
+```
+
+The alternative under consideration is:
+
+```text
+destination/scoped VERIFIED catalog
+→ vector top-K semantic retrieval
+→ canonical composition/ranking
+```
+
+Do not choose between them from architectural taste alone. Decide during
+Planner Product Acceptance, after RW4–RW6 provide a stable canonical catalog and
+the live semantic-ranking scenario above is reproducible.
+
+Use this decision test:
+
+1. Build a sufficiently rich catalog for one destination.
+2. Use free-text preferences with real semantic nuance beyond the strong facet
+   vocabulary.
+3. Identify a VERIFIED, destination-compatible Experience that a human would
+   reasonably expect to be semantically relevant.
+4. Ask whether that Experience reaches the pre-ranking candidate pool.
+5. If it reaches the pool and embedding ranking consistently promotes it when
+   appropriate, keep **ranking-only** for v1 unless broader evidence disproves
+   sufficiency.
+6. If it is excluded *before* semantic ranking despite being geographically
+   eligible and strongly semantically relevant, the missing capability is
+   retrieval, not ranking; authorize a scoped top-K vector-retrieval design.
+
+If scoped vector retrieval is introduced, it remains **candidate discovery /
+ranking only**. It must never:
+
+- establish strong facet truth;
+- bypass destination/geographic scope;
+- bypass hard exclusions or MUST semantics;
+- mint an Experience without evidence;
+- override deterministic feasibility.
+
+Exact top-K size, provider/model and query strategy are implementation decisions
+for that later gate, not decisions to guess now.
+
+### 6a.3 Real routing and travel-time authority
+
+The current `ApproximateTravelEstimateProvider` is an intentional deterministic
+fallback/placeholder: footprint distance × detour factor ÷ configured speed. It
+is useful for tests and degraded operation, but it is not sufficient as the sole
+travel authority for Tour Engine v1 acceptance.
+
+V1 acceptance requires:
+
+- at least one real routing/directions implementation behind the canonical
+  `TravelEstimateProvider` boundary;
+- real routed distance and duration between consecutive Experiences for the
+  transportation modes claimed as supported by v1;
+- walking-limit checks based on real routed walking distance when the real
+  provider path is available;
+- route/travel estimates participating in day assignment and ordering rather
+  than being presentation-only;
+- provider/fallback provenance in Bitácora;
+- no silent claim of precision when routing degraded to approximation.
+
+A transportation mode without a real v1 routing path must be explicitly
+unsupported/degraded rather than silently treated as equivalent to a fixed-speed
+approximation.
+
+### 6a.4 Duration and opening-hours feasibility
+
+Planner feasibility must distinguish factual operational knowledge from policy
+fallbacks.
+
+For v1 acceptance:
+
+- persisted/evidence-backed Experience duration must be consumed when known;
+- the current composite default duration (for example the 90-minute policy
+  fallback) may remain a typed fallback but cannot masquerade as factual
+  duration;
+- Bitácora must expose whether duration came from evidence or policy fallback;
+- known opening hours must constrain feasible placement;
+- unknown opening hours remain explicitly unknown, not silently interpreted as
+  always-open or closed;
+- the acceptance corpus must include at least one scenario where duration and/or
+  opening hours change a planning decision.
+
+This does not require complete official-source enrichment for every catalog row
+before v1. It requires truthful provenance and real feasibility where the facts
+exist.
+
+### 6a.5 Multi-day product acceptance
+
+Before `TOUR ENGINE V1 COMPLETE`, run a small human-reviewed multi-day corpus
+through the real application path. At minimum prove:
+
+- requested day count and planning windows are respected;
+- strong preferences/MUSTs are preserved when feasible;
+- semantic preferences influence soft choice among feasible candidates;
+- real routing produces geographically sensible sequencing;
+- walking limits use the canonical mobility policy;
+- known durations/opening hours affect feasibility;
+- reservoir/backfill does not create unreasonable filler;
+- impossible candidates are rejected with explicit reason codes;
+- repeated identical canonical state/request remains deterministic at the
+  deterministic-core boundaries;
+- Bitácora explains candidate relevance, routing/travel, temporal feasibility,
+  selection/rejection and final day placement.
+
+The goal is not global route optimality. V1 may keep the bounded greedy solver.
+The acceptance criterion is a coherent, explainable, feasible itinerary based on
+real travel facts rather than an approximate-distance demo.
+
+### 6a.6 Tour Engine v1 closure
+
+```text
+TOUR ENGINE V1 COMPLETE =
+  PREFERENCE-FIRST CORE CLOSED
+  + semantic preference matching live-proven
+  + semantic retrieval decision resolved from evidence
+  + real routing path accepted
+  + duration/opening-hours feasibility accepted
+  + multi-day planner product corpus accepted
+  + Bitácora explains all material planner decisions
+```
+
+Agentic autonomy is **not** required for Tour Engine v1. Agentic convergence is
+the next product phase and must reuse this accepted deterministic/research core.
+
+---
 
 ### `explorationStyle` canonical correction
 
@@ -869,30 +1062,38 @@ preserve obsolete internal contracts. Apply the repository early-stage deletion
 rule unless an explicit product requirement requires old-tour trace
 compatibility.
 
-### Why this gate precedes agentic convergence
+### Trace v5 sequencing status — completed ahead of the remaining product gates
 
 Agentic convergence will introduce more dynamic execution shapes: research
 gaps, independent tools, bounded retries, source retrieval, provider policy and
-other future capabilities. Carrying the current stage-specific v4 schema into
-that phase would multiply its maintenance cost.
+other future capabilities. That was the reason Trace v5 had to exist before
+agentic convergence.
 
-Therefore the canonical order is:
+The Trace v5 cutover is now **COMPLETE / ACTIVE TRACE AUTHORITY**. It is not a
+future gate and must not be reinserted between Preference-First closure and
+Planner Product Acceptance.
+
+The current canonical order is:
 
 ```text
-RW3–RW6
+Trace v5 COMPLETE
+→ RW4–RW6
 → PREFERENCE-FIRST CORE CLOSED
-→ Trace v5 generic decision-step cutover
+→ PLANNER PRODUCT ACCEPTANCE
+→ TOUR ENGINE V1 COMPLETE
 → unified agentic convergence
 ```
 
-Do not use this planned cleanup to delay or reopen accepted Preference-First
-domain semantics.
+Do not use trace cleanup to delay or reopen accepted Preference-First domain
+semantics.
 
 ---
 
 # 7. Agentic Convergence Gate
 
-Only begin unified agentic convergence after the Preference-First core is accepted.
+Only begin unified agentic convergence after **Tour Engine v1 is accepted**.
+Preference-First Core closure is necessary but no longer sufficient: the Planner
+Product Acceptance gate in §6a must also be green.
 
 ## 7.1 Base branch
 
@@ -1139,9 +1340,11 @@ Experience dedupe policy correction          (DONE)
    + initial tour-quality evaluation
    + structural performance accounting
 → clean stale red baseline suites so green means green
-→ close Preference-First core
+→ close Preference-First research/knowledge core
+→ Planner Product Acceptance
+→ Tour Engine v1 COMPLETE
 → audit existing agentic work
-→ create/recreate unified branch from Preference-First
+→ create/recreate unified branch from accepted Tour Engine v1 HEAD
 → port/adapt agent capabilities
 → unified Agentic E2E
 ```

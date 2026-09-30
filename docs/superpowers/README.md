@@ -24,19 +24,21 @@ The single current execution pointer is:
 
 `docs/superpowers/progress/2026-09-11-preference-first-selection-progress.md`
 
-As of 2026-09-28 its gate-level state is:
+As of 2026-09-29 its gate-level state is:
 
 ```text
 Component-resolution / RW1        CLOSED
 Experience dedupe correction      DONE
 RW2                               CLOSED
-RW3 Caminito route                IN PROGRESS (warm-reuse finding OPEN)
-RW4                               NOT AUTHORIZED
+RW3 Caminito route                CLOSED / ACCEPTED
+RW4                               AUTHORIZED / NEXT GATE
 RW5                               PENDING
 RW6 anti-fabrication              PENDING
 Preference-First Core CLOSED      PENDING
+Planner Product Acceptance        PENDING AFTER RW4-RW6
+Tour Engine v1 COMPLETE           PENDING
 Trace v5 maintainability cutover  COMPLETE / ACTIVE TRACE AUTHORITY
-Agentic convergence               PENDING AFTER RW3-RW6
+Agentic convergence               PENDING AFTER TOUR ENGINE V1
 ```
 
 When this summary disagrees with the execution pointer or code, the execution
@@ -120,14 +122,19 @@ explicitly demoting the old pointer.
 ## 4. Canonical forward sequence
 
 ```text
-RW3 source-depth/composition/geography proven; warm-reuse finding open
-→ Generation Trace v5 cutover
-→ RW3 final acceptance
+RW3 final acceptance CLOSED (2026-09-29)
 → RW4
 → RW5
 → RW6
 → Preference-First Core CLOSED
-→ unified agentic branch from accepted Preference-First HEAD
+→ Planner Product Acceptance
+   - live semantic preference matching
+   - semantic catalog retrieval decision checkpoint
+   - real routing / travel estimates
+   - duration + opening-hours feasibility
+   - multi-day planner quality + Bitácora proof
+→ Tour Engine v1 COMPLETE
+→ unified agentic branch from accepted Tour Engine v1 HEAD
 → selective agent capability port/adaptation
 → unified Agentic E2E
 → Autonomous Preference-First Tours
@@ -135,8 +142,9 @@ RW3 source-depth/composition/geography proven; warm-reuse finding open
 ```
 
 The prior Trace v5 sequencing was explicitly superseded on 2026-09-28 after
-RW3 demonstrated that v4 lost a classifier HTTP 503 cause. Trace v5 now occurs
-before RW3 final acceptance; RW4 remains unauthorized. See
+RW3 demonstrated that v4 lost a classifier HTTP 503 cause. Trace v5 completed
+before RW3 final acceptance. RW3 then passed its final COLD/WARM gate on
+2026-09-29; RW4 is now the authorized next gate. See
 `specs/2026-09-28-generation-trace-v5-cutover.md`.
 
 The detailed reasoning and acceptance invariants for Trace v5 live in the
@@ -249,6 +257,25 @@ Read:
 - `plans/2026-09-11-preference-first-selection-implementation.md`;
 - current progress for what is actually landed/accepted.
 
+### "When is the Tour Engine v1 actually complete?"
+
+`Preference-First Core CLOSED` is necessary but is **not** the product-level
+Tour Engine v1 finish line. After RW4–RW6 close, the canonical convergence
+roadmap requires a dedicated **Planner Product Acceptance** gate proving live
+semantic preference influence, routing-backed travel feasibility, planning
+duration/opening-hours semantics, multi-day sequencing quality, and Bitácora
+explainability.
+
+The open semantic-catalog question (ranking-only vs scoped vector retrieval) is
+resolved inside that gate from evidence; it is not a prerequisite decision for
+RW4–RW6 and must not be guessed early.
+
+Read:
+
+- `plans/2026-09-09-travel-content-agentic-planning-convergence-roadmap.md`,
+  section **Planner Product Acceptance / Tour Engine v1**;
+- then the current execution pointer.
+
 ### "Why was an old architecture changed?"
 
 Use `characterization/`, older `progress/`, reports and Git history as
@@ -296,8 +323,8 @@ Bitácora and the tour generation pipeline are fully cut over to native v5:
 
 Current status:
 - Trace v5: **COMPLETE / ACTIVE TRACE AUTHORITY**
-- RW3 final warm classification-reuse finding: **OPEN**
-- RW4: **NOT AUTHORIZED**
+- RW3 final warm classification-reuse gate: **CLOSED / ACCEPTED**
+- RW4: **AUTHORIZED / NEXT GATE**
 
 The canonical roadmap owns the detailed design direction. The core intent is:
 

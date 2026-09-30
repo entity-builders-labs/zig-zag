@@ -291,7 +291,8 @@ export class TourGenerationHarness {
               .filter(Boolean) ??
             [],
           providersFailed:
-            metadata.generationTrace?.result?.facts?.acquisitionProvidersFailed ??
+            metadata.generationTrace?.result?.facts
+              ?.acquisitionProvidersFailed ??
             metadata.generationTrace?.steps
               ?.filter(
                 (s: any) =>
@@ -337,11 +338,15 @@ export class TourGenerationHarness {
       ...s,
       stage:
         s.stage ??
-        (s.name === 'acquisition.pass' ? 'discovery' : s.name?.replace(/\./g, '_')),
+        (s.name === 'acquisition.pass'
+          ? 'discovery'
+          : s.name?.replace(/\./g, '_')),
       inputs: s.inputs ?? s.input,
       outputs: s.outputs ?? {
         ...s.output,
-        ...(s.output?.deficits ? { acquisitionDeficits: s.output.deficits } : {}),
+        ...(s.output?.deficits
+          ? { acquisitionDeficits: s.output.deficits }
+          : {}),
       },
       decision: {
         ...s.decision,

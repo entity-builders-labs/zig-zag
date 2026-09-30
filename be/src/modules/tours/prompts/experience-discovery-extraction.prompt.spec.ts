@@ -1,3 +1,4 @@
+import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import {
   INITIAL_DIMENSION_VOCABULARY,
   PREFERENCE_DIMENSIONS,
@@ -91,6 +92,103 @@ describe('experience discovery extraction prompt (shared contract)', () => {
     });
   });
 
+  describe('Experience vs GeoEntity composition contract (RW4)', () => {
+    const text = buildDiscoveryInstructions().join('\n');
+
+    it('A: a route_like/walk intent is semantic and never requires a ROUTE component', () => {
+      expect(text).toMatch(
+        /intents such as walk or route_like describe how the traveller experiences/i,
+      );
+      expect(text).toMatch(/do NOT require a ROUTE or AREA componentHint/);
+      expect(text).toMatch(
+        /valid with several PLACE componentHints and zero ROUTE componentHints/i,
+      );
+      expect(text).toMatch(
+        /expectedKind describes the independently identifiable geographic nature of a component, never the semantic type of the Experience/i,
+      );
+      // no structural Experience kind is reintroduced
+      expect(text).toMatch(/never structural proposal kinds/i);
+    });
+
+    it('B: a source-backed physical street/trail/path remains a valid ROUTE component', () => {
+      expect(text).toMatch(
+        /role "route" \/ expectedKind "ROUTE" only when the cited evidence describes a real geographic route entity whose identity exists independently of the tourism product/i,
+      );
+      expect(text).toMatch(
+        /street, trail, path, road, physical route or recognized geographic corridor/i,
+      );
+      expect(text).toMatch(/remains a valid ROUTE componentHint/i);
+      expect(text).toMatch(
+        /Never emit a ROUTE componentHint merely because the source calls the Experience a route, wine route, tour, walk, circuit, itinerary or excursion/i,
+      );
+    });
+
+    it('C: forbids inserting the Experience/product identity itself as a componentHint', () => {
+      expect(text).toMatch(
+        /The Experience identity itself is NOT automatically a componentHint/,
+      );
+      expect(text).toMatch(
+        /never copy candidate\.name, the tour\/product name or the tourism concept .* into componentHints merely to give the Experience a geographic shape or to reach a component count/i,
+      );
+      // a legitimate single-place visit / real named street keeps its name
+      expect(text).toMatch(
+        /only when that name independently denotes a real geographic entity/i,
+      );
+    });
+
+    it('D: forbids merging components of distinct source-defined variants', () => {
+      expect(text).toMatch(
+        /One candidate must represent ONE coherent source-backed composition/,
+      );
+      expect(text).toMatch(/Monday route vs a Friday route/);
+      expect(text).toMatch(/Route A vs Route B/);
+      expect(text).toMatch(/different geographic subroutes/);
+      expect(text).toMatch(
+        /never merge components from different variants into one candidate/i,
+      );
+      expect(text).toMatch(
+        /unless the source itself explicitly defines that combined set as one itinerary/i,
+      );
+      expect(text).toMatch(/emit one separate candidate per variant/i);
+      expect(text).toMatch(/only the single best-supported coherent variant/i);
+    });
+
+    it('E: distinguishes A + B composition from alternatives/optional stops', () => {
+      expect(text).toMatch(/Alternatives are not mandatory membership/);
+      expect(text).toMatch(/"A and B".*is composition/);
+      expect(text).toMatch(/"A or B"/);
+      expect(text).toMatch(/"choose up to N of A\/B\/C\/D"/);
+      expect(text).toMatch(/"optional stop A"/);
+      expect(text).toMatch(
+        /Never flatten alternatives or optional stops into the componentHints of one candidate/i,
+      );
+    });
+
+    it('MULTI_COMPONENT_EXPERIENCE never licenses self-duplication, fake ROUTEs or variant unions', () => {
+      expect(text).toMatch(
+        /Never duplicate the Experience identity, invent a geographic ROUTE, or merge different variants\/options merely to reach the component count required by MULTI_COMPONENT_EXPERIENCE/,
+      );
+      expect(text).toMatch(/return no such candidate/i);
+      expect(text).toMatch(/fail closed/i);
+    });
+
+    it('states the rules once, in the shared user prompt every extractor sends', () => {
+      const request: ExperienceDiscoveryRequest = {
+        scope: { destinationName: 'Mendoza' },
+        requestedThemes: ['wine'],
+        requestedIntents: ['route_like'],
+        evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+        breadth: 'focused',
+        maxCandidates: 8,
+      };
+      const prompt = buildDiscoveryUserPrompt(request, []);
+      for (const line of buildDiscoveryInstructions()) {
+        expect(prompt).toContain(line);
+      }
+      expect(prompt).not.toMatch(/[{}]/);
+    });
+  });
+
   it('request header renders destination / themes / intents / preferences', () => {
     const header = buildDiscoveryRequestHeader({
       scope: { destinationName: 'Buenos Aires' },
@@ -131,6 +229,10 @@ describe('experience discovery extraction prompt (shared contract)', () => {
       const context = buildDiscoveryAnchorContext(['Caminito']).join('\n');
       expect(context).toMatch(/never licenses composition/);
       expect(context).toMatch(/unless the cited evidence itself supports them/);
+      // RW4: a tourism-concept anchor is the Experience subject, not a component
+      expect(context).toMatch(
+        /tourism concept .* is the subject of the Experience, never a componentHint/,
+      );
     });
 
     it('reaches the full user prompt every extractor sends', () => {

@@ -9,7 +9,6 @@ import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import {
   DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS,
   GEOGRAPHIC_VALIDATOR_VERSION,
-  GeographicPoint,
   GeographicValidationBatchResult,
   GeographicValidationDecisionEntity,
   GeographicValidationRejectionReason,
@@ -950,11 +949,7 @@ export class CompositeGeographicValidationService {
       };
     }
 
-    const destinationCenter = this.centroidOfGeometry(
-      destinationBoundary.geometry,
-    );
     const outsideRadius = anchors.filter((entity) => {
-      if (this.isInsideDestination(entity, destinationBoundary)) return false;
       if (
         !Number.isFinite(entity.latitude) ||
         !Number.isFinite(entity.longitude)
@@ -962,10 +957,20 @@ export class CompositeGeographicValidationService {
         return true;
       }
       return (
-        distanceMeters(destinationCenter, {
-          latitude: entity.latitude as number,
-          longitude: entity.longitude as number,
-        }) > this.thresholds.route.maxRadiusMeters
+        evaluateDestinationCompatibility(
+          {
+            probePoints: [
+              {
+                latitude: entity.latitude as number,
+                longitude: entity.longitude as number,
+              },
+            ],
+          },
+          { kind: 'AREA_BOUNDARY', boundary: destinationBoundary },
+          {
+            routeScale: true,
+          },
+        ).verdict !== 'COMPATIBLE'
       );
     });
     if (outsideRadius.length > 0) {
@@ -999,27 +1004,6 @@ export class CompositeGeographicValidationService {
         { kind: 'AREA_BOUNDARY', boundary: destinationBoundary },
       ).verdict === 'COMPATIBLE'
     );
-  }
-
-  private centroidOfGeometry(geometry: GeoJsonGeometry): GeographicPoint {
-    if (geometry.type === 'Point') {
-      return {
-        latitude: geometry.coordinates[1],
-        longitude: geometry.coordinates[0],
-      };
-    }
-    const ring: [number, number][] =
-      geometry.type === 'LineString'
-        ? geometry.coordinates
-        : geometry.type === 'MultiLineString'
-          ? geometry.coordinates.flat()
-          : geometry.type === 'Polygon'
-            ? geometry.coordinates[0]
-            : geometry.coordinates[0][0];
-    return {
-      latitude: ring.reduce((sum, [, lat]) => sum + lat, 0) / ring.length,
-      longitude: ring.reduce((sum, [lon]) => sum + lon, 0) / ring.length,
-    };
   }
 
   private distinctAdminValues(

@@ -108,6 +108,7 @@ export interface DiscoveryExtractorConfig {
     apiToken?: string;
     model: string;
     timeoutMs: number;
+    maxCompletionTokens: number;
   };
 }
 
@@ -123,6 +124,19 @@ function isEmbeddingModel(model: string): boolean {
   return embeddingModelPatterns.some((pattern) =>
     model.toLowerCase().includes(pattern),
   );
+}
+
+function parseCloudflareDiscoveryMaxCompletionTokens(raw?: string): number {
+  if (raw === undefined || raw.trim() === '') {
+    return 4096;
+  }
+  const parsed = Number(raw);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error(
+      `Invalid CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS "${raw}". Expected a positive integer.`,
+    );
+  }
+  return parsed;
 }
 
 export default registerAs('ai', (): AiConfig => {
@@ -318,6 +332,9 @@ export default registerAs('ai', (): AiConfig => {
         timeoutMs: process.env.CLOUDFLARE_DISCOVERY_TIMEOUT_MS
           ? parseInt(process.env.CLOUDFLARE_DISCOVERY_TIMEOUT_MS, 10)
           : baseTimeout,
+        maxCompletionTokens: parseCloudflareDiscoveryMaxCompletionTokens(
+          process.env.CLOUDFLARE_DISCOVERY_MAX_COMPLETION_TOKENS,
+        ),
       },
     },
     geminiGroundedSearchModel:

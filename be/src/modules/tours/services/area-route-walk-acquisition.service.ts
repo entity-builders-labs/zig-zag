@@ -10,6 +10,7 @@ import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fin
 import {
   CURRENT_CLASSIFICATION_PROMPT_VERSION,
   canReuseClassification,
+  readPersistedClassification,
 } from './experience-classification.service';
 import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
@@ -27,8 +28,10 @@ import { normalizeGeoName } from '../utils/nominatim-match.util';
 import {
   convergeExperienceClassification,
   ClassificationAuditRecord,
+  classificationSemanticView,
 } from '../utils/experience-classification-convergence.util';
 import { ExperienceClassificationService } from './experience-classification.service';
+import { ClassificationFailure } from './experience-classification.service';
 
 export interface AreaRouteWalkAcquisitionInput {
   /**
@@ -53,12 +56,27 @@ export interface AreaRouteWalkAcquisitionInput {
   semanticQuery?: string;
 }
 
+export interface ClassificationRefreshAttempt {
+  experienceId: string;
+  outcome:
+    | 'insufficient_evidence'
+    | 'degraded'
+    | 'classified_mismatch'
+    | 'classified_match';
+  provider?: string;
+  model?: string;
+  failure?: ClassificationFailure;
+}
+
 export type AreaRouteWalkAcquisitionResult =
   | { outcome: 'reused'; experienceId: string }
   | {
       outcome: 'classification_refreshed';
       experienceId: string;
       refreshResult: ClassificationAuditRecord;
+      classificationRefresh?: {
+        attempts: ClassificationRefreshAttempt[];
+      };
     }
   | {
       outcome: 'acquired';
@@ -76,6 +94,9 @@ export type AreaRouteWalkAcquisitionResult =
         | 'insufficient_persisted_evidence';
       diagnostics?: AreaRouteWalkAcquisitionDiagnostics;
       lifecycle?: AreaRouteWalkAcquisitionLifecycle;
+      classificationRefresh?: {
+        attempts: ClassificationRefreshAttempt[];
+      };
     };
 
 export interface AreaRouteWalkAcquisitionLifecycle {
@@ -255,35 +276,63 @@ export class AreaRouteWalkAcquisitionService {
     // (canReuseClassification, the same B2 validity gate used everywhere
     // else) that actually satisfies the requested intent. A stale/
     // degraded/malformed/never-classified row is a conservative MISS here,
-    // never trusted from a legacy metadata.intents value.
+    // evaluated strictly against classifier-owned semantics (never legacy
+    // metadata.intents or metadata.archetypes).
     const isSemanticallyEligible = (row: {
       id: string;
       metadata?: unknown;
-    }): boolean =>
-      !!facet &&
-      canReuseClassification(
-        row.metadata,
-        CURRENT_CLASSIFICATION_PROMPT_VERSION,
-      ) &&
-      candidateMatchesPreferenceFacet(row, facet);
+    }): boolean => {
+      if (
+        !facet ||
+        !canReuseClassification(
+          row.metadata,
+          CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        )
+      ) {
+        return false;
+      }
+      const persisted = readPersistedClassification(row.metadata);
+      if (!persisted) return false;
+      return candidateMatchesPreferenceFacet(
+        classificationSemanticView(persisted),
+        facet,
+      );
+    };
 
-    // WARM check: geography/identity AND current semantic eligibility. A
-    // pre-existing row may have been persisted for an unrelated purpose
-    // (wrong intent) or classified into something else entirely -- both
-    // are real, valid MISSes, not bugs.
+    // WARM check: geography/identity AND current semantic eligibility.
+    // Candidates with reusable classifications are evaluated directly. Only
+    // candidates whose classification is NOT reusable enter classification
+    // refresh using persisted evidence.
     const geographicCandidates = await geographicMatches();
-    const warmHit = geographicCandidates.find(isSemanticallyEligible);
-    if (warmHit) return { outcome: 'reused', experienceId: warmHit.id };
+    const refreshAttempts: ClassificationRefreshAttempt[] = [];
+    let sawSemanticMismatch = false;
+    let sawRefreshFailure = false;
+    let sawInsufficientEvidence = false;
 
-    // CLASSIFICATION REFRESH: a geographically/identity-compatible Experience
-    // exists but its classification is degraded/stale/malformed. Attempt a
-    // refresh using ONLY persisted evidence before falling back to Internet
-    // reacquisition. This delegates to the canonical convergence primitive.
     for (const candidate of geographicCandidates) {
+      if (
+        canReuseClassification(
+          candidate.metadata,
+          CURRENT_CLASSIFICATION_PROMPT_VERSION,
+        )
+      ) {
+        if (isSemanticallyEligible(candidate)) {
+          return { outcome: 'reused', experienceId: candidate.id };
+        }
+        sawSemanticMismatch = true;
+        continue;
+      }
+
+      // Classification is NOT reusable -> attempt refresh using persisted evidence
       const context = await this.catalog.findClassificationContextById(
         candidate.id,
       );
       if (!context || context.evidence.length === 0) {
+        sawInsufficientEvidence = true;
+        refreshAttempts.push({
+          experienceId: candidate.id,
+          outcome: 'insufficient_evidence',
+        });
         continue;
       }
 
@@ -297,34 +346,48 @@ export class AreaRouteWalkAcquisitionService {
       );
 
       if (refreshResult.state === 'degraded') {
+        sawRefreshFailure = true;
+        refreshAttempts.push({
+          experienceId: candidate.id,
+          outcome: 'degraded',
+          provider: refreshResult.provider,
+          model: refreshResult.model,
+          failure: refreshResult.failure,
+        });
         continue;
       }
 
-      // Check if the refreshed classification satisfies the requested facet.
-      const refreshedRow = {
-        id: candidate.id,
-        metadata: {
-          ...(context.metadata as Record<string, unknown>),
-          themes: refreshResult.themes,
-          intents: refreshResult.intents,
-          classification: {
-            state: refreshResult.state,
-            promptVersion: refreshResult.promptVersion,
-            modelId: refreshResult.model,
-            themes: refreshResult.themes,
-            intents: refreshResult.intents,
-            traits: refreshResult.traits,
-            reasoningEvidence: refreshResult.reasoningEvidence,
-          },
-        },
-      };
-      if (candidateMatchesPreferenceFacet(refreshedRow, facet)) {
+      // Check if the refreshed classification satisfies the requested facet
+      // using classification-owned semantic truth ONLY.
+      if (
+        facet &&
+        candidateMatchesPreferenceFacet(
+          classificationSemanticView(refreshResult),
+          facet,
+        )
+      ) {
+        refreshAttempts.push({
+          experienceId: candidate.id,
+          outcome: 'classified_match',
+          provider: refreshResult.provider,
+          model: refreshResult.model,
+        });
         return {
           outcome: 'classification_refreshed',
           experienceId: candidate.id,
           refreshResult,
+          classificationRefresh: { attempts: refreshAttempts },
         };
       }
+
+      // Refresh succeeded but classification does not match requested facet.
+      sawSemanticMismatch = true;
+      refreshAttempts.push({
+        experienceId: candidate.id,
+        outcome: 'classified_mismatch',
+        provider: refreshResult.provider,
+        model: refreshResult.model,
+      });
     }
 
     // If at least one canonical geographic candidate existed but none can
@@ -332,9 +395,32 @@ export class AreaRouteWalkAcquisitionService {
     // bounded refresh, return no_result. Do NOT Internet reacquire merely
     // because classification was degraded.
     if (geographicCandidates.length > 0) {
+      // Precedence: semantic mismatch > refresh failure > insufficient evidence
+      if (sawSemanticMismatch) {
+        return {
+          outcome: 'no_result',
+          reason: 'no_semantically_eligible_result',
+          classificationRefresh: { attempts: refreshAttempts },
+        };
+      }
+      if (sawRefreshFailure) {
+        return {
+          outcome: 'no_result',
+          reason: 'classification_refresh_failed',
+          classificationRefresh: { attempts: refreshAttempts },
+        };
+      }
+      if (sawInsufficientEvidence) {
+        return {
+          outcome: 'no_result',
+          reason: 'insufficient_persisted_evidence',
+          classificationRefresh: { attempts: refreshAttempts },
+        };
+      }
       return {
         outcome: 'no_result',
         reason: 'no_semantically_eligible_result',
+        classificationRefresh: { attempts: refreshAttempts },
       };
     }
 
@@ -347,6 +433,7 @@ export class AreaRouteWalkAcquisitionService {
       deficits: [input.deficit],
       anchors: [input.anchor],
       breadth: 'focused',
+      semanticQuery: input.semanticQuery,
     };
     const plan = this.acquisitionPlanner.buildAcquisitionPlan(planInput);
     const baseDiagnostics = (

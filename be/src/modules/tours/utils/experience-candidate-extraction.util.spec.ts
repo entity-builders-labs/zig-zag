@@ -1,4 +1,6 @@
 import { extractExperienceCandidates } from './experience-candidate-extraction.util';
+import { GenerationTraceRecorder } from './generation-trace-recorder.util';
+import { recordAcquisitionLifecycle } from './generation-trace/acquisition-audit';
 
 /** Evidence whose text trivially contains `supportSpan`, for tests whose
  * concern is unrelated to source-support verification itself. `title` is
@@ -804,7 +806,35 @@ describe('extractExperienceCandidates', () => {
       });
     });
 
-    it('marks support from the WRONG cited evidenceKey as UNSUPPORTED', () => {
+    it('marks support as UNSUPPORTED when supportSpan exists in no active evidence items', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(
+          [
+            {
+              key: 'wrong-record-venue',
+              name: 'Wrong Record Venue',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-a'],
+              supportSpan: 'Non-existent text not found in any record',
+            },
+          ],
+          ['ev-a', 'ev-b'],
+        ),
+        [
+          ev('ev-a', 'This street is known for its colonial architecture.'),
+          ev('ev-b', 'Lezama Park anchors the southern end of the walk.'),
+        ],
+        8,
+      );
+      expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+        status: 'UNSUPPORTED',
+        reason: 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+        attributionStatus: 'NO_SUPPORTING_EVIDENCE',
+      });
+    });
+
+    it('marks support as REATTRIBUTED_UNIQUE_EXACT_SPAN when supportSpan exists in another active evidence record', () => {
       const result = extractExperienceCandidates(
         santaMonicaWalk(
           [
@@ -826,8 +856,88 @@ describe('extractExperienceCandidates', () => {
         8,
       );
       expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+        status: 'SUPPORTED',
+        declaredEvidenceKeys: ['ev-a'],
+        verifiedEvidenceKeys: ['ev-b'],
+        attributionStatus: 'REATTRIBUTED_UNIQUE_EXACT_SPAN',
+      });
+    });
+
+    it('Case H: preserves declared verified source support when normalizationKind is missing', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(
+          [
+            {
+              key: 'normalized-venue',
+              name: 'Normalized wording',
+              sourceName: 'source wording',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'source wording appears in the evidence',
+            },
+          ],
+          ['ev-1'],
+        ),
+        [ev('ev-1', 'The source wording appears in the evidence.')],
+        8,
+      );
+
+      expect(result.candidates).toHaveLength(0);
+      expect(result.validationErrors.join(' ')).toMatch(
+        /SOURCE_CONTRACT_VIOLATION.*MISSING_NORMALIZATION_KIND/,
+      );
+      expect(result.sourceSupportAudits[0].status).toBe(
+        'SOURCE_CONTRACT_VIOLATION',
+      );
+      expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
         status: 'UNSUPPORTED',
-        reason: 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+        reason: 'MISSING_NORMALIZATION_KIND',
+        declaredEvidenceKeys: ['ev-1'],
+        verifiedEvidenceKeys: ['ev-1'],
+        attributionStatus: 'DECLARED_KEY_VERIFIED',
+        verifiedSupportSpan: 'source wording appears in the evidence',
+      });
+    });
+
+    it('Case I: preserves uniquely re-attributed source support when normalizationKind is invalid', () => {
+      const result = extractExperienceCandidates(
+        santaMonicaWalk(
+          [
+            {
+              key: 'normalized-venue',
+              name: 'Normalized wording',
+              sourceName: 'source wording',
+              normalizationKind: 'NOT_A_NORMALIZATION_KIND',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'source wording appears in the evidence',
+            },
+          ],
+          ['ev-1'],
+        ),
+        [
+          ev('ev-1', 'This declared record has no supporting span.'),
+          ev('ev-2', 'The source wording appears in the evidence.'),
+        ],
+        8,
+      );
+
+      expect(result.candidates).toHaveLength(0);
+      expect(result.validationErrors.join(' ')).toMatch(
+        /SOURCE_CONTRACT_VIOLATION.*INVALID_NORMALIZATION_KIND/,
+      );
+      expect(result.sourceSupportAudits[0].status).toBe(
+        'SOURCE_CONTRACT_VIOLATION',
+      );
+      expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+        status: 'UNSUPPORTED',
+        reason: 'INVALID_NORMALIZATION_KIND',
+        declaredEvidenceKeys: ['ev-1'],
+        verifiedEvidenceKeys: ['ev-2'],
+        attributionStatus: 'REATTRIBUTED_UNIQUE_EXACT_SPAN',
+        verifiedSupportSpan: 'source wording appears in the evidence',
       });
     });
 
@@ -908,7 +1018,7 @@ describe('extractExperienceCandidates', () => {
     );
   });
 
-  it('drops a componentHint whose supportSpan is real text but taken from a DIFFERENT evidence record than the one it cites', () => {
+  it('re-attributes a componentHint whose supportSpan is real text from a different active evidence record than the declared one', () => {
     const result = extractExperienceCandidates(
       {
         candidates: [
@@ -928,7 +1038,7 @@ describe('extractExperienceCandidates', () => {
                 supportSpan: 'Lezama Park anchors the southern end',
               },
             ],
-            evidenceKeys: ['ev-1', 'ev-2'],
+            evidenceKeys: ['ev-1'],
           },
         ],
       },
@@ -938,10 +1048,157 @@ describe('extractExperienceCandidates', () => {
       ],
       8,
     );
-    expect(result.candidates).toHaveLength(0);
-    expect(result.validationErrors.join(' ')).toMatch(
-      /SPAN_NOT_FOUND_IN_CITED_EVIDENCE/,
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].evidenceKeys).toEqual(['ev-2']);
+    expect(result.candidates[0].declaredEvidenceKeys).toEqual(['ev-1']);
+    expect(result.candidates[0].componentHints[0].evidenceKeys).toEqual([
+      'ev-2',
+    ]);
+    expect(result.candidates[0].componentHints[0].declaredEvidenceKeys).toEqual(
+      ['ev-1'],
     );
+    expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+      status: 'SUPPORTED',
+      declaredEvidenceKeys: ['ev-1'],
+      verifiedEvidenceKeys: ['ev-2'],
+      attributionStatus: 'REATTRIBUTED_UNIQUE_EXACT_SPAN',
+    });
+  });
+
+  it('replaces a candidate-declared key when its only component attribution is uniquely re-attributed', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Walk',
+            themes: [],
+            traits: [],
+            intents: [],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Wrong Record Venue',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan: 'Lezama Park anchors the southern end',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      [
+        ev('ev-1', 'This street is known for its colonial architecture.'),
+        ev('ev-2', 'Lezama Park anchors the southern end of the walk.'),
+      ],
+      8,
+    );
+
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      evidenceKeys: ['ev-2'],
+    });
+    expect(result.candidates[0].componentHints[0]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      evidenceKeys: ['ev-2'],
+    });
+    expect(result.sourceSupportAudits[0]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      verifiedEvidenceKeys: ['ev-2'],
+    });
+    expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+      attributionStatus: 'REATTRIBUTED_UNIQUE_EXACT_SPAN',
+    });
+  });
+
+  it('retains a candidate-declared key only when another component independently verifies it', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Walk',
+            themes: [],
+            traits: [],
+            intents: [],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Wrong Record Venue',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan: 'Lezama Park anchors the southern end',
+              },
+              {
+                key: 'b',
+                name: 'Verified Record Venue',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan:
+                  'This street is known for its colonial architecture',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      [
+        ev('ev-1', 'This street is known for its colonial architecture.'),
+        ev('ev-2', 'Lezama Park anchors the southern end of the walk.'),
+      ],
+      8,
+    );
+
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      evidenceKeys: ['ev-1', 'ev-2'],
+    });
+    expect(result.sourceSupportAudits[0]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      verifiedEvidenceKeys: ['ev-1', 'ev-2'],
+    });
+  });
+
+  it('drops a candidate when componentHint supportSpan exists in multiple active evidence items (AMBIGUOUS_SUPPORTING_EVIDENCE)', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Walk',
+            themes: [],
+            traits: [],
+            intents: [],
+            componentHints: [
+              {
+                key: 'a',
+                name: 'Ambiguous Record Venue',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan: 'colonial architecture',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      [
+        ev('ev-1', 'San Telmo has vibrant culture.'),
+        ev('ev-2', 'This street is known for its colonial architecture.'),
+        ev('ev-3', 'Another street showcasing colonial architecture.'),
+      ],
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+      status: 'UNSUPPORTED',
+      reason: 'AMBIGUOUS_SUPPORTING_EVIDENCE',
+      attributionStatus: 'AMBIGUOUS_SUPPORTING_EVIDENCE',
+    });
   });
 
   it('drops a componentHint with no supportSpan at all', () => {
@@ -1051,5 +1308,150 @@ describe('extractExperienceCandidates', () => {
     expect(result.candidates[0].componentHints.map((hint) => hint.key)).toEqual(
       ['plaza-dorrego'],
     );
+  });
+
+  it('independently re-attributes each component hint of a multi-component candidate to its unique evidence item', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'San Telmo Art and Market Walk',
+            themes: ['art', 'shopping'],
+            traits: [],
+            intents: ['walk'],
+            componentHints: [
+              {
+                key: 'dorrego',
+                name: 'Plaza Dorrego',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                // Declared ev-1, but text is in ev-2
+                evidenceKeys: ['ev-1'],
+                supportSpan: 'Plaza Dorrego Sunday fair',
+              },
+              {
+                key: 'lezama',
+                name: 'Parque Lezama',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                // Declared ev-1, but text is in ev-3
+                evidenceKeys: ['ev-1'],
+                supportSpan: 'Parque Lezama anchors the park',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      [
+        ev('ev-1', 'A historic neighborhood walk.'),
+        ev('ev-2', 'Plaza Dorrego Sunday fair with antiques.'),
+        ev('ev-3', 'Parque Lezama anchors the park with lush greenery.'),
+      ],
+      8,
+    );
+
+    expect(result.candidates).toHaveLength(1);
+    const candidate = result.candidates[0];
+    expect(candidate.declaredEvidenceKeys).toEqual(['ev-1']);
+    expect(candidate.evidenceKeys).toEqual(
+      expect.arrayContaining(['ev-2', 'ev-3']),
+    );
+    expect(candidate.evidenceKeys).toHaveLength(2);
+
+    expect(candidate.componentHints[0].declaredEvidenceKeys).toEqual(['ev-1']);
+    expect(candidate.componentHints[0].evidenceKeys).toEqual(['ev-2']);
+
+    expect(candidate.componentHints[1].declaredEvidenceKeys).toEqual(['ev-1']);
+    expect(candidate.componentHints[1].evidenceKeys).toEqual(['ev-3']);
+
+    expect(result.sourceSupportAudits[0].status).toBe('SUPPORTED');
+    expect(result.sourceSupportAudits[0].declaredEvidenceKeys).toEqual([
+      'ev-1',
+    ]);
+    expect(result.sourceSupportAudits[0].verifiedEvidenceKeys).toEqual(
+      expect.arrayContaining(['ev-2', 'ev-3']),
+    );
+    expect(result.sourceSupportAudits[0].components[0]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      verifiedEvidenceKeys: ['ev-2'],
+      attributionStatus: 'REATTRIBUTED_UNIQUE_EXACT_SPAN',
+    });
+    expect(result.sourceSupportAudits[0].components[1]).toMatchObject({
+      declaredEvidenceKeys: ['ev-1'],
+      verifiedEvidenceKeys: ['ev-3'],
+      attributionStatus: 'REATTRIBUTED_UNIQUE_EXACT_SPAN',
+    });
+  });
+
+  it('Generation Trace projection projects domain-produced sourceSupportAudits without performing its own matching logic', () => {
+    const recorder = new GenerationTraceRecorder();
+    const domainAudits = [
+      {
+        candidateName: 'San Telmo Art and Market Walk',
+        status: 'SUPPORTED' as const,
+        emittedComponentCount: 2,
+        supportedComponentCount: 2,
+        unsupportedComponentCount: 0,
+        declaredEvidenceKeys: ['ev-1'],
+        verifiedEvidenceKeys: ['ev-2', 'ev-3'],
+        components: [
+          {
+            index: 0,
+            key: 'dorrego',
+            name: 'Plaza Dorrego',
+            role: 'venue' as const,
+            expectedKind: 'PLACE' as const,
+            evidenceKeys: ['ev-2'],
+            declaredEvidenceKeys: ['ev-1'],
+            verifiedEvidenceKeys: ['ev-2'],
+            attributionStatus: 'REATTRIBUTED_UNIQUE_EXACT_SPAN' as const,
+            status: 'SUPPORTED' as const,
+            verifiedSupportSpan: 'Plaza Dorrego Sunday fair',
+          },
+        ],
+      },
+    ];
+
+    recordAcquisitionLifecycle(recorder, {
+      passNumber: 1,
+      strategy: 'generic',
+      plan: {
+        destination: { destinationName: 'Buenos Aires' } as any,
+        deficits: [],
+        sourcePlans: [],
+      } as any,
+      execution: {
+        candidates: [],
+        observations: [],
+        providerResults: {},
+        webResults: [
+          {
+            status: 'completed',
+            candidateCount: 1,
+            extractedCandidateCount: 1,
+            sourceSupportAudits: domainAudits,
+          } as any,
+        ],
+      },
+    });
+
+    const trace = recorder.build({ result: { status: 'COMPLETED' } });
+    const semanticStep = trace.steps.find(
+      (s) => s.name === 'acquisition.semantic_extraction',
+    );
+    expect(semanticStep).toBeDefined();
+    // Trace facts point directly to the domain-produced audit without re-running matching
+    const facts = semanticStep?.facts as Record<string, any> | undefined;
+    expect(facts?.sourceSupportAudits).toEqual(domainAudits);
+    expect(facts?.sourceSupportAudits[0].components[0].attributionStatus).toBe(
+      'REATTRIBUTED_UNIQUE_EXACT_SPAN',
+    );
+    expect(
+      facts?.sourceSupportAudits[0].components[0].declaredEvidenceKeys,
+    ).toEqual(['ev-1']);
+    expect(
+      facts?.sourceSupportAudits[0].components[0].verifiedEvidenceKeys,
+    ).toEqual(['ev-2']);
   });
 });

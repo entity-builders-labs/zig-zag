@@ -1,6 +1,6 @@
 # Preference-First Selection — CURRENT MAIN PROGRESS
 
-Updated: 2026-09-28
+Updated: 2026-09-29
 Branch: `feat/preference-first-selection`
 Repository: `entity-builders-labs/zig-zag`
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
@@ -16,13 +16,46 @@ classification contract and deterministic validation are unchanged.
 >
 > Code wins over stale progress text. The cutover has progressed non-linearly: M4 is already landed and substantial M5 work is already landed. Do not revert later milestone work merely because an earlier milestone needed a forward correction.
 
-## Current execution verdict — 2026-09-28
+## Current execution verdict — 2026-09-29
 
 **Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY (native producer cutover complete; v4 legacy paths deleted; modular domain audit split complete; zero avoidable `any`).**  
-**RW3 final classification/warm-reuse finding — OPEN (live multi-component admission closure pending).**  
-**RW4 — NOT AUTHORIZED.**
+**RW3 final classification/warm-reuse gate — CLOSED / ACCEPTED.**  
+**RW4 — AUTHORIZED / NEXT GATE.**
 
-**Active track: Gate C real-world generalization — RW3 IN PROGRESS (RW3-N6 route-scope policy fixed; clean rerun executed; RW4 NOT AUTHORIZED).**
+**Active track: Gate C real-world generalization — RW4 NEXT. RW3 final live COLD/WARM acceptance passed on 2026-09-29 with sequence integrity, canonical catalog reuse, zero WARM walk acquisition/classifier calls, and Generation Trace v5 evidence.**
+
+### Product finish-line clarification — 2026-09-29
+
+The canonical roadmap now distinguishes two closures that must not be conflated:
+
+```text
+RW4 → RW5 → RW6
+        ↓
+Preference-First Core CLOSED
+(research / knowledge / canonical Experience core)
+        ↓
+Planner Product Acceptance
+        ↓
+Tour Engine v1 COMPLETE
+        ↓
+Agentic convergence
+```
+
+RW4 remains the current execution gate. Planner Product Acceptance is **future
+work, not authorization to interrupt RW4**, but it is now a mandatory product
+gate before declaring Tour Engine v1 complete.
+
+That planner gate must live-prove semantic preference influence, real routing /
+travel estimates, duration/opening-hours feasibility, coherent multi-day
+planning and Generation Trace v5 explainability.
+
+The semantic-catalog retrieval choice is deliberately **DEFERRED** until that
+gate. Current behavior remains embedding similarity as ranking over the
+already-retrieved candidate pool. During Planner Product Acceptance, evidence
+must determine whether ranking-only is sufficient or whether a VERIFIED,
+destination-scoped top-K vector retrieval stage is necessary because relevant
+Experiences are being excluded before semantic ranking. No change to the current
+ranking-only contract is authorized merely by this documentation update.
 
 RW3-N6 resolution and live verification status:
 - **Defect:** `RW3-N6 — fixed-distance route corridor encoded semantic scope`.
@@ -53,8 +86,48 @@ RW3-N6 resolution and live verification status:
   pair. Serper returned 10 relevant Caminito results. Cloudflare extraction returned 0
   candidates on this run. Fail-closed termination preserved. Sequence integrity preserved
   (no synthetic DB injection; WARM not run on empty catalog).
-- RW3 remains OPEN pending live multi-component admission closure; RW4 NOT AUTHORIZED.
+- Historical 2026-09-28 state: RW3 remained OPEN at this checkpoint. Superseded by the 2026-09-29 final acceptance below.
 
+### RW4 COLD finding and composition-contract correction — 2026-09-30
+
+- Canonical RW4 COLD (`spikes/rw4-mendoza-tourism-route-cloudflare-2026-09-30/`,
+  HEAD `ab63132a`): **FAIL_PRODUCT_BLOCKER**, zero Experiences persisted, WARM
+  not run. First causal defect: **extraction composition**, not identity. The
+  Wine Bus source's distinct variants (Maipú / El Sol / Luján Sur) were merged
+  into one candidate carrying a fabricated `Ruta del Vino de Mendoza` ROUTE
+  self-component. Dossier assessment §5 corrected (including its wrong
+  "≥ 70% threshold" claim — production requires complete resolution).
+- Correction: amendment §16.1 (Experience structurally generic; GeoEntity owns
+  PLACE/AREA/ROUTE; `walk`/`route_like` are semantic intents only; one
+  candidate = one coherent source-backed variant; alternatives are not
+  membership), enforced in the single shared extraction contract
+  (`buildExperienceCompositionRules`). No schema, IdentityVerifier, gate,
+  radius, provider-config or destination-specific change; no deterministic
+  validator (exact name equality would reject legitimate single-place visits).
+- **RW4 remains the current gate.** Next action after review: a fresh
+  canonical RW4 COLD with the same Serper → Tavily → Cloudflare extractor →
+  Gemini classification topology.
+
+
+## RW3 final acceptance — 2026-09-29
+
+**RW3 = CLOSED / ACCEPTED. RW4 = AUTHORIZED / NEXT GATE.**
+
+Canonical evidence: `spikes/rw3-final-acceptance-2026-09-29/`.
+
+Acceptance facts:
+
+- deterministic verification passed: 126 tours suites / 1737 tests, targeted invariant suites, typecheck, lint, build and `git diff --check`;
+- COLD started from an empty dedicated database and materialized the verified 4-component Experience `f5dee6f9-6070-437e-bdf1-e8262af6d27d` (`La Boca Walking Tour: Caminito, Museum, and Bridge`);
+- COLD persisted current evidence-only classification including `intent:walk`;
+- `cold/db-after.json` matched `warm/db-before.json` byte-for-byte; no inter-run patching or reset occurred;
+- WARM initial catalog coverage was sufficient and reused the same canonical Experience;
+- WARM performed zero Caminito/walk web acquisition, zero Tavily extraction and zero Gemini classification calls;
+- WARM database cardinalities did not grow and the same Experience was scheduled as Day 1 stop #1;
+- both runs completed through the real HTTP/outbox/processor path with native Generation Trace v5;
+- no production behavior change was required for acceptance; the only non-spike source changes in the evidence commit were formatting-only.
+
+The final acceptance supersedes every earlier RW3 OPEN / pending-rerun statement below. Historical RW3 defect/rerun detail remains evidence, not current status.
 
 The component-resolution / RW1 milestone is **COMPLETE / CLOSED** and must not
 be reopened unless a real regression invalidates an accepted invariant. The

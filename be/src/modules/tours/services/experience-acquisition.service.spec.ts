@@ -1217,6 +1217,509 @@ describe('ExperienceAcquisitionService', () => {
           expect(webSourceContentProvider.retrieve).not.toHaveBeenCalled();
           expect(extractExperiences).toHaveBeenCalledTimes(1);
         });
+
+        describe('deep source selection audit (RW4-01)', () => {
+          it('proves A & D: multiple grounded sources with different scores and >2 eligible URLs select top 2 with audit reasons', async () => {
+            const groundedWithFourSources = {
+              provider: 'tavily',
+              model: 'n/a',
+              groundingStatus: 'applied',
+              evidence: [
+                {
+                  key: 'ev-1',
+                  source: 'buenosaires.travel',
+                  title: 'San Telmo Walk',
+                  snippet: 'A great walk in San Telmo',
+                  url: 'https://buenosaires.travel/san-telmo-walk',
+                  order: 1,
+                },
+                {
+                  key: 'ev-2',
+                  source: 'travelblog.com',
+                  title: 'La Boca',
+                  snippet: 'La Boca colors',
+                  url: 'https://travelblog.com/la-boca',
+                  order: 2,
+                },
+                {
+                  key: 'ev-3',
+                  source: 'other.com',
+                  title: 'Recoleta',
+                  snippet: 'Recoleta Cemetery',
+                  url: 'https://other.com/recoleta',
+                  order: 3,
+                },
+                {
+                  key: 'ev-4',
+                  source: 'guide.com',
+                  title: 'Palermo',
+                  snippet: 'Palermo Soho',
+                  url: 'https://guide.com/palermo',
+                  order: 4,
+                },
+              ],
+            };
+
+            const singleComponentCandidate = {
+              name: 'San Telmo partial walk',
+              themes: ['history'],
+              componentHints: [
+                {
+                  key: 'c1',
+                  name: 'Plaza Dorrego',
+                  role: 'venue',
+                  expectedKind: 'PLACE',
+                  evidenceKeys: ['ev-1'],
+                },
+              ],
+              evidenceKeys: ['ev-1'],
+              shortReason: 'Only one stop in snippet',
+            };
+
+            const search = jest.fn().mockResolvedValue(groundedWithFourSources);
+            const extractExperiences = jest.fn().mockResolvedValue({
+              candidates: [singleComponentCandidate],
+              validationErrors: [],
+              provider: 'gemini',
+              model: 'gemini-x',
+              rawOutput: '{"candidates":[...]}',
+            });
+
+            const webSourceContentProvider: any = {
+              providerName: 'tavily',
+              retrieve: jest.fn().mockResolvedValue({
+                provider: 'tavily',
+                items: [
+                  {
+                    requestedUrl: 'https://buenosaires.travel/san-telmo-walk',
+                    status: 'retrieved',
+                    content: 'Full article: Plaza Dorrego and Parque Lezama',
+                  },
+                ],
+                totalDurationMs: 60,
+              }),
+            };
+
+            const service = new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              undefined,
+              { search } as any,
+              { extractExperiences } as any,
+              undefined,
+              webSourceContentProvider,
+            );
+
+            const result = await service.executePlan(multiComponentWebPlan);
+            const webResult = result.webResults?.[0];
+            expect(webResult?.deepSourceSelection).toBeDefined();
+
+            const selection = webResult!.deepSourceSelection!;
+            expect(selection.evidenceCount).toBe(4);
+            expect(selection.selectionLimit).toBe(2);
+            expect(selection.selectedUrls).toEqual([
+              'https://buenosaires.travel/san-telmo-walk',
+              'https://travelblog.com/la-boca',
+            ]);
+
+            // Matches URLs passed to retrieve
+            expect(webSourceContentProvider.retrieve).toHaveBeenCalledWith({
+              urls: selection.selectedUrls,
+              maxContentChars: expect.any(Number),
+            });
+
+            // Every considered source appears in items in original order
+            expect(selection.items).toHaveLength(4);
+            expect(selection.items.map((i) => i.evidenceKey)).toEqual([
+              'ev-1',
+              'ev-2',
+              'ev-3',
+              'ev-4',
+            ]);
+
+            // Item 1: ev-1 (tourContentScore = 15, citedBonus = 1 -> finalScore = 16, rank 1, SELECTED)
+            expect(selection.items[0]).toMatchObject({
+              evidenceKey: 'ev-1',
+              originalRank: 1,
+              editorialEligible: true,
+              tourContentScore: 15,
+              citedCandidateBonus: 1,
+              finalScore: 16,
+              rankedPosition: 1,
+              selected: true,
+              decisionReason: 'SELECTED',
+            });
+
+            // Item 2: ev-2 (tourContentScore = 5, citedBonus = 0 -> finalScore = 5, rank 2, SELECTED)
+            expect(selection.items[1]).toMatchObject({
+              evidenceKey: 'ev-2',
+              originalRank: 2,
+              editorialEligible: true,
+              tourContentScore: 5,
+              citedCandidateBonus: 0,
+              finalScore: 5,
+              rankedPosition: 2,
+              selected: true,
+              decisionReason: 'SELECTED',
+            });
+
+            // Item 3: ev-3 (tourContentScore = 5, citedBonus = 0 -> finalScore = 5, rank 3, BELOW_SELECTION_LIMIT)
+            expect(selection.items[2]).toMatchObject({
+              evidenceKey: 'ev-3',
+              originalRank: 3,
+              editorialEligible: true,
+              tourContentScore: 5,
+              citedCandidateBonus: 0,
+              finalScore: 5,
+              rankedPosition: 3,
+              selected: false,
+              decisionReason: 'BELOW_SELECTION_LIMIT',
+            });
+
+            // Item 4: ev-4 (tourContentScore = 5, citedBonus = 0 -> finalScore = 5, rank 4, BELOW_SELECTION_LIMIT)
+            expect(selection.items[3]).toMatchObject({
+              evidenceKey: 'ev-4',
+              originalRank: 4,
+              editorialEligible: true,
+              tourContentScore: 5,
+              citedCandidateBonus: 0,
+              finalScore: 5,
+              rankedPosition: 4,
+              selected: false,
+              decisionReason: 'BELOW_SELECTION_LIMIT',
+            });
+
+            // sourceContentRetrieval.selectionAudit refers to the exact same audit
+            expect(webResult?.sourceContentRetrieval?.selectionAudit).toBe(
+              selection,
+            );
+          });
+
+          it('proves B: a cited rejected candidate gives +1 bonus and changes selection ranking', async () => {
+            // ev-1 has score 15, ev-2 has score 5, ev-3 has score 5.
+            // If the rejected candidate cites ev-3, ev-3 gets +1 bonus (finalScore 6) and is ranked ahead of ev-2!
+            const groundedEvidence = {
+              provider: 'tavily',
+              model: 'n/a',
+              groundingStatus: 'applied',
+              evidence: [
+                {
+                  key: 'ev-1',
+                  source: 'buenosaires.travel',
+                  title: 'San Telmo Walk',
+                  snippet: 'A great walk in San Telmo',
+                  url: 'https://buenosaires.travel/san-telmo-walk',
+                },
+                {
+                  key: 'ev-2',
+                  source: 'travelblog.com',
+                  title: 'La Boca',
+                  snippet: 'La Boca colors',
+                  url: 'https://travelblog.com/la-boca',
+                },
+                {
+                  key: 'ev-3',
+                  source: 'other.com',
+                  title: 'Recoleta',
+                  snippet: 'Recoleta Cemetery',
+                  url: 'https://other.com/recoleta',
+                },
+              ],
+            };
+
+            const rejectedCitingEv3 = {
+              name: 'Recoleta partial walk',
+              themes: ['history'],
+              componentHints: [
+                {
+                  key: 'c1',
+                  name: 'Cementerio Recoleta',
+                  role: 'venue',
+                  expectedKind: 'PLACE',
+                  evidenceKeys: ['ev-3'],
+                },
+              ],
+              evidenceKeys: ['ev-3'],
+              shortReason: 'Only one stop',
+            };
+
+            const search = jest.fn().mockResolvedValue(groundedEvidence);
+            const extractExperiences = jest.fn().mockResolvedValue({
+              candidates: [rejectedCitingEv3],
+              validationErrors: [],
+              provider: 'gemini',
+              model: 'gemini-x',
+              rawOutput: '{"candidates":[...]}',
+            });
+
+            const webSourceContentProvider: any = {
+              providerName: 'tavily',
+              retrieve: jest.fn().mockResolvedValue({
+                provider: 'tavily',
+                items: [],
+              }),
+            };
+
+            const service = new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              undefined,
+              { search } as any,
+              { extractExperiences } as any,
+              undefined,
+              webSourceContentProvider,
+            );
+
+            const result = await service.executePlan(multiComponentWebPlan);
+            const selection = result.webResults![0].deepSourceSelection!;
+
+            // ev-3 received +1 bonus and was ranked 2nd ahead of ev-2
+            expect(selection.items[2]).toMatchObject({
+              evidenceKey: 'ev-3',
+              tourContentScore: 5,
+              citedCandidateBonus: 1,
+              finalScore: 6,
+              rankedPosition: 2,
+              selected: true,
+              decisionReason: 'SELECTED',
+            });
+
+            // ev-2 was pushed to rank 3 and excluded by limit
+            expect(selection.items[1]).toMatchObject({
+              evidenceKey: 'ev-2',
+              tourContentScore: 5,
+              citedCandidateBonus: 0,
+              finalScore: 5,
+              rankedPosition: 3,
+              selected: false,
+              decisionReason: 'BELOW_SELECTION_LIMIT',
+            });
+
+            expect(selection.selectedUrls).toEqual([
+              'https://buenosaires.travel/san-telmo-walk',
+              'https://other.com/recoleta',
+            ]);
+          });
+
+          it('proves C: non-editorial and invalid URLs are rejected with explicit typed decision reasons', async () => {
+            const groundedWithVariousSources = {
+              provider: 'tavily',
+              model: 'n/a',
+              groundingStatus: 'applied',
+              evidence: [
+                {
+                  key: 'ev-invalid',
+                  source: 'bad.com',
+                  title: 'Invalid URL source',
+                  snippet: 'Snippet without valid url',
+                  url: 'ftp://not-http.com/path',
+                },
+                {
+                  key: 'ev-non-editorial',
+                  source: 'tripadvisor.com',
+                  title: 'Tripadvisor Listing',
+                  snippet: 'Reviews of attractions',
+                  url: 'https://www.tripadvisor.com/Attraction_Review-g312741-d311849',
+                },
+                {
+                  key: 'ev-editorial-1',
+                  source: 'buenosaires.travel',
+                  title: 'San Telmo Walk',
+                  snippet: 'A great walk in San Telmo',
+                  url: 'https://buenosaires.travel/san-telmo-walk',
+                },
+                {
+                  key: 'ev-duplicate',
+                  source: 'buenosaires.travel',
+                  title: 'San Telmo Walk Duplicate',
+                  snippet: 'Same URL again',
+                  url: 'https://buenosaires.travel/san-telmo-walk',
+                },
+              ],
+            };
+
+            const search = jest
+              .fn()
+              .mockResolvedValue(groundedWithVariousSources);
+            const extractExperiences = jest.fn().mockResolvedValue({
+              candidates: [
+                {
+                  name: 'Partial candidate',
+                  themes: ['history'],
+                  componentHints: [
+                    {
+                      key: 'c1',
+                      name: 'Stop 1',
+                      role: 'venue',
+                      expectedKind: 'PLACE',
+                      evidenceKeys: ['ev-editorial-1'],
+                    },
+                  ],
+                  evidenceKeys: ['ev-editorial-1'],
+                  shortReason: 'Single stop',
+                },
+              ],
+              validationErrors: [],
+              provider: 'gemini',
+              model: 'gemini-x',
+              rawOutput: '{"candidates":[...]}',
+            });
+
+            const webSourceContentProvider: any = {
+              providerName: 'tavily',
+              retrieve: jest.fn().mockResolvedValue({
+                provider: 'tavily',
+                items: [],
+              }),
+            };
+
+            const service = new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              undefined,
+              { search } as any,
+              { extractExperiences } as any,
+              undefined,
+              webSourceContentProvider,
+            );
+
+            const result = await service.executePlan(multiComponentWebPlan);
+            const selection = result.webResults![0].deepSourceSelection!;
+
+            expect(selection.items).toHaveLength(4);
+
+            // Invalid URL
+            expect(selection.items[0]).toMatchObject({
+              evidenceKey: 'ev-invalid',
+              editorialEligible: false,
+              selected: false,
+              decisionReason: 'INVALID_OR_NON_HTTP_URL',
+            });
+
+            // Non-editorial source
+            expect(selection.items[1]).toMatchObject({
+              evidenceKey: 'ev-non-editorial',
+              editorialEligible: false,
+              selected: false,
+              decisionReason: 'NON_EDITORIAL_SOURCE',
+            });
+
+            // Valid editorial source
+            expect(selection.items[2]).toMatchObject({
+              evidenceKey: 'ev-editorial-1',
+              editorialEligible: true,
+              selected: true,
+              decisionReason: 'SELECTED',
+            });
+
+            // Duplicate URL
+            expect(selection.items[3]).toMatchObject({
+              evidenceKey: 'ev-duplicate',
+              editorialEligible: true,
+              selected: false,
+              decisionReason: 'DUPLICATE_URL',
+            });
+
+            expect(selection.selectedUrls).toEqual([
+              'https://buenosaires.travel/san-telmo-walk',
+            ]);
+          });
+
+          it('handles NO_ELIGIBLE_SOURCES when all grounded sources are non-editorial or invalid', async () => {
+            const groundedIneligibleOnly = {
+              provider: 'tavily',
+              model: 'n/a',
+              groundingStatus: 'applied',
+              evidence: [
+                {
+                  key: 'ev-tripadvisor',
+                  source: 'tripadvisor.com',
+                  title: 'Tripadvisor Listing',
+                  snippet: 'Reviews',
+                  url: 'https://www.tripadvisor.com/Attractions',
+                },
+                {
+                  key: 'ev-invalid',
+                  source: 'no-scheme',
+                  title: 'No Scheme',
+                  snippet: 'Bad URL',
+                  url: 'invalid-url',
+                },
+              ],
+            };
+
+            const search = jest.fn().mockResolvedValue(groundedIneligibleOnly);
+            const extractExperiences = jest.fn().mockResolvedValue({
+              candidates: [
+                {
+                  name: 'Partial candidate',
+                  themes: ['history'],
+                  componentHints: [
+                    {
+                      key: 'c1',
+                      name: 'Stop 1',
+                      role: 'venue',
+                      expectedKind: 'PLACE',
+                      evidenceKeys: ['ev-tripadvisor'],
+                    },
+                  ],
+                  evidenceKeys: ['ev-tripadvisor'],
+                  shortReason: 'Single stop',
+                },
+              ],
+              validationErrors: [],
+              provider: 'gemini',
+              model: 'gemini-x',
+              rawOutput: '{"candidates":[...]}',
+            });
+
+            const webSourceContentProvider: any = {
+              providerName: 'tavily',
+              retrieve: jest.fn(),
+            };
+
+            const service = new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              undefined,
+              { search } as any,
+              { extractExperiences } as any,
+              undefined,
+              webSourceContentProvider,
+            );
+
+            const result = await service.executePlan(multiComponentWebPlan);
+            const webResult = result.webResults![0];
+
+            expect(webResult.deepSourceSelection).toBeDefined();
+            expect(webResult.deepSourceSelection!.selectedUrls).toEqual([]);
+            expect(webResult.deepSourceSelection!.items).toHaveLength(2);
+            expect(
+              webResult.deepSourceSelection!.items.every((i) => !i.selected),
+            ).toBe(true);
+
+            // Retrieval transport is NOT called
+            expect(webSourceContentProvider.retrieve).not.toHaveBeenCalled();
+            // sourceContentRetrieval is undefined
+            expect(webResult.sourceContentRetrieval).toBeUndefined();
+          });
+        });
       });
     });
 

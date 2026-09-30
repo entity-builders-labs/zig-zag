@@ -375,4 +375,321 @@ describe('experience-generation-trace.util', () => {
       'NO_RESOLVED_GEO_ENTITIES',
     ]);
   });
+
+  it('proves E: records acquisition.deep_source_selection between web_search and source_retrieval without recomputing scores', () => {
+    const recorder = new GenerationTraceRecorder();
+
+    const deepSourceSelection = {
+      evidenceCount: 3,
+      anchorNames: ['san-telmo'],
+      selectionLimit: 2,
+      selectedUrls: [
+        'https://buenosaires.travel/san-telmo-walk',
+        'https://travelblog.com/la-boca',
+      ],
+      items: [
+        {
+          evidenceKey: 'ev-1',
+          title: 'San Telmo Walk',
+          url: 'https://buenosaires.travel/san-telmo-walk',
+          originalRank: 1,
+          editorialEligible: true,
+          tourContentScore: 15,
+          citedCandidateBonus: 1,
+          finalScore: 16,
+          rankedPosition: 1,
+          selected: true,
+          decisionReason: 'SELECTED' as const,
+        },
+        {
+          evidenceKey: 'ev-2',
+          title: 'La Boca',
+          url: 'https://travelblog.com/la-boca',
+          originalRank: 2,
+          editorialEligible: true,
+          tourContentScore: 5,
+          citedCandidateBonus: 0,
+          finalScore: 5,
+          rankedPosition: 2,
+          selected: true,
+          decisionReason: 'SELECTED' as const,
+        },
+        {
+          evidenceKey: 'ev-3',
+          title: 'Recoleta',
+          url: 'https://other.com/recoleta',
+          originalRank: 3,
+          editorialEligible: true,
+          tourContentScore: 5,
+          citedCandidateBonus: 0,
+          finalScore: 5,
+          rankedPosition: 3,
+          selected: false,
+          decisionReason: 'BELOW_SELECTION_LIMIT' as const,
+        },
+      ],
+    };
+
+    recordAcquisitionLifecycle(recorder, {
+      passNumber: 1,
+      strategy: 'generic',
+      plan: {
+        destination: { destinationName: 'Buenos Aires' },
+        deficits: [],
+        evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+        breadth: 'focused' as any,
+        sourcePlans: [
+          {
+            provider: 'web' as const,
+            web: { query: 'Buenos Aires walks', anchorNames: ['san-telmo'] },
+          },
+        ],
+      },
+      execution: {
+        candidates: [],
+        observations: [],
+        evidence: [],
+        providerResults: {},
+        webResults: [
+          {
+            status: 'success',
+            query: 'Buenos Aires walks',
+            groundedProvider: 'tavily',
+            evidenceKeys: ['ev-1', 'ev-2', 'ev-3'],
+            candidateCount: 1,
+            validationErrors: [],
+            deepSourceSelection,
+            sourceContentRetrieval: {
+              attempted: true,
+              provider: 'tavily',
+              triggerReason: 'gap',
+              requestedUrls: [
+                'https://buenosaires.travel/san-telmo-walk',
+                'https://travelblog.com/la-boca',
+              ],
+              retrievedUrls: ['https://buenosaires.travel/san-telmo-walk'],
+              failedUrls: ['https://travelblog.com/la-boca'],
+              items: [],
+            },
+          },
+        ],
+      },
+    });
+
+    const trace = recorder.build({
+      canonicalRequest: {
+        destination: { label: 'Buenos Aires' },
+        days: 1,
+        intent: { interests: [] },
+      },
+      result: { status: 'COMPLETED', outcome: 'SUCCESS' },
+    });
+
+    const webSearchStep = trace.steps.find(
+      (s) => s.name === 'acquisition.web_search',
+    );
+    const selectionStep = trace.steps.find(
+      (s) => s.name === 'acquisition.deep_source_selection',
+    );
+    const retrievalStep = trace.steps.find(
+      (s) => s.name === 'acquisition.source_retrieval',
+    );
+
+    expect(webSearchStep).toBeDefined();
+    expect(selectionStep).toBeDefined();
+    expect(retrievalStep).toBeDefined();
+
+    // Verify ordering: web_search -> deep_source_selection -> source_retrieval
+    expect(selectionStep!.sequence).toBeGreaterThan(webSearchStep!.sequence);
+    expect(retrievalStep!.sequence).toBeGreaterThan(selectionStep!.sequence);
+
+    // Parent ID
+    expect(selectionStep!.parentId).toBe('acquisition-pass-1-generic');
+
+    // Step input, decision, facts
+    expect(selectionStep!.input).toEqual({
+      evidenceCount: 3,
+      anchorNames: ['san-telmo'],
+      selectionLimit: 2,
+    });
+    expect(selectionStep!.decision).toEqual({
+      status: 'PASS',
+      outcome: 'SOURCES_SELECTED',
+      reason: '2 fuentes seleccionadas para recuperación profunda.',
+    });
+    expect((selectionStep!.facts as any).selectedUrls).toEqual([
+      'https://buenosaires.travel/san-telmo-walk',
+      'https://travelblog.com/la-boca',
+    ]);
+
+    // Subjects
+    expect(selectionStep!.subjects).toHaveLength(3);
+    expect(selectionStep!.subjects![0]).toEqual({
+      subject: {
+        kind: 'grounded_evidence',
+        id: 'ev-1',
+        label: 'San Telmo Walk',
+        url: 'https://buenosaires.travel/san-telmo-walk',
+      },
+      decision: {
+        status: 'PASS',
+        outcome: 'SELECTED',
+      },
+      facts: {
+        evidenceKey: 'ev-1',
+        title: 'San Telmo Walk',
+        url: 'https://buenosaires.travel/san-telmo-walk',
+        originalRank: 1,
+        editorialEligible: true,
+        tourContentScore: 15,
+        citedCandidateBonus: 1,
+        finalScore: 16,
+        rankedPosition: 1,
+        selected: true,
+        decisionReason: 'SELECTED',
+      },
+    });
+
+    // Byte-for-byte agreement between selection and retrieval
+    expect((selectionStep!.facts as any).selectedUrls).toEqual(
+      (retrievalStep!.facts as any).requestedUrls,
+    );
+  });
+
+  it('records acquisition.deep_source_selection with WARN/NO_ELIGIBLE_SOURCES when no URLs are eligible', () => {
+    const recorder = new GenerationTraceRecorder();
+
+    recordAcquisitionLifecycle(recorder, {
+      passNumber: 1,
+      strategy: 'generic',
+      plan: {
+        destination: { destinationName: 'Buenos Aires' },
+        deficits: [],
+        evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+        breadth: 'focused' as any,
+        sourcePlans: [
+          {
+            provider: 'web' as const,
+            web: { query: 'Buenos Aires walks' },
+          },
+        ],
+      },
+      execution: {
+        candidates: [],
+        observations: [],
+        evidence: [],
+        providerResults: {},
+        webResults: [
+          {
+            status: 'success',
+            query: 'Buenos Aires walks',
+            groundedProvider: 'tavily',
+            evidenceKeys: ['ev-1'],
+            candidateCount: 0,
+            validationErrors: [],
+            deepSourceSelection: {
+              evidenceCount: 1,
+              selectionLimit: 2,
+              selectedUrls: [],
+              items: [
+                {
+                  evidenceKey: 'ev-1',
+                  originalRank: 1,
+                  editorialEligible: false,
+                  tourContentScore: 0,
+                  citedCandidateBonus: 0,
+                  finalScore: 0,
+                  selected: false,
+                  decisionReason: 'NON_EDITORIAL_SOURCE',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+
+    const trace = recorder.build({
+      canonicalRequest: {
+        destination: { label: 'Buenos Aires' },
+        days: 1,
+        intent: { interests: [] },
+      },
+      result: { status: 'COMPLETED', outcome: 'SUCCESS' },
+    });
+
+    const selectionStep = trace.steps.find(
+      (s) => s.name === 'acquisition.deep_source_selection',
+    );
+    const retrievalStep = trace.steps.find(
+      (s) => s.name === 'acquisition.source_retrieval',
+    );
+
+    expect(selectionStep).toBeDefined();
+    expect(selectionStep!.decision).toEqual({
+      status: 'WARN',
+      outcome: 'NO_ELIGIBLE_SOURCES',
+      reason:
+        'No hay fuentes editoriales elegibles para recuperación profunda.',
+    });
+    // Source retrieval was never attempted, so no retrieval step was recorded
+    expect(retrievalStep).toBeUndefined();
+  });
+
+  it('proves F: does not fabricate acquisition.deep_source_selection if deep retrieval decision never occurred', () => {
+    const recorder = new GenerationTraceRecorder();
+
+    recordAcquisitionLifecycle(recorder, {
+      passNumber: 1,
+      strategy: 'generic',
+      plan: {
+        destination: { destinationName: 'Buenos Aires' },
+        deficits: [],
+        evidenceRequirements: [],
+        breadth: 'standard' as any,
+        sourcePlans: [
+          {
+            provider: 'web' as const,
+            web: { query: 'Buenos Aires cafe' },
+          },
+        ],
+      },
+      execution: {
+        candidates: [],
+        observations: [],
+        evidence: [],
+        providerResults: {},
+        webResults: [
+          {
+            status: 'success',
+            query: 'Buenos Aires cafe',
+            groundedProvider: 'tavily',
+            evidenceKeys: ['ev-1'],
+            candidateCount: 1,
+            validationErrors: [],
+            // deepSourceSelection is undefined because no composition gap occurred
+          },
+        ],
+      },
+    });
+
+    const trace = recorder.build({
+      canonicalRequest: {
+        destination: { label: 'Buenos Aires' },
+        days: 1,
+        intent: { interests: [] },
+      },
+      result: { status: 'COMPLETED', outcome: 'SUCCESS' },
+    });
+
+    const selectionStep = trace.steps.find(
+      (s) => s.name === 'acquisition.deep_source_selection',
+    );
+    const retrievalStep = trace.steps.find(
+      (s) => s.name === 'acquisition.source_retrieval',
+    );
+
+    expect(selectionStep).toBeUndefined();
+    expect(retrievalStep).toBeUndefined();
+  });
 });

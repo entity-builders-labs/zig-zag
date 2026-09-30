@@ -812,6 +812,78 @@ component membership != standalone Experience authority
 This prevents catalog pollution while still allowing the Knowledge Base to
 compound over time.
 
+### 16.1 Experience is structurally generic; GeoEntity owns physical kind
+
+Clarified 2026-09-30 after the canonical RW4 Mendoza COLD run
+(`spikes/rw4-mendoza-tourism-route-cloudflare-2026-09-30/`).
+
+```text
+Experience
+  canonicalName, description, themes, intents, traits, evidence
+  components → GeoEntity
+
+GeoEntity
+  kind = PLACE | AREA | ROUTE
+```
+
+Canonical invariants:
+
+- **Experience is structurally generic.** There is deliberately no
+  `Experience.kind = WALK | ROUTE | AREA`, and none may be introduced.
+- **GeoEntity owns physical kind** (`PLACE | AREA | ROUTE`). A component's
+  `expectedKind` describes the independently identifiable geographic nature of
+  that component, never the semantic type of the Experience.
+- **`walk` / `route_like` / `visit` are Experience semantic intents.** A
+  semantic intent never establishes GeoEntity kind: there is no rule
+  `route_like → must contain ROUTE`, `walk → must contain ROUTE` or
+  `area → must contain AREA`.
+- **The Experience identity is not its own component.** The tour / itinerary /
+  crawl / excursion / tourism-route identity is not automatically a
+  component. A ROUTE component requires source evidence of a geographic route
+  entity whose identity exists independently of the tourism product (street,
+  trail, path, road, physical route, recognized geographic corridor). Calling
+  the Experience a "route", "wine route", "tour", "circuit" or "itinerary" does
+  not establish one.
+- **Composite membership requires one coherent source-backed composition.**
+  Different source-defined variants/options/schedules/subroutes may not be
+  unioned into one canonical Experience unless the source itself defines that
+  union as the Experience. Alternatives (`A or B`, `choose up to N`, optional
+  stops) are not mandatory membership.
+- `MULTI_COMPONENT_EXPERIENCE` never licenses self-duplication, an invented
+  ROUTE, or a variant/option union to reach a component count. If evidence
+  does not prove one coherent multi-component Experience, extraction emits no
+  such candidate and acquisition remains unsatisfied (fail closed).
+
+Both structurally valid:
+
+```text
+"Wine Route Luján Sur"        intents: route_like, visit
+  Chandon, Zolo, Budeguer, Casarena, Terrazas de los Andes   (all PLACE)
+
+"Caminito walking experience" intents: walk, route_like
+  Caminito (ROUTE — independently a real street), museum (PLACE), bridge (PLACE)
+```
+
+RW4 counterexample (both defects in one candidate): a multi-variant Wine Bus
+source was extracted as `"Ruta del Vino de Mendoza: Wine Bus Tour"` with a
+`Ruta del Vino de Mendoza` ROUTE self-component (no such geographic route
+exists; it is the tourism concept) plus Santa Julia / La Rural (Maipú variant)
+merged with Chandon / Terrazas de los Andes (Luján Sur variant) — a
+composition the source never defined.
+
+Enforcement authority: the single provider-neutral discovery extraction
+contract (`be/src/modules/tours/prompts/experience-discovery-extraction.prompt.ts`,
+`buildExperienceCompositionRules`), consumed unchanged by every extractor
+provider. No deterministic validator was added: an exact candidate-name /
+component-name equality check would also reject legitimate single-place
+Experiences and real named-street walks, and variant detection from prose is
+not deterministic. Downstream gates are unchanged: every emitted component
+must still pass source support → identity resolution → geographic validation
+→ classification before persistence, and a source-backed composition still
+requires **complete** resolution (`sourceCompositionComplete`; §3 and §12 —
+no percentage threshold). The fix narrows what discovery may declare as
+membership; it never relaxes how declared membership is verified.
+
 ---
 
 ## 17. Composite membership is not planner augmentation

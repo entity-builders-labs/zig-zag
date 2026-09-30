@@ -131,8 +131,8 @@ describe('tour-generation integration · acquisition degradation', () => {
     expect(
       trace.steps.some((s: any) => s.name === 'preference.interpretation'),
     ).toBe(true);
-    expect(
-      trace.steps.some((s: any) => s.name === 'coverage.analysis'),
-    ).toBe(true);
+    expect(trace.steps.some((s: any) => s.name === 'coverage.analysis')).toBe(
+      true,
+    );
   });
 });

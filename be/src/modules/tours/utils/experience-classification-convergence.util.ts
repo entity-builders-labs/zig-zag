@@ -70,7 +70,10 @@ export interface ClassificationAuditRecord {
  * Behavior:
  * - canReuseClassification == true → return reused, classifier NOT called
  * - Non-reusable + usable evidence → classify → persist → return classified/degraded
- * - Non-reusable + no usable evidence → return degraded (honest empty)
+ * - Non-reusable + no usable evidence → classifier returns honest empty
+ *   classified result (state=classified, empty facets); the WARM path
+ *   intentionally stops before calling convergence when persisted evidence
+ *   is empty, recording insufficient_evidence instead.
  */
 export async function convergeExperienceClassification(
   experienceId: string,
@@ -204,4 +207,51 @@ export async function classifyAcceptedResultsByExperience(
     audit.push(record);
   }
   return audit;
+}
+
+export interface ClassificationSemantics {
+  themes: readonly string[];
+  intents: readonly string[];
+  traits: readonly string[];
+}
+
+export interface ClassificationSemanticView {
+  themes: string[];
+  intents: string[];
+  traits: string[];
+  metadata: {
+    themes: string[];
+    intents: string[];
+    traits: string[];
+  };
+}
+
+/**
+ * Pure projection helper that projects ONLY classifier-owned semantics into
+ * the facet matcher candidate shape.
+ *
+ * The contract is intentionally strict: missing semantic arrays are malformed
+ * classification state, not an implicit empty classification. Explicit empty
+ * arrays remain valid.
+ *
+ * Ensures stale/discovery-era metadata (archetypes, old intents/themes/traits)
+ * cannot override an authoritative evidence-only classification verdict.
+ */
+export function classificationSemanticView(
+  classification: ClassificationSemantics,
+): ClassificationSemanticView {
+  const themes = [...classification.themes];
+  const intents = [...classification.intents];
+  const traits = [...classification.traits];
+
+  return {
+    themes,
+    intents,
+    traits,
+    metadata: {
+      themes: [...themes],
+      intents: [...intents],
+      traits: [...traits],
+    },
+  };
 }

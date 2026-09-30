@@ -1,6 +1,11 @@
 import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
 import { Coordinates } from '@shared/utils/distance.utils';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
+import {
+  centroidOfGeometry,
+  distanceMeters,
+} from './geographic-coherence.util';
+import { DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS } from '../interfaces/geographic-validation.interface';
 
 /**
  * THE single owner of "is this candidate/GeoEntity compatible with the
@@ -20,8 +25,14 @@ import { GeographicScope } from '../interfaces/experience-resolution.interface';
  * zero network cost -- see
  * spikes/stage3-destination-policy-characterization-2026-09-24/.
  *
- * Never distance-based. Unknown stays UNKNOWN: a point-scale destination has
- * no admin unit, and a candidate without a location cannot be placed.
+ * For destination-local experiences (walks and single venues), compatibility
+ * is strictly polygon-based (never distance-based).
+ * For regional routes (options.routeScale === true), PLACE components may
+ * legitimately extend outside the destination boundary within route-scale radius
+ * from the destination centroid.
+ *
+ * Unknown stays UNKNOWN: a point-scale destination has no admin unit,
+ * and a candidate without a location cannot be placed.
  */
 
 export type DestinationCompatibilityVerdict =
@@ -33,6 +44,8 @@ export type DestinationCompatibilityReason =
   | 'WITHIN_DESTINATION_BOUNDARY'
   | 'SAME_AS_DESTINATION'
   | 'OUTSIDE_DESTINATION_BOUNDARY'
+  | 'WITHIN_ROUTE_DESTINATION_RADIUS'
+  | 'OUTSIDE_ROUTE_DESTINATION_RADIUS'
   | 'CANDIDATE_COARSER_THAN_DESTINATION'
   | 'DESTINATION_BOUNDARY_UNKNOWN'
   | 'CANDIDATE_LOCATION_UNKNOWN';
@@ -40,6 +53,10 @@ export type DestinationCompatibilityReason =
 export interface DestinationCompatibility {
   verdict: DestinationCompatibilityVerdict;
   reason: DestinationCompatibilityReason;
+}
+
+export interface DestinationCompatibilityOptions {
+  routeScale?: boolean;
 }
 
 export interface DestinationCompatibilityCandidate {
@@ -65,6 +82,7 @@ function adminLevelOf(tags: Record<string, string> | undefined) {
 export function evaluateDestinationCompatibility(
   candidate: DestinationCompatibilityCandidate,
   destination: GeographicScope | undefined,
+  options?: DestinationCompatibilityOptions,
 ): DestinationCompatibility {
   const boundary =
     destination?.kind === 'AREA_BOUNDARY' ? destination.boundary : undefined;
@@ -96,6 +114,26 @@ export function evaluateDestinationCompatibility(
     geometryContainsPoint(geometry, p.longitude, p.latitude),
   );
   if (!inside) {
+    if (options?.routeScale && !candidate.self) {
+      const destinationCenter = centroidOfGeometry(geometry);
+      const withinRadius = probes.some(
+        (p) =>
+          distanceMeters(destinationCenter, {
+            latitude: p.latitude,
+            longitude: p.longitude,
+          }) <= DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS.route.maxRadiusMeters,
+      );
+      if (withinRadius) {
+        return {
+          verdict: 'COMPATIBLE',
+          reason: 'WITHIN_ROUTE_DESTINATION_RADIUS',
+        };
+      }
+      return {
+        verdict: 'INCOMPATIBLE',
+        reason: 'OUTSIDE_ROUTE_DESTINATION_RADIUS',
+      };
+    }
     return { verdict: 'INCOMPATIBLE', reason: 'OUTSIDE_DESTINATION_BOUNDARY' };
   }
 

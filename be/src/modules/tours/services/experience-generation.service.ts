@@ -639,11 +639,41 @@ export class ExperienceGenerationService {
       providerState.attempted.add(webProvider);
       if (web.status === 'failed') providerState.failed.add(webProvider);
     }
+
+    const hasRouteDeficit = plan.deficits.some(
+      (d) =>
+        d.origin === 'preference_facet' &&
+        d.dimension === 'intent' &&
+        d.key === 'route_like',
+    );
+    const hasWalkDeficit = plan.deficits.some(
+      (d) =>
+        d.origin === 'preference_facet' &&
+        d.dimension === 'intent' &&
+        d.key === 'walk',
+    );
+    let validationIntent: 'walk' | 'route_like' | undefined;
+    if (hasRouteDeficit && hasWalkDeficit) {
+      this.logger.warn(
+        `[ExperienceGenerationService] Unsupported mixed intent deficits in acquisition plan (both route_like and walk); failing closed without regional route relaxation.`,
+      );
+      validationIntent = undefined;
+    } else if (hasRouteDeficit) {
+      validationIntent = 'route_like';
+    } else if (hasWalkDeficit) {
+      validationIntent = 'walk';
+    } else {
+      validationIntent = undefined;
+    }
+
     let resolution: FinalExperienceResolutionResponse | undefined;
     if (execution.candidates.length > 0) {
       resolution = await this.experienceAcquisition.materializeExecution(
         execution,
-        context,
+        {
+          ...context,
+          validationIntent,
+        },
       );
     }
     recordAcquisitionLifecycle(traceRecorder, {
