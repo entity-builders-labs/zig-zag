@@ -49,24 +49,32 @@ authority. The design explicitly stops for ambiguous identity, an unregistered
 worktree, context disagreement, blocked writes, stale/conflicting Fix Briefs,
 and forbidden integration.
 
+The approved skill is now implemented as the tracked regular file
+`.agents/skills/resume-track/SKILL.md`. The governance suite passes 25 cases:
+the existing 21 deterministic governance cases plus four structural resume-skill
+contract cases. ShellCheck and `git diff --check` pass.
+
+This already-running client session cannot prove fresh-session discovery of a
+skill created after the session began. No concrete discovery failure was
+observed, and no client-specific adapter or duplicate instructions were added;
+verify discovery in a fresh supported client session before adding one.
+
 The PR remains draft and unmerged. Integration safety must be re-evaluated
 against the then-current `feat/preference-first-selection` head before merge;
 do not auto-merge, auto-rebase, or weaken governance checks to make it mergeable.
 
 ## Current checkpoint
 
-Milestone 2B verification and the `resume-track` design are accepted.
+Milestone 2B verification and the `resume-track` implementation are complete
+on the governance branch, pending draft-PR review and eventual integration.
 GOV-GATE-1 separates write and integration readiness; GOV-LOCATE-1 supplies
 deterministic named-track discovery.
 
 ## Next authorized action
 
-Implement the repository-owned `resume-track` skill exactly as designed in the
-governance plan, with focused governance-contract coverage. Keep it a
-non-persistent composer of existing authorities; do not introduce client-local
-absolute links, a duplicate instruction source, product/RW4 changes, or any
-automatic Git/worktree/integration mutation. Before any integration attempt,
-rerun canonical preflight against the then-current
+Review the governance-only `resume-track` implementation in draft PR #70.
+Address only in-scope findings within this checkpoint. Before any integration
+attempt, rerun canonical preflight against the then-current
 `feat/preference-first-selection` head; do not auto-merge, auto-rebase, or
 resolve integration conflicts as part of this track.
 

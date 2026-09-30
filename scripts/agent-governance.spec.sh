@@ -9,6 +9,55 @@ pass() { printf 'PASS %s\n' "$1"; }
 expect_ok() { "$@" >/dev/null; }
 expect_fail() { if "$@" >/dev/null 2>&1; then echo "expected failure: $*" >&2; exit 1; fi; }
 
+RESUME_SKILL="$ROOT/.agents/skills/resume-track/SKILL.md"
+[ -f "$RESUME_SKILL" ]
+[ ! -L "$RESUME_SKILL" ]
+git -C "$ROOT" ls-files --error-unmatch .agents/skills/resume-track/SKILL.md >/dev/null
+pass 'resume skill is a tracked regular repository file'
+
+FRONTMATTER="$(sed -n '2,/^---$/p' "$RESUME_SKILL" | sed '$d')"
+printf '%s\n' "$FRONTMATTER" | grep -qx 'name: resume-track'
+[ "$(printf '%s\n' "$FRONTMATTER" | grep -c '^name:')" -eq 1 ]
+printf '%s\n' "$FRONTMATTER" | grep -qi '^description:.*\(resume\|continue\)'
+pass 'resume skill declares the intended discoverable identity'
+
+for required in \
+  'scripts/agent-track context' \
+  'scripts/agent-track list' \
+  'scripts/agent-track locate <exact-track-id>' \
+  'bash scripts/agent-preflight' \
+  'stop and report the ambiguity' \
+  'Worktree: <not registered>' \
+  'If locate and context disagree, stop' \
+  "On \`WRITE BLOCKED\`, stop" \
+  'INTEGRATION BLOCKED' \
+  'stale Fix Brief' \
+  'If review conflicts materially with progress, plan'; do
+  grep -Fq "$required" "$RESUME_SKILL"
+done
+pass 'resume skill composes discovery, safety, and explicit stop contracts'
+
+for forbidden in \
+  'git checkout' \
+  'git switch' \
+  'git reset' \
+  'git rebase' \
+  'git merge' \
+  'git worktree add' \
+  'git worktree remove' \
+  'aliases=' \
+  'displayName=' \
+  'owns=' \
+  'touches='; do
+  if grep -Fq "$forbidden" "$RESUME_SKILL"; then
+    echo "forbidden resume-skill authority or mutation token: $forbidden" >&2
+    exit 1
+  fi
+done
+grep -Fq 'creates no durable track state' "$RESUME_SKILL"
+tr '\n' ' ' <"$RESUME_SKILL" | grep -Fq 'Do not create or remove worktrees automatically.'
+pass 'resume skill adds no mutation path or independent authority registry'
+
 git -C "$TMP" init -q -b main
 git -C "$TMP" config user.email governance@example.test
 git -C "$TMP" config user.name Governance
