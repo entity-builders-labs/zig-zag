@@ -1,0 +1,16 @@
+{
+  "database": "zigzag_spike_rw4_cold_live_4",
+  "capturedAt": "2026-09-30T10:31:58Z",
+  "geoEntity": 2,
+  "geoEntityByKind": { "PLACE" : 2 },
+  "geoEntityIdentity": 2,
+  "verifiedHintMemoryEntries": 2,
+  "duplicateIdentityRows": 0,
+  "duplicateVerifiedHintKeysWithinKind": [],
+  "experience": 0,
+  "experienceByStatus": {},
+  "experienceComponent": 0,
+  "duplicateExperienceNames": 0,
+  "experiences": [],
+  "geoEntities": [{"id":"a984cfba-72e6-4df1-bdfe-d45da5ada07e","name":"Bodega La Rural","kind":"PLACE","geometrytype":"Point","hints":["Bodega La Rural"],"identities":["openstreetmap:osm:way:425175968"]}, {"id":"95d63e75-eaa4-458a-b142-099175546fbd","name":"Terrazas de los Andes","kind":"PLACE","geometrytype":"Point","hints":["Terrazas de los Andes"],"identities":["openstreetmap:osm:way:931488145"]}]
+}
