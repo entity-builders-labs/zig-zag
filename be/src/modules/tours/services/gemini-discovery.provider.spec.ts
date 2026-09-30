@@ -4,6 +4,10 @@ import {
   INITIAL_DIMENSION_VOCABULARY,
   PREFERENCE_DIMENSIONS,
 } from '../preferences/preference-facet-vocabulary';
+import {
+  buildDiscoverySystemPrompt,
+  buildDiscoveryUserPrompt,
+} from '../prompts/experience-discovery-extraction.prompt';
 import { GeminiDiscoveryProvider } from './gemini-discovery.provider';
 
 const CANONICAL_THEMES =
@@ -105,5 +109,24 @@ describe('GeminiDiscoveryProvider — controlled facet contract', () => {
       /same canonical key MAY appear in both themes and intents/i,
     );
     expect(prompt).toMatch(/do not deduplicate across themes and intents/i);
+  });
+
+  it('sends exactly the shared system + user prompt, with no provider-specific fork (RW4 composition contract)', async () => {
+    const body = await capturePayload();
+    expect(body.system_instruction).toBe(buildDiscoverySystemPrompt());
+    expect(body.input).toBe(
+      buildDiscoveryUserPrompt(
+        {
+          scope: { destinationName: 'Buenos Aires' },
+          requestedThemes: ['history'],
+          breadth: 'focused',
+          maxCandidates: 8,
+        } as any,
+        [{ key: 'ev-1', title: 'T', source: 'S', snippet: 'snippet' }],
+      ),
+    );
+    expect(body.input).toMatch(
+      /never merge components from different variants into one candidate/i,
+    );
   });
 });

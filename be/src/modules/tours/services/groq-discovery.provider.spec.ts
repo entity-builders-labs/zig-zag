@@ -2,6 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LangChainService } from '@shared/ai/langchain.service';
 import aiConfig from '@shared/ai/ai.config';
 import {
+  buildDiscoverySystemPrompt,
+  buildDiscoveryUserPrompt,
+} from '../prompts/experience-discovery-extraction.prompt';
+import {
   INITIAL_DIMENSION_VOCABULARY,
   PREFERENCE_DIMENSIONS,
 } from '../preferences/preference-facet-vocabulary';
@@ -81,6 +85,27 @@ describe('GroqDiscoveryProvider — controlled facet contract', () => {
     const prompt = await capturePrompt();
     expect(prompt).toMatch(/generic pseudo-entity/i);
     expect(prompt).toMatch(/Specialty Coffee Shop/);
+  });
+
+  it('sends exactly the shared system + user prompt, with no provider-specific fork (RW4 composition contract)', async () => {
+    const prompt = await capturePrompt();
+    expect(generateChatResponse.mock.calls[0][0]).toBe(
+      buildDiscoverySystemPrompt(),
+    );
+    expect(prompt).toBe(
+      buildDiscoveryUserPrompt(
+        {
+          scope: { destinationName: 'Buenos Aires' },
+          requestedThemes: ['history'],
+          breadth: 'focused',
+          maxCandidates: 8,
+        } as any,
+        [{ key: 'ev-1', title: 'T', source: 'S', snippet: 'snippet' }],
+      ),
+    );
+    expect(prompt).toMatch(
+      /never merge components from different variants into one candidate/i,
+    );
   });
 
   it('forces the Groq transport and the Groq discovery model, independent of AI_PROVIDER', async () => {

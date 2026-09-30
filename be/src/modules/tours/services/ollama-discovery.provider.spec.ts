@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import aiConfig from '@shared/ai/ai.config';
+import {
+  buildDiscoverySystemPrompt,
+  buildDiscoveryUserPrompt,
+} from '../prompts/experience-discovery-extraction.prompt';
 import { OllamaDiscoveryProvider } from './ollama-discovery.provider';
 
 const chatMock = jest.fn();
@@ -94,6 +98,20 @@ describe('OllamaDiscoveryProvider', () => {
     expect(chatArg.messages[1].role).toBe('user');
     expect(result.provider).toBe('ollama');
     expect(result.model).toBe('qwen2.5:7b-instruct');
+  });
+
+  it('sends exactly the shared system + user prompt, with no provider-specific fork (RW4 composition contract)', async () => {
+    chatMock.mockResolvedValue({ message: { content: '{"candidates":[]}' } });
+    const provider = await makeProvider();
+    await provider.extractExperiences(request, searchResult);
+    const [system, user] = chatMock.mock.calls[0][0].messages;
+    expect(system.content).toBe(buildDiscoverySystemPrompt());
+    expect(user.content).toBe(
+      buildDiscoveryUserPrompt(request, searchResult.evidence),
+    );
+    expect(user.content).toMatch(
+      /never merge components from different variants into one candidate/i,
+    );
   });
 
   it('sends an Authorization header when a real api key is configured', async () => {

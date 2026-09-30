@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import aiConfig from '@shared/ai/ai.config';
 import {
+  buildDiscoverySystemPrompt,
+  buildDiscoveryUserPrompt,
+} from '../prompts/experience-discovery-extraction.prompt';
+import {
   CloudflareDiscoveryError,
   CloudflareDiscoveryProvider,
 } from './cloudflare-discovery.provider';
@@ -128,6 +132,19 @@ describe('CloudflareDiscoveryProvider', () => {
     expect(body.messages[0].content).toContain('ExperienceCandidate extractor');
     expect(body.messages[1].content).toContain('Grounded evidence:');
     expect(body.messages[1].content).toContain('ev-1');
+  });
+
+  it('sends exactly the shared system + user prompt, with no provider-specific fork (RW4 composition contract)', async () => {
+    const provider = await makeProvider();
+    await provider.extractExperiences(request, searchResult);
+    const body = lastBody();
+    expect(body.messages[0].content).toBe(buildDiscoverySystemPrompt());
+    expect(body.messages[1].content).toBe(
+      buildDiscoveryUserPrompt(request, searchResult.evidence),
+    );
+    expect(body.messages[1].content).toMatch(
+      /never merge components from different variants into one candidate/i,
+    );
   });
 
   it('sends the typed anchor context through the shared user prompt (C4)', async () => {
