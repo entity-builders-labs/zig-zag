@@ -433,6 +433,7 @@ export class AreaRouteWalkAcquisitionService {
       deficits: [input.deficit],
       anchors: [input.anchor],
       breadth: 'focused',
+      semanticQuery: input.semanticQuery,
     };
     const plan = this.acquisitionPlanner.buildAcquisitionPlan(planInput);
     const baseDiagnostics = (

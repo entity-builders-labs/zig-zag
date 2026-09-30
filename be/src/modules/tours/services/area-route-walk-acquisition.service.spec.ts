@@ -333,6 +333,40 @@ describe('AreaRouteWalkAcquisitionService', () => {
     );
   });
 
+  it('forwards semanticQuery and anchors directly into buildAcquisitionPlan without alteration', async () => {
+    const mocks = buildMocks();
+    mocks.catalog.findVerifiedTourismRouteByName.mockResolvedValue([]);
+    mocks.acquisitionPlanner.buildAcquisitionPlan.mockReturnValue({
+      destination: {},
+      deficits: [],
+      sourcePlans: [{ provider: 'web', web: { query: 'q' } }],
+      breadth: 'focused',
+    });
+    mocks.acquisitionService.executePlan.mockResolvedValue({
+      evidence: [],
+      candidates: [],
+    });
+    mocks.acquisitionService.materializeExecution.mockResolvedValue({
+      resolved: [],
+    });
+    const service = buildService(mocks);
+
+    await service.acquireOrReuse(
+      baseInput({
+        anchor: tourismRouteAnchor,
+        intentKey: 'route_like',
+        semanticQuery: 'wine route with representative wineries',
+      }),
+    );
+
+    expect(mocks.acquisitionPlanner.buildAcquisitionPlan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        anchors: [tourismRouteAnchor],
+        semanticQuery: 'wine route with representative wineries',
+      }),
+    );
+  });
+
   it('passes entityResolutionScope narrowed to the resolved AREA anchor’s own OSM boundary (Task A6)', async () => {
     const mocks = buildMocks();
     mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([]);

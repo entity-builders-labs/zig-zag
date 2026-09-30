@@ -6,6 +6,7 @@ import {
   ExperienceAcquisitionPlan,
   SourcePlan,
 } from '../interfaces/experience-acquisition-plan.interface';
+import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 
 function findPlan<T extends SourcePlan['provider']>(
   plan: ExperienceAcquisitionPlan,
@@ -484,5 +485,110 @@ describe('ExperienceAcquisitionPlannerService', () => {
 
     const web = findPlan(plan, 'web');
     expect(web?.web.anchorNames).toBeUndefined();
+  });
+
+  it('preserves unresolved named_path anchor name and semantic query in route_like web plan without duplication (RW4 regression)', () => {
+    const tourismRouteAnchor: ResolvedAnchor = {
+      rawName: 'Ruta del Vino de Mendoza',
+      usage: 'named_path',
+      priority: 'must',
+      status: 'unresolved',
+      unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',
+    };
+    const duplicateRouteAnchor: ResolvedAnchor = {
+      rawName: 'ruta del vino de mendoza',
+      usage: 'named_path',
+      priority: 'must',
+      status: 'unresolved',
+      unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',
+    };
+
+    const plan = service.buildAcquisitionPlan({
+      destination: { destinationName: 'Ciudad de Mendoza' },
+      deficits: [
+        {
+          dimension: 'intent',
+          key: 'route_like',
+          reason: 'Need a route_like candidate',
+          origin: 'preference_facet',
+        },
+      ],
+      anchors: [tourismRouteAnchor, duplicateRouteAnchor],
+      semanticQuery: 'wine tour mendoza representative wineries',
+    });
+
+    const web = findPlan(plan, 'web');
+    expect(web).toBeDefined();
+    expect(web?.web.anchorNames).toEqual(['Ruta del Vino de Mendoza']);
+    expect(web?.web.query).toContain('Ciudad de Mendoza');
+    expect(web?.web.query).toContain('Ruta del Vino de Mendoza');
+    expect(web?.web.query).toContain('scenic routes');
+    expect(web?.web.query).toContain('tours');
+    expect(web?.web.query).toContain(
+      'wine tour mendoza representative wineries',
+    );
+    const occurrences = (
+      web?.web.query.match(/Ruta del Vino de Mendoza/gi) ?? []
+    ).length;
+    expect(occurrences).toBe(1);
+  });
+
+  it('does not inject unresolved named_path anchor for a non-walk/route_like deficit', () => {
+    const plan = service.buildAcquisitionPlan({
+      destination: { destinationName: 'Ciudad de Mendoza' },
+      deficits: [
+        {
+          dimension: 'theme',
+          key: 'wine',
+          reason: 'Need a wine candidate',
+          origin: 'preference_facet',
+        },
+      ],
+      anchors: [
+        {
+          rawName: 'Ruta del Vino de Mendoza',
+          usage: 'named_path',
+          priority: 'must',
+          status: 'unresolved',
+          unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',
+        },
+      ],
+      semanticQuery: 'wine tour mendoza representative wineries',
+    });
+
+    const web = findPlan(plan, 'web');
+    expect(web?.web.anchorNames).toBeUndefined();
+    expect(web?.web.query).not.toContain('Ruta del Vino de Mendoza');
+    expect(web?.web.query).toContain('Ciudad de Mendoza');
+    expect(web?.web.query).toContain(
+      'wine tour mendoza representative wineries',
+    );
+  });
+
+  it('ignores an unresolved non-named_path anchor for the walk/route_like query anchor injection', () => {
+    const plan = service.buildAcquisitionPlan({
+      destination: { destinationName: 'Ciudad de Mendoza' },
+      deficits: [
+        {
+          dimension: 'intent',
+          key: 'route_like',
+          reason: 'Need a route_like candidate',
+          origin: 'preference_facet',
+        },
+      ],
+      anchors: [
+        {
+          rawName: 'Gran Mendoza',
+          usage: 'geographic_scope',
+          priority: 'soft',
+          status: 'unresolved',
+          unresolvedReason: 'UNRESOLVED_AREA',
+        },
+      ],
+    });
+
+    const web = findPlan(plan, 'web');
+    expect(web?.web.anchorNames).toBeUndefined();
+    expect(web?.web.query).not.toContain('Gran Mendoza');
   });
 });

@@ -244,13 +244,27 @@ export class ExperienceAcquisitionPlannerService {
       );
       const relevantAnchorNames = isWalkOrRouteLikeDeficit
         ? (input.anchors ?? [])
-            .filter(
-              (anchor) =>
+            .map((anchor) => {
+              if (
                 anchor.status === 'resolved' &&
-                (anchor.kind === 'area' || anchor.kind === 'route'),
-            )
-            .map((anchor) =>
-              anchor.status === 'resolved' ? anchor.canonicalName : '',
+                (anchor.kind === 'area' || anchor.kind === 'route')
+              ) {
+                return anchor.canonicalName.trim();
+              }
+              if (
+                anchor.status === 'unresolved' &&
+                anchor.usage === 'named_path'
+              ) {
+                return anchor.rawName.trim();
+              }
+              return '';
+            })
+            .filter(Boolean)
+            .filter(
+              (name, index, array) =>
+                array.findIndex(
+                  (other) => other.toLowerCase() === name.toLowerCase(),
+                ) === index,
             )
         : [];
 
