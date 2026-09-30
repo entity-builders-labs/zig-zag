@@ -21,7 +21,7 @@ peer discovery derives ACTIVE track identity from registered worktrees plus
 fetched `origin/*` branch refs, filtered by each track's own declared `branch=`.
 No central registry or manual scope tokens were added.
 
-Verification at `7ce7795debadede7684041a1968e7609984af04e` passed:
+Acceptance verification passed:
 
 ```text
 shellcheck scripts/agent-track scripts/agent-preflight scripts/agent-governance.spec.sh
