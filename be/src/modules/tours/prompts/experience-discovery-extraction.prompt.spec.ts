@@ -1,3 +1,4 @@
+import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
 import {
   INITIAL_DIMENSION_VOCABULARY,
   PREFERENCE_DIMENSIONS,
@@ -172,17 +173,15 @@ describe('experience discovery extraction prompt (shared contract)', () => {
     });
 
     it('states the rules once, in the shared user prompt every extractor sends', () => {
-      const prompt = buildDiscoveryUserPrompt(
-        {
-          scope: { destinationName: 'Mendoza' },
-          requestedThemes: ['wine'],
-          requestedIntents: ['route_like'],
-          evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
-          breadth: 'focused',
-          maxCandidates: 8,
-        } as any,
-        [],
-      );
+      const request: ExperienceDiscoveryRequest = {
+        scope: { destinationName: 'Mendoza' },
+        requestedThemes: ['wine'],
+        requestedIntents: ['route_like'],
+        evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+        breadth: 'focused',
+        maxCandidates: 8,
+      };
+      const prompt = buildDiscoveryUserPrompt(request, []);
       for (const line of buildDiscoveryInstructions()) {
         expect(prompt).toContain(line);
       }
