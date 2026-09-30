@@ -10,7 +10,7 @@ set -euo pipefail
 
 track_field() {
   local line="$1" key="$2"
-  printf '%s\n' "$line" | sed -n "s/.*[; ]${key}=\([^;]*\).*/\1/p" | sed 's/ *--> *$//;s/^ *//;s/ *$//'
+  printf '%s\n' "$line" | sed -n "s/.*[; ]${key}=\\([^;]*\\).*/\\1/p" | sed 's/ *--> *$//;s/^ *//;s/ *$//'
 }
 
 track_records() {
@@ -154,50 +154,7 @@ agent_track_list() {
   local top="$1" branch progress marker id status integration worktree
   printf 'ACTIVE TRACKS\n'
   printf '%-32s %-8s %-38s %s\n' 'Track' 'Status' 'Branch' 'Worktree'
-  while IFS=
-agent_track_context() {
-  local top="$1" requested_id="${2:-}" branch progress marker id status declared_branch integration plan base worktree head tree_state remote
-  branch="$(git -C "$top" branch --show-current)"
-  if [ -n "$requested_id" ]; then
-    if ! resolve_track_by_id "$top" "$requested_id"; then
-      printf 'TRACK CONTEXT UNAVAILABLE: expected exactly one track with id %s\n' "$requested_id" >&2
-      return 1
-    fi
-  elif ! resolve_track_by_branch "$top" "$branch"; then
-    printf 'TRACK CONTEXT UNAVAILABLE: expected exactly one ACTIVE track for branch %s\n' "${branch:-<detached>}" >&2
-    return 1
-  fi
-  IFS=$'\t' read -r progress marker <<<"$RESOLVED_TRACK_RECORD"
-  id="$(track_field "$marker" id)"
-  status="$(track_field "$marker" status)"
-  declared_branch="$(track_field "$marker" branch)"
-  integration="$(track_field "$marker" integration)"
-  plan="$(track_field "$marker" plan)"
-  base="$(track_field "$marker" base)"
-  worktree="$(track_worktree_for_branch "$top" "$declared_branch" || true)"
-  head="$(git -C "$top" rev-parse HEAD)"
-  tree_state="clean"; [ -z "$(git -C "$top" status --porcelain)" ] || tree_state="dirty"
-  remote="$(git -C "$top" status -sb | sed -n '1p')"
-  printf 'TRACK CONTEXT READY\n\n'
-  printf 'Track: %s\nStatus: %s\nBranch: %s\nWorktree: %s\n' "$id" "$status" "$declared_branch" "${worktree:-<not registered>}"
-  printf 'Integration target: %s\nBase snapshot: %s\nProgress: %s\nPlan: %s\n' "$integration" "$base" "$progress" "$plan"
-  print_progress_section "$top/$progress" 'Current execution verdict' 'Execution verdict'
-  print_progress_section "$top/$progress" 'Current checkpoint' 'Current checkpoint'
-  print_progress_section "$top/$progress" 'Next authorized action' 'Next authorized action'
-  print_progress_section "$top/$progress" 'Open findings / blockers' 'Open findings / blockers'
-  printf 'Git HEAD: %s\nWorking tree: %s\nRemote relationship: %s\nOpen PR: %s\n' "$head" "$tree_state" "$remote" "$(local_open_pr)"
-}
-
-if [ "${BASH_SOURCE[0]}" = "$0" ]; then
-  TOP="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-  [ -n "$TOP" ] || { echo 'Not inside a Git worktree.' >&2; exit 1; }
-  case "${1:-}" in
-    list) agent_track_list "$TOP" ;;
-    context) agent_track_context "$TOP" "${2:-}" ;;
-    *) echo 'Usage: scripts/agent-track {list|context [track-id]}' >&2; exit 2 ;;
-  esac
-fi
-\t' read -r branch progress marker; do
+  while IFS=$'\t' read -r branch progress marker; do
     id="$(track_field "$marker" id)"
     status="$(track_field "$marker" status)"
     integration="$(track_field "$marker" integration)"
