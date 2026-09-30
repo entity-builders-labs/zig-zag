@@ -3,6 +3,10 @@ import {
   recordAcquisitionLifecycle,
   projectEntityResolutionStepInput,
 } from './experience-generation-trace.util';
+import {
+  WebAcquisitionResult,
+  WebExtractionAttemptAudit,
+} from '../services/experience-acquisition.service';
 
 describe('experience-generation-trace.util', () => {
   it('records decomposed acquisition lifecycle steps with proper parentId', () => {
@@ -79,6 +83,7 @@ describe('experience-generation-trace.util', () => {
         webResults: [
           {
             status: 'success',
+            extractionAttempts: [],
             query: 'cafes',
             groundedProvider: 'serper',
             evidenceKeys: ['ev1'],
@@ -453,6 +458,7 @@ describe('experience-generation-trace.util', () => {
         webResults: [
           {
             status: 'success',
+            extractionAttempts: [],
             query: 'Buenos Aires walks',
             groundedProvider: 'tavily',
             evidenceKeys: ['ev-1', 'ev-2', 'ev-3'],
@@ -582,6 +588,7 @@ describe('experience-generation-trace.util', () => {
         webResults: [
           {
             status: 'success',
+            extractionAttempts: [],
             query: 'Buenos Aires walks',
             groundedProvider: 'tavily',
             evidenceKeys: ['ev-1'],
@@ -662,6 +669,7 @@ describe('experience-generation-trace.util', () => {
         webResults: [
           {
             status: 'success',
+            extractionAttempts: [],
             query: 'Buenos Aires cafe',
             groundedProvider: 'tavily',
             evidenceKeys: ['ev-1'],
@@ -691,5 +699,265 @@ describe('experience-generation-trace.util', () => {
 
     expect(selectionStep).toBeUndefined();
     expect(retrievalStep).toBeUndefined();
+  });
+
+  describe('web acquisition stage attribution and extraction attempts', () => {
+    const traceFor = (webResult: WebAcquisitionResult) => {
+      const recorder = new GenerationTraceRecorder();
+      recordAcquisitionLifecycle(recorder, {
+        passNumber: 1,
+        strategy: 'area_route_walk',
+        plan: {
+          destination: { destinationName: 'Buenos Aires' },
+          deficits: [],
+          evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+          breadth: 'focused',
+          sourcePlans: [
+            { provider: 'web' as const, web: { query: 'historic walk' } },
+          ],
+        },
+        execution: {
+          candidates: [],
+          observations: [],
+          evidence: [],
+          providerResults: {},
+          webResults: [webResult],
+        },
+      });
+      const trace = recorder.build({
+        canonicalRequest: {},
+        result: { status: 'FAILED', outcome: 'FAILED' },
+      } as any);
+      const step = (name: string): any =>
+        trace.steps.find((s) => s.name === name);
+      return { step };
+    };
+
+    const snippetAttempt: WebExtractionAttemptAudit = {
+      inputKind: 'grounded_snippets',
+      status: 'completed',
+      extractorProvider: 'extractor-a',
+      extractorModel: 'model-a',
+      rawOutput: 'RAW-SNIPPET-ATTEMPT',
+      validationErrors: [],
+      extractedCandidateCount: 1,
+      admittedCandidateCount: 0,
+      candidateDecisions: [
+        {
+          candidate: {
+            name: 'Partial walk',
+            themes: [],
+            traits: [],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'one stop',
+            componentHints: [
+              {
+                key: 'c1',
+                name: 'Plaza Dorrego',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+          },
+          requestedRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+          candidateShapeMatches: [],
+          accepted: false,
+          reason: 'NO_MATCHING_EVIDENCE_REQUIREMENT',
+        },
+      ],
+    };
+
+    const selection = {
+      evidenceCount: 2,
+      selectionLimit: 2,
+      selectedUrls: ['https://a.test/walk'],
+      items: [
+        {
+          evidenceKey: 'ev-1',
+          title: 'Walk',
+          url: 'https://a.test/walk',
+          snippet: 'Start at Plaza Dorrego',
+          originalRank: 1,
+          editorialEligible: true,
+          tourContentScore: 15,
+          citedCandidateBonus: 1,
+          finalScore: 16,
+          rankedPosition: 1,
+          selected: true,
+          decisionReason: 'SELECTED' as const,
+        },
+        {
+          evidenceKey: 'ev-2',
+          title: 'Reel',
+          url: 'https://social.test/reel',
+          snippet: 'a tour through 5 stops',
+          originalRank: 2,
+          editorialEligible: false,
+          tourContentScore: 5,
+          citedCandidateBonus: 0,
+          finalScore: 5,
+          selected: false,
+          decisionReason: 'NON_EDITORIAL_SOURCE' as const,
+        },
+      ],
+    };
+
+    it('records an extraction failure on the extraction step, not the search step', () => {
+      const { step } = traceFor({
+        status: 'failed',
+        query: 'historic walk',
+        groundingStatus: 'applied',
+        evidenceKeys: ['ev-1', 'ev-2'],
+        validationErrors: [],
+        extractedCandidateCount: 0,
+        candidateCount: 0,
+        candidateDecisions: [],
+        extractionAttempts: [
+          {
+            inputKind: 'grounded_snippets',
+            status: 'failed',
+            validationErrors: [],
+            extractedCandidateCount: 0,
+            admittedCandidateCount: 0,
+            candidateDecisions: [],
+            failureReason: 'The operation was aborted due to timeout',
+          },
+        ],
+        failedStage: 'EXTRACTION',
+        failureReason: 'The operation was aborted due to timeout',
+      });
+
+      expect(step('acquisition.web_search')!.decision).toEqual({
+        status: 'PASS',
+        outcome: 'SUCCESS',
+      });
+      expect(step('acquisition.web_search')!.facts).toMatchObject({
+        evidenceCount: 2,
+      });
+      const extraction = step('acquisition.semantic_extraction')!;
+      expect(extraction.decision).toEqual({
+        status: 'FAIL',
+        outcome: 'FAILED',
+        reason: 'The operation was aborted due to timeout',
+      });
+      expect(extraction.facts!.extractionAttempts).toEqual([
+        expect.objectContaining({
+          inputKind: 'grounded_snippets',
+          status: 'failed',
+          failureReason: 'The operation was aborted due to timeout',
+        }),
+      ]);
+    });
+
+    it('records a search failure on the search step', () => {
+      const { step } = traceFor({
+        status: 'failed',
+        query: 'historic walk',
+        evidenceKeys: [],
+        validationErrors: [],
+        extractedCandidateCount: 0,
+        candidateCount: 0,
+        candidateDecisions: [],
+        extractionAttempts: [],
+        failedStage: 'SEARCH',
+        failureReason: 'search 503',
+      });
+
+      expect(step('acquisition.web_search')!.decision).toEqual({
+        status: 'FAIL',
+        outcome: 'FAILED',
+        reason: 'search 503',
+      });
+      expect(step('acquisition.semantic_extraction')!.decision.status).toBe(
+        'WARN',
+      );
+    });
+
+    it('records a content-retrieval failure on the retrieval step', () => {
+      const { step } = traceFor({
+        status: 'failed',
+        query: 'historic walk',
+        groundingStatus: 'applied',
+        evidenceKeys: ['ev-1', 'ev-2'],
+        validationErrors: [],
+        extractedCandidateCount: 0,
+        candidateCount: 0,
+        candidateDecisions: [],
+        extractionAttempts: [snippetAttempt],
+        deepSourceSelection: selection,
+        failedStage: 'SOURCE_FETCH',
+        failureReason: 'retrieval 502',
+      });
+
+      expect(step('acquisition.web_search')!.decision.status).toBe('PASS');
+      expect(step('acquisition.source_retrieval')!.decision).toEqual({
+        status: 'FAIL',
+        outcome: 'FAILED',
+        reason: 'retrieval 502',
+      });
+      expect(step('acquisition.source_retrieval')!.facts).toMatchObject({
+        failedStage: 'SOURCE_FETCH',
+        requestedUrls: ['https://a.test/walk'],
+      });
+    });
+
+    it('projects every extraction attempt and every selection snippet', () => {
+      const { step } = traceFor({
+        status: 'success',
+        query: 'historic walk',
+        groundingStatus: 'applied',
+        evidenceKeys: ['ev-1', 'ev-2'],
+        validationErrors: [],
+        extractorProvider: 'extractor-b',
+        extractorModel: 'model-b',
+        extractorRawOutput: 'RAW-DEEP-ATTEMPT',
+        extractedCandidateCount: 0,
+        candidateCount: 0,
+        candidateDecisions: [],
+        extractionAttempts: [
+          snippetAttempt,
+          {
+            inputKind: 'deep_source_content',
+            status: 'completed',
+            extractorProvider: 'extractor-b',
+            extractorModel: 'model-b',
+            rawOutput: 'RAW-DEEP-ATTEMPT',
+            validationErrors: [],
+            extractedCandidateCount: 0,
+            admittedCandidateCount: 0,
+            candidateDecisions: [],
+          },
+        ],
+        deepSourceSelection: selection,
+      });
+
+      const attempts = step('acquisition.semantic_extraction')!.facts!
+        .extractionAttempts as any[];
+      expect(attempts.map((a) => [a.inputKind, a.rawOutput])).toEqual([
+        ['grounded_snippets', 'RAW-SNIPPET-ATTEMPT'],
+        ['deep_source_content', 'RAW-DEEP-ATTEMPT'],
+      ]);
+      expect(attempts[0].candidateDecisions).toEqual([
+        expect.objectContaining({
+          name: 'Partial walk',
+          componentHintCount: 1,
+          accepted: false,
+          reason: 'NO_MATCHING_EVIDENCE_REQUIREMENT',
+        }),
+      ]);
+
+      const subjects = step('acquisition.deep_source_selection')!.subjects!;
+      expect(
+        subjects.map((s: any) => [
+          s.facts!.evidenceKey,
+          s.facts!.snippet,
+          s.facts!.decisionReason,
+        ]),
+      ).toEqual([
+        ['ev-1', 'Start at Plaza Dorrego', 'SELECTED'],
+        ['ev-2', 'a tour through 5 stops', 'NON_EDITORIAL_SOURCE'],
+      ]);
+    });
   });
 });

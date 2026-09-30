@@ -1218,6 +1218,322 @@ describe('ExperienceAcquisitionService', () => {
           expect(extractExperiences).toHaveBeenCalledTimes(1);
         });
 
+        describe('acquisition observability (RW4 canonical-run provenance)', () => {
+          // Snapshot at collection time: an earlier test in the enclosing block lets the
+          // service replace the shared fixture's evidence with deep content.
+          const pristineGrounded = structuredClone(groundedWithUrls);
+          const snippetCandidate = {
+            name: 'San Telmo partial walk',
+            themes: ['history'],
+            componentHints: [
+              {
+                key: 'c1',
+                name: 'Plaza Dorrego',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'One stop in the snippet',
+          };
+          const deepCandidate = {
+            ...snippetCandidate,
+            name: 'San Telmo complete walk',
+            componentHints: [
+              ...snippetCandidate.componentHints,
+              {
+                key: 'c2',
+                name: 'Parque Lezama',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            shortReason: 'Two stops in the full article',
+          };
+          const retrievedContent = {
+            provider: 'tavily',
+            requestedCount: 2,
+            retrievedCount: 1,
+            items: [
+              {
+                requestedUrl: 'https://buenosaires.travel/san-telmo-walk',
+                status: 'retrieved',
+                contentType: 'markdown',
+                content: 'Start at Plaza Dorrego, then walk to Parque Lezama.',
+                contentChars: 52,
+                truncated: false,
+                provider: 'tavily',
+              },
+            ],
+            totalDurationMs: 10,
+          };
+
+          const buildService = (
+            extractExperiences: jest.Mock,
+            retrieve: jest.Mock,
+            search = jest
+              .fn()
+              .mockResolvedValue(structuredClone(pristineGrounded)),
+          ) =>
+            new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              undefined,
+              { search } as any,
+              { extractExperiences } as any,
+              undefined,
+              { providerName: 'tavily', retrieve } as any,
+            );
+
+          it('keeps the snippet-only attempt when deep re-extraction runs', async () => {
+            const extractExperiences = jest
+              .fn()
+              .mockResolvedValueOnce({
+                candidates: [snippetCandidate],
+                validationErrors: [],
+                provider: 'extractor-a',
+                model: 'model-a',
+                rawOutput: 'RAW-SNIPPET-ATTEMPT',
+              })
+              .mockResolvedValueOnce({
+                candidates: [deepCandidate],
+                validationErrors: ['deep attempt warning'],
+                provider: 'extractor-b',
+                model: 'model-b',
+                rawOutput: 'RAW-DEEP-ATTEMPT',
+              });
+            const service = buildService(
+              extractExperiences,
+              jest.fn().mockResolvedValue(retrievedContent),
+            );
+
+            const result = await service.executePlan(multiComponentWebPlan);
+            const webResult = result.webResults![0];
+
+            expect(webResult.extractionAttempts).toHaveLength(2);
+            expect(webResult.extractionAttempts[0]).toMatchObject({
+              inputKind: 'grounded_snippets',
+              status: 'completed',
+              extractorProvider: 'extractor-a',
+              extractorModel: 'model-a',
+              rawOutput: 'RAW-SNIPPET-ATTEMPT',
+              validationErrors: [],
+              extractedCandidateCount: 1,
+              admittedCandidateCount: 0,
+              candidateDecisions: [
+                expect.objectContaining({
+                  accepted: false,
+                  reason: 'NO_MATCHING_EVIDENCE_REQUIREMENT',
+                }),
+              ],
+            });
+            expect(webResult.extractionAttempts[1]).toMatchObject({
+              inputKind: 'deep_source_content',
+              status: 'completed',
+              extractorProvider: 'extractor-b',
+              extractorModel: 'model-b',
+              rawOutput: 'RAW-DEEP-ATTEMPT',
+              validationErrors: ['deep attempt warning'],
+              extractedCandidateCount: 1,
+              admittedCandidateCount: 1,
+            });
+            // The flat fields still describe the final attempt.
+            expect(webResult).toMatchObject({
+              status: 'success',
+              extractorRawOutput: 'RAW-DEEP-ATTEMPT',
+              extractorModel: 'model-b',
+              candidateCount: 1,
+            });
+            expect(webResult.failedStage).toBeUndefined();
+          });
+
+          it('records the search snippet of every considered source without changing selection', async () => {
+            const extractExperiences = jest.fn().mockResolvedValue({
+              candidates: [snippetCandidate],
+              validationErrors: [],
+              provider: 'extractor-a',
+              model: 'model-a',
+              rawOutput: '{}',
+            });
+            const service = buildService(
+              extractExperiences,
+              jest.fn().mockResolvedValue(retrievedContent),
+            );
+
+            const result = await service.executePlan(multiComponentWebPlan);
+            const selection = result.webResults![0].deepSourceSelection!;
+
+            expect(selection.selectedUrls).toEqual([
+              'https://buenosaires.travel/san-telmo-walk',
+              'https://travelblog.com/la-boca',
+            ]);
+            expect(
+              selection.items.map((i) => [
+                i.evidenceKey,
+                i.snippet,
+                i.selected,
+                i.decisionReason,
+              ]),
+            ).toEqual([
+              ['ev-1', 'A great walk in San Telmo', true, 'SELECTED'],
+              ['ev-2', 'Walk through Caminito', true, 'SELECTED'],
+              ['ev-3', 'Walk around cemetery', false, 'BELOW_SELECTION_LIMIT'],
+            ]);
+            // The audit keeps the search snippet even though ev-1's evidence
+            // was replaced by deep content for re-extraction.
+            expect(
+              extractExperiences.mock.calls[1][1].evidence[0].snippet,
+            ).toBe('Start at Plaza Dorrego, then walk to Parque Lezama.');
+          });
+
+          it('attributes a snippet-extraction failure to EXTRACTION, keeping the search facts', async () => {
+            const extractExperiences = jest
+              .fn()
+              .mockRejectedValue(
+                new Error('The operation was aborted due to timeout'),
+              );
+            const retrieve = jest.fn();
+            const service = buildService(extractExperiences, retrieve);
+
+            const result = await service.executePlan(multiComponentWebPlan);
+            const webResult = result.webResults![0];
+
+            expect(retrieve).not.toHaveBeenCalled();
+            expect(webResult).toMatchObject({
+              status: 'failed',
+              failedStage: 'EXTRACTION',
+              failureReason: 'The operation was aborted due to timeout',
+              groundingStatus: 'applied',
+              evidenceKeys: ['ev-1', 'ev-2', 'ev-3'],
+              extractionAttempts: [
+                {
+                  inputKind: 'grounded_snippets',
+                  status: 'failed',
+                  failureReason: 'The operation was aborted due to timeout',
+                  candidateDecisions: [],
+                },
+              ],
+            });
+            // Health accounting keys failures by grounded provider: a
+            // post-search failure must not name the search provider.
+            expect(webResult.groundedProvider).toBeUndefined();
+            expect(result.candidates).toHaveLength(0);
+          });
+
+          it('keeps the completed snippet attempt when the deep re-extraction fails', async () => {
+            const extractExperiences = jest
+              .fn()
+              .mockResolvedValueOnce({
+                candidates: [snippetCandidate],
+                validationErrors: [],
+                provider: 'extractor-a',
+                model: 'model-a',
+                rawOutput: 'RAW-SNIPPET-ATTEMPT',
+              })
+              .mockRejectedValueOnce(new Error('extractor timeout'));
+            const service = buildService(
+              extractExperiences,
+              jest.fn().mockResolvedValue(retrievedContent),
+            );
+
+            const result = await service.executePlan(multiComponentWebPlan);
+            const webResult = result.webResults![0];
+
+            expect(webResult.failedStage).toBe('EXTRACTION');
+            expect(webResult.extractionAttempts).toEqual([
+              expect.objectContaining({
+                inputKind: 'grounded_snippets',
+                status: 'completed',
+                rawOutput: 'RAW-SNIPPET-ATTEMPT',
+              }),
+              expect.objectContaining({
+                inputKind: 'deep_source_content',
+                status: 'failed',
+                failureReason: 'extractor timeout',
+              }),
+            ]);
+            expect(webResult.deepSourceSelection?.selectedUrls).toHaveLength(2);
+            expect(webResult.sourceContentRetrieval).toMatchObject({
+              attempted: true,
+              reExtractionAttempted: true,
+            });
+          });
+
+          it('attributes a content-retrieval failure to SOURCE_FETCH', async () => {
+            const extractExperiences = jest.fn().mockResolvedValue({
+              candidates: [snippetCandidate],
+              validationErrors: [],
+              provider: 'extractor-a',
+              model: 'model-a',
+              rawOutput: 'RAW-SNIPPET-ATTEMPT',
+            });
+            const service = buildService(
+              extractExperiences,
+              jest.fn().mockRejectedValue(new Error('retrieval 502')),
+            );
+
+            const result = await service.executePlan(multiComponentWebPlan);
+            const webResult = result.webResults![0];
+
+            expect(extractExperiences).toHaveBeenCalledTimes(1);
+            expect(webResult).toMatchObject({
+              status: 'failed',
+              failedStage: 'SOURCE_FETCH',
+              failureReason: 'retrieval 502',
+            });
+            expect(webResult.extractionAttempts).toHaveLength(1);
+            expect(webResult.deepSourceSelection?.selectedUrls).toHaveLength(2);
+          });
+
+          it('attributes a thrown search error to SEARCH', async () => {
+            const extractExperiences = jest.fn();
+            const service = buildService(
+              extractExperiences,
+              jest.fn(),
+              jest.fn().mockRejectedValue(new Error('search 503')),
+            );
+
+            const result = await service.executePlan(multiComponentWebPlan);
+
+            expect(extractExperiences).not.toHaveBeenCalled();
+            expect(result.webResults![0]).toMatchObject({
+              status: 'failed',
+              failedStage: 'SEARCH',
+              failureReason: 'search 503',
+              evidenceKeys: [],
+              extractionAttempts: [],
+            });
+          });
+
+          it('attributes a failed grounding status to SEARCH', async () => {
+            const service = buildService(
+              jest.fn(),
+              jest.fn(),
+              jest.fn().mockResolvedValue({
+                ...structuredClone(pristineGrounded),
+                groundingStatus: 'failed',
+                failureReason: 'HTTP 401',
+                evidence: undefined,
+              }),
+            );
+
+            const result = await service.executePlan(multiComponentWebPlan);
+
+            expect(result.webResults![0]).toMatchObject({
+              status: 'failed',
+              failedStage: 'SEARCH',
+              failureReason: 'HTTP 401',
+              groundedProvider: 'tavily',
+            });
+          });
+        });
+
         describe('deep source selection audit (RW4-01)', () => {
           it('proves A & D: multiple grounded sources with different scores and >2 eligible URLs select top 2 with audit reasons', async () => {
             const groundedWithFourSources = {

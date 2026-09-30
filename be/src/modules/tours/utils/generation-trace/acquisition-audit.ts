@@ -10,6 +10,7 @@ import {
 import {
   ExecuteAcquisitionPlanResult,
   WebCandidateAdmissionDecision,
+  WebExtractionAttemptAudit,
 } from '../../services/experience-acquisition.service';
 import {
   ExperienceAcquisitionPlan,
@@ -347,17 +348,34 @@ export function recordAcquisitionLifecycle(
 
   // 5. Web discovery results
   for (const webResult of execution.webResults ?? []) {
+    // A web result fails as a whole, but the trace attributes the failure to
+    // the stage that raised it (`failedStage`). A failed result without a
+    // recorded stage stays attributed to the search step, as before.
+    const failedStage =
+      webResult.status === 'failed' ? webResult.failedStage : undefined;
+    const searchFailed =
+      webResult.status === 'failed' &&
+      (failedStage === undefined || failedStage === 'SEARCH');
+
     // 5a. acquisition.web_search
     recorder.record({
       parentId: passId,
       name: 'acquisition.web_search',
       description: `Búsqueda web con grounding: "${webResult.query}"`,
       component: 'ExperienceAcquisitionService',
-      decision: {
-        status: webResult.status === 'failed' ? 'FAIL' : 'PASS',
-        outcome: webResult.status.toUpperCase(),
-        reason: webResult.failureReason,
-      },
+      decision: searchFailed
+        ? {
+            status: 'FAIL',
+            outcome: 'FAILED',
+            reason: webResult.failureReason,
+          }
+        : webResult.status === 'failed'
+          ? { status: 'PASS', outcome: 'SUCCESS' }
+          : {
+              status: 'PASS',
+              outcome: webResult.status.toUpperCase(),
+              reason: webResult.failureReason,
+            },
       facts: {
         query: webResult.query,
         groundedProvider: webResult.groundedProvider,
@@ -371,7 +389,20 @@ export function recordAcquisitionLifecycle(
     });
 
     // 5b. acquisition.deep_source_selection (if deep source selection was performed)
-    if (webResult.deepSourceSelection) {
+    if (failedStage === 'SOURCE_SELECTION') {
+      recorder.record({
+        parentId: passId,
+        name: 'acquisition.deep_source_selection',
+        description: 'Selección de fuentes web para contenido profundo (falló)',
+        component: 'ExperienceAcquisitionService',
+        decision: {
+          status: 'FAIL',
+          outcome: 'FAILED',
+          reason: webResult.failureReason,
+        },
+        facts: { failedStage, failureReason: webResult.failureReason },
+      });
+    } else if (webResult.deepSourceSelection) {
       const selection = webResult.deepSourceSelection;
       const hasSelected = selection.selectedUrls.length > 0;
       recorder.record({
@@ -418,6 +449,7 @@ export function recordAcquisitionLifecycle(
             evidenceKey: item.evidenceKey,
             ...(item.title ? { title: item.title } : {}),
             ...(item.url ? { url: item.url } : {}),
+            ...(item.snippet !== undefined ? { snippet: item.snippet } : {}),
             originalRank: item.originalRank,
             editorialEligible: item.editorialEligible,
             tourContentScore: item.tourContentScore,
@@ -434,7 +466,24 @@ export function recordAcquisitionLifecycle(
     }
 
     // 5c. acquisition.source_retrieval (if content retrieval attempted)
-    if (webResult.sourceContentRetrieval?.attempted) {
+    if (failedStage === 'SOURCE_FETCH') {
+      recorder.record({
+        parentId: passId,
+        name: 'acquisition.source_retrieval',
+        description: 'Recuperación de contenido web (falló)',
+        component: 'WebSourceContentRetrievalService',
+        decision: {
+          status: 'FAIL',
+          outcome: 'FAILED',
+          reason: webResult.failureReason,
+        },
+        facts: {
+          failedStage,
+          failureReason: webResult.failureReason,
+          requestedUrls: webResult.deepSourceSelection?.selectedUrls ?? [],
+        },
+      });
+    } else if (webResult.sourceContentRetrieval?.attempted) {
       recorder.record({
         parentId: passId,
         name: 'acquisition.source_retrieval',
@@ -456,13 +505,20 @@ export function recordAcquisitionLifecycle(
       name: 'acquisition.semantic_extraction',
       description: `Extracción semántica de candidatos (${webResult.candidateCount} admitidos de ${webResult.extractedCandidateCount ?? webResult.candidateCount} extraídos)`,
       component: 'ExperienceDiscoveryExtractor',
-      decision: {
-        status: webResult.candidateCount > 0 ? 'PASS' : 'WARN',
-        outcome:
-          webResult.candidateCount > 0
-            ? 'CANDIDATES_EXTRACTED'
-            : 'NO_CANDIDATES',
-      },
+      decision:
+        failedStage === 'EXTRACTION'
+          ? {
+              status: 'FAIL',
+              outcome: 'FAILED',
+              reason: webResult.failureReason,
+            }
+          : {
+              status: webResult.candidateCount > 0 ? 'PASS' : 'WARN',
+              outcome:
+                webResult.candidateCount > 0
+                  ? 'CANDIDATES_EXTRACTED'
+                  : 'NO_CANDIDATES',
+            },
       facts: {
         extractorProvider: webResult.extractorProvider,
         extractorModel: webResult.extractorModel,
@@ -471,6 +527,11 @@ export function recordAcquisitionLifecycle(
         validationErrors: webResult.validationErrors,
         rawOutput: webResult.extractorRawOutput,
         sourceSupportAudits: webResult.sourceSupportAudits,
+        // Every attempt in execution order; the fields above are the final
+        // attempt only.
+        extractionAttempts: webResult.extractionAttempts.map(
+          projectExtractionAttempt,
+        ),
       },
       subjects: webResult.candidateDecisions?.map(
         (d: WebCandidateAdmissionDecision) => ({
@@ -553,4 +614,32 @@ export function recordAcquisitionLifecycle(
       }
     }
   }
+}
+
+/**
+ * Trace projection of one extraction attempt. Candidate decisions are reduced
+ * to their identity and admission outcome; the full candidates of the final
+ * attempt remain on the step's `subjects`.
+ */
+function projectExtractionAttempt(attempt: WebExtractionAttemptAudit) {
+  return {
+    inputKind: attempt.inputKind,
+    status: attempt.status,
+    extractorProvider: attempt.extractorProvider,
+    extractorModel: attempt.extractorModel,
+    rawOutput: attempt.rawOutput,
+    validationErrors: attempt.validationErrors,
+    extractedCandidateCount: attempt.extractedCandidateCount,
+    admittedCandidateCount: attempt.admittedCandidateCount,
+    candidateDecisions: attempt.candidateDecisions.map((d) => ({
+      candidateKey: traceCandidateKey(d.candidate),
+      name: d.candidate.name,
+      componentHintCount: d.candidate.componentHints.length,
+      accepted: d.accepted,
+      reason: d.reason,
+      candidateShapeMatches: d.candidateShapeMatches,
+    })),
+    sourceSupportAudits: attempt.sourceSupportAudits,
+    failureReason: attempt.failureReason,
+  };
 }

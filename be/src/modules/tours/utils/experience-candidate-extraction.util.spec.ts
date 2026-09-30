@@ -1431,6 +1431,7 @@ describe('extractExperienceCandidates', () => {
             candidateCount: 1,
             extractedCandidateCount: 1,
             sourceSupportAudits: domainAudits,
+            extractionAttempts: [],
           } as any,
         ],
       },

@@ -165,6 +165,53 @@ export interface WebAcquisitionResult {
     reExtractionAttempted?: boolean;
     selectionAudit?: WebDeepSourceSelectionAudit;
   };
+  /**
+   * Every discovery-extraction attempt this web plan ran, in execution order
+   * (snippet-only first, then deep-source re-extraction when triggered). The
+   * flat `extractor*` / `candidateDecisions` fields above describe only the
+   * FINAL attempt; this list keeps earlier attempts from being overwritten.
+   * Diagnostic only -- no decision reads it.
+   */
+  extractionAttempts: WebExtractionAttemptAudit[];
+  /**
+   * The acquisition stage whose error ended this web plan. Set whenever
+   * `status === 'failed'`, so a failure after a successful search (e.g. an
+   * extractor timeout) is never attributed to the search. `failureReason`
+   * keeps the raw error message. Diagnostic only.
+   */
+  failedStage?: WebAcquisitionStage;
+  failureReason?: string;
+}
+
+/** Provider-neutral stages of one web SourcePlan execution, in order. */
+export type WebAcquisitionStage =
+  | 'SEARCH'
+  | 'SOURCE_SELECTION'
+  | 'SOURCE_FETCH'
+  | 'EXTRACTION';
+
+/**
+ * What evidence one extraction attempt consumed: the grounded search
+ * snippets as returned, or those same items with deep-retrieved source
+ * content substituted for the selected URLs.
+ */
+export type WebExtractionInputKind =
+  | 'grounded_snippets'
+  | 'deep_source_content';
+
+export interface WebExtractionAttemptAudit {
+  inputKind: WebExtractionInputKind;
+  status: 'completed' | 'failed';
+  /** Absent when the call failed before the extractor reported identity. */
+  extractorProvider?: string;
+  extractorModel?: string;
+  rawOutput?: string;
+  validationErrors: string[];
+  extractedCandidateCount: number;
+  admittedCandidateCount: number;
+  candidateDecisions: WebCandidateAdmissionDecision[];
+  sourceSupportAudits?: CandidateSourceSupportAudit[];
+  /** Raw error message when `status === 'failed'`. */
   failureReason?: string;
 }
 
@@ -179,6 +226,12 @@ export interface WebDeepSourceItemAudit {
   evidenceKey: string;
   title?: string;
   url?: string;
+  /**
+   * The grounded search snippet as the selector saw it (before any deep
+   * content substitution), so a forensic review can judge whether a dropped
+   * source already hinted at the missing evidence. Diagnostic only.
+   */
+  snippet?: string;
   originalRank: number;
   editorialEligible: boolean;
   tourContentScore: number;
@@ -563,9 +616,21 @@ export class ExperienceAcquisitionService {
         extractedCandidateCount: 0,
         candidateCount: 0,
         candidateDecisions: [],
+        extractionAttempts: [],
         failureReason: 'web discovery providers not configured',
       };
     }
+    const discoveryExtractor = this.discoveryExtractor;
+
+    // Diagnostic state that must survive a throw from any later stage, so the
+    // failure is attributed to the stage that actually failed and earlier
+    // evidence (search facts, selection audit, prior extraction attempts) is
+    // not discarded.
+    let stage: WebAcquisitionStage = 'SEARCH';
+    let base: WebAcquisitionResult | undefined;
+    const extractionAttempts: WebExtractionAttemptAudit[] = [];
+    let deepSourceSelectionTrace: WebDeepSourceSelectionAudit | undefined;
+    let sourceContentRetrievalTrace: WebAcquisitionResult['sourceContentRetrieval'];
 
     try {
       const destinationCountryCode = plan.destination.destinationCountryCode;
@@ -588,7 +653,7 @@ export class ExperienceAcquisitionService {
         grounded.groundingStatus === 'failed' ||
         grounded.groundingStatus === 'unavailable';
 
-      const base: WebAcquisitionResult = {
+      base = {
         status: groundedFailed ? 'failed' : 'success',
         query: web.query,
         groundedProvider: grounded.provider,
@@ -611,6 +676,7 @@ export class ExperienceAcquisitionService {
         extractedCandidateCount: 0,
         candidateCount: 0,
         candidateDecisions: [],
+        extractionAttempts,
       };
 
       if (
@@ -620,6 +686,7 @@ export class ExperienceAcquisitionService {
       ) {
         return {
           ...base,
+          ...(groundedFailed ? { failedStage: 'SEARCH' as const } : {}),
           ...(grounded.failureReason
             ? { failureReason: grounded.failureReason }
             : {}),
@@ -647,14 +714,10 @@ export class ExperienceAcquisitionService {
         evidenceRequirements: [...plan.evidenceRequirements],
       };
 
-      let extracted = await this.discoveryExtractor.extractExperiences(
-        request,
-        grounded,
-        { bypassCache: true },
-      );
-
-      let candidateDecisions: WebCandidateAdmissionDecision[] =
-        extracted.candidates.map((candidate) => {
+      const decideAdmission = (
+        candidates: ExperienceCandidate[],
+      ): WebCandidateAdmissionDecision[] =>
+        candidates.map((candidate) => {
           const candidateShapeMatches = plan.evidenceRequirements.filter(
             (requirement) =>
               candidateSatisfiesEvidenceRequirement(candidate, requirement),
@@ -670,12 +733,52 @@ export class ExperienceAcquisitionService {
               : 'NO_MATCHING_EVIDENCE_REQUIREMENT',
           };
         });
+
+      // Runs one extraction over the current `grounded` evidence and appends
+      // its audit (completed or failed) before returning or rethrowing, so a
+      // later attempt can never overwrite an earlier one's evidence.
+      const runExtraction = async (inputKind: WebExtractionInputKind) => {
+        stage = 'EXTRACTION';
+        try {
+          const result = await discoveryExtractor.extractExperiences(
+            request,
+            grounded,
+            { bypassCache: true },
+          );
+          const decisions = decideAdmission(result.candidates);
+          extractionAttempts.push({
+            inputKind,
+            status: 'completed',
+            extractorProvider: result.provider,
+            extractorModel: result.model,
+            rawOutput: result.rawOutput,
+            validationErrors: result.validationErrors ?? [],
+            extractedCandidateCount: result.candidates.length,
+            admittedCandidateCount: decisions.filter((d) => d.accepted).length,
+            candidateDecisions: decisions,
+            sourceSupportAudits: result.sourceSupportAudits,
+          });
+          return { extracted: result, decisions };
+        } catch (error: any) {
+          extractionAttempts.push({
+            inputKind,
+            status: 'failed',
+            validationErrors: [],
+            extractedCandidateCount: 0,
+            admittedCandidateCount: 0,
+            candidateDecisions: [],
+            failureReason: error?.message ?? String(error),
+          });
+          throw error;
+        }
+      };
+
+      const initial = await runExtraction('grounded_snippets');
+      let extracted = initial.extracted;
+      let candidateDecisions = initial.decisions;
       let admissibleCandidates = candidateDecisions
         .filter((decision) => decision.accepted)
         .map((decision) => decision.candidate);
-
-      let deepSourceSelectionTrace: WebDeepSourceSelectionAudit | undefined;
-      let sourceContentRetrievalTrace: WebAcquisitionResult['sourceContentRetrieval'];
 
       const isMultiComponentRequested = plan.evidenceRequirements.includes(
         'MULTI_COMPONENT_EXPERIENCE',
@@ -696,6 +799,7 @@ export class ExperienceAcquisitionService {
         Boolean(this.webSourceContentProvider);
 
       if (hasCompositionGap && this.webSourceContentProvider) {
+        stage = 'SOURCE_SELECTION';
         const rejectedWalkCandidate = candidateDecisions.find(
           (d) =>
             !d.accepted &&
@@ -740,6 +844,7 @@ export class ExperienceAcquisitionService {
               evidenceKey: ev.key,
               title: ev.title,
               url: ev.url,
+              snippet: ev.snippet,
               originalRank,
               editorialEligible: false,
               tourContentScore,
@@ -753,6 +858,7 @@ export class ExperienceAcquisitionService {
               evidenceKey: ev.key,
               title: ev.title,
               url: ev.url,
+              snippet: ev.snippet,
               originalRank,
               editorialEligible: false,
               tourContentScore,
@@ -801,6 +907,7 @@ export class ExperienceAcquisitionService {
             evidenceKey: item.ev.key,
             title: item.ev.title,
             url: item.ev.url,
+            snippet: item.ev.snippet,
             originalRank: item.originalRank,
             editorialEligible: true,
             tourContentScore: item.tourContentScore,
@@ -827,6 +934,7 @@ export class ExperienceAcquisitionService {
             ? `MULTI_COMPONENT_EXPERIENCE candidate rejected for lack of required stops (${rejectedWalkCandidate.candidate.componentHints.length} component hints)`
             : 'MULTI_COMPONENT_EXPERIENCE required but initial extraction produced no admissible multi-component candidate';
 
+          stage = 'SOURCE_FETCH';
           const retrievalResult = await this.webSourceContentProvider.retrieve({
             urls: targetUrls,
             maxContentChars: DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
@@ -872,30 +980,9 @@ export class ExperienceAcquisitionService {
             });
 
             // Re-run semantic extraction with enriched grounded evidence
-            extracted = await this.discoveryExtractor.extractExperiences(
-              request,
-              grounded,
-              { bypassCache: true },
-            );
-
-            // Recompute candidate decisions
-            candidateDecisions = extracted.candidates.map((candidate) => {
-              const candidateShapeMatches = plan.evidenceRequirements.filter(
-                (requirement) =>
-                  candidateSatisfiesEvidenceRequirement(candidate, requirement),
-              );
-              const accepted = candidateShapeMatches.length > 0;
-              return {
-                candidate,
-                requestedRequirements: [...plan.evidenceRequirements],
-                candidateShapeMatches,
-                accepted,
-                reason: accepted
-                  ? 'MATCHING_EVIDENCE_REQUIREMENT'
-                  : 'NO_MATCHING_EVIDENCE_REQUIREMENT',
-              };
-            });
-
+            const deep = await runExtraction('deep_source_content');
+            extracted = deep.extracted;
+            candidateDecisions = deep.decisions;
             admissibleCandidates = candidateDecisions
               .filter((decision) => decision.accepted)
               .map((decision) => decision.candidate);
@@ -935,18 +1022,41 @@ export class ExperienceAcquisitionService {
         sourceContentRetrieval: sourceContentRetrievalTrace,
       };
     } catch (error: any) {
+      const failureReason = error?.message ?? 'Web acquisition failed';
       this.logger.warn(
-        `Web acquisition threw: ${error?.message ?? String(error)}`,
+        `Web acquisition threw during ${stage}: ${error?.message ?? String(error)}`,
       );
+      // Keep the facts established before the failing stage. The grounded
+      // provider identity is deliberately NOT carried: acquisition health
+      // accounting keys a failed web result by `groundedProvider`, and a
+      // post-search failure (e.g. an extractor timeout) must not be counted
+      // as that search provider failing. `failedStage` names what failed.
+      const searchFacts: WebAcquisitionResult = {
+        ...(base ?? {
+          status: 'failed',
+          query: web.query,
+          evidenceKeys: [],
+          validationErrors: [],
+          extractedCandidateCount: 0,
+          candidateCount: 0,
+          candidateDecisions: [],
+          extractionAttempts,
+        }),
+      };
+      delete searchFacts.groundedProvider;
+      delete searchFacts.groundedModel;
       return {
+        ...searchFacts,
         status: 'failed',
-        query: web.query,
-        evidenceKeys: [],
-        validationErrors: [],
-        extractedCandidateCount: 0,
-        candidateCount: 0,
-        candidateDecisions: [],
-        failureReason: error?.message ?? 'Web acquisition failed',
+        extractionAttempts,
+        ...(deepSourceSelectionTrace
+          ? { deepSourceSelection: deepSourceSelectionTrace }
+          : {}),
+        ...(sourceContentRetrievalTrace
+          ? { sourceContentRetrieval: sourceContentRetrievalTrace }
+          : {}),
+        failedStage: stage,
+        failureReason,
       };
     }
   }
