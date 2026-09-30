@@ -13,8 +13,9 @@ without a second project-management registry.
 - A fresh agent can reconstruct the current checkpoint, next authorized action,
   and unresolved blockers/findings from canonical progress state without a
   manually rebuilt chat prompt.
-- `scripts/agent-preflight` validates the same contract, integration lineage,
-  mergeability, and actual changed-file overlap.
+- `scripts/agent-preflight` validates local write safety separately from
+  integration readiness, alongside the same contract, lineage, and actual
+  changed-file overlap.
 - PR/CI use preflight as the single deterministic governance policy.
 - Architecture review has a documented warning contract; it is not bash CI.
 - Detailed review fixes remain anchored to the PR/reviewed HEAD rather than
@@ -78,6 +79,12 @@ Shell governance should expose facts and registered worktree locations, not hide
 destructive Git operations. Automatic checkout switching is not required for
 this foundation. A future agent skill may use `agent-track` facts to select/open
 the correct registered worktree, then run context + preflight there.
+
+Preflight has two independent results. Local execution blocks writes only for
+an unsafe or invalid current checkout; an integration merge conflict remains
+visible as **INTEGRATION BLOCKED** while isolated work may continue. CI runs
+the same primitive with `--ci`, where integration readiness is enforced as a
+hard failure.
 
 ## Out of scope
 

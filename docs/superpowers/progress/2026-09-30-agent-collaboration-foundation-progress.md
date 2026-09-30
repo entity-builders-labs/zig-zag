@@ -34,21 +34,25 @@ git diff --check
 PASS
 ```
 
+GOV-GATE-1 verification passed with 16 governance cases. Local preflight now
+returns WRITE AUTHORIZED plus INTEGRATION BLOCKED for the intentionally
+unresolved moving-target conflict; the same conflict remains a CI hard failure.
+
 The PR remains draft and unmerged. Integration safety must be re-evaluated
 against the then-current `feat/preference-first-selection` head before merge;
 do not auto-merge, auto-rebase, or weaken governance checks to make it mergeable.
 
 ## Current checkpoint
 
-Milestone 2B verification accepted. Do not begin the next checkpoint without
-explicit authorization.
+Milestone 2B verification accepted. GOV-GATE-1 corrects preflight so local
+write readiness and integration readiness are independent facts.
 
 ## Next authorized action
 
-Await explicit authorization for the next governance checkpoint. Before any
-integration attempt, rerun canonical preflight against the then-current
-`feat/preference-first-selection` head; do not auto-merge, auto-rebase, or
-resolve integration conflicts as part of this accepted checkpoint.
+Implement the bounded `agent-track locate <track-id>` discovery primitive.
+Before any integration attempt, rerun canonical preflight against the
+then-current `feat/preference-first-selection` head; do not auto-merge,
+auto-rebase, or resolve integration conflicts as part of this track.
 
 ## Open findings / blockers
 
@@ -56,6 +60,9 @@ resolve integration conflicts as part of this accepted checkpoint.
   `feat/current` does not contain `other.md`, `origin/feat/other` supplies its
   own ACTIVE progress header, `agent-track list` discovers that peer, and
   preflight reports real same-file overlap from branch deltas.
+- GOV-GATE-1: CLOSED. Local preflight now reports a merge-tree conflict as
+  INTEGRATION BLOCKED while preserving WRITE AUTHORIZED for a clean isolated
+  checkout; CI keeps the same conflict as a hard integration failure.
 - PR #70 is intentionally DRAFT and UNMERGED.
 - The integration branch is active product work and may advance independently.
   Re-run canonical preflight/mergeability checks immediately before integration.

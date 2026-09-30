@@ -74,8 +74,8 @@ expect_fail bash -c "cd '$TMP' && bash scripts/agent-preflight --allow-dirty --n
 mv "$TMP/docs/superpowers/progress/current.md.bak" "$TMP/docs/superpowers/progress/current.md"
 pass 'inactive track is not write-authorized'
 
-expect_ok bash -c "cd '$TMP' && GITHUB_HEAD_REF=feat/current GITHUB_BASE_REF=main bash scripts/agent-preflight --ci --no-fetch"
-pass 'correct integration target passes'
+expect_ok bash -c "cd '$TMP' && GITHUB_HEAD_REF=feat/current GITHUB_BASE_REF=main bash scripts/agent-preflight --ci --no-fetch | grep -q 'INTEGRATION READY'"
+pass 'clean merge-tree reports integration readiness'
 
 expect_fail bash -c "cd '$TMP' && GITHUB_HEAD_REF=feat/current GITHUB_BASE_REF=wrong bash scripts/agent-preflight --ci --no-fetch"
 pass 'wrong PR target fails'
@@ -108,8 +108,19 @@ printf 'main conflict\n' >"$TMP/shared.txt"
 git -C "$TMP" add shared.txt && git -C "$TMP" commit -qm conflict
 git -C "$TMP" update-ref refs/remotes/origin/main HEAD
 git -C "$TMP" checkout -q feat/current
-expect_fail bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch"
-pass 'integration merge conflict remains hard failure'
+expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'WRITE AUTHORIZED'"
+expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'INTEGRATION BLOCKED'"
+expect_ok bash -c "cd '$TMP' && ! bash scripts/agent-preflight --no-fetch | grep -q 'INTEGRATION READY'"
+pass 'local integration conflict blocks merging but authorizes isolated writes'
+
+expect_fail bash -c "cd '$TMP' && GITHUB_HEAD_REF=feat/current GITHUB_BASE_REF=main bash scripts/agent-preflight --ci --no-fetch"
+pass 'CI integration conflict remains a hard failure'
+
+INVALID_BASE="$(git -C "$TMP" rev-parse feat/other)"
+sed -i.bak "s/base=$BASE/base=$INVALID_BASE/" "$TMP/docs/superpowers/progress/current.md"
+expect_fail bash -c "cd '$TMP' && bash scripts/agent-preflight --allow-dirty --no-fetch"
+mv "$TMP/docs/superpowers/progress/current.md.bak" "$TMP/docs/superpowers/progress/current.md"
+pass 'invalid base ancestry remains a local hard failure'
 
 expect_ok bash -c "cd '$TMP' && ! rg -q \"ow\"\"ns=|tou\"\"ches=\" docs/superpowers/progress"
 pass 'track headers need no manual ownership tokens'

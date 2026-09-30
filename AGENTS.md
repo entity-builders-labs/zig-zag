@@ -47,8 +47,11 @@ bash scripts/agent-preflight
 ```
 
 The preflight may fetch remote refs, but it must not modify tracked files, the
-index, commits, or branch history. If it exits non-zero, **STOP before writing**
-and report the failed gate.
+index, commits, or branch history. Its local result distinguishes **WRITE
+READY** from **INTEGRATION READY**: a conflict with a moving integration target
+blocks integration but does not by itself block isolated writes. A local
+non-zero result means the current checkout is unsafe or invalid; **STOP before
+writing** and report that failed gate.
 
 Run `scripts/agent-track context` first when asked to continue work. It
 deterministically identifies the current ACTIVE track, its progress and plan,
@@ -74,8 +77,10 @@ verification, and record the next blocker inside the same checkpoint if needed.
 
 Treat the checks as follows:
 
-- declared base-snapshot mismatch or non-mutating merge conflict with the
-  current integration target: hard stop;
+- declared base-snapshot mismatch: local write hard stop;
+- non-mutating merge conflict with the current integration target: visible
+  integration blocker; it is a hard failure at the CI/PR boundary, not a local
+  write failure;
 - the lineage base branch advancing after initiative creation: warning; do not
   auto-rebase/merge solely to silence it;
 - same-file overlap with another active track: warning requiring explicit
@@ -105,7 +110,8 @@ Pull requests are the integration boundary for initiative work.
 - Fill the track contract in `.github/pull_request_template.md` from the
   branch's ACTIVE progress header.
 - Keep `scripts/agent-preflight` as the single collaboration-policy primitive.
-  Local agents run it directly; CI runs the same script with `--ci`.
+  Local agents run it directly for write safety and integration visibility; CI
+  runs the same script with `--ci` to enforce integration readiness.
 - A CI failure in the `agent-governance` job is a hard integration stop. Do
   not duplicate or weaken the policy inside workflow YAML to make the check
   pass.

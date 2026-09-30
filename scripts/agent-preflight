@@ -14,10 +14,19 @@ for arg in "$@"; do
   esac
 done
 
-failures=0; warnings=0
+write_failures=0; integration_failures=0; warnings=0; integration_blocked=0
 pass() { printf 'PASS  %-24s %s\n' "$1" "${2:-}"; }
 warn() { printf 'WARN  %-24s %s\n' "$1" "${2:-}"; warnings=$((warnings + 1)); }
-fail() { printf 'FAIL  %-24s %s\n' "$1" "${2:-}"; failures=$((failures + 1)); }
+fail_write() { printf 'FAIL  %-24s %s\n' "$1" "${2:-}"; write_failures=$((write_failures + 1)); }
+block_integration() {
+  integration_blocked=1
+  if [ "$CI_MODE" -eq 1 ]; then
+    printf 'FAIL  %-24s %s\n' "$1" "${2:-}"
+    integration_failures=$((integration_failures + 1))
+  else
+    warn "$1" "${2:-}"
+  fi
+}
 
 TOP="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 [ -n "$TOP" ] || { echo 'Not inside a Git worktree.' >&2; exit 1; }
@@ -26,29 +35,29 @@ source "$TOP/scripts/agent-track"
 
 CURRENT_BRANCH="$(git branch --show-current)"
 [ "$CI_MODE" -eq 1 ] && [ -n "${GITHUB_HEAD_REF:-}" ] && CURRENT_BRANCH="$GITHUB_HEAD_REF"
-if [ -n "$CURRENT_BRANCH" ]; then pass "branch" "$CURRENT_BRANCH"; else fail "branch" "detached HEAD; no track can be resolved"; fi
+if [ -n "$CURRENT_BRANCH" ]; then pass "branch" "$CURRENT_BRANCH"; else fail_write "branch" "detached HEAD; no track can be resolved"; fi
 pass "worktree" "$TOP"
 
 ORIGIN_URL="$(git remote get-url origin 2>/dev/null || true)"
 case "$ORIGIN_URL" in
   *github.com:entity-builders-labs/zig-zag.git|*github.com/entity-builders-labs/zig-zag.git|*github.com/entity-builders-labs/zig-zag) pass "origin" "$ORIGIN_URL" ;;
-  *) fail "origin" "expected entity-builders-labs/zig-zag, got: ${ORIGIN_URL:-<missing>}" ;;
+  *) fail_write "origin" "expected entity-builders-labs/zig-zag, got: ${ORIGIN_URL:-<missing>}" ;;
 esac
 
 if [ "$ALLOW_DIRTY" -eq 0 ] && [ -n "$(git status --porcelain)" ]; then
-  fail "working tree" "dirty; commit/stash intentional prior work or use --allow-dirty for inspection only"
+  fail_write "working tree" "dirty; commit/stash intentional prior work or use --allow-dirty for inspection only"
 else
   pass "working tree" "clean or explicitly allowed"
 fi
 
 if [ "$NO_FETCH" -eq 0 ]; then
-  if git fetch origin --prune >/dev/null 2>&1; then pass "remote refs" "fetched origin --prune"; else fail "remote refs" "git fetch origin --prune failed"; fi
+  if git fetch origin --prune >/dev/null 2>&1; then pass "remote refs" "fetched origin --prune"; else fail_write "remote refs" "git fetch origin --prune failed"; fi
 else
   warn "remote refs" "fetch skipped by --no-fetch"
 fi
 
 if [ -z "$CURRENT_BRANCH" ] || ! resolve_track_by_branch "$TOP" "$CURRENT_BRANCH"; then
-  fail "track" "expected exactly one ACTIVE progress track for ${CURRENT_BRANCH:-<detached>}"
+  fail_write "track" "expected exactly one ACTIVE progress track for ${CURRENT_BRANCH:-<detached>}"
 else
   IFS=$'\t' read -r PROGRESS MARKER <<<"$RESOLVED_TRACK_RECORD"
   TRACK_ID="$(track_field "$MARKER" id)"
@@ -58,9 +67,9 @@ else
   pass "track" "$TRACK_ID ($PROGRESS)"
 
   if [ -z "$INTEGRATION_BRANCH" ] || [ -z "$BASE_SHA" ] || [ -z "$PLAN" ]; then
-    fail "track contract" "requires integration, base, and plan in $PROGRESS"
+    fail_write "track contract" "requires integration, base, and plan in $PROGRESS"
   elif [ ! -f "$TOP/$PLAN" ]; then
-    fail "track plan" "missing $PLAN"
+    fail_write "track plan" "missing $PLAN"
   else
     pass "track contract" "integration=$INTEGRATION_BRANCH plan=$PLAN"
   fi
@@ -69,30 +78,30 @@ else
     if [ "$GITHUB_BASE_REF" = "$INTEGRATION_BRANCH" ]; then
       pass "PR integration target" "$GITHUB_BASE_REF matches declared integration"
     else
-      fail "PR integration target" "PR targets $GITHUB_BASE_REF but track declares $INTEGRATION_BRANCH"
+      block_integration "PR integration target" "PR targets $GITHUB_BASE_REF but track declares $INTEGRATION_BRANCH"
     fi
   fi
 
   if [ -z "$BASE_SHA" ]; then
-    fail "base snapshot" "track is missing base"
+    fail_write "base snapshot" "track is missing base"
   elif ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
-    fail "base snapshot" "$BASE_SHA is not available as a commit"
+    fail_write "base snapshot" "$BASE_SHA is not available as a commit"
   elif git merge-base --is-ancestor "$BASE_SHA" HEAD; then
     pass "base ancestry" "$BASE_SHA is an ancestor of HEAD"
   else
-    fail "base ancestry" "HEAD does not contain declared base snapshot $BASE_SHA"
+    fail_write "base ancestry" "HEAD does not contain declared base snapshot $BASE_SHA"
   fi
 
   INTEGRATION_REF="origin/$INTEGRATION_BRANCH"
   if ! git show-ref --verify --quiet "refs/remotes/$INTEGRATION_REF"; then
-    fail "integration target ref" "$INTEGRATION_REF does not exist locally after fetch"
+    fail_write "integration target ref" "$INTEGRATION_REF does not exist locally after fetch"
   else
     merge_status=0
     merge_output="$(git merge-tree --write-tree HEAD "$INTEGRATION_REF" 2>&1)" || merge_status=$?
     case "$merge_status" in
-      0) pass "integration conflict" "non-mutating merge-tree clean vs $INTEGRATION_REF" ;;
-      1) fail "integration conflict" "merge-tree reports conflicts vs $INTEGRATION_REF"; printf '%s\n' "$merge_output" | sed -n '1,20p' ;;
-      *) fail "integration conflict" "git merge-tree --write-tree failed with status $merge_status"; printf '%s\n' "$merge_output" | sed -n '1,20p' ;;
+      0) pass "integration readiness" "non-mutating merge-tree clean vs $INTEGRATION_REF" ;;
+      1) block_integration "integration conflict" "merge-tree reports conflicts vs $INTEGRATION_REF"; printf '%s\n' "$merge_output" | sed -n '1,20p' ;;
+      *) fail_write "integration readiness" "git merge-tree --write-tree failed with status $merge_status"; printf '%s\n' "$merge_output" | sed -n '1,20p' ;;
     esac
   fi
 
@@ -126,8 +135,14 @@ else
 fi
 
 printf '\n'
-if [ "$failures" -gt 0 ]; then
-  printf 'STOP BEFORE WRITE — %d hard failure(s), %d warning(s).\n' "$failures" "$warnings"
+if [ "$write_failures" -gt 0 ]; then
+  printf 'WRITE BLOCKED — %d local hard failure(s), %d warning(s).\n' "$write_failures" "$warnings"
+  [ "$integration_blocked" -eq 0 ] || printf 'INTEGRATION BLOCKED — resolve reported integration blockers before merging.\n'
+  exit 1
+fi
+if [ "$integration_failures" -gt 0 ]; then
+  printf 'STOP INTEGRATION — %d integration blocker(s), %d warning(s).\n' "$integration_failures" "$warnings"
   exit 1
 fi
 printf 'WRITE AUTHORIZED — 0 hard failures, %d warning(s).\n' "$warnings"
+[ "$integration_blocked" -eq 0 ] && printf 'INTEGRATION READY\n' || printf 'INTEGRATION BLOCKED — resolve reported integration blockers before merging.\n'
