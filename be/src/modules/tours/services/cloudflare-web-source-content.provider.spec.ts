@@ -67,7 +67,7 @@ describe('CloudflareWebSourceContentProvider', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('retrieves content via Cloudflare markdown endpoint, caches it and truncates if needed', async () => {
+  it('retrieves complete content via Cloudflare markdown endpoint and caches it, never slicing it', async () => {
     const provider = new CloudflareWebSourceContentProvider(
       config,
       aiCache as any,
@@ -84,7 +84,6 @@ describe('CloudflareWebSourceContentProvider', () => {
 
     const res = await provider.retrieve({
       urls: ['https://example.com/guide'],
-      maxContentChars: 25,
     });
 
     expect(res.retrievedCount).toBe(1);
@@ -93,8 +92,7 @@ describe('CloudflareWebSourceContentProvider', () => {
       status: 'retrieved',
       contentType: 'markdown',
       contentChars: markdownBody.length,
-      truncated: true,
-      content: markdownBody.slice(0, 25),
+      content: markdownBody,
     });
 
     // Check Cloudflare endpoint and headers
@@ -137,7 +135,6 @@ describe('CloudflareWebSourceContentProvider', () => {
       requestedUrl: 'https://example.com/cached',
       status: 'retrieved',
       content: cachedContent,
-      truncated: false,
     });
     expect(fetchMock).not.toHaveBeenCalled();
   });

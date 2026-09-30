@@ -3,6 +3,8 @@ import { StructuredExperienceCandidateSynthesizerService } from './structured-ex
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
 import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-plan.interface';
 import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fingerprint.util';
+import { DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS } from '../interfaces/web-source-content.interface';
+import { windowSourceContent } from '../utils/source-content-windowing.util';
 
 describe('ExperienceAcquisitionService', () => {
   const input = {
@@ -1089,6 +1091,119 @@ describe('ExperienceAcquisitionService', () => {
           expect(result.candidates[0].name).toBe('San Telmo complete walk');
         });
 
+        describe.each(['tavily', 'cloudflare'] as const)(
+          'canonical source-content windowing (%s transport)',
+          (providerName) => {
+            const intro = Array.from(
+              { length: 90 },
+              (_, i) =>
+                `Intro paragraph ${i}: the neighborhood is lively, prices went up and hotels are plentiful.`,
+            ).join('\n\n');
+            const lateSection = [
+              '## Sample San Telmo Itineraries',
+              '',
+              '### Morning Itinerary',
+              '',
+              'Start at Plaza Dorrego, then walk down Defensa to Parque Lezama.',
+            ].join('\n');
+            const fullContent = `# San Telmo Walk\n\n${intro}\n\n${lateSection}\n\n## Outro\n\n${intro}`;
+
+            it('windows the complete retrieved source by relevance before re-extraction, identically for every transport', async () => {
+              expect(fullContent.indexOf('Parque Lezama')).toBeGreaterThan(
+                DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+              );
+              const grounded = {
+                ...groundedWithUrls,
+                evidence: groundedWithUrls.evidence.map((e) =>
+                  e.key === 'ev-1'
+                    ? {
+                        ...e,
+                        snippet: 'First hand tips and sample itineraries',
+                      }
+                    : e,
+                ),
+              };
+              const extractExperiences = jest.fn().mockResolvedValue({
+                candidates: [],
+                validationErrors: [],
+                provider: 'gemini',
+                model: 'gemini-x',
+                rawOutput: '{"candidates":[]}',
+              });
+              const webSourceContentProvider: any = {
+                providerName,
+                retrieve: jest.fn().mockResolvedValue({
+                  provider: providerName,
+                  requestedCount: 2,
+                  retrievedCount: 1,
+                  items: [
+                    {
+                      requestedUrl: 'https://buenosaires.travel/san-telmo-walk',
+                      status: 'retrieved',
+                      contentType: 'markdown',
+                      content: fullContent,
+                      contentChars: fullContent.length,
+                      provider: providerName,
+                    },
+                  ],
+                  totalDurationMs: 10,
+                }),
+              };
+
+              const service = new ExperienceAcquisitionService(
+                {} as any,
+                {} as any,
+                { acquire: jest.fn() } as any,
+                { acquire: jest.fn() } as any,
+                new StructuredExperienceCandidateSynthesizerService(),
+                new StructuredCandidateCorroborationService(),
+                undefined,
+                { search: jest.fn().mockResolvedValue(grounded) } as any,
+                { extractExperiences } as any,
+                undefined,
+                webSourceContentProvider,
+              );
+
+              const result = await service.executePlan(multiComponentWebPlan);
+
+              expect(extractExperiences).toHaveBeenCalledTimes(2);
+              const enriched =
+                extractExperiences.mock.calls[1][1].evidence.find(
+                  (e: any) => e.key === 'ev-1',
+                );
+              expect(enriched.snippet.length).toBeLessThanOrEqual(
+                DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+              );
+              expect(enriched.snippet).toContain(
+                'Start at Plaza Dorrego, then walk down Defensa to Parque Lezama.',
+              );
+              expect(enriched.snippet).toBe(
+                windowSourceContent(
+                  fullContent,
+                  {
+                    titles: ['San Telmo Walk'],
+                    snippets: ['First hand tips and sample itineraries'],
+                    queries: ['Buenos Aires historic walk'],
+                  },
+                  DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+                ).content,
+              );
+
+              const traceItem =
+                result.webResults?.[0].sourceContentRetrieval?.items[0];
+              expect(traceItem?.content).toBe(enriched.snippet);
+              expect(traceItem?.contentChars).toBe(fullContent.length);
+              expect(traceItem?.windowing).toMatchObject({
+                selectionStrategy: 'RELEVANCE_WINDOWS',
+                originalContentChars: fullContent.length,
+                retainedContentChars: enriched.snippet.length,
+                maxChars: DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+                truncated: true,
+              });
+            });
+          },
+        );
+
         it('skips deep retrieval when MULTI_COMPONENT_EXPERIENCE is already satisfied on the first pass', async () => {
           const search = jest.fn().mockResolvedValue(groundedWithUrls);
           const multiComponentCandidate = {
@@ -1645,7 +1760,6 @@ describe('ExperienceAcquisitionService', () => {
             // Matches URLs passed to retrieve
             expect(webSourceContentProvider.retrieve).toHaveBeenCalledWith({
               urls: selection.selectedUrls,
-              maxContentChars: expect.any(Number),
             });
 
             // Every considered source appears in items in original order

@@ -44,6 +44,8 @@
  * "Structured source support").
  */
 
+import { SOURCE_EXCERPT_SEPARATOR } from './source-content-windowing.util';
+
 export type ComponentSourceSupportReason =
   | 'NO_SUPPORT_SPAN'
   | 'MISSING_EVIDENCE_TEXT'
@@ -129,13 +131,28 @@ function extractMatchingSpan(candidate: string, trimmedSpan: string): string {
   return trimmedSpan;
 }
 
+/**
+ * A windowed source (`source-content-windowing.util.ts`) is several verbatim
+ * excerpts joined by a structural separator that is NOT source text. Each
+ * excerpt is verified on its own, so a span can neither bridge two
+ * non-contiguous excerpts nor cite the separator marker.
+ */
+function sourceTextSegments(record: EvidenceSupportText): string[] {
+  const segments: string[] = [];
+  if (typeof record.title === 'string') segments.push(record.title);
+  if (typeof record.text === 'string') {
+    segments.push(...record.text.split(SOURCE_EXCERPT_SEPARATOR));
+  }
+  return segments;
+}
+
 function findMatchingRecordSpan(
   record: EvidenceSupportText,
   normalizedSpan: string,
   trimmedSpan: string,
 ): string | undefined {
-  for (const text of [record.title, record.text]) {
-    if (typeof text !== 'string' || !text.trim()) continue;
+  for (const text of sourceTextSegments(record)) {
+    if (!text.trim()) continue;
     if (normalize(text).includes(normalizedSpan)) {
       return extractMatchingSpan(text, trimmedSpan);
     }

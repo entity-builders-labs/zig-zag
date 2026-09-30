@@ -34,6 +34,10 @@ import {
   WebSourceContentProviderName,
   WebSourceContentResultItem,
 } from '../interfaces/web-source-content.interface';
+import {
+  SourceContentWindowingAudit,
+  windowSourceContent,
+} from '../utils/source-content-windowing.util';
 import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acquisition.provider';
 import { WikivoyageAcquisitionProvider } from '../providers/wikivoyage-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
@@ -106,6 +110,16 @@ export interface ResolverEvidenceItem {
 }
 
 /**
+ * One source-content retrieval as recorded in the trace. For a retrieved
+ * source, `content` is exactly the windowed text handed to extraction (never
+ * a second full copy of the page) and `windowing` explains which source text
+ * was kept and why; `contentChars` stays the transport's full length.
+ */
+export type WebSourceContentTraceItem = WebSourceContentResultItem & {
+  windowing?: SourceContentWindowingAudit;
+};
+
+/**
  * Per-`web` SourcePlan execution record. Web does NOT produce SourceObservations
  * — grounded evidence goes straight to the shared discovery extractor and yields
  * ExperienceCandidates — so it is reported separately rather than faked into
@@ -160,7 +174,7 @@ export interface WebAcquisitionResult {
     requestedUrls: string[];
     retrievedUrls: string[];
     failedUrls: string[];
-    items: WebSourceContentResultItem[];
+    items: WebSourceContentTraceItem[];
     totalDurationMs?: number;
     reExtractionAttempted?: boolean;
     selectionAudit?: WebDeepSourceSelectionAudit;
@@ -937,10 +951,41 @@ export class ExperienceAcquisitionService {
           stage = 'SOURCE_FETCH';
           const retrievalResult = await this.webSourceContentProvider.retrieve({
             urls: targetUrls,
-            maxContentChars: DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
           });
 
-          const retrievedItems = retrievalResult.items.filter(
+          // The single canonical windowing policy: each source's complete
+          // text is reduced to its most relevant excerpts under the fixed
+          // evidence budget, ranked against context already known for that
+          // exact source (its grounded titles/snippets) and this request.
+          const queries = [web.query, web.semanticQuery].filter(
+            (q): q is string => Boolean(q),
+          );
+          const traceItems: WebSourceContentTraceItem[] =
+            retrievalResult.items.map((item) => {
+              if (item.status !== 'retrieved' || !item.content) return item;
+              const sameSource = grounded.evidence.filter(
+                (e) => e.url === item.requestedUrl,
+              );
+              const window = windowSourceContent(
+                item.content,
+                {
+                  titles: sameSource
+                    .map((e) => e.title)
+                    .filter((t): t is string => Boolean(t)),
+                  snippets: sameSource
+                    .map((e) => e.snippet)
+                    .filter((t): t is string => Boolean(t)),
+                  queries,
+                },
+                DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+              );
+              return {
+                ...item,
+                content: window.content,
+                windowing: window.audit,
+              };
+            });
+          const retrievedItems = traceItems.filter(
             (item) => item.status === 'retrieved' && item.content,
           );
 
@@ -953,7 +998,7 @@ export class ExperienceAcquisitionService {
             failedUrls: retrievalResult.items
               .filter((i) => i.status === 'failed')
               .map((i) => i.requestedUrl),
-            items: retrievalResult.items,
+            items: traceItems,
             totalDurationMs: retrievalResult.totalDurationMs,
             reExtractionAttempted: false,
             selectionAudit: deepSourceSelectionTrace,

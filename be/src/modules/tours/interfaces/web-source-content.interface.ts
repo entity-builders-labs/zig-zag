@@ -66,13 +66,6 @@ export interface WebSourceContentRequest {
    * returning one item per distinct URL.
    */
   urls: string[];
-  /**
-   * Maximum characters retained per source. The caller (acquisition
-   * orchestration) owns this bound so several enriched evidence entries in
-   * one query cannot blow up the extractor's own prompt budget. Absent ->
-   * `DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS`.
-   */
-  maxContentChars?: number;
 }
 
 export interface WebSourceContentResultItem {
@@ -82,20 +75,18 @@ export interface WebSourceContentResultItem {
   finalUrl?: string;
   status: WebSourceContentStatus;
   /**
-   * The page's own readable content, bounded by `maxContentChars`. Present
-   * only when `status === 'retrieved'`.
+   * The page's own readable content, COMPLETE as the transport returned it.
+   * Present only when `status === 'retrieved'`. A provider never bounds or
+   * slices it: choosing which source text fits the extractor's evidence
+   * budget is the single downstream policy `windowSourceContent`
+   * (`utils/source-content-windowing.util.ts`), which has the per-source
+   * relevance context (title, grounded snippet, research query) that a
+   * transport does not.
    */
   content?: string;
   contentType?: WebSourceContentType;
-  /** Characters retained after the bound was applied. */
+  /** Characters of `content` as returned by the transport. */
   contentChars?: number;
-  /**
-   * True when the adapter cut the retrieved content down to `maxContentChars`.
-   * Optional because a transport that bounds content on its own side cannot
-   * report whether it did, and reporting `false` there would assert an unknown
-   * as a fact. Both current adapters bound client-side, so they always set it.
-   */
-  truncated?: boolean;
   /** The provider that answered. Never a fallback — see the file header. */
   provider: WebSourceContentProviderName;
   failureReason?: WebSourceContentFailureReason;
@@ -130,10 +121,10 @@ export const EXPERIENCE_WEB_SOURCE_CONTENT_PROVIDER =
   'EXPERIENCE_WEB_SOURCE_CONTENT_PROVIDER';
 
 /**
- * Default per-source character bound. Generous enough to cover a listicle's
- * itemized stops (which sit well before this point in a real travel article),
- * small enough that enriching several evidence entries in one query does not
- * blow up the extractor prompt. Same bound the pre-capability Tavily search
- * enrichment used, so the extractor's prompt budget is unchanged.
+ * Per-source evidence budget (characters) handed to the extractor after
+ * `windowSourceContent` selects the most relevant source text. Small enough
+ * that enriching several evidence entries in one query does not blow up the
+ * extractor prompt. Same bound the pre-capability Tavily search enrichment
+ * used, so the extractor's prompt budget is unchanged.
  */
 export const DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS = 6000;

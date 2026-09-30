@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AiCacheService } from '@shared/ai/services/ai-cache.service';
 import {
-  DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
   WebSourceContentFailureReason,
   WebSourceContentProvider,
   WebSourceContentRequest,
@@ -24,8 +23,8 @@ interface TavilyExtractApiResponse {
 /**
  * Web source content retrieval provider backed by Tavily's licensed /extract
  * endpoint. Implements the provider-neutral `WebSourceContentProvider` contract:
- * given known URLs, returns bounded markdown/text without searching, ranking,
- * or filtering.
+ * given known URLs, returns their complete markdown/text without searching,
+ * ranking, filtering, or bounding it (see `WebSourceContentResultItem.content`).
  *
  * Also preserves the legacy `extract(urls)` method and `TavilyExtractService`
  * alias so callers (such as Gemini grounded search) and existing unit tests
@@ -54,8 +53,6 @@ export class TavilyWebSourceContentProvider
     request: WebSourceContentRequest,
   ): Promise<WebSourceContentResult> {
     const startTime = Date.now();
-    const maxChars =
-      request.maxContentChars ?? DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS;
     const requestedUrls = Array.from(
       new Set((request.urls || []).filter(Boolean)),
     ).slice(0, this.maxUrlsPerCall);
@@ -94,17 +91,12 @@ export class TavilyWebSourceContentProvider
                 durationMs: 0,
               });
             } else {
-              const truncated = rawContent.length > maxChars;
-              const content = truncated
-                ? rawContent.slice(0, maxChars)
-                : rawContent;
               items.push({
                 requestedUrl: url,
                 status: 'retrieved',
-                content,
+                content: rawContent,
                 contentType: 'markdown',
                 contentChars: rawContent.length,
-                truncated,
                 provider: this.providerName,
                 durationMs: 0,
               });
@@ -210,17 +202,12 @@ export class TavilyWebSourceContentProvider
             durationMs: callDuration,
           });
         } else {
-          const truncated = rawContent.length > maxChars;
-          const content = truncated
-            ? rawContent.slice(0, maxChars)
-            : rawContent;
           items.push({
             requestedUrl: item.url,
             status: 'retrieved',
-            content,
+            content: rawContent,
             contentType: 'markdown',
             contentChars: rawContent.length,
-            truncated,
             provider: this.providerName,
             durationMs: callDuration,
           });
@@ -291,10 +278,7 @@ export class TavilyWebSourceContentProvider
    * Compatibility adapter for legacy callers (e.g. GeminiGroundedSearchService).
    */
   async extract(urls: string[]): Promise<Map<string, TavilyExtractResult>> {
-    const result = await this.retrieve({
-      urls,
-      maxContentChars: DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
-    });
+    const result = await this.retrieve({ urls });
 
     const map = new Map<string, TavilyExtractResult>();
     for (const item of result.items) {

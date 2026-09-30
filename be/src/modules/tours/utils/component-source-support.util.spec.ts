@@ -1,4 +1,5 @@
 import { verifyTextualComponentSourceSupport } from './component-source-support.util';
+import { SOURCE_EXCERPT_SEPARATOR } from './source-content-windowing.util';
 
 describe('verifyTextualComponentSourceSupport', () => {
   it('accepts a supportSpan found only in the cited evidence record title, not its snippet (DECLARED_KEY_VERIFIED)', () => {
@@ -261,5 +262,54 @@ describe('verifyTextualComponentSourceSupport', () => {
     if (result.supported) {
       expect(result.verifiedSupportSpan).toContain('Caminito street');
     }
+  });
+
+  describe('windowed source content (non-contiguous excerpts)', () => {
+    const windowed = new Map([
+      [
+        'ev-1',
+        {
+          title: 'A guide',
+          text: [
+            'Start at Alfa Crux for a tasting.',
+            'Finish at Bodega Azul at sunset.',
+          ].join(SOURCE_EXCERPT_SEPARATOR),
+        },
+      ],
+    ]);
+
+    it('verifies a span that lies inside one retained excerpt', () => {
+      const result = verifyTextualComponentSourceSupport(
+        'Finish at Bodega Azul',
+        ['ev-1'],
+        windowed,
+      );
+      expect(result).toMatchObject({
+        supported: true,
+        verifiedSupportSpan: 'Finish at Bodega Azul',
+        attributionStatus: 'DECLARED_KEY_VERIFIED',
+      });
+    });
+
+    it('rejects a span that bridges two excerpts across the structural separator', () => {
+      const result = verifyTextualComponentSourceSupport(
+        'for a tasting. […] Finish at Bodega Azul',
+        ['ev-1'],
+        windowed,
+      );
+      expect(result).toMatchObject({
+        supported: false,
+        reason: 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
+      });
+    });
+
+    it('never accepts the separator marker itself as source evidence', () => {
+      const result = verifyTextualComponentSourceSupport(
+        '[…]',
+        ['ev-1'],
+        windowed,
+      );
+      expect(result.supported).toBe(false);
+    });
   });
 });

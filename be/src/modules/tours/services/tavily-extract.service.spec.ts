@@ -168,7 +168,7 @@ describe('TavilyExtractService', () => {
   });
 
   describe('retrieve()', () => {
-    it('returns typed WebSourceContentResult with truncated items when content exceeds maxContentChars', async () => {
+    it('returns typed WebSourceContentResult with complete, never-sliced content', async () => {
       fetchMock.mockResolvedValue({
         ok: true,
         json: async () => ({
@@ -183,7 +183,6 @@ describe('TavilyExtractService', () => {
 
       const res = await service.retrieve({
         urls: ['https://example.com/walk'],
-        maxContentChars: 50,
       });
 
       expect(res.provider).toBe('tavily');
@@ -195,8 +194,7 @@ describe('TavilyExtractService', () => {
         status: 'retrieved',
         contentType: 'markdown',
         contentChars: 100,
-        truncated: true,
-        content: 'A'.repeat(50),
+        content: 'A'.repeat(100),
       });
     });
 

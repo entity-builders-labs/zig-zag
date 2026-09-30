@@ -3,7 +3,6 @@ import { ConfigType } from '@nestjs/config';
 import aiConfig from '@shared/ai/ai.config';
 import { AiCacheService } from '@shared/ai/services/ai-cache.service';
 import {
-  DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
   WebSourceContentFailureReason,
   WebSourceContentProvider,
   WebSourceContentRequest,
@@ -21,8 +20,8 @@ interface CloudflareBrowserRunResponse {
 /**
  * Web source content retrieval provider backed by Cloudflare Browser Run's
  * `/browser-rendering/markdown` endpoint. Implements the provider-neutral
- * `WebSourceContentProvider` contract: given known URLs, returns bounded
- * markdown without searching, ranking, or filtering.
+ * `WebSourceContentProvider` contract: given known URLs, returns their
+ * complete markdown without searching, ranking, filtering, or bounding it.
  *
  * Enforces:
  * - Credentials validation (accountId + apiToken) with explicit failure.
@@ -31,7 +30,6 @@ interface CloudflareBrowserRunResponse {
  *   rate limits (verified live: 1 request / 10s on basic tiers). Requests are
  *   spaced by `minRequestIntervalMs` to prevent avoidable 429s.
  * - Transport error mapping to typed `WebSourceContentFailureReason`.
- * - Bounded content truncation up to `maxContentChars` (default 6000).
  */
 @Injectable()
 export class CloudflareWebSourceContentProvider
@@ -60,8 +58,6 @@ export class CloudflareWebSourceContentProvider
     request: WebSourceContentRequest,
   ): Promise<WebSourceContentResult> {
     const startTime = Date.now();
-    const maxChars =
-      request.maxContentChars ?? DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS;
     const requestedUrls = Array.from(
       new Set((request.urls || []).filter(Boolean)),
     ).slice(0, this.maxUrlsPerCall);
@@ -105,17 +101,12 @@ export class CloudflareWebSourceContentProvider
                 durationMs: 0,
               });
             } else {
-              const truncated = rawContent.length > maxChars;
-              const content = truncated
-                ? rawContent.slice(0, maxChars)
-                : rawContent;
               items.push({
                 requestedUrl: url,
                 status: 'retrieved',
-                content,
+                content: rawContent,
                 contentType: 'markdown',
                 contentChars: rawContent.length,
-                truncated,
                 provider: this.providerName,
                 durationMs: 0,
               });
@@ -251,16 +242,12 @@ export class CloudflareWebSourceContentProvider
           continue;
         }
 
-        const truncated = rawContent.length > maxChars;
-        const content = truncated ? rawContent.slice(0, maxChars) : rawContent;
-
         items.push({
           requestedUrl: url,
           status: 'retrieved',
-          content,
+          content: rawContent,
           contentType: 'markdown',
           contentChars: rawContent.length,
-          truncated,
           provider: this.providerName,
           durationMs,
         });
