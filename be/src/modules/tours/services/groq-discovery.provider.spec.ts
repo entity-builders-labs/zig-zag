@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LangChainService } from '@shared/ai/langchain.service';
 import aiConfig from '@shared/ai/ai.config';
 import {
+  buildDiscoveryAnchorContext,
   buildDiscoverySystemPrompt,
   buildDiscoveryUserPrompt,
 } from '../prompts/experience-discovery-extraction.prompt';
@@ -106,6 +107,25 @@ describe('GroqDiscoveryProvider — controlled facet contract', () => {
     expect(prompt).toMatch(
       /never merge components from different variants into one candidate/i,
     );
+  });
+
+  it('sends the shared anchor-as-relevance-context contract unchanged (RW4 live-6)', async () => {
+    const request = {
+      scope: { destinationName: 'Mendoza' },
+      requestedThemes: ['wine'],
+      requestedIntents: ['route_like'],
+      anchorNames: ['Ruta del Vino de Mendoza'],
+      breadth: 'focused',
+      maxCandidates: 8,
+    } as any;
+    const evidence = [{ key: 'ev-1', title: 'T', source: 'S', snippet: 's' }];
+    await provider.extractExperiences(request, { evidence } as any);
+    const prompt = generateChatResponse.mock.calls[0][1] as string;
+    expect(prompt).toBe(buildDiscoveryUserPrompt(request, evidence));
+    expect(prompt).toContain(
+      buildDiscoveryAnchorContext(request.anchorNames).join('\n'),
+    );
+    expect(prompt).toMatch(/Do not require literal anchor-name occurrence/);
   });
 
   it('forces the Groq transport and the Groq discovery model, independent of AI_PROVIDER', async () => {

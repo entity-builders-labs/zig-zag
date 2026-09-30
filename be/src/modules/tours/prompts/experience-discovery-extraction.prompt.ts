@@ -69,10 +69,15 @@ export function buildDiscoveryRequestHeader(
 }
 
 /**
- * Anchor context for an acquisition that targets specific named places the
- * user asked about. It narrows WHICH evidence-supported Experiences are
- * relevant; it never licenses composition -- every source-support and
- * multi-component rule still applies. Empty when there is no anchor.
+ * Anchor context for an acquisition that targets specific named places or
+ * tourism concepts the user asked about. Anchors are research/relevance
+ * context only: they may decide WHICH evidence-backed Experiences are relevant,
+ * never establish fact. They are not a required evidence phrase, not the
+ * discovered Experience's identity and never license composition -- the cited
+ * evidence stays the authority for identity, membership, themes and intents
+ * (RW4 live-6: an English "Mendoza Wine Bike Tour" source was rejected for not
+ * repeating "Ruta del Vino de Mendoza"). Deliberately one generic name list:
+ * no anchor mode/kind taxonomy. Empty when there is no anchor.
  */
 export function buildDiscoveryAnchorContext(
   anchorNames: readonly string[] | undefined,
@@ -83,8 +88,10 @@ export function buildDiscoveryAnchorContext(
   if (names.length === 0) return [];
   return [
     `Named anchors: ${names.join(', ')}`,
-    'This request is specifically about the named anchors. Extract only evidence-supported Experiences that are materially about at least one named anchor: a walk, route or visit along, through or at that anchor, or the anchor itself. Do not emit an Experience that the evidence does not connect to any named anchor, even if it matches the requested themes or intents.',
-    'A named anchor never licenses composition: every rule below about source support, cited evidence and multi-component Experiences still applies. Never add the anchor, or places near it, as components unless the cited evidence itself supports them as part of that Experience. A named anchor that is a tourism concept (e.g. a named tourism or wine route) rather than an independently identifiable geographic entity is the subject of the Experience, never a componentHint.',
+    "Named anchors are research-targeting context. Use them to interpret which retrieved evidence is relevant to the user's requested experience, but do not treat anchor text as a required evidence phrase or exact Experience identity. Do not require literal anchor-name occurrence.",
+    'An evidence-backed Experience may be relevant to the anchor even when the source uses a translated, localized, narrower, variant, subroute, tour, itinerary or product name. Keep the name the cited evidence gives the Experience. Do not rename the discovered Experience to the anchor, and never claim that the discovered Experience IS the named anchor unless the cited evidence itself gives it that identity.',
+    "Anchor context may determine relevance; it never establishes fact. The candidate's identity, component membership, themes and intents must still come from the cited evidence and normal deterministic backend validation. A candidate that merely shares a generic theme with the request but has no meaningful relationship to the anchor context or destination must still be excluded.",
+    'A named anchor never licenses composition: every rule below about source support, cited evidence and multi-component Experiences still applies. Never add the anchor, or places near it, as components unless the cited evidence itself supports them as part of that Experience. A named anchor that is a tourism concept (e.g. a named tourism or wine route) rather than an independently identifiable geographic entity is never a componentHint.',
   ];
 }
 

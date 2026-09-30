@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import aiConfig from '@shared/ai/ai.config';
 import {
+  buildDiscoveryAnchorContext,
   buildDiscoverySystemPrompt,
   buildDiscoveryUserPrompt,
 } from '../prompts/experience-discovery-extraction.prompt';
@@ -155,6 +156,20 @@ describe('CloudflareDiscoveryProvider', () => {
       searchResult,
     );
     expect(lastBody().messages[1].content).toContain('Named anchors: Caminito');
+  });
+
+  it('sends the shared anchor-as-relevance-context contract unchanged (RW4 live-6)', async () => {
+    const provider = await makeProvider();
+    const anchored = { ...request, anchorNames: ['Ruta del Vino de Mendoza'] };
+    await provider.extractExperiences(anchored, searchResult);
+    const user = lastBody().messages[1].content;
+    expect(user).toBe(
+      buildDiscoveryUserPrompt(anchored, searchResult.evidence),
+    );
+    expect(user).toContain(
+      buildDiscoveryAnchorContext(anchored.anchorNames).join('\n'),
+    );
+    expect(user).toMatch(/Do not require literal anchor-name occurrence/);
   });
 
   it('uses temperature 0, default max_completion_tokens (4096), and disables thinking', async () => {

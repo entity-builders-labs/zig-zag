@@ -10,6 +10,7 @@ import {
   buildDiscoveryRequestHeader,
   buildDiscoverySystemPrompt,
   buildDiscoveryUserPrompt,
+  buildExperienceCompositionRules,
   CANONICAL_INTENT_KEYS,
   CANONICAL_THEME_KEYS,
 } from './experience-discovery-extraction.prompt';
@@ -221,7 +222,7 @@ describe('experience discovery extraction prompt (shared contract)', () => {
       const header = buildDiscoveryRequestHeader(anchored);
       expect(header).toContain('Named anchors: Caminito');
       expect(header.join('\n')).toMatch(
-        /materially about at least one named anchor/,
+        /Named anchors are research-targeting context/,
       );
     });
 
@@ -229,9 +230,9 @@ describe('experience discovery extraction prompt (shared contract)', () => {
       const context = buildDiscoveryAnchorContext(['Caminito']).join('\n');
       expect(context).toMatch(/never licenses composition/);
       expect(context).toMatch(/unless the cited evidence itself supports them/);
-      // RW4: a tourism-concept anchor is the Experience subject, not a component
+      // RW4: a tourism-concept anchor is never turned into a component
       expect(context).toMatch(
-        /tourism concept .* is the subject of the Experience, never a componentHint/,
+        /A named anchor that is a tourism concept .* is never a componentHint/,
       );
     });
 
@@ -251,6 +252,99 @@ describe('experience discovery extraction prompt (shared contract)', () => {
       expect(
         buildDiscoveryUserPrompt({ ...anchored, anchorNames: undefined }, []),
       ).not.toContain('Named anchors');
+    });
+  });
+
+  describe('anchor = relevance context, never evidence authority (RW4 live-6)', () => {
+    const context = buildDiscoveryAnchorContext([
+      'Ruta del Vino de Mendoza',
+    ]).join('\n');
+
+    it('A: the anchor is research context, not a required phrase or exact identity', () => {
+      expect(context).toContain('Named anchors: Ruta del Vino de Mendoza');
+      expect(context).toMatch(/Named anchors are research-targeting context/);
+      expect(context).toMatch(
+        /do not treat anchor text as a required evidence phrase or exact Experience identity/i,
+      );
+      expect(context).toMatch(/Do not require literal anchor-name occurrence/);
+      // the previous hard lexical/identity gate is gone
+      expect(context).not.toMatch(/materially about at least one named anchor/);
+      expect(context).not.toMatch(
+        /Do not emit an Experience that the evidence does not connect to any named anchor/,
+      );
+      expect(context).not.toMatch(/is the subject of the Experience/);
+    });
+
+    it('B: a narrower/translated/product-named source Experience stays relevant under its source identity', () => {
+      expect(context).toMatch(
+        /translated, localized, narrower, variant, subroute, tour, itinerary or product name/,
+      );
+      expect(context).toMatch(
+        /Do not rename the discovered Experience to the anchor/,
+      );
+      expect(context).toMatch(
+        /never claim that the discovered Experience IS the named anchor unless the cited evidence itself gives it that identity/i,
+      );
+    });
+
+    it('C: identity, membership, themes and intents come from evidence, never from the anchor', () => {
+      expect(context).toMatch(
+        /identity, component membership, themes and intents must still come from the cited evidence and normal deterministic backend validation/,
+      );
+      expect(context).toMatch(
+        /anchor context may determine relevance; it never establishes fact/i,
+      );
+    });
+
+    it('D: a candidate merely sharing a generic theme with the request stays excluded', () => {
+      expect(context).toMatch(
+        /merely shares a generic theme with the request but has no meaningful relationship to the anchor context or destination must still be excluded/,
+      );
+      // softening relevance never relaxes the evidence/composition rules
+      expect(context).toMatch(
+        /every rule below about source support, cited evidence and multi-component Experiences still applies/,
+      );
+    });
+
+    it('E: introduces no anchor taxonomy -- one generic anchorNames list only', () => {
+      // The typed request contract carries anchors as a plain name list; no
+      // mode/kind/type discriminant reaches the extraction contract.
+      const request: ExperienceDiscoveryRequest = {
+        scope: { destinationName: 'Mendoza' },
+        requestedThemes: ['wine'],
+        requestedIntents: ['route_like'],
+        anchorNames: ['Ruta del Vino de Mendoza'],
+        evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+        breadth: 'focused',
+        maxCandidates: 8,
+      };
+      const prompt = buildDiscoveryUserPrompt(request, []);
+      expect(prompt).not.toMatch(/anchor ?(mode|kind|type)\b/i);
+      // the anchor context depends on the names alone
+      expect(buildDiscoveryAnchorContext(request.anchorNames)).toEqual(
+        buildDiscoveryAnchorContext(['Ruta del Vino de Mendoza']),
+      );
+    });
+
+    it('preserves every composition rule unchanged alongside the softened anchor', () => {
+      const prompt = buildDiscoveryUserPrompt(
+        {
+          scope: { destinationName: 'Mendoza' },
+          requestedThemes: ['wine'],
+          requestedIntents: ['route_like'],
+          anchorNames: ['Ruta del Vino de Mendoza'],
+          evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+          breadth: 'focused',
+          maxCandidates: 8,
+        },
+        [],
+      );
+      for (const line of buildExperienceCompositionRules()) {
+        expect(prompt).toContain(line);
+      }
+      expect(prompt).toMatch(
+        /at least two non-area real geographic components as belonging to that same real Experience/,
+      );
     });
   });
 

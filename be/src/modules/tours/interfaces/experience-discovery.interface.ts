@@ -161,7 +161,10 @@ export interface ExperienceDiscoveryRequest {
    * route with no geographic object) contributes its `rawName`. Carried as
    * a typed acquisition-context fact independently of the free-form
    * `semanticQuery`. Omitted when the acquisition has no relevant anchor;
-   * never defaulted.
+   * never defaulted. Acquisition/relevance context only: not evidence
+   * authority, not required to occur lexically in the source, and never the
+   * discovered Experience's identity (amendment §16.2). Deliberately one
+   * generic name list -- no anchor mode/kind taxonomy.
    */
   anchorNames?: string[];
   coverageGaps?: string[];
