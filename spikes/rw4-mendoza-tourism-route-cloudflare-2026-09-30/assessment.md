@@ -41,14 +41,14 @@ The canonical RW4 COLD run was executed cleanly on an empty, dedicated database 
      * `Terrazas de los Andes` (venue)
    - Admitted downstream with `MATCHING_EVIDENCE_REQUIREMENT` (`status: PASS`, `outcome: ACCEPTED`).
 
-5. **First Causal Blocker in Pipeline Order**: **`identity resolution` (Step 16, `resolution.entity`)**
+5. **First Observed Failure in Pipeline Order**: **`identity resolution` (Step 16, `resolution.entity`)** — *reinterpreted 2026-09-30: the first causal defect is upstream, in extraction composition; see §5.*
    - The admitted candidate required resolving real identities for 5 components:
      * `Ruta del Vino de Mendoza`: `UNRESOLVED` (`NO_OSM_MATCH` / `NO_ROUTE_OBJECT_ACQUIRED` — no OSM route relation for "Ruta del Vino" exists).
      * `Bodega Santa Julia`: `UNRESOLVED` (`CANDIDATE_REJECTED` — Nominatim 0 results; Geoapify returned "Bodega Centenario", rejected by verifier as name mismatch).
      * `Bodega La Rural`: **RESOLVED** (`osm:way:425175968`, `canonicalName: "Bodega La Rural"`, `status: VERIFIED`, distance 10,440 m outside boundary).
      * `Chandon`: `UNRESOLVED` (`CANDIDATE_REJECTED` — Nominatim returned `osm:node:4219095090` `"Bodega Chandon"`, which failed strict name verification against hint name `"Chandon"`).
      * `Terrazas de los Andes`: **RESOLVED** (`osm:way:931488145`, `canonicalName: "Terrazas de los Andes"`, `status: VERIFIED`, distance 19,730 m outside boundary).
-   - Only 2 of 5 components resolved (`resolutionRatio = 0.4`), failing the ≥ 70% threshold and triggering `INCOMPLETE_SOURCE_COMPOSITION`.
+   - Only 2 of 5 components resolved (`resolutionRatio = 0.4`). Production requires **complete** resolution of the emitted source-backed composition (`sourceCompositionComplete`), so this triggered `INCOMPLETE_SOURCE_COMPOSITION`. *(Corrected 2026-09-30: an earlier version of this line claimed a "≥ 70% threshold"; no percentage threshold exists — `resolutionRatio` is observability only. See §5.)*
    - Step 18 (`catalog.materialization`) rejected the candidate with `NOT_PERSISTED`.
 
 6. **WARM Execution Rule**:
@@ -133,3 +133,57 @@ The canonical RW4 COLD run was executed cleanly on an empty, dedicated database 
    - "Bodega Chandon" vs "Chandon" name matching.
    - OSM coverage for regional marketing routes (which are not represented as single OSM ways/relations).
    - Nominatim / Geoapify discovery for specific winery venues.
+
+---
+
+## 5. Interpretation corrections (2026-09-30)
+
+These amend the human interpretation above; the raw artifacts under `cold/`
+are unchanged.
+
+### 5.1 No `>= 70%` resolution threshold exists
+
+§1 item 5 originally said the candidate failed "the ≥ 70% threshold". That is
+incorrect. The component-resolution amendment
+(`docs/superpowers/specs/2026-09-22-component-resolution-geographic-validation-and-enrichment-amendment.md`
+§3, §12) explicitly adopts **no** percentage threshold, and production
+(`CompositeResolutionCoverage`) treats `resolutionRatio` as observability only:
+the admission fact is `sourceCompositionComplete` — every source-backed
+component must have a RESOLVED canonical identity. 2/5 failed because it was
+incomplete, not because it was below 70%.
+
+### 5.2 The first causal defect is extraction composition, not identity
+
+The admitted candidate was not a legitimate source-backed composition, so its
+resolution failure is a downstream symptom:
+
+- **Error A — Experience identity emitted as a fake geographic component.**
+  `Ruta del Vino de Mendoza` (role `route`, `ROUTE`) is the tourism concept /
+  Experience identity, not a geographic route the source establishes. RW4
+  exists precisely to prove a tourism route can be a real reusable Experience
+  without one canonical OSM ROUTE; its `NO_ROUTE_OBJECT_ACQUIRED` is the
+  correct outcome for a component that should never have been emitted.
+- **Error B — distinct source variants merged.** The Tangol Wine Bus source
+  (`ev-8`) defines separate routes (Maipú: Santa Julia, Zuelo, La Rural, …;
+  El Sol: Casa El Enemigo, Bressia, Séptima, …; Luján Sur: Chandon, Zolo,
+  Budeguer, Casarena, Terrazas de los Andes). The candidate unioned Santa Julia
+  / La Rural (Maipú) with Chandon / Terrazas (Luján Sur) — a composition the
+  source never defined. Every span was a real substring (source support PASS),
+  but per-component span support does not prove same-composition membership.
+- **Alternatives inside a variant.** Each variant's tickets are themselves
+  option sets (e.g. Luján Sur full day: "Chandon + Zolo or Budeguer + lunch …
+  to choose between Terrazas de los Andes or Casarena"; Terrazas also appears
+  as a lunch choice on the El Sol route). Only the "Wineries and places
+  visited" line of one variant lists its members without alternation; ticket
+  option sets are not mandatory membership.
+
+Correction: the shared provider-neutral extraction contract now states that
+Experience is structurally generic, GeoEntity owns PLACE/AREA/ROUTE, semantic
+intents never imply a ROUTE component, the Experience identity is never its
+own component, and one candidate is one coherent source-defined variant
+(amendment §16.1). No downstream gate was weakened.
+
+The Santa Julia / Chandon identity rejections remain real observations. Whether
+they block a coherent single-variant candidate is for the next canonical RW4
+COLD (same Serper → Tavily → Cloudflare extractor → Gemini classification
+topology) to show; they are not addressed here.

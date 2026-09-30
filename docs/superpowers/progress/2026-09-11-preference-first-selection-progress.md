@@ -88,6 +88,26 @@ RW3-N6 resolution and live verification status:
   (no synthetic DB injection; WARM not run on empty catalog).
 - Historical 2026-09-28 state: RW3 remained OPEN at this checkpoint. Superseded by the 2026-09-29 final acceptance below.
 
+### RW4 COLD finding and composition-contract correction — 2026-09-30
+
+- Canonical RW4 COLD (`spikes/rw4-mendoza-tourism-route-cloudflare-2026-09-30/`,
+  HEAD `ab63132a`): **FAIL_PRODUCT_BLOCKER**, zero Experiences persisted, WARM
+  not run. First causal defect: **extraction composition**, not identity. The
+  Wine Bus source's distinct variants (Maipú / El Sol / Luján Sur) were merged
+  into one candidate carrying a fabricated `Ruta del Vino de Mendoza` ROUTE
+  self-component. Dossier assessment §5 corrected (including its wrong
+  "≥ 70% threshold" claim — production requires complete resolution).
+- Correction: amendment §16.1 (Experience structurally generic; GeoEntity owns
+  PLACE/AREA/ROUTE; `walk`/`route_like` are semantic intents only; one
+  candidate = one coherent source-backed variant; alternatives are not
+  membership), enforced in the single shared extraction contract
+  (`buildExperienceCompositionRules`). No schema, IdentityVerifier, gate,
+  radius, provider-config or destination-specific change; no deterministic
+  validator (exact name equality would reject legitimate single-place visits).
+- **RW4 remains the current gate.** Next action after review: a fresh
+  canonical RW4 COLD with the same Serper → Tavily → Cloudflare extractor →
+  Gemini classification topology.
+
 
 ## RW3 final acceptance — 2026-09-29
 
