@@ -61,6 +61,17 @@ progress document. The header declares its ID, branch, integration target,
 base snapshot and plan reference. `docs/superpowers/README.md` is navigation,
 not a second track registry.
 
+For resumability, the progress document also owns the current execution delta:
+`Current execution verdict`, `Current checkpoint`, `Next authorized action`,
+and `Open findings / blockers`. Keep these sections short and current.
+`scripts/agent-track context` surfaces them for a fresh session. The plan still
+owns intended gates/acceptance; do not duplicate a step-by-step project plan in
+progress.
+
+Use anti-fractal execution: a changing blocker/finding does not create a new
+milestone. Keep the checkpoint stable, fix the bounded blocker, rerun
+verification, and record the next blocker inside the same checkpoint if needed.
+
 Treat the checks as follows:
 
 - declared base-snapshot mismatch or non-mutating merge conflict with the
@@ -115,8 +126,11 @@ deliberately update the canonical documentation. This remains a review warning
 until a future approved automation can establish it deterministically.
 
 Review findings/fix briefs record the track, reviewed HEAD, plan/progress
-context, and integration branch so a later coding pass can reconnect without
-an autonomous reviewer-to-coder loop.
+context, finding IDs, required fixes, forbidden scope expansion, and
+verification so a later coding pass can reconnect without an autonomous
+reviewer-to-coder loop. Keep detailed review feedback at the PR boundary rather
+than committing it into the reviewed branch solely for persistence: such a
+commit would change HEAD and stale the review anchor.
 
 ### Superpowers documentation navigation
 
