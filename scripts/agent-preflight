@@ -3,265 +3,113 @@ set -euo pipefail
 
 ALLOW_DIRTY=0
 NO_FETCH=0
-BOOTSTRAP=0
 CI_MODE=0
-
 for arg in "$@"; do
   case "$arg" in
     --allow-dirty) ALLOW_DIRTY=1 ;;
     --no-fetch) NO_FETCH=1 ;;
-    --bootstrap) BOOTSTRAP=1 ;;
     --ci) CI_MODE=1 ;;
-    -h|--help)
-      cat <<'EOF'
-Usage: bash scripts/agent-preflight [options]
-
-Options:
-  --allow-dirty  Do not fail when the worktree has local modifications.
-  --no-fetch     Skip git fetch origin --prune.
-  --bootstrap    Allow an unregistered branch only to register a new initiative.
-  --ci           Prefer GitHub Actions branch environment variables.
-EOF
-      exit 0
-      ;;
-    *)
-      echo "Unknown argument: $arg" >&2
-      exit 2
-      ;;
+    -h|--help) echo 'Usage: bash scripts/agent-preflight [--allow-dirty] [--no-fetch] [--ci]'; exit 0 ;;
+    *) echo "Unknown argument: $arg" >&2; exit 2 ;;
   esac
 done
 
-failures=0
-warnings=0
-
+failures=0; warnings=0
 pass() { printf 'PASS  %-24s %s\n' "$1" "${2:-}"; }
 warn() { printf 'WARN  %-24s %s\n' "$1" "${2:-}"; warnings=$((warnings + 1)); }
 fail() { printf 'FAIL  %-24s %s\n' "$1" "${2:-}"; failures=$((failures + 1)); }
 
-field() {
-  local line="$1"
-  local key="$2"
-  printf '%s\n' "$line" \
-    | sed -n "s/.*[; ]${key}=\([^;]*\).*/\1/p" \
-    | sed 's/ *--> *$//;s/^ *//;s/ *$//'
-}
-
-token_overlap() {
-  local left="$1"
-  local right="$2"
-  local token
-  local old_ifs="$IFS"
-  IFS=','
-  for token in $left; do
-    IFS="$old_ifs"
-    token="$(printf '%s' "$token" | sed 's/^ *//;s/ *$//')"
-    if [ -n "$token" ] && printf ',%s,' "$right" | grep -Fq ",$token,"; then
-      printf '%s' "$token"
-      IFS="$old_ifs"
-      return 0
-    fi
-    IFS=','
-  done
-  IFS="$old_ifs"
-  return 1
-}
-
 TOP="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-if [ -z "$TOP" ]; then
-  echo "Not inside a Git worktree." >&2
-  exit 1
-fi
+[ -n "$TOP" ] || { echo 'Not inside a Git worktree.' >&2; exit 1; }
+# shellcheck source=scripts/agent-track
+source "$TOP/scripts/agent-track"
 
 CURRENT_BRANCH="$(git branch --show-current)"
-if [ "$CI_MODE" -eq 1 ] && [ -n "${GITHUB_HEAD_REF:-}" ]; then
-  CURRENT_BRANCH="$GITHUB_HEAD_REF"
-fi
-
-if [ -z "$CURRENT_BRANCH" ]; then
-  fail "branch" "detached HEAD; no initiative branch can be resolved"
-else
-  pass "branch" "$CURRENT_BRANCH"
-fi
-
+[ "$CI_MODE" -eq 1 ] && [ -n "${GITHUB_HEAD_REF:-}" ] && CURRENT_BRANCH="$GITHUB_HEAD_REF"
+if [ -n "$CURRENT_BRANCH" ]; then pass "branch" "$CURRENT_BRANCH"; else fail "branch" "detached HEAD; no track can be resolved"; fi
 pass "worktree" "$TOP"
 
 ORIGIN_URL="$(git remote get-url origin 2>/dev/null || true)"
 case "$ORIGIN_URL" in
-  *github.com:entity-builders-labs/zig-zag.git|*github.com/entity-builders-labs/zig-zag.git|*github.com/entity-builders-labs/zig-zag)
-    pass "origin" "$ORIGIN_URL"
-    ;;
-  *)
-    fail "origin" "expected entity-builders-labs/zig-zag, got: ${ORIGIN_URL:-<missing>}"
-    ;;
+  *github.com:entity-builders-labs/zig-zag.git|*github.com/entity-builders-labs/zig-zag.git|*github.com/entity-builders-labs/zig-zag) pass "origin" "$ORIGIN_URL" ;;
+  *) fail "origin" "expected entity-builders-labs/zig-zag, got: ${ORIGIN_URL:-<missing>}" ;;
 esac
 
 if [ "$ALLOW_DIRTY" -eq 0 ] && [ -n "$(git status --porcelain)" ]; then
-  fail "working tree" "dirty; commit/stash intentional prior work or rerun with --allow-dirty for inspection only"
+  fail "working tree" "dirty; commit/stash intentional prior work or use --allow-dirty for inspection only"
 else
   pass "working tree" "clean or explicitly allowed"
 fi
-
 if [ "$NO_FETCH" -eq 0 ]; then
-  if git fetch origin --prune >/dev/null 2>&1; then
-    pass "remote refs" "fetched origin --prune"
-  else
-    fail "remote refs" "git fetch origin --prune failed"
-  fi
+  if git fetch origin --prune >/dev/null 2>&1; then pass "remote refs" "fetched origin --prune"; else fail "remote refs" "git fetch origin --prune failed"; fi
 else
   warn "remote refs" "fetch skipped by --no-fetch"
 fi
 
-REGISTRY="$TOP/docs/superpowers/README.md"
-if [ ! -f "$REGISTRY" ]; then
-  fail "initiative registry" "missing docs/superpowers/README.md"
-  MARKERS=""
+if [ -z "$CURRENT_BRANCH" ] || ! resolve_track_by_branch "$TOP" "$CURRENT_BRANCH"; then
+  fail "track" "expected exactly one ACTIVE progress track for ${CURRENT_BRANCH:-<detached>}"
 else
-  MARKERS="$(grep '^<!-- agent-initiative:' "$REGISTRY" || true)"
-fi
-
-CURRENT_MARKER=""
-if [ -n "$MARKERS" ] && [ -n "$CURRENT_BRANCH" ]; then
-  while IFS= read -r line; do
-    [ -z "$line" ] && continue
-    status="$(field "$line" status)"
-    branch="$(field "$line" branch)"
-    if [ "$status" = "active" ] && [ "$branch" = "$CURRENT_BRANCH" ]; then
-      CURRENT_MARKER="$line"
-      break
-    fi
-  done <<EOF
-$MARKERS
-EOF
-fi
-
-if [ -z "$CURRENT_MARKER" ]; then
-  if [ "$BOOTSTRAP" -eq 1 ]; then
-    warn "initiative registry" "branch is not registered; bootstrap mode permits registry-only setup"
+  IFS=$'\t' read -r PROGRESS MARKER <<<"$RESOLVED_TRACK_RECORD"
+  TRACK_ID="$(track_field "$MARKER" id)"
+  INTEGRATION_BRANCH="$(track_field "$MARKER" integration)"
+  BASE_SHA="$(track_field "$MARKER" base)"
+  PLAN="$(track_field "$MARKER" plan)"
+  pass "track" "$TRACK_ID ($PROGRESS)"
+  if [ -z "$INTEGRATION_BRANCH" ] || [ -z "$BASE_SHA" ] || [ -z "$PLAN" ]; then
+    fail "track contract" "requires integration, base, and plan in $PROGRESS"
+  elif [ ! -f "$TOP/$PLAN" ]; then
+    fail "track plan" "missing $PLAN"
   else
-    fail "initiative registry" "no ACTIVE initiative registered for $CURRENT_BRANCH"
+    pass "track contract" "integration=$INTEGRATION_BRANCH plan=$PLAN"
   fi
-else
-  INITIATIVE_ID="$(field "$CURRENT_MARKER" id)"
-  BASE_BRANCH="$(field "$CURRENT_MARKER" base)"
-  BASE_SHA="$(field "$CURRENT_MARKER" base_sha)"
-  INTEGRATION_BRANCH="$(field "$CURRENT_MARKER" integration)"
-  CURRENT_OWNS="$(field "$CURRENT_MARKER" owns)"
-  pass "initiative" "$INITIATIVE_ID"
-  pass "declared base" "$BASE_BRANCH"
-  pass "base snapshot" "$BASE_SHA"
-  pass "integration target" "$INTEGRATION_BRANCH"
-
   if [ "$CI_MODE" -eq 1 ] && [ -n "${GITHUB_BASE_REF:-}" ]; then
-    if [ "$GITHUB_BASE_REF" = "$INTEGRATION_BRANCH" ]; then
-      pass "PR integration target" "$GITHUB_BASE_REF matches declared integration"
-    else
-      fail "PR integration target" "PR targets $GITHUB_BASE_REF but initiative declares $INTEGRATION_BRANCH"
-    fi
+    if [ "$GITHUB_BASE_REF" = "$INTEGRATION_BRANCH" ]; then pass "PR integration target" "$GITHUB_BASE_REF matches declared integration"; else fail "PR integration target" "PR targets $GITHUB_BASE_REF but track declares $INTEGRATION_BRANCH"; fi
   fi
-
-  BASE_REF="origin/$BASE_BRANCH"
   if [ -z "$BASE_SHA" ]; then
-    fail "base snapshot" "initiative is missing base_sha"
+    fail "base snapshot" "track is missing base"
   elif ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
-    fail "base snapshot" "$BASE_SHA is not available as a commit after fetch"
+    fail "base snapshot" "$BASE_SHA is not available as a commit"
   elif git merge-base --is-ancestor "$BASE_SHA" HEAD; then
     pass "base ancestry" "$BASE_SHA is an ancestor of HEAD"
   else
     fail "base ancestry" "HEAD does not contain declared base snapshot $BASE_SHA"
   fi
-
-  if git show-ref --verify --quiet "refs/remotes/$BASE_REF"; then
-    if git merge-base --is-ancestor "$BASE_REF" HEAD; then
-      pass "base branch head" "HEAD contains current $BASE_REF"
-    else
-      warn "base branch head" "$BASE_REF advanced after this initiative started"
-    fi
-  else
-    fail "declared base ref" "$BASE_REF does not exist locally after fetch"
-  fi
-
   INTEGRATION_REF="origin/$INTEGRATION_BRANCH"
-  if git show-ref --verify --quiet "refs/remotes/$INTEGRATION_REF"; then
-    merge_status=0
-    merge_output="$(git merge-tree --write-tree HEAD "$INTEGRATION_REF" 2>&1)" || merge_status=$?
-    case "$merge_status" in
-      0)
-        pass "integration conflict" "non-mutating merge-tree clean vs $INTEGRATION_REF"
-        ;;
-      1)
-        fail "integration conflict" "merge-tree reports conflicts vs $INTEGRATION_REF"
-        printf '%s\n' "$merge_output" | sed -n '1,20p'
-        ;;
-      *)
-        fail "integration conflict" "git merge-tree --write-tree failed with status $merge_status"
-        printf '%s\n' "$merge_output" | sed -n '1,20p'
-        ;;
-    esac
-  else
+  if ! git show-ref --verify --quiet "refs/remotes/$INTEGRATION_REF"; then
     fail "integration target ref" "$INTEGRATION_REF does not exist locally after fetch"
+  else
+    merge_status=0; merge_output="$(git merge-tree --write-tree HEAD "$INTEGRATION_REF" 2>&1)" || merge_status=$?
+    case "$merge_status" in
+      0) pass "integration conflict" "non-mutating merge-tree clean vs $INTEGRATION_REF" ;;
+      1) fail "integration conflict" "merge-tree reports conflicts vs $INTEGRATION_REF"; printf '%s\n' "$merge_output" | sed -n '1,20p' ;;
+      *) fail "integration conflict" "git merge-tree --write-tree failed with status $merge_status"; printf '%s\n' "$merge_output" | sed -n '1,20p' ;;
+    esac
   fi
-
   if git show-ref --verify --quiet refs/remotes/origin/main; then
-    if git merge-base --is-ancestor origin/main HEAD; then
-      pass "main relationship" "HEAD contains current origin/main"
-    else
-      warn "main relationship" "HEAD does not contain current origin/main; do not auto-rebase/merge"
-    fi
+    if git merge-base --is-ancestor origin/main HEAD; then pass "main relationship" "HEAD contains current origin/main"; else warn "main relationship" "HEAD does not contain current origin/main; do not auto-rebase/merge"; fi
   fi
-
-  CURRENT_FILES=""
-  if [ -n "$BASE_SHA" ] && git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
-    CURRENT_FILES="$(git diff --name-only "$BASE_SHA"...HEAD | sort -u)"
-  fi
-
-  while IFS= read -r line; do
-    [ -z "$line" ] && continue
-    other_status="$(field "$line" status)"
-    other_branch="$(field "$line" branch)"
-    other_id="$(field "$line" id)"
-    other_base="$(field "$line" base)"
-    other_base_sha="$(field "$line" base_sha)"
-    other_owns="$(field "$line" owns)"
-    other_touches="$(field "$line" touches)"
-
-    [ "$other_status" != "active" ] && continue
-    [ "$other_branch" = "$CURRENT_BRANCH" ] && continue
-
-    overlap_token="$(token_overlap "$CURRENT_OWNS" "$other_owns,$other_touches" || true)"
-    if [ -n "$overlap_token" ]; then
-      fail "semantic ownership" "$INITIATIVE_ID overlaps $other_id on '$overlap_token'"
+  changed_files() {
+    local ref="$1" integration="$2" merge_base
+    git show-ref --verify --quiet "refs/remotes/origin/$integration" || return 0
+    merge_base="$(git merge-base "$ref" "origin/$integration")"
+    git diff --name-only "$merge_base".."$ref" | sort -u
+  }
+  CURRENT_FILES="$(changed_files HEAD "$INTEGRATION_BRANCH")"
+  while IFS=$'\t' read -r _OTHER_PROGRESS OTHER_MARKER; do
+    OTHER_STATUS="$(track_field "$OTHER_MARKER" status)"; OTHER_BRANCH="$(track_field "$OTHER_MARKER" branch)"
+    OTHER_ID="$(track_field "$OTHER_MARKER" id)"; OTHER_INTEGRATION="$(track_field "$OTHER_MARKER" integration)"
+    [ "$OTHER_STATUS" = "ACTIVE" ] && [ "$OTHER_BRANCH" != "$CURRENT_BRANCH" ] && [ -n "$OTHER_INTEGRATION" ] || continue
+    OTHER_REF="origin/$OTHER_BRANCH"
+    if [ -n "$CURRENT_FILES" ] && git show-ref --verify --quiet "refs/remotes/$OTHER_REF"; then
+      OTHER_FILES="$(changed_files "$OTHER_REF" "$OTHER_INTEGRATION")"
+      FILE_OVERLAP="$(comm -12 <(printf '%s\n' "$CURRENT_FILES" | sed '/^$/d') <(printf '%s\n' "$OTHER_FILES" | sed '/^$/d') || true)"
+      [ -z "$FILE_OVERLAP" ] || warn "file overlap: $OTHER_ID" "$(printf '%s' "$FILE_OVERLAP" | tr '\n' ' ')"
     fi
-
-    # Parent/integration branches are inherited structurally, so comparing
-    # their full file deltas would create false positives. Semantic ownership
-    # was still checked above and may never be silently shared.
-    [ "$other_branch" = "$BASE_BRANCH" ] && continue
-    [ "$other_branch" = "$INTEGRATION_BRANCH" ] && continue
-
-    OTHER_REF="origin/$other_branch"
-    if [ -n "$CURRENT_FILES" ] \
-      && git show-ref --verify --quiet "refs/remotes/$OTHER_REF" \
-      && [ -n "$other_base_sha" ] \
-      && git cat-file -e "${other_base_sha}^{commit}" 2>/dev/null; then
-      OTHER_FILES="$(git diff --name-only "$other_base_sha"..."$OTHER_REF" | sort -u)"
-      if [ -n "$OTHER_FILES" ]; then
-        FILE_OVERLAP="$(comm -12 \
-          <(printf '%s\n' "$CURRENT_FILES" | sed '/^$/d' | sort -u) \
-          <(printf '%s\n' "$OTHER_FILES" | sed '/^$/d' | sort -u) || true)"
-        if [ -n "$FILE_OVERLAP" ]; then
-          warn "file overlap: $other_id" "$(printf '%s' "$FILE_OVERLAP" | tr '\n' ' ')"
-        fi
-      fi
-    fi
-  done <<EOF
-$MARKERS
-EOF
+  done < <(track_records "$TOP")
 fi
 
 printf '\n'
 if [ "$failures" -gt 0 ]; then
-  printf 'STOP BEFORE WRITE — %d hard failure(s), %d warning(s).\n' "$failures" "$warnings"
-  exit 1
+  printf 'STOP BEFORE WRITE — %d hard failure(s), %d warning(s).\n' "$failures" "$warnings"; exit 1
 fi
-
 printf 'WRITE AUTHORIZED — 0 hard failures, %d warning(s).\n' "$warnings"

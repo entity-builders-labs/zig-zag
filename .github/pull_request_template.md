@@ -4,23 +4,21 @@ Describe the change, why it exists, and the user/system behavior it affects.
 
 Related issue / plan / acceptance gate: <!-- link or N/A -->
 
-## Initiative contract
+## Track contract
 
-Fill these from the ACTIVE marker in `docs/superpowers/README.md`.
+Fill these from the ACTIVE progress-track header.
 
-- Initiative ID:
+- Track:
+- Progress:
+- Plan:
 - Branch:
-- Base snapshot (`base_sha`):
 - Integration target:
-- Semantic ownership (`owns`):
 
-- [ ] This PR targets the initiative's declared integration branch.
-- [ ] The branch has exactly one ACTIVE initiative marker.
+- [ ] This PR targets the track's declared integration branch.
+- [ ] The branch has exactly one ACTIVE progress-track header.
 - [ ] `bash scripts/agent-preflight` returned `WRITE AUTHORIZED` before implementation.
-- [ ] I did not broaden `owns=` merely to silence a semantic-ownership collision.
 
-> `CODEOWNERS` routes human review. It does **not** grant or replace semantic
-> initiative ownership.
+> `CODEOWNERS` routes human review. It does not grant track or domain authority.
 
 ## Scope
 

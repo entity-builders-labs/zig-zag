@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Track identity is declared only in a progress document, using one explicit
+# header such as:
+# <!-- agent-track: id=example; status=ACTIVE; branch=feat/example; integration=main; base=<sha>; plan=docs/superpowers/plans/example.md -->
+#
+# This script is intentionally sourceable by agent-preflight. It owns parsing
+# and discovery of that contract; callers must not infer a track from prose.
+
+track_field() {
+  local line="$1" key="$2"
+  printf '%s\n' "$line" | sed -n "s/.*[; ]${key}=\([^;]*\).*/\1/p" | sed 's/ *--> *$//;s/^ *//;s/ *$//'
+}
+
+track_records() {
+  local top="$1" progress marker
+  while IFS= read -r progress; do
+    marker="$(grep -m1 '^<!-- agent-track:' "$progress" 2>/dev/null || true)"
+    [ -n "$marker" ] || continue
+    printf '%s\t%s\n' "${progress#"$top"/}" "$marker"
+  done < <(find "$top/docs/superpowers/progress" -type f -name '*.md' -print 2>/dev/null | sort)
+}
+
+resolve_track_by_branch() {
+  local top="$1" branch="$2" progress marker status declared_branch matches=0
+  RESOLVED_TRACK_RECORD=""
+  while IFS=$'\t' read -r progress marker; do
+    status="$(track_field "$marker" status)"
+    declared_branch="$(track_field "$marker" branch)"
+    [ "$status" = "ACTIVE" ] && [ "$declared_branch" = "$branch" ] || continue
+    matches=$((matches + 1))
+    RESOLVED_TRACK_RECORD="$progress"$'\t'"$marker"
+  done < <(track_records "$top")
+  [ "$matches" -eq 1 ]
+}
+
+resolve_track_by_id() {
+  local top="$1" id="$2" progress marker declared_id matches=0
+  RESOLVED_TRACK_RECORD=""
+  while IFS=$'\t' read -r progress marker; do
+    declared_id="$(track_field "$marker" id)"
+    [ "$declared_id" = "$id" ] || continue
+    matches=$((matches + 1))
+    RESOLVED_TRACK_RECORD="$progress"$'\t'"$marker"
+  done < <(track_records "$top")
+  [ "$matches" -eq 1 ]
+}
+
+track_worktree_for_branch() {
+  local top="$1" branch="$2" path="" item
+  while IFS= read -r item; do
+    case "$item" in
+      worktree\ *) path="${item#worktree }" ;;
+      branch\ refs/heads/"$branch") printf '%s' "$path"; return 0 ;;
+    esac
+  done < <(git -C "$top" worktree list --porcelain)
+  return 1
+}
+
+local_open_pr() {
+  # A checkout normally has no authoritative local PR mapping. Report one only
+  # when Actions supplies it; never call an API or guess from branch names.
+  if [ -n "${GITHUB_EVENT_PULL_REQUEST_NUMBER:-}" ]; then
+    printf '#%s' "$GITHUB_EVENT_PULL_REQUEST_NUMBER"
+  else
+    printf '%s' 'unavailable locally'
+  fi
+}
+
+agent_track_list() {
+  local top="$1" progress marker id status branch integration worktree
+  printf 'ACTIVE TRACKS\n'
+  printf '%-32s %-8s %-38s %s\n' 'Track' 'Status' 'Branch' 'Worktree'
+  while IFS=$'\t' read -r progress marker; do
+    id="$(track_field "$marker" id)"
+    status="$(track_field "$marker" status)"
+    branch="$(track_field "$marker" branch)"
+    integration="$(track_field "$marker" integration)"
+    [ "$status" = "ACTIVE" ] || continue
+    worktree="$(track_worktree_for_branch "$top" "$branch" || true)"
+    printf '%-32s %-8s %-38s %s\n' "$id" "$status" "$branch" "${worktree:-<not registered>}"
+    printf '  integration: %s | progress: %s\n' "$integration" "$progress"
+  done < <(track_records "$top")
+}
+
+agent_track_context() {
+  local top="$1" requested_id="${2:-}" branch progress marker id status declared_branch integration plan base worktree head tree_state remote
+  branch="$(git -C "$top" branch --show-current)"
+  if [ -n "$requested_id" ]; then
+    if ! resolve_track_by_id "$top" "$requested_id"; then
+      printf 'TRACK CONTEXT UNAVAILABLE: expected exactly one track with id %s\n' "$requested_id" >&2
+      return 1
+    fi
+  elif ! resolve_track_by_branch "$top" "$branch"; then
+    printf 'TRACK CONTEXT UNAVAILABLE: expected exactly one ACTIVE track for branch %s\n' "${branch:-<detached>}" >&2
+    return 1
+  fi
+  IFS=$'\t' read -r progress marker <<<"$RESOLVED_TRACK_RECORD"
+  id="$(track_field "$marker" id)"
+  status="$(track_field "$marker" status)"
+  declared_branch="$(track_field "$marker" branch)"
+  integration="$(track_field "$marker" integration)"
+  plan="$(track_field "$marker" plan)"
+  base="$(track_field "$marker" base)"
+  worktree="$(track_worktree_for_branch "$top" "$declared_branch" || true)"
+  head="$(git -C "$top" rev-parse HEAD)"
+  tree_state="clean"; [ -z "$(git -C "$top" status --porcelain)" ] || tree_state="dirty"
+  remote="$(git -C "$top" status -sb | sed -n '1p')"
+  printf 'TRACK CONTEXT READY\n\n'
+  printf 'Track: %s\nStatus: %s\nBranch: %s\nWorktree: %s\n' "$id" "$status" "$declared_branch" "${worktree:-<not registered>}"
+  printf 'Integration target: %s\nBase snapshot: %s\nProgress: %s\nPlan: %s\n' "$integration" "$base" "$progress" "$plan"
+  printf 'Current recorded gate/checkpoint: %s\n' "$(grep -m1 -E '^\*\*(Current execution verdict|RW[0-9]|Milestone|Status)' "$top/$progress" | sed 's/^\*\*//;s/\*\*.*$//' || true)"
+  printf 'Git HEAD: %s\nWorking tree: %s\nRemote relationship: %s\nOpen PR: %s\n' "$head" "$tree_state" "$remote" "$(local_open_pr)"
+}
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  TOP="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+  [ -n "$TOP" ] || { echo 'Not inside a Git worktree.' >&2; exit 1; }
+  case "${1:-}" in
+    list) agent_track_list "$TOP" ;;
+    context) agent_track_context "$TOP" "${2:-}" ;;
+    *) echo 'Usage: scripts/agent-track {list|context [track-id]}' >&2; exit 2 ;;
+  esac
+fi

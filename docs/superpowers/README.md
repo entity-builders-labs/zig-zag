@@ -49,40 +49,28 @@ evidence, not execution authority.
 
 ---
 
-## 2. Active initiatives
+## 2. Active tracks
 
-This section is the canonical registry for concurrently-written initiatives.
-The HTML markers are intentionally machine-readable by
-`scripts/agent-preflight`; the table is the human-readable view of the same
-facts. Update both in the same commit when starting, closing, rebasing, or
-changing ownership of an initiative.
+Track state is declared once, in the active track's progress document. Its
+machine-readable `agent-track` header carries the track ID, status, branch,
+integration target, base snapshot, and plan reference. The progress document
+owns execution state; its plan owns intended gates and acceptance.
 
-<!-- agent-initiative: id=preference-first-rw3; status=active; branch=feat/preference-first-selection; base=main; base_sha=016f10586d4faf9fe7e703a2d28684136cf99abe; integration=main; owns=classification-convergence,catalog-reuse,area-route-walk-reuse; touches=tour-generation,experience-classification,experience-catalog; -->
-<!-- agent-initiative: id=agent-collaboration-foundation; status=active; branch=chore/agent-collaboration-foundation; base=feat/preference-first-selection; base_sha=74a545f2f4b1f724fe4cfa6f23c804b281b90f02; integration=feat/preference-first-selection; owns=agent-workflow,initiative-governance,github-governance; touches=repository-instructions,documentation-navigation,agent-preflight,github-actions,codeowners,pr-contract; -->
-
-| Initiative | Status | Branch | Base snapshot | Integration target | Semantic ownership | Scope |
-| --- | --- | --- | --- | --- | --- | --- |
-| Preference-First RW3 | ACTIVE | `feat/preference-first-selection` | `016f1058` (`main`) | `main` | classification convergence; catalog reuse; AREA/ROUTE warm reuse | Finish RW3 live acceptance; RW4 remains blocked |
-| Agent Collaboration Foundation | ACTIVE | `chore/agent-collaboration-foundation` | `74a545f2` (`feat/preference-first-selection`) | `feat/preference-first-selection` | agent workflow; initiative governance; GitHub governance | Cross-agent worktree/preflight, PR review contract and CI enforcement; no product behavior |
+Use `scripts/agent-track list` to discover active tracks and registered
+worktrees, or `scripts/agent-track context` from a track worktree to resume
+work. This README remains navigation, not a manually synchronized track
+registry.
 
 Rules:
 
-- Every branch that will receive concurrent human/agent writes must map to one
-  active initiative before ordinary implementation begins.
-- `base` names the lineage branch and `base_sha` freezes the exact accepted
-  snapshot the initiative started from. The lineage branch may advance while
-  the initiative works; `base_sha` must remain an ancestor of the initiative.
-- `integration` is the moving branch where this initiative is intended to
-  converge next; preflight checks mergeability against its current remote HEAD.
-- A child initiative may intentionally use another active initiative as its
-  base/integration target. Its inherited file history is not an overlap defect,
-  but semantic ownership remains exclusive even between parent and child.
-- Two unrelated active initiatives must not claim the same semantic owner.
-- `touches` is advisory scope; `owns` is the stronger semantic authority
-  used by preflight conflict detection.
-- Same-file overlap is a review signal, not proof of semantic conflict.
-- Closing an initiative means changing its registry status and documenting its
-  integration result; do not leave abandoned branches marked ACTIVE.
+- Every branch receiving concurrent human/agent writes needs exactly one ACTIVE
+  progress-track header before ordinary implementation begins.
+- `base` is the immutable lineage snapshot and must remain an ancestor of the
+  track branch. `integration` is the moving branch where it converges next.
+- Actual branch diffs—not manually predicted ownership labels—produce overlap
+  warnings. Same-file overlap requires review but is not a write prohibition.
+- Closing a track changes its progress header status and records the result in
+  that progress document.
 
 GitHub enforcement rules:
 
@@ -90,9 +78,7 @@ GitHub enforcement rules:
   Local execution and CI must call the same script; workflow YAML may prepare
   the checkout but must not reimplement initiative semantics.
 - `.github/CODEOWNERS` routes human review for critical governance and
-  architecture surfaces. It is intentionally separate from registry
-  `owns=`, which is the semantic write-authority contract between active
-  initiatives.
+  architecture surfaces. It is not a track or domain-policy authority.
 - Pull requests target the initiative's declared `integration=` branch and
   carry the registry contract in the repository PR template.
 - Repository rulesets / required checks are activated only after the

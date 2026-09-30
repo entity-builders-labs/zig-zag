@@ -50,12 +50,16 @@ The preflight may fetch remote refs, but it must not modify tracked files, the
 index, commits, or branch history. If it exits non-zero, **STOP before writing**
 and report the failed gate.
 
-The canonical active-initiative registry lives in
-`docs/superpowers/README.md`. A writing branch must be registered there with
-its base/integration branch and semantic ownership before ordinary
-implementation begins. The only bootstrap exception is the bounded change that
-creates/registers a new initiative; after registration, rerun the normal
-preflight before other writes.
+Run `scripts/agent-track context` first when asked to continue work. It
+deterministically identifies the current ACTIVE track, its progress and plan,
+current gate, branch/worktree, integration target, Git state and any locally
+discoverable PR context. Read the referenced plan/progress/specs, then run
+`bash scripts/agent-preflight` before modifying source or durable docs.
+
+Each writing branch must have exactly one ACTIVE `agent-track` header in its
+progress document. The header declares its ID, branch, integration target,
+base snapshot and plan reference. `docs/superpowers/README.md` is navigation,
+not a second track registry.
 
 Treat the checks as follows:
 
@@ -63,14 +67,13 @@ Treat the checks as follows:
   current integration target: hard stop;
 - the lineage base branch advancing after initiative creation: warning; do not
   auto-rebase/merge solely to silence it;
-- semantic ownership collision with another active initiative: hard stop;
-- overlapping changed files across otherwise-independent initiatives: warning
-  requiring explicit review before integration;
+- same-file overlap with another active track: warning requiring explicit
+  review before integration;
 - being behind `origin/main`: visible warning, not by itself permission to
   rebase/merge or switch checkouts.
 
-Do not resolve an initiative conflict by silently broadening scope, changing
-another branch, or weakening an architectural owner.
+Do not resolve a real conflict by changing another branch or weakening a
+canonical product/architecture contract.
 
 ### Git safety
 
@@ -86,21 +89,34 @@ another branch, or weakening an architectural owner.
 
 Pull requests are the integration boundary for initiative work.
 
-- Target the `integration=` branch declared by the initiative registry; do not
+- Target the `integration=` branch declared by the track progress header; do not
   default mechanically to `main`.
-- Fill the initiative contract in `.github/pull_request_template.md` from the
-  branch's ACTIVE registry marker.
+- Fill the track contract in `.github/pull_request_template.md` from the
+  branch's ACTIVE progress header.
 - Keep `scripts/agent-preflight` as the single collaboration-policy primitive.
   Local agents run it directly; CI runs the same script with `--ci`.
 - A CI failure in the `agent-governance` job is a hard integration stop. Do
   not duplicate or weaken the policy inside workflow YAML to make the check
   pass.
-- `CODEOWNERS` is human review routing only. It does not assign semantic
-  initiative ownership and must never be used to resolve an `owns=`
-  collision.
-- Registry changes that intentionally transfer semantic ownership must make
-  that transfer explicit; do not broaden ownership as a workaround for a
-  conflict.
+- `CODEOWNERS` is human review routing only. It does not assign track or domain
+  authority and must never be used to resolve a change-overlap warning.
+
+### Architecture-drift review contract
+
+Governance-aware PR review is an AI/human review responsibility, not a bash
+or CI heuristic. The reviewer must load `/AGENTS.md`, engineering principles,
+the track progress and plan, relevant canonical specs/architecture for changed
+files, the PR diff, and any unresolved review findings.
+
+It reports either **ARCHITECTURE PASS** or **ARCHITECTURE DRIFT WARNING**. A
+warning identifies the changed implementation, the canonical definition it may
+contradict, why they conflict, and requires the author to correct the code or
+deliberately update the canonical documentation. This remains a review warning
+until a future approved automation can establish it deterministically.
+
+Review findings/fix briefs record the track, reviewed HEAD, plan/progress
+context, and integration branch so a later coding pass can reconnect without
+an autonomous reviewer-to-coder loop.
 
 ### Superpowers documentation navigation
 
