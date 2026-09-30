@@ -42,22 +42,33 @@ GOV-LOCATE-1 verification passed with 21 governance cases. `agent-track locate`
 uses registered-worktree plus fetched-ref discovery, reports explicit
 unavailable/ambiguous identities, and does not mutate the caller checkout.
 
+The minimal `resume-track` skill design is accepted in the governance plan. It
+is a non-persistent composition of `agent-track`, canonical documents, optional
+PR/review context, and preflight; it does not create another registry or
+authority. The design explicitly stops for ambiguous identity, an unregistered
+worktree, context disagreement, blocked writes, stale/conflicting Fix Briefs,
+and forbidden integration.
+
 The PR remains draft and unmerged. Integration safety must be re-evaluated
 against the then-current `feat/preference-first-selection` head before merge;
 do not auto-merge, auto-rebase, or weaken governance checks to make it mergeable.
 
 ## Current checkpoint
 
-Milestone 2B verification accepted. GOV-GATE-1 separates write and integration
-readiness; GOV-LOCATE-1 supplies deterministic named-track discovery.
+Milestone 2B verification and the `resume-track` design are accepted.
+GOV-GATE-1 separates write and integration readiness; GOV-LOCATE-1 supplies
+deterministic named-track discovery.
 
 ## Next authorized action
 
-Design the minimal agent-level `resume` skill that composes `locate` with using
-the registered worktree, `context`, preflight, and the next authorized action.
-Before any integration attempt, rerun canonical preflight against the
-then-current `feat/preference-first-selection` head; do not auto-merge,
-auto-rebase, or resolve integration conflicts as part of this track.
+Implement the repository-owned `resume-track` skill exactly as designed in the
+governance plan, with focused governance-contract coverage. Keep it a
+non-persistent composer of existing authorities; do not introduce client-local
+absolute links, a duplicate instruction source, product/RW4 changes, or any
+automatic Git/worktree/integration mutation. Before any integration attempt,
+rerun canonical preflight against the then-current
+`feat/preference-first-selection` head; do not auto-merge, auto-rebase, or
+resolve integration conflicts as part of this track.
 
 ## Open findings / blockers
 
