@@ -884,6 +884,56 @@ requires **complete** resolution (`sourceCompositionComplete`; §3 and §12 —
 no percentage threshold). The fix narrows what discovery may declare as
 membership; it never relaxes how declared membership is verified.
 
+### 16.2 Named anchors are relevance context, never evidence authority
+
+Clarified 2026-09-30 after canonical RW4 COLD live-6
+(`spikes/rw4-mendoza-tourism-route-cloudflare-live6-2026-09-30/`, HEAD
+`2ffd99c3`).
+
+```text
+named anchor     = acquisition / relevance context
+source evidence  = authority for what the Experience actually is
+```
+
+Canonical invariants:
+
+- `ExperienceDiscoveryRequest.anchorNames` focuses acquisition and tells the
+  extractor which retrieved evidence is relevant to the user's request. It is
+  **not** a required evidence phrase, a canonical Experience identity, a
+  GeoEntity identity proof, a source-support claim or a facet proof.
+- The anchor is **not required to occur lexically** in the source. A source
+  may describe a relevant Experience under a translated, localized, narrower,
+  variant, subroute, tour, itinerary or product name. No exact/fuzzy anchor
+  matcher, alias engine or translation table exists or may be introduced.
+- The source keeps authority over the discovered Experience's **identity**
+  (its own name — never renamed to the anchor, never claimed to BE the anchor
+  unless the source says so), **component membership**, **themes** and
+  **intents**. Anchor context may decide relevance; it never establishes fact.
+- Relevance is not a theme match: a candidate that only shares a generic theme
+  with the request but has no meaningful relationship to the anchor context or
+  destination is still excluded.
+- There is exactly one generic `anchorNames` context. No anchor mode / kind /
+  type taxonomy is part of the extraction contract; Experience intents,
+  GeoEntity kind, component role and source evidence already own those facts.
+  (The pre-existing acquisition-routing discriminant
+  `AreaRouteWalkAnchor['mode']` — resolved geographic anchor vs unresolved
+  named path — is an acquisition-strategy concern and never reaches
+  extraction.)
+- §16.1 is unchanged: an anchor never licenses composition, a tourism-concept
+  anchor is never a componentHint, and `MULTI_COMPONENT_EXPERIENCE` still
+  requires ≥ 2 source-backed non-area components of the SAME real Experience.
+
+RW4 live-6 counterexample: the query correctly carried
+`anchorNames: ["Ruta del Vino de Mendoza"]`; an English "Mendoza Wine Bike
+Tour" source with a concrete Maipú winery visiting sequence was rejected only
+because the previous anchor rule ("Do not emit an Experience that the evidence
+does not connect to any named anchor") was read as a lexical gate. Under
+§16.2 it may be emitted as `"Mendoza Wine Bike Tour"` (its source identity),
+never renamed to or equated with `"Ruta del Vino de Mendoza"`.
+
+Enforcement authority: `buildDiscoveryAnchorContext` in the single shared
+extraction contract, consumed unchanged by every extractor provider.
+
 ---
 
 ## 17. Composite membership is not planner augmentation

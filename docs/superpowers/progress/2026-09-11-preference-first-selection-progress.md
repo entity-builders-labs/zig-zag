@@ -1,6 +1,6 @@
 # Preference-First Selection — CURRENT MAIN PROGRESS
 
-Updated: 2026-09-29
+Updated: 2026-09-30
 Branch: `feat/preference-first-selection`
 Repository: `entity-builders-labs/zig-zag`
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
@@ -104,6 +104,34 @@ RW3-N6 resolution and live verification status:
   (`buildExperienceCompositionRules`). No schema, IdentityVerifier, gate,
   radius, provider-config or destination-specific change; no deterministic
   validator (exact name equality would reject legitimate single-place visits).
+- **RW4 remains the current gate.** Next action after review: a fresh
+  canonical RW4 COLD with the same Serper → Tavily → Cloudflare extractor →
+  Gemini classification topology.
+
+
+### RW4 COLD live-6 finding and anchor-semantics correction — 2026-09-30
+
+- Canonical RW4 COLD live-6
+  (`spikes/rw4-mendoza-tourism-route-cloudflare-live6-2026-09-30/`, HEAD
+  `2ffd99c3`): **FAIL_PRODUCT_BLOCKER**, zero rows, WARM not run. Acquisition
+  anchor retention, §16.1 composition semantics and the Cloudflare 4096-token
+  budget were all proven working. Regional-overview sources correctly failed
+  closed (wineries listed only as examples).
+- First causal blocker: **extraction anchor semantics**. The shared anchor
+  rule ("materially about at least one named anchor … do not emit an
+  Experience the evidence does not connect to any named anchor") was applied
+  as a lexical/identity gate, rejecting a concrete source-backed "Mendoza Wine
+  Bike Tour" (Maipú winery sequence) because the English source never
+  repeated "Ruta del Vino de Mendoza".
+- Correction: amendment §16.2 — named anchors are acquisition/relevance
+  context, not evidence authority; no literal occurrence required; the source
+  owns identity/membership/themes/intents; generic-theme-only candidates stay
+  excluded. Enforced in `buildDiscoveryAnchorContext` only. No `anchorMode`
+  or anchor taxonomy, no aliases/fuzzy matching, no acquisition/query,
+  source-support, IdentityVerifier, geography, candidate-count, Cloudflare
+  budget or provider-topology change. §16.1 composition rules unchanged.
+- Secondary (not addressed): Markdown-link `supportSpan` verification —
+  becomes the next blocker only if a fresh canonical run reaches it.
 - **RW4 remains the current gate.** Next action after review: a fresh
   canonical RW4 COLD with the same Serper → Tavily → Cloudflare extractor →
   Gemini classification topology.
