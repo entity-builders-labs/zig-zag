@@ -137,6 +137,25 @@ RW3-N6 resolution and live verification status:
   Gemini classification topology.
 
 
+### RW4 canonical-run provenance hardening — 2026-09-30
+
+- live7 was noncanonical because executed build provenance was unverifiable;
+  instrumentation was hardened before the next canonical RW4 COLD.
+- Harness `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/`
+  refuses a dirty checkout, builds the backend from HEAD for the run, launches
+  it with `BUILD_COMMIT=HEAD`, and fails the run as NOT CANONICAL unless the
+  trace `runtime.buildCommit` and the manifest both report that HEAD
+  (`canonical-provenance.test.sh`).
+- Web acquisition diagnostics (no behavior change): every extraction attempt
+  is kept (`extractionAttempts`: snippet-only and deep-source), deep-source
+  selection audits keep each result's search snippet, and a web failure
+  records its stage (`failedStage`: SEARCH / SOURCE_SELECTION / SOURCE_FETCH /
+  EXTRACTION) with the raw error.
+- **RW4 remains the current gate.** Next action: a fresh canonical RW4 COLD
+  through this harness with the same topology; WARM only after COLD persists
+  a qualifying reusable Experience.
+
+
 ## RW3 final acceptance — 2026-09-29
 
 **RW3 = CLOSED / ACCEPTED. RW4 = AUTHORIZED / NEXT GATE.**
