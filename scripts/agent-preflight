@@ -40,6 +40,7 @@ if [ "$ALLOW_DIRTY" -eq 0 ] && [ -n "$(git status --porcelain)" ]; then
 else
   pass "working tree" "clean or explicitly allowed"
 fi
+
 if [ "$NO_FETCH" -eq 0 ]; then
   if git fetch origin --prune >/dev/null 2>&1; then pass "remote refs" "fetched origin --prune"; else fail "remote refs" "git fetch origin --prune failed"; fi
 else
@@ -55,6 +56,7 @@ else
   BASE_SHA="$(track_field "$MARKER" base)"
   PLAN="$(track_field "$MARKER" plan)"
   pass "track" "$TRACK_ID ($PROGRESS)"
+
   if [ -z "$INTEGRATION_BRANCH" ] || [ -z "$BASE_SHA" ] || [ -z "$PLAN" ]; then
     fail "track contract" "requires integration, base, and plan in $PROGRESS"
   elif [ ! -f "$TOP/$PLAN" ]; then
@@ -62,9 +64,15 @@ else
   else
     pass "track contract" "integration=$INTEGRATION_BRANCH plan=$PLAN"
   fi
+
   if [ "$CI_MODE" -eq 1 ] && [ -n "${GITHUB_BASE_REF:-}" ]; then
-    if [ "$GITHUB_BASE_REF" = "$INTEGRATION_BRANCH" ]; then pass "PR integration target" "$GITHUB_BASE_REF matches declared integration"; else fail "PR integration target" "PR targets $GITHUB_BASE_REF but track declares $INTEGRATION_BRANCH"; fi
+    if [ "$GITHUB_BASE_REF" = "$INTEGRATION_BRANCH" ]; then
+      pass "PR integration target" "$GITHUB_BASE_REF matches declared integration"
+    else
+      fail "PR integration target" "PR targets $GITHUB_BASE_REF but track declares $INTEGRATION_BRANCH"
+    fi
   fi
+
   if [ -z "$BASE_SHA" ]; then
     fail "base snapshot" "track is missing base"
   elif ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
@@ -74,35 +82,37 @@ else
   else
     fail "base ancestry" "HEAD does not contain declared base snapshot $BASE_SHA"
   fi
+
   INTEGRATION_REF="origin/$INTEGRATION_BRANCH"
   if ! git show-ref --verify --quiet "refs/remotes/$INTEGRATION_REF"; then
     fail "integration target ref" "$INTEGRATION_REF does not exist locally after fetch"
   else
-    merge_status=0; merge_output="$(git merge-tree --write-tree HEAD "$INTEGRATION_REF" 2>&1)" || merge_status=$?
+    merge_status=0
+    merge_output="$(git merge-tree --write-tree HEAD "$INTEGRATION_REF" 2>&1)" || merge_status=$?
     case "$merge_status" in
       0) pass "integration conflict" "non-mutating merge-tree clean vs $INTEGRATION_REF" ;;
       1) fail "integration conflict" "merge-tree reports conflicts vs $INTEGRATION_REF"; printf '%s\n' "$merge_output" | sed -n '1,20p' ;;
       *) fail "integration conflict" "git merge-tree --write-tree failed with status $merge_status"; printf '%s\n' "$merge_output" | sed -n '1,20p' ;;
     esac
   fi
+
   if git show-ref --verify --quiet refs/remotes/origin/main; then
-    if git merge-base --is-ancestor origin/main HEAD; then pass "main relationship" "HEAD contains current origin/main"; else warn "main relationship" "HEAD does not contain current origin/main; do not auto-rebase/merge"; fi
+    if git merge-base --is-ancestor origin/main HEAD; then
+      pass "main relationship" "HEAD contains current origin/main"
+    else
+      warn "main relationship" "HEAD does not contain current origin/main; do not auto-rebase/merge"
+    fi
   fi
+
   changed_files() {
     local ref="$1" integration="$2" merge_base
     git show-ref --verify --quiet "refs/remotes/origin/$integration" || return 0
     merge_base="$(git merge-base "$ref" "origin/$integration")"
     git diff --name-only "$merge_base".."$ref" | sort -u
   }
-  CURRENT_FILES="$(changed_files HEAD "$INTEGRATION_BRANCH")"
-  while IFS=fi
 
-printf '\n'
-if [ "$failures" -gt 0 ]; then
-  printf 'STOP BEFORE WRITE — %d hard failure(s), %d warning(s).\n' "$failures" "$warnings"; exit 1
-fi
-printf 'WRITE AUTHORIZED — 0 hard failures, %d warning(s).\n' "$warnings"
-\t' read -r OTHER_BRANCH _OTHER_PROGRESS OTHER_MARKER; do
+  CURRENT_FILES="$(changed_files HEAD "$INTEGRATION_BRANCH")"
+  while IFS=$'\t' read -r OTHER_BRANCH _OTHER_PROGRESS OTHER_MARKER; do
     OTHER_ID="$(track_field "$OTHER_MARKER" id)"
     OTHER_INTEGRATION="$(track_field "$OTHER_MARKER" integration)"
     [ "$OTHER_BRANCH" != "$CURRENT_BRANCH" ] && [ -n "$OTHER_INTEGRATION" ] || continue
@@ -117,6 +127,7 @@ fi
 
 printf '\n'
 if [ "$failures" -gt 0 ]; then
-  printf 'STOP BEFORE WRITE — %d hard failure(s), %d warning(s).\n' "$failures" "$warnings"; exit 1
+  printf 'STOP BEFORE WRITE — %d hard failure(s), %d warning(s).\n' "$failures" "$warnings"
+  exit 1
 fi
 printf 'WRITE AUTHORIZED — 0 hard failures, %d warning(s).\n' "$warnings"
