@@ -14,9 +14,8 @@ import {
 
 /** Extractor-specific transport settings for Cloudflare Workers AI. These are
  * not global AI temperature — they only apply to this discovery extraction
- * call (same rationale as Groq's frozen temp=0 / 900-token budget). */
+ * call. */
 const TEMPERATURE = 0;
-const MAX_COMPLETION_TOKENS = 900;
 
 /** Provider failure that preserves the upstream HTTP status so callers can
  * distinguish a rate limit (HTTP 429) from semantic empty output. A 429 is
@@ -34,6 +33,7 @@ export class CloudflareDiscoveryError extends Error {
 interface CloudflareChatCompletionResponse {
   choices?: Array<{
     message?: { content?: string };
+    finish_reason?: string | null;
   }>;
 }
 
@@ -52,15 +52,18 @@ interface CloudflareChatCompletionResponse {
  * instruction plus the existing deterministic JSON.parse / extraction
  * validation path.
  *
- * Live characterization (2026-09-26): `@cf/qwen/qwen3.8-27b` is a reasoning
- * variant — without intervention it emits chain-of-thought into
- * `choices[0].message.reasoning` and leaves `content` null, hitting
- * `finish_reason: "length"` at the 900-token budget. Disabling thinking via
- * `chat_template_kwargs: { enable_thinking: false }` makes it emit the answer
- * in `content` (observed: `finish_reason: "stop"`, ~455 tokens), wrapped in a
- * ```json markdown fence that is stripped alongside the `<think>` wrapper.
- * Malformed output remains observable as a parse failure rather than being
- * silently coerced.
+ * Live characterization: `@cf/qwen/qwen3.8-27b` is a reasoning variant —
+ * without intervention it emits chain-of-thought into
+ * `choices[0].message.reasoning` and leaves `content` null. Disabling thinking
+ * via `chat_template_kwargs: { enable_thinking: false }` makes it emit the
+ * answer in `content`, wrapped in a ```json markdown fence that is stripped
+ * alongside the `<think>` wrapper.
+ *
+ * The completion token budget is configured via `discoveryExtractor.cloudflare.maxCompletionTokens`
+ * (default 4096), giving multi-candidate extractions adequate transport headroom.
+ * If Cloudflare reports `finish_reason: "length"` and the returned content fails
+ * JSON parsing, the provider reports an explicit truncation validation error instead
+ * of a generic parse failure.
  */
 @Injectable()
 export class CloudflareDiscoveryProvider {
@@ -113,7 +116,7 @@ export class CloudflareDiscoveryProvider {
     const system = buildDiscoverySystemPrompt();
     const user = buildDiscoveryUserPrompt(request, evidence);
 
-    const raw = await this.callCloudflare(
+    const { content: raw, finishReason } = await this.callCloudflare(
       accountId,
       apiToken,
       model,
@@ -125,9 +128,13 @@ export class CloudflareDiscoveryProvider {
     try {
       parsed = JSON.parse(raw);
     } catch {
+      const errorMessage =
+        finishReason === 'length'
+          ? 'Cloudflare discovery response truncated at completion token limit'
+          : 'Failed to parse JSON response';
       return {
         candidates: [],
-        validationErrors: ['Failed to parse JSON response'],
+        validationErrors: [errorMessage],
         sourceSupportAudits: [],
         provider: 'cloudflare',
         model,
@@ -157,7 +164,7 @@ export class CloudflareDiscoveryProvider {
     model: string,
     system: string,
     user: string,
-  ): Promise<string> {
+  ): Promise<{ content: string; finishReason?: string | null }> {
     const endpoint = `${CloudflareDiscoveryProvider.API_BASE_URL}/${accountId}/ai/v1/chat/completions`;
 
     const resp = await fetch(endpoint, {
@@ -173,10 +180,9 @@ export class CloudflareDiscoveryProvider {
           { role: 'user', content: user },
         ],
         temperature: TEMPERATURE,
-        max_completion_tokens: MAX_COMPLETION_TOKENS,
+        max_completion_tokens: this.cloudflare.maxCompletionTokens,
         // This Cloudflare-hosted Qwen is a reasoning variant; disable its
-        // chain-of-thought so the answer lands in `content` within the
-        // extractor's 900-token budget (live-verified 2026-09-26).
+        // chain-of-thought so the answer lands in `content`.
         chat_template_kwargs: { enable_thinking: false },
       }),
       signal: AbortSignal.timeout(this.cloudflare.timeoutMs),
@@ -192,7 +198,8 @@ export class CloudflareDiscoveryProvider {
     }
 
     const data: CloudflareChatCompletionResponse = await resp.json();
-    const content = data.choices?.[0]?.message?.content;
+    const choice = data.choices?.[0];
+    const content = choice?.message?.content;
     if (typeof content !== 'string' || content.trim() === '') {
       throw new Error('Cloudflare response had no choices[0].message.content');
     }
@@ -200,7 +207,10 @@ export class CloudflareDiscoveryProvider {
     // Normalize the two transport artifacts comparable providers already
     // strip: an explicit reasoning wrapper (`<think>…</think>`) and the
     // optional ```json markdown fence. Semantic content is otherwise untouched.
-    return this.normalizeTransportArtifacts(content);
+    return {
+      content: this.normalizeTransportArtifacts(content),
+      finishReason: choice?.finish_reason,
+    };
   }
 
   /** Strip the `<think>` reasoning wrapper and the optional ```json fence

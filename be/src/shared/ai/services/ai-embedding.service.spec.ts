@@ -55,6 +55,7 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         cloudflare: {
           model: '@cf/qwen/qwen3.8-27b',
           timeoutMs: 60000,
+          maxCompletionTokens: 4096,
         },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
@@ -103,6 +104,7 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         cloudflare: {
           model: '@cf/qwen/qwen3.8-27b',
           timeoutMs: 60000,
+          maxCompletionTokens: 4096,
         },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',
@@ -172,6 +174,7 @@ describe('AiEmbeddingService Bedrock adapter', () => {
         cloudflare: {
           model: '@cf/qwen/qwen3.8-27b',
           timeoutMs: 60000,
+          maxCompletionTokens: 4096,
         },
       },
       geminiGroundedSearchModel: 'gemini-3.5-flash',

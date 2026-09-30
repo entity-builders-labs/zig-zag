@@ -17,6 +17,7 @@ const baseConfig = {
   apiToken: 'cf-secret-token',
   model: '@cf/qwen/qwen3.8-27b',
   timeoutMs: 60000,
+  maxCompletionTokens: 4096,
 };
 
 const VALID_CANDIDATE = {
@@ -156,12 +157,114 @@ describe('CloudflareDiscoveryProvider', () => {
     expect(lastBody().messages[1].content).toContain('Named anchors: Caminito');
   });
 
-  it('uses temperature 0, max_completion_tokens 900, and disables thinking', async () => {
+  it('uses temperature 0, default max_completion_tokens (4096), and disables thinking', async () => {
     const provider = await makeProvider();
     await provider.extractExperiences(request, searchResult);
     expect(lastBody().temperature).toBe(0);
-    expect(lastBody().max_completion_tokens).toBe(900);
+    expect(lastBody().max_completion_tokens).toBe(4096);
     expect(lastBody().chat_template_kwargs).toEqual({ enable_thinking: false });
+  });
+
+  it('propagates an explicit maxCompletionTokens override to Cloudflare', async () => {
+    const provider = await makeProvider({ maxCompletionTokens: 2048 });
+    await provider.extractExperiences(request, searchResult);
+    expect(lastBody().max_completion_tokens).toBe(2048);
+  });
+
+  it('parses a multi-candidate payload materially larger than the historical 900-token budget', async () => {
+    const multiCandidatePayload = {
+      candidates: [
+        {
+          name: 'Maipú Wine Route Tour',
+          description:
+            'A traditional wine route experience in eastern Mendoza, visiting century-old wineries known for classic Malbec and Bonarda. The route covers the historic wine region of Maipú, featuring stops at renowned estates like Trapiche and Norton.',
+          themes: ['wine', 'history', 'gastronomy'],
+          traits: [
+            'traditional wineries',
+            'classic Malbec',
+            'century-old estates',
+          ],
+          intents: ['route_like', 'visit'],
+          suggestedDurationMinutes: 360,
+          componentHints: [
+            {
+              key: 'maipu',
+              name: 'Maipú',
+              role: 'area',
+              expectedKind: 'AREA',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'Historic barrio',
+            },
+            {
+              key: 'trapiche',
+              name: 'Trapiche',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'Historic barrio',
+            },
+          ],
+          evidenceKeys: ['ev-1'],
+          shortReason:
+            'Evidence explicitly describes the Maipú Wine Route as a distinct circuit.',
+          orderedByEvidence: false,
+        },
+        {
+          name: 'Luján de Cuyo Wine Route Tour',
+          description:
+            'A premium wine route experience in the First Zone of Argentine Malbec. This route visits world-class boutique wineries and signature cuisine restaurants in Luján de Cuyo, known for high-end blends and premium Malbec.',
+          themes: ['wine', 'gastronomy'],
+          traits: ['boutique wineries', 'premium Malbec', 'signature cuisine'],
+          intents: ['route_like', 'visit'],
+          suggestedDurationMinutes: 360,
+          componentHints: [
+            {
+              key: 'lujan',
+              name: 'Luján de Cuyo',
+              role: 'area',
+              expectedKind: 'AREA',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'Historic barrio',
+            },
+            {
+              key: 'catena',
+              name: 'Catena Zapata',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+              supportSpan: 'Historic barrio',
+            },
+          ],
+          evidenceKeys: ['ev-1'],
+          shortReason:
+            'Evidence explicitly describes the Luján de Cuyo Wine Route as a distinct circuit.',
+          orderedByEvidence: false,
+        },
+      ],
+    };
+
+    const serialized = JSON.stringify(multiCandidatePayload, null, 2);
+    expect(serialized.length).toBeGreaterThan(1500);
+
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        choices: [
+          {
+            message: { content: serialized },
+            finish_reason: 'stop',
+          },
+        ],
+      }),
+    } as any);
+
+    const provider = await makeProvider();
+    const result = await provider.extractExperiences(request, searchResult);
+    expect(result.validationErrors).toHaveLength(0);
+    expect(result.candidates).toHaveLength(2);
+    expect(result.candidates[0].name).toBe('Maipú Wine Route Tour');
+    expect(result.candidates[1].name).toBe('Luján de Cuyo Wine Route Tour');
   });
 
   it('extracts a valid candidate through the shared deterministic boundary', async () => {
@@ -187,17 +290,74 @@ describe('CloudflareDiscoveryProvider', () => {
     expect(result.validationErrors).toHaveLength(0);
   });
 
-  it('returns a parse-failure envelope on malformed JSON', async () => {
+  it('returns a parse-failure envelope on malformed JSON when finish_reason is stop', async () => {
     fetchSpy.mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ choices: [{ message: { content: 'not json' } }] }),
+      json: async () => ({
+        choices: [
+          {
+            message: { content: 'not json' },
+            finish_reason: 'stop',
+          },
+        ],
+      }),
     } as any);
     const provider = await makeProvider();
     const result = await provider.extractExperiences(request, searchResult);
     expect(result.candidates).toHaveLength(0);
     expect(result.validationErrors).toContain('Failed to parse JSON response');
+    expect(result.validationErrors).not.toContain(
+      'Cloudflare discovery response truncated at completion token limit',
+    );
     expect(result.provider).toBe('cloudflare');
+  });
+
+  it('diagnoses truncation explicitly when finish_reason is length and JSON is incomplete', async () => {
+    const truncatedJson = '{"candidates":[{"name":"Cut off candidate",';
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        choices: [
+          {
+            message: { content: truncatedJson },
+            finish_reason: 'length',
+          },
+        ],
+      }),
+    } as any);
+
+    const provider = await makeProvider();
+    const result = await provider.extractExperiences(request, searchResult);
+    expect(result.candidates).toHaveLength(0);
+    expect(result.rawOutput).toBe(truncatedJson);
+    expect(result.validationErrors).toContain(
+      'Cloudflare discovery response truncated at completion token limit',
+    );
+    expect(result.provider).toBe('cloudflare');
+    expect(result.model).toBe('@cf/qwen/qwen3.8-27b');
+  });
+
+  it('evaluates normally when content is valid JSON even if finish_reason is length', async () => {
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        choices: [
+          {
+            message: { content: JSON.stringify(VALID_CANDIDATE) },
+            finish_reason: 'length',
+          },
+        ],
+      }),
+    } as any);
+
+    const provider = await makeProvider();
+    const result = await provider.extractExperiences(request, searchResult);
+    expect(result.validationErrors).toHaveLength(0);
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].name).toBe('Paseo');
   });
 
   it('throws a provider failure on a non-2xx Cloudflare response', async () => {
