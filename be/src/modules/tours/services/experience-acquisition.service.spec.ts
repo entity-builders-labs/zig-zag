@@ -2150,6 +2150,430 @@ describe('ExperienceAcquisitionService', () => {
             expect(webResult.sourceContentRetrieval).toBeUndefined();
           });
         });
+
+        describe('grounded evidence observability (forensic reconstruction)', () => {
+          const multiEvidenceItems = [
+            {
+              key: 'ev-1',
+              order: 1,
+              source: 'buenosaires.travel',
+              title: 'San Telmo Traditional Walk',
+              url: 'https://buenosaires.travel/san-telmo',
+              snippet:
+                'Walk through cobblestone streets, antique markets, and historic tango bars in San Telmo.',
+              kind: 'organic_result' as const,
+            },
+            {
+              key: 'ev-2',
+              order: 2,
+              source: 'travelmag.com',
+              title: 'Historic Cafes of Buenos Aires',
+              url: 'https://travelmag.com/cafes',
+              snippet:
+                'Visit Cafe Tortoni and other notable traditional bars in the city center.',
+              kind: 'organic_result' as const,
+            },
+            {
+              key: 'ev-3',
+              order: 3,
+              source: 'mendoza-wine.com',
+              title: 'Winery Overview',
+              url: 'https://mendoza-wine.com/wineries',
+              snippet:
+                'Bodega Don Manuel Villafane and Bodega El Enemigo offer guided cellar tours.',
+              kind: 'organic_result' as const,
+            },
+            {
+              key: 'ev-4',
+              order: 4,
+              source: 'argentinatravel.org',
+              title: 'General Sightseeing Guide',
+              url: 'https://argentinatravel.org/guide',
+              snippet:
+                'General tips for travelers visiting Argentine cities and provinces.',
+              kind: 'organic_result' as const,
+            },
+          ];
+
+          const multiEvidenceGroundedResult = {
+            provider: 'tavily',
+            model: 'tavily-search',
+            groundingStatus: 'applied',
+            evidence: multiEvidenceItems.map((item) => ({ ...item })),
+            evidenceProvenance: [{ provider: 'tavily' }],
+            rawOutput: 'grounded multi-evidence fixture',
+          };
+
+          it('1 & 2: records every grounded search item supplied to extraction with exact key, title, URL, snippet, and rank/order', async () => {
+            const search = jest
+              .fn()
+              .mockResolvedValue(multiEvidenceGroundedResult);
+            const extractExperiences = jest.fn().mockResolvedValue({
+              candidates: [webCandidate],
+              validationErrors: [],
+              provider: 'gemini',
+              model: 'gemini-x',
+              rawOutput: '{"candidates":[]}',
+            });
+
+            const service = new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              undefined,
+              { search } as any,
+              { extractExperiences } as any,
+            );
+
+            const result = await service.executePlan(webPlan);
+            const webResult = result.webResults![0];
+
+            expect(webResult.groundedEvidence).toBeDefined();
+            expect(webResult.groundedEvidence).toHaveLength(4);
+
+            // Verifies 1: every evidence item supplied to extraction is recorded
+            expect(webResult.groundedEvidence!.map((e) => e.key)).toEqual([
+              'ev-1',
+              'ev-2',
+              'ev-3',
+              'ev-4',
+            ]);
+
+            // Verifies 2: exact key, title, URL, snippet, rank/order, and provider metadata preserved
+            for (let i = 0; i < multiEvidenceItems.length; i++) {
+              const expected = multiEvidenceItems[i];
+              const actual = webResult.groundedEvidence![i];
+              expect(actual.key).toBe(expected.key);
+              expect(actual.order).toBe(expected.order);
+              expect(actual.title).toBe(expected.title);
+              expect(actual.url).toBe(expected.url);
+              expect(actual.snippet).toBe(expected.snippet);
+              expect(actual.source).toBe(expected.source);
+              expect(actual.kind).toBe(expected.kind);
+            }
+          });
+
+          it('3: evidence remains available when no deep-source fetch occurs and candidate cites only one evidence item', async () => {
+            const singleCiteCandidate = {
+              ...webCandidate,
+              evidenceKeys: ['ev-2'],
+              componentHints: [
+                {
+                  key: 'cafe-tortoni',
+                  name: 'Cafe Tortoni',
+                  role: 'venue' as const,
+                  expectedKind: 'PLACE' as const,
+                  evidenceKeys: ['ev-2'],
+                },
+              ],
+            };
+
+            const search = jest
+              .fn()
+              .mockResolvedValue(multiEvidenceGroundedResult);
+            const extractExperiences = jest.fn().mockResolvedValue({
+              candidates: [singleCiteCandidate],
+              validationErrors: [],
+              provider: 'gemini',
+              model: 'gemini-x',
+              rawOutput: '{"candidates":[]}',
+            });
+
+            const service = new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              undefined,
+              { search } as any,
+              { extractExperiences } as any,
+            );
+
+            const result = await service.executePlan(webPlan);
+            const webResult = result.webResults![0];
+
+            // No deep source retrieval occurred
+            expect(webResult.sourceContentRetrieval).toBeUndefined();
+
+            // Candidate cites only ev-2
+            expect(webResult.candidateDecisions![0].candidate).toBeDefined();
+
+            // All 4 evidence items are preserved despite candidate citing only ev-2
+            expect(webResult.groundedEvidence).toHaveLength(4);
+            expect(
+              webResult.groundedEvidence!.find((e) => e.key === 'ev-1')
+                ?.snippet,
+            ).toBe(multiEvidenceItems[0].snippet);
+            expect(
+              webResult.groundedEvidence!.find((e) => e.key === 'ev-2')
+                ?.snippet,
+            ).toBe(multiEvidenceItems[1].snippet);
+            expect(
+              webResult.groundedEvidence!.find((e) => e.key === 'ev-3')
+                ?.snippet,
+            ).toBe(multiEvidenceItems[2].snippet);
+            expect(
+              webResult.groundedEvidence!.find((e) => e.key === 'ev-4')
+                ?.snippet,
+            ).toBe(multiEvidenceItems[3].snippet);
+          });
+
+          it('3 & 4: preserves original search snippet snapshot even when deep-source retrieval mutates grounded.evidence and unselected items are rejected', async () => {
+            const candidateWithGap = {
+              name: 'Buenos Aires Historic Walk',
+              description: 'A multi-stop walking tour',
+              themes: ['culture'],
+              traits: ['historic'],
+              intents: ['walk'],
+              suggestedDurationMinutes: 120,
+              componentHints: [
+                {
+                  key: 'san-telmo',
+                  name: 'San Telmo',
+                  role: 'stop' as const,
+                  expectedKind: 'PLACE' as const,
+                  evidenceKeys: ['ev-1'],
+                },
+              ],
+              evidenceKeys: ['ev-1'],
+              shortReason: 'gap requires second component',
+            };
+
+            const searchEvidence = [
+              {
+                key: 'ev-1',
+                order: 1,
+                source: 'buenosaires.travel',
+                title: 'San Telmo Walk',
+                url: 'https://buenosaires.travel/san-telmo-walk',
+                snippet: 'Original short search snippet for ev-1.',
+              },
+              {
+                key: 'ev-2',
+                order: 2,
+                source: 'travelblog.com',
+                title: 'La Boca Guide',
+                url: 'https://travelblog.com/la-boca',
+                snippet: 'Original short search snippet for ev-2.',
+              },
+              {
+                key: 'ev-3',
+                order: 3,
+                source: 'generic.com',
+                title: 'Non-editorial Page',
+                url: 'https://generic.com/terms',
+                snippet: 'Terms and conditions snippet for ev-3.',
+              },
+            ];
+
+            const search = jest.fn().mockResolvedValue({
+              provider: 'tavily',
+              model: 'tavily-search',
+              groundingStatus: 'applied',
+              evidence: searchEvidence.map((e) => ({ ...e })),
+              evidenceProvenance: [{ provider: 'tavily' }],
+              rawOutput: 'grounded raw',
+            });
+
+            // First extraction returns single component (triggers gap), second extraction returns multi-component
+            const extractExperiences = jest
+              .fn()
+              .mockResolvedValueOnce({
+                candidates: [candidateWithGap],
+                validationErrors: [],
+                provider: 'cloudflare',
+                model: 'qwen',
+                rawOutput: '{"candidates":[]}',
+              })
+              .mockResolvedValueOnce({
+                candidates: [
+                  {
+                    ...candidateWithGap,
+                    componentHints: [
+                      {
+                        key: 'san-telmo',
+                        name: 'San Telmo',
+                        role: 'stop' as const,
+                        expectedKind: 'PLACE' as const,
+                        evidenceKeys: ['ev-1'],
+                      },
+                      {
+                        key: 'la-boca',
+                        name: 'La Boca',
+                        role: 'stop' as const,
+                        expectedKind: 'PLACE' as const,
+                        evidenceKeys: ['ev-1'],
+                      },
+                    ],
+                  },
+                ],
+                validationErrors: [],
+                provider: 'cloudflare',
+                model: 'qwen',
+                rawOutput: '{"candidates":[]}',
+              });
+
+            const webSourceContentProvider = {
+              providerName: 'cloudflare' as const,
+              retrieve: jest.fn().mockResolvedValue({
+                items: [
+                  {
+                    url: 'https://buenosaires.travel/san-telmo-walk',
+                    status: 'success' as const,
+                    content:
+                      'Deep page content full text about San Telmo and La Boca walking tour route.'.repeat(
+                        10,
+                      ),
+                  },
+                ],
+              }),
+            };
+
+            const service = new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              undefined,
+              { search } as any,
+              { extractExperiences } as any,
+              undefined,
+              webSourceContentProvider,
+            );
+
+            const result = await service.executePlan({
+              destination: { destinationName: 'Buenos Aires' },
+              deficits: [
+                {
+                  dimension: 'intent',
+                  key: 'walk',
+                  reason: 'r',
+                  origin: 'preference_facet',
+                },
+              ],
+              evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+              breadth: 'focused',
+              sourcePlans: [
+                {
+                  provider: 'web',
+                  web: {
+                    query: 'Buenos Aires walks',
+                    requestedIntents: ['walk'],
+                  },
+                },
+              ],
+            });
+
+            const webResult = result.webResults![0];
+
+            // 4. Existing deep source selection audit works intact
+            expect(webResult.deepSourceSelection).toBeDefined();
+            expect(webResult.deepSourceSelection!.selectedUrls).toEqual([
+              'https://buenosaires.travel/san-telmo-walk',
+              'https://travelblog.com/la-boca',
+            ]);
+            expect(webResult.deepSourceSelection!.items).toHaveLength(3);
+            expect(
+              webResult.deepSourceSelection!.items.find(
+                (i) => i.evidenceKey === 'ev-3',
+              )?.selected,
+            ).toBe(false);
+
+            // 3. groundedEvidence preserved original search snippets, NOT overwritten by deep fetch
+            expect(webResult.groundedEvidence).toBeDefined();
+            expect(webResult.groundedEvidence).toHaveLength(3);
+            expect(webResult.groundedEvidence![0].snippet).toBe(
+              'Original short search snippet for ev-1.',
+            );
+            expect(webResult.groundedEvidence![1].snippet).toBe(
+              'Original short search snippet for ev-2.',
+            );
+            expect(webResult.groundedEvidence![2].snippet).toBe(
+              'Terms and conditions snippet for ev-3.',
+            );
+
+            // Unselected items (ev-2, ev-3) remain available in groundedEvidence
+            expect(webResult.groundedEvidence![1].key).toBe('ev-2');
+            expect(webResult.groundedEvidence![2].key).toBe('ev-3');
+          });
+
+          it('5: no production decision reads or alters behavior based on groundedEvidence', async () => {
+            const search = jest
+              .fn()
+              .mockResolvedValue(multiEvidenceGroundedResult);
+            const extractExperiences = jest.fn().mockResolvedValue({
+              candidates: [webCandidate],
+              validationErrors: [],
+              provider: 'gemini',
+              model: 'gemini-x',
+              rawOutput: '{"candidates":[]}',
+            });
+
+            const service = new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              undefined,
+              { search } as any,
+              { extractExperiences } as any,
+            );
+
+            const resultNormal = await service.executePlan(webPlan);
+
+            // Verify candidates and admission decisions are strictly independent of groundedEvidence
+            expect(resultNormal.candidates).toHaveLength(1);
+            expect(
+              resultNormal.webResults![0].candidateDecisions![0].accepted,
+            ).toBe(true);
+
+            // materializeExecution only consumes candidates and context
+            const mockResolver = {
+              resolve: jest.fn().mockResolvedValue({
+                acceptedCount: 1,
+                rejectedCount: 0,
+                resolved: [
+                  {
+                    candidate: webCandidate,
+                    experienceId: 'exp-1',
+                  },
+                ],
+                geographicValidation: { results: [] },
+              }),
+            };
+
+            const serviceWithResolver = new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              mockResolver as any,
+            );
+
+            const resolution = await serviceWithResolver.materializeExecution(
+              resultNormal,
+              { geographicScope: { kind: 'DESTINATION_DEFAULT' } as any },
+            );
+
+            expect(mockResolver.resolve).toHaveBeenCalledTimes(1);
+            // resolver received candidates, not groundedEvidence
+            expect(mockResolver.resolve.mock.calls[0][0].candidates).toEqual(
+              resultNormal.candidates,
+            );
+            expect(resolution.resolved).toHaveLength(1);
+          });
+        });
       });
     });
 

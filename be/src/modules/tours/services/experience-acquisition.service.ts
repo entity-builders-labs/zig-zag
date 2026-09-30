@@ -26,6 +26,7 @@ import {
   GroundingNormalizationAudit,
   ExperienceGroundingEvidenceKind,
   ExperienceGroundingEvidence,
+  GroundedSearchEvidenceRecord,
 } from '../interfaces/experience-grounding.interface';
 import {
   DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
@@ -138,6 +139,11 @@ export interface WebAcquisitionResult {
   evidenceKeys: string[];
   evidenceProvenance?: unknown;
   normalizationAudit?: GroundingNormalizationAudit;
+  /**
+   * Exact grounded search evidence snapshot supplied to extraction before any
+   * downstream reasoning or deep-source fetch mutation.
+   */
+  groundedEvidence?: GroundedSearchEvidenceRecord[];
   extractorProvider?: string;
   extractorModel?: string;
   /**
@@ -667,6 +673,23 @@ export class ExperienceAcquisitionService {
         grounded.groundingStatus === 'failed' ||
         grounded.groundingStatus === 'unavailable';
 
+      const rawEvidence = grounded.evidence ?? [];
+      const groundedEvidence: GroundedSearchEvidenceRecord[] = rawEvidence.map(
+        (ev, index) => ({
+          key: ev.key,
+          order: typeof ev.order === 'number' ? ev.order : index + 1,
+          snippet: ev.snippet,
+          source: ev.source,
+          ...(ev.title ? { title: ev.title } : {}),
+          ...(ev.url ? { url: ev.url } : {}),
+          ...(ev.kind ? { kind: ev.kind } : {}),
+          ...(ev.contextHeading ? { contextHeading: ev.contextHeading } : {}),
+          ...(ev.evidenceQuality
+            ? { evidenceQuality: ev.evidenceQuality }
+            : {}),
+        }),
+      );
+
       base = {
         status: groundedFailed ? 'failed' : 'success',
         query: web.query,
@@ -677,9 +700,10 @@ export class ExperienceAcquisitionService {
         ...(grounded.providerLocale
           ? { groundedProviderLocale: grounded.providerLocale }
           : {}),
-        evidenceKeys: (grounded.evidence ?? []).map((e) => e.key),
+        evidenceKeys: rawEvidence.map((e) => e.key),
         evidenceProvenance: grounded.evidenceProvenance,
         normalizationAudit: grounded.normalizationAudit,
+        groundedEvidence,
         groundedRawOutput:
           grounded.rawOutput === undefined
             ? undefined
@@ -1081,6 +1105,7 @@ export class ExperienceAcquisitionService {
           status: 'failed',
           query: web.query,
           evidenceKeys: [],
+          groundedEvidence: [],
           validationErrors: [],
           extractedCandidateCount: 0,
           candidateCount: 0,

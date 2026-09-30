@@ -385,6 +385,9 @@ export function recordAcquisitionLifecycle(
         groundedProviderLocale: webResult.groundedProviderLocale,
         evidenceCount: webResult.evidenceKeys?.length ?? 0,
         evidenceKeys: webResult.evidenceKeys,
+        ...(webResult.groundedEvidence
+          ? { groundedEvidence: webResult.groundedEvidence }
+          : {}),
       },
     });
 

@@ -46,6 +46,23 @@ export interface ExperienceGroundingEvidence {
   evidenceQuality?: 'original_content' | 'reduced';
 }
 
+/**
+ * Canonical evidence snapshot captured at grounded-search completion and
+ * preserved in runtime trace artifacts for exact forensic reconstruction.
+ * Guarantees rank order and exact snippet text received before extraction.
+ */
+export interface GroundedSearchEvidenceRecord {
+  key: string;
+  order: number;
+  snippet: string;
+  source: string;
+  title?: string;
+  url?: string;
+  kind?: ExperienceGroundingEvidenceKind;
+  contextHeading?: string;
+  evidenceQuality?: 'original_content' | 'reduced';
+}
+
 export type ExperienceGroundingEvidenceKind =
   | 'narrative_paragraph'
   | 'list_item'

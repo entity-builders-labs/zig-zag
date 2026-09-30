@@ -959,5 +959,67 @@ describe('experience-generation-trace.util', () => {
         ['ev-2', 'a tour through 5 stops', 'NON_EDITORIAL_SOURCE'],
       ]);
     });
+
+    it('records exact grounded search evidence records in acquisition.web_search trace facts', () => {
+      const groundedEvidence = [
+        {
+          key: 'ev-1',
+          order: 1,
+          source: 'buenosaires.travel',
+          title: 'San Telmo Walk',
+          url: 'https://buenosaires.travel/san-telmo',
+          snippet: 'Walk through cobblestone streets in San Telmo.',
+          kind: 'organic_result' as const,
+        },
+        {
+          key: 'ev-2',
+          order: 2,
+          source: 'timeout.com',
+          title: 'Buenos Aires Bar Crawl',
+          url: 'https://timeout.com/ba-bars',
+          snippet: 'Top historic bars and cafes in downtown.',
+          kind: 'organic_result' as const,
+        },
+        {
+          key: 'ev-3',
+          order: 3,
+          source: 'mendoza.com',
+          title: 'Winery Trail',
+          url: 'https://mendoza.com/wine',
+          snippet: 'Bodega Don Manuel Villafane and Bodega El Enemigo.',
+          kind: 'organic_result' as const,
+        },
+      ];
+
+      const { step } = traceFor({
+        status: 'success',
+        query: 'Buenos Aires highlights',
+        groundedProvider: 'tavily',
+        groundedModel: 'tavily-search',
+        groundingStatus: 'applied',
+        evidenceKeys: ['ev-1', 'ev-2', 'ev-3'],
+        groundedEvidence,
+        validationErrors: [],
+        extractedCandidateCount: 0,
+        candidateCount: 0,
+        candidateDecisions: [],
+        extractionAttempts: [],
+      });
+
+      const webSearchStep = step('acquisition.web_search')!;
+      expect(webSearchStep).toBeDefined();
+
+      const facts = webSearchStep.facts as any;
+      expect(facts.evidenceCount).toBe(3);
+      expect(facts.evidenceKeys).toEqual(['ev-1', 'ev-2', 'ev-3']);
+      expect(facts.groundedEvidence).toBeDefined();
+      expect(facts.groundedEvidence).toHaveLength(3);
+
+      // Verify exact preservation of key, order, title, url, snippet, source, kind
+      expect(facts.groundedEvidence).toEqual(groundedEvidence);
+      expect(facts.groundedEvidence[2].snippet).toBe(
+        'Bodega Don Manuel Villafane and Bodega El Enemigo.',
+      );
+    });
   });
 });
