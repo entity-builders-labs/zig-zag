@@ -1,0 +1,20 @@
+{
+  "resolvedAt": "2026-10-01T18:53:37.115Z",
+  "groundedSearchProvider": "serper",
+  "discoveryExtractorProvider": "cloudflare",
+  "discoveryExtractorModel": "@cf/qwen/qwen3.8-27b",
+  "discoveryExtractorTimeoutMs": 60000,
+  "discoveryExtractorMaxCompletionTokens": 4096,
+  "webSourceContentProvider": "cloudflare",
+  "classificationProvider": "gemini",
+  "classificationModel": "gemini-3.5-flash-lite",
+  "aiProvider": "groq",
+  "credentialsPresent": {
+    "serper": true,
+    "groq": true,
+    "cloudflareAccount": true,
+    "cloudflareToken": true,
+    "tavily": true
+  },
+  "canonicalSelection": true
+}

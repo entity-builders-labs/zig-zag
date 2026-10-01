@@ -195,6 +195,102 @@ RW3-N6 resolution and live verification status:
   interrupt the RW4 web-acquisition gate for it.
 
 
+### RW4 request-level route intent propagation + canonical COLD #8 — 2026-10-01
+
+- Fix `1e3eceb8` (`fix(tours): preserve request route intent across
+  acquisition passes`): `deriveRequestValidationIntent`
+  (`be/src/modules/tours/utils/request-validation-intent.util.ts`) derives
+  the geographic `validationIntent` ONCE from `PreferenceSpec.facets`
+  (intent dimension only) and `ExperienceGenerationService` passes it through
+  the execution context of every generic and `planner_capacity`
+  materialization. It is no longer reconstructed from strategy-local
+  `plan.deficits`. Mixed `walk` + `route_like` still fails closed
+  (`undefined` + warning). Candidate `intents` never grant geographic
+  authority. Destination resolution, compatibility policy, radii,
+  Places/Geoapify, composition, prompts and AreaRouteWalk's own
+  `intentKey` are unchanged.
+- Deterministic regressions: `request-validation-intent.util.spec.ts`
+  (route_like / walk / none / mixed / intent-dimension-only) and
+  `experience-generation.acquisition-orchestration.spec.ts` (Case A generic
+  partition `theme:wine`+`intent:visit` with request `route_like` →
+  `route_like`; B walk; C none → `undefined`; D mixed → `undefined`;
+  plan-deficit route_like without request intent → `undefined`; E same
+  request intent across `generic` and `planner_capacity` → identical).
+  Gates: typecheck, lint, unit 177/2262, integration 23/103 and e2e 4/41 on
+  `zigzag_test`, build, `git diff --check` — all green.
+- Canonical COLD #8: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold/`
+  (DB `zigzag_spike_rw4_canonical_cold_8`, port 4108,
+  `WEB_SOURCE_CONTENT_PROVIDER=cloudflare`). **CANONICAL**: source HEAD =
+  manifest = trace `runtime.buildCommit` = fix commit
+  `1e3eceb8030869f317f09014d08981ad391eeb24`; dist SHA256
+  `e0211015a3208e07...`; `canonical: true`, `failures: []`;
+  `AI_CACHE_MODE=off`; fresh DB; preflight PASS. COLD #7 artifacts moved to
+  `cold_prev_13933cc7/`. Same provider chain as COLD #7 (serper / cloudflare
+  Browser Rendering / cloudflare `@cf/qwen/qwen3.8-27b` / geoapify).
+- Route-intent propagation, live: request facets `theme:wine`,
+  `intent:route_like`; routing sent `route_like` to `area_route_walk` and
+  only `theme:wine` to generic; generic `geography.validation`
+  (`acquisition-pass-1-generic`) recorded `validationIntent: route_like`
+  (COLD #7: `undefined` on all 11 candidates).
+- Uco candidate NOT rediscovered (upstream non-determinism, not a
+  regression). The preference interpreter (groq `qwen/qwen3.8-27b`) did not
+  emit `intent:visit` this time, so generic deficits and the Serper query
+  differed. SolSalute was still `ev-0`, but snippet-level extraction
+  produced "Mendoza Traditional Wineries Tour" (Bodega Don Manuel Villafañe +
+  Bodega El Enemigo de Alejandro Vigil, `ev-5`). That already satisfied
+  `MULTI_COMPONENT_EXPERIENCE`, so no composition gap → no deep fetch →
+  SolSalute never retrieved. Composition/optional semantics were therefore
+  not re-exercised.
+- Component resolution (generic, `route_like` active): both hints went
+  catalog → trusted observation → local OSM pool (176) → Nominatim (0) →
+  Geoapify `geocode-search` (10 results). Selected Bodega Centenario /
+  Bodega Gieco were REJECTED by IdentityVerifier → `UNCONFIRMED_MATCH`, 0/2
+  resolved. No component obtained coordinates for its own identity, so
+  destination compatibility was never evaluated (zero
+  `WITHIN_*`/`OUTSIDE_*` verdicts in the trace).
+- 50 km radius observation (observe only, not changed): replaying the
+  exact Geoapify request at 50 km returns only token-level "Bodega …"
+  matches (all < 40 km); at 80 km neither winery appears either. Local
+  Nominatim has OSM "Restaurante El Enemigo" / "Casa El Enemigo Vigil"
+  (Maipú) but nothing under the source names. **The 50 km hard filter is
+  NOT the causal blocker in COLD #8.**
+- area_route_walk: deep fetch triggered with reason "no admissible
+  multi-component candidate" (argentina.travel retrieved and windowed to
+  5,959 chars; discoverywinemendoza `rate_limited` by Cloudflare); deep
+  extraction returned 0 candidates.
+- Outcome: `generationStatus: failed` (coverage insufficient for
+  `theme:wine`, `intent:route_like`). DB before → after: GeoEntity 0 → 0,
+  GeoEntityIdentity 0 → 0, Experience 0 → 0, ExperienceComponent 0 → 0,
+  verifiedHintMemoryEntries 0 → 0. Uco Experience persisted: NO; planner
+  eligible: NO. WARM: NOT RUN (nothing reusable persisted).
+- Previous fixes:
+  - `GROUNDED EVIDENCE TRACE`: LIVE-PROVEN
+  - `SOURCE WINDOWING FIX`: LIVE-PROVEN (argentina.travel)
+  - `ANCHOR RELEVANCE FIX`: LIVE-PROVEN (anchor "Ruta del Vino de Mendoza" in ARW source selection)
+  - `MARKDOWN SUPPORT FIX`: NOT EXERCISED (deep extraction produced no candidate)
+  - `CANDIDATE-INVALIDITY DEEP-FETCH FIX`: NOT EXERCISED
+  - `CLOUDFLARE SOURCE RETRIEVAL FIDELITY`: NOT EXERCISED for SolSalute (1 retrieved, 1 `rate_limited`)
+  - `REQUEST-LEVEL ROUTE INTENT PROPAGATION`: LIVE-PROVEN at the
+    materialization seam. The route-scale destination policy it enables
+    was NOT EXERCISED (no component reached compatibility).
+- First causal blocker: `named winery PLACE identity acquisition for the
+  generic multi-component candidate: Nominatim returns 0 for the source
+  names and Geoapify geocode-search returns only token-level "Bodega …"
+  matches that IdentityVerifier correctly rejects, so no component reaches
+  destination compatibility (radius-independent: absent at 50 km and 80 km)`.
+- Convergence: **Farther downstream than COLD #7 = NO**. The run diverged
+  upstream (LLM preference interpretation → query → snippet-level candidate),
+  the Uco candidate was not rediscovered and no tour was produced. The fix
+  itself is live-proven at its seam.
+- Evidence (versioned with this entry): `cold/generation-trace.json`,
+  `cold/provenance.json`, `cold/run-manifest.json`, `cold/build.log`,
+  `cold/db-before.json`, `cold/db-after.json`,
+  `cold/provider-preflight.json`, `cold/provider-config.txt`,
+  `cold/provider-requests.ndjson`, `cold/backend.log`, `cold/run.log`,
+  `cold/terminal-tour.json`. The COLD #7 dossier is versioned under
+  `cold_prev_13933cc7/`.
+
+
 ### RW4 Cloudflare source fidelity spike + canonical COLD #7 — 2026-10-01
 
 - Part 1 Standalone Fidelity Spike: `spikes/rw4-cloudflare-source-fidelity-2026-10-01/`.
@@ -238,6 +334,15 @@ RW3-N6 resolution and live verification status:
 - Convergence: **Farther downstream than COLD #6 = YES** (progressed past retrieval loss, past windowing,
   past extraction, past source-support audit, past admission, reaching entity resolution and completing
   a verified tour).
+- Forensic refinement (2026-10-01, after COLD #7): the blocker above
+  describes the observed failure point. Trace forensics refined the FIRST
+  causal blocker to: **request-level `route_like` context was lost in the
+  generic acquisition pass before regional destination compatibility could
+  be exercised**. Evidence: the request had `intent:route_like`; routing
+  moved it to `area_route_walk` (generic got `theme:wine`, `intent:visit`);
+  generic `geography.validation` recorded `validationIntent` undefined
+  (`routeScale=false`). Fixed by `1e3eceb8` (see COLD #8). The dossier moved
+  from `cold/` to `cold_prev_13933cc7/`.
 
 
 ### RW4 Tavily advanced extraction fix + canonical COLD #6 — 2026-10-01
