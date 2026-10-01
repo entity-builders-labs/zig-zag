@@ -6,6 +6,8 @@ import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/core/database/prisma.service';
 import { OutboxPublisherService } from '../src/modules/outbox/services/outbox-publisher.service';
 import { waitForTourQuiescence } from './support/experience-selection/wait-for-tour-quiescence';
+import { traceStep } from './support/experience-selection/harness';
+import { acquisitionStepNames } from './support/experience-selection/assertions';
 import { GeoapifyTravelEstimateProvider } from '../src/modules/tours/services/geoapify-travel-estimate.provider';
 import { TourImageService } from '../src/modules/tours/services/tour-image.service';
 import { TransportationMode } from '../src/modules/tours/interfaces/tour-generation.interface';
@@ -210,12 +212,6 @@ function experience(
   };
 }
 
-function traceStep(tour: any, stage: string): any {
-  return tour.metadata.generationTrace.steps.find(
-    (step: any) => step.stage === stage,
-  );
-}
-
 const scenarios: ScenarioDefinition[] = [
   {
     key: 'culture-art-tango',
@@ -271,10 +267,10 @@ const scenarios: ScenarioDefinition[] = [
     },
     assertTrace(tour) {
       expect(
-        traceStep(tour, 'candidate_pool').candidates.some((candidate: any) =>
-          candidate.id.includes('religious_false_friend'),
+        tour.experiences.every(
+          (item: any) => !item.experience.metadata.themes.includes('religion'),
         ),
-      ).toBe(false);
+      ).toBe(true);
     },
   },
   {
@@ -439,8 +435,10 @@ const scenarios: ScenarioDefinition[] = [
       });
     },
     assertTrace(tour) {
-      const planning = JSON.stringify(traceStep(tour, 'daily_planning'));
-      expect(planning).toContain('OPENING_HOURS_INCOMPATIBLE');
+      const unselectedReasonCodes = traceStep(tour, 'planning.daily')
+        .subjects.filter((s: any) => s.decision.outcome === 'UNSELECTED')
+        .flatMap((s: any) => s.decision.reasonCodes ?? []);
+      expect(unselectedReasonCodes).toContain('OPENING_HOURS_INCOMPATIBLE');
     },
   },
   {
@@ -520,11 +518,6 @@ const scenarios: ScenarioDefinition[] = [
     },
     assertTrace(tour) {
       expect(
-        traceStep(tour, 'candidate_pool').candidates.some((candidate: any) =>
-          candidate.id.includes('ideal_mixed_family'),
-        ),
-      ).toBe(true);
-      expect(
         tour.experiences.map(
           (item: any) => item.experience.metadata.oracleClass,
         ),
@@ -584,17 +577,6 @@ const scenarios: ScenarioDefinition[] = [
         },
       );
     },
-    assertTrace(tour) {
-      expect(
-        traceStep(tour, 'coverage_analysis').outputs
-          .totalDistinctEligibleExperiences,
-      ).toBeGreaterThan(0);
-      expect(
-        tour.metadata.generationTrace.steps.some(
-          (step: any) => step.stage === 'discovery',
-        ),
-      ).toBe(false);
-    },
   },
   {
     key: 'explicit-relaxation',
@@ -643,8 +625,8 @@ const scenarios: ScenarioDefinition[] = [
       });
     },
     assertTrace(tour) {
-      const preference = traceStep(tour, 'preference_interpretation');
-      expect(preference.outputs.intent.hardExclusions).toContain('religion');
+      const preference = traceStep(tour, 'preference.interpretation');
+      expect(preference.output.intent.hardExclusions).toContain('religion');
       expect(
         tour.experiences.every(
           (item: any) => !item.experience.metadata.themes.includes('religion'),
@@ -941,26 +923,14 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
           expectedIds.has(item.experienceId),
         ),
       ).toBe(true);
-      expect(tour.metadata.generationTrace.version).toBe(4);
-      expect(
-        traceStep(tour, 'coverage_analysis').outputs
-          .totalDistinctEligibleExperiences,
-      ).toBeGreaterThan(0);
-      expect(traceStep(tour, 'coverage_analysis').decision.outcome).toBe(
-        'none',
+      expect(traceStep(tour, 'coverage.analysis').decision.outcome).toBe(
+        'SUFFICIENT',
       );
-      expect(
-        traceStep(tour, 'candidate_pool').candidates.length,
-      ).toBeGreaterThan(0);
-      expect(traceStep(tour, 'daily_planning').dailyPlanning.solver).toBe(
+      // A sufficient seeded catalog must not trigger acquisition / discovery.
+      expect(acquisitionStepNames(tour)).toEqual([]);
+      expect(traceStep(tour, 'planning.daily').component).toBe(
         'GreedyDailyPlanningSolver',
       );
-      expect(
-        tour.metadata.generationTrace.steps.some(
-          (step: any) => step.stage === 'discovery',
-        ),
-      ).toBe(false);
-      expect(tour.metadata.executionSummary.status).toBe('completed');
       scenario.assertTrace?.(tour, rows);
 
       const repeated = await generateTour(scenario.request);

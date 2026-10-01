@@ -165,8 +165,8 @@ export async function bootstrapCompetitiveApp(): Promise<CompetitiveHarness> {
   };
 }
 
-export function traceStep(tour: any, stage: string): any {
+export function traceStep(tour: any, name: string): any {
   return (tour.metadata.generationTrace.steps ?? []).find(
-    (step: any) => step.stage === stage,
+    (step: any) => step.name === name,
   );
 }

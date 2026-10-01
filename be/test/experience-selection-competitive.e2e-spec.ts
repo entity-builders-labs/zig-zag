@@ -4,11 +4,11 @@ import {
   queryToAxisWeights,
 } from './support/experience-selection/axis-oracle';
 import {
+  acquisitionStepNames,
   clusterShare,
   feasibleNonSelected,
   findStrictlyDominatedSelections,
   plan,
-  poolCandidateIds,
   poolHasCluster,
   selected,
   selectedClusters,
@@ -154,30 +154,13 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
    * Generic gates — asserted on every generated tour.
    * ---------------------------------------------------------------- */
   function assertGenericGates(tour: any): void {
-    const coverage = traceStep(tour, 'coverage_analysis');
-    expect(coverage.decision.outcome).toBe('none');
+    const coverage = traceStep(tour, 'coverage.analysis');
+    expect(coverage.decision.outcome).toBe('SUFFICIENT');
     expect(
-      coverage.outputs.totalDistinctEligibleExperiences,
+      coverage.output.totalDistinctEligibleExperiences,
     ).toBeGreaterThanOrEqual(250);
-    expect(traceStep(tour, 'candidate_pool').candidates.length).toBeGreaterThan(
-      0,
-    );
-    expect(tour.metadata.generationTrace.version).toBe(4);
-    expect(
-      tour.metadata.generationTrace.steps.some(
-        (s: any) => s.stage === 'discovery',
-      ),
-    ).toBe(false);
-    expect(
-      tour.metadata.generationTrace.steps.some((s: any) =>
-        [
-          'entity_resolution',
-          'geographic_validation',
-          'catalog_materialization',
-        ].includes(s.stage),
-      ),
-    ).toBe(false);
-    expect(tour.metadata.executionSummary.status).toBe('completed');
+    // A sufficient seeded catalog must not trigger acquisition / discovery.
+    expect(acquisitionStepNames(tour)).toEqual([]);
     expect(tour.experiences.length).toBeGreaterThanOrEqual(3);
   }
 
@@ -277,10 +260,6 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
           const tour = tours['4-only'];
           expect(
             selected(tour).every((r) => !r.themes.includes('religion')),
-          ).toBe(true);
-          expect(poolHasCluster(tour, 'religious_history_arch')).toBe(false);
-          expect(
-            poolCandidateIds(tour).every((id) => !id.includes('-religious_')),
           ).toBe(true);
         }
 

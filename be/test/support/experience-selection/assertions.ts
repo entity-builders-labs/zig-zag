@@ -30,9 +30,14 @@ export function clusterShare(tour: any, key: string): number {
   return clusters.filter((c) => c === key).length / clusters.length;
 }
 
+/**
+ * Experience IDs recorded as `candidate_pool.selection` subjects. The trace
+ * recorder may drop trailing subjects to respect its per-step payload ceiling,
+ * so this is bounded evidence: sound for presence claims only, never absence.
+ */
 export function poolCandidateIds(tour: any): string[] {
-  return (traceStep(tour, 'candidate_pool')?.candidates ?? []).map(
-    (c: any) => c.id as string,
+  return (traceStep(tour, 'candidate_pool.selection')?.subjects ?? []).map(
+    (s: any) => s.subject.id as string,
   );
 }
 
@@ -42,6 +47,19 @@ export function poolHasCluster(tour: any, key: string): boolean {
 
 export function poolClusterCount(tour: any, key: string): number {
   return poolCandidateIds(tour).filter((id) => id.includes(`-${key}-`)).length;
+}
+
+/** Trace steps proving acquisition / web discovery ran for this request. */
+export function acquisitionStepNames(tour: any): string[] {
+  return (tour.metadata.generationTrace.steps ?? [])
+    .map((step: any) => step.name as string)
+    .filter(
+      (name: string) =>
+        name.startsWith('acquisition.') ||
+        name === 'resolution.entity' ||
+        name === 'geography.validation' ||
+        name === 'catalog.materialization',
+    );
 }
 
 /** Stable plan projection for determinism assertions. */
