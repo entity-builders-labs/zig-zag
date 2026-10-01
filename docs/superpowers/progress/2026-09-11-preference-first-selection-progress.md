@@ -156,6 +156,43 @@ RW3-N6 resolution and live verification status:
   a qualifying reusable Experience.
 
 
+### RW4 side spike — Viator structured itineraries — 2026-10-01
+
+- HEAD `53eb0674`. Supporting evidence only; RW4 gate status unchanged, no
+  production code touched. Artifacts:
+  `spikes/rw4-viator-structured-itinerary-2026-10-01/` (README = findings).
+- Access: the available key is a **sandbox** affiliate key (production
+  `/products/tags` → 401 Invalid API Key; sandbox → 200). The spike ran on
+  the sandbox: schema conclusions hold, per-product counts need production
+  re-confirmation.
+- Sample: 10 Mendoza wine products (6 fixed queries, content-blind rank
+  round-robin) + 1 labeled HOHO supplement (Wine Bus `5674P1222`).
+  STRUCTURED_COMPLETE 3 / STRUCTURED_BUT_AMBIGUOUS 3 / UNSTRUCTURED 1 /
+  NO_USABLE_COMPOSITION 3. ≥2 concrete stops 6/10; all itinerary
+  locations with coordinates 9/10; textual extraction needed 1/10.
+- Strongest: `199477P3` Chandon → Budeguer → Lagarde; `5668946P2` Viña el
+  Cerno → Pasrai → Florio → Vistandes → Chocolezza (TRIPADVISOR refs with
+  name + coordinates, ordered).
+- Main conclusion: **PARTIALLY**. STANDARD items give ordered, source-owned
+  refs with names + coordinates. But Viator exposes no optional/alternative
+  flag (only `passByWithoutStopping`) and no location type. Substitutions
+  ("may vary: X, Y or Z") and area-vs-place both live in prose/names, so A
+  and B are structurally identical. The Wine Bus product reproduces RW4's
+  merged-variant trap as a weekday-union HOHO with 6 options.
+- Identity: `TRIPADVISOR` refs = Viator-native opaque id + name + address +
+  coords, stable across products/suppliers. No OSM/Wikidata/external TA id.
+  `GOOGLE` refs (all logistics/HOHO stops) = Google place id only.
+- Open: production counts; whether the API exposes structured substitution
+  data; a component-level `attractionId` contract; Google ref resolution
+  cost/terms; an AREA-item policy.
+- Recommended next step (not authorized by this entry): a production-key
+  rerun of the same harness. If counts hold, design a
+  `ViatorStructuredExperienceSource` adapter emitting source-owned
+  candidates (STANDARD only, ambiguity screened with the existing evidence
+  classifier) into the existing identity/geography validation. Do not
+  interrupt the RW4 web-acquisition gate for it.
+
+
 ## RW3 final acceptance — 2026-09-29
 
 **RW3 = CLOSED / ACCEPTED. RW4 = AUTHORIZED / NEXT GATE.**
