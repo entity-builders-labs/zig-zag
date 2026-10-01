@@ -1,0 +1,1875 @@
+{
+  "summary": {
+    "sampledProducts": 10,
+    "STRUCTURED_COMPLETE": 3,
+    "STRUCTURED_BUT_AMBIGUOUS": 3,
+    "UNSTRUCTURED": 1,
+    "NO_USABLE_COMPOSITION": 3,
+    "productsWithAtLeast2ConcreteStructuredStops": 6,
+    "productsWhereAllItineraryLocationsHaveCoordinates": 9,
+    "productsRequiringTextualExtractionForMembership": 1,
+    "supplementOutOfSample": [
+      {
+        "productCode": "5674P1222",
+        "classification": "STRUCTURED_BUT_AMBIGUOUS"
+      }
+    ],
+    "locationProviderForms": {
+      "TRIPADVISOR:name+coords+no-providerReference": 248,
+      "GOOGLE:no-name+no-coords+providerReference": 42
+    }
+  },
+  "products": [
+    {
+      "productCode": "5573772P5",
+      "sourceTitle": "Tour of 3 Wineries and Olive Trees with Tastings",
+      "status": "ACTIVE",
+      "selectedBy": {
+        "query": "Mendoza wine tour",
+        "rank": 1
+      },
+      "itineraryType": "STANDARD",
+      "productOptions": [
+        {
+          "code": "TG1",
+          "title": "Tour and Tasting in 3 Wineries and 1 Olive Tree in Maipu"
+        }
+      ],
+      "items": [
+        {
+          "order": 1,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 50,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyOO1yaW2O+YBP9W6wisQFaM=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Familia Cecchin",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.013615,
+              "longitude": -68.80804
+            },
+            "address": {
+              "street": "Manuel A Saenz 626, Maipu, Mendoza",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5517"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 2,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 50,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyAkiGQy5nuoaUdW5z7CoAUc=",
+            "provider": "TRIPADVISOR",
+            "name": "Vistandes Winery",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.024857,
+              "longitude": -68.758575
+            },
+            "address": {
+              "street": "Ruta 60 y Carrill Urquiza, Cruz de Piedra",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5517"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 3,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 50,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyDP4RKAMuVgMyCeQtc5HIv4=",
+            "provider": "TRIPADVISOR",
+            "name": "Olivicola Boutique Pasrai",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.013653,
+              "longitude": -68.799286
+            },
+            "address": {
+              "street": "Ozamis sur 2731",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5515"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 4,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 50,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBcQjTJ/2F+lu1Ga7THrE6Q=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Florio",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.03206,
+              "longitude": -68.7771
+            },
+            "address": {
+              "street": "Videla Aranda, 2300",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5517"
+            },
+            "readingAsArea": false
+          }
+        }
+      ],
+      "unstructuredDescription": null,
+      "unorderedPointOfInterestLocations": [],
+      "routes": [],
+      "logistics": {
+        "start": [
+          {
+            "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Kw1fhiC6U8Ej7g0AXJyZHTGXKWNXX/kdEiJnew13vTn",
+            "provider": "GOOGLE",
+            "name": null,
+            "providerReferencePresent": true,
+            "coordinates": null,
+            "address": null,
+            "readingAsArea": null
+          }
+        ],
+        "end": [
+          {
+            "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Kw1fhiC6U8Ej7g0AXJyZHTGXKWNXX/kdEiJnew13vTn",
+            "provider": "GOOGLE",
+            "name": null,
+            "providerReferencePresent": true,
+            "coordinates": null,
+            "address": null,
+            "readingAsArea": null
+          }
+        ],
+        "pickupOptionType": "PICKUP_AND_MEET_AT_START_POINT",
+        "pickupLocationCount": 54
+      },
+      "facts": {
+        "concreteStructuredStops": 4,
+        "itineraryLocationsWithCoordinates": 4,
+        "itineraryLocationsTotal": 4
+      },
+      "classification": "STRUCTURED_BUT_AMBIGUOUS",
+      "classificationReason": "supplier substitution stated per item in prose",
+      "classificationEvidence": [
+        "item 1: \"Availability of the wineries in this selection may vary: Vistandes, Viña el Cerno or Domiciano.\"",
+        "item 3: \"In case of unavailability in the olive grove is replaced by the Centennial olive grove\""
+      ],
+      "supplement": false
+    },
+    {
+      "productCode": "5530264P4",
+      "sourceTitle": "Tour wineries Lujan de Cuyo",
+      "status": "ACTIVE",
+      "selectedBy": {
+        "query": "Lujan de Cuyo winery tour",
+        "rank": 1
+      },
+      "itineraryType": "STANDARD",
+      "productOptions": [
+        {
+          "code": "TG1",
+          "title": "Tour wineries Lujan de Cuyo"
+        }
+      ],
+      "items": [
+        {
+          "order": 1,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 120,
+          "attractionId": 27255,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyP9qW+y4O2/AYEL/nPHEOdY=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Chandon",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.137985,
+              "longitude": -68.8897
+            },
+            "address": {
+              "street": "Km 29 on Ruta Nacional 15",
+              "administrativeArea": "Agrelo",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5009"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 2,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 4,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyPEIHRg4MZMoXsx4Zs8Aais=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Sottano",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.09382,
+              "longitude": -68.92468
+            },
+            "address": {
+              "street": "Route 7, C. Costa Flores",
+              "administrativeArea": "Lujan de Cuyo",
+              "country": "Argentina",
+              "countryCode": "AR"
+            },
+            "readingAsArea": false
+          }
+        }
+      ],
+      "unstructuredDescription": null,
+      "unorderedPointOfInterestLocations": [],
+      "routes": [],
+      "logistics": {
+        "start": [],
+        "end": [],
+        "pickupOptionType": "PICKUP_EVERYONE",
+        "pickupLocationCount": 6
+      },
+      "facts": {
+        "concreteStructuredStops": 2,
+        "itineraryLocationsWithCoordinates": 2,
+        "itineraryLocationsTotal": 2
+      },
+      "classification": "STRUCTURED_COMPLETE",
+      "classificationReason": "2 concrete TRIPADVISOR places (Chandon visit, Sottano lunch); no substitution/option language",
+      "classificationEvidence": [
+        "item 2 fixedDurationInMinutes=4 for a lunch stop — duration data quality is unreliable, membership is not affected"
+      ],
+      "supplement": false
+    },
+    {
+      "productCode": "70442P6",
+      "sourceTitle": "Uco Valley Wine Tour",
+      "status": "ACTIVE",
+      "selectedBy": {
+        "query": "Uco Valley wine tour",
+        "rank": 1
+      },
+      "itineraryType": "STANDARD",
+      "productOptions": [
+        {
+          "code": "DEFAULT",
+          "title": "Uco Valley Wine Tour"
+        }
+      ],
+      "items": [
+        {
+          "order": 1,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 420,
+          "attractionId": 17236,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyI9xiqr0VcIKFnSvd5kx4og=",
+            "provider": "TRIPADVISOR",
+            "name": "Valle de Uco",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.577747,
+              "longitude": -69.03002
+            },
+            "address": {
+              "administrativeArea": "Tupungato",
+              "country": "Argentina",
+              "countryCode": "AR"
+            },
+            "readingAsArea": true
+          }
+        }
+      ],
+      "unstructuredDescription": null,
+      "unorderedPointOfInterestLocations": [],
+      "routes": [],
+      "logistics": {
+        "start": [],
+        "end": [],
+        "pickupOptionType": "PICKUP_EVERYONE",
+        "pickupLocationCount": 80
+      },
+      "facts": {
+        "concreteStructuredStops": 0,
+        "itineraryLocationsWithCoordinates": 1,
+        "itineraryLocationsTotal": 1
+      },
+      "classification": "NO_USABLE_COMPOSITION",
+      "classificationReason": "single itinerary item is the region \"Valle de Uco\"; prose says \"visiting three prestigious wineries\" without naming any",
+      "classificationEvidence": [],
+      "supplement": false
+    },
+    {
+      "productCode": "40520P12",
+      "sourceTitle": "Half Day Winery Tour",
+      "status": "ACTIVE",
+      "selectedBy": {
+        "query": "Mendoza wine tour",
+        "rank": 2
+      },
+      "itineraryType": "STANDARD",
+      "productOptions": [
+        {
+          "code": "TG1",
+          "title": "Half Day Winery Tour"
+        }
+      ],
+      "items": [
+        {
+          "order": 1,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 80,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyN45AvL2SCH4Gzvx4CLJMdU=",
+            "provider": "TRIPADVISOR",
+            "name": "Don Manuel Villafane Bodega",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.037777,
+              "longitude": -68.69402
+            },
+            "address": {
+              "street": "Ruta 60, Mendoza",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5529"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 2,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 60,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyOO1yaW2O+YBP9W6wisQFaM=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Familia Cecchin",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.013615,
+              "longitude": -68.80804
+            },
+            "address": {
+              "street": "Manuel A Saenz 626, Maipu, Mendoza",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5517"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 3,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 60,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyDP4RKAMuVgMyCeQtc5HIv4=",
+            "provider": "TRIPADVISOR",
+            "name": "Olivicola Boutique Pasrai",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.013653,
+              "longitude": -68.799286
+            },
+            "address": {
+              "street": "Ozamis sur 2731",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5515"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 4,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 60,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBcQjTJ/2F+lu1Ga7THrE6Q=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Florio",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.03206,
+              "longitude": -68.7771
+            },
+            "address": {
+              "street": "Videla Aranda, 2300",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5517"
+            },
+            "readingAsArea": false
+          }
+        }
+      ],
+      "unstructuredDescription": null,
+      "unorderedPointOfInterestLocations": [],
+      "routes": [],
+      "logistics": {
+        "start": [
+          {
+            "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5FWRtSF6Nvx9lO9rjk+u/nkHOxTI+CI/0X5NA2PM8OZZ",
+            "provider": "GOOGLE",
+            "name": null,
+            "providerReferencePresent": true,
+            "coordinates": null,
+            "address": null,
+            "readingAsArea": null
+          }
+        ],
+        "end": [
+          {
+            "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5FWRtSF6Nvx9lO9rjk+u/nkHOxTI+CI/0X5NA2PM8OZZ",
+            "provider": "GOOGLE",
+            "name": null,
+            "providerReferencePresent": true,
+            "coordinates": null,
+            "address": null,
+            "readingAsArea": null
+          }
+        ],
+        "pickupOptionType": "PICKUP_AND_MEET_AT_START_POINT",
+        "pickupLocationCount": 60
+      },
+      "facts": {
+        "concreteStructuredStops": 4,
+        "itineraryLocationsWithCoordinates": 4,
+        "itineraryLocationsTotal": 4
+      },
+      "classification": "STRUCTURED_BUT_AMBIGUOUS",
+      "classificationReason": "every item may be substituted; order and stops explicitly mutable",
+      "classificationEvidence": [
+        "\"ATTENTION PLEASE: order, stops and times can change about availability for others in the area with same qualities\"",
+        "\"The wineries could change about availability between these selection wineries: Don Manuel Villafañe, Casa Corbel, Cecchin Family, Florio, Esencia 1870\""
+      ],
+      "supplement": false
+    },
+    {
+      "productCode": "199477P2",
+      "sourceTitle": "Uco Valley Day Wine Tour with Private Driver",
+      "status": "ACTIVE",
+      "selectedBy": {
+        "query": "Uco Valley wine tour",
+        "rank": 2
+      },
+      "itineraryType": "STANDARD",
+      "productOptions": [
+        {
+          "code": "TG10",
+          "title": "ALL INCLUSIVE OPTION"
+        },
+        {
+          "code": "TG9",
+          "title": "UCO VALLEY with PRIVATE DRIVER"
+        }
+      ],
+      "items": [
+        {
+          "order": 1,
+          "semantics": "STOP",
+          "admissionIncluded": "NO",
+          "durationMinutes": 120,
+          "attractionId": 17236,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyI9xiqr0VcIKFnSvd5kx4og=",
+            "provider": "TRIPADVISOR",
+            "name": "Valle de Uco",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.577747,
+              "longitude": -69.03002
+            },
+            "address": {
+              "administrativeArea": "Tupungato",
+              "country": "Argentina",
+              "countryCode": "AR"
+            },
+            "readingAsArea": true
+          }
+        },
+        {
+          "order": 2,
+          "semantics": "STOP",
+          "admissionIncluded": "NO",
+          "durationMinutes": 60,
+          "attractionId": 17938,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyMyB+hym3YqBRQCue6FM6yE=",
+            "provider": "TRIPADVISOR",
+            "name": "Domaine Bousquet",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.42949,
+              "longitude": -69.198494
+            },
+            "address": {
+              "street": "Ruta 89 S/N Km 7",
+              "administrativeArea": "Tupungato",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5561"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 3,
+          "semantics": "STOP",
+          "admissionIncluded": "NO",
+          "durationMinutes": 60,
+          "attractionId": 17939,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBgqHhMrn75BFRyz2rn979Q=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Salentein",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.494213,
+              "longitude": -69.242905
+            },
+            "address": {
+              "street": "Acceso a Espacio Salentein",
+              "administrativeArea": "Los Arboles",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": ""
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 4,
+          "semantics": "STOP",
+          "admissionIncluded": "NO",
+          "durationMinutes": 120,
+          "attractionId": 17937,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyIKgbtsn04o13LOqFWvILj0=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Andeluna",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.455494,
+              "longitude": -69.21215
+            },
+            "address": {
+              "street": "Ruta Provincial 89 Km 11",
+              "administrativeArea": "Tupungato",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": ""
+            },
+            "readingAsArea": false
+          }
+        }
+      ],
+      "unstructuredDescription": null,
+      "unorderedPointOfInterestLocations": [],
+      "routes": [],
+      "logistics": {
+        "start": [],
+        "end": [],
+        "pickupOptionType": "PICKUP_EVERYONE",
+        "pickupLocationCount": 164
+      },
+      "facts": {
+        "concreteStructuredStops": 3,
+        "itineraryLocationsWithCoordinates": 4,
+        "itineraryLocationsTotal": 4
+      },
+      "classification": "STRUCTURED_BUT_AMBIGUOUS",
+      "classificationReason": "listed wineries are a pool, not the composition; 2 product options; first item is a region",
+      "classificationEvidence": [
+        "item 1: \"WE LIST 6 WINERIES but keep in mind that during a day we visit 3 of them.\"",
+        "item 2: \"Option: FINCA ADELMA Winery ...\" (alternative named only in prose, no location ref)",
+        "item 3: \"We usually include SALENTEIN; but is also possible to customize your day\""
+      ],
+      "supplement": false
+    },
+    {
+      "productCode": "5674P681",
+      "sourceTitle": "Vineyards Tour in Mendoza: Wine & Olive Oil Tasting Experience",
+      "status": "ACTIVE",
+      "selectedBy": {
+        "query": "Mendoza wine bus",
+        "rank": 2
+      },
+      "itineraryType": "STANDARD",
+      "productOptions": [
+        {
+          "code": "TG1",
+          "title": "Vineyards Tour in Mendoza: Wine & Olive Oil Tasting Experience"
+        }
+      ],
+      "items": [
+        {
+          "order": 1,
+          "semantics": "PASS_BY",
+          "admissionIncluded": "NOT_APPLICABLE",
+          "durationMinutes": null,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyK1hnN05SYLDheS+GYEFmXg=",
+            "provider": "TRIPADVISOR",
+            "name": "Mendoza",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -32.87494,
+              "longitude": -68.82872
+            },
+            "address": {
+              "administrativeArea": "Mendoza",
+              "country": "Argentina",
+              "countryCode": "AR"
+            },
+            "readingAsArea": true
+          }
+        },
+        {
+          "order": 2,
+          "semantics": "STOP",
+          "admissionIncluded": "NOT_APPLICABLE",
+          "durationMinutes": 120,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyDIprSym0J0kX2+B8OOQC4U=",
+            "provider": "TRIPADVISOR",
+            "name": "Lujan de Cuyo",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.03935,
+              "longitude": -68.87916
+            },
+            "address": {
+              "administrativeArea": "Lujan de Cuyo",
+              "country": "Argentina",
+              "countryCode": "AR"
+            },
+            "readingAsArea": true
+          }
+        },
+        {
+          "order": 3,
+          "semantics": "STOP",
+          "admissionIncluded": "NOT_APPLICABLE",
+          "durationMinutes": 120,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyNMYMJVfQigjYwdCvwJKt7I=",
+            "provider": "TRIPADVISOR",
+            "name": "Maipu",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -32.980873,
+              "longitude": -68.788315
+            },
+            "address": {
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR"
+            },
+            "readingAsArea": true
+          }
+        },
+        {
+          "order": 4,
+          "semantics": "PASS_BY",
+          "admissionIncluded": "NOT_APPLICABLE",
+          "durationMinutes": null,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyK1hnN05SYLDheS+GYEFmXg=",
+            "provider": "TRIPADVISOR",
+            "name": "Mendoza",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -32.87494,
+              "longitude": -68.82872
+            },
+            "address": {
+              "administrativeArea": "Mendoza",
+              "country": "Argentina",
+              "countryCode": "AR"
+            },
+            "readingAsArea": true
+          }
+        }
+      ],
+      "unstructuredDescription": null,
+      "unorderedPointOfInterestLocations": [],
+      "routes": [],
+      "logistics": {
+        "start": [],
+        "end": [],
+        "pickupOptionType": "PICKUP_EVERYONE",
+        "pickupLocationCount": 68
+      },
+      "facts": {
+        "concreteStructuredStops": 0,
+        "itineraryLocationsWithCoordinates": 4,
+        "itineraryLocationsTotal": 4
+      },
+      "classification": "NO_USABLE_COMPOSITION",
+      "classificationReason": "items are only areas (Mendoza pass-by, Lujan de Cuyo, Maipu); \"We will visit two wineries\" never names them",
+      "classificationEvidence": [],
+      "supplement": false
+    },
+    {
+      "productCode": "475969P2",
+      "sourceTitle": "Maipu Tour 3 wineries with lunch + olive all inclusive!",
+      "status": "ACTIVE",
+      "selectedBy": {
+        "query": "Maipu wine tour",
+        "rank": 3
+      },
+      "itineraryType": "STANDARD",
+      "productOptions": [
+        {
+          "code": "TG1",
+          "title": "Maipu Tour 3 wineries with lunch + olive all inclusive!"
+        }
+      ],
+      "items": [
+        {
+          "order": 1,
+          "semantics": "PASS_BY",
+          "admissionIncluded": "NOT_APPLICABLE",
+          "durationMinutes": null,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyAZMvmdG8oz9KEubpgbFSUs=",
+            "provider": "TRIPADVISOR",
+            "name": "Maravillosa Ciudad de Mendoza",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -32.89286,
+              "longitude": -68.84253
+            },
+            "address": {
+              "street": "Avenida Espana 841, Punto de encuentro: Plaza España, en el monumento a la Confraternidad Hispano-Argentina",
+              "administrativeArea": "Mendoza",
+              "country": "Argentina",
+              "countryCode": "AR"
+            },
+            "readingAsArea": true
+          }
+        },
+        {
+          "order": 2,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 60,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyDP4RKAMuVgMyCeQtc5HIv4=",
+            "provider": "TRIPADVISOR",
+            "name": "Olivicola Boutique Pasrai",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.013653,
+              "longitude": -68.799286
+            },
+            "address": {
+              "street": "Ozamis sur 2731",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5515"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 3,
+          "semantics": "STOP",
+          "admissionIncluded": "NOT_APPLICABLE",
+          "durationMinutes": 240,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyNMYMJVfQigjYwdCvwJKt7I=",
+            "provider": "TRIPADVISOR",
+            "name": "Maipu",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -32.980873,
+              "longitude": -68.788315
+            },
+            "address": {
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR"
+            },
+            "readingAsArea": true
+          }
+        },
+        {
+          "order": 4,
+          "semantics": "STOP",
+          "admissionIncluded": "NOT_APPLICABLE",
+          "durationMinutes": 60,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyAZMvmdG8oz9KEubpgbFSUs=",
+            "provider": "TRIPADVISOR",
+            "name": "Maravillosa Ciudad de Mendoza",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -32.89286,
+              "longitude": -68.84253
+            },
+            "address": {
+              "street": "Avenida Espana 841, Punto de encuentro: Plaza España, en el monumento a la Confraternidad Hispano-Argentina",
+              "administrativeArea": "Mendoza",
+              "country": "Argentina",
+              "countryCode": "AR"
+            },
+            "readingAsArea": true
+          }
+        }
+      ],
+      "unstructuredDescription": null,
+      "unorderedPointOfInterestLocations": [],
+      "routes": [],
+      "logistics": {
+        "start": [
+          {
+            "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Ne5AE/+mSnE9PeX+MOejHIQhCq9PmhqRYR3qeuictYA",
+            "provider": "GOOGLE",
+            "name": null,
+            "providerReferencePresent": true,
+            "coordinates": null,
+            "address": null,
+            "readingAsArea": null
+          }
+        ],
+        "end": [
+          {
+            "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Ne5AE/+mSnE9PeX+MOejHIQhCq9PmhqRYR3qeuictYA",
+            "provider": "GOOGLE",
+            "name": null,
+            "providerReferencePresent": true,
+            "coordinates": null,
+            "address": null,
+            "readingAsArea": null
+          }
+        ],
+        "pickupOptionType": "PICKUP_AND_MEET_AT_START_POINT",
+        "pickupLocationCount": 113
+      },
+      "facts": {
+        "concreteStructuredStops": 1,
+        "itineraryLocationsWithCoordinates": 4,
+        "itineraryLocationsTotal": 4
+      },
+      "classification": "UNSTRUCTURED",
+      "classificationReason": "only 1 concrete structured stop (Olivicola Pasrai); the 3 wineries are named only in prose under the \"Maipu\" area item",
+      "classificationEvidence": [
+        "item 3: \"These 3 small regional wineries (Corbel, Esencia, Viña El Cerno) ... will receive us\""
+      ],
+      "supplement": false
+    },
+    {
+      "productCode": "199477P3",
+      "sourceTitle": "Private Mendoza WineTour: 3 Premium Wineries Michelin-Guide Lunch",
+      "status": "ACTIVE",
+      "selectedBy": {
+        "query": "Lujan de Cuyo winery tour",
+        "rank": 3
+      },
+      "itineraryType": "STANDARD",
+      "productOptions": [
+        {
+          "code": "TG1",
+          "title": "3 Wineries all inclusive "
+        }
+      ],
+      "items": [
+        {
+          "order": 1,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 120,
+          "attractionId": 27255,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyP9qW+y4O2/AYEL/nPHEOdY=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Chandon",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.137985,
+              "longitude": -68.8897
+            },
+            "address": {
+              "street": "Km 29 on Ruta Nacional 15",
+              "administrativeArea": "Agrelo",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5009"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 2,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 120,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyPFcLXp+w6yUMXpsVFTkwhU=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Budeguer",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.15176,
+              "longitude": -68.89233
+            },
+            "address": {
+              "street": "Ruta Provincial 15, km 31.5",
+              "administrativeArea": "Agrelo",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5509"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 3,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 180,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyMc52Ry+uFjLlusfxOLpQiM=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Lagarde",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.023663,
+              "longitude": -68.87322
+            },
+            "address": {
+              "street": "Calle San Martin 1745",
+              "administrativeArea": "Lujan de Cuyo",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "M5507EUI"
+            },
+            "readingAsArea": false
+          }
+        }
+      ],
+      "unstructuredDescription": null,
+      "unorderedPointOfInterestLocations": [],
+      "routes": [],
+      "logistics": {
+        "start": [],
+        "end": [],
+        "pickupOptionType": "PICKUP_EVERYONE",
+        "pickupLocationCount": 170
+      },
+      "facts": {
+        "concreteStructuredStops": 3,
+        "itineraryLocationsWithCoordinates": 3,
+        "itineraryLocationsTotal": 3
+      },
+      "classification": "STRUCTURED_COMPLETE",
+      "classificationReason": "3 concrete TRIPADVISOR places in order (Chandon, Budeguer, Lagarde); no substitution/option language; 1 product option",
+      "classificationEvidence": [],
+      "supplement": false
+    },
+    {
+      "productCode": "5668946P2",
+      "sourceTitle": "Chocolates and Olive Winery Tour in Mendoza",
+      "status": "ACTIVE",
+      "selectedBy": {
+        "query": "Mendoza wine bus",
+        "rank": 3
+      },
+      "itineraryType": "STANDARD",
+      "productOptions": [
+        {
+          "code": "TG1",
+          "title": "Winery tour"
+        }
+      ],
+      "items": [
+        {
+          "order": 1,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 40,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyLR5oqrmjzYQkfWsqlQy80E=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Artesanal Vina el Cerno",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.00335,
+              "longitude": -68.75023
+            },
+            "address": {
+              "street": "Calle Perito F P Moreno 631, Coquimbito",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "M5515DOA"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 2,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 40,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyDP4RKAMuVgMyCeQtc5HIv4=",
+            "provider": "TRIPADVISOR",
+            "name": "Olivicola Boutique Pasrai",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.013653,
+              "longitude": -68.799286
+            },
+            "address": {
+              "street": "Ozamis sur 2731",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5515"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 3,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 40,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBcQjTJ/2F+lu1Ga7THrE6Q=",
+            "provider": "TRIPADVISOR",
+            "name": "Bodega Florio",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.03206,
+              "longitude": -68.7771
+            },
+            "address": {
+              "street": "Videla Aranda, 2300",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5517"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 4,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 40,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyAkiGQy5nuoaUdW5z7CoAUc=",
+            "provider": "TRIPADVISOR",
+            "name": "Vistandes Winery",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -33.024857,
+              "longitude": -68.758575
+            },
+            "address": {
+              "street": "Ruta 60 y Carrill Urquiza, Cruz de Piedra",
+              "administrativeArea": "Maipu",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "5517"
+            },
+            "readingAsArea": false
+          }
+        },
+        {
+          "order": 5,
+          "semantics": "STOP",
+          "admissionIncluded": "YES",
+          "durationMinutes": 35,
+          "attractionId": null,
+          "location": {
+            "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyG+mHt7L9nWHX41HhcMypJ8=",
+            "provider": "TRIPADVISOR",
+            "name": "Chocolezza",
+            "providerReferencePresent": false,
+            "coordinates": {
+              "latitude": -32.88511,
+              "longitude": -68.84388
+            },
+            "address": {
+              "street": "Coronel Diaz 343",
+              "administrativeArea": "Mendoza",
+              "country": "Argentina",
+              "countryCode": "AR",
+              "postcode": "M5500DIC"
+            },
+            "readingAsArea": false
+          }
+        }
+      ],
+      "unstructuredDescription": null,
+      "unorderedPointOfInterestLocations": [],
+      "routes": [],
+      "logistics": {
+        "start": [
+          {
+            "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5NEktfe1oMNaWD0xHyrmxcPWImGA/4Di7y0AAtA8N2ao",
+            "provider": "GOOGLE",
+            "name": null,
+            "providerReferencePresent": true,
+            "coordinates": null,
+            "address": null,
+            "readingAsArea": null
+          }
+        ],
+        "end": [
+          {
+            "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5KjxWGl3J4VuOmrfOlANvQObFweRC7SMHPKySEucXNdC",
+            "provider": "GOOGLE",
+            "name": null,
+            "providerReferencePresent": true,
+            "coordinates": null,
+            "address": null,
+            "readingAsArea": null
+          }
+        ],
+        "pickupOptionType": "MEET_EVERYONE_AT_START_POINT",
+        "pickupLocationCount": 0
+      },
+      "facts": {
+        "concreteStructuredStops": 5,
+        "itineraryLocationsWithCoordinates": 5,
+        "itineraryLocationsTotal": 5
+      },
+      "classification": "STRUCTURED_COMPLETE",
+      "classificationReason": "5 concrete TRIPADVISOR places in order; meet-at-start (no pickup); no substitution/option language; 1 product option",
+      "classificationEvidence": [
+        "item 1 prose never names the winery — identity comes only from the location ref (Bodega Artesanal Viña el Cerno)"
+      ],
+      "supplement": false
+    },
+    {
+      "productCode": "44877P6",
+      "sourceTitle": "All Day, Small Group, Luxury Wine Tour with Gourmet Lunch",
+      "status": "ACTIVE",
+      "selectedBy": {
+        "query": "Mendoza full day wine excursion",
+        "rank": 3
+      },
+      "itineraryType": "UNSTRUCTURED",
+      "productOptions": [
+        {
+          "code": "TG1",
+          "title": "All day, small group, luxury wine tour with gourmet lunch"
+        },
+        {
+          "code": "TG2",
+          "title": "Private Wine Tour"
+        }
+      ],
+      "items": [],
+      "unstructuredDescription": "Pick up is at 8.45am at your hotel in the Mendoza City area.  We visit three wineries throughout the day and have premum tastings including Malbec at each winery.  At the first winery we also do a tour of the facility to see what makes Argentine so unique. Each winery we visit is very different and we include small boutique operations and larger, big name wineries. We then have a 5-course gourmet lunch with 5 wines at a winery with beautiful mountan views. We return to your Mendoza City hotel at 5.30pm.  The group size is maximum eight people and the price includes tastings and lunch with wine. A guide accompanies you all day and the tour is conducted in an air-conditioned Mercedes mini-bus.  Mineral water is provided in the transport vehicle.",
+      "unorderedPointOfInterestLocations": [
+        {
+          "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5POAo3wZ/Z+GS9I7nKtWBfEg0uYYqqnf3NO8eYOyopfe",
+          "provider": "GOOGLE",
+          "name": null,
+          "providerReferencePresent": true,
+          "coordinates": null,
+          "address": null,
+          "readingAsArea": null
+        },
+        {
+          "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyDIprSym0J0kX2+B8OOQC4U=",
+          "provider": "TRIPADVISOR",
+          "name": "Lujan de Cuyo",
+          "providerReferencePresent": false,
+          "coordinates": {
+            "latitude": -33.03935,
+            "longitude": -68.87916
+          },
+          "address": {
+            "administrativeArea": "Lujan de Cuyo",
+            "country": "Argentina",
+            "countryCode": "AR"
+          },
+          "readingAsArea": true
+        },
+        {
+          "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyI9CmsEnyWxFCJCXUgJA6DU=",
+          "provider": "TRIPADVISOR",
+          "name": "Chacras de Coria",
+          "providerReferencePresent": false,
+          "coordinates": {
+            "latitude": -32.98617,
+            "longitude": -68.88341
+          },
+          "address": {
+            "administrativeArea": "Chacras de Coria",
+            "country": "Argentina",
+            "countryCode": "AR"
+          },
+          "readingAsArea": true
+        },
+        {
+          "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyCMPa9eySyU2OepSSy4oG6k=",
+          "provider": "TRIPADVISOR",
+          "name": "Agrelo",
+          "providerReferencePresent": false,
+          "coordinates": {
+            "latitude": -33.11643,
+            "longitude": -68.88879
+          },
+          "address": {
+            "administrativeArea": "Agrelo",
+            "country": "Argentina",
+            "countryCode": "AR"
+          },
+          "readingAsArea": true
+        }
+      ],
+      "routes": [],
+      "logistics": {
+        "start": [],
+        "end": [],
+        "pickupOptionType": "PICKUP_EVERYONE",
+        "pickupLocationCount": 147
+      },
+      "facts": {
+        "concreteStructuredStops": 0,
+        "itineraryLocationsWithCoordinates": 3,
+        "itineraryLocationsTotal": 4
+      },
+      "classification": "NO_USABLE_COMPOSITION",
+      "classificationReason": "UNSTRUCTURED itinerary; prose says \"We visit three wineries\" without naming any; pointOfInterestLocations are unordered areas (Lujan de Cuyo, Chacras de Coria, Agrelo) + one Google ref; option TG2 lets the traveler choose wineries",
+      "classificationEvidence": [
+        "TG2: \"Choose what winery you want\""
+      ],
+      "supplement": false
+    },
+    {
+      "productCode": "5674P1222",
+      "sourceTitle": "Mendoza Wine Bus Tour Hop On Hop Off Wineries Experience",
+      "status": "ACTIVE",
+      "selectedBy": {
+        "supplement": true,
+        "reason": "HOP_ON_HOP_OFF form observation (wine bus); out of sample",
+        "query": "Mendoza wine tour",
+        "rank": 19
+      },
+      "itineraryType": "HOP_ON_HOP_OFF",
+      "productOptions": [
+        {
+          "code": "TG6",
+          "title": "Lujan Sur Wine Route "
+        },
+        {
+          "code": "TG5",
+          "title": "Luján Sur Wine Route"
+        },
+        {
+          "code": "TG3",
+          "title": "El Sol Wine Route "
+        },
+        {
+          "code": "TG4",
+          "title": "El Sol Wine Route"
+        },
+        {
+          "code": "TG2",
+          "title": "Maipu Wine & Olive Grove"
+        },
+        {
+          "code": "TG1",
+          "title": "Maipú Wine & Olive Grove"
+        }
+      ],
+      "items": [],
+      "unstructuredDescription": null,
+      "unorderedPointOfInterestLocations": [],
+      "routes": [
+        {
+          "name": "Wine Route Half day Morning Option",
+          "operatingSchedule": "Wine Route “Wine and Olives of Maipú” – Monday\n- Half-Day Morning Transfer Ticket: Availability to visit the olive oil factory and Santa Julia Winery.\n\nWine Route “El Sol” – Tuesday\nHalf-Day Morning Transfer Ticket: Availability to visit 2 wineries: Casa El Enemigo Vigil and a choice between Bressia or Viña Las Perdices.\n\nWine Route “Luján Sur” – Friday\nHalf-Day Morning Transfer Ticket: Availability to visit 2 wineries: Chandon and Zolo or Budeguer.",
+          "stops": [
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5AiVBKe2tkcHjfelh5/vFB8yw+ihqSq1w0jZbqqg8p5J",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 07:55Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5C2ku9Fyno3LI1rNs7YyzyHiB4ki2ya+hsm8+7ybGLfl",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:00Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5BBEwppo180MsyYTLPsQD3r9eIbRNSJHmZtz/u0tBhTX",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:05Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Fs0Vn2fBcKwfEbpomFu0qtU8pUOtXZmp0mXOqSU04Id",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:08Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5G0FFNlBxcU4LplLJ2aBFeOVa6pt+4le/0cDlo2nHjQK",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:12Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5FXUyP1IqdOaQZ8RYgQp7vyVTu/bdMVRwH5c5Pg28o5N",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:15Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5JjYphPDfdabWwogR4mfhOATbNmAmEMJVQv4ng1gys3W",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:18Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5HhY1JECynMV1zoYXvt7iJvKocBgYl5gISlZtbKWk7Mq",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:21Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5M3gtFpf1IAzFJrAhn66kQEPfev/0VvDqMdXmaYcsV5T",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:23Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Gqv2dQDUyIhyo3gInu0yJznGijaYxoTR15p7bjZXrFl",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:25Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5MxhULMdbAEh/qq1OsM6n5iPabRz6p5djQsjBce7kaVL",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:28Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5LQJZ/DQ6+bwfKqHbs1XNsAoyTGopJOmP8DKx+WS80rG",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:30Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Hf4K/coOTSEydbK9bRFeg2kR4pvIRx+8xn0PYPFAs5k",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:35Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5JF0zFIvu1Y7zSPHhzQTVb1IQcVDj5641Mn6eF2V7YAM",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:39Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5BpUNFx59jCEGiEhOPQvUdxPcPPtafbcanLLZmP/8CD/",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:40Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5DNsXdSjX+2GF10dXZqS9YjtiJGdUbdUjBhNm63PT5RR",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:41Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5HQNROIvz77jMcsDxTD6zYvsVpSMir59mcwf56AGodLB",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:45Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Ghehi57m+2QMu8128w9axpjfGqwjIYYRJcPtKF7SbBk",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:50Hs"
+            },
+            {
+              "ref": "LOC-RaYlfRSLaIsd0SlazqDQkx1n0EEMgJgiSbQrllnzpG808XW7dRumHEPaVCZTeCuc+90ssBBWcWOsVY97HVnZSltOm34ni87RJmCIJwdXquKbKe4yFa2/bVBrZkMeyZ4twgUsIHaDX6cKJEUdhxpRSIU5oZ2PWmV1vJ8GziPeZBUA622kRwX7wTlIoELOQMPa",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:55Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5MvApYpgKVZ5+YDSIZKkIC0SvvYC2DePNucWqzeXaHLK",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:57Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5NCQiPrnHxHP9DxPMFUnXb5XaLR7EAJBOU6ZG9iWZLKv",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 09:00Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5GOpvB3AMwK3bEYpbWOiSYfT7dvp1dHhoI4pnClhvIOn",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 09:10Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5JjSi2f3RJQElTQwTFLXVRdKsaNFKamjWfaOLp+SdTiv",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 09:22Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5NjuRQ9jU18OWP+5Zw9TgNwFB2JIuDEFzjBQH9alDJlD",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 09:25Hs"
+            },
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Ax5d3z6AizT4PQFouVI0mpSSYdo9iM3yI1n+gMc9G60",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 09:30Hs"
+            }
+          ],
+          "pointsOfInterest": [
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyLk2LNbIdlCVTz+Ds+tcU58=",
+              "provider": "TRIPADVISOR",
+              "name": "Bodega Santa Julia",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -32.969765,
+                "longitude": -68.56671
+              },
+              "address": {
+                "street": "Ruta Provincial 33, km 7,5",
+                "administrativeArea": "Maipu",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "M5531"
+              },
+              "readingAsArea": false
+            },
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyNqB6++GS4e0qtVcqs+go0Q=",
+              "provider": "TRIPADVISOR",
+              "name": "Casa El Enemigo",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -33.044243,
+                "longitude": -68.724106
+              },
+              "address": {
+                "street": "Videla Aranda 7008",
+                "administrativeArea": "Maipu",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "5519"
+              },
+              "readingAsArea": false
+            },
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyPf+CPuA2IyTsPHjz6o3KaI=",
+              "provider": "TRIPADVISOR",
+              "name": "Vina Las Perdices",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -33.114487,
+                "longitude": -68.94255
+              },
+              "address": {
+                "street": "Bajo las Cumbres s/n",
+                "administrativeArea": "Agrelo",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "5509"
+              },
+              "readingAsArea": false
+            },
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyP9qW+y4O2/AYEL/nPHEOdY=",
+              "provider": "TRIPADVISOR",
+              "name": "Bodega Chandon",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -33.137985,
+                "longitude": -68.8897
+              },
+              "address": {
+                "street": "Km 29 on Ruta Nacional 15",
+                "administrativeArea": "Agrelo",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "5009"
+              },
+              "readingAsArea": false
+            },
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyPFcLXp+w6yUMXpsVFTkwhU=",
+              "provider": "TRIPADVISOR",
+              "name": "Bodega Budeguer",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -33.15176,
+                "longitude": -68.89233
+              },
+              "address": {
+                "street": "Ruta Provincial 15, km 31.5",
+                "administrativeArea": "Agrelo",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "5509"
+              },
+              "readingAsArea": false
+            },
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyCEbE3XfhcmlycYQambZotY=",
+              "provider": "TRIPADVISOR",
+              "name": "Casarena Bodega y Vinedos",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -33.06669,
+                "longitude": -68.890205
+              },
+              "address": {
+                "street": "505 Brandsen",
+                "administrativeArea": "Lujan de Cuyo",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "5544"
+              },
+              "readingAsArea": false
+            },
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyHk6YMwVoaAXsgPu2HKTzR8=",
+              "provider": "TRIPADVISOR",
+              "name": "Bodega Bressia",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -33.10588,
+                "longitude": -68.89931
+              },
+              "address": {
+                "street": "Cochabamba 7725",
+                "administrativeArea": "Agrelo",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "5509"
+              },
+              "readingAsArea": false
+            }
+          ]
+        },
+        {
+          "name": "Wine Route Half day Afternoon Option",
+          "operatingSchedule": "Wine Route “Wine and Olives of Maipú” Monday\nHalf-Day Afternoon Transfer Ticket: Availability to visit 2 wineries: Santa Julia Winery and La Rural Winery.\n\nWine Route “El Sol” Tuesday\nHalf-Day Afternoon Transfer Ticket: Availability to visit 2 wineries: Séptima and Cruzat.\n\nWine Route “Luján Sur” Friday\nHalf-Day Afternoon Transfer Ticket: Availability to visit 2 wineries: Chandon and Casarena.",
+          "stops": [
+            {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5HdesN4R/Whumz7u4r/8P13tExF2z/U/Lh2EtAKNjK1Y",
+              "provider": "GOOGLE",
+              "name": null,
+              "providerReferencePresent": true,
+              "coordinates": null,
+              "address": null,
+              "readingAsArea": null,
+              "description": "Single fixed stop for Afternoon Tour: 14:15Hs"
+            }
+          ],
+          "pointsOfInterest": [
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyLk2LNbIdlCVTz+Ds+tcU58=",
+              "provider": "TRIPADVISOR",
+              "name": "Bodega Santa Julia",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -32.969765,
+                "longitude": -68.56671
+              },
+              "address": {
+                "street": "Ruta Provincial 33, km 7,5",
+                "administrativeArea": "Maipu",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "M5531"
+              },
+              "readingAsArea": false
+            },
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyMweVrDSYcs40X8+FmEi0bg=",
+              "provider": "TRIPADVISOR",
+              "name": "Bodega La Rural Wine Museum",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -32.957005,
+                "longitude": -68.74449
+              },
+              "address": {
+                "street": "Calle Monte Caseros 2625, Coquimbito, Maipu",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "M5500AZG"
+              },
+              "readingAsArea": false
+            },
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyNnuCah+TlFIsNDKkAY1q7A=",
+              "provider": "TRIPADVISOR",
+              "name": "Bodega Septima",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -33.09405,
+                "longitude": -68.946266
+              },
+              "address": {
+                "street": "Ruta Internacional N0 7 Km. 6,5",
+                "administrativeArea": "Lujan de Cuyo",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "5509"
+              },
+              "readingAsArea": false
+            },
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyP2QtiEK6e8/dzQN+UrZ3hQ=",
+              "provider": "TRIPADVISOR",
+              "name": "Bodega Cruzat. Bubbles Experience",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -33.07547,
+                "longitude": -68.92129
+              },
+              "address": {
+                "street": "Costa Flores s/n, Perdriel",
+                "administrativeArea": "Lujan de Cuyo",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "5509"
+              },
+              "readingAsArea": false
+            },
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyP9qW+y4O2/AYEL/nPHEOdY=",
+              "provider": "TRIPADVISOR",
+              "name": "Bodega Chandon",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -33.137985,
+                "longitude": -68.8897
+              },
+              "address": {
+                "street": "Km 29 on Ruta Nacional 15",
+                "administrativeArea": "Agrelo",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "5009"
+              },
+              "readingAsArea": false
+            },
+            {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyCEbE3XfhcmlycYQambZotY=",
+              "provider": "TRIPADVISOR",
+              "name": "Casarena Bodega y Vinedos",
+              "providerReferencePresent": false,
+              "coordinates": {
+                "latitude": -33.06669,
+                "longitude": -68.890205
+              },
+              "address": {
+                "street": "505 Brandsen",
+                "administrativeArea": "Lujan de Cuyo",
+                "country": "Argentina",
+                "countryCode": "AR",
+                "postcode": "5544"
+              },
+              "readingAsArea": false
+            }
+          ]
+        }
+      ],
+      "logistics": {
+        "start": [],
+        "end": [],
+        "pickupOptionType": null,
+        "pickupLocationCount": 0
+      },
+      "facts": {
+        "concreteStructuredStops": 0,
+        "itineraryLocationsWithCoordinates": 13,
+        "itineraryLocationsTotal": 13
+      },
+      "classification": "STRUCTURED_BUT_AMBIGUOUS",
+      "classificationReason": "HOP_ON_HOP_OFF: route POIs are a weekday-dependent union of three distinct wine routes, sold as 6 product options with \"X or Y\" alternatives; route stops are Google-only pickup points",
+      "classificationEvidence": [
+        "operatingSchedule: \"Wine Route “El Sol” – Tuesday ... Casa El Enemigo Vigil and a choice between Bressia or Viña Las Perdices.\"",
+        "option TG5: \"Chandon Winery and Zolo or Budeguer Winery.\""
+      ],
+      "supplement": true
+    }
+  ]
+}

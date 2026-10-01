@@ -1,0 +1,2414 @@
+{
+  "method": "POST",
+  "endpoint": "/search/freetext",
+  "requestBody": {
+    "searchTerm": "Maipu wine tour",
+    "productFiltering": {
+      "destination": "931"
+    },
+    "searchTypes": [
+      {
+        "searchType": "PRODUCTS",
+        "pagination": {
+          "start": 1,
+          "count": 20
+        }
+      }
+    ],
+    "currency": "USD"
+  },
+  "status": 200,
+  "fetchedAt": "2026-10-01T11:41:18.678Z",
+  "body": {
+    "products": {
+      "totalCount": 200,
+      "results": [
+        {
+          "productCode": "5573772P5",
+          "title": "Tour of 3 Wineries and Olive Trees with Tastings",
+          "description": "Explore the magic of Maipu on this half-day tour, visiting three wineries and an olivicola, where all tastings are included. Enjoy the quality of handcrafted wines and oils, in places that reflect passion and care in every detail. An authentic experience for true wine lovers. Don't miss it!",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/15/82/7c/a6.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/15/82/7c/a6.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/15/82/7c/a6.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/15/82/7c/a6.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/15/82/7c/a6.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/15/82/7c/a6.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/15/82/7c/a6.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/15/82/7c/a6.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/15/82/7c/a6.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/15/82/7c/a6.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 57,
+                "averageRating": 4.6
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 269,
+                "averageRating": 4.9
+              }
+            ],
+            "totalReviews": 326,
+            "combinedAverageRating": 4.8190184
+          },
+          "duration": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 420
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 30
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-and-Tasting-in-3-Wineries-and-1-Olive-Tree-in-Maipu/d931-5573772P5?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            11889,
+            367662,
+            367654,
+            367659,
+            21972,
+            367667,
+            22143,
+            21911,
+            367661,
+            367658,
+            11891,
+            367653,
+            11930,
+            21574,
+            11938,
+            367652
+          ],
+          "flags": [
+            "FREE_CANCELLATION"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE"
+          }
+        },
+        {
+          "productCode": "40520P12",
+          "title": "Half Day Winery Tour",
+          "description": "You will be able to discover all the secrets of the world of wine in Mendoza. We visit an artisanal, family and organic winery that teaches us the work in the vineyard, the production process, the storage and we finish with the tasting of two wines. Then we visit a modern, boutique winery, where we see the contrast between both industries, enjoy time in the vineyard, and relax while tasting two wines. Next we visit an olive oil factory, they detail the production and finally we will try the products they make (ATTENTION: temporarily visit in Spanish). At the end of the afternoon we visited a sweet liqueur wine cellar, a museum winery with more than 100 years of experience that reveals its secrets so that we can enjoy its valuable and traditional wines. An unforgettable afternoon surrounded by culture, nature and good wine. ATTENTION: WAREHOUSES MAY BE SIMILAR TO THOSE LOADED DUE TO THE AVAILABILITY OF VISITS.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/10/5c/71/40.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/10/5c/71/40.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/10/5c/71/40.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/10/5c/71/40.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/10/5c/71/40.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/10/5c/71/40.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/10/5c/71/40.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/10/5c/71/40.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/10/5c/71/40.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/10/5c/71/40.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 184,
+                "averageRating": 4.5
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 417,
+                "averageRating": 4.7
+              }
+            ],
+            "totalReviews": 601,
+            "combinedAverageRating": 4.6489186
+          },
+          "duration": {
+            "fixedDurationInMinutes": 360
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 33.57
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Half-Day-Winery-Tour/d931-40520P12?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            21574,
+            11891,
+            367653,
+            11930,
+            367652,
+            11929,
+            367659,
+            367654,
+            11938,
+            367667,
+            367661,
+            21972,
+            11889,
+            367668,
+            21911,
+            22143
+          ],
+          "flags": [
+            "FREE_CANCELLATION"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE",
+            "translationAttribution": "GOOGLE"
+          }
+        },
+        {
+          "productCode": "475969P2",
+          "title": "Maipu Tour 3 wineries with lunch + olive all inclusive!",
+          "description": "Visit three traditional regional wineries. Each winery will visit the facilities and taste wines. Finally, a typical \"Criollo\" 4-step menu paired with wines. \nVegan, vegetarian and celiac options (notice 48 hours in advance)",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/13/2c/70/ed.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/13/2c/70/ed.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/13/2c/70/ed.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/13/2c/70/ed.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/13/2c/70/ed.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/13/2c/70/ed.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/13/2c/70/ed.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/13/2c/70/ed.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/13/2c/70/ed.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/13/2c/70/ed.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 13,
+                "averageRating": 4.8
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 8,
+                "averageRating": 4.9
+              }
+            ],
+            "totalReviews": 21,
+            "combinedAverageRating": 4.857143
+          },
+          "duration": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 87
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Visit-to-Biodynamic-and-Traditional-wineries-and-6-course-lunch/d931-475969P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            11938,
+            21911,
+            367659,
+            367654,
+            11891,
+            21733,
+            367652,
+            11928,
+            367667,
+            21574,
+            21860,
+            11889,
+            12053,
+            367658,
+            11930,
+            367653,
+            367661
+          ],
+          "flags": [
+            "FREE_CANCELLATION"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE"
+          }
+        },
+        {
+          "productCode": "411023P7",
+          "title": "Maipu Wine Tour: 3 Wineries and Olive Oil Factory",
+          "description": "An exceptional gastronomic proposal, where twilight merges with quality ingredients and innovative recipes. In an iconic wine-growing space, distinguished\n\nI lived an unforgettable day in an exclusive environment, surrounded by nature and excellence.\n\nSecure your place and I felt the pleasure in every detail.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/17/12/0f/74.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/17/12/0f/74.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/17/12/0f/74.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/17/12/0f/74.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/17/12/0f/74.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/17/12/0f/74.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/17/12/0f/74.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/17/12/0f/74.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/17/12/0f/74.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/17/12/0f/74.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 6,
+                "averageRating": 5
+              }
+            ],
+            "totalReviews": 6,
+            "combinedAverageRating": 5
+          },
+          "duration": {
+            "fixedDurationInMinutes": 360
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "ACTIVITY",
+          "pricing": {
+            "summary": {
+              "fromPrice": 37
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-of-Olive-Wineries-and-Steps-Lunch-in-Maipu/d931-411023P7?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            21860,
+            21578,
+            11890,
+            11891,
+            21484,
+            367658,
+            367667,
+            22111,
+            367661,
+            367668,
+            21911
+          ],
+          "flags": [
+            "FREE_CANCELLATION"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE"
+          }
+        },
+        {
+          "productCode": "246702P1",
+          "title": "Lujan & Maipu - The Best WineTour & Lunch",
+          "description": "What makes our service unique, is our quality as guides and as a person. Our team is made up of highly educated people, warm, and wine lovers. No detail is small for us.\n\nYou will be visiting three beautiful wineries, at the first two, you will taste excellent wines, and a paired lunch with wines at the last one, in Lujan de Cuyo.\nThe wineries we choose are different every day, but our style is to show you a good mix of family-run wineries, old and traditional, a boutique. We prefer to visit wineries we know the owner is around, where the visit is guided by passionate people like we are.\nPlease notice the wineries may change due to availability than the listed ones.\n\nOur English/ Portuguese is pretty good, and we usually like talking about a lot more than just wines, our knowledge of Argentine culture and history is wide, and we consider ourselves ambassadors of our country.\n\nWe know you will enjoy the day, and we are looking forward to you loving Mendoza as much as we do!",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "Borravino wine tours, Mendoza",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/0a/65/40/58.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/0a/65/40/58.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/0a/65/40/58.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/0a/65/40/58.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/0a/65/40/58.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/0a/65/40/58.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/0a/65/40/58.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/0a/65/40/58.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/0a/65/40/58.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/0a/65/40/58.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 14,
+                "averageRating": 4.5
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 39,
+                "averageRating": 4.9
+              }
+            ],
+            "totalReviews": 53,
+            "combinedAverageRating": 4.8301888
+          },
+          "duration": {
+            "fixedDurationInMinutes": 450
+          },
+          "confirmationType": "MANUAL",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 215
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Full-day-Wine-tasting-and-paired-lunch-with-wines-small-group-wine-tour/d931-246702P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            367661,
+            12053,
+            11889,
+            11928,
+            367663,
+            21733,
+            11891,
+            367652,
+            11938,
+            367653,
+            11930,
+            21574,
+            367654,
+            367668,
+            21911,
+            11941
+          ],
+          "flags": [
+            "FREE_CANCELLATION",
+            "PRIVATE_TOUR"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": false,
+            "translationSource": "ORIGINAL"
+          }
+        },
+        {
+          "productCode": "301304P3",
+          "title": "Wine Chocolate & Olive",
+          "description": "An unforgettable experience that combines wine excellence, chocolate magic and the rich Mendoza tradition of olive oil.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/15/1b/e4/2b.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/15/1b/e4/2b.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/15/1b/e4/2b.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/15/1b/e4/2b.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/15/1b/e4/2b.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/15/1b/e4/2b.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/15/1b/e4/2b.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/15/1b/e4/2b.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/15/1b/e4/2b.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/15/1b/e4/2b.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 13,
+                "averageRating": 4.7
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 10,
+                "averageRating": 4.8
+              }
+            ],
+            "totalReviews": 23,
+            "combinedAverageRating": 4.7391305
+          },
+          "duration": {
+            "variableDurationFromMinutes": 60,
+            "variableDurationToMinutes": 300
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 35
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Walk-to-the-Maranon-From-Mendoza/d931-301304P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            22111,
+            11930,
+            367659,
+            367653,
+            367668,
+            11938,
+            21574,
+            367654,
+            11891,
+            367652,
+            11928,
+            367661,
+            367667,
+            20205,
+            21911
+          ],
+          "flags": [
+            "FREE_CANCELLATION"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE"
+          }
+        },
+        {
+          "productCode": "44877P6",
+          "title": "All Day, Small Group, Luxury Wine Tour with Gourmet Lunch",
+          "description": "This is a luxury, small group (nine people) wine tour of Mendoza´s fine wine region.  \n\nWe spend the day visiting the very best wineries (three to four in one day) and trying the best wines in the most beautiful locations. \n\nA multiple course gourmet lunch with wine pairings is included. \n\nA guide accompanies you throughout the day and gives insights and anecdotes regarding wine and Mendoza. \n\nMany of our guides are trained sommeliers or winemakers. The tour is in one language and the wineries and region (Lujan de Cuyo or Uco Valley) differ from day-to-day as there are many amazing places to see. \n\nOur tours are fun and casual with the focus on exceptional wines, creative food and stunning settings. The wineries we visit differ from day to day but are from a select group of top-quality producers.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/0a/a4/7f/10.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/0a/a4/7f/10.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/0a/a4/7f/10.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/0a/a4/7f/10.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/0a/a4/7f/10.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/0a/a4/7f/10.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/0a/a4/7f/10.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/0a/a4/7f/10.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/0a/a4/7f/10.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/0a/a4/7f/10.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 382,
+                "averageRating": 4.9
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 753,
+                "averageRating": 4.9
+              }
+            ],
+            "totalReviews": 1135,
+            "combinedAverageRating": 4.9312778
+          },
+          "duration": {
+            "fixedDurationInMinutes": 480
+          },
+          "confirmationType": "INSTANT_THEN_MANUAL",
+          "itineraryType": "UNSTRUCTURED",
+          "pricing": {
+            "summary": {
+              "fromPrice": 250
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/All-day-small-group-luxury-wine-tour-with-gourmet-lunch/d931-44877P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            11938,
+            21911,
+            22111,
+            367652,
+            22170,
+            21574,
+            367648,
+            11930,
+            367667,
+            367653,
+            367654,
+            22143,
+            11939,
+            367661,
+            11891,
+            21972,
+            11889,
+            11928,
+            21860,
+            367655
+          ],
+          "flags": [
+            "FREE_CANCELLATION"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": false,
+            "translationSource": "ORIGINAL"
+          }
+        },
+        {
+          "productCode": "199477P3",
+          "title": "Private Mendoza WineTour: 3 Premium Wineries Michelin-Guide Lunch",
+          "description": "Private Mendoza Wine Tour in Luján de Cuyo with Michelin-Star Lunch\n\nExperience a private Mendoza wine tour in Luján de Cuyo, Argentina’s iconic Malbec region.\n\nThis full-day experience includes visits and tastings at 3 premium wineries, plus a Michelin-Star winery lunch, all with private round-trip transportation from Mendoza.\n\nDiscover why Luján de Cuyo is one of Argentina’s most prestigious wine regions on this curated private wine experience.\n\nWith the backdrop of the Andes, you’ll enjoy guided tastings of exceptional Malbec and other high-quality varietals at three top estates.\n\nYour experience includes a gourmet lunch at Susana Balbo Wines, founded by Argentina’s first female winemaker. The winery’s restaurant holds a Michelin Green Star and is recommended by the Michelin Guide.\n\nDesigned for travelers seeking premium wineries, exceptional gastronomy, and a seamless luxury day in Mendoza.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/10/f1/9d/caption.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/10/f1/9d/caption.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/10/f1/9d/caption.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/10/f1/9d/caption.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/10/f1/9d/caption.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/10/f1/9d/caption.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/10/f1/9d/caption.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/10/f1/9d/caption.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/10/f1/9d/caption.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/10/f1/9d/caption.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 14,
+                "averageRating": 5
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 23,
+                "averageRating": 5
+              }
+            ],
+            "totalReviews": 37,
+            "combinedAverageRating": 5
+          },
+          "duration": {
+            "fixedDurationInMinutes": 420
+          },
+          "confirmationType": "INSTANT_THEN_MANUAL",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 249
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/LUJAN-DE-CUYO-Wineries-Private-Driver/d931-199477P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            367654,
+            21733,
+            11941,
+            11889,
+            21911,
+            367652,
+            11938,
+            367668,
+            11928,
+            367663,
+            21574,
+            11891,
+            21972,
+            11930,
+            367653
+          ],
+          "flags": [
+            "FREE_CANCELLATION",
+            "PRIVATE_TOUR"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": false,
+            "translationSource": "ORIGINAL"
+          }
+        },
+        {
+          "productCode": "5530264P8",
+          "title": "Mendoza Winery Tour with Olive Trees in Private Service",
+          "description": "Live a private experience in Maipu, birthplace of Argentine wine, where tradition, history and flavors combine at every stop.\n\nThe tour starts with pick up at your hotel. At Bodega Antigal, you will enjoy a guided tour of vineyards and wineries, ending with the tasting of their most representative wines.\n\nThen you will visit a boutique olive grove, where you can taste olive oils, pastas, gourmet products and natural olive-based cosmetics.\n\nThe experience continues with a 3-step lunch paired at Bodega Manuel Villafañe, combining regional cuisine with local wines.\n\nFinally, you will visit Bodega Los Toneles, an architectural gem declared Cultural Heritage of Mendoza, where you will discover its history while tasting three glasses of wine.\n\n✨ An ideal proposal to enjoy wine, gastronomy and Mendoza culture in one day.\n\nImportant: wineries can be modified subject to availability. Check for custom options.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/17/07/33/42.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/17/07/33/42.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/17/07/33/42.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/17/07/33/42.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/17/07/33/42.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/17/07/33/42.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/17/07/33/42.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/17/07/33/42.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/17/07/33/42.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/17/07/33/42.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 1,
+                "averageRating": 5
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 43,
+                "averageRating": 5
+              }
+            ],
+            "totalReviews": 44,
+            "combinedAverageRating": 5
+          },
+          "duration": {
+            "fixedDurationInMinutes": 480
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 195
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Mendoza-Winery-Tour-with-Olive-Trees-in-Private-Service/d931-5530264P8?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            11938,
+            21911,
+            367667,
+            21733,
+            367654,
+            11930,
+            367659,
+            11889,
+            21972,
+            367661,
+            11941,
+            367658,
+            367653,
+            21574,
+            12028,
+            367652,
+            11928,
+            11891
+          ],
+          "flags": [
+            "FREE_CANCELLATION",
+            "PRIVATE_TOUR"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE"
+          }
+        },
+        {
+          "productCode": "309457P3",
+          "title": "Wine and Olivicola Tour Wine and Oil Tastings",
+          "description": "Explore Maipu’s rich wine and olive tradition on this fascinating winery and olivicola tour. Starting from central points of the city, the experience includes visits to 3 different establishments and tasting in the last winery (tour to 4 establishments), where you will learn about the production of wine and olive oil and enjoy tastings of gourmet products. This tour offers a complete overview of the art of winemaking and olives. Ideal for wine lovers, groups of friends or couples looking for a unique cultural experience. \n\nAmong the wineries we visit are: Vistandes, Domiciano, Villafañe, Cechin, Cerno, Florio, Casa Corbel, Esencia or Don Arturo. The olive trees we visit may be: Centennial or Pasrai\n\n - Departure from Monday to Saturday at 14:00, return at 20:00\n - Visits to three wineries with wine and olive oil tastings\n - Tasting to an artisan winery\n - Includes transportation from central points of the city",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "Vistandes Winery",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/17/0d/9e/93.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/17/0d/9e/93.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/17/0d/9e/93.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/17/0d/9e/93.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/17/0d/9e/93.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/17/0d/9e/93.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/17/0d/9e/93.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/17/0d/9e/93.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/17/0d/9e/93.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/17/0d/9e/93.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 2,
+                "averageRating": 5
+              }
+            ],
+            "totalReviews": 2,
+            "combinedAverageRating": 5
+          },
+          "duration": {
+            "fixedDurationInMinutes": 390
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 34
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Wine-and-Olivicola-Tour-Wine-and-Oil-Tastings/d931-309457P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367663,
+            11928,
+            22111,
+            367661,
+            11930,
+            11889,
+            367668,
+            21911
+          ],
+          "flags": [
+            "FREE_CANCELLATION"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE"
+          }
+        },
+        {
+          "productCode": "224017P1",
+          "title": "FULL DAY Wineries in Maipu and Lujan - EXCLUSIVE/PRIVATE VEHICLE",
+          "description": "Enjoy a unique day, visiting the best wineries in Luján de Cuyo and Maipú, with a professional driver-guide. Luján De Cuyo is one of the most famous wine regions in the world, being known as the birthplace of Malbec, in which we will be the hosts from your pick-up by the hotel and the way to the wineries that you have previously booked, and finally on the return to the hotel. Always accompanied by a professional conductor_guía, which will provide historical reviews of the regions and wineries to visit, both in Spanish-Portuguese or English.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/15/f1/bd/d7.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/15/f1/bd/d7.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/15/f1/bd/d7.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/15/f1/bd/d7.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/15/f1/bd/d7.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/15/f1/bd/d7.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/15/f1/bd/d7.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/15/f1/bd/d7.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/15/f1/bd/d7.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/15/f1/bd/d7.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 9,
+                "averageRating": 5
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 6,
+                "averageRating": 4.3
+              }
+            ],
+            "totalReviews": 15,
+            "combinedAverageRating": 4.733333
+          },
+          "duration": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "UNSTRUCTURED",
+          "pricing": {
+            "summary": {
+              "fromPrice": 140
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Executive-Transfers-from-Mendoza-Airport-to-Capital-and-Excursions/d931-224017P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            20238,
+            367667,
+            367661,
+            367654
+          ],
+          "flags": [
+            "FREE_CANCELLATION",
+            "PRIVATE_TOUR"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE"
+          }
+        },
+        {
+          "productCode": "5668946P2",
+          "title": "Chocolates and Olive Winery Tour in Mendoza",
+          "description": "I discovered the wine culture of Mendoza with a local guide. You visit 3 wineries and an olive oil producer in Maipú, enjoy tastings of premium Malbec and regional products, and finish with an artisanal chocolate pairing. Small groups, transfer from Mendoza capital included, preferential rates for your travelers to be able to buy export wines",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/78/93/1f/caption.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/78/93/1f/caption.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/78/93/1f/caption.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/78/93/1f/caption.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/78/93/1f/caption.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/78/93/1f/caption.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/78/93/1f/caption.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/78/93/1f/caption.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/78/93/1f/caption.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/78/93/1f/caption.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 1,
+                "averageRating": 5
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 13,
+                "averageRating": 4.9
+              }
+            ],
+            "totalReviews": 14,
+            "combinedAverageRating": 4.928571
+          },
+          "duration": {
+            "fixedDurationInMinutes": 360
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 36.45,
+              "fromPriceBeforeDiscount": 45
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Chocolates-and-Olive-Winery-Tour-in-Mendoza/d931-5668946P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367661,
+            20205,
+            11930,
+            11929,
+            11889,
+            367668,
+            21911
+          ],
+          "flags": [
+            "SPECIAL_OFFER",
+            "NEW_ON_VIATOR"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE"
+          }
+        },
+        {
+          "productCode": "227574P1",
+          "title": "Private Transfer + Maipu Vinicolas",
+          "description": "This tour in Maipu combines two unmissable experiences: it begins with a visit and tasting at Olivicola #1 in the world \"LAUR\", and ends with a relaxed lunch at Casa El Enemigo, enjoying regional cuisine accompanied by high-class wines",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/32/95/b8/ae/caption.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/32/95/b8/ae/caption.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/32/95/b8/ae/caption.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/32/95/b8/ae/caption.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/32/95/b8/ae/caption.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/32/95/b8/ae/caption.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/32/95/b8/ae/caption.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/32/95/b8/ae/caption.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/32/95/b8/ae/caption.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/32/95/b8/ae/caption.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 1,
+                "averageRating": 3
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 207,
+                "averageRating": 5
+              }
+            ],
+            "totalReviews": 208,
+            "combinedAverageRating": 4.9615383
+          },
+          "duration": {
+            "variableDurationFromMinutes": 360,
+            "variableDurationToMinutes": 480
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 225.36
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Vinicolas-Lujan-Maipu-Tour/d931-227574P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            20206,
+            21733,
+            11941,
+            11889,
+            21911,
+            11938,
+            367668,
+            367663,
+            21574,
+            11891,
+            21972,
+            367661,
+            367669,
+            11930,
+            21736,
+            12053
+          ],
+          "flags": [
+            "FREE_CANCELLATION",
+            "PRIVATE_TOUR"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE"
+          }
+        },
+        {
+          "productCode": "161924P54",
+          "title": "Exclusive Half Day Tour of Wineries and Olive Oil from Mendoza",
+          "description": "For those tourists who are strolling through Mendoza, a visit to the different wineries that are open to the public, which have vast experience and recognition in the wine market, is a must. Each one of them can develop a wide variety of wines with their own style and identity.\n\nYou will also discover the production of olive oil, the country's leading export product. \n\nUndoubtedly, you will spend an entertaining afternoon, knowing and discovering more of our beautiful Mendoza, the land of wine and oil!",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/12/60/90/09.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/12/60/90/09.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/12/60/90/09.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/12/60/90/09.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/12/60/90/09.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/12/60/90/09.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/12/60/90/09.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/12/60/90/09.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/12/60/90/09.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/12/60/90/09.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 1,
+                "averageRating": 5
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 26,
+                "averageRating": 4.7
+              }
+            ],
+            "totalReviews": 27,
+            "combinedAverageRating": 4.6666665
+          },
+          "duration": {
+            "fixedDurationInMinutes": 300
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 90
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Exclusive-half-day-tour-of-wineries-and-olive-oil-company/d931-161924P54?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            21972,
+            20224,
+            12046,
+            11930,
+            367658,
+            11889,
+            12058,
+            367661,
+            367663,
+            11938,
+            11929
+          ],
+          "flags": [
+            "FREE_CANCELLATION"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": false,
+            "translationSource": "ORIGINAL"
+          }
+        },
+        {
+          "productCode": "44877P7",
+          "title": "Horseback ride through vineyards followed by gourmet lunch",
+          "description": "Registered for PreViaje. This excursion is suitable for people with no riding experience and also more accomplished riders who can canter through the vines. Most horseback excursions in Mendoza are a rustic experience in the mountains at least 90 minutes from the city. We do this is through a vineyard 30 minutes from the city and the lunch is a sumptous gourmet feast with high quality wine pairings. The horseback ride is 90 minutes in duration through the vineyards of Southern Maipu, followed by a gourmet lunch at Divina Marga restaurant and wine cellar.  We begin the excursion at a stables in Lunlunta and take a route through vineyards, leafy country lanes and the dry river bed of the Rio Mendoza. We then sit down to a gourmet asado (Argentine bbq) which involves multiple courses meal and wines in the beautiful setting of a country mansion.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/0a/a8/cc/20.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/0a/a8/cc/20.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/0a/a8/cc/20.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/0a/a8/cc/20.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/0a/a8/cc/20.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/0a/a8/cc/20.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/0a/a8/cc/20.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/0a/a8/cc/20.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/0a/a8/cc/20.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/0a/a8/cc/20.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 15,
+                "averageRating": 4.9
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 55,
+                "averageRating": 4.9
+              }
+            ],
+            "totalReviews": 70,
+            "combinedAverageRating": 4.9142857
+          },
+          "duration": {
+            "fixedDurationInMinutes": 360
+          },
+          "confirmationType": "INSTANT_THEN_MANUAL",
+          "itineraryType": "ACTIVITY",
+          "pricing": {
+            "summary": {
+              "fromPrice": 210
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Horseback-ride-through-vineyards-followed-by-gourmet-winery-lunch/d931-44877P7?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            367654,
+            21484,
+            12034,
+            21578,
+            21911,
+            11890,
+            11973,
+            11903,
+            21860,
+            367663,
+            11891,
+            21972,
+            367661,
+            21489,
+            367653
+          ],
+          "flags": [
+            "FREE_CANCELLATION"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": false,
+            "translationSource": "ORIGINAL"
+          }
+        },
+        {
+          "productCode": "40520P3",
+          "title": "Wine tour with lunch",
+          "description": "This is a perfect tour to learn about the wine culture of Mendoza! Enjoy 7 hours and share with our guide a traditional wine experience.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "Vineyard landscape",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/06/6c/21/ea.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/06/6c/21/ea.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/06/6c/21/ea.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/06/6c/21/ea.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/06/6c/21/ea.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/06/6c/21/ea.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/06/6c/21/ea.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/06/6c/21/ea.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/06/6c/21/ea.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/06/6c/21/ea.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 15,
+                "averageRating": 4.5
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 19,
+                "averageRating": 4.5
+              }
+            ],
+            "totalReviews": 34,
+            "combinedAverageRating": 4.470588
+          },
+          "duration": {
+            "fixedDurationInMinutes": 480
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 167.84
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Wine-Tour-with-Lunch-from-Mendoza/d931-40520P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            11891,
+            367653,
+            367654,
+            21574,
+            22111,
+            11889,
+            21911,
+            367661,
+            367667,
+            11930,
+            11938,
+            11928
+          ],
+          "flags": [
+            "FREE_CANCELLATION"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": false,
+            "translationSource": "ORIGINAL"
+          }
+        },
+        {
+          "productCode": "5560697P8",
+          "title": "Tour in Maipu region with Lunch and wines and olive groves",
+          "description": "This experience brings together the best of Mendoza wine in a single day: visit two wineries of different styles — one artisanal and one industrial — and an olive oil factory with tasting included. During the tour, travelers enjoy a paired lunch in a winery, with local products and wines selected by the sommelier.\nBodegas López, Villafañe and Argentia have been chosen in Maipú, noted for their history, quality and their own identity.\nAfter lunch, continue exploring the Wine Roads, visiting a second winery and an olive mill surrounded by olive groves, fruit trees and vineyards. In the area it is possible to know artisan wineries such as Cavas Don Arturo or Cecchin, and renowned mills such as Centenario, Laur and Pasrai, always with the mountain range as a framework.\nThe tour includes two guided tastings and a full experience to learn about wines and olive oil.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "Lunch at Bodega Lopez",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/17/0c/e9/b0.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/17/0c/e9/b0.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/17/0c/e9/b0.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/17/0c/e9/b0.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/17/0c/e9/b0.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/17/0c/e9/b0.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/17/0c/e9/b0.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/17/0c/e9/b0.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/17/0c/e9/b0.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/17/0c/e9/b0.jpg"
+                }
+              ]
+            }
+          ],
+          "duration": {
+            "fixedDurationInMinutes": 480
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 125
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-in-Maipu-region-with-Lunch-and-wines-and-olive-groves/d931-5560697P8?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367663,
+            11928,
+            367661,
+            11930,
+            11889,
+            367668,
+            21911
+          ],
+          "flags": [
+            "FREE_CANCELLATION"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE"
+          }
+        },
+        {
+          "productCode": "405093P1",
+          "title": "Private Tour Wineries in Mendoza with Gourmet Lunch",
+          "description": "I lived Mendoza wine tourism as it deserves: privately, at your own pace and with all inclusive.\nWe search for you at your hotel and take you to tour 2 carefully selected wineries in Mendoza’s best wine valleys, with the Andes mountains as background.\n In the first winery you tour the vineyards and taste 4 glasses of premium wines — Malbec, Cabernet and more — learning the process of making them alongside the vineyards.\n️ In the second cellar you enjoy a gourmet lunch of up to 4 steps: paired tapas, broiled osobuco patty, beef fillet with vegetables and citrus fruits, frozen dessert and wine included.\n✅ 100% private tour — just you and your group\n✅ Bilingual driver-guide door to door\n✅ Customizable according to your preferences\n✅ Breakfast, lunch and wine included\nThe most complete wine experience in Mendoza.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/11/e0/16/ff.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/11/e0/16/ff.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/11/e0/16/ff.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/11/e0/16/ff.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/11/e0/16/ff.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/11/e0/16/ff.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/11/e0/16/ff.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/11/e0/16/ff.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/11/e0/16/ff.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/11/e0/16/ff.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 3,
+                "averageRating": 4.3
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 3,
+                "averageRating": 5
+              }
+            ],
+            "totalReviews": 6,
+            "combinedAverageRating": 4.6666665
+          },
+          "duration": {
+            "variableDurationFromMinutes": 360,
+            "variableDurationToMinutes": 420
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 140
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Tour-Wineries-for-the-day-in-Mendoza/d931-405093P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            367661,
+            20224,
+            11930,
+            11889,
+            21911,
+            21733,
+            11938,
+            11941,
+            367667
+          ],
+          "flags": [
+            "FREE_CANCELLATION",
+            "PRIVATE_TOUR"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": true,
+            "translationSource": "MACHINE"
+          }
+        },
+        {
+          "productCode": "5674P681",
+          "title": "Vineyards Tour in Mendoza: Wine & Olive Oil Tasting Experience",
+          "description": "Through this walk at the vineyards with wine tasting you can discover the old and new winemaking processes. On this half-day excursion you can visit two famous wineries around Mendoza, a region world-famous for its wine. You will also participate in a wine tasting, accompanied by sommeliers and expert guides so you don't miss any details. This visit is a must in Mendoza. Book your place now!",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/f4/0b/cb/caption.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/f4/0b/cb/caption.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/f4/0b/cb/caption.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/f4/0b/cb/caption.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/f4/0b/cb/caption.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/f4/0b/cb/caption.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/f4/0b/cb/caption.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/f4/0b/cb/caption.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/f4/0b/cb/caption.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/f4/0b/cb/caption.jpg"
+                }
+              ]
+            }
+          ],
+          "reviews": {
+            "sources": [
+              {
+                "provider": "VIATOR",
+                "totalCount": 32,
+                "averageRating": 4.4
+              },
+              {
+                "provider": "TRIPADVISOR",
+                "totalCount": 3,
+                "averageRating": 4.3
+              }
+            ],
+            "totalReviews": 35,
+            "combinedAverageRating": 4.3714285
+          },
+          "duration": {
+            "fixedDurationInMinutes": 300
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 48
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Visit-to-the-Wineries-with-wine-tasting-in-Mendoza/d931-5674P681?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            367661,
+            21972,
+            22083,
+            21911,
+            11938,
+            21733,
+            22111,
+            11971,
+            367667,
+            20757,
+            367654,
+            11891,
+            11929,
+            367653,
+            11930,
+            21574
+          ],
+          "flags": [
+            "FREE_CANCELLATION",
+            "LIKELY_TO_SELL_OUT"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": false,
+            "translationSource": "ORIGINAL"
+          }
+        },
+        {
+          "productCode": "32301P6",
+          "title": "Maipu and Lujan Wine & Olive Oil Tour, tastings and paired lunch",
+          "description": "Discover Maipú and Lujan de Cuyo: Wine & Olive Oil Tour with Tastings\n\nEnjoy guided tours, wine tastings, and a gourmet lunch paired with premium wines. Dive into the art of olive oil production with a visit to an olive oil factory, where you'll learn about their artisanal methods and enjoy a delicious tasting. Relax as we take care of every detail, ensuring a seamless experience. From stunning vineyard views to expertly crafted wines, this tour combines tradition, elegance, and the best of Argentine hospitality for a day you’ll never forget. \n\nVisit two renowned wineries, such as Zolo and Trivento, where you’ll enjoy wine tastings and a gourmet lunch paired with premium wines. Discover the art of olive oil production with a tour and tasting at Pasrai.\n\nThe tour is available for a minimum of two passengers.\nMore passengers mean a lower price.\n\nPlease note that wineries are subject to availability and may be substituted with others of similar characteristics.",
+          "images": [
+            {
+              "imageSource": "SUPPLIER_PROVIDED",
+              "caption": "",
+              "isCover": true,
+              "variants": [
+                {
+                  "height": 100,
+                  "width": 100,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/15/2a/38/01.jpg"
+                },
+                {
+                  "height": 200,
+                  "width": 200,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/15/2a/38/01.jpg"
+                },
+                {
+                  "height": 400,
+                  "width": 400,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/15/2a/38/01.jpg"
+                },
+                {
+                  "height": 240,
+                  "width": 360,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/15/2a/38/01.jpg"
+                },
+                {
+                  "height": 320,
+                  "width": 480,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/15/2a/38/01.jpg"
+                },
+                {
+                  "height": 360,
+                  "width": 540,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/15/2a/38/01.jpg"
+                },
+                {
+                  "height": 446,
+                  "width": 674,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/15/2a/38/01.jpg"
+                },
+                {
+                  "height": 480,
+                  "width": 720,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/15/2a/38/01.jpg"
+                },
+                {
+                  "height": 118,
+                  "width": 210,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/15/2a/38/01.jpg"
+                },
+                {
+                  "height": 75,
+                  "width": 75,
+                  "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/15/2a/38/01.jpg"
+                }
+              ]
+            }
+          ],
+          "duration": {
+            "fixedDurationInMinutes": 420
+          },
+          "confirmationType": "INSTANT",
+          "itineraryType": "STANDARD",
+          "pricing": {
+            "summary": {
+              "fromPrice": 207
+            },
+            "currency": "USD"
+          },
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Group-Winery-Tour-Experience-with-Lunch/d931-32301P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "tags": [
+            11941,
+            21911,
+            367667,
+            11938,
+            11928,
+            367661,
+            12053,
+            11930,
+            367658,
+            22111,
+            11891,
+            21574
+          ],
+          "flags": [
+            "FREE_CANCELLATION",
+            "PRIVATE_TOUR"
+          ],
+          "translationInfo": {
+            "containsMachineTranslatedText": false,
+            "translationSource": "ORIGINAL"
+          }
+        }
+      ]
+    }
+  }
+}
