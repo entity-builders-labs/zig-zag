@@ -87,14 +87,15 @@ exact publication and remote-identity gates.
 
 ## Current checkpoint
 
-Milestone 3B — implementation and verification are complete; publish the
-committed governance-only review contract only to existing draft PR #70.
+Milestone 3B — implementation, verification, and publication are complete.
+Live contextual review is blocked explicitly because repository secret
+`OPENAI_API_KEY` is absent; no Codex review was fabricated.
 
 ## Next authorized action
 
-Publish the verified committed Milestone 3B contextual review contract only to
-existing draft PR #70 through `/zig-zag-track-publish`. Do not merge or begin
-an autonomous fix loop.
+Configure repository secret `OPENAI_API_KEY`, then use
+`/zig-zag-track-review` to dispatch the canonical workflow for PR #70's current
+head. Do not merge or begin an autonomous fix loop.
 
 ## Open findings / blockers
 
@@ -119,6 +120,9 @@ an autonomous fix loop.
 - Milestone 3B must keep contextual review in the PR artifact layer: no
   progress review fields, no local imitation of authoritative review, no
   automatic coder/fixer loop, push, merge, or integration behavior.
+- Milestone 3B live review: BLOCKED EXPLICITLY. Workflow run `36920414665`
+  reached canonical context reconstruction but stopped at the required missing
+  `OPENAI_API_KEY` gate; Codex did not execute and no review artifact exists.
 - PR #70 is intentionally DRAFT and UNMERGED.
 - The integration branch is active product work and may advance independently.
   Re-run canonical preflight/mergeability checks immediately before integration.
