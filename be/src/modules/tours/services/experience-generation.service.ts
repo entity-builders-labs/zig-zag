@@ -62,6 +62,11 @@ import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.int
 import { AreaRouteWalkAcquisitionService } from './area-route-walk-acquisition.service';
 import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
 import { partitionDeficitsByStrategy } from '../utils/acquisition-strategy-selector.util';
+import {
+  deriveRequestValidationIntent,
+  RequestValidationIntent,
+  validationIntentOf,
+} from '../utils/request-validation-intent.util';
 import { GenerationTraceRecorder } from '../utils/generation-trace-recorder.util';
 import { GenerationTraceV5 } from '../interfaces/generation-trace-v5.interface';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
@@ -612,6 +617,7 @@ export class ExperienceGenerationService {
       destinationName?: string;
       destinationCountryCode?: string;
       geographicScope: GeographicScope;
+      validationIntent: RequestValidationIntent | undefined;
     },
     traceRecorder: GenerationTraceRecorder,
     providerState: {
@@ -640,40 +646,16 @@ export class ExperienceGenerationService {
       if (web.status === 'failed') providerState.failed.add(webProvider);
     }
 
-    const hasRouteDeficit = plan.deficits.some(
-      (d) =>
-        d.origin === 'preference_facet' &&
-        d.dimension === 'intent' &&
-        d.key === 'route_like',
-    );
-    const hasWalkDeficit = plan.deficits.some(
-      (d) =>
-        d.origin === 'preference_facet' &&
-        d.dimension === 'intent' &&
-        d.key === 'walk',
-    );
-    let validationIntent: 'walk' | 'route_like' | undefined;
-    if (hasRouteDeficit && hasWalkDeficit) {
-      this.logger.warn(
-        `[ExperienceGenerationService] Unsupported mixed intent deficits in acquisition plan (both route_like and walk); failing closed without regional route relaxation.`,
-      );
-      validationIntent = undefined;
-    } else if (hasRouteDeficit) {
-      validationIntent = 'route_like';
-    } else if (hasWalkDeficit) {
-      validationIntent = 'walk';
-    } else {
-      validationIntent = undefined;
-    }
-
+    // `context.validationIntent` is the REQUEST-level intent derived once by
+    // the caller (deriveRequestValidationIntent). It is deliberately NOT
+    // reconstructed from `plan.deficits`: strategy partitioning may route
+    // the request's own intent deficit to another strategy, and that must
+    // not change geographic policy for candidates materialized here.
     let resolution: FinalExperienceResolutionResponse | undefined;
     if (execution.candidates.length > 0) {
       resolution = await this.experienceAcquisition.materializeExecution(
         execution,
-        {
-          ...context,
-          validationIntent,
-        },
+        context,
       );
     }
     recordAcquisitionLifecycle(traceRecorder, {
@@ -853,6 +835,20 @@ export class ExperienceGenerationService {
         request,
         preferenceSpec,
       });
+
+      // Request-level geographic validation intent, derived once and reused
+      // by every acquisition pass that materializes candidates.
+      const requestValidationIntentDecision = deriveRequestValidationIntent(
+        preferenceSpec.facets,
+      );
+      if (requestValidationIntentDecision.status === 'MIXED_UNSUPPORTED') {
+        this.logger.warn(
+          `[ExperienceGenerationService] Unsupported mixed request intents (both route_like and walk); failing closed without regional route relaxation.`,
+        );
+      }
+      const requestValidationIntent = validationIntentOf(
+        requestValidationIntentDecision,
+      );
 
       const destinationResolution =
         await this.destinationResolutionService.resolveDestination(
@@ -1182,6 +1178,7 @@ export class ExperienceGenerationService {
                     destinationName: canonicalDestinationName,
                     destinationCountryCode: destinationResolution.countryCode,
                     geographicScope,
+                    validationIntent: requestValidationIntent,
                   },
                   traceRecorder,
                   {
@@ -1582,6 +1579,7 @@ export class ExperienceGenerationService {
               destinationName: canonicalDestinationName,
               destinationCountryCode: destinationResolution.countryCode,
               geographicScope,
+              validationIntent: requestValidationIntent,
             },
             traceRecorder,
             {
