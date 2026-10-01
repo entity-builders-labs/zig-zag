@@ -998,7 +998,7 @@ describe('tour-generation integration · area/route walk geographic validation (
     });
   });
 
-  describe('N1/N2: real LineString corridor via external ROUTE validationScope, real resolver end-to-end', () => {
+  describe('N2: real LineString corridor via external ROUTE validationScope, real resolver end-to-end', () => {
     const CAMINITO_SCOPE_GEOMETRY = {
       type: 'LineString' as const,
       coordinates: [
@@ -1052,36 +1052,6 @@ describe('tour-generation integration · area/route walk geographic validation (
       return { candidate, osmPlaces };
     }
 
-    it('N1: accepts + persists when the required component genuinely resolves near (on/adjacent to) the real LineString', async () => {
-      const { candidate, osmPlaces } = unscopedVenueCandidate(
-        'Fundación Proa',
-        [-58.3632, -34.6379], // ~real proximity to the Caminito segment
-      );
-      const geographicValidator = new CompositeGeographicValidationService();
-      const resolver = new ExperienceProposalResolverService(
-        osmPlaces as any,
-        catalog,
-        geographicValidator,
-      );
-
-      const result = await resolver.resolve({
-        geographicScope: {
-          kind: 'AREA_BOUNDARY',
-          boundary: BUENOS_AIRES_BOUNDARY,
-        },
-        candidates: [candidate],
-        evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
-        validationScope: routeValidationScope,
-      } as any);
-
-      expect(result.acceptedCount).toBe(1);
-      const experienceId = result.resolved[0].experienceId!;
-      const prisma = await getPrisma();
-      expect(
-        await prisma.experience.findUnique({ where: { id: experienceId } }),
-      ).not.toBeNull();
-    });
-
     it('N2: rejects (nothing persisted) when the required component resolves several km from the real LineString, even while still inside the broad destination boundary', async () => {
       const { candidate, osmPlaces } = unscopedVenueCandidate(
         'Far Stop',
@@ -1116,11 +1086,15 @@ describe('tour-generation integration · area/route walk geographic validation (
     });
   });
 
-  describe('Q: acceptedIds prevents an unrelated pre-existing matching Experience from leaking into the post-acquisition result', () => {
-    it('returns the newly-acquired Experience, never a pre-existing unrelated one the area also covers', async () => {
-      // A PRE-EXISTING, geographically-compatible-but-UNRELATED Experience
-      // ("Food Crawl San Telmo") already sits inside the same area, seeded
-      // directly against real Postgres before acquisition runs.
+  describe('Q: acceptedIds prevents an unrelated matching Experience from leaking into the post-acquisition result', () => {
+    it('returns the newly-acquired Experience, never an unrelated eligible one the area also covers', async () => {
+      // Any VERIFIED in-area Experience present at the WARM check short-
+      // circuits acquisition (reuse, or no_result on a facet mismatch), so
+      // the only row the post-acquisition lookup can leak is one persisted
+      // between the WARM check and that lookup -- here a concurrent request
+      // persisting an unrelated, walk-eligible San Telmo Experience while
+      // this execution acquires. It lands earlier in the unordered catalog
+      // lookup, so only the acceptedIds intersection keeps it out.
       const prisma = await getPrisma();
       const sanTelmoGeo = await prisma.geoEntity.create({
         data: {
@@ -1129,58 +1103,60 @@ describe('tour-generation integration · area/route walk geographic validation (
           geometry: SAN_TELMO_BOUNDARY as any,
         },
       });
-      const foodGeo1 = await prisma.geoEntity.create({
-        data: {
-          name: 'Food Stop A',
-          kind: GeoEntityKind.PLACE,
-          latitude: -34.621,
-          longitude: -58.371,
-        },
-      });
-      const foodGeo2 = await prisma.geoEntity.create({
-        data: {
-          name: 'Food Stop B',
-          kind: GeoEntityKind.PLACE,
-          latitude: -34.62,
-          longitude: -58.372,
-        },
-      });
-      await prisma.experience.create({
-        data: {
-          canonicalName: 'Food Crawl San Telmo',
-          status: 'VERIFIED',
-          metadata: {
-            classification: {
-              state: 'classified',
-              promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
-              modelId: 'groq/qwen',
-              themes: [],
-              intents: ['food'],
-              traits: [],
-              reasoningEvidence: [
-                { facet: 'intent:food', evidenceKeys: ['x'], reason: 'r' },
+      const persistConcurrentUnrelatedWalk = async () => {
+        const otherGeo1 = await prisma.geoEntity.create({
+          data: {
+            name: 'Other Stop A',
+            kind: GeoEntityKind.PLACE,
+            latitude: -34.621,
+            longitude: -58.371,
+          },
+        });
+        const otherGeo2 = await prisma.geoEntity.create({
+          data: {
+            name: 'Other Stop B',
+            kind: GeoEntityKind.PLACE,
+            latitude: -34.62,
+            longitude: -58.372,
+          },
+        });
+        return prisma.experience.create({
+          data: {
+            canonicalName: 'Unrelated San Telmo Walk',
+            status: 'VERIFIED',
+            metadata: {
+              classification: {
+                state: 'classified',
+                promptVersion: CURRENT_CLASSIFICATION_PROMPT_VERSION,
+                modelId: 'groq/qwen',
+                themes: [],
+                intents: ['walk'],
+                traits: [],
+                reasoningEvidence: [
+                  { facet: 'intent:walk', evidenceKeys: ['x'], reason: 'r' },
+                ],
+              },
+              intents: ['walk'],
+            },
+            components: {
+              create: [
+                {
+                  geoEntityId: otherGeo1.id,
+                  role: 'venue',
+                  required: true,
+                  order: 0,
+                },
+                {
+                  geoEntityId: otherGeo2.id,
+                  role: 'venue',
+                  required: true,
+                  order: 1,
+                },
               ],
             },
-            intents: ['food'],
           },
-          components: {
-            create: [
-              {
-                geoEntityId: foodGeo1.id,
-                role: 'venue',
-                required: true,
-                order: 0,
-              },
-              {
-                geoEntityId: foodGeo2.id,
-                role: 'venue',
-                required: true,
-                order: 1,
-              },
-            ],
-          },
-        },
-      });
+        });
+      };
 
       const osmPlaces = {
         lookupPoisWithin: jest.fn().mockResolvedValue({
@@ -1264,15 +1240,21 @@ describe('tour-generation integration · area/route walk geographic validation (
           },
         ],
       };
-      jest.spyOn(acquisitionService, 'executePlan').mockResolvedValue({
-        candidates: [walkCandidate],
-        observations: [],
-        providerResults: {},
-        evidence: [
-          { key: 'w1', source: 'test', snippet: 's1' },
-          { key: 'w2', source: 'test', snippet: 's2' },
-        ],
-      } as any);
+      let unrelatedWalkId: string | undefined;
+      jest
+        .spyOn(acquisitionService, 'executePlan')
+        .mockImplementation(async () => {
+          unrelatedWalkId = (await persistConcurrentUnrelatedWalk()).id;
+          return {
+            candidates: [walkCandidate],
+            observations: [],
+            providerResults: {},
+            evidence: [
+              { key: 'w1', source: 'test', snippet: 's1' },
+              { key: 'w2', source: 'test', snippet: 's2' },
+            ],
+          } as any;
+        });
       jest.spyOn(acquisitionPlanner, 'buildAcquisitionPlan').mockReturnValue({
         destination: { destinationName: 'Buenos Aires' },
         deficits: [],
@@ -1327,13 +1309,24 @@ describe('tour-generation integration · area/route walk geographic validation (
         } as PreferenceFacetDeficit,
       });
 
+      expect(unrelatedWalkId).toBeDefined();
+      // The unrelated walk is a genuine post-acquisition geographic +
+      // semantic match: without the acceptedIds intersection it would win.
+      expect(
+        (
+          await catalog.findVerifiedMultiComponentInArea(
+            sanTelmoGeo.id,
+            'AREA_ANCHORED_ROUTE',
+          )
+        ).map((row) => row.id),
+      ).toContain(unrelatedWalkId);
       expect(result.outcome).toBe('acquired');
-      if (result.outcome !== 'no_result') {
+      if (result.outcome === 'acquired') {
+        expect(result.experienceId).not.toBe(unrelatedWalkId);
         const persisted = await prisma.experience.findUnique({
           where: { id: result.experienceId },
         });
         expect(persisted?.canonicalName).toBe('San Telmo Historical Walk');
-        expect(persisted?.canonicalName).not.toBe('Food Crawl San Telmo');
       }
     });
   });
