@@ -1,7 +1,5 @@
 # Preference-First Selection — CURRENT MAIN PROGRESS
 
-<!-- agent-track: id=preference-first-selection; status=ACTIVE; branch=feat/preference-first-selection; integration=main; base=016f10586d4faf9fe7e703a2d28684136cf99abe; plan=docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md -->
-
 Updated: 2026-09-29
 Branch: `feat/preference-first-selection`
 Repository: `entity-builders-labs/zig-zag`

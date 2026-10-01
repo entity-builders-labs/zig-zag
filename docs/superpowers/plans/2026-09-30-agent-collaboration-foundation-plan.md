@@ -33,6 +33,13 @@ The progress document owns only the execution delta needed to resume:
 The plan continues to own intended gates and acceptance. It does not need to
 enumerate every implementation step.
 
+Track identity remains owned by that track's progress document and branch. A
+legacy/pre-governance track gains its header through a metadata-only commit on
+its own branch; no foreign branch may patch its progress document for
+discoverability. Registered worktrees and fetched refs remain the discovery
+sources, with no registry, alias, branch-name inference, fallback, or duplicate
+metadata.
+
 A blocker/finding changing does not create a new milestone. The stable
 checkpoint remains active until its acceptance condition is satisfied:
 

@@ -54,6 +54,12 @@ The approved skill is now implemented as the tracked regular file
 the existing 21 deterministic governance cases plus four structural resume-skill
 contract cases. ShellCheck and `git diff --check` pass.
 
+GOV-TRACK-OWNERSHIP-1 corrects header ownership: Preference-First bootstraps
+its own ACTIVE header through a metadata-only commit on its own branch, while
+this governance branch removes the foreign header patch. Discovery remains
+registered-worktree plus fetched-ref based; no registry or duplicate metadata
+was introduced.
+
 This already-running client session cannot prove fresh-session discovery of a
 skill created after the session began. No concrete discovery failure was
 observed, and no client-specific adapter or duplicate instructions were added;
@@ -89,6 +95,8 @@ resolve integration conflicts as part of this track.
   checkout; CI keeps the same conflict as a hard integration failure.
 - GOV-LOCATE-1: CLOSED. `locate` resolves ACTIVE IDs across worktrees and
   origin refs, rejects ambiguous IDs, and only reports registered worktrees.
+- GOV-TRACK-OWNERSHIP-1: CLOSED. An ACTIVE track owns its own progress header;
+  foreign tracks must not patch it merely for discovery.
 - PR #70 is intentionally DRAFT and UNMERGED.
 - The integration branch is active product work and may advance independently.
   Re-run canonical preflight/mergeability checks immediately before integration.

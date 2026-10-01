@@ -71,6 +71,14 @@ progress document. The header declares its ID, branch, integration target,
 base snapshot and plan reference. `docs/superpowers/README.md` is navigation,
 not a second track registry.
 
+A track owns its own `agent-track` declaration. Introduce and maintain an
+ACTIVE header only on that track's branch; another track must not patch a
+foreign progress document merely to make it discoverable. Bootstrap a
+legacy/pre-governance track with a metadata-only commit on its own branch.
+Discovery continues through registered worktrees and fetched refs, without a
+central registry, aliases, inferred branch identity, fallback discovery, or
+duplicated track metadata.
+
 For resumability, the progress document also owns the current execution delta:
 `Current execution verdict`, `Current checkpoint`, `Next authorized action`,
 and `Open findings / blockers`. Keep these sections short and current.
