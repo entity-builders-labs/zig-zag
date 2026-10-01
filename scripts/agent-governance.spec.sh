@@ -134,7 +134,7 @@ for required in \
   'AGENTS.md' \
   'bash scripts/agent-preflight' \
   'track-review-schema.json' \
-  'track-review-input.md' \
+  'REVIEW_INPUT_FILE' \
   'PR metadata' \
   'check-evidence snapshot' \
   'code_review_verdict' \
@@ -372,3 +372,24 @@ pass 'duplicate ACTIVE track IDs across branches fail as ambiguous'
 
 git -C "$TMP" worktree remove --force "$TMP_DUPLICATE"
 git -C "$TMP" worktree remove --force "$TMP_PEER"
+
+# Two distinct ACTIVE declarations on the same branch must be ambiguous
+TMP_SAME_BRANCH="$TMP.same-branch"
+git -C "$TMP" worktree add -q "$TMP_SAME_BRANCH" feat/other
+mkdir -p "$TMP_SAME_BRANCH/docs/superpowers/progress"
+printf '%s\n' \
+  '# Other' \
+  "<!-- agent-track: id=other; status=ACTIVE; branch=feat/other; integration=main; base=$BASE; plan=docs/superpowers/plans/other.md -->" \
+  >"$TMP_SAME_BRANCH/docs/superpowers/progress/other.md"
+printf '%s\n' \
+  '# Other2' \
+  "<!-- agent-track: id=other2; status=ACTIVE; branch=feat/other; integration=main; base=$BASE; plan=docs/superpowers/plans/other.md -->" \
+  >"$TMP_SAME_BRANCH/docs/superpowers/progress/other2.md"
+git -C "$TMP_SAME_BRANCH" add docs && git -C "$TMP_SAME_BRANCH" commit -qm same-branch
+git -C "$TMP" update-ref refs/remotes/origin/feat/other "$(git -C "$TMP_SAME_BRANCH" rev-parse HEAD)"
+expect_fail bash -c "cd '$TMP' && scripts/agent-track locate other"
+AMBIGUOUS_SAME_BRANCH_OUTPUT="$(cd "$TMP" && scripts/agent-track locate other 2>&1 || true)"
+printf '%s\n' "$AMBIGUOUS_SAME_BRANCH_OUTPUT" | grep -q 'TRACK LOCATION AMBIGUOUS'
+pass 'two distinct ACTIVE declarations on one branch fail as ambiguous'
+
+git -C "$TMP" worktree remove --force "$TMP_SAME_BRANCH"

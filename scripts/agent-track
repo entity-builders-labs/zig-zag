@@ -70,7 +70,7 @@ discover_active_track_records() {
   {
     registered_worktree_track_records "$top"
     remote_track_records "$top"
-  } | awk -F '\t' '!seen[$1]++'
+  } | awk -F '\t' '!seen[$0]++'
 }
 
 track_ref_for_branch() {
@@ -199,12 +199,14 @@ agent_track_context() {
 
 agent_track_locate() {
   local top="$1" requested_id="$2" branch progress marker id status integration base plan worktree matches=0 record=""
+  local all_records
+  all_records="$(discover_active_track_records "$top")"
   while IFS=$'\t' read -r branch progress marker; do
     id="$(track_field "$marker" id)"
     [ "$id" = "$requested_id" ] || continue
     matches=$((matches + 1))
     record="$branch"$'\t'"$progress"$'\t'"$marker"
-  done < <(discover_active_track_records "$top")
+  done <<<"$all_records"
 
   if [ "$matches" -eq 0 ]; then
     printf 'TRACK LOCATION UNAVAILABLE: no ACTIVE track with id %s\n' "$requested_id" >&2
@@ -216,6 +218,17 @@ agent_track_locate() {
   fi
 
   IFS=$'\t' read -r branch progress marker <<<"$record"
+
+  # Check for ambiguity: multiple distinct ACTIVE declarations on the same branch
+  local branch_declarations=0
+  while IFS=$'\t' read -r b _p _m; do
+    [ "$b" = "$branch" ] && branch_declarations=$((branch_declarations + 1))
+  done <<<"$all_records"
+  if [ "$branch_declarations" -gt 1 ]; then
+    printf 'TRACK LOCATION AMBIGUOUS: branch %s has %d distinct ACTIVE declarations\n' "$branch" "$branch_declarations" >&2
+    return 1
+  fi
+
   id="$(track_field "$marker" id)"
   status="$(track_field "$marker" status)"
   integration="$(track_field "$marker" integration)"

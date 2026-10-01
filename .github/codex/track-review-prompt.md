@@ -1,6 +1,6 @@
 # Zig-Zag contextual pull-request review
 
-Read `.github/codex/track-review-input.md` first. It supplies the authoritative
+Read the file at `$REVIEW_INPUT_FILE` first. It supplies the authoritative
 track, PR number, exact reviewed SHA, base branch, and integration-diff command
 for this run, plus a PR metadata and check-evidence snapshot. Treat those values
 as fixed facts. Do not edit files, make

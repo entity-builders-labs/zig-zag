@@ -22,6 +22,9 @@ jobs:
         with:
           # The canonical preflight reasons about declared base snapshots and
           # active integration branches, so CI needs full branch history.
+          # Check out the actual PR head SHA, not the synthetic merge commit,
+          # so base ancestry is validated against the real head.
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
       - name: Agent collaboration preflight
         run: bash scripts/agent-preflight --ci
