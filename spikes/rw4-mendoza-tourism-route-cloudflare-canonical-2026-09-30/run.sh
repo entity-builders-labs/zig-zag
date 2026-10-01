@@ -26,6 +26,10 @@ mkdir -p "$OUT"
 
 # --- Canonical provenance: BEFORE preflight, DB or any provider call --------
 canonical_require_clean_checkout "$REPO" || { echo "NOT CANONICAL -- aborting before execution"; exit 1; }
+# Request-stimulus gate: the fixture must state the scenario's explicit
+# request semantics (request-stimulus.cjs) before anything is spent.
+node "$HERE/request-stimulus.cjs" request "$HERE/request.json" > "$OUT/request-stimulus.json" ||
+  { cat "$OUT/request-stimulus.json"; echo "REQUEST STIMULUS FAILED -- aborting before execution"; exit 1; }
 SOURCE_HEAD="$(canonical_source_head "$REPO")"
 SOURCE_BRANCH="$(git -C "$REPO" rev-parse --abbrev-ref HEAD)"
 BUILD_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -127,6 +131,10 @@ sleep 5   # let trailing background requests (embeddings/media) land in the log
 "$HERE/db-snapshot.sh" "$DB" > "$OUT/db-after.json"
 kill "$(cat "$OUT/backend.pid")" || true
 rm -f "$OUT/backend.pid"
+
+# Input-control verdict from the trace (request facets + acquisition
+# partition). Recorded, never used to alter the run.
+node "$HERE/request-stimulus.cjs" trace "$OUT/generation-trace.json" > "$OUT/input-control.json" || true
 
 # --- Canonical provenance verdict ------------------------------------------
 REASONS=""

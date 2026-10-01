@@ -13,7 +13,8 @@
       "wine"
     ],
     "intents": [
-      "route_like"
+      "route_like",
+      "visit"
     ],
     "explorationStyle": "balanced",
     "additionalPreferences": "Quiero recorrer la Ruta del Vino de Mendoza y conocer sus bodegas más representativas."
