@@ -59,17 +59,15 @@ jobs:
     if: needs.resolve-pr.outputs.head_repo == github.repository
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-        with:
-          ref: ${{ needs.resolve-pr.outputs.head_sha }}
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Check out the exact track branch at the resolved head
+      - name: Fetch the exact public track branch without persisted credentials
         env:
           HEAD_REF: ${{ needs.resolve-pr.outputs.head_ref }}
           HEAD_SHA: ${{ needs.resolve-pr.outputs.head_sha }}
         run: |
           set -euo pipefail
+          git init .
+          git remote add origin "https://github.com/$GITHUB_REPOSITORY.git"
+          git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*'
           git checkout --force -B "$HEAD_REF" "$HEAD_SHA"
           test "$(git rev-parse HEAD)" = "$HEAD_SHA"
       - id: track

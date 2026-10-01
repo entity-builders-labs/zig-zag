@@ -105,7 +105,7 @@ for required in \
   'pull-requests: write' \
   'permission-profile: :read-only' \
   'safety-strategy: read-only' \
-  'persist-credentials: false' \
+  'without persisted credentials' \
   'head_repo != github.repository' \
   'No OPENAI_API_KEY is exposed to untrusted fork code.'; do
   grep -Fq "$required" "$REVIEW_WORKFLOW"
@@ -121,12 +121,11 @@ pass 'contextual workflow has read-only Codex and fork-secret trust boundary'
 grep -Fq 'openai/codex-action@86365089eb2b84e0a8fb0717b304f8bdcb13b20e' "$REVIEW_WORKFLOW"
 grep -Fq '# openai/codex-action v1' "$REVIEW_WORKFLOW"
 # shellcheck disable=SC2016 # These are literal workflow expressions/snippets.
-grep -Fq 'ref: ${{ needs.resolve-pr.outputs.head_sha }}' "$REVIEW_WORKFLOW"
-# shellcheck disable=SC2016 # These are literal workflow expressions/snippets.
 grep -Fq 'test "$(git rev-parse HEAD)" = "$HEAD_SHA"' "$REVIEW_WORKFLOW"
 # shellcheck disable=SC2016 # These are literal workflow expressions/snippets.
 grep -Fq 'git merge-base HEAD "origin/$BASE_REF"' "$REVIEW_WORKFLOW"
 grep -Fq 'integration_diff=git diff --find-renames --find-copies' "$REVIEW_WORKFLOW"
+grep -Fq "git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*'" "$REVIEW_WORKFLOW"
 pass 'review is pinned, exact-HEAD anchored, and uses merge-base semantics'
 
 for required in \
