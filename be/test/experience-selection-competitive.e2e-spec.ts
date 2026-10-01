@@ -251,6 +251,18 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
 
         if (cf.key === 'exact-fit-vs-quality') {
           const tour = tours['3-only'];
+          const interpretationStep = traceStep(
+            tour,
+            'preference.interpretation',
+          );
+          expect(interpretationStep?.output?.intent?.preferredFacets).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                dimension: 'trait',
+                key: 'local_guide',
+              }),
+            ]),
+          );
           expect(clusterShare(tour, 'exact_fit_history')).toBeGreaterThan(
             clusterShare(tour, 'generic_five_star_history'),
           );

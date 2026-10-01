@@ -46,6 +46,7 @@ export interface FakeInterpretation {
     key: string;
     confidence: number;
     strength?: 'strong' | 'medium' | 'weak';
+    evidence?: string[];
   }>;
   excludedThemes: string[];
   excludedTraits: string[];

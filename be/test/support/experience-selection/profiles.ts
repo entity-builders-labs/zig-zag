@@ -39,11 +39,15 @@ export function baseRequest(
   };
 }
 
-const traitFacet = (key: string) => ({
+const traitFacet = (
+  key: string,
+  evidence: string = key.replace(/_/g, ' '),
+) => ({
   dimension: 'trait',
   key,
   confidence: 1,
   strength: 'strong' as const,
+  evidence: [evidence],
 });
 
 export interface Variant {
@@ -144,7 +148,10 @@ const CF2: Counterfactual = {
       name: '2A-craft-beer',
       interests: ['food'],
       semanticQuery: 'craft beer crawl through local breweries and taprooms',
-      extraFacets: [traitFacet('local'), traitFacet('craft_beer')],
+      extraFacets: [
+        traitFacet('local', 'local'),
+        traitFacet('craft_beer', 'craft beer'),
+      ],
       expectDominantCluster: 'craft_beer_crawl',
       requestedFacetKeys: ['food', 'walk', 'local', 'craft_beer'],
     }),
@@ -152,7 +159,10 @@ const CF2: Counterfactual = {
       name: '2B-specialty-coffee',
       interests: ['food'],
       semanticQuery: 'specialty coffee tasting tour, local roasters and cafes',
-      extraFacets: [traitFacet('local'), traitFacet('specialty_coffee')],
+      extraFacets: [
+        traitFacet('local', 'local'),
+        traitFacet('specialty_coffee', 'specialty coffee'),
+      ],
       expectDominantCluster: 'specialty_coffee_tour',
       requestedFacetKeys: ['food', 'walk', 'local', 'specialty_coffee'],
     }),
@@ -168,7 +178,7 @@ const CF3: Counterfactual = {
       name: '3-only',
       interests: ['history', 'architecture'],
       semanticQuery: 'small-group local guide, historic architecture walk',
-      extraFacets: [traitFacet('local_guide')],
+      extraFacets: [traitFacet('local_guide', 'local guide')],
       expectDominantCluster: 'exact_fit_history',
       requestedFacetKeys: ['history', 'architecture', 'walk', 'local_guide'],
     }),
