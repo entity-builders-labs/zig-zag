@@ -38,7 +38,12 @@ export class TavilyWebSourceContentProvider
 
   private readonly logger = new Logger(TavilyWebSourceContentProvider.name);
   private readonly apiUrl = 'https://api.tavily.com/extract';
-  private readonly timeoutMs = 15000;
+  readonly extractDepth = 'advanced';
+  readonly extractFormat = 'markdown';
+  readonly cacheVersion = 'v2';
+  // Client-side deadline safely exceeding Tavily's documented 30s default
+  // server-side extraction timeout for extract_depth='advanced'.
+  readonly timeoutMs = 45000;
   // Bounds a single discovery query's worth of cited URLs — Tavily bills
   // extract by URL count, and grounded search evidence rarely cites more
   // than a handful of genuinely distinct sources per query.
@@ -48,6 +53,15 @@ export class TavilyWebSourceContentProvider
     private readonly config: ConfigService,
     private readonly aiCache: AiCacheService,
   ) {}
+
+  /**
+   * Versioned semantic cache key. Encodes extraction depth and format
+   * so changing retrieval parameters automatically invalidates/isolates
+   * stale cached content (e.g. legacy 'basic' extractions missing lists).
+   */
+  getCacheKey(url: string): string {
+    return `extract:${this.cacheVersion}:${this.extractDepth}:${this.extractFormat}:${url}`;
+  }
 
   async retrieve(
     request: WebSourceContentRequest,
@@ -70,9 +84,11 @@ export class TavilyWebSourceContentProvider
     const items: WebSourceContentResultItem[] = [];
     const toFetch: string[] = [];
 
-    // 1. Check cache for each URL
+    // 1. Check cache for each URL using semantic versioned key
     for (const url of requestedUrls) {
-      const cached = await this.aiCache.getCachedResponse(`extract:${url}`);
+      const cached = await this.aiCache.getCachedResponse(
+        this.getCacheKey(url),
+      );
       if (cached) {
         try {
           const parsed = JSON.parse(cached) as TavilyExtractResult;
@@ -145,13 +161,20 @@ export class TavilyWebSourceContentProvider
 
     const callStart = Date.now();
     try {
+      this.logger.log(
+        `Tavily extract: requesting ${toFetch.length} URLs (depth=${this.extractDepth}, format=${this.extractFormat}, timeout=${this.timeoutMs}ms)`,
+      );
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({ urls: toFetch }),
+        body: JSON.stringify({
+          urls: toFetch,
+          extract_depth: this.extractDepth,
+          format: this.extractFormat,
+        }),
         signal: AbortSignal.timeout(this.timeoutMs),
       });
 
@@ -212,7 +235,7 @@ export class TavilyWebSourceContentProvider
             durationMs: callDuration,
           });
           await this.aiCache.cacheResponse(
-            `extract:${item.url}`,
+            this.getCacheKey(item.url),
             JSON.stringify({ status: 'success', content: rawContent }),
           );
         }

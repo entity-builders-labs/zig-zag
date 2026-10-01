@@ -95,8 +95,74 @@ describe('TavilyExtractService', () => {
     });
     expect(aiCache.cacheResponse).toHaveBeenCalledTimes(1);
     expect(aiCache.cacheResponse).toHaveBeenCalledWith(
-      'extract:https://ok.example',
+      'extract:v2:advanced:markdown:https://ok.example',
       JSON.stringify({ status: 'success', content: 'Real page content' }),
+    );
+  });
+
+  it('sends extract_depth=advanced and format=markdown without query or chunks_per_source', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        results: [{ url: 'https://a.example', raw_content: 'Content A' }],
+      }),
+    });
+
+    await service.extract(['https://a.example']);
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.extract_depth).toBe('advanced');
+    expect(body.format).toBe('markdown');
+    expect(body.query).toBeUndefined();
+    expect(body.chunks_per_source).toBeUndefined();
+  });
+
+  it('configures a 45-second client timeout compatible with Tavily 30-second advanced extraction', () => {
+    expect(service.timeoutMs).toBe(45000);
+    expect(service.timeoutMs).toBeGreaterThan(30000);
+  });
+
+  it('isolates cache: legacy basic cache entries do not satisfy advanced retrieval', async () => {
+    aiCache.getCachedResponse.mockImplementation(async (key: string) => {
+      if (key === 'extract:https://legacy.example') {
+        return JSON.stringify({
+          status: 'success',
+          content: 'Old basic content missing lists',
+        });
+      }
+      return null;
+    });
+
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        results: [
+          {
+            url: 'https://legacy.example',
+            raw_content: 'New advanced content with lists',
+          },
+        ],
+      }),
+    });
+
+    const result = await service.extract(['https://legacy.example']);
+
+    expect(aiCache.getCachedResponse).toHaveBeenCalledWith(
+      'extract:v2:advanced:markdown:https://legacy.example',
+    );
+    expect(aiCache.getCachedResponse).not.toHaveBeenCalledWith(
+      'extract:https://legacy.example',
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.get('https://legacy.example')?.content).toBe(
+      'New advanced content with lists',
+    );
+    expect(aiCache.cacheResponse).toHaveBeenCalledWith(
+      'extract:v2:advanced:markdown:https://legacy.example',
+      JSON.stringify({
+        status: 'success',
+        content: 'New advanced content with lists',
+      }),
     );
   });
 
