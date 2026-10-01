@@ -9,54 +9,67 @@ pass() { printf 'PASS %s\n' "$1"; }
 expect_ok() { "$@" >/dev/null; }
 expect_fail() { if "$@" >/dev/null 2>&1; then echo "expected failure: $*" >&2; exit 1; fi; }
 
-RESUME_SKILL="$ROOT/.agents/skills/resume-track/SKILL.md"
-[ -f "$RESUME_SKILL" ]
-[ ! -L "$RESUME_SKILL" ]
-git -C "$ROOT" ls-files --error-unmatch .agents/skills/resume-track/SKILL.md >/dev/null
-pass 'resume skill is a tracked regular repository file'
+SKILLS="$ROOT/.agents/skills"
+for command in list status resume publish; do
+  skill="$SKILLS/zig-zag-track-$command/SKILL.md"
+  [ -f "$skill" ] && [ ! -L "$skill" ]
+  git -C "$ROOT" ls-files --error-unmatch ".agents/skills/zig-zag-track-$command/SKILL.md" >/dev/null
+  grep -qx "name: zig-zag-track-$command" "$skill"
+done
+[ ! -e "$SKILLS/resume-track/SKILL.md" ]
+pass 'public commands are tracked Zig-Zag namespaced skills and generic resume is retired'
 
-FRONTMATTER="$(sed -n '2,/^---$/p' "$RESUME_SKILL" | sed '$d')"
-printf '%s\n' "$FRONTMATTER" | grep -qx 'name: resume-track'
-[ "$(printf '%s\n' "$FRONTMATTER" | grep -c '^name:')" -eq 1 ]
-printf '%s\n' "$FRONTMATTER" | grep -qi '^description:.*\(resume\|continue\)'
-pass 'resume skill declares the intended discoverable identity'
+LIST_SKILL="$SKILLS/zig-zag-track-list/SKILL.md"
+grep -Fq 'scripts/agent-track list' "$LIST_SKILL"
+grep -Fq 'This command is read-only' "$LIST_SKILL"
+pass 'LIST delegates to canonical discovery without durable state'
 
+STATUS_SKILL="$SKILLS/zig-zag-track-status/SKILL.md"
+for required in 'scripts/agent-track context' 'bash scripts/agent-preflight' \
+  'This command creates no durable state' 'reviewed_head == current HEAD'; do
+  grep -Fq "$required" "$STATUS_SKILL"
+done
+pass 'STATUS composes local facts and HEAD-anchored review without state'
+
+RESUME_SKILL="$SKILLS/zig-zag-track-resume/SKILL.md"
 for required in \
   'scripts/agent-track context' \
   'scripts/agent-track list' \
   'scripts/agent-track locate <exact-track-id>' \
   'bash scripts/agent-preflight' \
-  'stop and report the ambiguity' \
   'Worktree: <not registered>' \
   'If locate and context disagree, stop' \
   "On \`WRITE BLOCKED\`, stop" \
-  'INTEGRATION BLOCKED' \
-  'stale Fix Brief' \
-  'If review conflicts materially with progress, plan'; do
+  'This command creates no durable track state'; do
   grep -Fq "$required" "$RESUME_SKILL"
 done
-pass 'resume skill composes discovery, safety, and explicit stop contracts'
-
-for forbidden in \
-  'git checkout' \
-  'git switch' \
-  'git reset' \
-  'git rebase' \
-  'git merge' \
-  'git worktree add' \
-  'git worktree remove' \
-  'aliases=' \
-  'displayName=' \
-  'owns=' \
-  'touches='; do
+for forbidden in 'git checkout' 'git switch' 'git reset' 'git rebase' \
+  'git merge' 'git worktree add' 'git worktree remove' 'aliases=' \
+  'displayName=' 'owns=' 'touches='; do
   if grep -Fq "$forbidden" "$RESUME_SKILL"; then
-    echo "forbidden resume-skill authority or mutation token: $forbidden" >&2
+    echo "forbidden resume authority or mutation token: $forbidden" >&2
     exit 1
   fi
 done
-grep -Fq 'creates no durable track state' "$RESUME_SKILL"
-tr '\n' ' ' <"$RESUME_SKILL" | grep -Fq 'Do not create or remove worktrees automatically.'
-pass 'resume skill adds no mutation path or independent authority registry'
+pass 'RESUME preserves locate and registered-worktree safety without mutation'
+
+PUBLISH_SKILL="$SKILLS/zig-zag-track-publish/SKILL.md"
+for required in \
+  'STOP: no integration PR' \
+  'STOP: ambiguous' \
+  'equals the declared integration target' \
+  'tracked or untracked files' \
+  'git diff --check' \
+  'shellcheck scripts/agent-track scripts/agent-preflight scripts/agent-governance.spec.sh' \
+  'head repository and head branch' \
+  'head SHA to equal the pushed HEAD' \
+  'reviewed_head == current HEAD'; do
+  grep -Fq "$required" "$PUBLISH_SKILL"
+done
+for forbidden in 'creates or merges a PR' 'rebases or merges' 'never creates or merges a PR'; do
+  grep -Fq "$forbidden" "$PUBLISH_SKILL"
+done
+pass 'PUBLISH has deterministic PR, dirty-state, remote, and review guards without a real push'
 
 git -C "$TMP" init -q -b main
 git -C "$TMP" config user.email governance@example.test

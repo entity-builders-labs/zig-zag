@@ -104,7 +104,12 @@ Inherited parent history is not concurrent divergence. If a peer ref has no
 common merge base, preflight reports that overlap is unavailable rather than
 guessing.
 
-## Agent resume skill design
+## Milestone 2B historical resume-skill design (superseded)
+
+This section records the accepted 2B design only. It is not a public command
+contract and must not be implemented or restored. Milestone 3A below replaces
+its generic `resume-track` surface with `zig-zag-track-resume`; the historical
+details remain as evidence for semantics that 3A preserves.
 
 ### Purpose and packaging
 
@@ -118,15 +123,14 @@ Git, progress, plan, preflight, and optional PR-review context. Use for
 "seguí con governance", or "retomá Preference-First".
 ```
 
-The canonical, repository-owned source will be
-`.agents/skills/resume-track/SKILL.md`. It must be a regular tracked directory,
-not an absolute link into a developer home. The existing absolute third-party
-skill links do not establish a portability convention for this skill.
+The former canonical, repository-owned source was a regular tracked directory,
+not an absolute link into a developer home. It was deleted at the 3A cutover;
+the namespaced successor remains repository-owned under `.agents/skills/`.
 
 The initial checkpoint adds no speculative client-specific copy. If a supported
 client demonstrably requires another discovery directory, its entry must be a
-thin **relative** symlink to `.agents/skills/resume-track`, with no copied
-instructions. `CLAUDE.md`, `AGENTS.md`, and client configuration remain
+thin **relative** symlink to the namespaced skill, with no copied instructions.
+`CLAUDE.md`, `AGENTS.md`, and client configuration remain
 repository guidance/configuration only; none becomes a duplicate resume
 workflow or authority.
 
@@ -236,10 +240,11 @@ existing interfaces and persists nothing.
 
 ### Next implementation checkpoint
 
-Implement only the designed composition and its focused contract tests:
+The historical 2B implementation scope was the generic composition and focused
+contract tests. It is superseded and must not be reopened:
 
 ```text
-.agents/skills/resume-track/SKILL.md
+.agents/skills/zig-zag-track-resume/SKILL.md
 scripts/agent-governance.spec.sh
 docs/superpowers/plans/2026-09-30-agent-collaboration-foundation-plan.md
 docs/superpowers/progress/2026-09-30-agent-collaboration-foundation-progress.md
@@ -253,3 +258,53 @@ that `.agents/skills` is insufficient; no product/RW4 files are in scope.
 No autonomous reviewer/coder loop, GitHub Projects/Issues synchronization,
 rulesets, product behavior, manually maintained scope registry, or hidden
 destructive branch switching.
+
+## Milestone 3A — namespaced track command surface
+
+Replace the generic public `resume-track` workflow with four repository-
+namespaced agent commands:
+
+```text
+zig-zag-track-list
+zig-zag-track-status
+zig-zag-track-resume
+zig-zag-track-publish
+```
+
+They are thin orchestration over existing authorities. `scripts/agent-track`
+continues to own track discovery, identity, worktree locations, and lineage;
+`scripts/agent-preflight` owns safety and overlap; progress owns execution
+state; Git owns refs/worktrees/diffs; and PR/review owns integration and review
+context. The commands add neither a registry nor persistent command state.
+
+`LIST` delegates directly to `scripts/agent-track list` and reports its ACTIVE
+track facts without writes. `STATUS` composes current-track context and
+preflight, and optionally read-only GitHub PR/check/review facts. Its review
+state is HEAD-anchored: `CURRENT` exactly means `reviewed_head == current HEAD`;
+otherwise it is `STALE`.
+
+`RESUME` is the sole public successor to `resume-track`. Named resume follows
+list, exact ID, locate, registered worktree, context agreement, canonical
+document reconstruction, optional PR/review reconstruction, and preflight.
+It stops for absent/ambiguous identity, absent registered worktree, context
+disagreement, blocked writes, or a required human decision. It never changes
+the caller checkout or creates/removes worktrees merely to resume.
+
+`PUBLISH` handles only an intentional committed current-track state and an
+existing exact PR. It rejects zero or multiple open PRs, a mismatched base,
+dirty/ambiguous publication state, and a local remote that does not match the
+PR head repository/branch. It runs preflight, diff-check, the governance
+checks for governance changes, and any declared bounded validations before
+pushing. It neither creates nor merges PRs, and never guesses a fork target.
+
+Acceptance is deterministic governance coverage for the namespaced command
+identities and all listed stop invariants, with no real push. The generic skill
+is deleted under the early-stage deletion rule; no compatibility public command
+remains.
+
+## Milestone 3B — deferred
+
+Push-triggered contextual agent review is explicitly deferred. It may later
+use a review anchor of track, PR, reviewed HEAD, progress/plan context,
+findings, and verification, but it must not persist manual review status into
+track metadata or create an autonomous reviewer/coder loop.

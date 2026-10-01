@@ -4,7 +4,8 @@
 
 ## Current execution verdict
 
-**Milestone 2B — ACCEPTED ON GOVERNANCE BRANCH / NOT YET INTEGRATED.**
+**Milestone 2B — HISTORICALLY ACCEPTED ON GOVERNANCE BRANCH / NOT YET
+INTEGRATED. Milestone 3A — ACTIVE.**
 
 The former initiative registry and manual semantic-ownership model have been
 replaced by progress-owned track identity, actual branch-diff overlap warnings,
@@ -49,10 +50,9 @@ authority. The design explicitly stops for ambiguous identity, an unregistered
 worktree, context disagreement, blocked writes, stale/conflicting Fix Briefs,
 and forbidden integration.
 
-The approved skill is now implemented as the tracked regular file
-`.agents/skills/resume-track/SKILL.md`. The governance suite passes 25 cases:
-the existing 21 deterministic governance cases plus four structural resume-skill
-contract cases. ShellCheck and `git diff --check` pass.
+The approved generic resume skill was implemented for 2B and its then-current
+suite passed 25 cases. Milestone 3A deletes that public surface and replaces it
+with the namespaced command set under the early-stage deletion rule.
 
 GOV-TRACK-OWNERSHIP-1 corrects header ownership: Preference-First bootstraps
 its own ACTIVE header through a metadata-only commit on its own branch, while
@@ -70,24 +70,26 @@ skill created after the session began. No concrete discovery failure was
 observed, and no client-specific adapter or duplicate instructions were added;
 verify discovery in a fresh supported client session before adding one.
 
-The PR remains draft and unmerged. Integration safety must be re-evaluated
-against the then-current `feat/preference-first-selection` head before merge;
-do not auto-merge, auto-rebase, or weaken governance checks to make it mergeable.
+Milestone 3A replaces the generic public `resume-track` surface with the four
+namespaced track commands. It remains governance-only and must preserve the
+accepted 2B discovery, locate, preflight, overlap, and worktree contracts.
+Milestone 3B contextual review automation is deferred.
+
+The 3A command skills and deterministic governance coverage are implemented;
+commit and publication to the existing draft PR remain subject to the exact
+publication and remote-identity gates.
 
 ## Current checkpoint
 
-Milestone 2B verification and the `resume-track` implementation are complete
-on the governance branch, pending draft-PR review and eventual integration.
-GOV-GATE-1 separates write and integration readiness; GOV-LOCATE-1 supplies
-deterministic named-track discovery.
+Milestone 3A — verification, governance-only commit, and safe publication to
+the existing draft PR. The command surface and deterministic fixtures are
+complete; no Milestone 3B work is authorized.
 
 ## Next authorized action
 
-Review the governance-only `resume-track` implementation in draft PR #70.
-Address only in-scope findings within this checkpoint. Before any integration
-attempt, rerun canonical preflight against the then-current
-`feat/preference-first-selection` head; do not auto-merge, auto-rebase, or
-resolve integration conflicts as part of this track.
+Commit and publish the verified Milestone 3A governance-only change only to
+the existing draft PR #70 after exact PR/remote safety verification. Do not
+start Milestone 3B.
 
 ## Open findings / blockers
 
@@ -104,6 +106,10 @@ resolve integration conflicts as part of this track.
   foreign tracks must not patch it merely for discovery.
 - GOV-OVERLAP-1: CLOSED. Same-file warnings compare pairwise divergent paths,
   not each track's separate integration-relative history.
+- Milestone 3A must not restore generic public command names, a registry,
+  branch-name inference, hidden worktree mutation, automatic PR creation or
+  merge, fork guessing, or persisted review status.
+- Milestone 3B push-triggered contextual review remains explicitly deferred.
 - PR #70 is intentionally DRAFT and UNMERGED.
 - The integration branch is active product work and may advance independently.
   Re-run canonical preflight/mergeability checks immediately before integration.
