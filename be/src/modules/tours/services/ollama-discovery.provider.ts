@@ -11,6 +11,7 @@ import {
 } from '../prompts/experience-discovery-extraction.prompt';
 import {
   extractExperienceCandidates,
+  failedExtraction,
   ExperienceExtractionResult,
 } from '../utils/experience-candidate-extraction.util';
 
@@ -104,9 +105,7 @@ export class OllamaDiscoveryProvider {
       parsed = JSON.parse(raw);
     } catch {
       return {
-        candidates: [],
-        validationErrors: ['Failed to parse JSON response'],
-        sourceSupportAudits: [],
+        ...failedExtraction('Failed to parse JSON response'),
         provider: 'ollama',
         model,
         rawOutput: raw,

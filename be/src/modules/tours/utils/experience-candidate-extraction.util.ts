@@ -91,8 +91,34 @@ export interface CandidateSourceSupportAudit {
 
 export interface ExperienceExtractionResult {
   candidates: ExperienceCandidate[];
+  /**
+   * Audit list of every validation message, in order: extraction-level
+   * failures, envelope repair notes, and per-candidate rejections.
+   */
   validationErrors: string[];
+  /**
+   * Extraction-level failures only: the extractor response as a whole was
+   * unusable (missing credentials, truncated output, unparseable JSON,
+   * unrecognized envelope). Each also appears in `validationErrors`.
+   * Candidate-level rejections and envelope repairs never appear here: an
+   * invalid candidate says nothing about whether the supplied evidence is
+   * worth enriching.
+   */
+  extractionFailures: string[];
   sourceSupportAudits: CandidateSourceSupportAudit[];
+}
+
+/**
+ * The result of an extraction whose response as a whole was unusable: no
+ * candidates, and the reason recorded as an extraction-level failure.
+ */
+export function failedExtraction(reason: string): ExperienceExtractionResult {
+  return {
+    candidates: [],
+    validationErrors: [reason],
+    extractionFailures: [reason],
+    sourceSupportAudits: [],
+  };
 }
 
 /**
@@ -114,14 +140,15 @@ export interface ExperienceExtractionResult {
 function normalizeExtractorEnvelope(raw: unknown): {
   entries: unknown[];
   repairNotes: string[];
+  envelopeFailures: string[];
 } {
   if (Array.isArray(raw)) {
-    return { entries: raw, repairNotes: [] };
+    return { entries: raw, repairNotes: [], envelopeFailures: [] };
   }
   if (raw && typeof raw === 'object') {
     const wrapped = (raw as Record<string, unknown>).candidates;
     if (Array.isArray(wrapped)) {
-      return { entries: wrapped, repairNotes: [] };
+      return { entries: wrapped, repairNotes: [], envelopeFailures: [] };
     }
     const name = (raw as Record<string, unknown>).name;
     const componentHints = (raw as Record<string, unknown>).componentHints;
@@ -131,6 +158,7 @@ function normalizeExtractorEnvelope(raw: unknown): {
         repairNotes: [
           'extractor_envelope_repaired: response was a single bare candidate object instead of {"candidates":[...]}; wrapped automatically',
         ],
+        envelopeFailures: [],
       };
     }
   }
@@ -144,7 +172,8 @@ function normalizeExtractorEnvelope(raw: unknown): {
         : typeof raw;
   return {
     entries: [],
-    repairNotes: [
+    repairNotes: [],
+    envelopeFailures: [
       `extractor_envelope_unrecognized: top-level ${shape}; no candidates read`,
     ],
   };
@@ -159,9 +188,10 @@ export function extractExperienceCandidates(
   const evidenceByKey = new Map(
     evidence.map((item) => [item.key, { title: item.title, text: item.text }]),
   );
-  const { entries, repairNotes } = normalizeExtractorEnvelope(raw);
+  const { entries, repairNotes, envelopeFailures } =
+    normalizeExtractorEnvelope(raw);
   const candidates: ExperienceCandidate[] = [];
-  const validationErrors: string[] = [...repairNotes];
+  const validationErrors: string[] = [...envelopeFailures, ...repairNotes];
   const sourceSupportAudits: CandidateSourceSupportAudit[] = [];
 
   for (const [index, value] of entries.slice(0, maxCandidates).entries()) {
@@ -468,5 +498,10 @@ export function extractExperienceCandidates(
       orderedByEvidence: candidate.orderedByEvidence === true,
     });
   }
-  return { candidates, validationErrors, sourceSupportAudits };
+  return {
+    candidates,
+    validationErrors,
+    extractionFailures: envelopeFailures,
+    sourceSupportAudits,
+  };
 }

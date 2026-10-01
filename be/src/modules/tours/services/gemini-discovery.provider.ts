@@ -10,6 +10,7 @@ import {
 } from '../prompts/experience-discovery-extraction.prompt';
 import {
   extractExperienceCandidates,
+  failedExtraction,
   ExperienceExtractionResult,
 } from '../utils/experience-candidate-extraction.util';
 
@@ -71,9 +72,7 @@ export class GeminiDiscoveryProvider {
     const apiKey = this.config.discoveryExtractor.gemini.apiKey;
     if (!apiKey)
       return {
-        candidates: [],
-        validationErrors: ['Missing Gemini API key'],
-        sourceSupportAudits: [],
+        ...failedExtraction('Missing Gemini API key'),
         provider: 'gemini',
         model: this.model,
       };
@@ -85,9 +84,7 @@ export class GeminiDiscoveryProvider {
       parsed = JSON.parse(raw);
     } catch {
       return {
-        candidates: [],
-        validationErrors: ['Failed to parse JSON response'],
-        sourceSupportAudits: [],
+        ...failedExtraction('Failed to parse JSON response'),
         provider: 'gemini',
         model: this.model,
         rawOutput: raw,

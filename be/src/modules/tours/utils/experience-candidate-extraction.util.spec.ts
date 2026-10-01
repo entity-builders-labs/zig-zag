@@ -176,6 +176,32 @@ describe('extractExperienceCandidates', () => {
     expect(result.validationErrors.join(' ')).toMatch(
       /unknown evidence|invalid evidence/,
     );
+    // A rejected candidate is candidate-level, never an extraction failure.
+    expect(result.extractionFailures).toEqual([]);
+  });
+
+  it('classifies a candidate with no componentHints as a candidate-level rejection, not an extraction failure (RW4 COLD #4 ev-6)', () => {
+    const result = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Wine Route Bus Circuit',
+            themes: ['wine'],
+            traits: [],
+            intents: [],
+            componentHints: [],
+            evidenceKeys: ['ev-1'],
+          },
+        ],
+      },
+      [ev('ev-1', 'get on a bus and visit the best wineries')],
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors).toEqual([
+      'Candidate 1: componentHints is required',
+    ]);
+    expect(result.extractionFailures).toEqual([]);
   });
 
   it('carries a componentHint addressHint through when the raw hint sets a non-empty string', () => {
@@ -296,6 +322,8 @@ describe('extractExperienceCandidates', () => {
     expect(result.validationErrors).toEqual([
       expect.stringContaining('extractor_envelope_repaired'),
     ]);
+    // A repaired envelope was read: it is not an extraction failure.
+    expect(result.extractionFailures).toEqual([]);
   });
 
   it('does not repair a raw value that is neither an array, a {candidates:[...]} envelope, nor a single-candidate-shaped object', () => {
@@ -312,6 +340,8 @@ describe('extractExperienceCandidates', () => {
     expect(result.validationErrors).toEqual([
       'extractor_envelope_unrecognized: top-level object keys [foo, unrelated]; no candidates read',
     ]);
+    // An unreadable envelope means the response as a whole was unusable.
+    expect(result.extractionFailures).toEqual(result.validationErrors);
   });
 
   it('a well-formed empty envelope is a genuine "no candidates", with no note', () => {
@@ -323,6 +353,7 @@ describe('extractExperienceCandidates', () => {
       );
       expect(result.candidates).toHaveLength(0);
       expect(result.validationErrors).toEqual([]);
+      expect(result.extractionFailures).toEqual([]);
     }
   });
 
@@ -336,6 +367,7 @@ describe('extractExperienceCandidates', () => {
     expect(result.validationErrors).toEqual([
       'extractor_envelope_unrecognized: top-level string; no candidates read',
     ]);
+    expect(result.extractionFailures).toEqual(result.validationErrors);
   });
 
   /**

@@ -364,6 +364,9 @@ describe('CloudflareDiscoveryProvider', () => {
     const result = await provider.extractExperiences(request, searchResult);
     expect(result.candidates).toHaveLength(0);
     expect(result.validationErrors).toContain('Failed to parse JSON response');
+    expect(result.extractionFailures).toEqual([
+      'Failed to parse JSON response',
+    ]);
     expect(result.validationErrors).not.toContain(
       'Cloudflare discovery response truncated at completion token limit',
     );
@@ -392,6 +395,10 @@ describe('CloudflareDiscoveryProvider', () => {
     expect(result.validationErrors).toContain(
       'Cloudflare discovery response truncated at completion token limit',
     );
+    // Truncation makes the response as a whole unusable.
+    expect(result.extractionFailures).toEqual([
+      'Cloudflare discovery response truncated at completion token limit',
+    ]);
     expect(result.provider).toBe('cloudflare');
     expect(result.model).toBe('@cf/qwen/qwen3.8-27b');
   });
@@ -453,6 +460,9 @@ describe('CloudflareDiscoveryProvider', () => {
     const provider = await makeProvider({ accountId: undefined });
     const result = await provider.extractExperiences(request, searchResult);
     expect(result.validationErrors).toEqual(['Missing Cloudflare account id']);
+    expect(result.extractionFailures).toEqual([
+      'Missing Cloudflare account id',
+    ]);
     expect(result.provider).toBe('cloudflare');
     expect(fetchSpy).not.toHaveBeenCalled();
   });

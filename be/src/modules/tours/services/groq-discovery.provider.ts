@@ -10,6 +10,7 @@ import {
 } from '../prompts/experience-discovery-extraction.prompt';
 import {
   extractExperienceCandidates,
+  failedExtraction,
   ExperienceExtractionResult,
 } from '../utils/experience-candidate-extraction.util';
 
@@ -58,9 +59,7 @@ export class GroqDiscoveryProvider {
       parsed = JSON.parse(raw);
     } catch {
       return {
-        candidates: [],
-        validationErrors: ['Failed to parse JSON response'],
-        sourceSupportAudits: [],
+        ...failedExtraction('Failed to parse JSON response'),
         provider: 'groq',
         model: this.model,
         rawOutput: raw,

@@ -5,6 +5,7 @@ import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-
 import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fingerprint.util';
 import { DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS } from '../interfaces/web-source-content.interface';
 import { windowSourceContent } from '../utils/source-content-windowing.util';
+import { extractExperienceCandidates } from '../utils/experience-candidate-extraction.util';
 
 describe('ExperienceAcquisitionService', () => {
   const input = {
@@ -504,6 +505,7 @@ describe('ExperienceAcquisitionService', () => {
         const search = jest.fn().mockResolvedValue(groundedResult);
         const extractExperiences = jest.fn().mockResolvedValue({
           candidates: [webCandidate],
+          extractionFailures: [],
           validationErrors: [],
           provider: 'gemini',
           model: 'gemini-x',
@@ -561,6 +563,7 @@ describe('ExperienceAcquisitionService', () => {
         const search = jest.fn().mockResolvedValue(groundedResult);
         const extractExperiences = jest.fn().mockResolvedValue({
           candidates: [webCandidate],
+          extractionFailures: [],
           validationErrors: [],
           provider: 'gemini',
           model: 'gemini-x',
@@ -610,6 +613,7 @@ describe('ExperienceAcquisitionService', () => {
         const search = jest.fn().mockResolvedValue(groundedResult);
         const extractExperiences = jest.fn().mockResolvedValue({
           candidates: [webCandidate],
+          extractionFailures: [],
           validationErrors: [],
           provider: 'cloudflare',
           model: '@cf/qwen/qwen3.8-27b',
@@ -647,6 +651,7 @@ describe('ExperienceAcquisitionService', () => {
         });
         const extractExperiences = jest.fn().mockResolvedValue({
           candidates: [webCandidate],
+          extractionFailures: [],
           validationErrors: [],
           provider: 'gemini',
           model: 'gemini-x',
@@ -698,6 +703,7 @@ describe('ExperienceAcquisitionService', () => {
           {
             extractExperiences: jest.fn().mockResolvedValue({
               candidates: [],
+              extractionFailures: [],
               validationErrors: [],
             }),
           } as any,
@@ -859,6 +865,7 @@ describe('ExperienceAcquisitionService', () => {
           // The extractor itself already rejected the raw candidate at
           // extraction time -- no canonical ExperienceCandidate is emitted.
           candidates: [],
+          extractionFailures: [],
           validationErrors: [
             'Candidate 1: SOURCE_CONTRACT_VIOLATION: component 1 (Basílica de Santa Mónica) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE',
           ],
@@ -1009,6 +1016,7 @@ describe('ExperienceAcquisitionService', () => {
             .fn()
             .mockResolvedValueOnce({
               candidates: [singleComponentCandidate],
+              extractionFailures: [],
               validationErrors: [],
               provider: 'gemini',
               model: 'gemini-x',
@@ -1016,6 +1024,7 @@ describe('ExperienceAcquisitionService', () => {
             })
             .mockResolvedValueOnce({
               candidates: [fullMultiComponentCandidate],
+              extractionFailures: [],
               validationErrors: [],
               provider: 'gemini',
               model: 'gemini-x',
@@ -1125,6 +1134,7 @@ describe('ExperienceAcquisitionService', () => {
               };
               const extractExperiences = jest.fn().mockResolvedValue({
                 candidates: [],
+                extractionFailures: [],
                 validationErrors: [],
                 provider: 'gemini',
                 model: 'gemini-x',
@@ -1231,6 +1241,7 @@ describe('ExperienceAcquisitionService', () => {
 
           const extractExperiences = jest.fn().mockResolvedValue({
             candidates: [multiComponentCandidate],
+            extractionFailures: [],
             validationErrors: [],
             provider: 'gemini',
             model: 'gemini-x',
@@ -1268,6 +1279,7 @@ describe('ExperienceAcquisitionService', () => {
           const search = jest.fn().mockResolvedValue(groundedWithUrls);
           const extractExperiences = jest.fn().mockResolvedValue({
             candidates: [],
+            extractionFailures: [],
             validationErrors: [],
             provider: 'gemini',
             model: 'gemini-x',
@@ -1298,11 +1310,12 @@ describe('ExperienceAcquisitionService', () => {
           expect(webSourceContentProvider.retrieve).not.toHaveBeenCalled();
         });
 
-        it('skips deep retrieval when extraction had validation errors (anti-N7 fail-closed)', async () => {
+        it('skips deep retrieval when the extraction itself failed (anti-N7 fail-closed)', async () => {
           const search = jest.fn().mockResolvedValue(groundedWithUrls);
           const extractExperiences = jest.fn().mockResolvedValue({
             candidates: [],
-            validationErrors: ['Schema syntax error in LLM output'],
+            validationErrors: ['Failed to parse JSON response'],
+            extractionFailures: ['Failed to parse JSON response'],
             provider: 'gemini',
             model: 'gemini-x',
             rawOutput: 'bad json',
@@ -1331,6 +1344,238 @@ describe('ExperienceAcquisitionService', () => {
 
           expect(webSourceContentProvider.retrieve).not.toHaveBeenCalled();
           expect(extractExperiences).toHaveBeenCalledTimes(1);
+        });
+
+        describe('candidate-level invalidity vs extraction failure', () => {
+          // A fresh fixture per test: deep retrieval rewrites the grounded
+          // evidence it is handed, so shared fixtures drift between tests.
+          const winesGrounded = () => ({
+            provider: 'tavily',
+            model: 'n/a',
+            groundingStatus: 'applied',
+            evidence: [
+              {
+                key: 'ev-1',
+                source: 'wine-outings.example',
+                title: 'Wine outings',
+                snippet:
+                  'The idea is to get on a bus and go on a neatly organized circuit to visit the best wineries and Bodega Alta.',
+                url: 'https://wine-outings.example/outings.html',
+              },
+            ],
+            rawOutput: 'grounded raw fixture',
+          });
+
+          const venue = (name: string) => ({
+            key: name.toLowerCase().replace(/\s+/g, '-'),
+            name,
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['ev-1'],
+            supportSpan: name,
+          });
+          const rawCandidate = (name: string, componentHints: unknown[]) => ({
+            name,
+            themes: ['wine'],
+            traits: [] as string[],
+            intents: [] as string[],
+            componentHints,
+            evidenceKeys: ['ev-1'],
+            shortReason: 'fixture',
+          });
+
+          // Runs the real extraction contract over whatever evidence the
+          // service supplies, one raw extractor response per call.
+          const extractorReturning = (...rawResponses: unknown[]) => {
+            const fn = jest.fn();
+            for (const raw of rawResponses) {
+              fn.mockImplementationOnce(
+                async (request: any, searchResult: any) => ({
+                  ...extractExperienceCandidates(
+                    raw,
+                    searchResult.evidence.map((e: any) => ({
+                      key: e.key,
+                      title: e.title,
+                      text: e.snippet,
+                    })),
+                    request.maxCandidates,
+                  ),
+                  provider: 'cloudflare',
+                  model: 'qwen-fixture',
+                  rawOutput: JSON.stringify(raw),
+                }),
+              );
+            }
+            return fn;
+          };
+
+          const fullSource =
+            'Full circuit: the bus stops at Bodega Alta, then Bodega Baja, then Bodega Media.';
+          const deepResponse = {
+            candidates: [
+              rawCandidate('Wine Route Bus Circuit', [
+                venue('Bodega Alta'),
+                venue('Bodega Baja'),
+              ]),
+            ],
+          };
+
+          const buildService = (extractExperiences: jest.Mock) => {
+            const webSourceContentProvider: any = {
+              providerName: 'tavily',
+              retrieve: jest.fn().mockResolvedValue({
+                provider: 'tavily',
+                requestedCount: 1,
+                retrievedCount: 1,
+                items: [
+                  {
+                    requestedUrl: 'https://wine-outings.example/outings.html',
+                    status: 'retrieved',
+                    contentType: 'markdown',
+                    content: fullSource,
+                    contentChars: fullSource.length,
+                    truncated: false,
+                    provider: 'tavily',
+                    durationMs: 5,
+                  },
+                ],
+                totalDurationMs: 5,
+              }),
+            };
+            const service = new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              undefined,
+              { search: jest.fn().mockResolvedValue(winesGrounded()) } as any,
+              { extractExperiences } as any,
+              undefined,
+              webSourceContentProvider,
+            );
+            return { service, webSourceContentProvider };
+          };
+
+          it('a candidate rejected for empty componentHints does not suppress deep retrieval (RW4 COLD #4 ev-6)', async () => {
+            const extractExperiences = extractorReturning(
+              {
+                candidates: [rawCandidate('Wine Route Bus Circuit', [])],
+              },
+              deepResponse,
+            );
+            const { service, webSourceContentProvider } =
+              buildService(extractExperiences);
+
+            const result = await service.executePlan(multiComponentWebPlan);
+            const webResult = result.webResults![0];
+
+            // The snippet candidate was rejected at candidate level...
+            expect(webResult.extractionAttempts[0]).toMatchObject({
+              inputKind: 'grounded_snippets',
+              status: 'completed',
+              validationErrors: ['Candidate 1: componentHints is required'],
+              extractedCandidateCount: 0,
+            });
+            // ...and deep retrieval still ran on the cited source.
+            expect(webSourceContentProvider.retrieve).toHaveBeenCalledWith({
+              urls: ['https://wine-outings.example/outings.html'],
+            });
+            expect(webResult.sourceContentRetrieval).toMatchObject({
+              attempted: true,
+              reExtractionAttempted: true,
+              triggerReason:
+                'MULTI_COMPONENT_EXPERIENCE required but initial extraction produced no admissible multi-component candidate',
+            });
+            expect(extractExperiences).toHaveBeenCalledTimes(2);
+            expect(webResult.extractionAttempts[1]).toMatchObject({
+              inputKind: 'deep_source_content',
+              admittedCandidateCount: 1,
+            });
+            expect(result.candidates.map((c) => c.name)).toEqual([
+              'Wine Route Bus Circuit',
+            ]);
+          });
+
+          it('a valid single-component candidate beside an invalid one still deep-fetches', async () => {
+            const extractExperiences = extractorReturning(
+              {
+                candidates: [
+                  rawCandidate('Wine Route Bus Circuit', []),
+                  rawCandidate('Bodega Alta visit', [venue('Bodega Alta')]),
+                ],
+              },
+              deepResponse,
+            );
+            const { service, webSourceContentProvider } =
+              buildService(extractExperiences);
+
+            const result = await service.executePlan(multiComponentWebPlan);
+            const webResult = result.webResults![0];
+
+            expect(webResult.extractionAttempts[0]).toMatchObject({
+              validationErrors: ['Candidate 1: componentHints is required'],
+              extractedCandidateCount: 1,
+              admittedCandidateCount: 0,
+            });
+            expect(webSourceContentProvider.retrieve).toHaveBeenCalledTimes(1);
+            expect(extractExperiences).toHaveBeenCalledTimes(2);
+          });
+
+          it('an unrecognized extractor envelope stays fail-closed: no deep retrieval', async () => {
+            const extractExperiences = extractorReturning({
+              unexpected: 'shape',
+            });
+            const { service, webSourceContentProvider } =
+              buildService(extractExperiences);
+
+            const result = await service.executePlan(multiComponentWebPlan);
+
+            expect(webSourceContentProvider.retrieve).not.toHaveBeenCalled();
+            expect(extractExperiences).toHaveBeenCalledTimes(1);
+            expect(
+              result.webResults![0].sourceContentRetrieval,
+            ).toBeUndefined();
+          });
+
+          it('a thrown extractor failure stays a failed EXTRACTION, never a deep fetch', async () => {
+            const extractExperiences = jest
+              .fn()
+              .mockRejectedValue(new Error('extractor timeout'));
+            const { service, webSourceContentProvider } =
+              buildService(extractExperiences);
+
+            const result = await service.executePlan(multiComponentWebPlan);
+
+            expect(webSourceContentProvider.retrieve).not.toHaveBeenCalled();
+            expect(result.webResults![0]).toMatchObject({
+              status: 'failed',
+              failedStage: 'EXTRACTION',
+            });
+          });
+
+          it('an admitted multi-component candidate beside an invalid one keeps skipping deep retrieval', async () => {
+            const extractExperiences = extractorReturning({
+              candidates: [
+                rawCandidate('Wine Route Bus Circuit', []),
+                rawCandidate('Wine Route Bus Circuit (named)', [
+                  venue('Bodega Alta'),
+                  venue('organized circuit'),
+                ]),
+              ],
+            });
+            const { service, webSourceContentProvider } =
+              buildService(extractExperiences);
+
+            const result = await service.executePlan(multiComponentWebPlan);
+
+            expect(webSourceContentProvider.retrieve).not.toHaveBeenCalled();
+            expect(extractExperiences).toHaveBeenCalledTimes(1);
+            expect(result.candidates.map((c) => c.name)).toEqual([
+              'Wine Route Bus Circuit (named)',
+            ]);
+          });
         });
 
         describe('acquisition observability (RW4 canonical-run provenance)', () => {
@@ -1411,6 +1656,7 @@ describe('ExperienceAcquisitionService', () => {
               .fn()
               .mockResolvedValueOnce({
                 candidates: [snippetCandidate],
+                extractionFailures: [],
                 validationErrors: [],
                 provider: 'extractor-a',
                 model: 'model-a',
@@ -1418,6 +1664,7 @@ describe('ExperienceAcquisitionService', () => {
               })
               .mockResolvedValueOnce({
                 candidates: [deepCandidate],
+                extractionFailures: [],
                 validationErrors: ['deep attempt warning'],
                 provider: 'extractor-b',
                 model: 'model-b',
@@ -1471,6 +1718,7 @@ describe('ExperienceAcquisitionService', () => {
           it('records the search snippet of every considered source without changing selection', async () => {
             const extractExperiences = jest.fn().mockResolvedValue({
               candidates: [snippetCandidate],
+              extractionFailures: [],
               validationErrors: [],
               provider: 'extractor-a',
               model: 'model-a',
@@ -1546,6 +1794,7 @@ describe('ExperienceAcquisitionService', () => {
               .fn()
               .mockResolvedValueOnce({
                 candidates: [snippetCandidate],
+                extractionFailures: [],
                 validationErrors: [],
                 provider: 'extractor-a',
                 model: 'model-a',
@@ -1583,6 +1832,7 @@ describe('ExperienceAcquisitionService', () => {
           it('attributes a content-retrieval failure to SOURCE_FETCH', async () => {
             const extractExperiences = jest.fn().mockResolvedValue({
               candidates: [snippetCandidate],
+              extractionFailures: [],
               validationErrors: [],
               provider: 'extractor-a',
               model: 'model-a',
@@ -1710,6 +1960,7 @@ describe('ExperienceAcquisitionService', () => {
             const search = jest.fn().mockResolvedValue(groundedWithFourSources);
             const extractExperiences = jest.fn().mockResolvedValue({
               candidates: [singleComponentCandidate],
+              extractionFailures: [],
               validationErrors: [],
               provider: 'gemini',
               model: 'gemini-x',
@@ -1880,6 +2131,7 @@ describe('ExperienceAcquisitionService', () => {
             const search = jest.fn().mockResolvedValue(groundedEvidence);
             const extractExperiences = jest.fn().mockResolvedValue({
               candidates: [rejectedCitingEv3],
+              extractionFailures: [],
               validationErrors: [],
               provider: 'gemini',
               model: 'gemini-x',
@@ -1997,6 +2249,7 @@ describe('ExperienceAcquisitionService', () => {
                   shortReason: 'Single stop',
                 },
               ],
+              extractionFailures: [],
               validationErrors: [],
               provider: 'gemini',
               model: 'gemini-x',
@@ -2109,6 +2362,7 @@ describe('ExperienceAcquisitionService', () => {
                   shortReason: 'Single stop',
                 },
               ],
+              extractionFailures: [],
               validationErrors: [],
               provider: 'gemini',
               model: 'gemini-x',
@@ -2210,6 +2464,7 @@ describe('ExperienceAcquisitionService', () => {
               .mockResolvedValue(multiEvidenceGroundedResult);
             const extractExperiences = jest.fn().mockResolvedValue({
               candidates: [webCandidate],
+              extractionFailures: [],
               validationErrors: [],
               provider: 'gemini',
               model: 'gemini-x',
@@ -2276,6 +2531,7 @@ describe('ExperienceAcquisitionService', () => {
               .mockResolvedValue(multiEvidenceGroundedResult);
             const extractExperiences = jest.fn().mockResolvedValue({
               candidates: [singleCiteCandidate],
+              extractionFailures: [],
               validationErrors: [],
               provider: 'gemini',
               model: 'gemini-x',
@@ -2385,6 +2641,7 @@ describe('ExperienceAcquisitionService', () => {
               .fn()
               .mockResolvedValueOnce({
                 candidates: [candidateWithGap],
+                extractionFailures: [],
                 validationErrors: [],
                 provider: 'cloudflare',
                 model: 'qwen',
@@ -2412,6 +2669,7 @@ describe('ExperienceAcquisitionService', () => {
                     ],
                   },
                 ],
+                extractionFailures: [],
                 validationErrors: [],
                 provider: 'cloudflare',
                 model: 'qwen',
@@ -2510,6 +2768,7 @@ describe('ExperienceAcquisitionService', () => {
               .mockResolvedValue(multiEvidenceGroundedResult);
             const extractExperiences = jest.fn().mockResolvedValue({
               candidates: [webCandidate],
+              extractionFailures: [],
               validationErrors: [],
               provider: 'gemini',
               model: 'gemini-x',

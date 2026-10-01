@@ -824,16 +824,21 @@ export class ExperienceAcquisitionService {
       const satisfiesMultiComponent = admissibleCandidates.some((c) =>
         candidateSatisfiesEvidenceRequirement(c, 'MULTI_COMPONENT_EXPERIENCE'),
       );
-      const hasExtractionErrors = (extracted.validationErrors?.length ?? 0) > 0;
+      // Only an extraction-level failure (the extractor response as a whole
+      // was unusable) keeps deep retrieval fail-closed. Candidate-level
+      // invalidity never does: a candidate rejected for naming no stops is
+      // exactly the case where the snippet was too thin and the full source
+      // may name them.
+      const extractionFailed = extracted.extractionFailures.length > 0;
 
       // Condition 1: Grounded search returned usable evidence (verified above)
       // Condition 2: Active requirement is MULTI_COMPONENT_EXPERIENCE, not yet satisfied by admitted candidates,
-      //              and extractor had no transport/validation errors.
+      //              and the extraction itself did not fail.
       // Condition 3: webSourceContentProvider is registered and configured.
       const hasCompositionGap =
         isMultiComponentRequested &&
         !satisfiesMultiComponent &&
-        !hasExtractionErrors &&
+        !extractionFailed &&
         Boolean(this.webSourceContentProvider);
 
       if (hasCompositionGap && this.webSourceContentProvider) {

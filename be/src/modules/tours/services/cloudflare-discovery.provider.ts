@@ -9,6 +9,7 @@ import {
 } from '../prompts/experience-discovery-extraction.prompt';
 import {
   extractExperienceCandidates,
+  failedExtraction,
   ExperienceExtractionResult,
 } from '../utils/experience-candidate-extraction.util';
 
@@ -95,18 +96,14 @@ export class CloudflareDiscoveryProvider {
     // blank values. The token itself is never surfaced.
     if (!accountId) {
       return {
-        candidates: [],
-        validationErrors: ['Missing Cloudflare account id'],
-        sourceSupportAudits: [],
+        ...failedExtraction('Missing Cloudflare account id'),
         provider: 'cloudflare',
         model,
       };
     }
     if (!apiToken) {
       return {
-        candidates: [],
-        validationErrors: ['Missing Cloudflare API token'],
-        sourceSupportAudits: [],
+        ...failedExtraction('Missing Cloudflare API token'),
         provider: 'cloudflare',
         model,
       };
@@ -126,11 +123,9 @@ export class CloudflareDiscoveryProvider {
 
     if (finishReason === 'length') {
       return {
-        candidates: [],
-        validationErrors: [
+        ...failedExtraction(
           'Cloudflare discovery response truncated at completion token limit',
-        ],
-        sourceSupportAudits: [],
+        ),
         provider: 'cloudflare',
         model,
         rawOutput: raw,
@@ -142,9 +137,7 @@ export class CloudflareDiscoveryProvider {
       parsed = JSON.parse(raw);
     } catch {
       return {
-        candidates: [],
-        validationErrors: ['Failed to parse JSON response'],
-        sourceSupportAudits: [],
+        ...failedExtraction('Failed to parse JSON response'),
         provider: 'cloudflare',
         model,
         rawOutput: raw,
