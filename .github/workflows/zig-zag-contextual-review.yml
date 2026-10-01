@@ -59,7 +59,7 @@ jobs:
     if: needs.resolve-pr.outputs.head_repo == github.repository
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ needs.resolve-pr.outputs.head_sha }}
           fetch-depth: 0
