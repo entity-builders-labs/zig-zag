@@ -1,0 +1,24 @@
+{
+  "targetUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+  "provider": "cloudflare",
+  "status": "retrieved",
+  "durationMs": 2621,
+  "contentChars": 88401,
+  "checks": {
+    "alfaCrux": true,
+    "superUco": true,
+    "bodegaAzul": true,
+    "corazonDelSol": true,
+    "soloContigo": true,
+    "time10am": true,
+    "time12pm": true,
+    "time230pm": true,
+    "ucoItineraryHeading": true,
+    "optionalBonusText": true,
+    "orderedListSemantics": true
+  },
+  "mandatoryPresent": true,
+  "optionalPresent": true,
+  "timingPresent": true,
+  "fidelityVerdict": "PASS"
+}

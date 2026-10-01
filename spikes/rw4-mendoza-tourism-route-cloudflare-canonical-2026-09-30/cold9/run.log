@@ -1,0 +1,17 @@
+[rw4-mendoza-cold9] requesting dev code for rw3-spike-rw4-mendoza-cold9-1790882479750@example.com
+[rw4-mendoza-cold9] verifying
+[rw4-mendoza-cold9] POST /tours/generate-tour
+[rw4-mendoza-cold9] tourId = 3cc4329b-f87c-4023-a64e-cbec81cc9d4b create http ms = 35
+[rw4-mendoza-cold9] polling until terminal (timeout 900000 ms)
+[rw4-mendoza-cold9] polling: {"elapsedMs":20,"generationStatus":"pending","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold9] polling: {"elapsedMs":10168,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold9] polling: {"elapsedMs":20287,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold9] polling: {"elapsedMs":30432,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold9] polling: {"elapsedMs":40559,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold9] polling: {"elapsedMs":50703,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold9] polling: {"elapsedMs":60874,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold9] polling: {"elapsedMs":70964,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold9] polling: {"elapsedMs":81065,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold9] polling: {"elapsedMs":91139,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold9] terminal: {"elapsedMs":99371,"generationStatus":"completed","generationMessage":"¡Listo! 5 experiencias generadas exitosamente.","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold9] done. generationStatus = completed observationTimeout = false

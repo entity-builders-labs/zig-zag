@@ -195,6 +195,110 @@ RW3-N6 resolution and live verification status:
   interrupt the RW4 web-acquisition gate for it.
 
 
+### RW4 deterministic request control + canonical COLD #9 — 2026-10-01
+
+- Why COLD #8 was not downstream-comparable: COLD #7's `intent:visit` came
+  only from free-text interpretation (`source: free_text`, weight 0.9).
+  Both runs sent `canonicalRequest.intent.intents = ["route_like"]`. COLD #8's
+  interpreter did not emit `visit`, so the generic partition was
+  `theme:wine` only (COLD #7: `theme:wine` + `intent:visit`).
+- Request control (harness commit `c0c90269`
+  `test(spikes): stabilize RW4 canonical request intents`): the fixture
+  `request.json` now states the scenario's request semantics explicitly
+  through the normal wizard contract: `interests: [wine]`,
+  `intents: [route_like, visit]`. The free text is unchanged and is still
+  interpreted normally. `request-stimulus.cjs` gates the fixture before any
+  build/provider call and records `input-control.json` (wizard facets +
+  area_route_walk/generic partition) after the run. It never asserts on
+  sources, candidates or places (`request-stimulus.test.sh` 9/9).
+- Production code unchanged: `git diff 1e3eceb8 c0c90269 -- be/` is
+  empty. COLD #9 source HEAD = harness commit `c0c90269`, whose production
+  tree equals fix `1e3eceb8`. Dist SHA256 `e0211015a3208e07...` is
+  byte-identical to COLD #8's.
+- Canonical COLD #9: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold9/`
+  (label `cold9` because `cold/` is the versioned COLD #8 dossier; DB
+  `zigzag_spike_rw4_canonical_cold_9`, port 4109). **CANONICAL**: source
+  HEAD = manifest `sourceHead`/`buildCommit` = trace `runtime.buildCommit` =
+  `c0c90269de2a1acaa519e311e306e041dc2be403`; `canonical: true`,
+  `failures: []`; `AI_CACHE_MODE=off`; fresh DB; preflight PASS. Provider
+  chain identical to COLD #7/#8.
+- Input control: **PASS**. Wizard facets `theme:wine`,
+  `intent:route_like`, `intent:visit`; routing `area_route_walk`:
+  `intent:route_like`, generic: `theme:wine`, `intent:visit`.
+  **REQUEST REPRODUCIBILITY VS COLD #7 = PASS.**
+- Upstream vs COLD #7:
+  - Facets: SEMANTICALLY_EQUIVALENT (`visit` is now wizard/1.0, was free_text/0.9).
+  - Deficits and partition: SAME.
+  - Generic source plan (wikivoyage, google_places, web): SAME.
+  - `requestedIntents` [`visit`]: SAME.
+  - Generic `anchorNames` (none): SAME.
+  - `semanticQuery`: SEMANTICALLY_EQUIVALENT ("wine route mendoza wineries" vs "wine route Mendoza vineyards").
+  - Generic web query: SEMANTICALLY_EQUIVALENT (only that suffix differs).
+  - Search results: SolSalute at rank 1 in both.
+  - Deep fetch: triggered in both (no admissible multi-component candidate); SolSalute selected in both.
+  - The COLD #8 divergence (snippet-qualified candidate suppressing deep fetch) is gone.
+- Live acquisition: SolSalute retrieved through Cloudflare (88,401 chars,
+  87 chunks; identical to COLD #7). `RELEVANCE_WINDOWS` kept excerpts
+  9033–10465, 17400–18757, 23637–25694 and 35229–36327, but NOT
+  41153–43907 ("Sample Mendoza Winery Itineraries"), which COLD #7 kept.
+  Deep extraction returned 0 candidates. The Uco candidate was NOT exercised.
+- Earliest divergence, proven by deterministic offline replay of the
+  production `windowSourceContent` over the same SolSalute markdown
+  (`cold9/analysis/window-replay.cjs`, `.out.json`, source
+  `spikes/rw4-cloudflare-source-fidelity-2026-10-01/output.md`):
+  - COLD #7 inputs → COLD #7 excerpts exactly; Alfa Crux, SuperUco, Bodega
+    Azul, Corazon del Sol and Solo Contigo all retained.
+  - COLD #9 inputs → COLD #9 excerpts exactly; only Alfa Crux retained.
+  - Swapping only the Serper snippet for the SolSalute URL flips the result
+    both ways; the query difference is irrelevant.
+  - COLD #7's snippet contained "…sample itineraries…"; COLD #9's did not.
+  - Classification: OTHER — windowing relevance sensitive to the volatile
+    search snippet used as same-source context.
+- Did the request control remove the COLD #8 divergence? **YES**. The
+  remaining nondeterministic seam is the Serper snippet text for the same
+  URL, consumed by windowing relevance. Not fixed in this task.
+- Route intent propagation: the generic pass materialized 10 single-PLACE
+  Experiences from structured sources (wikivoyage + google_places
+  corroboration, 14 proposals). Generic `geography.validation` recorded
+  `validationIntent: route_like`, so `routeScale = true` by construction;
+  the trace does not record `routeScale` itself. No `WITHIN_*`/`OUTSIDE_*`
+  destination-compatibility verdict was emitted. Three single-venue
+  candidates were rejected `destination_mismatch` (OUTSIDE 2.4–4.3 km)
+  under the existing venue polygon policy, which is unchanged.
+- Outcome: `generationStatus: completed`, 5 Experiences planned (1 day).
+  DB before → after: GeoEntity 0 → 13 (PLACE), GeoEntityIdentity 0 → 13,
+  Experience 0 → 10, ExperienceComponent 0 → 10, verifiedHintMemoryEntries
+  0 → 13. No multi-component candidate reached resolution, so the Uco
+  Experience was not persisted and is not planner-eligible. WARM: NOT RUN
+  (no qualifying reusable multi-component Experience).
+- Previous fixes:
+  - `GROUNDED EVIDENCE TRACE`: LIVE-PROVEN
+  - `SOURCE WINDOWING`: LIVE-PROVEN as a deterministic mechanism (replay
+    reproduces both runs; not regressed). It is also where the blocker lives.
+  - `ANCHOR RELEVANCE`: LIVE-PROVEN (area_route_walk selection used anchor "Ruta del Vino de Mendoza")
+  - `MARKDOWN SUPPORT`: NOT EXERCISED
+  - `CANDIDATE-INVALIDITY DEEP-FETCH`: NOT EXERCISED (both triggers were "no admissible multi-component candidate")
+  - `CLOUDFLARE SOURCE RETRIEVAL FIDELITY`: LIVE-PROVEN (SolSalute 88,401 chars, identical normalization to COLD #7)
+  - `REQUEST-LEVEL ROUTE INTENT PROPAGATION`: LIVE-PROVEN (10 generic materializations under `route_like`)
+- First causal blocker: `deep-source relevance windowing ranks SolSalute's
+  87 chunks with the volatile Serper snippet as same-source context; with
+  COLD #9's snippet the "Sample Mendoza Winery Itineraries" chunk
+  (41153–43907) is dropped, so the source-defined Uco composition never
+  reaches extraction (replay: COLD #7 snippet 5/5 retained, COLD #9
+  snippet 1/5)`.
+- Convergence: **COLD #9 FARTHER DOWNSTREAM THAN COLD #7 = NOT COMPARABLE**.
+  The input was reproduced, but the live path diverged before Uco extraction
+  because of external snippet variation. This is not a regression of
+  `1e3eceb8`.
+- Evidence (versioned with this entry): `cold9/generation-trace.json`,
+  `provenance.json`, `run-manifest.json`, `request-stimulus.json`,
+  `input-control.json`, `db-before.json`, `db-after.json`,
+  `provider-preflight.json`, `provider-config.txt`,
+  `provider-requests.ndjson`, `backend.log`, `build.log`, `run.log`,
+  `terminal-tour.json`, `analysis/window-replay.{cjs,out.json}`, plus the
+  replay source dossier `spikes/rw4-cloudflare-source-fidelity-2026-10-01/`.
+
+
 ### RW4 request-level route intent propagation + canonical COLD #8 — 2026-10-01
 
 - Fix `1e3eceb8` (`fix(tours): preserve request route intent across
