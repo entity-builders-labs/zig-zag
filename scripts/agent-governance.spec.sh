@@ -104,7 +104,6 @@ for required in \
   'contents: read' \
   'pull-requests: write' \
   'permission-profile: :read-only' \
-  'safety-strategy: read-only' \
   'without persisted credentials' \
   'head_repo != github.repository' \
   'No OPENAI_API_KEY is exposed to untrusted fork code.'; do

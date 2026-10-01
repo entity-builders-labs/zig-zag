@@ -143,7 +143,6 @@ jobs:
           output-file: .github/codex/track-review-output.json
           output-schema-file: .github/codex/track-review-schema.json
           permission-profile: :read-only
-          safety-strategy: read-only
       - name: Validate structured review output
         if: steps.existing.outputs.current != 'true'
         env:
