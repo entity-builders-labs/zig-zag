@@ -5,7 +5,8 @@
 ## Current execution verdict
 
 **Milestone 2B — HISTORICALLY ACCEPTED ON GOVERNANCE BRANCH / NOT YET
-INTEGRATED. Milestone 3A — ACTIVE.**
+INTEGRATED. Milestone 3A — ACCEPTED ON GOVERNANCE BRANCH / PUBLISHED TO DRAFT
+PR #70. Milestone 3B — ACTIVE.**
 
 The former initiative registry and manual semantic-ownership model have been
 replaced by progress-owned track identity, actual branch-diff overlap warnings,
@@ -70,26 +71,30 @@ skill created after the session began. No concrete discovery failure was
 observed, and no client-specific adapter or duplicate instructions were added;
 verify discovery in a fresh supported client session before adding one.
 
-Milestone 3A replaces the generic public `resume-track` surface with the four
-namespaced track commands. It remains governance-only and must preserve the
+Milestone 3A replaced the generic public `resume-track` surface with the four
+namespaced track commands and was committed and published at
+`07031da76af95d61d02403e3172826432bed1143` to draft PR #70. It preserves the
 accepted 2B discovery, locate, preflight, overlap, and worktree contracts.
-Milestone 3B contextual review automation is deferred.
 
-The 3A command skills and deterministic governance coverage are implemented;
-commit and publication to the existing draft PR remain subject to the exact
-publication and remote-identity gates.
+Milestone 3B is the active, bounded contextual-review checkpoint. It adds a
+push-triggered, read-only, HEAD-anchored Codex review for the existing track
+PR contract, without persisting review state into track metadata or creating
+an autonomous coder/fixer/integration loop.
+
+The 3A command skills and deterministic governance coverage are implemented,
+committed, and published. Milestone 3B publication remains subject to the
+exact publication and remote-identity gates.
 
 ## Current checkpoint
 
-Milestone 3A — verification, governance-only commit, and safe publication to
-the existing draft PR. The command surface and deterministic fixtures are
-complete; no Milestone 3B work is authorized.
+Milestone 3B — implementation and verification are complete; publish the
+committed governance-only review contract only to existing draft PR #70.
 
 ## Next authorized action
 
-Commit and publish the verified Milestone 3A governance-only change only to
-the existing draft PR #70 after exact PR/remote safety verification. Do not
-start Milestone 3B.
+Publish the verified committed Milestone 3B contextual review contract only to
+existing draft PR #70 through `/zig-zag-track-publish`. Do not merge or begin
+an autonomous fix loop.
 
 ## Open findings / blockers
 
@@ -109,7 +114,11 @@ start Milestone 3B.
 - Milestone 3A must not restore generic public command names, a registry,
   branch-name inference, hidden worktree mutation, automatic PR creation or
   merge, fork guessing, or persisted review status.
-- Milestone 3B push-triggered contextual review remains explicitly deferred.
+- Milestone 3A: CLOSED / PUBLISHED at
+  `07031da76af95d61d02403e3172826432bed1143` on draft PR #70.
+- Milestone 3B must keep contextual review in the PR artifact layer: no
+  progress review fields, no local imitation of authoritative review, no
+  automatic coder/fixer loop, push, merge, or integration behavior.
 - PR #70 is intentionally DRAFT and UNMERGED.
 - The integration branch is active product work and may advance independently.
   Re-run canonical preflight/mergeability checks immediately before integration.

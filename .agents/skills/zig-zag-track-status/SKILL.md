@@ -12,8 +12,9 @@ checkpoint, next authorized action, and open blockers/findings. Run
 separately. This command creates no durable state.
 
 When GitHub is available, read the open PR for the exact track branch and
-report its number, draft state, head SHA, base, and CI/check state. If a
-reviewed HEAD is discoverable from PR review artifacts, report `CURRENT` only
-when `reviewed_head == current HEAD`; otherwise report `STALE`. Review remains
-PR context, never progress-track metadata. If GitHub is unavailable, report
-that limitation while retaining local status.
+report its number, draft state, head SHA, base, and CI/check state. Read
+`.github/codex/track-review-contract.md` before parsing review artifacts. If a
+reviewed HEAD is discoverable from its valid marker, report `CURRENT` only when
+`reviewed_head == current HEAD`; otherwise report `STALE`. Review remains PR
+context, never progress-track metadata. If GitHub is unavailable, report that
+limitation while retaining local status.

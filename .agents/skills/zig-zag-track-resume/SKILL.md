@@ -21,9 +21,10 @@ branch, worktree, integration target, progress, plan, and base snapshot to
 agree with locate. If locate and context disagree, stop. Read `AGENTS.md`, the
 declared progress and plan, and required architecture/spec documents. Recover
 the current checkpoint, next authorized action, and blockers. Optionally read
-the exact branch's PR/review context; a Fix Brief is actionable only when its
-`reviewed_head == current HEAD`, and a material conflict with plan/progress
-stops for human direction.
+the exact branch's PR/review context; first read
+`.github/codex/track-review-contract.md` to parse any contextual review marker.
+A Fix Brief is actionable only when its `reviewed_head == current HEAD`, and a
+material conflict with plan/progress stops for human direction.
 
 Run `bash scripts/agent-preflight`. On `WRITE BLOCKED`, stop before writes.
 When integration is blocked, only isolated, already-authorized checkpoint work

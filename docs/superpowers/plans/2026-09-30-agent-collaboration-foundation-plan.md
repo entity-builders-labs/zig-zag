@@ -302,9 +302,20 @@ identities and all listed stop invariants, with no real push. The generic skill
 is deleted under the early-stage deletion rule; no compatibility public command
 remains.
 
-## Milestone 3B — deferred
+## Milestone 3B — contextual PR review
 
-Push-triggered contextual agent review is explicitly deferred. It may later
-use a review anchor of track, PR, reviewed HEAD, progress/plan context,
-findings, and verification, but it must not persist manual review status into
-track metadata or create an autonomous reviewer/coder loop.
+Add one dedicated `pull_request` (opened, reopened, synchronize) and
+`workflow_dispatch` workflow for track PRs. It checks out the exact resolved PR
+head with full history, accepts only `entity-builders-labs/zig-zag` heads, and
+uses the official pinned Codex action in read-only mode. Fork heads are skipped
+before `OPENAI_API_KEY` is exposed.
+
+The reviewer reconstructs track identity with `agent-track context`, reads the
+declared progress/plan and applicable canonical documents, runs read-only
+preflight, and reviews the merge-base integration diff. Its JSON is validated
+against a repository-owned schema and published as exactly one marked PR review
+for that reviewed head. `CURRENT` means the artifact marker's `reviewed_head`
+equals PR HEAD; old reviews become `STALE` after a push. A namespaced
+`zig-zag-track-review` skill may dispatch only this workflow for manual retry.
+No progress review fields, auto-fix, auto-push, auto-merge, or local review
+authority is permitted.

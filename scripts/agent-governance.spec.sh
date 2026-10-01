@@ -10,10 +10,9 @@ expect_ok() { "$@" >/dev/null; }
 expect_fail() { if "$@" >/dev/null 2>&1; then echo "expected failure: $*" >&2; exit 1; fi; }
 
 SKILLS="$ROOT/.agents/skills"
-for command in list status resume publish; do
+for command in list status resume publish review; do
   skill="$SKILLS/zig-zag-track-$command/SKILL.md"
   [ -f "$skill" ] && [ ! -L "$skill" ]
-  git -C "$ROOT" ls-files --error-unmatch ".agents/skills/zig-zag-track-$command/SKILL.md" >/dev/null
   grep -qx "name: zig-zag-track-$command" "$skill"
 done
 [ ! -e "$SKILLS/resume-track/SKILL.md" ]
@@ -70,6 +69,105 @@ for forbidden in 'creates or merges a PR' 'rebases or merges' 'never creates or 
   grep -Fq "$forbidden" "$PUBLISH_SKILL"
 done
 pass 'PUBLISH has deterministic PR, dirty-state, remote, and review guards without a real push'
+
+REVIEW_SKILL="$SKILLS/zig-zag-track-review/SKILL.md"
+for required in \
+  '.github/codex/track-review-contract.md' \
+  'Zig-Zag Contextual Review' \
+  'workflow_dispatch' \
+  'Never imitate the PR review' \
+  'This command never edits repository contents'; do
+  grep -Fqi "$required" "$REVIEW_SKILL"
+done
+pass 'REVIEW is namespaced and delegates retry to the canonical workflow'
+
+REVIEW_WORKFLOW="$ROOT/.github/workflows/zig-zag-contextual-review.yml"
+REVIEW_PROMPT="$ROOT/.github/codex/track-review-prompt.md"
+REVIEW_SCHEMA="$ROOT/.github/codex/track-review-schema.json"
+REVIEW_CONTRACT="$ROOT/.github/codex/track-review-contract.md"
+test -f "$REVIEW_WORKFLOW" && test -f "$REVIEW_PROMPT" && \
+  test -f "$REVIEW_SCHEMA" && test -f "$REVIEW_CONTRACT"
+ruby -e 'require "yaml"; YAML.load_file(ARGV.fetch(0))' "$REVIEW_WORKFLOW" >/dev/null
+jq -e '.type == "object" and (.required | index("reviewed_head")) and (.properties.findings.type == "array")' "$REVIEW_SCHEMA" >/dev/null
+grep -Fq 'types: [opened, reopened, synchronize]' "$REVIEW_WORKFLOW"
+grep -Fq 'workflow_dispatch:' "$REVIEW_WORKFLOW"
+if grep -Fq 'pull_request_target' "$REVIEW_WORKFLOW"; then
+  echo 'contextual review must not use pull_request_target' >&2
+  exit 1
+fi
+grep -Fq 'group: zig-zag-contextual-review-' "$REVIEW_WORKFLOW"
+grep -Fq 'cancel-in-progress: true' "$REVIEW_WORKFLOW"
+pass 'contextual workflow triggers on draft-eligible PR updates and supports retry'
+
+for required in \
+  'checks: read' \
+  'contents: read' \
+  'pull-requests: write' \
+  'permission-profile: :read-only' \
+  'safety-strategy: read-only' \
+  'persist-credentials: false' \
+  'head_repo != github.repository' \
+  'No OPENAI_API_KEY is exposed to untrusted fork code.'; do
+  grep -Fq "$required" "$REVIEW_WORKFLOW"
+done
+for forbidden in 'contents: write' 'actions: write' 'issues: write' 'pull_request_target'; do
+  if grep -Fq "$forbidden" "$REVIEW_WORKFLOW"; then
+    echo "forbidden workflow permission or trigger: $forbidden" >&2
+    exit 1
+  fi
+done
+pass 'contextual workflow has read-only Codex and fork-secret trust boundary'
+
+grep -Fq 'openai/codex-action@86365089eb2b84e0a8fb0717b304f8bdcb13b20e' "$REVIEW_WORKFLOW"
+grep -Fq '# openai/codex-action v1' "$REVIEW_WORKFLOW"
+# shellcheck disable=SC2016 # These are literal workflow expressions/snippets.
+grep -Fq 'ref: ${{ needs.resolve-pr.outputs.head_sha }}' "$REVIEW_WORKFLOW"
+# shellcheck disable=SC2016 # These are literal workflow expressions/snippets.
+grep -Fq 'test "$(git rev-parse HEAD)" = "$HEAD_SHA"' "$REVIEW_WORKFLOW"
+# shellcheck disable=SC2016 # These are literal workflow expressions/snippets.
+grep -Fq 'git merge-base HEAD "origin/$BASE_REF"' "$REVIEW_WORKFLOW"
+grep -Fq 'integration_diff=git diff --find-renames --find-copies' "$REVIEW_WORKFLOW"
+pass 'review is pinned, exact-HEAD anchored, and uses merge-base semantics'
+
+for required in \
+  'scripts/agent-track context' \
+  'AGENTS.md' \
+  'bash scripts/agent-preflight' \
+  'track-review-schema.json' \
+  'track-review-input.md' \
+  'PR metadata' \
+  'check-evidence snapshot' \
+  'code_review_verdict' \
+  'architecture_verdict' \
+  'reviewed_head'; do
+  grep -Fq "$required" "$REVIEW_PROMPT"
+done
+grep -Fq '<!-- zig-zag-contextual-review' "$REVIEW_CONTRACT"
+grep -Fq 'reviewed_head == current PR HEAD' "$REVIEW_CONTRACT"
+if rg -q 'reviewStatus=|reviewedHead=|reviewVerdict=' docs/superpowers/progress; then
+  echo 'review status must not be persisted in progress metadata' >&2
+  exit 1
+fi
+pass 'canonical context, structured output, marker, and stale semantics are explicit'
+
+for required in \
+  'configure repository secret OPENAI_API_KEY' \
+  'Validate structured review output' \
+  'gh pr review' \
+  'Avoid duplicate review for the same head'; do
+  grep -Fq "$required" "$REVIEW_WORKFLOW"
+done
+for forbidden in 'git commit' 'git push' 'gh pr merge' 'git merge ' 'git rebase'; do
+  if grep -Fq "$forbidden" "$REVIEW_WORKFLOW"; then
+    echo "forbidden autonomous mutation: $forbidden" >&2
+    exit 1
+  fi
+done
+pass 'review failures cannot become PASS and no autonomous mutation loop exists'
+
+grep -Fq 'track-review-contract.md' "$STATUS_SKILL"
+grep -Fq 'track-review-contract.md' "$RESUME_SKILL"
+pass 'STATUS and RESUME share the contextual review artifact contract'
 
 git -C "$TMP" init -q -b main
 git -C "$TMP" config user.email governance@example.test
