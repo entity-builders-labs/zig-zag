@@ -193,6 +193,54 @@ RW3-N6 resolution and live verification status:
   interrupt the RW4 web-acquisition gate for it.
 
 
+### RW4 deep-fetch eligibility fix + canonical COLD #5 — 2026-10-01
+
+- Fix `029730a6`: a candidate-level validation error (canonical COLD #4,
+  `componentHints: []` over the WelcomeArgentina "outings" snippet) no
+  longer suppresses deep-source retrieval for an unsatisfied
+  `MULTI_COMPONENT_EXPERIENCE`. Typed
+  `ExperienceExtractionResult.extractionFailures` now carries only
+  whole-response failures (credentials, truncation, unparseable JSON,
+  unrecognized envelope); only those keep deep retrieval fail-closed.
+- COLD #5: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold/`
+  (DB `zigzag_spike_rw4_canonical_cold_5`, port 4105, Tavily). **CANONICAL**:
+  source HEAD = manifest sourceHead/buildCommit = trace
+  `runtime.buildCommit` = `029730a6`; `AI_CACHE_MODE=off`; preflight PASS.
+  COLD #4 artifacts moved to `cold_prev_53eb0674/`.
+- Outcome: generation `failed` (coverage: `theme:wine`, `intent:route_like`),
+  DB 0 → 0 for every table. WARM not run.
+- Fix path **not exercised**: no candidate-level validation error occurred.
+  Run diverged upstream of the fix: the live preference interpreter emitted
+  `theme:wine` (COLD #4: `theme:food`), so the COLD #4 food/POI
+  materializations and the pass-3 query that surfaced the outings page never
+  happened; pass-2 web plans were ledger-skipped as identical.
+- Deep retrieval ran in both pass-1 web plans (existing trigger, no
+  errors): discoverywinemendoza + sakwinetravel (area plan), solsalute +
+  winesofargentina (generic plan). Every deep extraction returned
+  `{"candidates": []}`.
+- What the full sources contained: discoverywinemendoza lists per-subroute
+  "Featured wineries" (highlights, not a defined itinerary); winesofargentina
+  describes three wineries visited separately over a month; sakwinetravel
+  is product links. None is one coherent source-defined composition
+  (§16.1), so `[]` there is consistent. **solsalute's HTML does define one**
+  ("Uco Valley Itinerary": Alfa Crux 10am → SuperUco 12pm → Bodega Azul
+  2:30pm; optional stops excluded), but Tavily's Markdown (52,974 chars;
+  a forensic re-extract had the same length) keeps only the itinerary headings and intros
+  and drops both stop lists. Windowing kept that region intact; the stops
+  never reached it.
+- **First causal blocker:** source-content retrieval drops the ordered
+  itinerary stop list present in the source HTML (solsalute), so the only
+  coherent source-defined composition never reaches deep extraction.
+- Previous fixes: grounded evidence trace LIVE-PROVEN; source windowing
+  LIVE-PROVEN (RELEVANCE_WINDOWS on 3 of 4 sources, audited offsets);
+  anchor relevance NOT EXERCISED; Markdown support NOT EXERCISED (no deep
+  candidate reached source support).
+- **RW4 remains the current gate.** Next step (not authorized by this
+  entry): characterize retrieval fidelity for list-structured itineraries
+  (Tavily Markdown vs Cloudflare transport on the same URL) before any
+  change, then a fresh canonical COLD.
+
+
 ## RW3 final acceptance — 2026-09-29
 
 **RW3 = CLOSED / ACCEPTED. RW4 = AUTHORIZED / NEXT GATE.**
