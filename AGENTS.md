@@ -98,8 +98,9 @@ Treat the checks as follows:
   write failure;
 - the lineage base branch advancing after initiative creation: warning; do not
   auto-rebase/merge solely to silence it;
-- same-file overlap with another active track: warning requiring explicit
-  review before integration;
+- same-file overlap with another active track: pairwise divergent Git deltas
+  since the current and peer branches' common merge base; a warning requiring
+  explicit review before integration;
 - being behind `origin/main`: visible warning, not by itself permission to
   rebase/merge or switch checkouts.
 

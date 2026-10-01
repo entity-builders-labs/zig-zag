@@ -60,6 +60,11 @@ this governance branch removes the foreign header patch. Discovery remains
 registered-worktree plus fetched-ref based; no registry or duplicate metadata
 was introduced.
 
+GOV-OVERLAP-1 replaces asymmetric integration-relative overlap warnings with
+pairwise deltas since each current/peer common merge base. Inherited parent
+history no longer appears as concurrent overlap; unavailable pairwise ancestry
+is reported visibly rather than treated as no overlap.
+
 This already-running client session cannot prove fresh-session discovery of a
 skill created after the session began. No concrete discovery failure was
 observed, and no client-specific adapter or duplicate instructions were added;
@@ -97,6 +102,8 @@ resolve integration conflicts as part of this track.
   origin refs, rejects ambiguous IDs, and only reports registered worktrees.
 - GOV-TRACK-OWNERSHIP-1: CLOSED. An ACTIVE track owns its own progress header;
   foreign tracks must not patch it merely for discovery.
+- GOV-OVERLAP-1: CLOSED. Same-file warnings compare pairwise divergent paths,
+  not each track's separate integration-relative history.
 - PR #70 is intentionally DRAFT and UNMERGED.
 - The integration branch is active product work and may advance independently.
   Re-run canonical preflight/mergeability checks immediately before integration.

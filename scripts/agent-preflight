@@ -113,24 +113,19 @@ else
     fi
   fi
 
-  changed_files() {
-    local ref="$1" integration="$2" merge_base
-    git show-ref --verify --quiet "refs/remotes/origin/$integration" || return 0
-    merge_base="$(git merge-base "$ref" "origin/$integration")"
-    git diff --name-only "$merge_base".."$ref" | sort -u
-  }
-
-  CURRENT_FILES="$(changed_files HEAD "$INTEGRATION_BRANCH")"
   while IFS=$'\t' read -r OTHER_BRANCH _OTHER_PROGRESS OTHER_MARKER; do
     OTHER_ID="$(track_field "$OTHER_MARKER" id)"
-    OTHER_INTEGRATION="$(track_field "$OTHER_MARKER" integration)"
-    [ "$OTHER_BRANCH" != "$CURRENT_BRANCH" ] && [ -n "$OTHER_INTEGRATION" ] || continue
+    [ "$OTHER_BRANCH" != "$CURRENT_BRANCH" ] || continue
     OTHER_REF="$(track_ref_for_branch "$TOP" "$OTHER_BRANCH" || true)"
-    if [ -n "$CURRENT_FILES" ] && [ -n "$OTHER_REF" ]; then
-      OTHER_FILES="$(changed_files "$OTHER_REF" "$OTHER_INTEGRATION")"
-      FILE_OVERLAP="$(comm -12 <(printf '%s\n' "$CURRENT_FILES" | sed '/^$/d') <(printf '%s\n' "$OTHER_FILES" | sed '/^$/d') || true)"
-      [ -z "$FILE_OVERLAP" ] || warn "file overlap: $OTHER_ID" "$(printf '%s' "$FILE_OVERLAP" | tr '\n' ' ')"
-    fi
+    [ -n "$OTHER_REF" ] || continue
+    PAIR_BASE="$(git merge-base HEAD "$OTHER_REF" 2>/dev/null)" || {
+      warn "peer overlap unavailable: $OTHER_ID" "no common merge base with $OTHER_REF"
+      continue
+    }
+    CURRENT_PAIR_FILES="$(git diff --name-only "$PAIR_BASE"..HEAD | sort -u)"
+    OTHER_PAIR_FILES="$(git diff --name-only "$PAIR_BASE".."$OTHER_REF" | sort -u)"
+    FILE_OVERLAP="$(comm -12 <(printf '%s\n' "$CURRENT_PAIR_FILES" | sed '/^$/d') <(printf '%s\n' "$OTHER_PAIR_FILES" | sed '/^$/d') || true)"
+    [ -z "$FILE_OVERLAP" ] || warn "file overlap: $OTHER_ID" "$(printf '%s' "$FILE_OVERLAP" | tr '\n' ' ')"
   done < <(discover_active_track_records "$TOP")
 fi
 

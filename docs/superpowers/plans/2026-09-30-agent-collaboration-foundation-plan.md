@@ -98,6 +98,12 @@ visible as **INTEGRATION BLOCKED** while isolated work may continue. CI runs
 the same primitive with `--ci`, where integration readiness is enforced as a
 hard failure.
 
+Same-file overlap is informational and pairwise: for each ACTIVE peer,
+preflight compares each branch's changed paths since their common merge base.
+Inherited parent history is not concurrent divergence. If a peer ref has no
+common merge base, preflight reports that overlap is unavailable rather than
+guessing.
+
 ## Agent resume skill design
 
 ### Purpose and packaging

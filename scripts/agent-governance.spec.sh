@@ -153,6 +153,36 @@ expect_ok bash -c "cd '$TMP' && ! bash scripts/agent-preflight --no-fetch | grep
 pass 'unrelated branch changes do not produce overlap'
 
 git -C "$TMP" checkout -q main
+git -C "$TMP" branch -f feat/current "$BASE"
+git -C "$TMP" checkout -q feat/current
+mkdir -p "$TMP/docs/superpowers/progress"
+printf '%s\n' \
+  '# Current' \
+  "<!-- agent-track: id=current; status=ACTIVE; branch=feat/current; integration=main; base=$BASE; plan=docs/superpowers/plans/current.md -->" \
+  >"$TMP/docs/superpowers/progress/current.md"
+printf 'parent before child\n' >"$TMP/shared.txt"
+git -C "$TMP" add docs shared.txt && git -C "$TMP" commit -qm parent-before-child
+PARENT_BEFORE_CHILD="$(git -C "$TMP" rev-parse HEAD)"
+git -C "$TMP" checkout -q -B feat/other "$PARENT_BEFORE_CHILD"
+printf '%s\n' \
+  '# Other' \
+  "<!-- agent-track: id=other; status=ACTIVE; branch=feat/other; integration=main; base=$BASE; plan=docs/superpowers/plans/other.md -->" \
+  >"$TMP/docs/superpowers/progress/other.md"
+printf 'child after divergence\n' >"$TMP/shared.txt"
+git -C "$TMP" add docs shared.txt && git -C "$TMP" commit -qm child-after-divergence
+git -C "$TMP" update-ref refs/remotes/origin/feat/other HEAD
+git -C "$TMP" checkout -q feat/current
+git -C "$TMP" update-ref refs/remotes/origin/feat/current HEAD
+expect_ok bash -c "cd '$TMP' && ! bash scripts/agent-preflight --no-fetch | grep -q 'file overlap: other'"
+pass 'parent changes inherited before child divergence do not produce overlap'
+
+printf 'parent after divergence\n' >"$TMP/shared.txt"
+git -C "$TMP" add shared.txt && git -C "$TMP" commit -qm parent-after-divergence
+git -C "$TMP" update-ref refs/remotes/origin/feat/current HEAD
+expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'file overlap: other.*shared.txt'"
+pass 'parent and child changes after divergence produce overlap'
+
+git -C "$TMP" checkout -q main
 printf 'main conflict\n' >"$TMP/shared.txt"
 git -C "$TMP" add shared.txt && git -C "$TMP" commit -qm conflict
 git -C "$TMP" update-ref refs/remotes/origin/main HEAD
