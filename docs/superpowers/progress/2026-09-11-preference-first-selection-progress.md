@@ -195,6 +195,51 @@ RW3-N6 resolution and live verification status:
   interrupt the RW4 web-acquisition gate for it.
 
 
+### RW4 Cloudflare source fidelity spike + canonical COLD #7 — 2026-10-01
+
+- Part 1 Standalone Fidelity Spike: `spikes/rw4-cloudflare-source-fidelity-2026-10-01/`.
+  Tested exact bare URL `https://solsalute.com/blog/mendoza-argentina-wine-capital/` via production
+  `CloudflareWebSourceContentProvider` semantics (Browser Rendering `/markdown`, no URL mutation).
+  Result: **CLOUDFLARE FIDELITY = PASS** (88,401 chars in 2,625ms; 11/11 deterministic assertions
+  PASS: Alfa Crux, SuperUco, Bodega Azul, Corazon del Sol, Solo Contigo, 10 am, 12 pm, 2:30 pm,
+  ordered list numbering, and optional bonus tasting prose intact).
+- Canonical COLD #7: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold/`
+  (DB `zigzag_spike_rw4_canonical_cold_7`, port 4107, `WEB_SOURCE_CONTENT_PROVIDER=cloudflare`).
+  **CANONICAL**: source HEAD = manifest sourceHead/buildCommit = trace `runtime.buildCommit` =
+  `13933cc7885249ff9316303e0dd9f8d7cd8c4bab`; dist SHA256 `0c5d8f537a9d34a7...`;
+  `canonical: true` in `provenance.json`; `AI_CACHE_MODE=off`; preflight PASS.
+  COLD #6 artifacts preserved in `cold_prev_0e6d8d6d/`.
+- Provider Chain: `GROUNDED_SEARCH_PROVIDER=serper`, `WEB_SOURCE_CONTENT_PROVIDER=cloudflare`,
+  `DISCOVERY_EXTRACTOR_PROVIDER=cloudflare` (`@cf/qwen/qwen3.8-27b`), `PLACES_PROVIDER=geoapify`.
+- Lifecycle Execution:
+  - Deep retrieval (Step 25): SolSalute retrieved via Cloudflare Browser Rendering in 6,233ms,
+    delivering 88,401 chars of rich markdown.
+  - Windowing: `RELEVANCE_WINDOWS` selected chunk 41,153–43,907 retaining 5,953 chars containing
+    the complete Uco Valley itinerary (all 5 entities confirmed present before and after windowing).
+  - Semantic Extraction (Step 26): Cloudflare Qwen extracted "Uco Valley Wine Tasting Itinerary"
+    with 3 mandatory components (Alfa Crux, SuperUco, Bodega Azul), respecting source structure and
+    omitting optional bonus tasting (Corazon del Sol / Solo Contigo).
+  - Source Support Audit: Verified all 3 components against markdown link spans (`DECLARED_KEY_VERIFIED`,
+    `SUPPORTED`). Admitted as `MULTI_COMPONENT_EXPERIENCE`.
+  - Entity Resolution (Step 27): Evaluated against destination geography: Bodega Azul rejected as
+    `DESTINATION_INCOMPATIBLE` (outside Ciudad de Mendoza boundary), Alfa Crux / SuperUco `NO_CANDIDATE_ACQUIRED`.
+  - Tour Generation: Succeeded (`generationStatus: completed`), persisting 10 verified urban experiences
+    (DB before: 0 → after: 10 GeoEntities, 10 Identities, 10 Experiences, 10 Components, 10 Hints).
+- First causal blocker for persisting the Uco Valley multi-component experience:
+  `destination scope incompatibility: "Mendoza, Argentina" resolved to the tight administrative boundary of Ciudad de Mendoza (osm:relation:4206710), rejecting Valle de Uco components located ~80 km south (Bodega Azul DESTINATION_INCOMPATIBLE, Alfa Crux/SuperUco NO_CANDIDATE_ACQUIRED)`.
+- Previous fixes status:
+  - `GROUNDED EVIDENCE TRACE`: LIVE-PROVEN
+  - `SOURCE WINDOWING FIX`: LIVE-PROVEN
+  - `ANCHOR RELEVANCE FIX`: LIVE-PROVEN
+  - `MARKDOWN SUPPORT FIX`: LIVE-PROVEN
+  - `CANDIDATE-INVALIDITY DEEP-FETCH FIX`: NOT EXERCISED
+  - `TAVILY ADVANCED REQUEST CONFIGURATION`: NOT EXERCISED in COLD #7 (Cloudflare used)
+  - `CLOUDFLARE SOURCE RETRIEVAL FIDELITY`: LIVE-PROVEN
+- Convergence: **Farther downstream than COLD #6 = YES** (progressed past retrieval loss, past windowing,
+  past extraction, past source-support audit, past admission, reaching entity resolution and completing
+  a verified tour).
+
+
 ### RW4 Tavily advanced extraction fix + canonical COLD #6 — 2026-10-01
 
 - Fix `0e6d8d6d`: `TavilyWebSourceContentProvider` explicitly requests `extract_depth = 'advanced'`
