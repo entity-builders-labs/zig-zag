@@ -195,6 +195,42 @@ RW3-N6 resolution and live verification status:
   interrupt the RW4 web-acquisition gate for it.
 
 
+### RW4 Tavily extract fidelity spike — 2026-10-01
+
+- Spike: `spikes/rw4-tavily-extract-fidelity-2026-10-01/`.
+- Tested URL: `https://solsalute.com/blog/mendoza-argentina-wine-capital/`.
+- Origin reference: direct HTTP fetch (476,591 chars, SHA256 `f1af4e42...`).
+  Proves origin HTML contains `<ol class="wp-block-list">` under "Uco Valley Itinerary"
+  with stops Alfa Crux (10 am), SuperUco (12 pm), and Bodega Azul (2:30 pm), plus
+  Lujan de Cuyo itinerary (A16, Ojo de Agua).
+- Four-arm live evaluation against Tavily `/extract`:
+  - `basic + markdown`: 52,974 chars, 1.80s, stops LOST (0/3), ordered list dropped.
+  - `advanced + markdown`: 85,287 chars, 5.58s, stops PRESERVED (3/3: Alfa Crux,
+    SuperUco, Bodega Azul), schedules, outbound links, and prose intact.
+  - `basic + text`: 34,123 chars, 1.90s, stops LOST (0/3), ordered list dropped.
+  - `advanced + text`: 50,517 chars, 16.50s, stops PRESERVED (3/3).
+- **Spike verdict: RESULT A — ADVANCED FIXES IT.**
+  The COLD #5 source-content loss was a configuration issue: Zig-Zag relied on Tavily
+  `/extract`'s default `extract_depth = "basic"`, whose HTML parser systematically
+  strips HTML list blocks (`<ol>`, `<ul>`), losing all structured itinerary stops.
+  `extract_depth = "advanced"` uses deep DOM rendering and preserves the complete
+  itinerary composition.
+- **Format impact**: Format (`markdown` vs `text`) does NOT resolve the loss (`basic + text`
+  also strips all lists). The loss happens at HTML filtering before serialization.
+- **Provider server-side cache trap**: Tavily caches extractions on its servers by URL.
+  If a URL was previously extracted with `basic`, subsequent requests with `advanced`
+  for that identical URL return the cached `basic` payload (in ~10ms, usage credits = 0).
+  Production deep extraction must account for provider cache behavior.
+- **Timeout risk**: Tavily documentation specifies a 30s default timeout for `advanced`
+  (up to 60s). In this spike, `advanced-text` took 16.50s, which would have aborted
+  under Zig-Zag's current hardcoded 15s client timeout.
+- **Credit cost**: Basic = 0.2 credit/URL; Advanced = 0.4 credit/URL. At `selectionLimit = 2`,
+  advanced costs 0.8 credits ($0.0064) vs basic 0.4 credits ($0.0032). Delta is $0.0032
+  per tour run (negligible).
+- **COLD #6 recommendation**: Run COLD #6 with Tavily `advanced` once production
+  provider configuration and timeout are updated. No replacement provider needed for RW4.
+
+
 ### RW4 deep-fetch eligibility fix + canonical COLD #5 — 2026-10-01
 
 - Fix `029730a6`: a candidate-level validation error (canonical COLD #4,
