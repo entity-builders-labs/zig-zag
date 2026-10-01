@@ -28,7 +28,9 @@ maintainability, architecture, or the repository contract.
 
 Return only JSON conforming to `.github/codex/track-review-schema.json`. The
 `track`, `pr_number`, `reviewed_head`, and `base_branch` fields must exactly
-match the input file. Each finding must be specific and actionable. Set
+match the input file. Each finding must be specific and actionable. The
+`line` field is always required; use `""` (empty string) when no concrete
+source line or range applies. Set
 `code_review_verdict` to `PASS` or `CHANGES_REQUIRED`, and
 `architecture_verdict` to `ARCHITECTURE_PASS` or
 `ARCHITECTURE_DRIFT_WARNING`. Use an empty findings array when there are no

@@ -15,7 +15,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "severity", "title", "file", "reason", "required_fix"],
+        "required": ["id", "severity", "title", "file", "line", "reason", "required_fix"],
         "properties": {
           "id": { "type": "string", "minLength": 1 },
           "severity": { "enum": ["BLOCKER", "HIGH", "MEDIUM", "LOW"] },

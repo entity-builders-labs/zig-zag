@@ -88,14 +88,16 @@ exact publication and remote-identity gates.
 ## Current checkpoint
 
 Milestone 3B — implementation, verification, and publication are complete.
-Live contextual review is blocked explicitly because repository secret
-`OPENAI_API_KEY` is absent; no Codex review was fabricated.
+`OPENAI_API_KEY` is configured and accepted. Codex reached the model in
+read-only sandbox. The remaining failure was invalid Structured Outputs
+schema: `findings[].line` was declared in `properties` but omitted from
+`required`. The bounded fix adds `line` to the required array and clarifies
+the review prompt.
 
 ## Next authorized action
 
-Configure repository secret `OPENAI_API_KEY`, then use
-`/zig-zag-track-review` to dispatch the canonical workflow for PR #70's current
-head. Do not merge or begin an autonomous fix loop.
+Push the schema fix to trigger the contextual review workflow for PR #70's
+current head. Do not merge or begin an autonomous fix loop.
 
 ## Open findings / blockers
 
@@ -120,9 +122,11 @@ head. Do not merge or begin an autonomous fix loop.
 - Milestone 3B must keep contextual review in the PR artifact layer: no
   progress review fields, no local imitation of authoritative review, no
   automatic coder/fixer loop, push, merge, or integration behavior.
-- Milestone 3B live review: BLOCKED EXPLICITLY. Workflow run `36920414665`
+- Milestone 3B live review: schema fix in progress. Workflow run `36920414665`
   reached canonical context reconstruction but stopped at the required missing
   `OPENAI_API_KEY` gate; Codex did not execute and no review artifact exists.
+  Subsequent run `36921758100` reached the model but failed Structured Outputs
+  schema validation because `findings[].line` was declared but not required.
 - PR #70 is intentionally DRAFT and UNMERGED.
 - The integration branch is active product work and may advance independently.
   Re-run canonical preflight/mergeability checks immediately before integration.

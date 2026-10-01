@@ -89,6 +89,8 @@ test -f "$REVIEW_WORKFLOW" && test -f "$REVIEW_PROMPT" && \
   test -f "$REVIEW_SCHEMA" && test -f "$REVIEW_CONTRACT"
 ruby -e 'require "yaml"; YAML.load_file(ARGV.fetch(0))' "$REVIEW_WORKFLOW" >/dev/null
 jq -e '.type == "object" and (.required | index("reviewed_head")) and (.properties.findings.type == "array")' "$REVIEW_SCHEMA" >/dev/null
+jq -e '.properties.findings.items.properties as $props | .properties.findings.items.required as $req | ($props | keys | sort) == ($req | sort)' "$REVIEW_SCHEMA" >/dev/null
+pass 'every finding property is required for Structured Outputs compatibility'
 grep -Fq 'types: [opened, reopened, synchronize]' "$REVIEW_WORKFLOW"
 grep -Fq 'workflow_dispatch:' "$REVIEW_WORKFLOW"
 if grep -Fq 'pull_request_target' "$REVIEW_WORKFLOW"; then
