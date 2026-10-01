@@ -195,6 +195,35 @@ RW3-N6 resolution and live verification status:
   interrupt the RW4 web-acquisition gate for it.
 
 
+### RW4 Tavily advanced extraction fix + canonical COLD #6 — 2026-10-01
+
+- Fix `0e6d8d6d`: `TavilyWebSourceContentProvider` explicitly requests `extract_depth = 'advanced'`
+  and `format = 'markdown'`. Client `AbortSignal` timeout increased to 45s (compatible with
+  Tavily's documented 30s server default for advanced extraction). Local AI cache key versioned
+  as `extract:v2:advanced:markdown:<url>` so stale legacy basic extractions (missing lists)
+  are isolated and never reused. Tests pass: 14/14 focused, 128/128 tours suite, 1837/1837 tests.
+- COLD #6: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold/`
+  (DB `zigzag_spike_rw4_canonical_cold_6`, port 4106, Tavily). **CANONICAL**:
+  source HEAD = manifest sourceHead/buildCommit = trace `runtime.buildCommit` = `0e6d8d6d877bb3629104d055aaefda921e0345de`;
+  `canonical: true` in `provenance.json`; `AI_CACHE_MODE=off`; preflight PASS.
+  COLD #5 artifacts preserved in `cold_prev_029730a6/`.
+- Outcome: generation `failed` (coverage: `theme:wine`, `intent:route_like`),
+  DB 0 → 0 for every table. WARM not run (as per rule: no qualifying Experience persisted).
+- Fix verification:
+  - Request payload: live logs confirm `[TavilyWebSourceContentProvider] Tavily extract: requesting 2 URLs (depth=advanced, format=markdown, timeout=45000ms)`.
+  - Cache isolation: Zig-Zag local AI cache had a clean miss on the fresh database, sending the live request to Tavily.
+  - Deep fetch triggering: Pass 0 and Pass 1 both triggered deep retrieval (`attempted: true`, `reExtractionAttempted: true`).
+- Provider behavior / Causal blocker:
+  - **Tavily edge/server-side cache trap confirmed live**: Tavily's servers cached the prior basic extraction for the exact bare URL `https://solsalute.com/blog/mendoza-argentina-wine-capital/`. Despite Zig-Zag explicitly sending `extract_depth: "advanced"`, Tavily responded in 635ms with its cached 52,974-character basic payload where all `<ol>` list elements remain stripped (`Alfa Crux: false`, `SuperUco: false`, `Bodega Azul: false`).
+  - Pass 0 deep fetch retrieved `discoverywinemendoza.com` (11,756 chars) and `argentina.travel` (2,709 chars).
+  - In both passes, Cloudflare Qwen extractor received the truncated/list-free source text and returned `{"candidates": []}`.
+  - As observed in the fidelity spike and per production rules, Zig-Zag does NOT invent artificial URL mutations or query parameter cache-busting in production unless supported by official provider contracts. Official Tavily Extract API documentation confirms no `use_cache` or refresh parameter exists for `/extract`.
+- Previous fixes status:
+  - `029730a6` (candidate invalidity does not block deep fetch): LIVE-PROVEN / ACTIVE (deep fetch triggered in both passes).
+  - `0e6d8d6d` (Tavily advanced request contract): LIVE-PROVEN / ACTIVE (explicit advanced payload, 45s timeout, and v2 cache key sent in production runtime).
+- **RW4 remains the current gate.**
+
+
 ### RW4 Tavily extract fidelity spike — 2026-10-01
 
 - Spike: `spikes/rw4-tavily-extract-fidelity-2026-10-01/`.
