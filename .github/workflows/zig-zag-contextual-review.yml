@@ -174,7 +174,7 @@ jobs:
             printf 'track=%s\nreviewed_head=%s\n-->\n\n' "$TRACK" "$HEAD_SHA"
             printf '# Contextual Agent Review\n\nTrack: %s\nReviewed HEAD: %s\nBase: %s\n\n' "$TRACK" "$HEAD_SHA" "$BASE_REF"
             jq -r '"CODE REVIEW: " + (.code_review_verdict | if . == "CHANGES_REQUIRED" then "CHANGES REQUIRED" else . end), .architecture_verdict, "", "Findings:"' .github/codex/track-review-output.json
-            jq -r 'if length == 0 then "- None." else .[] | "- [\(.severity)] \(.id): \(.title) (\(.file)\(if .line then ":" + .line else "" end))\n  Reason: \(.reason)\n  Required fix: \(.required_fix)" end' .github/codex/track-review-output.json
+            jq -r 'if length == 0 then "- None." else .findings[] | "- [\(.severity)] \(.id): \(.title) (\(.file)\(if .line then ":" + .line else "" end))\n  Reason: \(.reason)\n  Required fix: \(.required_fix)" end' .github/codex/track-review-output.json
             printf '\nVerification:\n'
             jq -r .verification_summary .github/codex/track-review-output.json
           } > .github/codex/track-review-body.md
