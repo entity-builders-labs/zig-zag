@@ -241,6 +241,7 @@ describe('GooglePlacesAcquisitionProvider', () => {
     const result = await provider.acquire({
       latitude: -34.6037,
       longitude: -58.3816,
+      radiusMeters: 5000,
     });
 
     expect(result.status).toBe('success');
@@ -265,6 +266,7 @@ describe('GooglePlacesAcquisitionProvider', () => {
     const result = await provider.acquire({
       latitude: -34.6037,
       longitude: -58.3816,
+      radiusMeters: 5000,
     });
 
     expect(result.status).toBe('success');
@@ -279,6 +281,7 @@ describe('GooglePlacesAcquisitionProvider', () => {
     const result = await provider.acquire({
       latitude: -34.6037,
       longitude: -58.3816,
+      radiusMeters: 5000,
     });
 
     expect(result.status).toBe('failed');
@@ -301,6 +304,7 @@ describe('GooglePlacesAcquisitionProvider', () => {
     const result = await provider.acquire({
       latitude: -34.6037,
       longitude: -58.3816,
+      radiusMeters: 5000,
     });
 
     expect(result.status).toBe('failed');
@@ -331,6 +335,7 @@ describe('GooglePlacesAcquisitionProvider', () => {
     const result = await provider.acquire({
       latitude: -33.15,
       longitude: -68.9,
+      radiusMeters: 5000,
     });
 
     expect(result.status).toBe('success');
@@ -395,12 +400,24 @@ describe('GooglePlacesAcquisitionProvider', () => {
     const result = await provider.acquire({
       latitude: -34.6037,
       longitude: -58.3816,
+      radiusMeters: 5000,
     });
 
     expect(result.status).toBe('success');
     // Only the valid museum should be admitted
     expect(result.value).toHaveLength(1);
     expect(result.value[0].externalId).toBe('place_valid_museum');
+  });
+
+  it('T14: never invents a Nearby radius -- coordinates without an explicit scope radius fail explicitly, without a provider call', async () => {
+    const result = await provider.acquire({
+      latitude: -34.6037,
+      longitude: -58.3816,
+    });
+
+    expect(result.status).toBe('failed');
+    expect(result.failureReason).toMatch(/explicit scope radius/);
+    expect(placesApiMock.searchNearby).not.toHaveBeenCalled();
   });
 
   it('uses searchText when coordinates are not provided but destinationName/query is present', async () => {

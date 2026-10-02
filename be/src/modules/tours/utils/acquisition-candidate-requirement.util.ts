@@ -47,6 +47,14 @@ function distinctMeaningfulComponents(
 }
 
 /**
+ * Structural composition contract (Amendment 09-22 §3/§16.1): a
+ * multi-component Experience has at least this many distinct non-area
+ * components. A count, never a distance. The single owner — composite
+ * geographic validation reuses it for the resolved (entity-deduped) count.
+ */
+export const MULTI_COMPONENT_MIN_DISTINCT_COMPONENTS = 2;
+
+/**
  * Stage 2 cutover (component-resolution-and-partial-composite-recovery-plan.md):
  * admission is decided from source-backed composition, not from a
  * per-component LLM-authored `required` flag (removed from `GeoEntityHint`).
@@ -69,6 +77,6 @@ export function candidateSatisfiesEvidenceRequirement(
         distinctHints.length === 1 && distinctHints[0].expectedKind === 'PLACE'
       );
     case 'MULTI_COMPONENT_EXPERIENCE':
-      return distinctHints.length >= 2;
+      return distinctHints.length >= MULTI_COMPONENT_MIN_DISTINCT_COMPONENTS;
   }
 }

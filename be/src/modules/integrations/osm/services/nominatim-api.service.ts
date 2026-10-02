@@ -15,10 +15,6 @@ const RESULT_LIMIT = 5;
 // Same self-identification requirement as Overpass's public instance — see
 // overpass-api.service.ts's USER_AGENT comment.
 const USER_AGENT = 'ZigZagApp/1.0 (+https://github.com/jiseruk/zig-zag)';
-// Same bias radius as resolveViaPlaces' PLACES_FALLBACK_BIAS_RADIUS_METERS —
-// one shared "how far from the destination is still plausible" scale across
-// providers, not a Nominatim-specific guess.
-const NOMINATIM_BIAS_RADIUS_METERS = 50_000;
 const METERS_PER_DEGREE_LATITUDE = 111_320;
 
 interface NominatimApiResponseItem {
@@ -148,7 +144,10 @@ export class NominatimApiService implements INominatimApiService {
         : {}),
       ...(options?.bias
         ? {
-            viewbox: computeViewbox(options.bias, NOMINATIM_BIAS_RADIUS_METERS),
+            viewbox: computeViewbox(
+              options.bias.center,
+              options.bias.radiusMeters,
+            ),
           }
         : {}),
     };

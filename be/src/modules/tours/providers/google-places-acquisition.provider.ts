@@ -133,12 +133,22 @@ export class GooglePlacesAcquisitionProvider {
       let places: PlaceWithProvider[] = [];
 
       if (hasCoordinates) {
-        const radius =
-          options?.radiusMeters ?? destination?.radiusMeters ?? 5000;
+        // The Nearby window is the caller's explicit scope radius. There is
+        // no silent default radius (spec 2026-10-02 Part II T14): a missing
+        // window is an explicit acquisition failure, not a 5 km guess.
+        const radius = options?.radiusMeters ?? destination?.radiusMeters;
+        if (!Number.isFinite(radius) || (radius as number) <= 0) {
+          return {
+            status: 'failed',
+            value: [],
+            failureReason:
+              'Places Nearby acquisition requires an explicit scope radius',
+          };
+        }
         const result = await this.placesApi.searchNearby({
           latitude: lat!,
           longitude: lng!,
-          radius,
+          radius: radius as number,
           includedPrimaryTypes: options?.searchTypes,
           maxResultCount: options?.maxResultCount ?? 20,
           rankPreference: 'POPULARITY',

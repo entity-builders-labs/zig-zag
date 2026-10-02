@@ -162,7 +162,8 @@ describe('buildCompositeComponentResolution (Stage 4)', () => {
     // Measured, not classified as NEAR (no threshold chosen in Stage 4).
     expect(fact.resolved?.distanceToBoundaryMeters).toBeGreaterThan(0);
     expect(result.scope).toEqual({
-      kind: 'VALIDATION_AREA',
+      kind: 'SCOPE',
+      provenance: 'WORK_UNIT_ANCHOR',
       name: 'San Telmo',
     });
     expect(result.coverage).toMatchObject({
@@ -358,7 +359,8 @@ describe('buildCompositeComponentResolution (Stage 4)', () => {
       },
     });
     expect(destination.scope).toEqual({
-      kind: 'DESTINATION_AREA',
+      kind: 'SCOPE',
+      provenance: 'DESTINATION_AREA',
       name: 'San Telmo',
     });
     expect(destination.components[0].resolved?.geographicRelation).toBe(
@@ -374,7 +376,11 @@ describe('buildCompositeComponentResolution (Stage 4)', () => {
         radiusMeters: 50,
       },
     });
-    expect(radius.scope).toEqual({ kind: 'POINT_RADIUS', radiusMeters: 50 });
+    expect(radius.scope).toEqual({
+      kind: 'SCOPE',
+      provenance: 'DESTINATION_POINT_RADIUS',
+      radiusMeters: 50,
+    });
     expect(radius.components[0].resolved?.geographicRelation).toBe('INSIDE');
 
     const unavailable = buildCompositeComponentResolution(input);

@@ -209,10 +209,16 @@ describe('CachedNominatimApiService', () => {
     const service = await setup('write');
 
     const buenosAires = await service.search('Catedral', {
-      bias: { latitude: -34.6037, longitude: -58.3816 },
+      bias: {
+        center: { latitude: -34.6037, longitude: -58.3816 },
+        radiusMeters: 12_000,
+      },
     });
     const cordoba = await service.search('Catedral', {
-      bias: { latitude: -31.4201, longitude: -64.1888 },
+      bias: {
+        center: { latitude: -31.4201, longitude: -64.1888 },
+        radiusMeters: 12_000,
+      },
     });
 
     expect(buenosAires).toMatchObject([{ osmId: 30 }]);

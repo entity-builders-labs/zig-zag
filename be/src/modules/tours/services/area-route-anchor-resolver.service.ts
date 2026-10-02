@@ -3,6 +3,7 @@ import {
   DestinationCompatibility,
   DestinationCompatibilityCandidate,
   evaluateDestinationCompatibility,
+  isCoarserThanDestination,
 } from '../utils/destination-compatibility.policy';
 import {
   buildRouteClusterCandidate,
@@ -73,7 +74,7 @@ export type AnchorGeometryResolution =
       provider?: string;
       externalId?: string;
       // The raw geometry already in hand at upsert time -- feeds
-      // ExperienceValidationScope.geometry directly, no extra DB
+      // WorkUnitAnchorScope.geometry directly, no extra DB
       // round-trip.
       geometry: GeoJsonGeometry;
     }
@@ -485,7 +486,19 @@ export class AreaRouteAnchorResolverService {
               }
             : outcome,
         );
-        const match = this.selectCandidate(evaluated);
+        // A regional AREA scope (discoverArea only produces one for a
+        // `geographic_scope` usage with a unique in-country candidate) is a
+        // FALLBACK: any in-destination candidate of any branch wins over it.
+        const areaOutcome = outcomes[0];
+        const regionalAreaFallback =
+          anchor.usage === 'geographic_scope' &&
+          areaOutcome.status === 'match' &&
+          areaOutcome.compatibility.verdict === 'INCOMPATIBLE' &&
+          areaOutcome.compatibility.reason === 'OUTSIDE_DESTINATION_BOUNDARY' &&
+          !evaluated.some((outcome) => outcome.status === 'match')
+            ? areaOutcome
+            : undefined;
+        const match = this.selectCandidate(evaluated) ?? regionalAreaFallback;
         // Ambiguity only ever exists among destination-compatible
         // candidates (Bitácora F1).
         const ambiguous = this.countEligibleIdentities(evaluated) > 1;
@@ -1053,10 +1066,26 @@ export class AreaRouteAnchorResolverService {
         externalId: `osm:${item.osmType}:${item.osmId}`,
         compatibility,
       });
-      if (eligible.length === 0) {
-        // Every plausible area homonym lies outside the destination: fail
-        // honestly, never select the wrong geography. The rejected
-        // candidate is audit evidence only (never looked up or persisted).
+      // Spec 2026-10-02 Part II (PD1, §P2-5 #10): a user-named AREA the
+      // interpreter read as a GEOGRAPHIC SCOPE may be a real regional scope
+      // beyond the trip destination (city -> valley, capital -> palace
+      // town). When NO plausible candidate lies in the destination and
+      // EXACTLY ONE area-scale candidate exists in the destination country,
+      // it is the user's regional anchor; its destination relation is a
+      // fact the owning work unit's authorization consumes (WALK refuses
+      // it). Several out-of-destination homonyms still fail closed — never
+      // nearest-wins — and any other usage keeps the destination-bounded
+      // contract (Bitácora F1: "San Martín" never becomes the Partido).
+      const regional =
+        anchor.usage === 'geographic_scope' &&
+        eligible.length === 0 &&
+        incompatible.length === 1 &&
+        incompatible[0].compatibility.reason === 'OUTSIDE_DESTINATION_BOUNDARY';
+      if (eligible.length === 0 && !regional) {
+        // Every plausible area homonym lies outside the destination and
+        // they cannot be told apart: fail honestly, never select the wrong
+        // geography. The rejected candidate is audit evidence only (never
+        // looked up or persisted).
         const primaryResult = rankNominatimCandidates(
           incompatible.map((entry) => entry.item),
           destinationPoint,
@@ -1092,18 +1121,27 @@ export class AreaRouteAnchorResolverService {
           ),
         };
       }
-      const match = rankNominatimCandidates(
-        eligible.map((entry) => entry.item),
-        destinationPoint,
+      const match = (
+        regional
+          ? incompatible[0].item
+          : rankNominatimCandidates(
+              eligible.map((entry) => entry.item),
+              destinationPoint,
+            )
       ) as NominatimResult & { osmType: 'way' | 'relation' };
-      const rejectedSameBranch = boundedRejected(incompatible.map(toRejected));
-      // Multiplicity over the destination-compatible pool only.
-      const exactNameCount = compatibleNominatimExactNameCount(
-        anchor.rawName,
-        results,
-        destinationScope,
-        true,
-      );
+      const rejectedSameBranch = regional
+        ? {}
+        : boundedRejected(incompatible.map(toRejected));
+      // Multiplicity over the destination-compatible pool only (for a
+      // regional anchor: the single in-country area-scale candidate).
+      const exactNameCount = regional
+        ? 1
+        : compatibleNominatimExactNameCount(
+            anchor.rawName,
+            results,
+            destinationScope,
+            true,
+          );
 
       const boundary = await this.osmPlaces.lookupBoundaryById(
         match.osmType,
@@ -1157,6 +1195,22 @@ export class AreaRouteAnchorResolverService {
       // An INCOMPATIBLE discovery stays a bounded rejected fact (Bitácora
       // F1/F3) -- never selectable. UNKNOWN never counts as inside for an
       // AREA anchor, but it is a no-match, not a rejection.
+      const regionalBeyondDestination =
+        regional &&
+        compatibility.verdict === 'INCOMPATIBLE' &&
+        compatibility.reason === 'OUTSIDE_DESTINATION_BOUNDARY' &&
+        !isCoarserThanDestination(
+          Number.isFinite(adminLevel) ? adminLevel : undefined,
+          destinationScope,
+        );
+      if (regionalBeyondDestination) {
+        return {
+          status: 'match',
+          candidate,
+          compatibility,
+          ...rejectedSameBranch,
+        };
+      }
       if (compatibility.verdict === 'INCOMPATIBLE') {
         return {
           status: 'rejected',

@@ -3,7 +3,6 @@ import {
   authorizeCandidate,
   authorizeCandidates,
   authorizesAnchoredAreaMembership,
-  authorizesRouteScale,
   isGeographicIntentDeficit,
   NO_GEOGRAPHIC_GRANT,
   ownedIntentGrant,
@@ -49,7 +48,6 @@ describe('geographic validation authorization', () => {
       authorizedBy: grant,
       admittedAs: 'MULTI_COMPONENT_EXPERIENCE',
     });
-    expect(authorizesRouteScale(authorization)).toBe(true);
     expect(projectGeographicPolicy(authorization)).toEqual({
       kind: 'ROUTE_LIKE',
       workUnit: 'DEDICATED_INTENT',
@@ -59,10 +57,9 @@ describe('geographic validation authorization', () => {
     });
   });
 
-  it('B/K: an owning walk unit authorizes its multi-component candidate as WALK (never route scale)', () => {
+  it('B/K: an owning walk unit authorizes its multi-component candidate as WALK (never ROUTE_LIKE)', () => {
     const authorization = authorizeCandidate(walkGrant(), multiComponent());
     expect(authorization.kind).toBe('WALK');
-    expect(authorizesRouteScale(authorization)).toBe(false);
     expect(authorizesAnchoredAreaMembership(authorization)).toBe(true);
   });
 
@@ -72,7 +69,6 @@ describe('geographic validation authorization', () => {
       multiComponent(),
     );
     expect(authorization).toEqual({ kind: 'DEFAULT' });
-    expect(authorizesRouteScale(authorization)).toBe(false);
     expect(authorizesAnchoredAreaMembership(authorization)).toBe(false);
   });
 

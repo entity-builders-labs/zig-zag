@@ -13,6 +13,34 @@ import {
   PlacesSearchTextParams,
 } from '../interfaces/places-api.interface';
 
+/**
+ * Places API (New) Text Search accepts a `locationBias.circle` radius of at
+ * most 50 000 m (provider operational constraint, Google API reference).
+ * Not a geographic policy: larger windows are sent as a rectangle bias.
+ */
+const GOOGLE_CIRCLE_BIAS_MAX_RADIUS_METERS = 50_000;
+const METERS_PER_DEGREE_LATITUDE = 111_320;
+
+function circleBoundingRectangle(circle: {
+  center: { latitude: number; longitude: number };
+  radius: number;
+}) {
+  const latDelta = circle.radius / METERS_PER_DEGREE_LATITUDE;
+  const lonDelta =
+    circle.radius /
+    (METERS_PER_DEGREE_LATITUDE *
+      Math.max(Math.cos((circle.center.latitude * Math.PI) / 180), 0.01));
+  return {
+    low: {
+      latitude: Math.max(-90, circle.center.latitude - latDelta),
+      longitude: Math.max(-180, circle.center.longitude - lonDelta),
+    },
+    high: {
+      latitude: Math.min(90, circle.center.latitude + latDelta),
+      longitude: Math.min(180, circle.center.longitude + lonDelta),
+    },
+  };
+}
 @Injectable()
 export class GooglePlacesApiService implements IPlacesApiService {
   readonly provider = 'google' as const;
@@ -246,9 +274,15 @@ export class GooglePlacesApiService implements IPlacesApiService {
         rectangle: params.locationRestriction,
       };
     } else if (params.locationBias) {
-      body.locationBias = {
-        circle: params.locationBias,
-      };
+      body.locationBias =
+        params.locationBias.radius <= GOOGLE_CIRCLE_BIAS_MAX_RADIUS_METERS
+          ? { circle: params.locationBias }
+          : // Provider operational limit: a circle bias above the API's
+            // maximum radius is rejected by Google. Send the circle's
+            // covering rectangle instead (a lossless superset, still only a
+            // bias) — never a smaller circle that would silently shrink the
+            // caller's scope-derived window.
+            { rectangle: circleBoundingRectangle(params.locationBias) };
     }
     if (params.includedType) body.includedType = params.includedType;
     if (params.strictTypeFiltering !== undefined) {

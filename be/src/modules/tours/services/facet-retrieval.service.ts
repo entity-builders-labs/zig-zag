@@ -1,3 +1,5 @@
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
+import { isTourEligibleForDestinationRequest } from '../utils/tour-destination-eligibility.policy';
 /**
  * Per-facet catalog retrieval (spec §6, plan Task A6; geography boundary
  * hardened by Task A6.1 --
@@ -32,9 +34,15 @@ import {
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 
 export interface FacetRetrievalScope {
+  /** Destination retrieval window (bounding-box circle of the destination). */
   latitude: number;
   longitude: number;
   radiusMeters: number;
+  /**
+   * The trip destination itself: rows the window returns are tour-eligible
+   * only when WITHIN it (PD1, `isTourEligibleForDestinationRequest`).
+   */
+  destination: GeographicScope;
 }
 
 interface ScoredRow {
@@ -88,6 +96,9 @@ export class FacetRetrievalService {
     const weak: ScoredRow[] = [];
 
     for (const row of rows as Array<Record<string, any>>) {
+      if (!isTourEligibleForDestinationRequest(row, scope.destination)) {
+        continue;
+      }
       const scored: ScoredRow = {
         id: row.id,
         qualityScore:

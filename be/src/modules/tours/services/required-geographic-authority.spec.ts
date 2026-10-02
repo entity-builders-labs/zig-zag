@@ -365,7 +365,8 @@ describe('Stage 4: `required` carries no geographic authority', () => {
         canonicalGeometry: 'POINT',
       });
       expect(resolved.componentResolution!.scope).toEqual({
-        kind: 'DESTINATION_AREA',
+        kind: 'SCOPE',
+        provenance: 'DESTINATION_AREA',
         name: 'Buenos Aires',
       });
       expect(resolved.componentResolution!.coverage).toEqual({

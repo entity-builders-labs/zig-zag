@@ -1,3 +1,4 @@
+import { GeographicScope } from 'src/modules/tours/interfaces/experience-resolution.interface';
 import { ExperienceCatalogService } from 'src/modules/tours/services/experience-catalog.service';
 import { FacetRetrievalService } from 'src/modules/tours/services/facet-retrieval.service';
 import { RequestedFacet } from 'src/modules/tours/interfaces/preference-spec.interface';
@@ -21,6 +22,29 @@ describe('tour-generation integration · facet retrieval (Task A6 / A6.1)', () =
   let service: FacetRetrievalService;
 
   const CENTER = { latitude: -34.6083, longitude: -58.3712 };
+  // The destination polygon the 5 km window belongs to (PD1 eligibility).
+  const DESTINATION: GeographicScope = {
+    kind: 'AREA_BOUNDARY',
+    boundary: {
+      id: 'osm:relation:1',
+      name: 'Fixture City',
+      osmType: 'relation',
+      osmId: 1,
+      tags: {},
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-58.45, -34.66],
+            [-58.3, -34.66],
+            [-58.3, -34.55],
+            [-58.45, -34.55],
+            [-58.45, -34.66],
+          ],
+        ],
+      },
+    },
+  };
   const HISTORY_FACET: RequestedFacet = {
     dimension: 'theme',
     key: 'history',
@@ -59,6 +83,7 @@ describe('tour-generation integration · facet retrieval (Task A6 / A6.1)', () =
     const result = await service.retrieveFacetCandidates(HISTORY_FACET, {
       ...CENTER,
       radiusMeters: 5000,
+      destination: DESTINATION,
     });
 
     expect(result.strongMatches).toEqual([id]);
@@ -78,6 +103,7 @@ describe('tour-generation integration · facet retrieval (Task A6 / A6.1)', () =
     const result = await service.retrieveFacetCandidates(HISTORY_FACET, {
       ...CENTER,
       radiusMeters: 5000,
+      destination: DESTINATION,
     });
 
     expect(result.strongMatches).toEqual([]);
@@ -101,6 +127,7 @@ describe('tour-generation integration · facet retrieval (Task A6 / A6.1)', () =
     const result = await service.retrieveFacetCandidates(HISTORY_FACET, {
       ...CENTER,
       radiusMeters: 5000,
+      destination: DESTINATION,
     });
 
     // Under A6's old Experience.latitude/longitude-authoritative boundary
@@ -144,6 +171,7 @@ describe('tour-generation integration · facet retrieval (Task A6 / A6.1)', () =
     const result = await service.retrieveFacetCandidates(HISTORY_FACET, {
       ...CENTER,
       radiusMeters: 5000,
+      destination: DESTINATION,
     });
 
     expect(result.strongMatches).not.toContain(tangoId);

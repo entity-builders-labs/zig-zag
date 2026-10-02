@@ -94,7 +94,9 @@ function isAnchorComponent(
  * 3. Additional source-backed components may extend beyond the literal route
  *    geometry if they remain geographically coherent with the anchor context
  *    (e.g. within the destination and sharing local scope).
- * 4. Destination compatibility remains mandatory.
+ * 4. Topological relations (anchor, ON_ROUTE, shared enclosing area) are
+ *    evaluated before the destination: the destination only bounds the
+ *    components that have no topological relation to the route.
  * 5. Distance is evidence/diagnostic for observability (Bitácora), NEVER an arbitrary
  *    semantic cutoff for validity. Metric proximity does NOT create anchor truth.
  * 6. Walking feasibility belongs strictly to the planner.
@@ -182,36 +184,7 @@ export function evaluateRouteScopeMembership(
       );
     }
 
-    // 2. Check destination compatibility if destination boundary is available
-    if (
-      destinationBoundary &&
-      Number.isFinite(component.latitude) &&
-      Number.isFinite(component.longitude)
-    ) {
-      const destCheck = evaluateDestinationCompatibility(
-        {
-          probePoints: [
-            {
-              latitude: component.latitude as number,
-              longitude: component.longitude as number,
-            },
-          ],
-        },
-        { kind: 'AREA_BOUNDARY', boundary: destinationBoundary },
-      );
-      if (destCheck.verdict === 'INCOMPATIBLE') {
-        relationFacts.push({
-          ...baseFact,
-          relation: 'OUTSIDE_DESTINATION',
-          ...(distanceToRoute !== undefined
-            ? { distanceFromRouteMeters: distanceToRoute }
-            : {}),
-        });
-        continue;
-      }
-    }
-
-    // 3. Does component have an authoritative areal footprint intersecting or containing the route?
+    // 2. Does component have an authoritative areal footprint intersecting or containing the route?
     // Physical route intersection is topological/geometric, NEVER metric proximity.
     // POINT-only components lack topological proof and fall through to scope/extension relations.
     if (
@@ -238,7 +211,7 @@ export function evaluateRouteScopeMembership(
       }
     }
 
-    // 4. Does it share an enclosing area with the route (e.g. La Boca neighborhood)?
+    // 3. Does it share an enclosing area with the route (e.g. La Boca neighborhood)?
     const sharesArea = sharedEnclosingAreas.some((areaComp) => {
       const compAreaRel = classifyComponentAreaRelation(
         areaComp.geometry as GeoJsonGeometry,
@@ -259,6 +232,39 @@ export function evaluateRouteScopeMembership(
           : {}),
       });
       continue;
+    }
+
+    // 4. No topological relation to the route: the component can only be a
+    // destination-compatible extension of the composition. Checked AFTER
+    // the topological relations (spec 2026-10-02 Part II §P2-5 #7): a
+    // component physically on/along a route that leaves the destination is
+    // a member through the route, not rejected for the destination.
+    if (
+      destinationBoundary &&
+      Number.isFinite(component.latitude) &&
+      Number.isFinite(component.longitude)
+    ) {
+      const destCheck = evaluateDestinationCompatibility(
+        {
+          probePoints: [
+            {
+              latitude: component.latitude as number,
+              longitude: component.longitude as number,
+            },
+          ],
+        },
+        { kind: 'AREA_BOUNDARY', boundary: destinationBoundary },
+      );
+      if (destCheck.verdict === 'INCOMPATIBLE') {
+        relationFacts.push({
+          ...baseFact,
+          relation: 'OUTSIDE_DESTINATION',
+          ...(distanceToRoute !== undefined
+            ? { distanceFromRouteMeters: distanceToRoute }
+            : {}),
+        });
+        continue;
+      }
     }
 
     // 5. Destination-compatible extension belonging to the source composition

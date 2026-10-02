@@ -17,7 +17,6 @@ import { GeographicIntentDeficit } from '../interfaces/geographic-validation-aut
 import { ownedIntentGrant } from '../utils/geographic-validation-authorization.util';
 import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
 import {
-  ExperienceValidationScope,
   GeographicScope,
   FinalExperienceResolutionResponse,
 } from '../interfaces/experience-resolution.interface';
@@ -26,6 +25,7 @@ import { ExecuteAcquisitionPlanResult } from './experience-acquisition.service';
 import { normalizeWizardFacet } from '../utils/preference-facet-merge.util';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
+import { evaluateScopeDestinationRelation } from '../utils/destination-compatibility.policy';
 import {
   convergeExperienceClassification,
   ClassificationAuditRecord,
@@ -33,6 +33,7 @@ import {
 } from '../utils/experience-classification-convergence.util';
 import { ExperienceClassificationService } from './experience-classification.service';
 import { ClassificationFailure } from './experience-classification.service';
+import { WorkUnitAnchorScope } from '../interfaces/experience-geographic-scope.interface';
 
 export interface AreaRouteWalkAcquisitionInput {
   /**
@@ -88,6 +89,9 @@ export type AreaRouteWalkAcquisitionResult =
       outcome: 'no_result';
       reason?:
         | 'anchor_unresolved'
+        // A walk unit's AREA anchor lies beyond the trip destination: WALK
+        // never borrows a beyond-destination scope (spec 2026-10-02 §P2-6).
+        | 'anchor_scope_not_admissible'
         | 'no_source_plan'
         | 'no_accepted_results'
         | 'no_semantically_eligible_result'
@@ -220,6 +224,37 @@ export class AreaRouteWalkAcquisitionService {
         reason: 'anchor_unresolved',
         diagnostics: {
           anchorResolved: false,
+          sourcePlanProviders: [],
+          execution: { candidateCount: 0, webResults: [] },
+          materialization: {
+            resolvedCount: 0,
+            acceptedCount: 0,
+            rejectedCount: 0,
+            rejectionReasons: {},
+            semanticallyEligibleCount: 0,
+          },
+        },
+      };
+    }
+
+    // §P2-6 admissibility: only a ROUTE_LIKE-owning unit may use a user-named
+    // AREA anchor that lies entirely beyond the destination (a regional
+    // scope). A WALK unit never does — no acquisition, no reuse.
+    if (
+      isAreaAnchor &&
+      resolution.resolved &&
+      input.deficit.key === 'walk' &&
+      evaluateScopeDestinationRelation(
+        resolution.geometry,
+        'area',
+        input.geographicScope,
+      ) === 'OUTSIDE'
+    ) {
+      return {
+        outcome: 'no_result',
+        reason: 'anchor_scope_not_admissible',
+        diagnostics: {
+          anchorResolved: true,
           sourcePlanProviders: [],
           execution: { candidateCount: 0, webResults: [] },
           materialization: {
@@ -496,18 +531,17 @@ export class AreaRouteWalkAcquisitionService {
       plan,
       input.executionLedger,
     );
-    const validationScope: ExperienceValidationScope | undefined =
-      resolution.resolved
-        ? {
-            kind:
-              input.anchor.status === 'resolved' && input.anchor.kind === 'area'
-                ? 'AREA'
-                : 'ROUTE',
-            anchorName: input.anchor.rawName,
-            geoEntityId: resolution.geoEntityId,
-            geometry: resolution.geometry,
-          }
-        : undefined; // mode C (tourism route, unresolved) has no external geometry to gate on -- ordinary validateExperience + the tourism-route identity check alone carry it
+    const validationScope: WorkUnitAnchorScope | undefined = resolution.resolved
+      ? {
+          kind:
+            input.anchor.status === 'resolved' && input.anchor.kind === 'area'
+              ? 'AREA'
+              : 'ROUTE',
+          anchorName: input.anchor.rawName,
+          geoEntityId: resolution.geoEntityId,
+          geometry: resolution.geometry,
+        }
+      : undefined; // mode C (tourism route, unresolved) has no external geometry to gate on -- ordinary validateExperience + the tourism-route identity check alone carry it
     // Task A6 (Root Cause #4) — only for a resolved AREA anchor with a
     // real OSM way/relation boundary in hand: narrow entity resolution's
     // own local OSM pool query to it, instead of the whole destination.

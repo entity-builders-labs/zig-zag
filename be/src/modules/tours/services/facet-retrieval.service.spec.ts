@@ -1,3 +1,4 @@
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { FacetRetrievalService } from './facet-retrieval.service';
 import { RequestedFacet } from '../interfaces/preference-spec.interface';
 
@@ -32,7 +33,36 @@ describe('FacetRetrievalService', () => {
     return { service: new FacetRetrievalService(catalog), catalog };
   }
 
-  const SCOPE = { latitude: -34.6, longitude: -58.38, radiusMeters: 5000 };
+  // The destination polygon the retrieval window was derived from: rows
+  // are tour-eligible only when their components lie WITHIN it (PD1).
+  const DESTINATION: GeographicScope = {
+    kind: 'AREA_BOUNDARY',
+    boundary: {
+      id: 'osm:relation:1',
+      name: 'Fixture City',
+      osmType: 'relation',
+      osmId: 1,
+      tags: { admin_level: '8' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-58.45, -34.65],
+            [-58.3, -34.65],
+            [-58.3, -34.55],
+            [-58.45, -34.55],
+            [-58.45, -34.65],
+          ],
+        ],
+      },
+    },
+  };
+  const SCOPE = {
+    latitude: -34.6,
+    longitude: -58.38,
+    radiusMeters: 5000,
+    destination: DESTINATION,
+  };
 
   it('buckets matching-and-strong rows into strongMatches, matching-but-not-strong rows into weakMatches, and excludes non-matching rows entirely', async () => {
     const strongRow = row({ id: 'strong-1', qualityScore: 4.5 });
@@ -105,7 +135,7 @@ describe('FacetRetrievalService', () => {
     expect(looseResult.strongMatches).toEqual(['exp-1']);
   });
 
-  it('never lets a bare/no-component row become a strong match, even when it matches the facet', async () => {
+  it('never lets a bare/no-component row match at all: its destination relation is UNKNOWN, never WITHIN (PD1)', async () => {
     const bare = row({ id: 'bare-1', components: [] });
 
     const { service } = makeService([bare]);
@@ -113,34 +143,33 @@ describe('FacetRetrievalService', () => {
     const result = await service.retrieveFacetCandidates(facet(), SCOPE);
 
     expect(result.strongMatches).toEqual([]);
-    expect(result.weakMatches).toEqual(['bare-1']);
+    expect(result.weakMatches).toEqual([]);
   });
 
   describe('quality ordering hardening (Task A6.1 review fix)', () => {
-    // All four rows lack a resolved geographic component, so every one is a
-    // weak match regardless of qualityScore -- isolating this test to
-    // ordering only, never strong/weak classification.
+    // A quality floor above the one valid score makes every row a weak
+    // match regardless of qualityScore -- isolating this test to ordering
+    // only, never strong/weak classification.
     it('never lets a corrupt/invalid qualityScore outrank a real 4.0 in weakMatches ordering', async () => {
       const valid = row({
         id: 'weak-valid',
         qualityScore: 4.0,
-        components: [],
       });
       const infinity = row({
         id: 'weak-infinity',
         qualityScore: Infinity,
-        components: [],
       });
-      const nan = row({ id: 'weak-nan', qualityScore: NaN, components: [] });
+      const nan = row({ id: 'weak-nan', qualityScore: NaN });
       const aboveScale = row({
         id: 'weak-above-scale',
         qualityScore: 5.1,
-        components: [],
       });
 
       const { service } = makeService([infinity, nan, aboveScale, valid]);
 
-      const result = await service.retrieveFacetCandidates(facet(), SCOPE);
+      const result = await service.retrieveFacetCandidates(facet(), SCOPE, {
+        qualityFloor: 4.5,
+      });
 
       expect(result.strongMatches).toEqual([]);
       // The real, valid 4.0 must sort first...
@@ -151,5 +180,29 @@ describe('FacetRetrievalService', () => {
         ['weak-above-scale', 'weak-infinity', 'weak-nan'].sort(),
       );
     });
+  });
+
+  it('PD1: a row the destination window returns is tour-eligible only when WITHIN the destination polygon', async () => {
+    const inside = row({ id: 'inside', qualityScore: 4.5 });
+    const extendsBeyond = row({
+      id: 'extends-beyond',
+      qualityScore: 4.5,
+      components: [
+        { geoEntity: { latitude: -34.6, longitude: -58.38 } },
+        { geoEntity: { latitude: -34.7, longitude: -58.38 } },
+      ],
+    });
+    const outside = row({
+      id: 'outside',
+      qualityScore: 4.5,
+      components: [{ geoEntity: { latitude: -34.8, longitude: -58.38 } }],
+    });
+    const unknown = row({ id: 'unknown', qualityScore: 4.5, components: [] });
+    const { service } = makeService([inside, extendsBeyond, outside, unknown]);
+
+    const result = await service.retrieveFacetCandidates(facet(), SCOPE);
+
+    expect(result.strongMatches).toEqual(['inside']);
+    expect(result.weakMatches).toEqual([]);
   });
 });

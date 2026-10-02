@@ -1,3 +1,4 @@
+import { geographicScopeSearchWindow } from '../utils/experience-geographic-scope.policy';
 import { Prisma, GeoEntityKind } from '@prisma/client';
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { PlacesCrawlError } from '@integrations/google-places/interfaces/places-api.interface';
@@ -1580,7 +1581,7 @@ describe('ExperienceCatalogService.findGeoEntityCandidatesForHint (Stage 3)', ()
     await service.findGeoEntityCandidatesForHint({
       hintName: 'Solar French',
       expectedKind: GeoEntityKind.PLACE,
-      scope: pointScope,
+      window: geographicScopeSearchWindow(pointScope, 'DESTINATION_AREA')!,
     });
 
     expect(findMany).toHaveBeenCalledTimes(1);
@@ -1628,7 +1629,7 @@ describe('ExperienceCatalogService.findGeoEntityCandidatesForHint (Stage 3)', ()
     await service.findGeoEntityCandidatesForHint({
       hintName: 'Mercado de San Telmo',
       expectedKind: GeoEntityKind.PLACE,
-      scope: areaScope,
+      window: geographicScopeSearchWindow(areaScope, 'DESTINATION_AREA')!,
     });
 
     expect(findMany).toHaveBeenCalledTimes(1);
@@ -1642,23 +1643,17 @@ describe('ExperienceCatalogService.findGeoEntityCandidatesForHint (Stage 3)', ()
     expect(call.where.longitude.lte).toBeGreaterThanOrEqual(-58.36);
   });
 
-  it('fails closed — no query at all — when an AREA_BOUNDARY scope has no usable geometry', async () => {
+  it('fails closed — no query at all — when the search window has no usable center/radius', async () => {
     const { prisma, findMany } = prismaWithRows([]);
     const service = new ExperienceCatalogService(prisma, {} as any);
 
     const result = await service.findGeoEntityCandidatesForHint({
       hintName: 'Anything',
       expectedKind: GeoEntityKind.PLACE,
-      scope: {
-        kind: 'AREA_BOUNDARY',
-        boundary: {
-          id: 'osm:relation:1',
-          name: 'No geometry',
-          osmType: 'relation',
-          osmId: 1,
-          geometry: undefined,
-          tags: {},
-        } as any,
+      window: {
+        provenance: 'DESTINATION_AREA',
+        center: { latitude: Number.NaN, longitude: Number.NaN },
+        radiusMeters: Number.NaN,
       },
     });
 
@@ -1684,7 +1679,7 @@ describe('ExperienceCatalogService.findGeoEntityCandidatesForHint (Stage 3)', ()
     const result = await service.findGeoEntityCandidatesForHint({
       hintName: 'Solar French',
       expectedKind: GeoEntityKind.PLACE,
-      scope: pointScope,
+      window: geographicScopeSearchWindow(pointScope, 'DESTINATION_AREA')!,
     });
 
     expect(result.candidates).toEqual([]);
@@ -1712,7 +1707,7 @@ describe('ExperienceCatalogService.findGeoEntityCandidatesForHint (Stage 3)', ()
     const result = await service.findGeoEntityCandidatesForHint({
       hintName: 'SOLAR   french',
       expectedKind: GeoEntityKind.PLACE,
-      scope: pointScope,
+      window: geographicScopeSearchWindow(pointScope, 'DESTINATION_AREA')!,
     });
 
     expect(result.candidates).toEqual([
@@ -1745,7 +1740,7 @@ describe('ExperienceCatalogService.findGeoEntityCandidatesForHint (Stage 3)', ()
     const result = await service.findGeoEntityCandidatesForHint({
       hintName: 'Solar French',
       expectedKind: GeoEntityKind.PLACE,
-      scope: pointScope,
+      window: geographicScopeSearchWindow(pointScope, 'DESTINATION_AREA')!,
     });
 
     expect(result.candidates).toEqual([]);
@@ -1783,7 +1778,7 @@ describe('ExperienceCatalogService.findGeoEntityCandidatesForHint (Stage 3)', ()
     const result = await service.findGeoEntityCandidatesForHint({
       hintName: 'Solar de French',
       expectedKind: GeoEntityKind.PLACE,
-      scope: pointScope,
+      window: geographicScopeSearchWindow(pointScope, 'DESTINATION_AREA')!,
     });
 
     expect(result.candidates).toHaveLength(2);
@@ -1800,7 +1795,7 @@ describe('ExperienceCatalogService.findGeoEntityCandidatesForHint (Stage 3)', ()
     await service.findGeoEntityCandidatesForHint({
       hintName: 'San Telmo',
       expectedKind: GeoEntityKind.AREA,
-      scope: pointScope,
+      window: geographicScopeSearchWindow(pointScope, 'DESTINATION_AREA')!,
     });
 
     expect(findMany.mock.calls[0][0].where.kind).toBe(GeoEntityKind.AREA);
@@ -1827,7 +1822,7 @@ describe('ExperienceCatalogService.findGeoEntityCandidatesForHint (Stage 3)', ()
     const result = await service.findGeoEntityCandidatesForHint({
       hintName: 'Solar French',
       expectedKind: GeoEntityKind.PLACE,
-      scope: pointScope,
+      window: geographicScopeSearchWindow(pointScope, 'DESTINATION_AREA')!,
     });
 
     expect(result.candidates).toEqual([
@@ -1887,7 +1882,7 @@ describe('ExperienceCatalogService — Solar de French warm-reuse (Stage 3)', ()
     const warmResult = await service.findGeoEntityCandidatesForHint({
       hintName: 'Solar French',
       expectedKind: GeoEntityKind.PLACE,
-      scope: warmScope,
+      window: geographicScopeSearchWindow(warmScope, 'DESTINATION_AREA')!,
     });
 
     expect(warmResult.candidates).toHaveLength(1);
@@ -1943,7 +1938,7 @@ describe('ExperienceCatalogService — Solar de French warm-reuse (Stage 3)', ()
     const result = await service.findGeoEntityCandidatesForHint({
       hintName: 'Solar de French',
       expectedKind: GeoEntityKind.PLACE,
-      scope: warmScope,
+      window: geographicScopeSearchWindow(warmScope, 'DESTINATION_AREA')!,
     });
 
     expect(result.candidates).toHaveLength(2);
@@ -2008,7 +2003,7 @@ describe('ExperienceCatalogService — verified hint memory', () => {
     const result = await service.findGeoEntityCandidatesForHint({
       hintName: 'Farmacia la Estrella',
       expectedKind: GeoEntityKind.PLACE,
-      scope,
+      window: geographicScopeSearchWindow(scope, 'DESTINATION_AREA')!,
     });
 
     expect(result.candidates).toEqual([
@@ -2050,7 +2045,7 @@ describe('ExperienceCatalogService — verified hint memory', () => {
     const result = await service.findGeoEntityCandidatesForHint({
       hintName: 'Casa Minima',
       expectedKind: GeoEntityKind.PLACE,
-      scope,
+      window: geographicScopeSearchWindow(scope, 'DESTINATION_AREA')!,
     });
 
     expect(result.candidates.map((c) => [c.geoEntityId, c.matchKind])).toEqual([
@@ -2071,7 +2066,7 @@ describe('ExperienceCatalogService — verified hint memory', () => {
     const result = await service.findGeoEntityCandidatesForHint({
       hintName: 'San José',
       expectedKind: GeoEntityKind.PLACE,
-      scope,
+      window: geographicScopeSearchWindow(scope, 'DESTINATION_AREA')!,
     });
 
     expect(result.candidates.map((c) => c.geoEntityId)).toEqual([
@@ -2092,7 +2087,7 @@ describe('ExperienceCatalogService — verified hint memory', () => {
     const result = await service.findGeoEntityCandidatesForHint({
       hintName: ' — ',
       expectedKind: GeoEntityKind.PLACE,
-      scope,
+      window: geographicScopeSearchWindow(scope, 'DESTINATION_AREA')!,
     });
 
     expect(result.candidates).toEqual([]);

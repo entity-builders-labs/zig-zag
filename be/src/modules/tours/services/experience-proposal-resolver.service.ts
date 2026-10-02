@@ -60,8 +60,21 @@ import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containme
 import {
   DestinationCompatibility,
   evaluateDestinationCompatibility,
-  routeScaleDestinationRadius,
+  isCoarserThanDestination,
 } from '../utils/destination-compatibility.policy';
+import {
+  admitComponentLocation,
+  deriveExperienceGeographicScope,
+  DerivedExperienceGeographicScope,
+  geographicScopeSearchWindow,
+  projectExperienceGeographicScope,
+  scopeSearchWindow,
+} from '../utils/experience-geographic-scope.policy';
+import {
+  KnownExperienceGeographicScope,
+  ScopeSearchWindow,
+  WorkUnitAnchorScope,
+} from '../interfaces/experience-geographic-scope.interface';
 import {
   RouteRetrievalVariantKind,
   routeRetrievalQueryVariants,
@@ -93,10 +106,32 @@ import {
   AuthorizedExperienceCandidate,
   GeographicValidationAuthorization,
 } from '../interfaces/geographic-validation-authorization.interface';
-import {
-  authorizesRouteScale,
-  DEFAULT_GEOGRAPHIC_AUTHORIZATION,
-} from '../utils/geographic-validation-authorization.util';
+import { DEFAULT_GEOGRAPHIC_AUTHORIZATION } from '../utils/geographic-validation-authorization.util';
+
+/**
+ * The geography phase-2 component acquisition is bounded by (spec
+ * 2026-10-02 Part II §P2-7 / §P2-10): the scope that will later judge the
+ * component, and the provider search window derived from its real
+ * geometry. `allowsExternalLookup` is true when a verified candidate-owned
+ * scope (or source evidence associating the destination) authorizes
+ * Nominatim/Places lookups.
+ */
+interface ComponentAcquisitionScope {
+  /** Absent only when the destination itself has no usable geography. */
+  scope?: KnownExperienceGeographicScope;
+  /** Nominatim/Places window, derived from `scope`'s real geometry. */
+  window?: ScopeSearchWindow;
+  /** Catalog PLACE/AREA lookup window (the candidate scope, else the entity-resolution pool scope). */
+  catalogPlaceWindow?: ScopeSearchWindow;
+  /** Catalog ROUTE lookup window (the destination). */
+  destinationWindow?: ScopeSearchWindow;
+  /** Within-area OSM pool for a candidate-owned AREA not covered by the destination pool. */
+  poolBoundary?: OsmCandidate;
+  /** The scope is a verified candidate-owned AREA/ROUTE (S-b/S-c). */
+  candidateOwned: boolean;
+  /** Bounds a phase-1 AREA hint search to the country only (ROUTE_LIKE). */
+  countryBoundedAreaSearch: boolean;
+}
 
 /**
  * Picks a real candidate out of the Places top-N instead of trusting
@@ -126,6 +161,8 @@ type StrategyAcquisitionResult =
       providerResultCount?: number;
       /** Set when a structural candidate was dropped by destination scope. */
       destinationCompatibility?: DestinationCompatibility;
+      /** Set when a structural candidate lay outside the candidate-owned scope. */
+      outsideExperienceScope?: true;
       placeSearch?: PlaceSearchAudit;
     }
   | {
@@ -182,17 +219,6 @@ type CatalogAcquisitionResult =
       evidence: IdentityEvidence[];
     };
 
-// Loose radius for biasing a Places text search toward the destination when
-// Nominatim/OSM had no usable match — wide enough to cover a metro area's
-// outskirts (matches the same order of magnitude as
-// destination-resolution.service.ts's own MAX_DESTINATION_DISTANCE_METERS)
-// without being so wide it stops disambiguating same-named places in
-// different cities. This is the DEFAULT identity-search circle; a
-// ROUTE_LIKE-authorized candidate searches the route-scale compatibility
-// domain owned by `routeScaleDestinationRadius` instead (never a global
-// widening of this constant).
-export const PLACES_FALLBACK_BIAS_RADIUS_METERS = 50_000;
-
 /**
  * Result window of the PLACES text search -- the window the Stage 3 PLACE
  * characterization measured (Geoapify Forward Geocoding G1, 11/12 PLACE
@@ -241,6 +267,27 @@ async function mapWithBoundedConcurrency<T, R>(
   };
   await Promise.all(Array.from({ length: lanes }, () => runLane()));
   return results;
+}
+
+/**
+ * The real OSM area of a resolved AREA component (a way/relation identity
+ * with its own polygon), usable for an Overpass within-area pool. Undefined
+ * when the canonical AREA carries no OSM area identity — never fabricated.
+ */
+function osmAreaOf(
+  entity: ResolvedGeoEntity | undefined,
+): OsmCandidate | undefined {
+  if (!entity?.geometry || !entity.externalId) return undefined;
+  const match = /^osm:(way|relation):(\d+)$/.exec(entity.externalId);
+  if (!match) return undefined;
+  return {
+    id: entity.externalId,
+    name: entity.canonicalName ?? entity.hintName,
+    osmType: match[1] as 'way' | 'relation',
+    osmId: Number(match[2]),
+    geometry: entity.geometry as GeoJsonGeometry,
+    tags: {},
+  };
 }
 
 /** Component reason for a non-RESOLVED targeted ROUTE acquisition. */
@@ -317,7 +364,23 @@ export class ExperienceProposalResolverService
     // only trigger one real Overpass call). When every hint in this call
     // resolves via CATALOG_REUSE, these are never invoked at all.
     let poiLookupPromise: Promise<OsmLookupResult<OsmCandidate[]>> | undefined;
-    const getPoiLookup = (): Promise<OsmLookupResult<OsmCandidate[]>> => {
+    // A candidate-owned AREA beyond the destination pool (§P2-7 phase 2)
+    // gets its own memoized within-area pool, keyed by the OSM area.
+    const scopedPoiLookups = new Map<
+      string,
+      Promise<OsmLookupResult<OsmCandidate[]>>
+    >();
+    const getPoiLookup = (
+      scopeBoundary?: OsmCandidate,
+    ): Promise<OsmLookupResult<OsmCandidate[]>> => {
+      if (scopeBoundary) {
+        let scoped = scopedPoiLookups.get(scopeBoundary.id);
+        if (!scoped) {
+          scoped = this.osmPlaces.lookupPoisWithin(scopeBoundary);
+          scopedPoiLookups.set(scopeBoundary.id, scoped);
+        }
+        return scoped;
+      }
       if (!poiLookupPromise) {
         poiLookupPromise =
           poolScope.kind === 'POINT_RADIUS'
@@ -347,6 +410,7 @@ export class ExperienceProposalResolverService
           input.destinationCountryCode,
           input.observations ?? [],
           authorized.geographicAuthorization,
+          input.validationScope,
         ),
     );
 
@@ -609,7 +673,9 @@ export class ExperienceProposalResolverService
   private async resolveCandidate(
     candidate: any,
     boundary: OsmCandidate | undefined,
-    getPoiLookup: () => Promise<OsmLookupResult<OsmCandidate[]>>,
+    getPoiLookup: (
+      scopeBoundary?: OsmCandidate,
+    ) => Promise<OsmLookupResult<OsmCandidate[]>>,
     entityResolutionScope: GeographicScope,
     /** The DESTINATION scope: ROUTE acquisition + destination compatibility. */
     destinationScope: GeographicScope,
@@ -619,10 +685,9 @@ export class ExperienceProposalResolverService
     observations: SourceObservation[] = [],
     // Fail-closed: absent authorization is the default destination policy.
     geographicAuthorization: GeographicValidationAuthorization = DEFAULT_GEOGRAPHIC_AUTHORIZATION,
+    /** S-a: the producing work unit's user-named anchor, when any. */
+    workUnitScope?: WorkUnitAnchorScope,
   ): Promise<ResolvedCandidateWithAudit> {
-    // The ONLY source of route-scale identity acquisition/compatibility:
-    // the authorization the producing work unit granted THIS candidate.
-    const routeScale = authorizesRouteScale(geographicAuthorization);
     const entities: ResolvedGeoEntity[] = [];
     const componentAudits: CandidateResolutionAudit['componentAudits'] = [];
     const destinationAssociationVerified =
@@ -640,7 +705,10 @@ export class ExperienceProposalResolverService
       hintName: string;
     }> = [];
 
-    for (const hint of candidate?.componentHints ?? []) {
+    const resolveHint = async (
+      hint: any,
+      componentScope: ComponentAcquisitionScope,
+    ): Promise<void> => {
       const attempts: ResolutionAttemptAudit[] = [];
       // Real-world identity by ID equality, tracked across every strategy
       // attempted for THIS hint (verified or not): keyed by every strong
@@ -783,7 +851,8 @@ export class ExperienceProposalResolverService
       // declares VERIFIED.
       const catalogResult = await this.resolveViaCatalog(
         hint,
-        entityResolutionScope,
+        componentScope.catalogPlaceWindow,
+        componentScope.destinationWindow,
         destinationScope,
       );
       if (catalogResult.status === 'candidate') {
@@ -815,7 +884,7 @@ export class ExperienceProposalResolverService
           );
           entities.push(resolved);
           finishAudit(resolved);
-          continue;
+          return;
         }
         unconfirmedCatalogMatch = this.unconfirmedEntity(
           hint,
@@ -882,7 +951,7 @@ export class ExperienceProposalResolverService
           );
           entities.push(resolved);
           finishAudit(resolved);
-          continue;
+          return;
         }
       } else if (reuseCandidate.status === 'no_candidate') {
         recordAttempt(
@@ -916,7 +985,7 @@ export class ExperienceProposalResolverService
         );
         entities.push(routed.entity);
         finishAudit(routed.entity);
-        continue;
+        return;
       }
 
       // AREA destination-scope outcome that blocked a structural candidate,
@@ -933,7 +1002,7 @@ export class ExperienceProposalResolverService
         pool = boundary ? [boundary] : [];
         localLookup = undefined;
       } else {
-        localLookup = await getPoiLookup();
+        localLookup = await getPoiLookup(componentScope.poolBoundary);
         pool = localLookup.value;
       }
       const localOsmFacts = localLookup
@@ -1011,7 +1080,7 @@ export class ExperienceProposalResolverService
           const resolved = await this.persistVerifiedCandidate(resolvedEntity);
           entities.push(resolved);
           finishAudit(resolved);
-          continue;
+          return;
         }
         // Real, live-verified regression: a local match that fails
         // confirmation must not be the final word on its own. A genuinely
@@ -1038,13 +1107,15 @@ export class ExperienceProposalResolverService
         );
       }
 
-      if (destinationAssociationVerified) {
+      // External lookups need either source evidence associating the
+      // destination, or a verified candidate-owned scope (itself
+      // source-backed and canonically resolved) bounding the search.
+      if (destinationAssociationVerified || componentScope.candidateOwned) {
         const nominatimResolved = await this.resolveViaNominatim(
           hint,
           destinationScope,
           destinationCountryCode,
-          this.representativePoint(boundary),
-          routeScale,
+          componentScope,
         );
         if (nominatimResolved.status === 'candidate') {
           const verification = await this.isVerified(
@@ -1071,7 +1142,7 @@ export class ExperienceProposalResolverService
             );
             entities.push(resolved);
             finishAudit(resolved);
-            continue;
+            return;
           }
           // A rejected global candidate is evidence that THIS attempt was
           // insufficient, not that the hint has no resolvable entity. In
@@ -1103,8 +1174,7 @@ export class ExperienceProposalResolverService
         const placesResolved = await this.resolveViaPlaces(
           hint,
           destinationScope,
-          this.representativePoint(boundary),
-          routeScale,
+          componentScope,
         );
         if (placesResolved.status === 'candidate') {
           const verification = await this.isVerified(
@@ -1132,7 +1202,7 @@ export class ExperienceProposalResolverService
             );
             entities.push(resolved);
             finishAudit(resolved);
-            continue;
+            return;
           }
           unconfirmedGlobalMatch = this.unconfirmedEntity(
             hint,
@@ -1162,7 +1232,7 @@ export class ExperienceProposalResolverService
       // does; this only gives the hint a second, correctly-scoped pool to
       // be found in.
       if (isAreaHint) {
-        const poiLookup = await getPoiLookup();
+        const poiLookup = await getPoiLookup(componentScope.poolBoundary);
         const venueFallbackMatch = matchOsmCandidateByName(
           hint.name,
           poiLookup.value,
@@ -1213,7 +1283,7 @@ export class ExperienceProposalResolverService
               : this.unconfirmedEntity(correctedHint, resolvedEntity.provider),
           );
           finishAudit(entities[entities.length - 1]);
-          continue;
+          return;
         } else if (isAreaHint) {
           recordAttempt(
             'AREA_TO_PLACE_CORRECTION',
@@ -1228,17 +1298,17 @@ export class ExperienceProposalResolverService
       if (unconfirmedCatalogMatch) {
         entities.push(unconfirmedCatalogMatch);
         finishAudit(unconfirmedCatalogMatch);
-        continue;
+        return;
       }
       if (unconfirmedLocalMatch) {
         entities.push(unconfirmedLocalMatch);
         finishAudit(unconfirmedLocalMatch);
-        continue;
+        return;
       }
       if (unconfirmedGlobalMatch) {
         entities.push(unconfirmedGlobalMatch);
         finishAudit(unconfirmedGlobalMatch);
-        continue;
+        return;
       }
 
       if (areaDestinationBlock) {
@@ -1259,10 +1329,10 @@ export class ExperienceProposalResolverService
               : 'DESTINATION_COMPATIBILITY_UNKNOWN',
         });
         finishAudit(entities[entities.length - 1]);
-        continue;
+        return;
       }
 
-      const lookup = await getPoiLookup();
+      const lookup = await getPoiLookup(componentScope.poolBoundary);
       // A strategy whose provider could not run leaves "nothing found"
       // unproven: that is a provider failure, not an empty match.
       const reason =
@@ -1288,9 +1358,86 @@ export class ExperienceProposalResolverService
       });
 
       finishAudit(entities[entities.length - 1]);
-    }
+    };
 
+    // Two-phase resolution (spec 2026-10-02 Part II §P2-7):
+    //  Phase 1 resolves the source-backed SCOPE hints (`area` / `route`
+    //  roles) — destination-bounded, except that a ROUTE_LIKE candidate's
+    //  AREA hint is searched within the destination COUNTRY (a real
+    //  authority, never a radius), homonyms failing closed.
+    //  Phase 2 resolves venue/waypoint components bounded by the scope the
+    //  single owner derives from phase 1 — the same scope that later judges
+    //  them in geographic validation.
+    const hints: GeoEntityHint[] = candidate?.componentHints ?? [];
+    const isScopeHint = (hint: GeoEntityHint) =>
+      hint.role === 'area' ||
+      hint.role === 'route' ||
+      hint.expectedKind === 'AREA' ||
+      hint.expectedKind === 'ROUTE';
+    const destinationAcquisition = this.componentAcquisitionScope(
+      { scope: { kind: 'UNKNOWN', reason: 'DESTINATION_GEOGRAPHY_UNKNOWN' } },
+      destinationScope,
+      entityResolutionScope,
+      entities,
+    );
+    for (const hint of hints.filter(isScopeHint)) {
+      await resolveHint(hint, {
+        ...destinationAcquisition,
+        countryBoundedAreaSearch:
+          geographicAuthorization.kind === 'ROUTE_LIKE' &&
+          (hint.role === 'area' || hint.expectedKind === 'AREA'),
+      });
+    }
+    const derivedScope = deriveExperienceGeographicScope({
+      candidate: { componentHints: hints },
+      resolvedEntities: entities,
+      authorization: geographicAuthorization,
+      destination: destinationScope,
+      workUnitScope,
+    });
+    const memberAcquisition = this.componentAcquisitionScope(
+      derivedScope,
+      destinationScope,
+      entityResolutionScope,
+      entities,
+    );
+    for (const hint of hints.filter((hint) => !isScopeHint(hint))) {
+      await resolveHint(hint, memberAcquisition);
+    }
+    // Restore source order: persisted component order and every audit are
+    // keyed to the source composition, never to resolution phase order.
+    const sourceIndex = (hintKey: string) =>
+      hints.findIndex((hint) => hint.key === hintKey);
+    entities.sort((a, b) => sourceIndex(a.hintKey) - sourceIndex(b.hintKey));
+    componentAudits.sort(
+      (a, b) => sourceIndex(a.hintKey) - sourceIndex(b.hintKey),
+    );
+    const componentSearchScope = projectExperienceGeographicScope(derivedScope);
     await this.rememberVerifiedHints(verifiedHintsToRemember);
+    // PD2 knowledge deficit: a ROUTE_LIKE candidate without a verified
+    // candidate-owned scope whose components were positively acquired only
+    // BEYOND the destination has no Experience scope — recorded as
+    // GEOGRAPHIC_SCOPE_UNKNOWN, never rescued by a circle.
+    const acquiredOnlyBeyondDestination = (audit: ComponentResolutionAudit) =>
+      audit.finalStatus === 'unresolved' &&
+      audit.attempts.some(
+        (attempt) =>
+          attempt.destinationCompatibility?.reason ===
+            'OUTSIDE_DESTINATION_BOUNDARY' ||
+          (attempt.placeSearch?.rejected ?? []).some(
+            (rejected) =>
+              rejected.reason === 'DESTINATION_INCOMPATIBLE' &&
+              rejected.destinationReason === 'OUTSIDE_DESTINATION_BOUNDARY',
+          ),
+      );
+    const scopeUnknown =
+      derivedScope.unknownWhenBeyondDestination !== undefined &&
+      componentAudits.some(
+        (audit) =>
+          !isScopeHint(
+            hints.find((hint) => hint.key === audit.hintKey) as GeoEntityHint,
+          ) && acquiredOnlyBeyondDestination(audit),
+      );
 
     // Source composition is the authority on WHICH components make up this
     // Experience. A candidate is admitted to geographic validation (and so
@@ -1323,14 +1470,16 @@ export class ExperienceProposalResolverService
           // reason used to mask the others (an acquired-but-unconfirmed,
           // ambiguous, conflicted or provider-failed component collapsed
           // into NO_OSM_MATCH -- amendment §13).
-          rejectionReasons:
-            resolvedEntities.length === 0
+          rejectionReasons: [
+            ...(resolvedEntities.length === 0
               ? [
                   ...new Set(
                     entities.map((entity) => entity.reason ?? 'NO_OSM_MATCH'),
                   ),
                 ]
-              : ['INCOMPLETE_SOURCE_COMPOSITION'],
+              : ['INCOMPLETE_SOURCE_COMPOSITION']),
+            ...(scopeUnknown ? ['GEOGRAPHIC_SCOPE_UNKNOWN'] : []),
+          ],
         },
         audit: {
           candidateTraceKey: traceCandidateKey(candidate),
@@ -1341,6 +1490,7 @@ export class ExperienceProposalResolverService
           ),
           componentAudits,
           geographicAuthorization,
+          componentSearchScope,
         },
       };
     }
@@ -1362,7 +1512,74 @@ export class ExperienceProposalResolverService
         ),
         componentAudits,
         geographicAuthorization,
+        componentSearchScope,
       },
+    };
+  }
+
+  /**
+   * The phase-2 acquisition geography for a derived scope: the known scope
+   * itself, or — when the candidate's scope is UNKNOWN — the destination
+   * (destination-local search only, §P2-10: never a scoped widening).
+   */
+  private componentAcquisitionScope(
+    derived: DerivedExperienceGeographicScope,
+    destinationScope: GeographicScope,
+    entityResolutionScope: GeographicScope,
+    entities: ResolvedGeoEntity[],
+  ): ComponentAcquisitionScope {
+    const destinationOnly = deriveExperienceGeographicScope({
+      candidate: { componentHints: [] },
+      resolvedEntities: [],
+      authorization: DEFAULT_GEOGRAPHIC_AUTHORIZATION,
+      destination: destinationScope,
+    }).scope;
+    const destinationWindow = scopeSearchWindow(destinationOnly);
+    const poolWindow =
+      entityResolutionScope === destinationScope
+        ? destinationWindow
+        : geographicScopeSearchWindow(
+            entityResolutionScope,
+            'WORK_UNIT_ANCHOR',
+          );
+    const scope =
+      derived.scope.kind !== 'UNKNOWN' ? derived.scope : destinationOnly;
+    if (scope.kind === 'UNKNOWN') {
+      // No destination geography at all: no window, no scope; providers run
+      // country-bounded only and admission defers to the destination policy
+      // (UNKNOWN excludes nothing). Nothing is admitted by a fabricated scope.
+      return { candidateOwned: false, countryBoundedAreaSearch: false };
+    }
+    // A verified candidate-owned scope, or a regional work-unit anchor
+    // acting as the Experience scope, bounds the search itself.
+    const candidateOwned =
+      scope.provenance === 'CANDIDATE_AREA' ||
+      scope.provenance === 'CANDIDATE_ROUTE' ||
+      scope.provenance === 'WORK_UNIT_ANCHOR';
+    const window = scopeSearchWindow(scope);
+    // The destination (or anchor) OSM pool already covers an AREA lying
+    // inside the destination; only an AREA reaching beyond it needs its own
+    // within-area pool, addressable through its real OSM area identity.
+    const poolBoundary =
+      scope.kind === 'AREA' &&
+      scope.provenance === 'CANDIDATE_AREA' &&
+      derived.ownedScopeDestinationRelation !== 'INSIDE'
+        ? osmAreaOf(
+            entities.find(
+              (entity) =>
+                entity.status === 'resolved' &&
+                entity.geometry === scope.geometry,
+            ),
+          )
+        : undefined;
+    return {
+      scope,
+      window,
+      catalogPlaceWindow: candidateOwned ? window : poolWindow,
+      destinationWindow,
+      ...(poolBoundary ? { poolBoundary } : {}),
+      candidateOwned,
+      countryBoundedAreaSearch: false,
     };
   }
 
@@ -1852,26 +2069,40 @@ export class ExperienceProposalResolverService
   private async resolveViaNominatim(
     hint: any,
     destinationScope: GeographicScope,
-    destinationCountryCode?: string,
-    destinationPoint?: Coordinates,
-    routeScale?: boolean,
+    destinationCountryCode: string | undefined,
+    componentScope: ComponentAcquisitionScope,
   ): Promise<StrategyAcquisitionResult> {
     if (!this.nominatim || hint.expectedKind === 'ROUTE') {
       return { status: 'not_applicable' };
     }
 
     try {
+      // A ROUTE_LIKE candidate's AREA scope hint is searched within the
+      // destination COUNTRY only — a real authority, never a radius: the
+      // source names the area, the country bounds its homonyms, and
+      // multiplicity inside the country fails closed in IdentityVerifier.
+      // Every other hint is soft-biased toward the scope-derived window.
+      const window = componentScope.countryBoundedAreaSearch
+        ? undefined
+        : componentScope.window;
       const searchOptions =
-        destinationCountryCode || destinationPoint
+        destinationCountryCode || window
           ? {
               ...(destinationCountryCode
                 ? { countryCode: destinationCountryCode }
                 : {}),
-              ...(destinationPoint ? { bias: destinationPoint } : {}),
+              ...(window
+                ? {
+                    bias: {
+                      center: window.center,
+                      radiusMeters: window.radiusMeters,
+                    },
+                  }
+                : {}),
             }
           : undefined;
       const results = await this.nominatim.search(hint.name, searchOptions);
-      const match = bestNominatimMatch(hint.name, results, destinationPoint);
+      const match = bestNominatimMatch(hint.name, results, window?.center);
       const exactNameCount = countNominatimExactMatches(hint.name, results);
       const nameMultiplicity = {
         exactName: candidateMatchCountToMultiplicity(exactNameCount),
@@ -1927,25 +2158,77 @@ export class ExperienceProposalResolverService
             providerResultCount: results.length,
           };
         }
-        // Single destination policy: an AREA outside the resolved destination
-        // (e.g. "San Martín" -> Partido de General San Martín for a Buenos
-        // Aires walk) is never a component; UNKNOWN never counts as inside.
-        const destinationCompatibility = this.areaDestinationCompatibility(
-          boundary.value,
-          destinationScope,
-          {
-            latitude: match.latitude as number,
-            longitude: match.longitude as number,
-          },
-        );
-        if (destinationCompatibility.verdict !== 'COMPATIBLE') {
-          return {
-            status: 'no_candidate',
-            provider: 'nominatim',
-            query: hint.name,
-            providerResultCount: results.length,
-            destinationCompatibility,
-          };
+        if (componentScope.countryBoundedAreaSearch) {
+          // ROUTE_LIKE scope hint (§P2-6: a real AREA beyond the destination
+          // is admissible). The destination relation is a fact, not a gate;
+          // only the coarse-AREA guard applies: an administrative unit
+          // coarser than the destination's own is never one Experience's
+          // scope (the area-scale rank band above already excludes
+          // country/state/region-scale results).
+          const adminLevel = Number(boundary.value.tags?.admin_level);
+          if (
+            isCoarserThanDestination(
+              Number.isFinite(adminLevel) ? adminLevel : undefined,
+              destinationScope,
+            )
+          ) {
+            return {
+              status: 'no_candidate',
+              provider: 'nominatim',
+              query: hint.name,
+              providerResultCount: results.length,
+              destinationCompatibility: {
+                verdict: 'INCOMPATIBLE',
+                reason: 'CANDIDATE_COARSER_THAN_DESTINATION',
+              },
+            };
+          }
+        } else {
+          // Single destination policy: an AREA outside the resolved
+          // destination (e.g. "San Martín" -> Partido de General San Martín
+          // for a Buenos Aires walk) is never a component of a
+          // destination-scoped candidate; UNKNOWN never counts as inside. A
+          // member AREA of a candidate-owned AREA must lie in that AREA.
+          const destinationCompatibility = this.areaDestinationCompatibility(
+            boundary.value,
+            destinationScope,
+            {
+              latitude: match.latitude as number,
+              longitude: match.longitude as number,
+            },
+          );
+          const insideOwnedArea =
+            componentScope.scope?.provenance === 'CANDIDATE_AREA'
+              ? admitComponentLocation(
+                  componentScope.scope,
+                  {
+                    latitude: match.latitude as number,
+                    longitude: match.longitude as number,
+                  },
+                  destinationScope,
+                ).admitted
+              : undefined;
+          if (insideOwnedArea === false) {
+            return {
+              status: 'no_candidate',
+              provider: 'nominatim',
+              query: hint.name,
+              providerResultCount: results.length,
+              outsideExperienceScope: true,
+            };
+          }
+          if (
+            insideOwnedArea !== true &&
+            destinationCompatibility.verdict !== 'COMPATIBLE'
+          ) {
+            return {
+              status: 'no_candidate',
+              provider: 'nominatim',
+              query: hint.name,
+              providerResultCount: results.length,
+              destinationCompatibility,
+            };
+          }
         }
         const correctedHint =
           hint.expectedKind === 'AREA'
@@ -1975,31 +2258,31 @@ export class ExperienceProposalResolverService
         };
       }
 
-      // Single destination policy, exactly as for AREA above and the PLACES
-      // strategy: a point-scale match positively outside the resolved
-      // destination (a same-name gallery in another partido, the only
-      // exact Nominatim hit) is never a component. UNKNOWN (no destination
-      // polygon) excludes nothing -- the country code + soft bias remain
-      // the only geographic constraint, as before.
-      const placeDestinationCompatibility = evaluateDestinationCompatibility(
-        {
-          probePoints: [
+      // The scope that will judge this component admits the match, exactly
+      // as in the PLACES strategy: a candidate-owned AREA by polygon
+      // membership, otherwise the single destination policy (a same-name
+      // gallery in another partido is never a component). UNKNOWN (no
+      // destination polygon) excludes nothing -- the country code + soft
+      // bias remain the only geographic constraint, as before.
+      const admission = componentScope.scope
+        ? admitComponentLocation(
+            componentScope.scope,
             {
               latitude: match.latitude as number,
               longitude: match.longitude as number,
             },
-          ],
-        },
-        destinationScope,
-        { routeScale },
-      );
-      if (placeDestinationCompatibility.verdict === 'INCOMPATIBLE') {
+            destinationScope,
+          )
+        : { admitted: true };
+      if (!admission.admitted) {
         return {
           status: 'no_candidate',
           provider: 'nominatim',
           query: hint.name,
           providerResultCount: results.length,
-          destinationCompatibility: placeDestinationCompatibility,
+          ...(admission.reason === 'DESTINATION_INCOMPATIBLE'
+            ? { destinationCompatibility: admission.destinationCompatibility! }
+            : { outsideExperienceScope: true as const }),
         };
       }
 
@@ -2099,7 +2382,8 @@ export class ExperienceProposalResolverService
    */
   private async resolveViaCatalog(
     hint: any,
-    scope: GeographicScope,
+    placeWindow: ScopeSearchWindow | undefined,
+    destinationWindow: ScopeSearchWindow | undefined,
     destinationScope: GeographicScope,
   ): Promise<CatalogAcquisitionResult> {
     const isRoute = hint.expectedKind === 'ROUTE';
@@ -2110,7 +2394,14 @@ export class ExperienceProposalResolverService
     const lookups = isRoute
       ? routeRetrievalQueryVariants(hint.name)
       : [{ variant: 'RAW' as const, name: hint.name }];
-    const lookupScope = isRoute ? destinationScope : scope;
+    // PLACE/AREA lookups use the candidate's scope window (or the work-unit
+    // entity-resolution pool scope); a street is not contained by a
+    // neighborhood anchor, so ROUTE knowledge is looked up over the
+    // destination.
+    const lookupWindow = isRoute ? destinationWindow : placeWindow;
+    if (!lookupWindow) {
+      return { status: 'no_candidate', provider: 'catalog', query: hint.name };
+    }
 
     const byId = new Map<
       string,
@@ -2126,7 +2417,7 @@ export class ExperienceProposalResolverService
         // GeoEntityHint.expectedKind is exactly 'PLACE' | 'AREA' | 'ROUTE',
         // the same literal union GeoEntityKind is defined over.
         expectedKind: hint.expectedKind as GeoEntityKind,
-        scope: lookupScope,
+        window: lookupWindow,
       });
       for (const match of candidates) {
         if (!byId.has(match.geoEntityId)) {
@@ -2495,52 +2786,36 @@ export class ExperienceProposalResolverService
   private async resolveViaPlaces(
     hint: any,
     destinationScope: GeographicScope,
-    destinationPoint?: Coordinates,
-    routeScale?: boolean,
+    componentScope: ComponentAcquisitionScope,
   ): Promise<StrategyAcquisitionResult> {
     if (!this.placesApi || hint.expectedKind !== 'PLACE') {
       return { status: 'not_applicable' };
     }
 
     const providerLabel = placesAcquisitionLabel(this.placesApi.provider);
-    // Identity-search scope follows the candidate's geographic authorization:
-    // a ROUTE_LIKE-authorized candidate searches exactly the domain
-    // route-scale destination compatibility can accept (the policy's own
-    // routeScaleDestinationRadius); every other candidate keeps the default
-    // destination search circle. No global widening.
-    const routeRadius = routeScale
-      ? routeScaleDestinationRadius(destinationScope)
-      : undefined;
-    const searchScope = routeRadius
-      ? {
-          kind: 'ROUTE_SCALE' as const,
-          center: routeRadius.center,
-          radiusMeters: routeRadius.radiusMeters,
-        }
-      : destinationPoint
-        ? {
-            kind: 'DEFAULT' as const,
-            center: destinationPoint,
-            radiusMeters: PLACES_FALLBACK_BIAS_RADIUS_METERS,
-          }
-        : undefined;
+    // Identity-search geography is the scope that will judge the component
+    // (spec 2026-10-02 Part II §P2-10): a verified candidate-owned AREA /
+    // ROUTE, else the destination — its bounding-box covering window, never
+    // a plausibility constant. Whether the provider honors it as a bias or
+    // a restriction, and any per-request radius cap, stays in the adapter.
+    const window = componentScope.window;
     try {
       const result = await this.placesApi.searchText({
         textQuery: hint.name,
         maxResultCount: PLACES_TEXT_SEARCH_RESULT_WINDOW,
-        locationBias: searchScope
-          ? { center: searchScope.center, radius: searchScope.radiusMeters }
+        locationBias: window
+          ? { center: window.center, radius: window.radiusMeters }
           : undefined,
       });
       const placeSearch: PlaceSearchAudit = {
         resultCount: result.data.length,
         rejected: [],
         viableCount: 0,
-        ...(searchScope
+        ...(window
           ? {
-              searchScope: {
-                kind: searchScope.kind,
-                radiusMeters: searchScope.radiusMeters,
+              searchWindow: {
+                provenance: window.provenance,
+                radiusMeters: window.radiusMeters,
               },
             }
           : {}),
@@ -2559,30 +2834,30 @@ export class ExperienceProposalResolverService
           });
           continue;
         }
-        const destination = evaluateDestinationCompatibility(
-          {
-            probePoints: place.location ? [place.location] : [],
-          },
-          destinationScope,
-          { routeScale },
-        );
-        if (destination.verdict === 'INCOMPATIBLE') {
-          placeSearch.rejected.push({
-            name,
-            reason: 'DESTINATION_INCOMPATIBLE',
-            destinationReason: destination.reason,
-          });
+        const admission = componentScope.scope
+          ? admitComponentLocation(
+              componentScope.scope,
+              place.location,
+              destinationScope,
+            )
+          : { admitted: true };
+        if (!admission.admitted) {
+          placeSearch.rejected.push(
+            admission.reason === 'DESTINATION_INCOMPATIBLE'
+              ? {
+                  name,
+                  reason: 'DESTINATION_INCOMPATIBLE',
+                  destinationReason: admission.destinationCompatibility!.reason,
+                }
+              : { name, reason: 'OUTSIDE_EXPERIENCE_SCOPE' },
+          );
           continue;
         }
         viable.push(place);
       }
       placeSearch.viableCount = viable.length;
 
-      const place = selectBestPlaceCandidate(
-        hint.name,
-        viable,
-        destinationPoint,
-      );
+      const place = selectBestPlaceCandidate(hint.name, viable, window?.center);
       const exactNameCount = countExactNormalizedMatches(
         hint.name,
         viable,

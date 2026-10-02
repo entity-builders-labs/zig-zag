@@ -1,3 +1,4 @@
+import { geographicScopeSearchWindow } from '../utils/experience-geographic-scope.policy';
 import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
 import { GeoEntityKind } from '@prisma/client';
 import {
@@ -469,11 +470,17 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
       // DESTINATION scope (a route may extend past the anchor).
       expect(
         catalog.findGeoEntityCandidatesForHint.mock.calls.map(
-          ([request]: any[]) => [request.hintName, request.scope],
+          ([request]: any[]) => [request.hintName, request.window],
         ),
       ).toEqual([
-        ['Defensa Street', DESTINATION],
-        ['Defensa', DESTINATION],
+        [
+          'Defensa Street',
+          geographicScopeSearchWindow(DESTINATION, 'DESTINATION_AREA'),
+        ],
+        [
+          'Defensa',
+          geographicScopeSearchWindow(DESTINATION, 'DESTINATION_AREA'),
+        ],
       ]);
       expect(osmPlaces.lookupHighwaysByName).not.toHaveBeenCalled();
       expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();

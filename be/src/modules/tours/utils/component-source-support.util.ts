@@ -52,7 +52,13 @@ export type ComponentSourceSupportReason =
   | 'SPAN_NOT_FOUND_IN_CITED_EVIDENCE'
   | 'AMBIGUOUS_SUPPORTING_EVIDENCE'
   | 'MISSING_NORMALIZATION_KIND'
-  | 'INVALID_NORMALIZATION_KIND';
+  | 'INVALID_NORMALIZATION_KIND'
+  // An `area`-role hint is a candidate-owned geographic SCOPE claim (spec
+  // 2026-10-02 Part II §P2-6 S-b). Its verified span must literally name
+  // the area (its source wording): a real span that only lists the venues
+  // never authorizes a region, and a generated candidate title is never
+  // evidence at all.
+  | 'SCOPE_NAME_NOT_IN_SUPPORT_SPAN';
 
 export type ComponentEvidenceAttributionStatus =
   | 'DECLARED_KEY_VERIFIED'
@@ -310,4 +316,29 @@ export function verifyTextualComponentSourceSupport(
     verifiedEvidenceKeys: [],
     attributionStatus: 'AMBIGUOUS_SUPPORTING_EVIDENCE',
   };
+}
+
+function foldForNameContainment(value: string): string {
+  return normalize(value)
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+/**
+ * Whether a verified support span literally names `entityName` (its source
+ * wording) — case/diacritic/punctuation-insensitive token containment, no
+ * fuzzy, alias or translation matching. Required for `area`-role scope
+ * claims only.
+ */
+export function supportSpanNamesEntity(
+  verifiedSupportSpan: string,
+  entityName: string,
+): boolean {
+  const name = foldForNameContainment(entityName);
+  if (!name) return false;
+  return ` ${foldForNameContainment(verifiedSupportSpan)} `.includes(
+    ` ${name} `,
+  );
 }

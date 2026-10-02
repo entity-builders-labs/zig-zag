@@ -2651,4 +2651,109 @@ describe('AreaRouteAnchorResolverService', () => {
       ]);
     });
   });
+
+  describe('regional AREA anchors (spec 2026-10-02 Part II, PD1 / §P2-5 #10)', () => {
+    // A real town ~90 km from the destination, the only in-country match.
+    const regionalTown = {
+      osmType: 'relation',
+      osmId: 5550001,
+      addresstype: 'town',
+      placeRank: 16,
+      class: 'boundary',
+      type: 'administrative',
+      displayName: 'Regional Town, Province, Argentina',
+      importance: 0.4,
+      latitude: -35.4,
+      longitude: -58.4,
+    };
+    const regionalBoundary = {
+      id: 'osm:relation:5550001',
+      name: 'Regional Town',
+      osmType: 'relation',
+      osmId: 5550001,
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-58.5, -35.5],
+            [-58.3, -35.5],
+            [-58.3, -35.3],
+            [-58.5, -35.3],
+            [-58.5, -35.5],
+          ],
+        ],
+      },
+      tags: { boundary: 'administrative', admin_level: '8' },
+    };
+    const build = (results: any[]) => {
+      const catalog = {
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-regional' }),
+        upsertGeoEntityWithIdentities: jest.fn().mockResolvedValue({
+          status: 'CREATED',
+          geoEntity: { id: 'geo-regional' },
+          attachedExternalIds: [],
+        }),
+        findGeoEntityIdsByIdentities: jest.fn().mockResolvedValue([]),
+      };
+      return new AreaRouteAnchorResolverService(
+        {
+          lookupBoundaryById: jest
+            .fn()
+            .mockResolvedValue({ status: 'success', value: regionalBoundary }),
+          lookupHighwaysByName: noHighways(),
+        } as any,
+        catalog as any,
+        {
+          search: jest.fn().mockResolvedValue(results),
+          reverse: jest.fn(),
+        } as any,
+      );
+    };
+    const anchor = (usage: InterpretedAnchor['usage']): InterpretedAnchor => ({
+      rawName: 'Regional Town',
+      usage,
+      priority: 'must',
+    });
+
+    it('a geographic_scope anchor with exactly one in-country area-scale match beyond the destination resolves as a regional AREA anchor', async () => {
+      const [result] = await build([regionalTown]).resolveNamedAnchors(
+        [anchor('geographic_scope')],
+        {
+          destinationCountryCode: 'ar',
+          geographicScope: BUENOS_AIRES_DESTINATION,
+        },
+      );
+      expect(result).toMatchObject({
+        status: 'resolved',
+        kind: 'area',
+        canonicalName: 'Regional Town',
+        geoEntityId: 'geo-regional',
+      });
+    });
+
+    it('any other usage keeps the destination-bounded contract (Bitácora F1)', async () => {
+      const [result] = await build([regionalTown]).resolveNamedAnchors(
+        [anchor('unknown')],
+        {
+          destinationCountryCode: 'ar',
+          geographicScope: BUENOS_AIRES_DESTINATION,
+        },
+      );
+      expect(result).toMatchObject({
+        status: 'unresolved',
+        unresolvedReason: 'DESTINATION_INCOMPATIBLE',
+      });
+    });
+
+    it('out-of-destination homonyms fail closed -- never nearest-wins', async () => {
+      const [result] = await build([
+        regionalTown,
+        { ...regionalTown, osmId: 5550002, latitude: -36.9, longitude: -60.3 },
+      ]).resolveNamedAnchors([anchor('geographic_scope')], {
+        destinationCountryCode: 'ar',
+        geographicScope: BUENOS_AIRES_DESTINATION,
+      });
+      expect(result.status).toBe('unresolved');
+    });
+  });
 });

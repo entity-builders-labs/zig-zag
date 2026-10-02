@@ -1,3 +1,4 @@
+import { geographicScopeSearchWindow } from 'src/modules/tours/utils/experience-geographic-scope.policy';
 import { withDefaultGeographicAuthorization } from 'src/modules/tours/utils/geographic-validation-authorization.util';
 import { GeoEntityKind, Prisma } from '@prisma/client';
 import { ExperienceCatalogService } from 'src/modules/tours/services/experience-catalog.service';
@@ -189,7 +190,7 @@ describe('tour-generation integration · verified hint memory', () => {
     const { candidates } = await catalog.findGeoEntityCandidatesForHint({
       hintName: 'San José',
       expectedKind: GeoEntityKind.PLACE,
-      scope: SCOPE,
+      window: geographicScopeSearchWindow(SCOPE, 'DESTINATION_AREA')!,
     });
 
     expect(candidates.map((c) => c.geoEntityId).sort()).toEqual([a, b].sort());
@@ -206,7 +207,7 @@ describe('tour-generation integration · verified hint memory', () => {
     const { candidates } = await catalog.findGeoEntityCandidatesForHint({
       hintName: 'Casa Minima',
       expectedKind: GeoEntityKind.PLACE,
-      scope: SCOPE,
+      window: geographicScopeSearchWindow(SCOPE, 'DESTINATION_AREA')!,
     });
 
     expect(candidates).toEqual([
@@ -247,7 +248,7 @@ describe('tour-generation integration · verified hint memory', () => {
     const { candidates } = await catalog.findGeoEntityCandidatesForHint({
       hintName: 'Farmacia la Estrella',
       expectedKind: GeoEntityKind.PLACE,
-      scope: SCOPE,
+      window: geographicScopeSearchWindow(SCOPE, 'DESTINATION_AREA')!,
     });
     expect(candidates.map((c) => [c.geoEntityId, c.matchKind])).toEqual([
       [id, 'VERIFIED_HINT'],

@@ -47,7 +47,6 @@ import { StructuredCandidateCorroborationService } from './structured-candidate-
 import {
   EXPERIENCE_PROPOSAL_RESOLVER,
   ExperienceProposalResolver,
-  ExperienceValidationScope,
   GeographicScope,
   FinalExperienceResolutionResponse,
 } from '../interfaces/experience-resolution.interface';
@@ -68,6 +67,7 @@ import {
   CorroborationReason,
   CorroborationGroupTrace,
 } from './structured-candidate-corroboration.service';
+import { WorkUnitAnchorScope } from '../interfaces/experience-geographic-scope.interface';
 
 function relevantDeficitsFor(
   sourcePlan: SourcePlan,
@@ -1398,8 +1398,8 @@ export class ExperienceAcquisitionService {
        * only; no request-level or cross-unit intent exists here.
        */
       geographicGrant: WorkUnitGeographicGrant;
-      /** Task B5 — see ExperienceValidationScope. */
-      validationScope?: ExperienceValidationScope;
+      /** Task B5 — see WorkUnitAnchorScope. */
+      validationScope?: WorkUnitAnchorScope;
       /** Task A6 — see ExperienceResolutionRequest.entityResolutionScope. */
       entityResolutionScope?: GeographicScope;
     },

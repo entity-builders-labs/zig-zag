@@ -196,6 +196,80 @@ function baseInput(
 }
 
 describe('AreaRouteWalkAcquisitionService', () => {
+  describe('regional AREA anchor admissibility (spec 2026-10-02 §P2-6)', () => {
+    const square = (lon: number, lat: number, d: number) => ({
+      type: 'Polygon' as const,
+      coordinates: [
+        [
+          [lon - d, lat - d],
+          [lon + d, lat - d],
+          [lon + d, lat + d],
+          [lon - d, lat + d],
+          [lon - d, lat - d],
+        ] as [number, number][],
+      ],
+    });
+    const destination = {
+      kind: 'AREA_BOUNDARY' as const,
+      boundary: {
+        id: 'osm:relation:1',
+        name: 'Fixture City',
+        osmType: 'relation' as const,
+        osmId: 1,
+        tags: {},
+        geometry: square(10, 45, 0.05),
+      },
+    };
+    const regionalAnchor: ResolvedAnchor = {
+      ...areaAnchor,
+      rawName: 'Fixture Valley',
+      canonicalName: 'Fixture Valley',
+      geoEntityId: 'geo-valley',
+      geometry: square(10, 43.92, 0.25),
+    };
+
+    it('I: a WALK unit never uses a user-named AREA anchor that lies beyond the destination -- no reuse lookup, no acquisition', async () => {
+      const mocks = buildMocks();
+      const result = await buildService(mocks).acquireOrReuse(
+        baseInput({
+          anchor: regionalAnchor,
+          geographicScope: destination,
+          intentKey: 'walk',
+        }),
+      );
+      expect(result).toEqual(
+        expect.objectContaining({
+          outcome: 'no_result',
+          reason: 'anchor_scope_not_admissible',
+        }),
+      );
+      expect(
+        mocks.catalog.findVerifiedMultiComponentInArea,
+      ).not.toHaveBeenCalled();
+      expect(
+        mocks.acquisitionPlanner.buildAcquisitionPlan,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('G: a ROUTE_LIKE unit retrieves catalog Experiences through the regional AREA scope itself (no destination window)', async () => {
+      const mocks = buildMocks();
+      mocks.catalog.findVerifiedMultiComponentInArea.mockResolvedValue([
+        classifiedRow('exp-valley', 'route_like'),
+      ]);
+      const result = await buildService(mocks).acquireOrReuse(
+        baseInput({
+          anchor: regionalAnchor,
+          geographicScope: destination,
+          intentKey: 'route_like',
+        }),
+      );
+      expect(
+        mocks.catalog.findVerifiedMultiComponentInArea,
+      ).toHaveBeenCalledWith('geo-valley', 'AREA_ANCHORED_ROUTE');
+      expect(result).toEqual({ outcome: 'reused', experienceId: 'exp-valley' });
+    });
+  });
+
   it('fails closed when an AREA anchor cannot be resolved', async () => {
     const mocks = buildMocks();
     const unresolvedArea: ResolvedAnchor = {

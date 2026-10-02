@@ -1,3 +1,4 @@
+import { isTourEligibleForDestinationRequest } from '../utils/tour-destination-eligibility.policy';
 import {
   BadRequestException,
   Inject,
@@ -463,6 +464,9 @@ export class ExperienceGenerationService {
 
     let count = 0;
     for (const row of pool) {
+      if (!isTourEligibleForDestinationRequest(row, scope.destination)) {
+        continue;
+      }
       if (
         hardExclusions.length > 0 &&
         findHardExclusionMatches(row, hardExclusions).length > 0
@@ -680,7 +684,12 @@ export class ExperienceGenerationService {
 
   /** Shared catalog refresh/recomposition seam after any materialization. */
   private async refreshCatalogAndRecompose(
-    scope: { latitude: number; longitude: number; radiusMeters: number },
+    scope: {
+      latitude: number;
+      longitude: number;
+      radiusMeters: number;
+      destination: GeographicScope;
+    },
     allEligibleExperiencesById: Map<string, any>,
     preferenceSpec: PreferenceSpec,
     venueMustIds: string[],
@@ -693,9 +702,15 @@ export class ExperienceGenerationService {
       scope.radiusMeters,
       this.CATALOG_RETRIEVAL_POOL_LIMIT,
     );
-    refreshed.forEach((experience: any) =>
-      allEligibleExperiencesById.set(experience.id, experience),
-    );
+    // PD1: the destination window returns candidates for consideration;
+    // only Experiences WITHIN the destination are tour-eligible here.
+    refreshed
+      .filter((experience: any) =>
+        isTourEligibleForDestinationRequest(experience, scope.destination),
+      )
+      .forEach((experience: any) =>
+        allEligibleExperiencesById.set(experience.id, experience),
+      );
     const pool = Array.from(allEligibleExperiencesById.values());
     return {
       pool,
@@ -943,15 +958,23 @@ export class ExperienceGenerationService {
         );
 
         try {
-          const nearbyExperiences = await this.withTimeout(
-            this.experienceCatalog.findVerifiedWithin(
-              searchArea.latitude,
-              searchArea.longitude,
-              radius,
-              experienceLimit,
-            ),
-            10000,
-            'Experience catalog search timeout',
+          // PD1: the destination window (a bounding-box circle) retrieves
+          // rows for consideration; only Experiences WITHIN the destination
+          // are tour-eligible from it. Regional Experiences enter only
+          // through an explicit request scope (anchor / named venue).
+          const nearbyExperiences = (
+            await this.withTimeout(
+              this.experienceCatalog.findVerifiedWithin(
+                searchArea.latitude,
+                searchArea.longitude,
+                radius,
+                experienceLimit,
+              ),
+              10000,
+              'Experience catalog search timeout',
+            )
+          ).filter((experience: any) =>
+            isTourEligibleForDestinationRequest(experience, geographicScope),
           );
           // Venue resolution establishes canonical IDs independently of the
           // nearby scan. Hydrate those exact rows so a resolved must anchor is
@@ -979,7 +1002,7 @@ export class ExperienceGenerationService {
           const initialPreferenceCoverage =
             await this.computePreferenceCoverage(
               preferenceSpec,
-              searchArea,
+              { ...searchArea, destination: geographicScope },
               venueAnchorResolution.resolvedMustIds,
             );
           recordPreferenceCoverageStep(traceRecorder, {
@@ -1209,6 +1232,7 @@ export class ExperienceGenerationService {
                   latitude: searchArea.latitude,
                   longitude: searchArea.longitude,
                   radiusMeters: radius,
+                  destination: geographicScope,
                 },
                 allEligibleExperiencesById,
                 preferenceSpec,
@@ -1240,7 +1264,7 @@ export class ExperienceGenerationService {
 
               currentPreferenceCoverage = await this.computePreferenceCoverage(
                 preferenceSpec,
-                searchArea,
+                { ...searchArea, destination: geographicScope },
                 venueAnchorResolution.resolvedMustIds,
               );
               recordPreferenceCoverageStep(traceRecorder, {
@@ -1610,6 +1634,7 @@ export class ExperienceGenerationService {
               radiusMeters:
                 request.destination.radiusMeters ??
                 this.destinationScopePolicy.pointRadiusMeters,
+              destination: geographicScope,
             },
             allEligibleExperiencesById,
             preferenceSpec,

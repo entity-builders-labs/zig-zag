@@ -24,11 +24,14 @@ const OVERPASS_TAG_TOKEN = /^[A-Za-z0-9_:]+$/;
 // never aim an unbounded `around:` at a shared Overpass instance.
 const FEATURES_NEAR_MAX_RADIUS_METERS = 8000;
 
-// Server-side ceiling for the targeted highway-by-name query. The query is
-// already narrow (one exact name, highway ways only), so it can safely cover
-// a whole destination city; this matches the shared 50 km "still plausibly
-// this destination" scale the Nominatim/Places biases already use.
-const HIGHWAYS_BY_NAME_MAX_RADIUS_METERS = 50_000;
+// Operational ceiling for the targeted highway-by-name `around:` query, to
+// protect the shared Overpass instance (provider/load constraint, like the
+// other caps above). It never decides geographic validity: a caller window
+// larger than this is REFUSED (the lookup fails, so the targeted route
+// resolver reports UNAVAILABLE / incomplete coverage) instead of being
+// silently clamped into a smaller search whose emptiness would read as an
+// identity-negative NOT_FOUND.
+export const HIGHWAYS_BY_NAME_OPERATIONAL_MAX_RADIUS_METERS = 50_000;
 
 // Zig-Zag's product scope is tourist EXPERIENCES, not businesses -- an
 // accommodation is never itself a component of one (hotels are explicitly
@@ -273,10 +276,14 @@ export function buildHighwaysByNameQuery({
   if (!safeName) {
     throw new Error('buildHighwaysByNameQuery requires a non-empty name');
   }
-  const radius = Math.min(
-    Math.max(0, Math.round(radiusMeters)),
-    HIGHWAYS_BY_NAME_MAX_RADIUS_METERS,
-  );
+  const radius = Math.max(0, Math.round(radiusMeters));
+  if (radius > HIGHWAYS_BY_NAME_OPERATIONAL_MAX_RADIUS_METERS) {
+    throw new Error(
+      `buildHighwaysByNameQuery window ${radius} m exceeds the operational ` +
+        `cap ${HIGHWAYS_BY_NAME_OPERATIONAL_MAX_RADIUS_METERS} m; coverage ` +
+        'would be incomplete',
+    );
+  }
   return [
     '[out:json][timeout:25];',
     `way["highway"]["name"="${safeName}"](around:${radius},${latitude},${longitude});`,

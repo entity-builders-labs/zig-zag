@@ -14,7 +14,7 @@ import {
   NO_GEOGRAPHIC_GRANT,
   ownedIntentGrant,
 } from 'src/modules/tours/utils/geographic-validation-authorization.util';
-import { routeScaleDestinationRadius } from 'src/modules/tours/utils/destination-compatibility.policy';
+import { geographicScopeSearchWindow } from 'src/modules/tours/utils/experience-geographic-scope.policy';
 import { distanceMeters } from 'src/modules/tours/utils/geographic-coherence.util';
 import { loadRootEnv } from './discovery/discovery-live.helper';
 
@@ -219,7 +219,12 @@ describeIfRun('RW4 identity characterization (diagnostic)', () => {
       boundary: destination.boundary,
     };
     const destinationName = destination.boundary.name;
-    const routeRadius = routeScaleDestinationRadius(scope)!;
+    // Production identity-search geography since the spec 2026-10-02 Part II
+    // cutover: the destination polygon's covering window (no 80 km circle).
+    const destinationWindow = geographicScopeSearchWindow(
+      scope,
+      'DESTINATION_AREA',
+    )!;
 
     const placesApi: any = moduleRef.get('PlacesApiService');
     const nominatim: any = moduleRef.get('NominatimApiService');
@@ -280,7 +285,7 @@ describeIfRun('RW4 identity characterization (diagnostic)', () => {
     }
 
     // 2. Bounded provider probes with source-justified variants.
-    const centroid = routeRadius.center;
+    const centroid = destinationWindow.center;
     const km = (lat?: number, lon?: number) =>
       Number.isFinite(lat) && Number.isFinite(lon)
         ? Math.round(
@@ -295,8 +300,8 @@ describeIfRun('RW4 identity characterization (diagnostic)', () => {
           textQuery: query,
           maxResultCount: 10,
           locationBias: {
-            center: routeRadius.center,
-            radius: routeRadius.radiusMeters,
+            center: destinationWindow.center,
+            radius: destinationWindow.radiusMeters,
           },
         });
         const placeRows = [];
@@ -363,8 +368,8 @@ describeIfRun('RW4 identity characterization (diagnostic)', () => {
           destination: {
             name: destinationName,
             countryCode: destination.countryCode,
-            routeScaleCenter: routeRadius.center,
-            routeScaleRadiusMeters: routeRadius.radiusMeters,
+            destinationWindowCenter: destinationWindow.center,
+            destinationWindowRadiusMeters: destinationWindow.radiusMeters,
           },
           catalog: 'STUB (empty; no reads of canonical state, no writes)',
           wouldPersistCalls: writes.map((write) => write.op),

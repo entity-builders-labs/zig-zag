@@ -8,6 +8,7 @@ import {
   ComponentEvidenceAttributionStatus,
   ComponentSourceSupportReason,
   isUnsupportedComponentSourceSupportResult,
+  supportSpanNamesEntity,
   verifyTextualComponentSourceSupport,
 } from './component-source-support.util';
 
@@ -324,6 +325,40 @@ export function extractExperienceCandidates(
           isNormalized
             ? (rawNormalizationKind as ComponentNormalizationKind)
             : undefined;
+
+        // An `area` hint alongside member components (venue/waypoint) is a
+        // candidate-owned SCOPE claim (spec 2026-10-02 Part II §P2-6 S-b):
+        // its verified span must literally name the area. A lone area
+        // component (the area IS the visit) keeps the ordinary contract.
+        const claimsScope =
+          hint.role === 'area' &&
+          candidate.componentHints.some(
+            (other: any) =>
+              other?.role === 'venue' || other?.role === 'waypoint',
+          );
+        if (
+          !isUnsupportedComponentSourceSupportResult(support) &&
+          claimsScope &&
+          !supportSpanNamesEntity(support.verifiedSupportSpan, sourceName)
+        ) {
+          componentAudits.push({
+            index: hintIndex,
+            key,
+            name,
+            sourceName,
+            ...(normalizationKind ? { normalizationKind } : {}),
+            role: hint.role,
+            expectedKind: hint.expectedKind,
+            evidenceKeys: support.verifiedEvidenceKeys,
+            declaredEvidenceKeys: support.declaredEvidenceKeys,
+            verifiedEvidenceKeys: support.verifiedEvidenceKeys,
+            attributionStatus: support.attributionStatus,
+            status: 'UNSUPPORTED',
+            reason: 'SCOPE_NAME_NOT_IN_SUPPORT_SPAN',
+            verifiedSupportSpan: support.verifiedSupportSpan,
+          });
+          continue;
+        }
 
         if (isUnsupportedComponentSourceSupportResult(support)) {
           componentAudits.push({

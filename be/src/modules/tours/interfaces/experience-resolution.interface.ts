@@ -5,7 +5,6 @@ import {
   GeoEntityHint,
 } from './experience-discovery.interface';
 import { DedupeEvidence } from '../utils/experience-dedupe.util';
-import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import {
   AreaScopeMembershipAudit,
@@ -13,6 +12,12 @@ import {
   ComponentGeometryBasis,
 } from './area-scope-membership.interface';
 import { RouteScopeMembershipAudit } from './route-scope-membership.interface';
+import {
+  ExperienceDestinationRelation,
+  ExperienceGeographicScopeProjection,
+  ExperienceGeographicScopeProvenance,
+  WorkUnitAnchorScope,
+} from './experience-geographic-scope.interface';
 import { SourceObservation } from './experience-acquisition.interface';
 import {
   AuthorizedExperienceCandidate,
@@ -26,30 +31,6 @@ import type {
 import type { PlaceFeatureClass } from '@integrations/google-places/interfaces/places-api.interface';
 import type { RouteRetrievalVariantKind } from '../utils/route-retrieval-name.util';
 import type { ClassificationFailure } from '../services/experience-classification.service';
-
-/**
- * Task B5 — a request-level, non-authoritative geographic scope resolved
- * BEFORE acquisition even runs (e.g. a real "San Telmo" AREA polygon or a
- * real "Caminito" ROUTE LineString), threaded through to gate persistence
- * regardless of whether the ACQUIRED candidate's own componentHints happen
- * to include a matching AREA/ROUTE hint. `geometry` is required —
- * `AreaRouteAnchorResolverService`'s `resolved: true` contract guarantees
- * it is always populated when a scope is supplied at all; a caller that
- * somehow constructs one without usable geometry gets a conservative
- * rejection (fail closed), never a silently skipped check.
- */
-export type ExperienceValidationScope =
-  | {
-      kind: 'AREA' | 'ROUTE';
-      anchorName: string;
-      geoEntityId: string;
-      geometry: GeoJsonGeometry;
-    }
-  | {
-      kind: 'POINT_RADIUS';
-      anchorName: string;
-      geometry: GeoJsonGeometry;
-    };
 
 /** The request's resolved geographic search scope. A point is never an OSM entity. */
 export type GeographicScope =
@@ -264,16 +245,21 @@ export interface PlaceSearchAudit {
         reason: 'DESTINATION_INCOMPATIBLE';
         destinationReason: DestinationCompatibilityReason;
       }
+    | {
+        name: string;
+        /** Outside the candidate's own verified AREA scope (§P2-10). */
+        reason: 'OUTSIDE_EXPERIENCE_SCOPE';
+      }
   >;
   /** Results left for bounded selection after both filters. */
   viableCount: number;
   /**
-   * The identity-search circle used: DEFAULT = the ordinary destination
-   * search bias; ROUTE_SCALE = the route-scale compatibility domain of a
-   * ROUTE_LIKE-authorized candidate.
+   * The identity-search window used, derived from the real geometry of the
+   * scope that will later judge the component (spec Part II §P2-10): its
+   * provenance plus the covering radius. Never a plausibility constant.
    */
-  searchScope?: {
-    kind: 'DEFAULT' | 'ROUTE_SCALE';
+  searchWindow?: {
+    provenance: ExperienceGeographicScopeProvenance;
     radiusMeters: number;
   };
   /**
@@ -324,6 +310,12 @@ export interface CandidateResolutionAudit {
   componentResolution?: CompositeComponentResolution;
   /** The geographic policy this candidate was resolved/validated under. */
   geographicAuthorization: GeographicValidationAuthorization;
+  /**
+   * The scope phase-2 component acquisition was bounded by (spec Part II
+   * §P2-7 two-phase resolution): the candidate-owned scope verified in
+   * phase 1, else the destination. Audit fact only.
+   */
+  componentSearchScope?: ExperienceGeographicScopeProjection;
 }
 
 /**
@@ -369,11 +361,18 @@ export type ComponentDeficitClassification =
   | 'OPERATIONAL_FAILURE'
   | 'PENDING_CLASSIFICATION';
 
-/** The request scope component relations were computed against. */
+/**
+ * The scope component relations were computed against: the candidate's own
+ * verified scope when one was established, else the work-unit anchor, else
+ * the destination. Same provenance vocabulary as `ExperienceGeographicScope`.
+ */
 export type ComponentGeographicScope =
-  | { kind: 'VALIDATION_AREA'; name: string }
-  | { kind: 'DESTINATION_AREA'; name?: string }
-  | { kind: 'POINT_RADIUS'; radiusMeters: number }
+  | {
+      kind: 'SCOPE';
+      provenance: ExperienceGeographicScopeProvenance;
+      name?: string;
+      radiusMeters?: number;
+    }
   | { kind: 'UNAVAILABLE' };
 
 export interface ComponentResolutionFact {
@@ -622,10 +621,10 @@ export interface ExperienceResolutionRequest {
     title?: string;
     snippet?: string;
   }>;
-  /** Task B5 — see ExperienceValidationScope. Absent for every caller other
+  /** Task B5 — see WorkUnitAnchorScope. Absent for every caller other
    * than AreaRouteWalkAcquisitionService (ordinary generation-loop
    * deficits, acquireNearby) — no behavior change there. */
-  validationScope?: ExperienceValidationScope;
+  validationScope?: WorkUnitAnchorScope;
 }
 
 export interface ExperienceGeographicValidationResult {
@@ -661,6 +660,10 @@ export interface ExperienceGeographicValidationResult {
   routeScopeMembership?: RouteScopeMembershipAudit;
   /** Exact entities used by the canonical decision; trace never infers offenders. */
   decisionEntities?: GeographicValidationDecisionEntity[];
+  /** The Experience scope the decision was made against (§P2-7). */
+  experienceScope?: ExperienceGeographicScopeProjection;
+  /** Trip-relative fact (§P2-9); never a validity gate for a verified scope. */
+  destinationRelation?: ExperienceDestinationRelation;
   validatorVersion: number;
 }
 
@@ -717,7 +720,7 @@ export interface ExperienceResolutionResponse {
 export interface FinalExperienceResolutionResponse
   extends ExperienceResolutionResponse {
   geographicValidation: ExperienceGeographicValidationBatchResult;
-  validationScope?: ExperienceValidationScope;
+  validationScope?: WorkUnitAnchorScope;
   /**
    * Non-geometry summary of the destination boundary used for geographic
    * validation. Populated from the actual runtime value used by the validator.

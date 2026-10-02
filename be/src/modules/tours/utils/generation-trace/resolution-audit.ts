@@ -270,6 +270,12 @@ export function projectGeographicValidationStepInput(
             destinationBoundary: result.destinationBoundary,
             rejectionReasons: entry.rejectionReasons,
             coherence: entry.coherence,
+            ...(entry.experienceScope
+              ? { experienceScope: entry.experienceScope }
+              : {}),
+            ...(entry.destinationRelation
+              ? { destinationRelation: entry.destinationRelation }
+              : {}),
             components: (resolvedCandidate?.resolvedEntities ?? []).map(
               (entity) => {
                 const decision = decisionEntities.get(
@@ -354,6 +360,9 @@ export function projectComponentIdentityStepInputs(
           candidateTraceKey: audit.candidateTraceKey,
           candidateName: audit.candidateName,
           geographicPolicy: policy,
+          ...(audit.componentSearchScope
+            ? { componentSearchScope: audit.componentSearchScope }
+            : {}),
           ...(resolved
             ? {
                 candidateStatus: resolved.status,
@@ -415,8 +424,8 @@ function projectComponentIdentity(component: ComponentResolutionAudit) {
             resultCount: attempt.placeSearch.resultCount,
             viableCount: attempt.placeSearch.viableCount,
             rejectedCount: attempt.placeSearch.rejected.length,
-            ...(attempt.placeSearch.searchScope
-              ? { searchScope: attempt.placeSearch.searchScope }
+            ...(attempt.placeSearch.searchWindow
+              ? { searchWindow: attempt.placeSearch.searchWindow }
               : {}),
           },
         }

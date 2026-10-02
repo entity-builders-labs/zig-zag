@@ -158,7 +158,10 @@ describeIfRun('Destination policy: admin hierarchy vs hydrated polygon', () => {
     );
     const results = await nominatim.search(name, {
       countryCode: 'AR',
-      bias: { latitude: -34.6037, longitude: -58.3816 },
+      bias: {
+        center: { latitude: -34.6037, longitude: -58.3816 },
+        radiusMeters: 12_000,
+      },
     });
     for (const r of results.filter(isAreaScaleEligible)) {
       const row = await compare(name, 'AREA', `osm:${r.osmType}:${r.osmId}`, {

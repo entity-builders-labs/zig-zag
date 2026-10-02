@@ -51,9 +51,9 @@ function attempt(
       rejected: Array.from({ length: 9 }, (_, i) => ({
         name: `Rejected winery ${i} ${LONG}`,
         reason: 'DESTINATION_INCOMPATIBLE' as const,
-        destinationReason: 'OUTSIDE_ROUTE_DESTINATION_RADIUS' as const,
+        destinationReason: 'OUTSIDE_DESTINATION_BOUNDARY' as const,
       })),
-      searchScope: { kind: 'ROUTE_SCALE', radiusMeters: 80_000 },
+      searchWindow: { provenance: 'CANDIDATE_AREA', radiusMeters: 23_456 },
     },
     identityEvidence: Array.from({ length: 25 }, (_, i) => ({
       kind: 'NAME_SIMILARITY',
@@ -62,7 +62,7 @@ function attempt(
     verificationDecision: 'REJECTED' as any,
     destinationCompatibility: {
       verdict: 'COMPATIBLE',
-      reason: 'WITHIN_ROUTE_DESTINATION_RADIUS',
+      reason: 'WITHIN_DESTINATION_BOUNDARY',
     },
   };
 }
@@ -179,7 +179,7 @@ describe('resolution.component_identity compact audit', () => {
         identityVerdict: 'REJECTED',
         destinationCompatibility: {
           verdict: 'COMPATIBLE',
-          reason: 'WITHIN_ROUTE_DESTINATION_RADIUS',
+          reason: 'WITHIN_DESTINATION_BOUNDARY',
         },
         finalStatus: 'unresolved',
         finalReason: 'NO_CANDIDATE_ACQUIRED',

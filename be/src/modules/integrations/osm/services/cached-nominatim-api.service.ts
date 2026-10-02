@@ -45,7 +45,7 @@ export class CachedNominatimApiService implements INominatimApiService {
       keyMaterial += `|countryCode=${options.countryCode.toLowerCase()}`;
     }
     if (options?.bias) {
-      keyMaterial += `|bias=${options.bias.latitude.toFixed(3)},${options.bias.longitude.toFixed(3)}`;
+      keyMaterial += `|bias=${options.bias.center.latitude.toFixed(3)},${options.bias.center.longitude.toFixed(3)},${Math.round(options.bias.radiusMeters)}`;
     }
     const hash = crypto.createHash('md5').update(keyMaterial).digest('hex');
     return path.join(this.cacheDir, `search-${hash}.json`);

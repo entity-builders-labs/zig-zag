@@ -1,6 +1,10 @@
 import { ResolvedGeoEntity } from './experience-resolution.interface';
 import { AreaScopeMembershipAudit } from './area-scope-membership.interface';
 import { RouteScopeMembershipAudit } from './route-scope-membership.interface';
+import {
+  ExperienceDestinationRelation,
+  ExperienceGeographicScopeProjection,
+} from './experience-geographic-scope.interface';
 
 export type GeographicValidationStatus =
   | 'UNVERIFIED'
@@ -32,7 +36,14 @@ export type GeographicValidationRejectionReason =
   // Task B5: a request-level (non-candidate-owned) validationScope was
   // violated -- a component lies outside the externally resolved
   // AREA polygon, or outside the externally resolved ROUTE's corridor.
-  | 'external_scope_mismatch';
+  | 'external_scope_mismatch'
+  // Spec Part II §P2-7 (PD2): no Experience scope could be established
+  // (no verified candidate-owned AREA/ROUTE for components beyond the
+  // destination, a non-admissible scope, or several candidate scopes).
+  // Fail closed; never a manufactured region or radius.
+  | 'geographic_scope_unknown'
+  // A component lies outside the candidate's own verified scope (S-b/S-c).
+  | 'outside_experience_scope';
 
 /**
  * Machine-readable reason for a geographic mismatch decision.
@@ -46,7 +57,8 @@ export type GeographicDecisionReason =
   | 'COUNTRY_CONFLICT'
   | 'REGION_CONFLICT'
   | 'LOCALITY_CONFLICT'
-  | 'OUTSIDE_ROUTE_DESTINATION_RADIUS'
+  | 'GEOGRAPHIC_SCOPE_UNKNOWN'
+  | 'OUTSIDE_EXPERIENCE_ROUTE_SCOPE'
   | 'EXTERNAL_AREA_SCOPE_MISMATCH'
   | 'EXTERNAL_ROUTE_SCOPE_MISMATCH'
   | 'NO_MATERIAL_ANCHOR_RELATION';
@@ -99,6 +111,10 @@ export interface GeographicValidationResult {
   areaScopeMembership?: AreaScopeMembershipAudit;
   routeScopeMembership?: RouteScopeMembershipAudit;
   decisionEntities?: GeographicValidationDecisionEntity[];
+  /** The Experience scope the decision was made against (§P2-7). */
+  experienceScope?: ExperienceGeographicScopeProjection;
+  /** Trip-relative fact (§P2-9); never a validity gate for a verified scope. */
+  destinationRelation?: ExperienceDestinationRelation;
   validatorVersion: number;
 }
 
@@ -108,41 +124,9 @@ export interface GeographicValidationBatchResult {
   rejectedCount: number;
 }
 
-export interface GeographicValidationThresholds {
-  neighborhoodWalk: {
-    minAnchors: number;
-    maxRadiusMeters: number;
-    maxPairwiseDistanceMeters: number;
-  };
-  route: {
-    minAnchors: number;
-    maxRadiusMeters: number;
-    maxPairwiseDistanceMeters: number;
-  };
-  experience: {
-    minAnchors: number;
-    maxRadiusMeters: number;
-    maxPairwiseDistanceMeters: number;
-  };
-}
-
-export const DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS: GeographicValidationThresholds =
-  {
-    neighborhoodWalk: {
-      minAnchors: 3,
-      maxRadiusMeters: 2_000,
-      maxPairwiseDistanceMeters: 4_000,
-    },
-    route: {
-      minAnchors: 3,
-      maxRadiusMeters: 80_000,
-      maxPairwiseDistanceMeters: 160_000,
-    },
-    experience: {
-      minAnchors: 2,
-      maxRadiusMeters: 30_000,
-      maxPairwiseDistanceMeters: 60_000,
-    },
-  };
-
-export const GEOGRAPHIC_VALIDATOR_VERSION = 1;
+/**
+ * Bumped to 2 by the Part II geographic-scope cutover: decisions are made
+ * against a derived Experience scope (no destination-centroid circle, no
+ * coherence radius).
+ */
+export const GEOGRAPHIC_VALIDATOR_VERSION = 2;

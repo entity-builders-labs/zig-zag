@@ -105,13 +105,18 @@ describe('preference-first architecture boundaries', () => {
     );
   });
 
-  it('never grants route-scale geography from a source hint role alone', () => {
+  it('never grants route geography from a source hint role alone', () => {
+    // The canonical physical-ROUTE predicate lives with the single scope
+    // owner; the validator consumes it, never a role-only shortcut.
     const validator = source('composite-geographic-validation.service.ts');
+    const scopePolicy = source(
+      '../utils/experience-geographic-scope.policy.ts',
+    );
     expect(validator).not.toMatch(/role === 'route' && entity\.geometry/);
     expect(validator).not.toMatch(
       /anchors\.some\(\s*\(entity\) => entity\.role === 'route',?\s*\)/,
     );
-    expect(validator).toMatch(/entity\.kind === 'ROUTE'/);
+    expect(scopePolicy).toMatch(/entity\.kind === 'ROUTE'/);
   });
 
   it('never emits a trace key the credential sanitizer would redact as domain audit state', () => {

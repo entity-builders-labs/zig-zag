@@ -2,14 +2,12 @@ import { ownedAuthorization } from '../fixtures/geographic-authorization.fixture
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
-import {
-  GeographicScope,
-  ExperienceValidationScope,
-} from '../interfaces/experience-resolution.interface';
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { candidateSatisfiesEvidenceRequirement } from '../utils/acquisition-candidate-requirement.util';
 import { checkHardConstraints } from '../utils/daily-planning-placement.util';
 import { PlanningExperienceCandidate } from '../interfaces/daily-planning.interface';
 import { TransportationMode } from '../interfaces/tour-generation.interface';
+import { WorkUnitAnchorScope } from '../interfaces/experience-geographic-scope.interface';
 
 describe('CompositeGeographicValidationService', () => {
   const boundary: any = {
@@ -130,7 +128,7 @@ describe('CompositeGeographicValidationService', () => {
     expect(result.strategy).toBe('canonical_geometry');
   });
 
-  it('rejects a canonical route whose geometry falls outside the route-scale destination radius', () => {
+  it('rejects a DEFAULT candidate whose canonical route lies entirely beyond the destination: a beyond-destination scope is not admissible without ROUTE_LIKE (no radius involved)', () => {
     const candidate: ExperienceCandidate = {
       name: 'Faraway route',
       themes: ['nature'],
@@ -180,8 +178,12 @@ describe('CompositeGeographicValidationService', () => {
       boundary,
     );
     expect(result.accepted).toBe(false);
-    expect(result.kind).toBe('ROUTE');
-    expect(result.rejectionReasons).toContain('destination_mismatch');
+    expect(result.rejectionReasons).toEqual(['geographic_scope_unknown']);
+    expect(result.experienceScope).toEqual({
+      kind: 'UNKNOWN',
+      unknownReason: 'SCOPE_BEYOND_DESTINATION_NOT_AUTHORIZED',
+      destinationRelation: 'OUTSIDE',
+    });
   });
 
   it('accepts a canonical AREA polygon paired with a waypoint hint as a neighborhood walk', () => {
@@ -461,9 +463,9 @@ describe('CompositeGeographicValidationService', () => {
     expect(result.rejectionReasons).toContain('incomplete_source_composition');
   });
 
-  it('rejects geographically incoherent resolved components', () => {
+  it('does not reject dispersed components inside the destination: dispersion is planning feasibility, not validity (no coherence radius, spec Part II §P2-8)', () => {
     const candidate: ExperienceCandidate = {
-      name: 'Impossible composite',
+      name: 'Dispersed but destination-local composite',
       themes: ['history'],
       traits: [],
       evidenceKeys: ['e1', 'e2'],
@@ -486,23 +488,7 @@ describe('CompositeGeographicValidationService', () => {
       ],
     };
 
-    const result = new CompositeGeographicValidationService({
-      experience: {
-        minAnchors: 2,
-        maxRadiusMeters: 100,
-        maxPairwiseDistanceMeters: 200,
-      },
-      neighborhoodWalk: {
-        minAnchors: 2,
-        maxRadiusMeters: 100,
-        maxPairwiseDistanceMeters: 200,
-      },
-      route: {
-        minAnchors: 2,
-        maxRadiusMeters: 100,
-        maxPairwiseDistanceMeters: 200,
-      },
-    } as any).validate(
+    const result = new CompositeGeographicValidationService().validate(
       {
         candidate,
         status: 'accepted',
@@ -541,8 +527,11 @@ describe('CompositeGeographicValidationService', () => {
       boundary,
     );
 
-    expect(result.accepted).toBe(false);
-    expect(result.rejectionReasons).toContain('geographic_incoherence');
+    expect(result.accepted).toBe(true);
+    expect(result.experienceScope).toEqual(
+      expect.objectContaining({ provenance: 'DESTINATION_AREA' }),
+    );
+    expect(result.destinationRelation?.relation).toBe('WITHIN_DESTINATION');
   });
 
   it('rejects a resolved venue outside the destination boundary', () => {
@@ -674,7 +663,7 @@ describe('CompositeGeographicValidationService', () => {
         boundary,
       );
       expect(result.accepted).toBe(false);
-      expect(result.rejectionReasons).toContain('destination_mismatch');
+      expect(result.rejectionReasons).toEqual(['outside_experience_scope']);
     });
 
     it('rejects when a source (non-area) hint is unresolved, even with a valid canonical area', () => {
@@ -922,7 +911,7 @@ describe('CompositeGeographicValidationService', () => {
       },
     };
 
-    it('rejects a canonical ROUTE candidate when a required waypoint is far outside the regional coherence policy', () => {
+    it('rejects a canonical ROUTE candidate whose waypoint has no topological relation to the route and lies outside the destination (S-c membership, no radius)', () => {
       const candidate = routeCandidate([
         {
           key: 'r',
@@ -965,7 +954,18 @@ describe('CompositeGeographicValidationService', () => {
         boundary,
       );
       expect(result.accepted).toBe(false);
-      expect(result.rejectionReasons).toContain('destination_mismatch');
+      expect(result.rejectionReasons).toEqual(['outside_experience_scope']);
+      expect(result.experienceScope).toEqual(
+        expect.objectContaining({ provenance: 'CANDIDATE_ROUTE' }),
+      );
+      expect(
+        result.decisionEntities?.find((entity) => entity.hintKey === 'w'),
+      ).toEqual(
+        expect.objectContaining({
+          relation: 'offending',
+          decisionReason: 'OUTSIDE_EXPERIENCE_ROUTE_SCOPE',
+        }),
+      );
     });
 
     it('rejects a canonical ROUTE candidate with an unresolved source waypoint (incomplete composition)', () => {
@@ -1000,7 +1000,7 @@ describe('CompositeGeographicValidationService', () => {
       );
     });
 
-    it('still accepts a canonical ROUTE candidate whose required waypoints pass the existing regional thresholds', () => {
+    it('accepts a canonical ROUTE candidate whose waypoint is a destination-compatible extension of the route', () => {
       const candidate = routeCandidate([
         {
           key: 'r',
@@ -1047,9 +1047,8 @@ describe('CompositeGeographicValidationService', () => {
     });
 
     // A wider boundary than the shared `boundary` fixture -- big enough
-    // that two points ~78km apart both stay comfortably inside it AND
-    // within route-scale's regional thresholds, so the ONLY thing that
-    // can fail them is the (tighter) experience-scale coherence check.
+    // that two points ~78 km apart both stay inside it: proves no
+    // coherence radius decides validity any more (spec Part II §P2-8).
     const wideBoundary: any = {
       geometry: {
         type: 'Polygon',
@@ -1095,67 +1094,7 @@ describe('CompositeGeographicValidationService', () => {
       },
     ];
 
-    it('applies route-scale geographic thresholds under a ROUTE_LIKE work-unit authorization, even with NO route component', () => {
-      const candidate: ExperienceCandidate = {
-        name: 'Ruta del Vino de Mendoza',
-        themes: [],
-        traits: [],
-        intents: [],
-        evidenceKeys: ['e'],
-        shortReason: 'grounded',
-        componentHints: [
-          {
-            key: 'w1',
-            name: 'Winery A',
-            role: 'venue',
-            expectedKind: 'PLACE',
-            evidenceKeys: ['e'],
-          },
-          {
-            key: 'w2',
-            name: 'Winery B',
-            role: 'venue',
-            expectedKind: 'PLACE',
-            evidenceKeys: ['e'],
-          },
-        ],
-      };
-
-      const withoutAuthorization =
-        new CompositeGeographicValidationService().validate(
-          {
-            candidate,
-            status: 'accepted',
-            resolvedEntities: wideSpreadEntities,
-            rejectionReasons: [],
-          },
-          wideBoundary,
-        );
-      // Sanity check: these same stops genuinely fail the tighter
-      // `experience`-scale thresholds -- proves route-scale is a REAL
-      // widening, not a no-op.
-      expect(withoutAuthorization.accepted).toBe(false);
-      expect(withoutAuthorization.rejectionReasons).toContain(
-        'geographic_incoherence',
-      );
-
-      const withRouteLikeAuthorization =
-        new CompositeGeographicValidationService().validate(
-          {
-            candidate,
-            status: 'accepted',
-            resolvedEntities: wideSpreadEntities,
-            rejectionReasons: [],
-          },
-          wideBoundary,
-          undefined,
-          ownedAuthorization('route_like'),
-        );
-      expect(withRouteLikeAuthorization.accepted).toBe(true);
-      expect(withRouteLikeAuthorization.strategy).toBe('component_defined');
-    });
-
-    it('does NOT apply route-scale thresholds from candidate.intents alone -- only the work-unit authorization selects the policy', () => {
+    it('authorization never selects a radius: two venues ~78 km apart inside ONE destination polygon are accepted under DEFAULT and ROUTE_LIKE alike', () => {
       const candidate: ExperienceCandidate = {
         name: 'Ruta del Vino de Mendoza',
         themes: [],
@@ -1180,9 +1119,52 @@ describe('CompositeGeographicValidationService', () => {
           },
         ],
       };
-      // candidate.intents says route_like, but no work-unit authorization
-      // is passed -- must still use the tighter `experience` scale (this is
-      // the exact regression Task B5 point 19 guards against).
+      for (const authorization of [
+        undefined,
+        ownedAuthorization('route_like'),
+      ]) {
+        const result = new CompositeGeographicValidationService().validate(
+          {
+            candidate,
+            status: 'accepted',
+            resolvedEntities: wideSpreadEntities,
+            rejectionReasons: [],
+          },
+          wideBoundary,
+          undefined,
+          authorization,
+        );
+        expect(result.accepted).toBe(true);
+        expect(result.strategy).toBe('component_defined');
+        expect(result.experienceScope?.provenance).toBe('DESTINATION_AREA');
+      }
+    });
+
+    it('candidate.intents never selects the policy: a DEFAULT candidate claiming route_like with venues beyond the destination is a plain destination mismatch, never a regional scope', () => {
+      const candidate: ExperienceCandidate = {
+        name: 'Ruta del Vino de Mendoza',
+        themes: [],
+        traits: [],
+        intents: ['route_like'],
+        evidenceKeys: ['e'],
+        shortReason: 'grounded',
+        componentHints: [
+          {
+            key: 'w1',
+            name: 'Winery A',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['e'],
+          },
+          {
+            key: 'w2',
+            name: 'Winery B',
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: ['e'],
+          },
+        ],
+      };
       const result = new CompositeGeographicValidationService().validate(
         {
           candidate,
@@ -1190,13 +1172,13 @@ describe('CompositeGeographicValidationService', () => {
           resolvedEntities: wideSpreadEntities,
           rejectionReasons: [],
         },
-        wideBoundary,
+        boundary,
       );
       expect(result.accepted).toBe(false);
-      expect(result.rejectionReasons).toContain('geographic_incoherence');
+      expect(result.rejectionReasons).toEqual(['destination_mismatch']);
     });
 
-    it('still rejects under route-scale policy when a stop is in a different region/country entirely', () => {
+    it('E: a ROUTE_LIKE candidate with a stop beyond the destination and no verified scope is GEOGRAPHIC_SCOPE_UNKNOWN (PD2 fail-closed, no circle)', () => {
       const candidate: ExperienceCandidate = {
         name: 'Ruta del Vino de Mendoza',
         themes: [],
@@ -1263,7 +1245,17 @@ describe('CompositeGeographicValidationService', () => {
         ownedAuthorization('route_like'),
       );
       expect(result.accepted).toBe(false);
-      expect(result.rejectionReasons).toContain('destination_mismatch');
+      expect(result.rejectionReasons).toEqual(['geographic_scope_unknown']);
+      expect(result.experienceScope).toEqual(
+        expect.objectContaining({ provenance: 'DESTINATION_AREA' }),
+      );
+      expect(result.destinationRelation?.relation).toBe(
+        'EXTENDS_BEYOND_DESTINATION',
+      );
+      expect(
+        result.decisionEntities?.find((entity) => entity.hintKey === 'w2')
+          ?.decisionReason,
+      ).toBe('GEOGRAPHIC_SCOPE_UNKNOWN');
     });
 
     it('leaves an ordinary multi-neighborhood walk (no AREA hint, no route_like) untouched', () => {
@@ -2226,7 +2218,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
     );
 
     expect(result.accepted).toBe(false);
-    expect(result.rejectionReasons).toContain('destination_mismatch');
+    expect(result.rejectionReasons).toEqual(['outside_experience_scope']);
 
     const outsideEntity = result.decisionEntities!.find(
       (e) => e.hintKey === 'w',
@@ -2332,7 +2324,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
       ],
     };
 
-    const invalidRouteScope: ExperienceValidationScope = {
+    const invalidRouteScope: WorkUnitAnchorScope = {
       kind: 'ROUTE',
       anchorName: 'Caminito',
       geoEntityId: 'geo-caminito',
@@ -2626,7 +2618,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
         ],
       ],
     };
-    const sanTelmoScope: ExperienceValidationScope = {
+    const sanTelmoScope: WorkUnitAnchorScope = {
       kind: 'AREA',
       anchorName: 'San Telmo',
       geoEntityId: 'geo-san-telmo',
@@ -2890,7 +2882,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
         [-58.36268, -34.6401],
       ],
     };
-    const routeScope: ExperienceValidationScope = {
+    const routeScope: WorkUnitAnchorScope = {
       kind: 'ROUTE',
       anchorName: 'Caminito',
       geoEntityId: 'geo-caminito',
@@ -3649,9 +3641,12 @@ describe('CompositeGeographicValidationService · canonical physical ROUTE autho
     ...(facts.kind ? { kind: facts.kind } : {}),
     ...(facts.geometry ? { geometry: facts.geometry } : {}),
   });
+  // w2 at -35.5 lies beyond the destination: only a real canonical route
+  // scope (never a role) could have related it -- and here none exists.
   const validate = (
     routeEntity: ReturnType<typeof routeRoleEntity>,
     candidate = routeHintCandidate(),
+    w2Latitude = -35.5,
   ) =>
     new CompositeGeographicValidationService().validate(
       {
@@ -3660,7 +3655,7 @@ describe('CompositeGeographicValidationService · canonical physical ROUTE autho
         resolvedEntities: [
           routeEntity,
           venue('w1', -34.15),
-          venue('w2', -34.85),
+          venue('w2', w2Latitude),
         ],
         rejectionReasons: [],
       },
@@ -3703,12 +3698,13 @@ describe('CompositeGeographicValidationService · canonical physical ROUTE autho
       },
     ],
   ])(
-    'F: a route-role hint %s grants NO route-scale geography (fails closed to experience thresholds)',
+    'F: a route-role hint %s grants NO route scope (fails closed to the destination scope)',
     (_label, facts) => {
       const result = validate(routeRoleEntity(facts));
       expect(result.strategy).not.toBe('canonical_geometry');
       expect(result.accepted).toBe(false);
-      expect(result.rejectionReasons).toContain('geographic_incoherence');
+      expect(result.rejectionReasons).toEqual(['destination_mismatch']);
+      expect(result.experienceScope?.provenance).toBe('DESTINATION_AREA');
     },
   );
 
@@ -3721,6 +3717,7 @@ describe('CompositeGeographicValidationService · canonical physical ROUTE autho
       routeHintCandidate(['route_like']),
     );
     expect(result.accepted).toBe(false);
+    expect(result.rejectionReasons).toEqual(['destination_mismatch']);
   });
 
   it('G: a VERIFIED canonical ROUTE GeoEntity with usable line geometry keeps canonical route-geometry validation, independent of any request intent', () => {
@@ -3737,9 +3734,12 @@ describe('CompositeGeographicValidationService · canonical physical ROUTE autho
           ],
         },
       }),
+      routeHintCandidate(),
+      -34.85,
     );
     expect(result.accepted).toBe(true);
     expect(result.strategy).toBe('canonical_geometry');
+    expect(result.experienceScope?.provenance).toBe('CANDIDATE_ROUTE');
     expect(result.kind).toBe('ROUTE');
   });
 });

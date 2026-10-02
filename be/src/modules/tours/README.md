@@ -59,10 +59,20 @@ The primary flow when a user creates a tour from the mobile app wizard:
      (`AREA_ROUTE_WALK` or `DEDICATED_INTENT`); everything else is one
      `GENERIC` unit; planner backfill is `PLANNER_CAPACITY`
    - Resolves component hints against Places/OSM and validates geographic coherence.
-     A wider (walk / route-scale) geographic policy is granted per candidate,
+     A policy class (`DEFAULT` / `WALK` / `ROUTE_LIKE`) is granted per candidate,
      only by the unit that owns that walk/route_like deficit and only to its
-     multi-component candidates (`utils/geographic-validation-authorization.util.ts`);
-     every other candidate uses the default destination policy
+     multi-component candidates (`utils/geographic-validation-authorization.util.ts`).
+     Authorization never supplies geometry: the Experience's geographic scope
+     is derived by one owner (`utils/experience-geographic-scope.policy.ts`) from
+     a verified source-backed AREA/ROUTE component, a user-named anchor, or the
+     destination; resolution is two-phase (scope hints first, then components
+     searched in the scope-derived window), validation checks membership in
+     that scope, and a missing scope fails closed (`GEOGRAPHIC_SCOPE_UNKNOWN`).
+     Only `ROUTE_LIKE` may use a real scope beyond the destination; the
+     trip-destination relation is a fact, and only Experiences WITHIN the
+     destination are tour-eligible from the destination window
+     (`utils/tour-destination-eligibility.policy.ts`). See spec
+     `docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md` Part II.
    - Runs deterministic daily planning and persists `TourExperience` snapshots
    - Publishes media work through the existing outbox flow
 

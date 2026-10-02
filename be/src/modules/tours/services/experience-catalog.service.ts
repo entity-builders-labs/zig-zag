@@ -32,8 +32,7 @@ import { normalizeGeoName } from '../utils/nominatim-match.util';
 import { ClassificationResult } from './experience-classification.service';
 import { ExperienceGroundingEvidence } from '../interfaces/experience-grounding.interface';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
-import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
-import { GeographicScope } from '../interfaces/experience-resolution.interface';
+import { ScopeSearchWindow } from '../interfaces/experience-geographic-scope.interface';
 
 // Two different resolution paths (a Nominatim lookup done while resolving a
 // composite's `venue` component hint, a Google Places lookup done while
@@ -169,9 +168,9 @@ export type GeoEntityWithIdentitiesResult =
 export interface FindGeoEntityCandidatesForHintRequest {
   hintName: string;
   expectedKind: GeoEntityKind;
-  /** Reuses the resolver's own request-scoped GeographicScope — no second
-   * geographic authority is introduced here. */
-  scope: GeographicScope;
+  /** The resolver's scope-derived search window (spec 2026-10-02 Part II
+   * §P2-10) — no second geographic authority is introduced here. */
+  window: ScopeSearchWindow;
 }
 
 export interface CatalogGeoEntityCandidate {
@@ -1317,33 +1316,6 @@ export class ExperienceCatalogService {
   }
 
   /**
-   * Reduces a resolver GeographicScope to a center+radius the way
-   * `findNearbyMatchingGeoEntity`'s own bounding-box prefilter already
-   * works. `POINT_RADIUS` carries this directly; `AREA_BOUNDARY` reuses the
-   * existing `boundingBoxToCenterRadius` (already used elsewhere to derive
-   * a center+radius that fully covers a resolved boundary's own geometry)
-   * instead of inventing a second geometry-envelope algorithm. Returns
-   * `undefined` when the scope carries no usable geometry — the caller
-   * fails closed into "no catalog candidates" rather than performing an
-   * unbounded query.
-   */
-  private static centerRadiusFromScope(
-    scope: GeographicScope,
-  ): { latitude: number; longitude: number; radiusMeters: number } | undefined {
-    if (scope.kind === 'POINT_RADIUS') {
-      return {
-        latitude: scope.latitude,
-        longitude: scope.longitude,
-        radiusMeters: scope.radiusMeters,
-      };
-    }
-    if (!scope.boundary.geometry) return undefined;
-    return boundingBoxToCenterRadius(
-      scope.boundary.geometry as GeoJsonGeometry,
-    );
-  }
-
-  /**
    * Stage 3 catalog-first identity resolution — bounded, provider-neutral
    * read of already-canonical GeoEntity knowledge for one component hint.
    * Ownership: this method returns candidates/facts only; it never chooses
@@ -1353,7 +1325,8 @@ export class ExperienceCatalogService {
    *
    * Bounded by construction:
    *  - kind filter at the SQL/Prisma `where` (reuses the `[kind]` index);
-   *  - a lat/lon bounding box derived from `scope` (reuses the
+   *  - a lat/lon bounding box derived from the scope-derived search
+   *    `window` (reuses the
    *    `[latitude, longitude]` index) — never an unbounded table scan;
    *  - a GeoEntity with no usable coordinates is fail-closed excluded
    *    (Prisma's `gte`/`lte` range filters never match a NULL column).
@@ -1381,12 +1354,17 @@ export class ExperienceCatalogService {
   ): Promise<FindGeoEntityCandidatesForHintResult> {
     const needle = normalizeGeoName(request.hintName);
     if (!needle) return { candidates: [] };
-    const centerRadius = ExperienceCatalogService.centerRadiusFromScope(
-      request.scope,
-    );
-    if (!centerRadius) return { candidates: [] };
-
-    const { latitude, longitude, radiusMeters } = centerRadius;
+    const {
+      center: { latitude, longitude },
+      radiusMeters,
+    } = request.window;
+    if (
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude) ||
+      !Number.isFinite(radiusMeters)
+    ) {
+      return { candidates: [] };
+    }
     const { latDeltaDegrees, lonDeltaDegrees } =
       ExperienceCatalogService.boundingBoxDegreeDeltas(latitude, radiusMeters);
     const bounds = {

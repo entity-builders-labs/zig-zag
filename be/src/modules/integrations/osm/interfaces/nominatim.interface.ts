@@ -51,7 +51,9 @@ export interface NominatimSearchOptions {
    */
   countryCode?: string;
   /**
-   * Soft proximity bias toward the request's destination. Nominatim's own
+   * Soft proximity bias toward a caller-supplied search window — derived by
+   * the caller from real scope geometry (spec 2026-10-02 Part II §P2-10),
+   * never a plausibility constant. Nominatim's own
    * `importance` ranking has no awareness of the requested destination, and
    * `countryCode` alone can still lose a real match to a same/similar-named,
    * more "important" place elsewhere in a large country before it ever
@@ -63,8 +65,8 @@ export interface NominatimSearchOptions {
    * deprioritized, never hard-excluded.
    */
   bias?: {
-    latitude: number;
-    longitude: number;
+    center: { latitude: number; longitude: number };
+    radiusMeters: number;
   };
 }
 

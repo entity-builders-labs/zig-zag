@@ -1,28 +1,28 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { evaluateDestinationCompatibility } from '../utils/destination-compatibility.policy';
 import {
-  geometryContainsPoint,
-  distancePointToPolygonBoundaryMeters,
-} from '@integrations/osm/utils/geojson-containment.util';
+  evaluateDestinationCompatibility,
+  evaluateExperienceDestinationRelation,
+} from '../utils/destination-compatibility.policy';
+import { distancePointToPolygonBoundaryMeters } from '@integrations/osm/utils/geojson-containment.util';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import {
-  DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS,
   GEOGRAPHIC_VALIDATOR_VERSION,
-  GeographicValidationBatchResult,
   GeographicValidationDecisionEntity,
   GeographicValidationRejectionReason,
   GeographicValidationResult,
-  GeographicValidationThresholds,
   GeographicDecisionReason,
 } from '../interfaces/geographic-validation.interface';
 import {
-  ExperienceGeographicValidationBatchResult,
-  ExperienceValidationScope,
   GeographicScope,
   ResolvedExperienceCandidate,
   ResolvedGeoEntity,
 } from '../interfaces/experience-resolution.interface';
+import {
+  ExperienceGeographicScope,
+  GeographicScopeUnknownReason,
+  WorkUnitAnchorScope,
+} from '../interfaces/experience-geographic-scope.interface';
 import {
   coherenceMetrics,
   distanceMeters,
@@ -46,56 +46,49 @@ import { isUsableRouteGeometry } from '../utils/route-geometry.util';
 import { GeographicValidationAuthorization } from '../interfaces/geographic-validation-authorization.interface';
 import {
   authorizesAnchoredAreaMembership,
-  authorizesRouteScale,
   DEFAULT_GEOGRAPHIC_AUTHORIZATION,
 } from '../utils/geographic-validation-authorization.util';
+import {
+  deriveExperienceGeographicScope,
+  DerivedExperienceGeographicScope,
+  isCanonicalPhysicalRouteComponent,
+  projectExperienceGeographicScope,
+} from '../utils/experience-geographic-scope.policy';
+import { MULTI_COMPONENT_MIN_DISTINCT_COMPONENTS } from '../utils/acquisition-candidate-requirement.util';
 
 /**
- * Canonical physical ROUTE authority: a RESOLVED component whose canonical
- * GeoEntity kind is ROUTE and whose geometry is a usable route line. The
- * source hint role must also be `route` (source-composition correspondence),
- * but the role alone never establishes route reality: a `route`-role hint
- * resolved to a PLACE, or without usable route geometry, fails closed.
+ * Composite geographic validation (spec 2026-10-02 Part II §P2-2 question B,
+ * §P2-8): do the components form ONE physically coherent Experience?
+ *
+ * Answered against the Experience's own real geography — the scope derived
+ * by the single owner `deriveExperienceGeographicScope` — never against a
+ * circle around the destination centroid and never with a coherence radius:
+ *  - CANDIDATE_AREA (S-b): every member component relates to the verified
+ *    canonical AREA (point INSIDE, line entering it);
+ *  - CANDIDATE_ROUTE (S-c): topological route-scope membership;
+ *  - DESTINATION_AREA / DESTINATION_POINT_RADIUS (S-d/S-e): every
+ *    component lies in the destination; a ROUTE_LIKE candidate whose
+ *    components leave it without a verified scope is GEOGRAPHIC_SCOPE_UNKNOWN;
+ *  - UNKNOWN: rejected (PD2, fail closed).
+ * The work-unit anchor scope (S-a) is checked first, in conjunction.
+ * Admin-context contradictions (COUNTRY/REGION) still reject. Source
+ * composition completeness is checked before anything else: an unresolved
+ * component is never dropped to make a composite valid.
+ *
+ * The result carries the Experience scope and the trip-relative
+ * `destinationRelation` fact; a verified regional Experience is accepted
+ * whatever that relation is (tour eligibility consumes it later).
  */
-export function isCanonicalPhysicalRouteComponent(
-  entity: ResolvedGeoEntity,
-): boolean {
-  return (
-    entity.role === 'route' &&
-    entity.status === 'resolved' &&
-    entity.kind === 'ROUTE' &&
-    isUsableRouteGeometry(entity.geometry)
-  );
-}
-
 @Injectable()
 export class CompositeGeographicValidationService {
   private readonly logger = new Logger(
     CompositeGeographicValidationService.name,
   );
 
-  constructor(
-    private readonly thresholds: GeographicValidationThresholds = DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS,
-  ) {}
-
-  validateBatch(
-    resolution: ExperienceGeographicValidationBatchResult,
-    destinationBoundary: OsmCandidate,
-  ): GeographicValidationBatchResult {
-    const results = resolution.resolved.map((resolved) =>
-      this.validate(resolved, destinationBoundary),
-    );
-    return {
-      results,
-      acceptedCount: results.filter((result) => result.accepted).length,
-      rejectedCount: results.filter((result) => !result.accepted).length,
-    };
-  }
-
   validate(
     resolvedProposal: ResolvedExperienceCandidate,
     destinationBoundary: OsmCandidate | undefined,
-    validationScope?: ExperienceValidationScope,
+    validationScope?: WorkUnitAnchorScope,
     geographicAuthorization: GeographicValidationAuthorization = DEFAULT_GEOGRAPHIC_AUTHORIZATION,
     geographicScope?: GeographicScope,
   ): GeographicValidationResult {
@@ -108,6 +101,11 @@ export class CompositeGeographicValidationService {
         Number.isFinite(entity.latitude) && Number.isFinite(entity.longitude),
     );
     const groundedEvidenceKeys = Array.from(new Set(candidate.evidenceKeys));
+    const destination: GeographicScope | undefined =
+      geographicScope ??
+      (destinationBoundary
+        ? { kind: 'AREA_BOUNDARY', boundary: destinationBoundary }
+        : undefined);
 
     const compositionViolation = this.rejectIfSourceCompositionIncomplete(
       resolvedProposal,
@@ -130,55 +128,29 @@ export class CompositeGeographicValidationService {
 
     const areaScopeMembership = externalScopeValidation?.areaScopeMembership;
     const routeScopeMembership = externalScopeValidation?.routeScopeMembership;
+    const derived = compositionViolation
+      ? undefined
+      : deriveExperienceGeographicScope({
+          candidate,
+          resolvedEntities: resolved,
+          authorization: geographicAuthorization,
+          destination,
+          workUnitScope: validationScope,
+        });
     let result: GeographicValidationResult;
     if (compositionViolation) {
       result = compositionViolation;
     } else if (externalScopeValidation?.result?.accepted === false) {
       result = externalScopeValidation.result;
-    } else if (geographicScope?.kind === 'POINT_RADIUS') {
-      result = this.validatePointRadiusCoordinates(
-        resolvedProposal,
-        withCoordinates,
-        geographicScope,
-        groundedEvidenceKeys,
-      );
-    } else if (validationScope?.kind === 'POINT_RADIUS') {
-      result = this.validatePointRadiusScope(
-        resolvedProposal,
-        withCoordinates,
-        validationScope.geometry,
-        groundedEvidenceKeys,
-      );
     } else {
-      const canonicalValidation = this.tryCanonicalGeometry(
+      result = this.validateAgainstScope(
         resolvedProposal,
+        resolved,
         withCoordinates,
-        destinationBoundary,
+        derived!,
+        destination,
         groundedEvidenceKeys,
       );
-      result = canonicalValidation
-        ? canonicalValidation
-        : destinationBoundary
-          ? this.validateExperience(
-              resolvedProposal,
-              withCoordinates,
-              destinationBoundary,
-              groundedEvidenceKeys,
-              geographicAuthorization,
-            )
-          : this.rejected(
-              candidate.name,
-              'EXPERIENCE',
-              withCoordinates,
-              groundedEvidenceKeys,
-              ['destination_mismatch'],
-              undefined,
-              withCoordinates,
-              withCoordinates,
-              undefined,
-              undefined,
-              undefined,
-            );
     }
 
     if (areaScopeMembership && !result.areaScopeMembership) {
@@ -187,10 +159,21 @@ export class CompositeGeographicValidationService {
     if (routeScopeMembership && !result.routeScopeMembership) {
       result = { ...result, routeScopeMembership };
     }
+    if (derived) {
+      result = {
+        ...result,
+        experienceScope: projectExperienceGeographicScope(derived),
+        destinationRelation: evaluateExperienceDestinationRelation(
+          resolved.map(componentFact),
+          destination,
+        ),
+      };
+    }
 
     if (!result.decisionEntities) {
+      const routeAudit = result.routeScopeMembership ?? routeScopeMembership;
       result.decisionEntities = withCoordinates.map((entity) => {
-        const routeFact = routeScopeMembership?.decision.components.find(
+        const routeFact = routeAudit?.decision.components.find(
           (c) => c.hintKey === entity.hintKey,
         );
         return {
@@ -215,58 +198,407 @@ export class CompositeGeographicValidationService {
         validationStatus: result.status,
         strategy: result.strategy,
         rejectionReasons: result.rejectionReasons,
-        radiusMeters: result.coherence?.radiusMeters,
-        maxPairwiseDistanceMeters: result.coherence?.maxPairwiseDistanceMeters,
+        experienceScope: result.experienceScope,
+        destinationRelation: result.destinationRelation?.relation,
       }),
     );
     return result;
   }
 
-  private validatePointRadiusScope(
+  /** Dispatch on the single derived Experience scope (§P2-7). */
+  private validateAgainstScope(
     resolvedProposal: ResolvedExperienceCandidate,
-    entities: ResolvedGeoEntity[],
-    geometry: GeoJsonGeometry,
+    resolved: ResolvedGeoEntity[],
+    withCoordinates: ResolvedGeoEntity[],
+    derived: DerivedExperienceGeographicScope,
+    destination: GeographicScope | undefined,
     evidenceKeys: string[],
   ): GeographicValidationResult {
-    const outside = entities.filter(
+    const scope = derived.scope;
+    switch (scope.kind) {
+      case 'UNKNOWN':
+        return this.rejectUnknownScope(
+          resolvedProposal.candidate.name,
+          withCoordinates,
+          evidenceKeys,
+          withCoordinates,
+        );
+      case 'ROUTE':
+        return this.validateCandidateRoute(
+          resolvedProposal,
+          withCoordinates,
+          scope,
+          destination,
+          evidenceKeys,
+        );
+      case 'POINT_RADIUS':
+        return this.validatePointRadiusDestination(
+          resolvedProposal,
+          withCoordinates,
+          scope,
+          derived.unknownWhenBeyondDestination,
+          evidenceKeys,
+        );
+      case 'AREA':
+        return scope.provenance === 'CANDIDATE_AREA' ||
+          scope.provenance === 'WORK_UNIT_ANCHOR'
+          ? this.validateCandidateArea(
+              resolvedProposal,
+              resolved,
+              withCoordinates,
+              scope,
+              evidenceKeys,
+            )
+          : this.validateDestinationLocal(
+              resolvedProposal,
+              withCoordinates,
+              destination,
+              derived.unknownWhenBeyondDestination,
+              evidenceKeys,
+            );
+    }
+  }
+
+  private rejectUnknownScope(
+    proposalName: string,
+    anchors: ResolvedGeoEntity[],
+    evidenceKeys: string[],
+    offending: ResolvedGeoEntity[],
+  ): GeographicValidationResult {
+    return this.rejected(
+      proposalName,
+      'EXPERIENCE',
+      anchors,
+      evidenceKeys,
+      ['geographic_scope_unknown'],
+      undefined,
+      offending.length > 0 ? offending : anchors,
+      anchors,
+      undefined,
+      'GEOGRAPHIC_SCOPE_UNKNOWN',
+    );
+  }
+
+  /**
+   * S-c: the candidate's own resolved canonical physical ROUTE. Membership is
+   * topological (`evaluateRouteScopeMembership`): the route itself, areal
+   * components crossing it, components sharing an enclosing source AREA
+   * with it, or destination-compatible extensions. A component with none of
+   * those relations is outside the Experience scope — no corridor width, no
+   * radius.
+   */
+  private validateCandidateRoute(
+    resolvedProposal: ResolvedExperienceCandidate,
+    withCoordinates: ResolvedGeoEntity[],
+    scope: Extract<ExperienceGeographicScope, { kind: 'ROUTE' }>,
+    destination: GeographicScope | undefined,
+    evidenceKeys: string[],
+  ): GeographicValidationResult {
+    const proposalName = resolvedProposal.candidate.name;
+    const canonicalRoute = withCoordinates.find(
       (entity) =>
-        !geometryContainsPoint(
-          geometry,
-          entity.longitude as number,
-          entity.latitude as number,
+        isCanonicalPhysicalRouteComponent(entity) &&
+        (!scope.geoEntityId || entity.geoEntityId === scope.geoEntityId),
+    );
+    const fullSet = canonicalRoute
+      ? [
+          canonicalRoute,
+          ...withCoordinates.filter((entity) => entity !== canonicalRoute),
+        ]
+      : withCoordinates;
+    const decision = evaluateRouteScopeMembership(
+      {
+        anchorName: scope.name ?? '',
+        geoEntityId: scope.geoEntityId,
+        geometry: scope.geometry,
+      },
+      fullSet.map(componentFact),
+      destination?.kind === 'AREA_BOUNDARY' ? destination.boundary : undefined,
+    );
+    const routeScopeMembership: RouteScopeMembershipAudit = {
+      decision,
+      routeGeometryPresent: true,
+      evaluatedComponentCount: fullSet.length,
+    };
+    if (!decision.passes) {
+      const offending = fullSet.filter((entity) =>
+        decision.components.some(
+          (c) =>
+            c.hintKey === entity.hintKey &&
+            (c.relation === 'OUTSIDE_DESTINATION' ||
+              c.relation === 'NO_MATERIAL_ANCHOR_RELATION'),
+        ),
+      );
+      return this.rejected(
+        proposalName,
+        'ROUTE',
+        fullSet,
+        evidenceKeys,
+        ['outside_experience_scope'],
+        undefined,
+        offending.length > 0 ? offending : fullSet,
+        fullSet,
+        undefined,
+        'OUTSIDE_EXPERIENCE_ROUTE_SCOPE',
+        undefined,
+        routeScopeMembership,
+      );
+    }
+    const conflict = this.adminContextConflict(fullSet, true);
+    if (conflict) {
+      return this.rejected(
+        proposalName,
+        'ROUTE',
+        fullSet,
+        evidenceKeys,
+        ['geographic_incoherence'],
+        undefined,
+        conflict.offendingEntities,
+        fullSet,
+        undefined,
+        conflict.reason,
+        undefined,
+        routeScopeMembership,
+      );
+    }
+    return {
+      proposalName,
+      kind: 'ROUTE',
+      status: 'GEO_VERIFIED',
+      accepted: true,
+      strategy: 'canonical_geometry',
+      canonicalEntity: canonicalRoute,
+      anchors: fullSet,
+      groundedEvidenceKeys: evidenceKeys,
+      rejectionReasons: [],
+      routeScopeMembership,
+      validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
+    };
+  }
+
+  /**
+   * S-b (and a regional S-a AREA anchor acting as the Experience scope): the
+   * candidate's own verified canonical AREA (exactly one
+   * source-backed `area` component with polygon geometry, alongside member
+   * components). Every OTHER source component must relate to it through the
+   * single area-membership authority: a point INSIDE, a real line entering
+   * it. Destination distance plays no part.
+   */
+  private validateCandidateArea(
+    resolvedProposal: ResolvedExperienceCandidate,
+    resolved: ResolvedGeoEntity[],
+    withCoordinates: ResolvedGeoEntity[],
+    scope: Extract<ExperienceGeographicScope, { kind: 'AREA' }>,
+    evidenceKeys: string[],
+  ): GeographicValidationResult {
+    const proposalName = resolvedProposal.candidate.name;
+    const canonicalArea = resolved.find(
+      (entity) =>
+        entity.role === 'area' &&
+        (!scope.geoEntityId || entity.geoEntityId === scope.geoEntityId) &&
+        entity.geometry === scope.geometry,
+    );
+    const members = withCoordinates.filter((entity) => entity.role !== 'area');
+    const outsideArea = members.filter(
+      (entity) =>
+        !relationSupportsMembership(
+          classifyComponentAreaRelation(scope.geometry, componentFact(entity)),
         ),
     );
-    return outside.length > 0
-      ? this.rejected(
-          resolvedProposal.candidate.name,
-          'EXPERIENCE',
-          outside,
+    const evaluated = canonicalArea ? [canonicalArea, ...members] : members;
+    if (outsideArea.length > 0) {
+      return this.rejected(
+        proposalName,
+        'EXPERIENCE',
+        evaluated,
+        evidenceKeys,
+        ['outside_experience_scope'],
+        undefined,
+        outsideArea,
+        evaluated,
+        undefined,
+        'OUTSIDE_CANONICAL_AREA_BOUNDARY',
+        scope.geometry,
+      );
+    }
+    const conflict = this.adminContextConflict(members, true);
+    if (conflict) {
+      return this.rejected(
+        proposalName,
+        'EXPERIENCE',
+        evaluated,
+        evidenceKeys,
+        ['geographic_incoherence'],
+        undefined,
+        conflict.offendingEntities,
+        evaluated,
+        undefined,
+        conflict.reason,
+      );
+    }
+    return {
+      proposalName,
+      kind: 'EXPERIENCE',
+      status: 'GEO_VERIFIED',
+      accepted: true,
+      strategy: 'canonical_area',
+      canonicalEntity: canonicalArea,
+      anchors: evaluated,
+      groundedEvidenceKeys: evidenceKeys,
+      rejectionReasons: [],
+      validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
+    };
+  }
+
+  /**
+   * S-d: a destination-local Experience. A single venue must carry grounded
+   * evidence and lie inside the destination; a composite needs the
+   * composition contract's minimum of distinct resolved components, every
+   * one inside the destination polygon, and no country contradiction.
+   * Dispersion inside a large destination is planning feasibility, not
+   * validity (no coherence radius).
+   */
+  private validateDestinationLocal(
+    resolvedProposal: ResolvedExperienceCandidate,
+    withCoordinates: ResolvedGeoEntity[],
+    destination: GeographicScope | undefined,
+    unknownWhenBeyondDestination: GeographicScopeUnknownReason | undefined,
+    evidenceKeys: string[],
+  ): GeographicValidationResult {
+    const proposal = resolvedProposal.candidate;
+    const proposalName = proposal.name;
+    const kind = 'EXPERIENCE';
+    const destinationGeometry =
+      destination?.kind === 'AREA_BOUNDARY'
+        ? destination.boundary.geometry
+        : undefined;
+    const venueCentric =
+      proposal.componentHints.length === 1 &&
+      proposal.componentHints[0].role === 'venue';
+    const anchors = this.dedupeEntities(
+      withCoordinates.filter((entity) => entity.role !== 'area'),
+    );
+
+    if (venueCentric) {
+      if (evidenceKeys.length === 0) {
+        return this.rejected(
+          proposalName,
+          kind,
+          anchors,
           evidenceKeys,
-          ['external_scope_mismatch'],
+          ['grounded_evidence_missing'],
           undefined,
-          outside,
-          entities,
-          undefined,
-          'EXTERNAL_AREA_SCOPE_MISMATCH',
-          geometry,
-        )
-      : {
-          proposalName: resolvedProposal.candidate.name,
-          kind: 'EXPERIENCE',
-          status: 'AUTHORITATIVELY_VERIFIED',
+          anchors,
+          anchors,
+        );
+      }
+      const venue = anchors.find(
+        (entity) => entity.hintKey === proposal.componentHints[0].key,
+      );
+      if (venue) {
+        if (!this.isInsideDestination(venue, destination)) {
+          return this.rejected(
+            proposalName,
+            kind,
+            [venue],
+            evidenceKeys,
+            ['destination_mismatch'],
+            undefined,
+            [venue],
+            [venue],
+            undefined,
+            'OUTSIDE_DESTINATION_BOUNDARY',
+            destinationGeometry,
+          );
+        }
+        return {
+          proposalName,
+          kind,
+          status: 'GEO_VERIFIED',
           accepted: true,
-          strategy: 'canonical_entity',
-          anchors: entities,
+          strategy: 'venue_centric',
+          canonicalEntity: venue,
+          anchors: [venue],
           groundedEvidenceKeys: evidenceKeys,
           rejectionReasons: [],
           validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
         };
+      }
+    }
+
+    if (anchors.length < MULTI_COMPONENT_MIN_DISTINCT_COMPONENTS) {
+      return this.rejected(
+        proposalName,
+        kind,
+        anchors,
+        evidenceKeys,
+        ['insufficient_resolved_entities'],
+        undefined,
+        anchors,
+        anchors,
+      );
+    }
+    const outside = anchors.filter(
+      (entity) => !this.isInsideDestination(entity, destination),
+    );
+    if (outside.length > 0) {
+      return unknownWhenBeyondDestination
+        ? this.rejectUnknownScope(proposalName, anchors, evidenceKeys, outside)
+        : this.rejected(
+            proposalName,
+            kind,
+            anchors,
+            evidenceKeys,
+            ['destination_mismatch'],
+            undefined,
+            outside,
+            anchors,
+            undefined,
+            'OUTSIDE_DESTINATION_BOUNDARY',
+            destinationGeometry,
+          );
+    }
+    const conflict = this.adminContextConflict(anchors, false);
+    if (conflict) {
+      return this.rejected(
+        proposalName,
+        kind,
+        anchors,
+        evidenceKeys,
+        ['destination_mismatch'],
+        undefined,
+        conflict.offendingEntities,
+        anchors,
+        undefined,
+        conflict.reason,
+        destinationGeometry,
+      );
+    }
+    return {
+      proposalName,
+      kind,
+      status: 'GEO_VERIFIED',
+      accepted: true,
+      strategy: 'component_defined',
+      anchors,
+      // Observability only: dispersion is never a validity threshold.
+      coherence: coherenceMetrics(this.pointsOf(anchors)),
+      groundedEvidenceKeys: evidenceKeys,
+      rejectionReasons: [],
+      validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
+    };
   }
 
-  private validatePointRadiusCoordinates(
+  /**
+   * S-e: a point destination's explicit point-radius scope (the radius is
+   * the destination's own scope input, PD3 deferred — never borrowed for a
+   * regional Experience).
+   */
+  private validatePointRadiusDestination(
     resolvedProposal: ResolvedExperienceCandidate,
     entities: ResolvedGeoEntity[],
-    scope: Extract<GeographicScope, { kind: 'POINT_RADIUS' }>,
+    scope: Extract<ExperienceGeographicScope, { kind: 'POINT_RADIUS' }>,
+    unknownWhenBeyondDestination: GeographicScopeUnknownReason | undefined,
     evidenceKeys: string[],
   ): GeographicValidationResult {
     const outside = entities.filter(
@@ -276,33 +608,94 @@ export class CompositeGeographicValidationService {
             latitude: entity.latitude as number,
             longitude: entity.longitude as number,
           },
-          { latitude: scope.latitude, longitude: scope.longitude },
+          scope.center,
         ) > scope.radiusMeters,
     );
-    return outside.length > 0
-      ? this.rejected(
-          resolvedProposal.candidate.name,
-          'EXPERIENCE',
-          outside,
-          evidenceKeys,
-          ['external_scope_mismatch'],
-          undefined,
-          outside,
-          entities,
-          undefined,
-          'OUTSIDE_POINT_RADIUS_SCOPE',
-        )
-      : {
-          proposalName: resolvedProposal.candidate.name,
-          kind: 'EXPERIENCE',
-          status: 'AUTHORITATIVELY_VERIFIED',
-          accepted: true,
-          strategy: 'canonical_entity',
-          anchors: entities,
-          groundedEvidenceKeys: evidenceKeys,
-          rejectionReasons: [],
-          validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
-        };
+    if (outside.length > 0) {
+      return unknownWhenBeyondDestination
+        ? this.rejectUnknownScope(
+            resolvedProposal.candidate.name,
+            entities,
+            evidenceKeys,
+            outside,
+          )
+        : this.rejected(
+            resolvedProposal.candidate.name,
+            'EXPERIENCE',
+            outside,
+            evidenceKeys,
+            ['external_scope_mismatch'],
+            undefined,
+            outside,
+            entities,
+            undefined,
+            'OUTSIDE_POINT_RADIUS_SCOPE',
+          );
+    }
+    return {
+      proposalName: resolvedProposal.candidate.name,
+      kind: 'EXPERIENCE',
+      status: 'AUTHORITATIVELY_VERIFIED',
+      accepted: true,
+      strategy: 'canonical_entity',
+      anchors: entities,
+      groundedEvidenceKeys: evidenceKeys,
+      rejectionReasons: [],
+      validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
+    };
+  }
+
+  /**
+   * Evidence-based administrative contradictions between components:
+   * COUNTRY always; REGION too for a candidate-owned scope (one real AREA or
+   * ROUTE cannot contain components positively placed in different
+   * regions). Missing admin metadata never counts as a conflict.
+   */
+  private adminContextConflict(
+    anchors: ResolvedGeoEntity[],
+    includeRegion: boolean,
+  ):
+    | {
+        reason: GeographicDecisionReason;
+        offendingEntities: ResolvedGeoEntity[];
+      }
+    | undefined {
+    if (this.distinctAdminValues(anchors, 'country').size > 1) {
+      return {
+        reason: 'COUNTRY_CONFLICT',
+        offendingEntities: anchors.filter((e) => e.adminContext?.country),
+      };
+    }
+    if (includeRegion && this.distinctAdminValues(anchors, 'region').size > 1) {
+      return {
+        reason: 'REGION_CONFLICT',
+        offendingEntities: anchors.filter((e) => e.adminContext?.region),
+      };
+    }
+    return undefined;
+  }
+
+  /**
+   * Destination scope is owned by the single destination-compatibility
+   * policy; this validator only asks it. UNKNOWN is never treated as inside.
+   */
+  private isInsideDestination(
+    entity: ResolvedGeoEntity,
+    destination: GeographicScope | undefined,
+  ): boolean {
+    return (
+      evaluateDestinationCompatibility(
+        {
+          probePoints: [
+            {
+              latitude: entity.latitude as number,
+              longitude: entity.longitude as number,
+            },
+          ],
+        },
+        destination,
+      ).verdict === 'COMPATIBLE'
+    );
   }
 
   /**
@@ -371,7 +764,7 @@ export class CompositeGeographicValidationService {
     resolvedProposal: ResolvedExperienceCandidate,
     resolved: ResolvedGeoEntity[],
     withCoordinates: ResolvedGeoEntity[],
-    validationScope: ExperienceValidationScope,
+    validationScope: WorkUnitAnchorScope,
     evidenceKeys: string[],
     geographicAuthorization: GeographicValidationAuthorization,
     destinationBoundary?: OsmCandidate,
@@ -394,7 +787,6 @@ export class CompositeGeographicValidationService {
     // vacuously passing `.find()` on an empty array regardless of whether
     // `validationScope.geometry` is real).
     if (
-      validationScope.kind !== 'POINT_RADIUS' &&
       !this.isUsableScopeGeometry(
         validationScope.kind,
         validationScope.geometry,
@@ -533,7 +925,7 @@ export class CompositeGeographicValidationService {
   }
 
   /**
-   * Independent shape validity check for an `ExperienceValidationScope`'s
+   * Independent shape validity check for an `WorkUnitAnchorScope`'s
    * own geometry — a malformed/wrong-kind geometry must fail closed
    * regardless of candidate composition (see call site). AREA needs a
    * real polygonal shape (Polygon/MultiPolygon); ROUTE needs a real
@@ -553,473 +945,6 @@ export class CompositeGeographicValidationService {
       );
     }
     return isUsableRouteGeometry(geometry);
-  }
-
-  /**
-   * A resolved GeoEntity with real canonical geometry (a ROUTE linestring
-   * matching a `route`-role hint, or an AREA polygon matching an `area`-role
-   * hint alongside at least one waypoint/venue hint) is authoritative —
-   * accept immediately rather than falling through to the anchor-count/
-   * coherence heuristics `validateExperience` uses for candidates that never
-   * had real geometry to begin with. `validateExperience` already filters
-   * out `role === 'area'` entities entirely (never treating an area as a
-   * valid anchor on its own) and has no equivalent short-circuit for a
-   * resolved ROUTE geometry either, so without this a genuinely well-evidenced
-   * route/area candidate could be rejected as `insufficient_resolved_entities`
-   * purely because its one strong anchor doesn't count as one.
-   * Returns undefined (no short-circuit) for every other case, in which case
-   * the caller falls through to `validateExperience` unchanged.
-   */
-  private tryCanonicalGeometry(
-    resolvedProposal: ResolvedExperienceCandidate,
-    withCoordinates: ResolvedGeoEntity[],
-    destinationBoundary: OsmCandidate,
-    evidenceKeys: string[],
-  ): GeographicValidationResult | undefined {
-    const proposalName = resolvedProposal.candidate.name;
-
-    const canonicalRoute = withCoordinates.find(
-      isCanonicalPhysicalRouteComponent,
-    );
-    if (canonicalRoute) {
-      const routeMismatch = this.routeDestinationMismatch(
-        [canonicalRoute],
-        destinationBoundary,
-      );
-      if (routeMismatch.mismatch) {
-        return this.rejected(
-          proposalName,
-          'ROUTE',
-          [canonicalRoute],
-          evidenceKeys,
-          ['destination_mismatch'],
-          undefined,
-          routeMismatch.offendingEntities,
-          [canonicalRoute],
-          undefined,
-          routeMismatch.reason,
-          destinationBoundary.geometry,
-        );
-      }
-      // Task B5 (correctness point 10): validate every OTHER source
-      // component too, not just the one canonical ROUTE entity (the
-      // composition is complete here, see rejectIfSourceCompositionIncomplete).
-      const nonRouteEntities = withCoordinates.filter(
-        (entity) => entity !== canonicalRoute,
-      );
-      const fullSet = [canonicalRoute, ...nonRouteEntities];
-      const fullMismatch = this.routeDestinationMismatch(
-        fullSet,
-        destinationBoundary,
-      );
-      if (fullMismatch.mismatch) {
-        return this.rejected(
-          proposalName,
-          'ROUTE',
-          fullSet,
-          evidenceKeys,
-          ['destination_mismatch'],
-          undefined,
-          fullMismatch.offendingEntities,
-          fullSet,
-          undefined,
-          fullMismatch.reason,
-          destinationBoundary.geometry,
-        );
-      }
-      return {
-        proposalName,
-        kind: 'ROUTE',
-        status: 'GEO_VERIFIED',
-        accepted: true,
-        strategy: 'canonical_geometry',
-        canonicalEntity: canonicalRoute,
-        anchors: fullSet,
-        groundedEvidenceKeys: evidenceKeys,
-        rejectionReasons: [],
-        validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
-      };
-    }
-
-    // Task B5 (correctness point 14): the canonical-area shortcut applies
-    // ONLY when there is EXACTLY ONE source AREA component — zero AREA
-    // components means no shortcut at all; two or more means a genuine
-    // multi-area Experience that must fall through to validateExperience's
-    // destination+coherence path instead of being forced into one area's
-    // containment.
-    const areaHints = resolvedProposal.candidate.componentHints.filter(
-      (hint) => hint.role === 'area',
-    );
-    const hasWaypointHint = resolvedProposal.candidate.componentHints.some(
-      (hint) => hint.role === 'waypoint' || hint.role === 'venue',
-    );
-    if (areaHints.length === 1 && hasWaypointHint) {
-      const canonicalArea = withCoordinates.find(
-        (entity) =>
-          entity.role === 'area' &&
-          entity.hintKey === areaHints[0].key &&
-          entity.geometry,
-      );
-      if (canonicalArea) {
-        if (!this.isInsideDestination(canonicalArea, destinationBoundary)) {
-          return this.rejected(
-            proposalName,
-            'EXPERIENCE',
-            [canonicalArea],
-            evidenceKeys,
-            ['destination_mismatch'],
-            undefined,
-            [canonicalArea],
-            [canonicalArea],
-            undefined,
-            'OUTSIDE_DESTINATION_BOUNDARY',
-            destinationBoundary.geometry,
-          );
-        }
-        // Task B5 (correctness point 10): validate every OTHER (non-area)
-        // source component too, not just the canonical AREA entity, through
-        // the single area-membership authority: a point must be INSIDE, a
-        // real street/route geometry must enter the area.
-        const nonAreaEntities = withCoordinates.filter(
-          (entity) => entity.role !== 'area',
-        );
-        const outsideArea = nonAreaEntities.filter(
-          (entity) =>
-            !relationSupportsMembership(
-              classifyComponentAreaRelation(
-                canonicalArea.geometry as GeoJsonGeometry,
-                componentFact(entity),
-              ),
-            ),
-        );
-        if (outsideArea.length > 0) {
-          // For outsideArea, the mismatch is against the canonicalArea geometry, not the destinationBoundary
-          // We need to calculate distance to the canonicalArea polygon
-          return this.rejected(
-            proposalName,
-            'EXPERIENCE',
-            [canonicalArea, ...outsideArea],
-            evidenceKeys,
-            ['destination_mismatch'],
-            undefined,
-            outsideArea,
-            [canonicalArea, ...outsideArea],
-            undefined,
-            'OUTSIDE_CANONICAL_AREA_BOUNDARY',
-            canonicalArea.geometry as GeoJsonGeometry,
-          );
-        }
-        return {
-          proposalName,
-          kind: 'EXPERIENCE',
-          status: 'GEO_VERIFIED',
-          accepted: true,
-          strategy: 'canonical_area',
-          canonicalEntity: canonicalArea,
-          anchors: [canonicalArea, ...nonAreaEntities],
-          groundedEvidenceKeys: evidenceKeys,
-          rejectionReasons: [],
-          validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
-        };
-      }
-    }
-
-    return undefined;
-  }
-
-  private validateExperience(
-    resolvedProposal: ResolvedExperienceCandidate,
-    withCoordinates: ResolvedGeoEntity[],
-    destinationBoundary: OsmCandidate,
-    evidenceKeys: string[],
-    geographicAuthorization: GeographicValidationAuthorization,
-  ): GeographicValidationResult {
-    const proposal = resolvedProposal.candidate;
-    const proposalName = proposal.name;
-    const kind = 'EXPERIENCE';
-    const venueCentric =
-      proposal.componentHints.length === 1 &&
-      proposal.componentHints[0].role === 'venue';
-    const anchors = this.dedupeEntities(
-      withCoordinates.filter((entity) => entity.role !== 'area'),
-    );
-    // Route-scale thresholds have exactly two authorities:
-    //  1. an independently verified physical fact -- a resolved canonical
-    //     ROUTE GeoEntity with usable route geometry (the source hint role
-    //     only confirms correspondence; it never proves a route), or
-    //  2. the ROUTE_LIKE authorization the producing work unit granted THIS
-    //     candidate (never `proposal.intents`/`themes`/`traits`, never a
-    //     request-level intent, never a deficit owned by another unit).
-    // This does not mean `route_like == ROUTE`; it only widens which
-    // threshold set applies below.
-    const hasCanonicalRouteComponent = anchors.some(
-      isCanonicalPhysicalRouteComponent,
-    );
-    const routeScale =
-      hasCanonicalRouteComponent ||
-      authorizesRouteScale(geographicAuthorization);
-
-    if (venueCentric) {
-      if (evidenceKeys.length === 0) {
-        return this.rejected(
-          proposalName,
-          kind,
-          anchors,
-          evidenceKeys,
-          ['grounded_evidence_missing'],
-          undefined,
-          anchors,
-          anchors,
-        );
-      }
-      const venue = anchors.find(
-        (entity) => entity.hintKey === proposal.componentHints[0].key,
-      );
-      if (venue) {
-        if (!this.isInsideDestination(venue, destinationBoundary)) {
-          return this.rejected(
-            proposalName,
-            kind,
-            [venue],
-            evidenceKeys,
-            ['destination_mismatch'],
-            undefined,
-            [venue],
-            [venue],
-            undefined,
-            'OUTSIDE_DESTINATION_BOUNDARY',
-            destinationBoundary.geometry,
-          );
-        }
-        return {
-          proposalName,
-          kind,
-          status: 'GEO_VERIFIED',
-          accepted: true,
-          strategy: 'venue_centric',
-          canonicalEntity: venue,
-          anchors: [venue],
-          groundedEvidenceKeys: evidenceKeys,
-          rejectionReasons: [],
-          validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
-        };
-      }
-    }
-
-    if (
-      anchors.length < (routeScale ? 1 : this.thresholds.experience.minAnchors)
-    ) {
-      return this.rejected(
-        proposalName,
-        kind,
-        anchors,
-        evidenceKeys,
-        ['insufficient_resolved_entities'],
-        undefined,
-        anchors,
-        anchors,
-      );
-    }
-    const mismatch = routeScale
-      ? this.routeDestinationMismatch(anchors, destinationBoundary)
-      : this.destinationMismatch(anchors, destinationBoundary, false);
-    if (mismatch.mismatch) {
-      return this.rejected(
-        proposalName,
-        kind,
-        anchors,
-        evidenceKeys,
-        ['destination_mismatch'],
-        undefined,
-        mismatch.offendingEntities,
-        anchors,
-        undefined,
-        mismatch.reason,
-        destinationBoundary.geometry,
-      );
-    }
-    const coherence = coherenceMetrics(this.pointsOf(anchors));
-    if (
-      coherence.radiusMeters >
-        (routeScale
-          ? this.thresholds.route.maxRadiusMeters
-          : this.thresholds.experience.maxRadiusMeters) ||
-      coherence.maxPairwiseDistanceMeters >
-        (routeScale
-          ? this.thresholds.route.maxPairwiseDistanceMeters
-          : this.thresholds.experience.maxPairwiseDistanceMeters)
-    ) {
-      return this.rejected(
-        proposalName,
-        kind,
-        anchors,
-        evidenceKeys,
-        ['geographic_incoherence'],
-        coherence,
-        anchors,
-        anchors,
-      );
-    }
-    return {
-      proposalName,
-      kind,
-      status: 'GEO_VERIFIED',
-      accepted: true,
-      strategy: 'component_defined',
-      anchors,
-      coherence,
-      groundedEvidenceKeys: evidenceKeys,
-      rejectionReasons: [],
-      validatorVersion: GEOGRAPHIC_VALIDATOR_VERSION,
-    };
-  }
-
-  /**
-   * Walks and ordinary experiences are destination-local and therefore every
-   * component must remain inside the resolved destination boundary. ROUTE has
-   * a separate policy because a real regional route can legitimately leave a
-   * city polygon (for example wineries in Maipú/Luján de Cuyo for Mendoza).
-   */
-  private destinationMismatch(
-    anchors: ResolvedGeoEntity[],
-    destinationBoundary: OsmCandidate,
-    requireSameLocality: boolean,
-  ): {
-    mismatch: boolean;
-    reason?: GeographicDecisionReason;
-    offendingEntities: ResolvedGeoEntity[];
-  } {
-    // Check polygon containment
-    const outsidePolygon = anchors.filter(
-      (entity) => !this.isInsideDestination(entity, destinationBoundary),
-    );
-    if (outsidePolygon.length > 0) {
-      return {
-        mismatch: true,
-        reason: 'OUTSIDE_DESTINATION_BOUNDARY',
-        offendingEntities: outsidePolygon,
-      };
-    }
-
-    const countries = this.distinctAdminValues(anchors, 'country');
-    if (countries.size > 1) {
-      return {
-        mismatch: true,
-        reason: 'COUNTRY_CONFLICT',
-        offendingEntities: anchors.filter((e) => e.adminContext?.country),
-      };
-    }
-
-    if (requireSameLocality) {
-      const localities = new Set<string>();
-      const localityEntities: ResolvedGeoEntity[] = [];
-      for (const entity of anchors) {
-        const locality =
-          entity.adminContext?.locality ?? entity.adminContext?.municipality;
-        if (locality) {
-          localities.add(this.normalize(locality));
-          localityEntities.push(entity);
-        }
-      }
-      if (localities.size > 1) {
-        return {
-          mismatch: true,
-          reason: 'LOCALITY_CONFLICT',
-          offendingEntities: localityEntities,
-        };
-      }
-    }
-    return { mismatch: false, offendingEntities: [] };
-  }
-
-  /**
-   * A component-defined ROUTE is validated against the broader destination
-   * context rather than the city polygon alone. Administrative contradictions
-   * are authoritative when metadata exists; otherwise coordinates may extend
-   * outside the polygon only within the route-scale threshold from the
-   * destination centroid. This keeps regional routes possible without turning
-   * an unrelated distant cluster into a valid route.
-   */
-  private routeDestinationMismatch(
-    anchors: ResolvedGeoEntity[],
-    destinationBoundary: OsmCandidate,
-  ): {
-    mismatch: boolean;
-    reason?: GeographicDecisionReason;
-    offendingEntities: ResolvedGeoEntity[];
-  } {
-    const countries = this.distinctAdminValues(anchors, 'country');
-    if (countries.size > 1) {
-      return {
-        mismatch: true,
-        reason: 'COUNTRY_CONFLICT',
-        offendingEntities: anchors.filter((e) => e.adminContext?.country),
-      };
-    }
-    const regions = this.distinctAdminValues(anchors, 'region');
-    if (regions.size > 1) {
-      return {
-        mismatch: true,
-        reason: 'REGION_CONFLICT',
-        offendingEntities: anchors.filter((e) => e.adminContext?.region),
-      };
-    }
-
-    const outsideRadius = anchors.filter((entity) => {
-      if (
-        !Number.isFinite(entity.latitude) ||
-        !Number.isFinite(entity.longitude)
-      ) {
-        return true;
-      }
-      return (
-        evaluateDestinationCompatibility(
-          {
-            probePoints: [
-              {
-                latitude: entity.latitude as number,
-                longitude: entity.longitude as number,
-              },
-            ],
-          },
-          { kind: 'AREA_BOUNDARY', boundary: destinationBoundary },
-          {
-            routeScale: true,
-          },
-        ).verdict !== 'COMPATIBLE'
-      );
-    });
-    if (outsideRadius.length > 0) {
-      return {
-        mismatch: true,
-        reason: 'OUTSIDE_ROUTE_DESTINATION_RADIUS',
-        offendingEntities: outsideRadius,
-      };
-    }
-    return { mismatch: false, offendingEntities: [] };
-  }
-
-  /**
-   * Destination scope is owned by the single destination-compatibility
-   * policy; this validator only asks it. UNKNOWN is never treated as inside.
-   */
-  private isInsideDestination(
-    entity: ResolvedGeoEntity,
-    destinationBoundary: OsmCandidate,
-  ): boolean {
-    return (
-      evaluateDestinationCompatibility(
-        {
-          probePoints: [
-            {
-              latitude: entity.latitude as number,
-              longitude: entity.longitude as number,
-            },
-          ],
-        },
-        { kind: 'AREA_BOUNDARY', boundary: destinationBoundary },
-      ).verdict === 'COMPATIBLE'
-    );
   }
 
   private distinctAdminValues(

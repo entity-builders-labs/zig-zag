@@ -205,14 +205,6 @@ describe('CloudflareDiscoveryProvider', () => {
           suggestedDurationMinutes: 360,
           componentHints: [
             {
-              key: 'maipu',
-              name: 'Maipú',
-              role: 'area',
-              expectedKind: 'AREA',
-              evidenceKeys: ['ev-1'],
-              supportSpan: 'Historic barrio',
-            },
-            {
               key: 'trapiche',
               name: 'Bodega Trapiche',
               role: 'venue',
@@ -257,14 +249,6 @@ describe('CloudflareDiscoveryProvider', () => {
           intents: ['route_like', 'visit'],
           suggestedDurationMinutes: 360,
           componentHints: [
-            {
-              key: 'lujan',
-              name: 'Luján de Cuyo',
-              role: 'area',
-              expectedKind: 'AREA',
-              evidenceKeys: ['ev-1'],
-              supportSpan: 'Historic barrio',
-            },
             {
               key: 'catena',
               name: 'Catena Zapata',

@@ -14,7 +14,6 @@ import {
   CompositeComponentResolution,
   CompositeResolutionCoverage,
   ExperienceGeographicValidationResult,
-  ExperienceValidationScope,
   GeographicScope,
   ResolvedExperienceCandidate,
   ResolvedGeoEntity,
@@ -23,6 +22,7 @@ import {
   classifyComponentAreaRelation,
   classifyComponentPointRadiusRelation,
 } from './area-scope-membership-policy';
+import { WorkUnitAnchorScope } from '../interfaces/experience-geographic-scope.interface';
 
 /**
  * Builds the per-component truth of one source-backed candidate: identity
@@ -36,7 +36,7 @@ export function buildCompositeComponentResolution(input: {
   candidate: ExperienceCandidate;
   entities: ResolvedGeoEntity[];
   componentAudits: ComponentResolutionAudit[];
-  validationScope?: ExperienceValidationScope;
+  validationScope?: WorkUnitAnchorScope;
   geographicScope?: GeographicScope;
 }): CompositeComponentResolution {
   const relationScope = componentRelationScope(
@@ -129,7 +129,7 @@ export function buildCompositeComponentResolution(input: {
  * boundary, else the destination's point radius.
  */
 function componentRelationScope(
-  validationScope: ExperienceValidationScope | undefined,
+  validationScope: WorkUnitAnchorScope | undefined,
   geographicScope: GeographicScope | undefined,
 ): {
   scope: ComponentGeographicScope;
@@ -137,7 +137,11 @@ function componentRelationScope(
 } {
   if (validationScope && isPolygonal(validationScope.geometry)) {
     return {
-      scope: { kind: 'VALIDATION_AREA', name: validationScope.anchorName },
+      scope: {
+        kind: 'SCOPE',
+        provenance: 'WORK_UNIT_ANCHOR',
+        name: validationScope.anchorName,
+      },
       relate: (fact) =>
         classifyComponentAreaRelation(validationScope.geometry, fact),
     };
@@ -148,7 +152,8 @@ function componentRelationScope(
   ) {
     return {
       scope: {
-        kind: 'DESTINATION_AREA',
+        kind: 'SCOPE',
+        provenance: 'DESTINATION_AREA',
         ...(geographicScope.boundary.name
           ? { name: geographicScope.boundary.name }
           : {}),
@@ -160,7 +165,8 @@ function componentRelationScope(
   if (geographicScope?.kind === 'POINT_RADIUS') {
     return {
       scope: {
-        kind: 'POINT_RADIUS',
+        kind: 'SCOPE',
+        provenance: 'DESTINATION_POINT_RADIUS',
         radiusMeters: geographicScope.radiusMeters,
       },
       relate: (fact) =>

@@ -6,6 +6,16 @@ import { SourceObservation } from '../interfaces/experience-acquisition.interfac
 import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
 import { computeQualityScore } from '../utils/quality-score.util';
+import { geographicScopeSearchWindow } from '../utils/experience-geographic-scope.policy';
+
+/** The Nominatim bias the resolver derives from the destination polygon. */
+const destinationWindowBias = (boundary: any) => {
+  const window = geographicScopeSearchWindow(
+    { kind: 'AREA_BOUNDARY', boundary },
+    'DESTINATION_AREA',
+  )!;
+  return { center: window.center, radiusMeters: window.radiusMeters };
+};
 
 describe('ExperienceProposalResolverService', () => {
   const boundary: any = {
@@ -608,7 +618,7 @@ describe('ExperienceProposalResolverService', () => {
     });
 
     expect(nominatim.search).toHaveBeenCalledWith('Tigre', {
-      bias: { latitude: -34.6, longitude: -58.45 },
+      bias: destinationWindowBias(boundary),
     });
     expect(result.acceptedCount).toBe(0);
     expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
@@ -711,7 +721,7 @@ describe('ExperienceProposalResolverService', () => {
 
     expect(nominatim.search).toHaveBeenCalledWith(
       'Ischigualasto Provincial Park',
-      { bias: { latitude: -34.6, longitude: -58.45 } },
+      { bias: destinationWindowBias(boundary) },
     );
     expect(result.acceptedCount).toBe(0);
     expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
@@ -784,7 +794,7 @@ describe('ExperienceProposalResolverService', () => {
 
     expect(nominatim.search).toHaveBeenCalledWith('Cerro Alcázar', {
       countryCode: 'AR',
-      bias: { latitude: -34.6, longitude: -58.45 },
+      bias: destinationWindowBias(boundary),
     });
   });
 
@@ -3833,7 +3843,7 @@ describe('ExperienceProposalResolverService', () => {
       // Proves the global path was actually attempted (not short-circuited
       // before it, the way the local-only test above never even calls it).
       expect(nominatim.search).toHaveBeenCalledWith('San Ignacio Church', {
-        bias: { latitude: -34.6, longitude: -58.45 },
+        bias: destinationWindowBias(boundary),
       });
       expect(result.acceptedCount).toBe(0);
       expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
@@ -7933,7 +7943,11 @@ describe('ExperienceProposalResolverService', () => {
       expect(findGeoEntityCandidatesForHint).toHaveBeenCalledWith({
         hintName: 'San Telmo',
         expectedKind: GeoEntityKind.AREA,
-        scope: narrowScope,
+        window: {
+          provenance: 'WORK_UNIT_ANCHOR',
+          center: { latitude: -34.62, longitude: -58.37 },
+          radiusMeters: 300,
+        },
       });
     });
   });

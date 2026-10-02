@@ -885,7 +885,7 @@ describe('tour-generation integration · area/route walk geographic validation (
     });
   });
 
-  describe('E2/O/P: route_like route-scale geography is driven ONLY by the owning work unit authorization, real resolver end-to-end', () => {
+  describe('E2/O/P: geographic policy is driven ONLY by the owning work unit authorization, and authorization never selects a radius (spec 2026-10-02 Part II), real resolver end-to-end', () => {
     function wineryCandidate(intents: string[]): ExperienceCandidate {
       return {
         name: 'Ruta del Vino',
@@ -913,8 +913,8 @@ describe('tour-generation integration · area/route walk geographic validation (
       };
     }
 
-    // Spread wide enough (~77km apart, inside a wide destination boundary)
-    // to fail the tight `experience`-scale thresholds but pass `route`-scale.
+    // ~77 km apart inside ONE wide destination polygon: no coherence radius
+    // decides validity any more (dispersion is planning feasibility).
     const WIDE_BOUNDARY: any = {
       id: 'osm:relation:2',
       name: 'Wide region',
@@ -961,7 +961,7 @@ describe('tour-generation integration · area/route walk geographic validation (
       };
     }
 
-    it('E2/O: accepts under route-scale thresholds when the owning route_like unit authorizes the candidate, even with no route component', async () => {
+    it('E2/O: accepts a destination-local composition under the owning route_like unit authorization, even with no route component and ~77 km dispersion', async () => {
       const geographicValidator = new CompositeGeographicValidationService();
       const resolver = new ExperienceProposalResolverService(
         wineryOsmPlaces() as any,
@@ -986,16 +986,32 @@ describe('tour-generation integration · area/route walk geographic validation (
       expect(result.acceptedCount).toBe(1);
     });
 
-    it("P: a candidate declaring intents:['route_like'] itself CANNOT substitute for a work-unit authorization -- ordinary (tighter) thresholds still apply and reject", async () => {
+    it("P: a candidate declaring intents:['route_like'] itself CANNOT substitute for a work-unit authorization -- with a stop beyond the destination it stays a plain destination mismatch", async () => {
       const geographicValidator = new CompositeGeographicValidationService();
       const resolver = new ExperienceProposalResolverService(
         wineryOsmPlaces() as any,
         catalog,
         geographicValidator,
       );
+      // Winery B (-34.85) lies outside this narrower destination polygon.
+      const NARROW_BOUNDARY = {
+        ...WIDE_BOUNDARY,
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [-58.6, -34.5],
+              [-58.2, -34.5],
+              [-58.2, -34.1],
+              [-58.6, -34.1],
+              [-58.6, -34.5],
+            ],
+          ],
+        },
+      };
 
       const result = await resolver.resolve({
-        geographicScope: { kind: 'AREA_BOUNDARY', boundary: WIDE_BOUNDARY },
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary: NARROW_BOUNDARY },
         candidates: withDefaultGeographicAuthorization([
           wineryCandidate(['route_like']),
         ]), // candidate claims route_like...
@@ -1004,6 +1020,9 @@ describe('tour-generation integration · area/route walk geographic validation (
       });
 
       expect(result.acceptedCount).toBe(0);
+      expect(result.geographicValidation.results[0]?.rejectionReasons).toEqual([
+        'destination_mismatch',
+      ]);
       const prisma = await getPrisma();
       const persistedCount = await prisma.experience.count({
         where: { canonicalName: 'Ruta del Vino' },

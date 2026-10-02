@@ -9,10 +9,7 @@ import { NominatimApiService } from 'src/modules/integrations/osm/services/nomin
 import { OverpassApiService } from 'src/modules/integrations/osm/services/overpass-api.service';
 import { OsmPlacesService } from 'src/modules/integrations/osm/services/osm-places.service';
 import { DestinationResolutionService } from 'src/modules/tours/services/destination-resolution.service';
-import {
-  PLACES_FALLBACK_BIAS_RADIUS_METERS,
-  selectBestPlaceCandidate,
-} from 'src/modules/tours/services/experience-proposal-resolver.service';
+import { selectBestPlaceCandidate } from 'src/modules/tours/services/experience-proposal-resolver.service';
 import { normalizeGeoName } from 'src/modules/tours/utils/nominatim-match.util';
 import { calculateDistance } from '@shared/utils/distance.utils';
 import { loadRootEnv } from './discovery/discovery-live.helper';
@@ -53,7 +50,11 @@ const RAW_DIR = path.join(OUT_DIR, 'raw');
 const DESTINATION_TEXT = 'Buenos Aires, Argentina';
 // Same wizard-style selected point used by every prior Stage 3 BA spike.
 const SELECTED_POINT = { latitude: -34.6037, longitude: -58.3816 };
-const RADIUS_METERS = PLACES_FALLBACK_BIAS_RADIUS_METERS; // 50 km, production value
+// Historical characterization parameter (2026-09-25): the then-production
+// 50 km Places bias. That constant was deleted by the spec 2026-10-02 Part II
+// cutover (search windows now derive from scope geometry); kept here only so
+// this characterization stays reproducible.
+const RADIUS_METERS = 50_000;
 const PRODUCTION_WINDOW = 3; // resolveViaPlaces() maxResultCount
 const WIDE_WINDOW = 10;
 const SERPAPI_BUDGET = 8;
@@ -781,7 +782,7 @@ describeIfRun('PLACE provider search characterization (real providers)', () => {
       degradationReason: resolution.degradationReason ?? null,
       boundaryName: resolution.boundary?.name,
       durationMs: Date.now() - t0,
-      note: 'Search center is the wizard-selected point (what resolveViaPlaces receives as destinationPoint); radius is PLACES_FALLBACK_BIAS_RADIUS_METERS. San Telmo is NOT used as a hard scope.',
+      note: 'Search center is the wizard-selected point (what resolveViaPlaces receives as destinationPoint); radius is the historical 50 km bias (deleted 2026-10-02). San Telmo is NOT used as a hard scope.',
     };
     fs.mkdirSync(OUT_DIR, { recursive: true });
     fs.writeFileSync(path.join(RAW_DIR, '..', 'destination.json'), '');

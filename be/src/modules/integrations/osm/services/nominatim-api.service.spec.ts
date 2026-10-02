@@ -149,11 +149,14 @@ describe('NominatimApiService', () => {
     expect(call[1].params).not.toHaveProperty('countrycodes');
   });
 
-  it('sends a soft viewbox bias around the destination point when a bias option is passed', async () => {
+  it('sends a soft viewbox bias covering the caller-supplied search window', async () => {
     mockedAxios.get.mockResolvedValue({ data: [] });
 
     await service.search('Catedral', {
-      bias: { latitude: -34.6037, longitude: -58.3816 },
+      bias: {
+        center: { latitude: -34.6037, longitude: -58.3816 },
+        radiusMeters: 12_000,
+      },
     });
 
     // The last call, not calls[0] — this spec's other tests share the same
@@ -162,6 +165,10 @@ describe('NominatimApiService', () => {
     const call = calls[calls.length - 1]!;
     expect(typeof call[1].params.viewbox).toBe('string');
     expect(call[1].params.viewbox.split(',')).toHaveLength(4);
+    // The viewbox is the caller's scope-derived window, not a constant:
+    // 12 km around the center spans ~0.216 degrees of latitude.
+    const [, top, , bottom] = call[1].params.viewbox.split(',').map(Number);
+    expect(top - bottom).toBeCloseTo((2 * 12_000) / 111_320, 3);
     // Deliberately soft: no `bounded` param, so a real match outside the
     // box is never hard-excluded, only deprioritized against a same-named
     // homonym elsewhere in the country.
@@ -186,7 +193,10 @@ describe('NominatimApiService', () => {
         { street: 'Defensa', city: 'Buenos Aires' },
         {
           countryCode: 'AR',
-          bias: { latitude: -34.6037, longitude: -58.3816 },
+          bias: {
+            center: { latitude: -34.6037, longitude: -58.3816 },
+            radiusMeters: 12_000,
+          },
         },
       );
 

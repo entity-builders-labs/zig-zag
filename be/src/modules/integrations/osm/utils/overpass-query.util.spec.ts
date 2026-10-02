@@ -9,6 +9,7 @@ import {
   buildPoisQuery,
   buildFeaturesNearQuery,
   buildHighwaysByNameQuery,
+  HIGHWAYS_BY_NAME_OPERATIONAL_MAX_RADIUS_METERS,
   buildContainingAdminBoundariesQuery,
 } from './overpass-query.util';
 
@@ -364,13 +365,21 @@ describe('buildHighwaysByNameQuery', () => {
     expect(query).toContain('["name"="Defensa"]');
   });
 
-  it('clamps the radius to a destination-scale ceiling', () => {
-    const query = buildHighwaysByNameQuery({
-      ...base,
-      name: 'Defensa',
-      radiusMeters: 10_000_000,
-    });
-    expect(query).toContain('(around:50000,');
+  it('refuses a window above the operational cap instead of silently clamping it (a clamped search would turn missing coverage into NOT_FOUND)', () => {
+    expect(() =>
+      buildHighwaysByNameQuery({
+        ...base,
+        name: 'Defensa',
+        radiusMeters: HIGHWAYS_BY_NAME_OPERATIONAL_MAX_RADIUS_METERS + 1,
+      }),
+    ).toThrow(/operational cap/);
+    expect(
+      buildHighwaysByNameQuery({
+        ...base,
+        name: 'Defensa',
+        radiusMeters: HIGHWAYS_BY_NAME_OPERATIONAL_MAX_RADIUS_METERS,
+      }),
+    ).toContain(`(around:${HIGHWAYS_BY_NAME_OPERATIONAL_MAX_RADIUS_METERS},`);
   });
 
   it('rejects an empty name after sanitization', () => {

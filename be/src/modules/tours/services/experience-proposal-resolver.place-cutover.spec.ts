@@ -2,11 +2,8 @@ import { withDefaultGeographicAuthorization } from '../utils/geographic-validati
 import { GeoEntityKind } from '@prisma/client';
 import { PlaceData } from '@integrations/google-places/interfaces/places-api.interface';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
-import {
-  ExperienceProposalResolverService,
-  PLACES_FALLBACK_BIAS_RADIUS_METERS,
-} from './experience-proposal-resolver.service';
-import { routeScaleDestinationRadius } from '../utils/destination-compatibility.policy';
+import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
+import { geographicScopeSearchWindow } from '../utils/experience-geographic-scope.policy';
 import { ownedAuthorization } from '../fixtures/geographic-authorization.fixture';
 import { CatalogGeoEntityCandidate } from './experience-catalog.service';
 
@@ -1185,7 +1182,12 @@ describe('ExperienceProposalResolverService -- candidate-scoped geographic autho
       snippet: `${names.join(', ')} in Buenos Aires`,
     },
   ];
-  const routeRadius = routeScaleDestinationRadius(DESTINATION)!;
+  // The destination window: the bounding-box covering circle of the
+  // destination polygon (spec 2026-10-02 Part II §P2-10), never 50/80 km.
+  const destinationWindow = geographicScopeSearchWindow(
+    DESTINATION,
+    'DESTINATION_AREA',
+  )!;
   const searchCircleFor = (
     placesApi: ReturnType<typeof build>['placesApi'],
     hintName: string,
@@ -1194,7 +1196,7 @@ describe('ExperienceProposalResolverService -- candidate-scoped geographic autho
       ([params]: any[]) => params.textQuery === hintName,
     )?.[0].locationBias;
 
-  it('L: a ROUTE_LIKE-authorized candidate searches the route-scale compatibility domain; a DEFAULT candidate keeps the default circle (no global widening)', async () => {
+  it('G: without a verified candidate-owned scope, ROUTE_LIKE and DEFAULT candidates both search the destination window derived from its polygon -- no ROUTE_SCALE circle, no 50 km plausibility radius', async () => {
     const { service, placesApi } = build({ searchResults: [] });
     const routeCandidate = twoVenueCandidate('Wine road', [
       'Bodega Uno',
@@ -1219,32 +1221,38 @@ describe('ExperienceProposalResolverService -- candidate-scoped geographic autho
       evidence: evidence(['Bodega Uno', 'Bodega Dos', 'Farmacia la Estrella']),
     });
 
-    expect(routeRadius.radiusMeters).toBe(80_000);
-    for (const hintName of ['Bodega Uno', 'Bodega Dos']) {
+    expect(destinationWindow.radiusMeters).toBeLessThan(50_000);
+    for (const hintName of [
+      'Bodega Uno',
+      'Bodega Dos',
+      'Farmacia la Estrella',
+    ]) {
       expect(searchCircleFor(placesApi, hintName)).toEqual({
-        center: routeRadius.center,
-        radius: routeRadius.radiusMeters,
+        center: destinationWindow.center,
+        radius: destinationWindow.radiusMeters,
       });
     }
-    expect(searchCircleFor(placesApi, 'Farmacia la Estrella')).toEqual({
-      center: expect.any(Object),
-      radius: PLACES_FALLBACK_BIAS_RADIUS_METERS,
-    });
-    expect(PLACES_FALLBACK_BIAS_RADIUS_METERS).toBe(50_000);
-
-    const scopes = result.entityResolution.forensicAudit.map((audit) =>
+    const windows = result.entityResolution.forensicAudit.map((audit) =>
       audit.componentAudits.map(
         (component) =>
           component.attempts.find((attempt) => attempt.strategy === 'PLACES')
-            ?.placeSearch?.searchScope?.kind,
+            ?.placeSearch?.searchWindow?.provenance,
       ),
     );
-    expect(scopes).toEqual([['ROUTE_SCALE', 'ROUTE_SCALE'], ['DEFAULT']]);
+    expect(windows).toEqual([
+      ['DESTINATION_AREA', 'DESTINATION_AREA'],
+      ['DESTINATION_AREA'],
+    ]);
+    expect(
+      result.entityResolution.forensicAudit[0].componentSearchScope,
+    ).toEqual({
+      kind: 'AREA',
+      provenance: 'DESTINATION_AREA',
+      name: 'Buenos Aires',
+    });
   });
 
-  it('L: a place 70km out is a viable identity candidate only for a ROUTE_LIKE-authorized component', async () => {
-    // ~70km south-west of the destination centroid: outside the city
-    // polygon, inside the 80km route-scale radius.
+  it('E/PD2: a place 70 km out is never admitted by a destination-centroid radius; a ROUTE_LIKE candidate without a verified scope records GEOGRAPHIC_SCOPE_UNKNOWN, a DEFAULT one only the destination mismatch', async () => {
     const farWinery = place(
       'geo-far-winery',
       'Bodega Lejana',
@@ -1254,47 +1262,53 @@ describe('ExperienceProposalResolverService -- candidate-scoped geographic autho
     );
     const resolveFar = (authorization: any) => {
       const built = build({ searchResults: [farWinery] });
-      return built.service
-        .resolve({
-          destinationName: 'Buenos Aires, Argentina',
-          destinationCountryCode: 'AR',
-          geographicScope: DESTINATION,
-          candidates: [
-            {
-              candidate: twoVenueCandidate('Far road', [
-                'Bodega Lejana',
-                'Bodega Lejana Dos',
-              ]),
-              geographicAuthorization: authorization,
-            },
-          ],
-          evidence: evidence(['Bodega Lejana', 'Bodega Lejana Dos']),
-        })
-        .then((result) =>
-          result.entityResolution.forensicAudit[0].componentAudits[0].attempts.find(
-            (attempt) => attempt.strategy === 'PLACES',
-          ),
-        );
+      return built.service.resolve({
+        destinationName: 'Buenos Aires, Argentina',
+        destinationCountryCode: 'AR',
+        geographicScope: DESTINATION,
+        candidates: [
+          {
+            candidate: twoVenueCandidate('Far road', [
+              'Bodega Lejana',
+              'Bodega Lejana Dos',
+            ]),
+            geographicAuthorization: authorization,
+          },
+        ],
+        evidence: evidence(['Bodega Lejana', 'Bodega Lejana Dos']),
+      });
     };
+    const placesAttemptOf = (result: any) =>
+      result.entityResolution.forensicAudit[0].componentAudits[0].attempts.find(
+        (attempt: any) => attempt.strategy === 'PLACES',
+      );
 
-    const asRoute = await resolveFar(ownedAuthorization('route_like'));
-    expect(asRoute?.placeSearch?.viableCount).toBe(1);
-    expect(asRoute?.candidateAcquired).toBe(true);
-    expect(asRoute?.selectedCandidate).toEqual(
-      expect.objectContaining({ latitude: -35.1, longitude: -58.9 }),
-    );
-
-    const asDefault = await resolveFar({ kind: 'DEFAULT' });
-    expect(asDefault?.placeSearch?.viableCount).toBe(0);
-    expect(asDefault?.placeSearch?.rejected).toEqual([
-      expect.objectContaining({
-        reason: 'DESTINATION_INCOMPATIBLE',
-        destinationReason: 'OUTSIDE_DESTINATION_BOUNDARY',
-      }),
-    ]);
+    for (const authorization of [
+      ownedAuthorization('route_like'),
+      { kind: 'DEFAULT' },
+    ]) {
+      const result = await resolveFar(authorization);
+      expect(placesAttemptOf(result)?.placeSearch?.viableCount).toBe(0);
+      expect(placesAttemptOf(result)?.placeSearch?.rejected).toEqual([
+        expect.objectContaining({
+          reason: 'DESTINATION_INCOMPATIBLE',
+          destinationReason: 'OUTSIDE_DESTINATION_BOUNDARY',
+        }),
+      ]);
+      expect(result.resolved[0].status).toBe('rejected');
+      if (authorization.kind === 'ROUTE_LIKE') {
+        expect(result.resolved[0].rejectionReasons).toContain(
+          'GEOGRAPHIC_SCOPE_UNKNOWN',
+        );
+      } else {
+        expect(result.resolved[0].rejectionReasons).not.toContain(
+          'GEOGRAPHIC_SCOPE_UNKNOWN',
+        );
+      }
+    }
   });
 
-  it('M: one batch with ROUTE_LIKE, DEFAULT and WALK candidates applies each its own policy -- no batch-level leakage', async () => {
+  it('M: one batch with ROUTE_LIKE, DEFAULT and WALK candidates applies each its own policy -- authorization never selects a radius', async () => {
     const { service, placesApi } = build({ searchResults: [] });
     const a = twoVenueCandidate('A route', ['Alpha One', 'Alpha Two']);
     const b = placeCandidate('Bravo');
@@ -1329,12 +1343,15 @@ describe('ExperienceProposalResolverService -- candidate-scoped geographic autho
 
     const radiusOf = (hintName: string) =>
       searchCircleFor(placesApi, hintName)?.radius;
-    expect(radiusOf('Alpha One')).toBe(80_000);
-    expect(radiusOf('Alpha Two')).toBe(80_000);
-    expect(radiusOf('Bravo')).toBe(50_000);
-    // WALK never widens destination compatibility or identity search.
-    expect(radiusOf('Charlie One')).toBe(50_000);
-    expect(radiusOf('Charlie Two')).toBe(50_000);
+    for (const hintName of [
+      'Alpha One',
+      'Alpha Two',
+      'Bravo',
+      'Charlie One',
+      'Charlie Two',
+    ]) {
+      expect(radiusOf(hintName)).toBe(destinationWindow.radiusMeters);
+    }
 
     expect(
       result.entityResolution.forensicAudit.map(
@@ -1353,7 +1370,10 @@ describe('ExperienceProposalResolverService -- candidate-scoped geographic autho
     jest
       .spyOn(service as any, 'resolveCandidate')
       .mockImplementation(async (candidate: any, ...rest: any[]) => {
-        const authorization = rest[rest.length - 1];
+        // (boundary, getPoiLookup, entityResolutionScope, destinationScope,
+        //  destinationName, evidence, countryCode, observations, AUTHORIZATION,
+        //  workUnitScope)
+        const authorization = rest[8];
         return {
           resolved: {
             candidate,

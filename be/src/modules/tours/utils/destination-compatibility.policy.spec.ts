@@ -1,5 +1,12 @@
+import { GeoEntityKind } from '@prisma/client';
+import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
-import { evaluateDestinationCompatibility } from './destination-compatibility.policy';
+import {
+  evaluateDestinationCompatibility,
+  evaluateExperienceDestinationRelation,
+  evaluateScopeDestinationRelation,
+  isCoarserThanDestination,
+} from './destination-compatibility.policy';
 
 // A square "CABA" destination admin boundary (admin_level 8, like the real
 // resolved relation 1224652) with a hole, to prove hole handling.
@@ -146,63 +153,140 @@ describe('evaluateDestinationCompatibility (single destination-scope owner)', ()
       ).verdict,
     ).toBe('INCOMPATIBLE');
   });
+});
 
-  describe('routeScale evaluation', () => {
-    it('COMPATIBLE with WITHIN_DESTINATION_BOUNDARY when probe is inside polygon even with routeScale: true', () => {
-      expect(
-        evaluateDestinationCompatibility(
-          { probePoints: [INSIDE] },
-          DESTINATION,
-          { routeScale: true },
-        ),
-      ).toEqual({
-        verdict: 'COMPATIBLE',
-        reason: 'WITHIN_DESTINATION_BOUNDARY',
-      });
-    });
+describe('destination relation facts (spec 2026-10-02 Part II §P2-9)', () => {
+  // ~105 km south of the destination: a regional component no circle decides.
+  const REGIONAL = { latitude: -35.57, longitude: -58.43 };
 
-    it('COMPATIBLE with WITHIN_ROUTE_DESTINATION_RADIUS when probe is outside polygon but within route radius', () => {
-      // OUTSIDE is ~15 km from center (-34.62, -58.43)
+  it('compatibility is polygon-only: a probe 105 km away is INCOMPATIBLE for the same reason as one 1 km outside -- no route-scale radius exists', () => {
+    for (const probe of [OUTSIDE, REGIONAL]) {
       expect(
-        evaluateDestinationCompatibility(
-          { probePoints: [OUTSIDE] },
-          DESTINATION,
-          { routeScale: true },
-        ),
-      ).toEqual({
-        verdict: 'COMPATIBLE',
-        reason: 'WITHIN_ROUTE_DESTINATION_RADIUS',
-      });
-    });
-
-    it('INCOMPATIBLE with OUTSIDE_ROUTE_DESTINATION_RADIUS when probe is outside route radius (e.g. 200 km away)', () => {
-      const farAway = { latitude: -36.0, longitude: -60.0 };
-      expect(
-        evaluateDestinationCompatibility(
-          { probePoints: [farAway] },
-          DESTINATION,
-          { routeScale: true },
-        ),
-      ).toEqual({
-        verdict: 'INCOMPATIBLE',
-        reason: 'OUTSIDE_ROUTE_DESTINATION_RADIUS',
-      });
-    });
-
-    it('INCOMPATIBLE with OUTSIDE_DESTINATION_BOUNDARY for AREA candidates with self even under routeScale', () => {
-      expect(
-        evaluateDestinationCompatibility(
-          {
-            self: { osmType: 'relation', osmId: 9999, adminLevel: 8 },
-            probePoints: [OUTSIDE],
-          },
-          DESTINATION,
-          { routeScale: true },
-        ),
+        evaluateDestinationCompatibility({ probePoints: [probe] }, DESTINATION),
       ).toEqual({
         verdict: 'INCOMPATIBLE',
         reason: 'OUTSIDE_DESTINATION_BOUNDARY',
       });
+    }
+  });
+
+  it('Experience relation: WITHIN / EXTENDS_BEYOND / OUTSIDE from component geometry', () => {
+    const point = (
+      key: string,
+      p: { latitude: number; longitude: number },
+    ) => ({
+      hintKey: key,
+      role: 'venue',
+      latitude: p.latitude,
+      longitude: p.longitude,
     });
+    expect(
+      evaluateExperienceDestinationRelation([point('a', INSIDE)], DESTINATION)
+        .relation,
+    ).toBe('WITHIN_DESTINATION');
+    expect(
+      evaluateExperienceDestinationRelation(
+        [point('a', INSIDE), point('b', REGIONAL)],
+        DESTINATION,
+      ),
+    ).toEqual({
+      relation: 'EXTENDS_BEYOND_DESTINATION',
+      outsideComponentKeys: ['b'],
+      undeterminedComponentKeys: [],
+    });
+    expect(
+      evaluateExperienceDestinationRelation(
+        [point('a', REGIONAL), point('b', OUTSIDE)],
+        DESTINATION,
+      ).relation,
+    ).toBe('OUTSIDE_DESTINATION');
+  });
+
+  it('Experience relation stays UNKNOWN when it cannot be decided (no destination, undetermined component, no components)', () => {
+    expect(
+      evaluateExperienceDestinationRelation(
+        [{ hintKey: 'a', role: 'venue', ...INSIDE }],
+        undefined,
+      ).relation,
+    ).toBe('UNKNOWN');
+    expect(
+      evaluateExperienceDestinationRelation(
+        [
+          { hintKey: 'a', role: 'venue', ...INSIDE },
+          { hintKey: 'r', role: 'route', kind: GeoEntityKind.ROUTE },
+        ],
+        DESTINATION,
+      ).relation,
+    ).toBe('UNKNOWN');
+    expect(
+      evaluateExperienceDestinationRelation([], DESTINATION).relation,
+    ).toBe('UNKNOWN');
+  });
+
+  it('point destination: relation through its own radius scope', () => {
+    const point: GeographicScope = {
+      kind: 'POINT_RADIUS',
+      latitude: INSIDE.latitude,
+      longitude: INSIDE.longitude,
+      radiusMeters: 10_000,
+    };
+    expect(
+      evaluateExperienceDestinationRelation(
+        [
+          { hintKey: 'a', role: 'venue', ...INSIDE },
+          { hintKey: 'b', role: 'venue', ...REGIONAL },
+        ],
+        point,
+      ).relation,
+    ).toBe('EXTENDS_BEYOND_DESTINATION');
+  });
+
+  it('scope relation: an AREA polygon disjoint from the destination is OUTSIDE, an overlapping one INTERSECTS, a nested one INSIDE', () => {
+    const square = (lon: number, lat: number, d: number): GeoJsonGeometry => ({
+      type: 'Polygon',
+      coordinates: [
+        [
+          [lon - d, lat - d],
+          [lon + d, lat - d],
+          [lon + d, lat + d],
+          [lon - d, lat + d],
+          [lon - d, lat - d],
+        ],
+      ],
+    });
+    expect(
+      evaluateScopeDestinationRelation(
+        square(-58.43, -35.57, 0.1),
+        'area',
+        DESTINATION,
+      ),
+    ).toBe('OUTSIDE');
+    expect(
+      evaluateScopeDestinationRelation(
+        square(-58.33, -34.62, 0.05),
+        'area',
+        DESTINATION,
+      ),
+    ).toBe('INTERSECTS');
+    expect(
+      evaluateScopeDestinationRelation(
+        square(-58.37, -34.6, 0.01),
+        'area',
+        DESTINATION,
+      ),
+    ).toBe('INSIDE');
+    expect(
+      evaluateScopeDestinationRelation(
+        square(-58.37, -34.6, 0.01),
+        'area',
+        undefined,
+      ),
+    ).toBe('UNKNOWN');
+  });
+
+  it('coarse guard fires only on positive admin evidence', () => {
+    expect(isCoarserThanDestination(4, DESTINATION)).toBe(true);
+    expect(isCoarserThanDestination(8, DESTINATION)).toBe(false);
+    expect(isCoarserThanDestination(undefined, DESTINATION)).toBe(false);
   });
 });

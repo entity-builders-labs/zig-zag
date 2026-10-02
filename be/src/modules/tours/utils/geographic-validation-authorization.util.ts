@@ -101,13 +101,6 @@ export function withDefaultGeographicAuthorization(
   return authorizeCandidates(NO_GEOGRAPHIC_GRANT, candidates);
 }
 
-/** Route-scale destination compatibility / thresholds. */
-export function authorizesRouteScale(
-  authorization: GeographicValidationAuthorization,
-): boolean {
-  return authorization.kind === 'ROUTE_LIKE';
-}
-
 /**
  * Anchored (walk/route) membership in an external AREA scope instead of
  * strict containment.
