@@ -1,0 +1,1422 @@
+{
+  "source": {
+    "file": "spikes/rw4-cloudflare-source-fidelity-2026-10-01/output.md",
+    "chars": 88401,
+    "maxChars": 6000
+  },
+  "runs": [
+    {
+      "summary": {
+        "label": "COLD7 inputs",
+        "totalWindows": 17,
+        "chunkCount": 87,
+        "maxRetainedChars": 5953,
+        "allChunksExamined": true,
+        "firstWindowWithFullMandatoryComposition": 1,
+        "mandatoryInOneExcerpt": true,
+        "optionalAlsoInThatWindow": [
+          "Corazon del Sol",
+          "Solo Contigo"
+        ]
+      },
+      "windows": [
+        {
+          "ordinal": 1,
+          "strategy": "RELEVANCE_WINDOWS",
+          "retainedChars": 5953,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 80,
+          "excerpts": [
+            "0-647",
+            "35229-36327",
+            "41153-43907",
+            "55703-55737",
+            "72395-73787"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux",
+            "SuperUco",
+            "Bodega Azul"
+          ],
+          "optionalInWindow": [
+            "Corazon del Sol",
+            "Solo Contigo"
+          ],
+          "mandatoryInOneExcerpt": true
+        },
+        {
+          "ordinal": 2,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4561,
+          "newChunks": 4,
+          "overlapChunks": 1,
+          "unexaminedAfter": 76,
+          "excerpts": [
+            "0-4561"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 3,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4468,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 72,
+          "excerpts": [
+            "4563-9031"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 4,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5708,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 65,
+          "excerpts": [
+            "9033-14741"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 5,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5249,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 58,
+          "excerpts": [
+            "14743-19992"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 6,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5700,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 51,
+          "excerpts": [
+            "19994-25694"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux"
+          ],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 7,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5765,
+          "newChunks": 6,
+          "overlapChunks": 0,
+          "unexaminedAfter": 45,
+          "excerpts": [
+            "25696-31461"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux",
+            "SuperUco"
+          ],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 8,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4851,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 40,
+          "excerpts": [
+            "31463-35227",
+            "36329-37409"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 9,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4022,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 35,
+          "excerpts": [
+            "37411-41151",
+            "43909-44184"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 10,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5839,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 30,
+          "excerpts": [
+            "44186-50025"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 11,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5940,
+          "newChunks": 5,
+          "overlapChunks": 1,
+          "unexaminedAfter": 25,
+          "excerpts": [
+            "48633-54573"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 12,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 2517,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 21,
+          "excerpts": [
+            "54575-55701",
+            "55739-57123"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 13,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4617,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 17,
+          "excerpts": [
+            "57125-61742"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 14,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5482,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 13,
+          "excerpts": [
+            "61744-67226"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 15,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5333,
+          "newChunks": 3,
+          "overlapChunks": 1,
+          "unexaminedAfter": 10,
+          "excerpts": [
+            "65792-71125"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 16,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5901,
+          "newChunks": 3,
+          "overlapChunks": 2,
+          "unexaminedAfter": 7,
+          "excerpts": [
+            "69906-75807"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 17,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 3260,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 0,
+          "excerpts": [
+            "75809-79069"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        }
+      ]
+    },
+    {
+      "summary": {
+        "label": "COLD9 inputs",
+        "totalWindows": 18,
+        "chunkCount": 87,
+        "maxRetainedChars": 5965,
+        "allChunksExamined": true,
+        "firstWindowWithFullMandatoryComposition": 9,
+        "mandatoryInOneExcerpt": true,
+        "optionalAlsoInThatWindow": [
+          "Corazon del Sol",
+          "Solo Contigo"
+        ]
+      },
+      "windows": [
+        {
+          "ordinal": 1,
+          "strategy": "RELEVANCE_WINDOWS",
+          "retainedChars": 5965,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 82,
+          "excerpts": [
+            "9033-10465",
+            "17400-18757",
+            "23637-25694",
+            "35229-36327"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux"
+          ],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 2,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4561,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 77,
+          "excerpts": [
+            "0-4561"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 3,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4468,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 73,
+          "excerpts": [
+            "4563-9031"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 4,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5708,
+          "newChunks": 6,
+          "overlapChunks": 1,
+          "unexaminedAfter": 67,
+          "excerpts": [
+            "9033-14741"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 5,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5659,
+          "newChunks": 8,
+          "overlapChunks": 0,
+          "unexaminedAfter": 59,
+          "excerpts": [
+            "14743-17398",
+            "18759-21756"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 6,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5282,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 52,
+          "excerpts": [
+            "21758-23635",
+            "25696-29094"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux",
+            "SuperUco"
+          ],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 7,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 3196,
+          "newChunks": 3,
+          "overlapChunks": 0,
+          "unexaminedAfter": 49,
+          "excerpts": [
+            "29096-32292"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 8,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4020,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 45,
+          "excerpts": [
+            "32294-35227",
+            "36329-37409"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 9,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5512,
+          "newChunks": 6,
+          "overlapChunks": 0,
+          "unexaminedAfter": 39,
+          "excerpts": [
+            "37411-42923"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux",
+            "SuperUco",
+            "Bodega Azul"
+          ],
+          "optionalInWindow": [
+            "Corazon del Sol",
+            "Solo Contigo"
+          ],
+          "mandatoryInOneExcerpt": true
+        },
+        {
+          "ordinal": 10,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 1259,
+          "newChunks": 2,
+          "overlapChunks": 0,
+          "unexaminedAfter": 37,
+          "excerpts": [
+            "42925-44184"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 11,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5839,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 32,
+          "excerpts": [
+            "44186-50025"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 12,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5940,
+          "newChunks": 5,
+          "overlapChunks": 1,
+          "unexaminedAfter": 27,
+          "excerpts": [
+            "48633-54573"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 13,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 2548,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 22,
+          "excerpts": [
+            "54575-57123"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 14,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4617,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 18,
+          "excerpts": [
+            "57125-61742"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 15,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5482,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 14,
+          "excerpts": [
+            "61744-67226"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 16,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5333,
+          "newChunks": 3,
+          "overlapChunks": 1,
+          "unexaminedAfter": 11,
+          "excerpts": [
+            "65792-71125"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 17,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5901,
+          "newChunks": 4,
+          "overlapChunks": 1,
+          "unexaminedAfter": 7,
+          "excerpts": [
+            "69906-75807"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 18,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 3260,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 0,
+          "excerpts": [
+            "75809-79069"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        }
+      ]
+    },
+    {
+      "summary": {
+        "label": "COLD9 query + COLD7 snippet",
+        "totalWindows": 17,
+        "chunkCount": 87,
+        "maxRetainedChars": 5953,
+        "allChunksExamined": true,
+        "firstWindowWithFullMandatoryComposition": 1,
+        "mandatoryInOneExcerpt": true,
+        "optionalAlsoInThatWindow": [
+          "Corazon del Sol",
+          "Solo Contigo"
+        ]
+      },
+      "windows": [
+        {
+          "ordinal": 1,
+          "strategy": "RELEVANCE_WINDOWS",
+          "retainedChars": 5953,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 80,
+          "excerpts": [
+            "0-647",
+            "35229-36327",
+            "41153-43907",
+            "55703-55737",
+            "72395-73787"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux",
+            "SuperUco",
+            "Bodega Azul"
+          ],
+          "optionalInWindow": [
+            "Corazon del Sol",
+            "Solo Contigo"
+          ],
+          "mandatoryInOneExcerpt": true
+        },
+        {
+          "ordinal": 2,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4561,
+          "newChunks": 4,
+          "overlapChunks": 1,
+          "unexaminedAfter": 76,
+          "excerpts": [
+            "0-4561"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 3,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4468,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 72,
+          "excerpts": [
+            "4563-9031"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 4,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5708,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 65,
+          "excerpts": [
+            "9033-14741"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 5,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5249,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 58,
+          "excerpts": [
+            "14743-19992"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 6,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5700,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 51,
+          "excerpts": [
+            "19994-25694"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux"
+          ],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 7,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5765,
+          "newChunks": 6,
+          "overlapChunks": 0,
+          "unexaminedAfter": 45,
+          "excerpts": [
+            "25696-31461"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux",
+            "SuperUco"
+          ],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 8,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4851,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 40,
+          "excerpts": [
+            "31463-35227",
+            "36329-37409"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 9,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4022,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 35,
+          "excerpts": [
+            "37411-41151",
+            "43909-44184"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 10,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5839,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 30,
+          "excerpts": [
+            "44186-50025"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 11,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5940,
+          "newChunks": 5,
+          "overlapChunks": 1,
+          "unexaminedAfter": 25,
+          "excerpts": [
+            "48633-54573"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 12,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 2517,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 21,
+          "excerpts": [
+            "54575-55701",
+            "55739-57123"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 13,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4617,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 17,
+          "excerpts": [
+            "57125-61742"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 14,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5482,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 13,
+          "excerpts": [
+            "61744-67226"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 15,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5333,
+          "newChunks": 3,
+          "overlapChunks": 1,
+          "unexaminedAfter": 10,
+          "excerpts": [
+            "65792-71125"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 16,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5901,
+          "newChunks": 3,
+          "overlapChunks": 2,
+          "unexaminedAfter": 7,
+          "excerpts": [
+            "69906-75807"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 17,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 3260,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 0,
+          "excerpts": [
+            "75809-79069"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        }
+      ]
+    },
+    {
+      "summary": {
+        "label": "COLD7 query + COLD9 snippet",
+        "totalWindows": 18,
+        "chunkCount": 87,
+        "maxRetainedChars": 5940,
+        "allChunksExamined": true,
+        "firstWindowWithFullMandatoryComposition": 9,
+        "mandatoryInOneExcerpt": true,
+        "optionalAlsoInThatWindow": [
+          "Corazon del Sol",
+          "Solo Contigo"
+        ]
+      },
+      "windows": [
+        {
+          "ordinal": 1,
+          "strategy": "RELEVANCE_WINDOWS",
+          "retainedChars": 5926,
+          "newChunks": 6,
+          "overlapChunks": 0,
+          "unexaminedAfter": 81,
+          "excerpts": [
+            "9033-10465",
+            "17400-18757",
+            "23637-24778",
+            "31463-32292",
+            "35229-36327",
+            "55703-55737"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 2,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4561,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 76,
+          "excerpts": [
+            "0-4561"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 3,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4468,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 72,
+          "excerpts": [
+            "4563-9031"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 4,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5708,
+          "newChunks": 6,
+          "overlapChunks": 1,
+          "unexaminedAfter": 66,
+          "excerpts": [
+            "9033-14741"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 5,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5659,
+          "newChunks": 8,
+          "overlapChunks": 0,
+          "unexaminedAfter": 58,
+          "excerpts": [
+            "14743-17398",
+            "18759-21756"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 6,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5371,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 51,
+          "excerpts": [
+            "21758-23635",
+            "24780-28267"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux",
+            "SuperUco"
+          ],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 7,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 3192,
+          "newChunks": 3,
+          "overlapChunks": 0,
+          "unexaminedAfter": 48,
+          "excerpts": [
+            "28269-31461"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 8,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4020,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 44,
+          "excerpts": [
+            "32294-35227",
+            "36329-37409"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 9,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5512,
+          "newChunks": 6,
+          "overlapChunks": 0,
+          "unexaminedAfter": 38,
+          "excerpts": [
+            "37411-42923"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux",
+            "SuperUco",
+            "Bodega Azul"
+          ],
+          "optionalInWindow": [
+            "Corazon del Sol",
+            "Solo Contigo"
+          ],
+          "mandatoryInOneExcerpt": true
+        },
+        {
+          "ordinal": 10,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 1259,
+          "newChunks": 2,
+          "overlapChunks": 0,
+          "unexaminedAfter": 36,
+          "excerpts": [
+            "42925-44184"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 11,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5839,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 31,
+          "excerpts": [
+            "44186-50025"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 12,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5940,
+          "newChunks": 5,
+          "overlapChunks": 1,
+          "unexaminedAfter": 26,
+          "excerpts": [
+            "48633-54573"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 13,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 2517,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 22,
+          "excerpts": [
+            "54575-55701",
+            "55739-57123"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 14,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4617,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 18,
+          "excerpts": [
+            "57125-61742"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 15,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5482,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 14,
+          "excerpts": [
+            "61744-67226"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 16,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5333,
+          "newChunks": 3,
+          "overlapChunks": 1,
+          "unexaminedAfter": 11,
+          "excerpts": [
+            "65792-71125"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 17,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5901,
+          "newChunks": 4,
+          "overlapChunks": 1,
+          "unexaminedAfter": 7,
+          "excerpts": [
+            "69906-75807"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 18,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 3260,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 0,
+          "excerpts": [
+            "75809-79069"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        }
+      ]
+    },
+    {
+      "summary": {
+        "label": "stable title+query only (no snippet)",
+        "totalWindows": 18,
+        "chunkCount": 87,
+        "maxRetainedChars": 5963,
+        "allChunksExamined": true,
+        "firstWindowWithFullMandatoryComposition": 9,
+        "mandatoryInOneExcerpt": true,
+        "optionalAlsoInThatWindow": [
+          "Corazon del Sol",
+          "Solo Contigo"
+        ]
+      },
+      "windows": [
+        {
+          "ordinal": 1,
+          "strategy": "RELEVANCE_WINDOWS",
+          "retainedChars": 5963,
+          "newChunks": 8,
+          "overlapChunks": 0,
+          "unexaminedAfter": 79,
+          "excerpts": [
+            "10925-11160",
+            "16019-16635",
+            "26722-27485",
+            "54575-54974",
+            "55703-55737",
+            "59586-60755",
+            "68594-69900",
+            "72395-73787"
+          ],
+          "mandatoryInWindow": [
+            "SuperUco"
+          ],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 2,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4561,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 74,
+          "excerpts": [
+            "0-4561"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 3,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4468,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 70,
+          "excerpts": [
+            "4563-9031"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 4,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5708,
+          "newChunks": 6,
+          "overlapChunks": 1,
+          "unexaminedAfter": 64,
+          "excerpts": [
+            "9033-14741"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 5,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5587,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 57,
+          "excerpts": [
+            "14743-16017",
+            "16637-20943"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 6,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5775,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 50,
+          "excerpts": [
+            "20945-26720"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux",
+            "SuperUco"
+          ],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 7,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4805,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 45,
+          "excerpts": [
+            "27487-32292"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 8,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5115,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 40,
+          "excerpts": [
+            "32294-37409"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 9,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5512,
+          "newChunks": 6,
+          "overlapChunks": 0,
+          "unexaminedAfter": 34,
+          "excerpts": [
+            "37411-42923"
+          ],
+          "mandatoryInWindow": [
+            "Alfa Crux",
+            "SuperUco",
+            "Bodega Azul"
+          ],
+          "optionalInWindow": [
+            "Corazon del Sol",
+            "Solo Contigo"
+          ],
+          "mandatoryInOneExcerpt": true
+        },
+        {
+          "ordinal": 10,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 1259,
+          "newChunks": 2,
+          "overlapChunks": 0,
+          "unexaminedAfter": 32,
+          "excerpts": [
+            "42925-44184"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 11,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5839,
+          "newChunks": 5,
+          "overlapChunks": 0,
+          "unexaminedAfter": 27,
+          "excerpts": [
+            "44186-50025"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 12,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5940,
+          "newChunks": 5,
+          "overlapChunks": 1,
+          "unexaminedAfter": 22,
+          "excerpts": [
+            "48633-54573"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 13,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5748,
+          "newChunks": 5,
+          "overlapChunks": 1,
+          "unexaminedAfter": 17,
+          "excerpts": [
+            "54976-55701",
+            "55739-60755"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 14,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 985,
+          "newChunks": 1,
+          "overlapChunks": 0,
+          "unexaminedAfter": 16,
+          "excerpts": [
+            "60757-61742"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 15,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5482,
+          "newChunks": 4,
+          "overlapChunks": 0,
+          "unexaminedAfter": 12,
+          "excerpts": [
+            "61744-67226"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 16,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5333,
+          "newChunks": 2,
+          "overlapChunks": 2,
+          "unexaminedAfter": 10,
+          "excerpts": [
+            "65792-71125"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 17,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5901,
+          "newChunks": 3,
+          "overlapChunks": 2,
+          "unexaminedAfter": 7,
+          "excerpts": [
+            "69906-75807"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        },
+        {
+          "ordinal": 18,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 3260,
+          "newChunks": 7,
+          "overlapChunks": 0,
+          "unexaminedAfter": 0,
+          "excerpts": [
+            "75809-79069"
+          ],
+          "mandatoryInWindow": [],
+          "optionalInWindow": [],
+          "mandatoryInOneExcerpt": false
+        }
+      ]
+    }
+  ]
+}

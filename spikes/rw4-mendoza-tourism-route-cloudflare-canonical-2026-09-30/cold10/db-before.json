@@ -1,0 +1,16 @@
+{
+  "database": "zigzag_spike_rw4_canonical_cold_10",
+  "capturedAt": "2026-10-02T12:44:53Z",
+  "geoEntity": 0,
+  "geoEntityByKind": {},
+  "geoEntityIdentity": 0,
+  "verifiedHintMemoryEntries": 0,
+  "duplicateIdentityRows": 0,
+  "duplicateVerifiedHintKeysWithinKind": [],
+  "experience": 0,
+  "experienceByStatus": {},
+  "experienceComponent": 0,
+  "duplicateExperienceNames": 0,
+  "experiences": [],
+  "geoEntities": []
+}

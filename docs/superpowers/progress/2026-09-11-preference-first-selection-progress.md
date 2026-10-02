@@ -22,7 +22,7 @@ classification contract and deterministic validation are unchanged.
 
 **Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY (native producer cutover complete; v4 legacy paths deleted; modular domain audit split complete; zero avoidable `any`).**  
 **RW3 final classification/warm-reuse gate — CLOSED / ACCEPTED.**  
-**RW4 — AUTHORIZED / NEXT GATE.**
+**RW4 — AUTHORIZED / NEXT GATE** (2026-10-02: stable deep-source examination [x]; persistence/WARM open — see COLD #10).
 
 **Active track: Gate C real-world generalization — RW4 NEXT. RW3 final live COLD/WARM acceptance passed on 2026-09-29 with sequence integrity, canonical catalog reuse, zero WARM walk acquisition/classifier calls, and Generation Trace v5 evidence.**
 
@@ -194,6 +194,119 @@ RW3-N6 resolution and live verification status:
   classifier) into the existing identity/geography validation. Do not
   interrupt the RW4 web-acquisition gate for it.
 
+
+### RW4 progressive deep-source extraction + canonical COLD #10 — 2026-10-02
+
+- Characterization correction: the COLD #9 hypothesis "the snippet should
+  simply be bounded/subordinate in window ranking" was insufficient. The
+  offline policy evaluation (`cold9/analysis/policy-eval/`, README) rejected
+  every bounded snippet-weighting alternative; stable title/query context
+  ranks the SolSalute itinerary chunk ~56–57/87, and no single ranking was
+  shown to be both stable and to keep the itinerary. Refined defect: **a
+  single heuristic source window was a correctness boundary**.
+- Production fix `1769b5b5` `fix(tours): progressively scan deep source
+  windows`:
+  - `windowSourceContentSequence` (replaces `windowSourceContent`): window 1
+    = the unchanged ranked selection; windows 2..N = every remaining chunk
+    in document order, section-aware (a section that fits the budget is
+    re-emitted whole; oversized sections are walked in runs sharing one
+    boundary chunk). Finite, deterministic, every chunk examined, each
+    window ≤ 6,000 chars.
+  - Each source is fetched once; one extraction per source window,
+    round-robin by window ordinal, exactly one source window substituted
+    per attempt. Stops on the first attempt whose admitted candidates close
+    the `MULTI_COMPONENT_EXPERIENCE` gap (shared `closesCompositionGap` over
+    `candidateSatisfiesEvidenceRequirement`); continues past validation
+    errors, unsupported or wrong-shape candidates; stops fail-closed on an
+    extraction-level failure. Candidates are never merged across windows or
+    sources. When nothing qualifies, the grounded-snippet result and
+    evidence stand (previously the deep window-1 result replaced them).
+  - Trace: per-source `windowSequence`, per-attempt `sourceWindow` +
+    `scanDecision`, `scan` summary, one `acquisition.deep_source_window`
+    step per attempt with its exact text.
+  - DEBT: attempts are bounded only by the finite window sequence.
+  - Gates: unit 177/2278; integration 23/103 on `zigzag_test` (first run had
+    1 `catalog-reuse` failure, not reproduced in 2 isolated runs nor a full
+    rerun; that test does not reach deep-source); e2e 4/41; typecheck,
+    lint, build, `git diff --check` green.
+- Offline SolSalute acceptance (`progressive-replay/`, production dist over
+  the committed 88,401-char rendering): COLD #7 context → full mandatory Uco
+  composition in window 1/17; COLD #9 context → window 9/18 (also with the
+  stable title+query context alone). Mandatory components in one excerpt,
+  optional Corazon del Sol / Solo Contigo in the same window; every chunk
+  examined. **PROGRESSIVE WINDOWING OFFLINE = PASS.**
+- Canonical COLD #10: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold10/`
+  (DB `zigzag_spike_rw4_canonical_cold_10`, port 4110). **CANONICAL**:
+  source HEAD = manifest = trace `runtime.buildCommit` =
+  `1769b5b55321221e417be8bf77232d2418c42412`; `canonical: true`,
+  `failures: []`; dist `edbfa6a2764c750e...`; `AI_CACHE_MODE=off`; fresh
+  DB; preflight PASS. Provider chain identical to COLD #7–#9.
+- **Input control = FAIL**: the free-text interpreter additionally emitted
+  `intent:walk` (`free_text`) from the unchanged text ("Quiero recorrer la
+  Ruta del Vino…"); COLD #9 had only the wizard facets. Generic partition
+  unchanged (`theme:wine`, `intent:visit`); `area_route_walk` got
+  `route_like`+`walk`. Request validation intent became
+  `MIXED_UNSUPPORTED` (backend WARN) → `validationIntent` undefined →
+  `routeScale=false` in every pass.
+- Live progressive behaviour (`cold10/analysis/cold10-summary.out.json`):
+  - generic: SolSalute (88,401 chars, 87 chunks, 17 windows) + winesofargentina
+    (3 windows); window 1 of SolSalute kept 41153–43907 and closed the gap
+    → `STOP_REQUIREMENT_SATISFIED` after 1 attempt.
+  - area_route_walk ×2: discoverywinemendoza (15,654 chars, 4 windows)
+    scanned 1→4 without a qualifying candidate (one window 4 ended
+    `STOP_EXTRACTION_FAILED`: Qwen returned prose, "Failed to parse JSON
+    response"); planner_capacity: puentesabroad 5/5 windows, exhausted.
+  - Each source fetched once; 3 Cloudflare retrievals were `rate_limited`.
+    18 extractor calls vs 4 in COLD #9; generation 254 s vs 99 s.
+  - **PROGRESSIVE FALLBACK LIVE = LIVE-PROVEN** (attempts advanced past a
+    non-qualifying window 1 to later source content), though the Uco
+    candidate itself came from window 1.
+- Uco lifecycle: "Uco Valley Wine Tasting Itinerary" extracted (Alfa Crux,
+  SuperUco, Bodega Azul), source support 3/3 `DECLARED_KEY_VERIFIED`,
+  admitted `MULTI_COMPONENT_EXPERIENCE`. A Luján de Cuyo itinerary (A16,
+  Ojo de Agua) was also admitted. **UCO REDISCOVERED = YES.**
+  `validationIntent = route_like` / `routeScale = true`: **NOT MET**
+  (undefined / false, see input control).
+- Identity/geography (observe only): resolved 0/3 —
+  Alfa Crux `UNRESOLVED/NO_CANDIDATE_ACQUIRED`, SuperUco
+  `UNRESOLVED/NO_CANDIDATE_ACQUIRED`, Bodega Azul
+  `UNRESOLVED/DESTINATION_INCOMPATIBLE`; catalog reuse none for all three;
+  local Nominatim + Geoapify geocode queried for each. Coordinates,
+  per-provider candidates and verifier verdicts are NOT recoverable: the
+  generic `resolution.entity` step exceeded `MAX_STEP_PAYLOAD_CHARS`
+  (67,856 chars) and was truncated. Geography `NOT_EVALUATED`
+  (`INCOMPLETE_SOURCE_COMPOSITION`). Destination compatibility for
+  Nominatim/Places candidates is evaluated with `routeScale`, which was
+  false — the same end state as COLD #7, by a different cause.
+- First causal blocker: `free-text interpretation added intent:walk to the
+  wizard's route_like, so the request validation intent was
+  MIXED_UNSUPPORTED → routeScale=false; Uco components were judged against
+  the Ciudad de Mendoza boundary (DESTINATION_INCOMPATIBLE /
+  NO_CANDIDATE_ACQUIRED) and route-scale identity was never exercised`.
+- Convergence: **COLD #10 FARTHER DOWNSTREAM THAN COLD #7 = NOT COMPARABLE**
+  (input control FAIL; same stopping point as COLD #7).
+- Persistence: GeoEntity 0 → 10 (PLACE), GeoEntityIdentity 0 → 10,
+  Experience 0 → 10 (all single-component), ExperienceComponent 0 → 10,
+  verifiedHintMemoryEntries 0 → 10. Uco: 3 source components, 0 resolved,
+  0 geographically accepted, 0 persisted; not persisted; not planner
+  eligible. `generationStatus: completed`, 4 experiences planned. WARM:
+  NOT RUN (no qualifying reusable multi-component Experience).
+- RW4 exit criteria:
+  - [x] stable deep-source examination (deterministic progressive coverage;
+    no known correctness hole in the bounded retrieved-source scan)
+  - [ ] real multi-component Experience persisted
+  - [ ] WARM reuses it
+  - [ ] RW4 CLOSED
+- Next blocker: request semantics are not reproducible — free-text intent
+  interpretation can add `walk` beside the wizard's `route_like`, which
+  disables route-scale destination compatibility before identity runs.
+- Evidence: `cold10/` (`generation-trace.json`, `provenance.json`,
+  `run-manifest.json`, `request-stimulus.json`, `input-control.json`,
+  `db-before.json`, `db-after.json`, `provider-preflight.json`,
+  `provider-config.txt`, `provider-requests.ndjson`, `backend.log`,
+  `build.log`, `run.log`, `terminal-tour.json`,
+  `analysis/cold10-summary.{cjs,out.json}`), `progressive-replay/`,
+  `cold9/analysis/policy-eval/`.
 
 ### RW4 deterministic request control + canonical COLD #9 — 2026-10-01
 

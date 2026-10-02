@@ -1,0 +1,15 @@
+spikes/rw4-mendoza-tourism-route-cloudflare-2026-09-30/cold/generation-trace.json
+spikes/rw4-mendoza-tourism-route-cloudflare-live7-2026-09-30/cold/generation-trace.json
+spikes/rw4-mendoza-tourism-route-cloudflare-post-composition-2026-09-30/cold/generation-trace.json
+spikes/rw4-mendoza-tourism-route-2026-09-29/cold/generation-trace.json
+spikes/rw4-mendoza-tourism-route-2026-09-29/cold-pre-rw4-01-audit/generation-trace.json
+spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold_prev_47aa8ba9/generation-trace.json
+spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold_prev_13933cc7/generation-trace.json
+spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold_prev_53eb0674/generation-trace.json
+spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold_prev_0e6d8d6d/generation-trace.json
+spikes/rw4-mendoza-tourism-route-cloudflare-live6-2026-09-30/cold/generation-trace.json
+spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold_prev_commit_9692c780/generation-trace.json
+spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold_prev_029730a6/generation-trace.json
+spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold/generation-trace.json
+spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold9/generation-trace.json
+spikes/rw4-mendoza-tourism-route-reattributed-2026-09-29/cold/generation-trace.json

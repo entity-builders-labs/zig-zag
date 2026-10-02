@@ -1,0 +1,34 @@
+{
+  "mode": "trace",
+  "verdict": "FAIL",
+  "observed": {
+    "request": {
+      "interests": [
+        "wine"
+      ],
+      "intents": [
+        "route_like",
+        "visit"
+      ]
+    },
+    "facets": [
+      "theme:wine:wizard",
+      "intent:route_like:wizard",
+      "intent:visit:wizard",
+      "intent:walk:free_text"
+    ],
+    "partition": {
+      "areaRouteWalk": [
+        "intent:route_like",
+        "intent:walk"
+      ],
+      "generic": [
+        "theme:wine",
+        "intent:visit"
+      ]
+    }
+  },
+  "failures": [
+    "area_route_walk partition [\"intent:route_like\",\"intent:walk\"]"
+  ]
+}
