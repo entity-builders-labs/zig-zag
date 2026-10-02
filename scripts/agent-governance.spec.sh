@@ -396,6 +396,55 @@ pass 'two distinct ACTIVE declarations on one branch fail as ambiguous'
 
 git -C "$TMP" worktree remove --force "$TMP_SAME_BRANCH"
 
+# --- Stale local peer ref coverage ---
+
+# Local feat/peer is stale; origin/feat/peer has the overlapping change
+git -C "$TMP" checkout -q main
+git -C "$TMP" branch -f feat/peer "$BASE"
+git -C "$TMP" checkout -q feat/peer
+mkdir -p "$TMP/docs/superpowers/progress"
+printf '%s\n' \
+  '# Other' \
+  "<!-- agent-track: id=other; status=ACTIVE; branch=feat/peer; integration=main; base=$BASE; plan=docs/superpowers/plans/other.md -->" \
+  >"$TMP/docs/superpowers/progress/other.md"
+printf 'stale\n' >"$TMP/shared.txt"
+git -C "$TMP" add docs shared.txt && git -C "$TMP" commit -qm stale-peer
+git -C "$TMP" checkout -q feat/current
+printf 'overlap-current\n' >"$TMP/shared.txt"
+git -C "$TMP" add shared.txt && git -C "$TMP" commit -qm current-change
+# Advance origin/feat/peer with the overlapping change
+git -C "$TMP" checkout -q feat/peer
+printf 'overlap-remote\n' >"$TMP/shared.txt"
+git -C "$TMP" add shared.txt && git -C "$TMP" commit -qm remote-peer-change
+git -C "$TMP" update-ref refs/remotes/origin/feat/peer "$(git -C "$TMP" rev-parse HEAD)"
+git -C "$TMP" checkout -q feat/current
+expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'file overlap: other.*shared.txt'"
+pass 'stale local peer does not hide fetched remote overlap'
+
+# --- Context ID assertion coverage ---
+
+# Foreign ID must fail
+expect_fail bash -c "cd '$TMP' && scripts/agent-track context other"
+pass 'foreign ID fails context'
+
+# Inactive ID must fail
+git -C "$TMP" checkout -q feat/other
+sed -i.bak 's/status=ACTIVE/status=INACTIVE/' "$TMP/docs/superpowers/progress/other.md"
+git -C "$TMP" add docs && git -C "$TMP" commit -qm deactivate
+git -C "$TMP" checkout -q feat/current
+expect_fail bash -c "cd '$TMP' && scripts/agent-track context other"
+pass 'inactive ID fails context'
+# Restore
+git -C "$TMP" checkout -q feat/other
+git -C "$TMP" revert --no-edit HEAD
+git -C "$TMP" checkout -q feat/current
+
+# Detached HEAD + GITHUB_HEAD_REF must work
+git -C "$TMP" checkout -q --detach feat/current
+expect_ok bash -c "cd '$TMP' && GITHUB_HEAD_REF=feat/current scripts/agent-track context current | grep -q 'Track: current'"
+pass 'detached HEAD with GITHUB_HEAD_REF resolves context'
+git -C "$TMP" checkout -q feat/current
+
 # --- Progress gate coverage ---
 
 PROGRESS_GATE="$ROOT/scripts/agent-progress-gate"

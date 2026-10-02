@@ -97,6 +97,10 @@ The progress freshness gate handles detached HEAD in CI via `GITHUB_HEAD_REF`
 in both `agent-track context` and the gate script, and is enforced both
 locally (publish skill) and in CI (`track-progress-freshness`).
 
+Three contextual-review findings are being resolved: stale local peer ref
+hiding fetched remote overlap, context ID escaping checkout-local authority,
+and mandatory ShellCheck command passing.
+
 ## Next authorized action
 
 Monitor the contextual review workflow for PR #70's current head. Do not

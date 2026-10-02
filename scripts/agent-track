@@ -30,7 +30,7 @@ track_records_for_worktree() {
     status="$(track_field "$marker" status)"
     declared_branch="$(track_field "$marker" branch)"
     [ "$status" = "ACTIVE" ] && [ "$declared_branch" = "$expected_branch" ] || continue
-    printf '%s\t%s\t%s\n' "$expected_branch" "${progress#"$worktree"/}" "$marker"
+    printf '%s\t%s\t%s\t%s\n' "$expected_branch" "${progress#"$worktree"/}" "$marker" "$expected_branch"
   done < <(find "$worktree/docs/superpowers/progress" -type f -name '*.md' -print 2>/dev/null | sort)
 }
 
@@ -60,7 +60,7 @@ remote_track_records() {
       status="$(track_field "$marker" status)"
       declared_branch="$(track_field "$marker" branch)"
       [ "$status" = "ACTIVE" ] && [ "$declared_branch" = "$branch" ] || continue
-      printf '%s\t%s\t%s\n' "$branch" "$progress" "$marker"
+      printf '%s\t%s\t%s\t%s\n' "$branch" "$progress" "$marker" "$ref"
     done < <(git -C "$top" ls-tree -r --name-only "$ref" -- docs/superpowers/progress 2>/dev/null | sort)
   done < <(git -C "$top" for-each-ref --format='%(refname:short)' refs/remotes/origin)
 }
@@ -70,7 +70,7 @@ discover_active_track_records() {
   {
     registered_worktree_track_records "$top"
     remote_track_records "$top"
-  } | awk -F '\t' '!seen[$0]++'
+  } | awk -F '\t' '!seen[$1 FS $2 FS $3]++'
 }
 
 track_ref_for_branch() {
@@ -154,7 +154,7 @@ agent_track_list() {
   local top="$1" branch progress marker id status integration worktree
   printf 'ACTIVE TRACKS\n'
   printf '%-32s %-8s %-38s %s\n' 'Track' 'Status' 'Branch' 'Worktree'
-  while IFS=$'\t' read -r branch progress marker; do
+  while IFS=$'\t' read -r branch progress marker _ref; do
     id="$(track_field "$marker" id)"
     status="$(track_field "$marker" status)"
     integration="$(track_field "$marker" integration)"
@@ -170,17 +170,16 @@ agent_track_context() {
   if [ -z "$branch" ] && [ -n "${GITHUB_HEAD_REF:-}" ]; then
     branch="$GITHUB_HEAD_REF"
   fi
-  if [ -n "$requested_id" ]; then
-    if ! resolve_track_by_id "$top" "$requested_id"; then
-      printf 'TRACK CONTEXT UNAVAILABLE: expected exactly one track with id %s\n' "$requested_id" >&2
-      return 1
-    fi
-  elif ! resolve_track_by_branch "$top" "$branch"; then
+  if ! resolve_track_by_branch "$top" "$branch"; then
     printf 'TRACK CONTEXT UNAVAILABLE: expected exactly one ACTIVE track for branch %s\n' "${branch:-<detached>}" >&2
     return 1
   fi
   IFS=$'\t' read -r progress marker <<<"$RESOLVED_TRACK_RECORD"
   id="$(track_field "$marker" id)"
+  if [ -n "$requested_id" ] && [ "$id" != "$requested_id" ]; then
+    printf 'TRACK CONTEXT UNAVAILABLE: current ACTIVE track id %s does not match requested id %s\n' "$id" "$requested_id" >&2
+    return 1
+  fi
   status="$(track_field "$marker" status)"
   declared_branch="$(track_field "$marker" branch)"
   integration="$(track_field "$marker" integration)"
@@ -204,7 +203,7 @@ agent_track_locate() {
   local top="$1" requested_id="$2" branch progress marker id status integration base plan worktree matches=0 record=""
   local all_records
   all_records="$(discover_active_track_records "$top")"
-  while IFS=$'\t' read -r branch progress marker; do
+  while IFS=$'\t' read -r branch progress marker _ref; do
     id="$(track_field "$marker" id)"
     [ "$id" = "$requested_id" ] || continue
     matches=$((matches + 1))
@@ -224,7 +223,7 @@ agent_track_locate() {
 
   # Check for ambiguity: multiple distinct ACTIVE declarations on the same branch
   local branch_declarations=0
-  while IFS=$'\t' read -r b _p _m; do
+  while IFS=$'\t' read -r b _p _m _r; do
     [ "$b" = "$branch" ] && branch_declarations=$((branch_declarations + 1))
   done <<<"$all_records"
   if [ "$branch_declarations" -gt 1 ]; then

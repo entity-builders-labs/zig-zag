@@ -113,10 +113,9 @@ else
     fi
   fi
 
-  while IFS=$'\t' read -r OTHER_BRANCH _OTHER_PROGRESS OTHER_MARKER; do
+  while IFS=$'\t' read -r OTHER_BRANCH _OTHER_PROGRESS OTHER_MARKER OTHER_REF; do
     OTHER_ID="$(track_field "$OTHER_MARKER" id)"
     [ "$OTHER_BRANCH" != "$CURRENT_BRANCH" ] || continue
-    OTHER_REF="$(track_ref_for_branch "$TOP" "$OTHER_BRANCH" || true)"
     [ -n "$OTHER_REF" ] || continue
     PAIR_BASE="$(git merge-base HEAD "$OTHER_REF" 2>/dev/null)" || {
       warn "peer overlap unavailable: $OTHER_ID" "no common merge base with $OTHER_REF"
