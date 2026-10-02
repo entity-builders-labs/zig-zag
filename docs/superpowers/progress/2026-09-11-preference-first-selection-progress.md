@@ -278,7 +278,8 @@ RW3-N6 resolution and live verification status:
   (`INCOMPLETE_SOURCE_COMPOSITION`). Destination compatibility for
   Nominatim/Places candidates is evaluated with `routeScale`, which was
   false — the same end state as COLD #7, by a different cause.
-- First causal blocker: `free-text interpretation added intent:walk to the
+- First causal blocker (original, SUPERSEDED 2026-10-02 — see correction
+  below): `free-text interpretation added intent:walk to the
   wizard's route_like, so the request validation intent was
   MIXED_UNSUPPORTED → routeScale=false; Uco components were judged against
   the Ciudad de Mendoza boundary (DESTINATION_INCOMPATIBLE /
@@ -297,9 +298,65 @@ RW3-N6 resolution and live verification status:
   - [ ] real multi-component Experience persisted
   - [ ] WARM reuses it
   - [ ] RW4 CLOSED
-- Next blocker: request semantics are not reproducible — free-text intent
+- Next blocker (original, SUPERSEDED 2026-10-02 — see correction below):
+  request semantics are not reproducible — free-text intent
   interpretation can add `walk` beside the wizard's `route_like`, which
   disables route-scale destination compatibility before identity runs.
+- **Interpretation correction (2026-10-02, architecture review
+  `docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md`).**
+  Run facts above are unchanged; only their interpretation changes.
+  - `walk` + `route_like` in one request is a valid multi-intent tour, not
+    an input defect. AREA_ROUTE_WALK units already validated with their own
+    `intentKey`; only GENERIC and PLANNER_CAPACITY used the request-global
+    `deriveRequestValidationIntent` → `MIXED_UNSUPPORTED` → no authority.
+  - **First causal blocker = geographic validation authorization is modeled
+    globally for the request/batch, so simultaneous walk + route_like
+    collapses to no authorization instead of being applied through the
+    correct acquisition work-unit / candidate authorization path.**
+    Identity coverage is NOT the first blocker.
+  - Precision from the review: "open route_like + admitted
+    MULTI_COMPONENT_EXPERIENCE" is not authority (in the generic plan the
+    multi-component requirement came from `theme:wine`; route_like was owned
+    by the AREA_ROUTE_WALK unit). Under the recommended model the
+    generic-discovered Uco validates under DEFAULT; a route-scale
+    multi-component Experience must come from the unit that owns the
+    route_like deficit.
+  - KNOWN DOWNSTREAM FINDINGS / NOT YET PROMOTED TO BLOCKERS:
+    - Alfa Crux: `NO_CANDIDATE_ACQUIRED` under currently enabled identity
+      sources (trace-proven).
+    - SuperUco: `NO_CANDIDATE_ACQUIRED` under currently enabled identity
+      sources (trace-proven).
+    - Bodega Azul: a candidate was acquired but later
+      `DESTINATION_INCOMPATIBLE` under the incorrect default geography used
+      in COLD #10 (verdict trace-proven; candidate coordinates/provider not
+      recoverable — trace truncated).
+    - `resolveViaPlaces` uses a fixed 50 km search circle
+      (`PLACES_FALLBACK_BIAS_RADIUS_METERS`) while route-scale destination
+      compatibility allows up to 80 km (code fact).
+    - Prior manual checks (`cold10/analysis/uco-identity-probe.out.json`,
+      observed, non-canonical) did not find the relevant wineries merely by
+      raising Geoapify from 50 km to 80 km: Alfa Crux/SuperUco empty even at
+      150 km; "Bodega La Azul" appears only at 73 km.
+  - COLD #11 observability prerequisite: compact per-component evidence
+    (component name, resolution strategies attempted, candidate acquired?,
+    candidate coordinates, identity verifier verdict, destination
+    compatibility verdict) — the `resolution.entity` payload (67,856 chars)
+    exceeded the trace limit. Not solved yet.
+  - RW4 EXIT CRITERIA
+
+    ```text
+    [x] stable deep-source examination
+    [ ] real multi-component Experience persisted
+    [ ] WARM reuses it
+    [ ] RW4 CLOSED
+    ```
+
+  - **next blocker = geographic validation authority is request-global and
+    batch-wide instead of being granted only by the acquisition work unit
+    that exclusively owns an open walk/route_like deficit, and only to the
+    candidates that unit admitted as MULTI_COMPONENT_EXPERIENCE
+    (policy-bearing intent deficits must never be coalesced into generic
+    plans).** No COLD #11 until that and the observability prerequisite land.
 - Evidence: `cold10/` (`generation-trace.json`, `provenance.json`,
   `run-manifest.json`, `request-stimulus.json`, `input-control.json`,
   `db-before.json`, `db-after.json`, `provider-preflight.json`,

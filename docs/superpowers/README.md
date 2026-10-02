@@ -60,6 +60,7 @@ evidence, not execution authority.
 | Real-world gates RW1–RW6 | `plans/2026-09-12-real-world-tourism-research-spike-gate.md` | **ACTIVE ACCEPTANCE GATE** |
 | Preference-First architecture | `specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md` | **CANONICAL DESIGN** |
 | Component-resolution amendment | `specs/2026-09-22-component-resolution-geographic-validation-and-enrichment-amendment.md` | **ACCEPTED DOMAIN REFERENCE; milestone closed unless regression** |
+| Geographic validation authorization | `specs/2026-10-02-geographic-validation-authorization-review.md` | **ACCEPTED ARCHITECTURE CONTRACT for the next RW4 implementation task (not yet implemented)** |
 | Independent post-resolution review | `characterization/2026-09-25-post-component-resolution-independent-architecture-review.md` | **SUPPORTING EVIDENCE** |
 
 Do not add another current execution pointer without changing this table and
