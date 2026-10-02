@@ -190,4 +190,4 @@ jobs:
             -X POST \
             -f commit_id="$HEAD_SHA" \
             -f event="COMMENT" \
-            -f body=@.github/codex/track-review-body.md
+            -F body=@.github/codex/track-review-body.md

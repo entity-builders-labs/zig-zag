@@ -90,9 +90,10 @@ exact publication and remote-identity gates.
 Milestone 3B — implementation, verification, and publication are complete.
 The contextual review workflow runs end-to-end: Codex executes in read-only
 sandbox, structured output validates, and the review artifact publishes to
-PR #70. The workflow now validates the real PR head SHA (not the synthetic
-merge commit), exposes discovery ambiguity explicitly, and writes review
-input to `$RUNNER_TEMP` to keep the checkout clean.
+PR #70 with `commit_id` binding. The workflow validates the real PR head SHA,
+exposes discovery ambiguity explicitly, writes review input to `$RUNNER_TEMP`,
+and enforces canonical review authenticity. The progress freshness gate is
+enforced both locally (publish skill) and in CI (`track-progress-freshness`).
 
 ## Next authorized action
 
