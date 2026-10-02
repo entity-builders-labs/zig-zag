@@ -29,7 +29,7 @@ track_records_for_worktree() {
     [ -n "$marker" ] || continue
     status="$(track_field "$marker" status)"
     declared_branch="$(track_field "$marker" branch)"
-    [ "$status" = "ACTIVE" ] && [ "$declared_branch" = "$expected_branch" ] || continue
+    if [ "$status" != "ACTIVE" ] || [ "$declared_branch" != "$expected_branch" ]; then continue; fi
     printf '%s\t%s\t%s\t%s\n' "$expected_branch" "${progress#"$worktree"/}" "$marker" "$expected_branch"
   done < <(find "$worktree/docs/superpowers/progress" -type f -name '*.md' -print 2>/dev/null | sort)
 }
@@ -41,7 +41,7 @@ registered_worktree_track_records() {
       worktree\ *) worktree="${item#worktree }" ;;
       branch\ refs/heads/*)
         branch="${item#branch refs/heads/}"
-        [ -n "$worktree" ] && track_records_for_worktree "$worktree" "$branch"
+        if [ -n "$worktree" ]; then track_records_for_worktree "$worktree" "$branch"; fi
         ;;
     esac
   done < <(git -C "$top" worktree list --porcelain)
@@ -59,7 +59,7 @@ remote_track_records() {
       [ -n "$marker" ] || continue
       status="$(track_field "$marker" status)"
       declared_branch="$(track_field "$marker" branch)"
-      [ "$status" = "ACTIVE" ] && [ "$declared_branch" = "$branch" ] || continue
+      if [ "$status" != "ACTIVE" ] || [ "$declared_branch" != "$branch" ]; then continue; fi
       printf '%s\t%s\t%s\t%s\n' "$branch" "$progress" "$marker" "$ref"
     done < <(git -C "$top" ls-tree -r --name-only "$ref" -- docs/superpowers/progress 2>/dev/null | sort)
   done < <(git -C "$top" for-each-ref --format='%(refname:short)' refs/remotes/origin)

@@ -113,6 +113,16 @@ The `track-progress-freshness` CI job is added to enforce progress freshness
 on every PR head. The `agent-governance` job runs preflight, ShellCheck, and
 the governance fixture suite.
 
+GOV-SHELLCHECK-2 is resolved: all SC2015 diagnostics in `scripts/agent-track`
+are fixed with explicit if/else conditionals. The mandatory ShellCheck command
+passes with exit code 0.
+
+The contextual review provider is migrated from OpenAI to Groq. The
+`openai/codex-action` is configured with `responses-api-endpoint` pointing to
+Groq's Responses API, model `qwen/qwen3.8-27b`, and high reasoning effort.
+The custom `[model_providers.groq]` configuration is removed; the action
+configures its own proxy provider.
+
 ## Next authorized action
 
 Monitor the contextual review workflow for PR #70's current head. Do not

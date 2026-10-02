@@ -140,35 +140,21 @@ jobs:
             echo "REVIEW UNAVAILABLE / FAILED: configure repository secret GROQ_API_KEY." >&2
             exit 1
           fi
-      - name: Configure Codex CLI for Groq provider
-        if: steps.existing.outputs.current != 'true'
-        env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/codex-home"
-          cat > "$RUNNER_TEMP/codex-home/config.toml" <<'TOML'
-          [model_providers.groq]
-          name = "Groq"
-          base_url = "https://api.groq.com/openai/v1"
-          wire_api = "responses"
-          env_key = "GROQ_API_KEY"
-          TOML
       - id: codex
         if: steps.existing.outputs.current != 'true'
         # openai/codex-action v1 with Groq provider override
         uses: openai/codex-action@86365089eb2b84e0a8fb0717b304f8bdcb13b20e
         with:
           openai-api-key: ${{ secrets.GROQ_API_KEY }}
+          responses-api-endpoint: https://api.groq.com/openai/v1/responses
           model: qwen/qwen3.8-27b
           effort: high
           prompt-file: .github/codex/track-review-prompt.md
           output-file: .github/codex/track-review-output.json
           output-schema-file: .github/codex/track-review-schema.json
           permission-profile: :read-only
-          codex-home: ${{ runner.temp }}/codex-home
         env:
           REVIEW_INPUT_FILE: ${{ runner.temp }}/track-review-input.md
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       - name: Validate structured review output
         if: steps.existing.outputs.current != 'true'
         env:
