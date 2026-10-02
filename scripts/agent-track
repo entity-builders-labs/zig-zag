@@ -73,6 +73,18 @@ discover_active_track_records() {
   } | awk -F '\t' '!seen[$1 FS $2 FS $3]++'
 }
 
+# shellcheck disable=SC2329 # Invoked indirectly via process substitution in preflight
+discover_overlap_refs() {
+  local top="$1" branch progress marker ref
+  {
+    registered_worktree_track_records "$top"
+    remote_track_records "$top"
+  } | awk -F '\t' '{print $1"\t"$2"\t"$3"\t"$4}' | while IFS=$'\t' read -r branch progress marker ref; do
+    [ -n "$ref" ] || continue
+    printf '%s\n' "$ref"
+  done | awk '!seen[$0]++'
+}
+
 discover_overlap_refs() {
   local top="$1" branch progress marker ref
   while IFS=$'\t' read -r branch progress marker ref; do
