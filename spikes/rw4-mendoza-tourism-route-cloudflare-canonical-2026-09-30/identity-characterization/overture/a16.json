@@ -1,0 +1,30 @@
+{
+  "fixture": "A16",
+  "genericClass": "short / low-distinctiveness name (negative control)",
+  "release": "2026-09-23.1",
+  "source": "span '[A16](http://a16sa.com/en/)' 'tasting and a tour'; official site declares 'Ruta 7 y Calle Cobos 5890, Perdriel, Luján de Cuyo', phone '+54 9 261 653 8963' (../a16.json)",
+  "probeQueries": {
+    "A16": "exact normalized name: 0 records. Token-sequence discovery (PROBE_QUERY, not identity): 5 records",
+    "Bodega A16": "PROBE_QUERY: 2 exact-name records"
+  },
+  "acquisition": {
+    "sourceNameExact": "NO_CANDIDATE (fail-closed preserved)",
+    "tokenDiscovery": "MULTIPLE_PLAUSIBLE_CANDIDATES mixed with STRUCTURALLY_DIFFERENT facilities",
+    "probeQueryBodegaA16": "MULTIPLE_PLAUSIBLE_CANDIDATES (2 unconflated records of one winery)"
+  },
+  "records": [
+    { "overtureId": "8a73108f-cdd4-4b19-8a24-7cc78f14fbd2", "name": "Bodega A16", "distanceM": 23470, "address": "Cobos 5890, Luján de Cuyo 5509", "website": "https://www.a16sa.com.ar/", "phone": "+5492616538963", "category": "winery", "confidence": 0.965, "source": "meta 1396967760585038 (CDLA-P-2.0, 2026-09-14)", "gersFirstSeen": "2025-12-17.0", "assessment": "address + phone equal the linked-page facts" },
+    { "overtureId": "7eaf553c-dfdb-4462-ab4e-1f3d6656f3f1", "name": "Bodega A16", "distanceM": 23708, "address": "Calle Cobos, Luján de Cuyo 5507", "website": "http://www.a16sa.com.ar/", "phone": "02616538963", "category": "winery", "confidence": 0.85, "source": "Microsoft 1407374888439853 (CDLA-P-2.0, upstream update_time 2023-07-14)", "gersFirstSeen": "2025-06-25.0", "assessment": "same physical winery as 8a73108f (same phone, street, 919 m apart) but NOT conflated by Overture: two GERS ids" },
+    { "overtureId": "b39b14be-854b-44b5-b531-5c5d361f4276", "name": "A16 Wine & Deli", "distanceM": 427, "address": "Avenida Emilio Civit 757, Mendoza", "website": "http://www.a16sa.com/", "phone": "02612019937", "category": "winery", "confidence": 0.85, "source": "Microsoft 1407374888439815 (2023-07-13)", "assessment": "DIFFERENT physical facility (city shop/deli). Its website host a16sa.com is the SOURCE hyperlink host; the winery records declare a16sa.com.ar. Domain equality would select the wrong facility." },
+    { "overtureId": "7f2359ca-9ab6-4faf-8722-e05a00866e37", "name": "Cava A16", "distanceM": 420, "website": null, "phone": null, "category": "winery", "source": "meta 328094461310519", "assessment": "city cava; different facility" },
+    { "overtureId": "bed5590c-e5fb-476b-a941-2b304b0efe71", "name": "Bodega A16 - Administrador", "distanceM": 2558, "category": "restaurant", "source": "meta 111429737388062", "assessment": "social-page artifact (administrator page), not a facility" }
+  ],
+  "negativeControlResult": {
+    "exactNameStrategy": "returns nothing for 'A16' -> no unrelated object can be acquired (better than Geoapify, which acquired 'FC Belgrano')",
+    "anyContainmentStrategy": "would return 5 objects of 4 kinds (winery x2 duplicates, city shop, city cava, admin page) -> must be AMBIGUOUS, never a winner",
+    "providerNativeIdDoesNotHelp": "each object has a valid live GERS id; id validity says nothing about which one the source means",
+    "unconflatedDuplicates": "the true winery appears twice (Meta + Microsoft) -> even a perfect facility filter yields EXACT multiplicity 2"
+  },
+  "identityUsefulness": "Overture covers the A16 winery (absent from OSM/Nominatim/Geoapify/Wikidata) with address and phone that match the linked page, but name evidence is non-exact ('Bodega A16' vs 'A16') and multiplicity is 2; under the current verifier: not verifiable (fail-closed).",
+  "licenseStatus": "RESOLVED for all records: CDLA-Permissive-2.0 (Meta or Microsoft upstream)"
+}

@@ -135,3 +135,13 @@ max 30 days and never input to point-in-polygon analysis, no use with
 non-Google maps; only the Place ID may be stored). Zero live Google calls.
 The recommended Google coverage probe above is therefore superseded by a
 coverage check of an openly licensed POI dataset (Overture Maps Places).
+
+## Follow-up: Overture Places coverage (2026-10-02)
+
+See `overture/assessment.md`. Release 2026-09-23.1, read-only DuckDB probe
+over the COLD #11 route-scale domain. Overture has records for Alfa Crux and
+SuperUco, but they lie at 105.2 km and 87.1 km, outside the 80 km domain.
+"Bodega Azul" is declared by no record ("Bodega La Azul" is MULTIPLE), and
+"A16" has no exact match (fails closed). Verdict PARTIAL_VALUE. Overture
+alone does not unblock the Uco composite; the next blocker is the composite's
+geographic domain.

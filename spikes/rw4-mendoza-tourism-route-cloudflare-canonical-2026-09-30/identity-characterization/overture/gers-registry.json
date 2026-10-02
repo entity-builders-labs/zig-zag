@@ -1,0 +1,187 @@
+{
+ "release": "2026-09-23.1",
+ "registry": [
+  {
+   "id": "7f2359ca-9ab6-4faf-8722-e05a00866e37",
+   "version": 10,
+   "first_seen": "2025-06-25.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  },
+  {
+   "id": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+   "version": 7,
+   "first_seen": "2025-11-19.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  },
+  {
+   "id": "7eaf553c-dfdb-4462-ab4e-1f3d6656f3f1",
+   "version": 8,
+   "first_seen": "2025-06-25.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  },
+  {
+   "id": "8a73108f-cdd4-4b19-8a24-7cc78f14fbd2",
+   "version": 6,
+   "first_seen": "2025-12-17.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  },
+  {
+   "id": "673c6cb8-b314-4650-a5c1-ef10d59be7c0",
+   "version": 12,
+   "first_seen": "2025-06-25.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  },
+  {
+   "id": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+   "version": 9,
+   "first_seen": "2025-06-25.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  },
+  {
+   "id": "bed5590c-e5fb-476b-a941-2b304b0efe71",
+   "version": 4,
+   "first_seen": "2026-03-18.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  },
+  {
+   "id": "b39b14be-854b-44b5-b531-5c5d361f4276",
+   "version": 8,
+   "first_seen": "2025-06-25.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  },
+  {
+   "id": "33e0b236-1c1b-4d41-9ef0-dac80959a3b8",
+   "version": 2,
+   "first_seen": "2026-07-22.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  },
+  {
+   "id": "e85907e4-1e55-497f-86b8-ce9b3f188288",
+   "version": 7,
+   "first_seen": "2025-11-19.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  },
+  {
+   "id": "62f80ec2-6c8a-4ba7-91f4-0dd6fff2a47c",
+   "version": 8,
+   "first_seen": "2025-08-20.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  },
+  {
+   "id": "d97a65d2-7613-41eb-ab26-fc577699f26d",
+   "version": 11,
+   "first_seen": "2025-06-25.0",
+   "last_seen": "2026-09-23.1",
+   "last_changed": "2026-09-23.0",
+   "live": true
+  }
+ ],
+ "changelog": [
+  {
+   "id": "bed5590c-e5fb-476b-a941-2b304b0efe71",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  },
+  {
+   "id": "33e0b236-1c1b-4d41-9ef0-dac80959a3b8",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  },
+  {
+   "id": "b39b14be-854b-44b5-b531-5c5d361f4276",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  },
+  {
+   "id": "7f2359ca-9ab6-4faf-8722-e05a00866e37",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  },
+  {
+   "id": "62f80ec2-6c8a-4ba7-91f4-0dd6fff2a47c",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  },
+  {
+   "id": "7eaf553c-dfdb-4462-ab4e-1f3d6656f3f1",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  },
+  {
+   "id": "8a73108f-cdd4-4b19-8a24-7cc78f14fbd2",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  },
+  {
+   "id": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  },
+  {
+   "id": "d97a65d2-7613-41eb-ab26-fc577699f26d",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  },
+  {
+   "id": "e85907e4-1e55-497f-86b8-ce9b3f188288",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  },
+  {
+   "id": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  },
+  {
+   "id": "673c6cb8-b314-4650-a5c1-ef10d59be7c0",
+   "change_type": "data_changed",
+   "columns_changed": [
+    "categories"
+   ]
+  }
+ ]
+}

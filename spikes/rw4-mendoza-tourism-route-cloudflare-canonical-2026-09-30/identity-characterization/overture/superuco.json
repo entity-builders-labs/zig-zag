@@ -1,0 +1,53 @@
+{
+  "fixture": "SuperUco",
+  "genericClass": "real entity with sparse structured-data footprint",
+  "release": "2026-09-23.1",
+  "source": "span '[SuperUco](https://superuco.com/)'; context: Corazón del Sol and Solo Contigo 'are on the same property as SuperUco'; official site HTTP 403 (../superuco.json)",
+  "probeQueries": {
+    "SuperUco": "exact normalized name: 1 record (WIDER_DIAGNOSTIC, 87.1 km)",
+    "Super Uco": "0 (normalized 'super uco' != 'superuco'; no record declares the tokenized form)"
+  },
+  "unrelatedResultsAvoided": "no record matched on 'Uco' / 'Valle de Uco' / 'Super' alone; discovery used whole-name equality and whole-token-sequence containment only",
+  "acquisition": {
+    "insideAuthorizedDomain": "NO_CANDIDATE",
+    "classification": "OUTSIDE_AUTHORIZED_DOMAIN",
+    "detail": "single exact-name record at 87.1 km; authorized route-scale radius 80 km"
+  },
+  "bestRecord_WIDER_DIAGNOSTIC": {
+    "overtureId": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+    "names": { "primary": "SuperUco", "common": null, "rules": null },
+    "coordinates": { "lat": -33.60353978, "lon": -69.22870399 },
+    "distanceFromRouteScaleCenterM": 87058,
+    "addresses": [{ "freeform": "Ruta Nacional 94 11", "locality": "El Manzano Histórico", "postcode": "5562", "region": "M", "country": "AR" }],
+    "websites": ["http://www.superuco.com/"],
+    "phones": ["+542616819773"],
+    "emails": ["info@superuco.com"],
+    "taxonomy": { "primary": "restaurant", "hierarchy": ["food_and_drink", "restaurant"], "alternates": null },
+    "basic_category": "restaurant",
+    "brand": "struct present, all members null",
+    "operating_status": null,
+    "confidence": 0.9929,
+    "sources": [
+      { "dataset": "meta", "provider": "meta", "record_id": "276131252581993", "license": "CDLA-Permissive-2.0", "update_time": "2026-09-14", "property": "(whole record)" },
+      { "dataset": "Overture", "provider": "overture", "license": "CDLA-Permissive-2.0", "property": "/properties/confidence" }
+    ],
+    "gers": { "first_seen": "2025-06-25.0", "last_changed": "2026-09-23.0", "live": true },
+    "licenseStatus": "RESOLVED: CDLA-Permissive-2.0 (Meta upstream, single source)"
+  },
+  "neighbourhood_2km": {
+    "SoloContigo Wines": "230 m, winery, solocontigowines.com",
+    "Corazón del Sol Vineyards": "240 m, winery",
+    "Bodega Corazón Del Sol": "702 m, winery (second record for the same brand)",
+    "note": "co-location is consistent with the source's 'same property' statement; it is context, not identity evidence"
+  },
+  "identityUsefulness": {
+    "couldBeCandidateUnderCurrentGeography": false,
+    "ifGeographyAuthorized": "EXACT_NAME multiplicity SINGLE -> existing verifier rule 1 VERIFIES",
+    "strongFactsBeyondName": "provider-declared website registrable domain superuco.com == source hyperlink domain superuco.com (first fixture where both sides of official-domain correlation exist). NOT an existing IdentityEvidence type; recorded only.",
+    "taxonomyNote": "Overture classifies it as restaurant; the source describes a winery visit. Taxonomy is structural classification, not identity"
+  },
+  "closes": {
+    "candidateAcquisition": "NO inside the authorized domain; YES as raw coverage",
+    "identityCorroboration": "name + declared official domain would be strong if a future evidence type existed"
+  }
+}

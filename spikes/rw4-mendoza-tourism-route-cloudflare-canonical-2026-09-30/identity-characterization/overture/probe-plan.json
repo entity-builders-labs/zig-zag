@@ -1,0 +1,29 @@
+{
+  "note": "Fixture plan for the RW4 characterization only. Every query string is a PROBE_QUERY (search formulation), never a declared alias. Neighbourhood points come from prior artifacts (../bodega-la-azul.json OSM node) or from the Overture rows themselves (to inspect co-located objects).",
+  "fixtures": {
+    "Alfa Crux": {
+      "probeQueries": ["Alfa Crux", "Bodega Alfa Crux", "Crux"],
+      "neighbourhoods": {
+        "overture_alfa_crux_point_2km": { "lat": -33.8040574593, "lon": -69.119154850671, "radiusM": 2000 }
+      }
+    },
+    "SuperUco": {
+      "probeQueries": ["SuperUco", "Super Uco"],
+      "neighbourhoods": {
+        "overture_superuco_point_2km": { "lat": -33.60353978, "lon": -69.22870399, "radiusM": 2000 }
+      }
+    },
+    "Bodega Azul / Bodega La Azul": {
+      "probeQueries": ["Bodega Azul", "Bodega La Azul", "La Azul"],
+      "neighbourhoods": {
+        "osm_node_4851595199_1500m": { "lat": -33.4692562, "lon": -69.2207912, "radiusM": 1500 }
+      }
+    },
+    "A16": {
+      "probeQueries": ["A16", "Bodega A16"],
+      "neighbourhoods": {
+        "overture_bodega_a16_meta_point_1500m": { "lat": -33.091156, "lon": -68.90458, "radiusM": 1500 }
+      }
+    }
+  }
+}

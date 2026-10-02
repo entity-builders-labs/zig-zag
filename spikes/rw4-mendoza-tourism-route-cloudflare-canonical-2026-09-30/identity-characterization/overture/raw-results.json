@@ -1,0 +1,5337 @@
+{
+ "generatedAt": "2026-10-02T21:23:39.421110+00:00",
+ "release": "2026-09-23.1",
+ "source": "s3://overturemaps-us-west-2/release/2026-09-23.1/theme=places/type=place/*",
+ "routeScale": {
+  "centerLat": -32.88309217907325,
+  "centerLon": -68.86223810433484,
+  "radiusMeters": 80000.0
+ },
+ "diagnosticMarginDeg": 0.3,
+ "routeScaleBbox": {
+  "xmin": -69.71895913200022,
+  "xmax": -68.00551707666945,
+  "ymin": -33.60254946409654,
+  "ymax": -32.16363489404996
+ },
+ "queriedBbox": {
+  "xmin": -70.01895913200022,
+  "xmax": -67.70551707666945,
+  "ymin": -33.90254946409654,
+  "ymax": -31.863634894049962
+ },
+ "duckdb": "1.5.6",
+ "profile": {
+  "domain": {
+   "rows_total": 29202,
+   "rows_authorized": 28122,
+   "with_names_common": 0,
+   "with_names_rules": 295,
+   "with_website": 11756,
+   "with_phone": 24318,
+   "with_address_freeform": 26874,
+   "with_operating_status": 0,
+   "with_brand_wikidata": 294,
+   "without_basic_category": 1085
+  },
+  "sources": [
+   {
+    "dataset": "Overture",
+    "provider": "overture",
+    "license": "CDLA-Permissive-2.0",
+    "property": "/properties/confidence",
+    "n": 28122
+   },
+   {
+    "dataset": "meta",
+    "provider": "meta",
+    "license": "CDLA-Permissive-2.0",
+    "property": "",
+    "n": 27000
+   },
+   {
+    "dataset": "Microsoft",
+    "provider": "microsoft",
+    "license": "CDLA-Permissive-2.0",
+    "property": "",
+    "n": 425
+   },
+   {
+    "dataset": "Foursquare",
+    "provider": "foursquare",
+    "license": "Apache-2.0",
+    "property": "",
+    "n": 402
+   },
+   {
+    "dataset": "AllThePlaces",
+    "provider": "alltheplaces",
+    "license": "CC0-1.0",
+    "property": "",
+    "n": 295
+   }
+  ],
+  "wholeRecordSourceMultiplicity": [
+   {
+    "whole_record_sources": 1,
+    "datasets": [
+     "meta"
+    ],
+    "n": 27000
+   },
+   {
+    "whole_record_sources": 1,
+    "datasets": [
+     "Microsoft"
+    ],
+    "n": 425
+   },
+   {
+    "whole_record_sources": 1,
+    "datasets": [
+     "Foursquare"
+    ],
+    "n": 402
+   },
+   {
+    "whole_record_sources": 1,
+    "datasets": [
+     "AllThePlaces"
+    ],
+    "n": 295
+   }
+  ],
+  "operatingStatus": [
+   {
+    "operating_status": null,
+    "n": 28122
+   }
+  ]
+ },
+ "fixtures": {
+  "Alfa Crux": {
+   "exactName": {
+    "Alfa Crux": [
+     {
+      "id": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+      "names": {
+       "primary": "Alfa Crux",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Alfa Crux"
+      ],
+      "lat": -33.8040574593,
+      "lon": -69.119154850671,
+      "dist_m": 105151.0,
+      "domain": "WIDER_DIAGNOSTIC",
+      "addresses": [
+       {
+        "freeform": "El Cepillo",
+        "locality": "Villa San Carlos",
+        "postcode": "5569",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "https://www.agostinowinegroup.com/"
+      ],
+      "phones": [
+       "+542614671021"
+      ],
+      "emails": [
+       "cruxcocina@agostinowinegroup.com"
+      ],
+      "socials": [
+       "https://www.facebook.com/113197860037852"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9903810733556747,
+      "version": 7,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "113197860037852",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9581785798072815,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ],
+    "Bodega Alfa Crux": [],
+    "Crux": []
+   },
+   "tokenSequence": {
+    "Alfa Crux": [
+     {
+      "id": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+      "names": {
+       "primary": "Alfa Crux",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Alfa Crux"
+      ],
+      "lat": -33.8040574593,
+      "lon": -69.119154850671,
+      "dist_m": 105151.0,
+      "domain": "WIDER_DIAGNOSTIC",
+      "addresses": [
+       {
+        "freeform": "El Cepillo",
+        "locality": "Villa San Carlos",
+        "postcode": "5569",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "https://www.agostinowinegroup.com/"
+      ],
+      "phones": [
+       "+542614671021"
+      ],
+      "emails": [
+       "cruxcocina@agostinowinegroup.com"
+      ],
+      "socials": [
+       "https://www.facebook.com/113197860037852"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9903810733556747,
+      "version": 7,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "113197860037852",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9581785798072815,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ],
+    "Bodega Alfa Crux": [],
+    "Crux": [
+     {
+      "id": "c4af178f-f03e-4f93-818a-54a6294f2139",
+      "names": {
+       "primary": "Crux Scafati & Asociados",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Crux Scafati & Asociados"
+      ],
+      "lat": -32.87744675,
+      "lon": -68.83076519,
+      "dist_m": 3005.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Montecaseros 2227",
+        "locality": "Mendoza",
+        "postcode": "M5500",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://crux-wsg.com/es/home"
+      ],
+      "phones": [
+       "+542614231617"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/469766023179838"
+      ],
+      "taxonomy": {
+       "primary": "geological_service",
+       "hierarchy": [
+        "services_and_business",
+        "b2b_service",
+        "b2b_environmental_service",
+        "geological_service"
+       ],
+       "alternates": null
+      },
+      "basic_category": "b2b_service",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.11975177377462387,
+      "version": 9,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "469766023179838",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.11975177377462387,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "8c298c9b-2195-4016-92b4-d13395f98423",
+      "names": {
+       "primary": "Crux materiales",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Crux materiales"
+      ],
+      "lat": -32.91067505,
+      "lon": -68.86398527,
+      "dist_m": 3071.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Pres. Roberto M. Ortiz 1788",
+        "locality": "Godoy Cruz",
+        "postcode": "M5501",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.materialescrux.com.ar/"
+      ],
+      "phones": [
+       "+542614280331"
+      ],
+      "emails": [
+       "materialescrux@gmail.com"
+      ],
+      "socials": [
+       "https://www.facebook.com/108311231896112"
+      ],
+      "taxonomy": {
+       "primary": "building_supply_store",
+       "hierarchy": [
+        "shopping",
+        "specialty_store",
+        "hardware_home_and_garden_store",
+        "building_supply_store"
+       ],
+       "alternates": null
+      },
+      "basic_category": "hardware_home_and_garden_store",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.7256698608398438,
+      "version": 11,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "108311231896112",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.7256698608398438,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "4fae82c9-c93c-4653-8a0a-bf0257a4a0c3",
+      "names": {
+       "primary": "Crux Cocina",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Crux Cocina"
+      ],
+      "lat": -33.73365,
+      "lon": -69.12421,
+      "dist_m": 97661.0,
+      "domain": "WIDER_DIAGNOSTIC",
+      "addresses": [
+       {
+        "freeform": "Calle Los Indios s/n, Valle de Uco 5567 La Consulta, Mendoza, Argentina",
+        "locality": "La Consulta",
+        "postcode": null,
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://cruxcocina.com/"
+      ],
+      "phones": [
+       "+542614671021"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/118291710007978"
+      ],
+      "taxonomy": {
+       "primary": "restaurant",
+       "hierarchy": [
+        "food_and_drink",
+        "restaurant"
+       ],
+       "alternates": null
+      },
+      "basic_category": "restaurant",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.5827919244766235,
+      "version": 7,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "118291710007978",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.5827919244766235,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "8e465549-4785-4359-b1ec-ba2cb974b874",
+      "names": {
+       "primary": "Casa Crux",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Casa Crux"
+      ],
+      "lat": -33.78046790717197,
+      "lon": -69.06231636116352,
+      "dist_m": 101500.0,
+      "domain": "WIDER_DIAGNOSTIC",
+      "addresses": [
+       {
+        "freeform": "Alfa Crux Calle Los Indios s/n Valle de Uco",
+        "locality": "Eugenio Bustos",
+        "postcode": "5567 ",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "https://cruxcocina.com/casa-crux/"
+      ],
+      "phones": [
+       "+5492622513747"
+      ],
+      "emails": [
+       "casacrux@agostinowinegroup.com"
+      ],
+      "socials": [
+       "https://www.facebook.com/113120741248854"
+      ],
+      "taxonomy": {
+       "primary": "hotel",
+       "hierarchy": [
+        "lodging",
+        "hotel"
+       ],
+       "alternates": null
+      },
+      "basic_category": "hotel",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.3819822669029236,
+      "version": 1,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "113120741248854",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.3819822669029236,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+      "names": {
+       "primary": "Alfa Crux",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Alfa Crux"
+      ],
+      "lat": -33.8040574593,
+      "lon": -69.119154850671,
+      "dist_m": 105151.0,
+      "domain": "WIDER_DIAGNOSTIC",
+      "addresses": [
+       {
+        "freeform": "El Cepillo",
+        "locality": "Villa San Carlos",
+        "postcode": "5569",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "https://www.agostinowinegroup.com/"
+      ],
+      "phones": [
+       "+542614671021"
+      ],
+      "emails": [
+       "cruxcocina@agostinowinegroup.com"
+      ],
+      "socials": [
+       "https://www.facebook.com/113197860037852"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9903810733556747,
+      "version": 7,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "113197860037852",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9581785798072815,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ]
+   },
+   "neighbourhoods": {
+    "overture_alfa_crux_point_2km": {
+     "point": {
+      "lat": -33.8040574593,
+      "lon": -69.119154850671,
+      "radiusM": 2000
+     },
+     "rows": [
+      {
+       "id": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+       "names": {
+        "primary": "Alfa Crux",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Alfa Crux"
+       ],
+       "lat": -33.8040574593,
+       "lon": -69.119154850671,
+       "dist_m": 105151.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "El Cepillo",
+         "locality": "Villa San Carlos",
+         "postcode": "5569",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "https://www.agostinowinegroup.com/"
+       ],
+       "phones": [
+        "+542614671021"
+       ],
+       "emails": [
+        "cruxcocina@agostinowinegroup.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/113197860037852"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9903810733556747,
+       "version": 7,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "113197860037852",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9581785798072815,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 0.0
+      },
+      {
+       "id": "e85907e4-1e55-497f-86b8-ce9b3f188288",
+       "names": {
+        "primary": "Bodega O. Fournier",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Bodega O. Fournier"
+       ],
+       "lat": -33.804039833944,
+       "lon": -69.119103969493,
+       "dist_m": 105148.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "",
+         "locality": null,
+         "postcode": "",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.ofournier.com"
+       ],
+       "phones": [
+        "+542622673491"
+       ],
+       "emails": [
+        "turismo@ofournier.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/121267867975100"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9652885019779205,
+       "version": 7,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "121267867975100",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.8490804433822632,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 5.0
+      },
+      {
+       "id": "5e79e498-e939-4f83-9b9b-1ecfaabd4efa",
+       "names": {
+        "primary": "Urban Restaurante",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Urban Restaurante"
+       ],
+       "lat": -33.804227,
+       "lon": -69.11931,
+       "dist_m": 105172.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "",
+         "locality": null,
+         "postcode": "",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": null,
+       "phones": null,
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/2337001686531364"
+       ],
+       "taxonomy": {
+        "primary": "restaurant",
+        "hierarchy": [
+         "food_and_drink",
+         "restaurant"
+        ],
+        "alternates": null
+       },
+       "basic_category": "restaurant",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.46367886662483215,
+       "version": 10,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "2337001686531364",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.46367886662483215,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 24.0
+      },
+      {
+       "id": "fc3e6e97-bc3c-40d4-8a66-fe2a2312cf13",
+       "names": {
+        "primary": "Don Pedro - Wine & Bar",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Don Pedro - Wine & Bar"
+       ],
+       "lat": -33.795174861037,
+       "lon": -69.103557692007,
+       "dist_m": 103867.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "Calle Los Indios",
+         "locality": "San Carlos",
+         "postcode": "5569",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": null,
+       "phones": [
+        "+542622464465"
+       ],
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/109454694121288"
+       ],
+       "taxonomy": {
+        "primary": "wine_bar",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "bar",
+         "wine_bar"
+        ],
+        "alternates": null
+       },
+       "basic_category": "bar",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.6472761034965515,
+       "version": 2,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "109454694121288",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.6472761034965515,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1747.0
+      },
+      {
+       "id": "be159705-4b9c-4c8d-bfe5-9f6d81bf57a7",
+       "names": {
+        "primary": "Biplano Wines",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Biplano Wines"
+       ],
+       "lat": -33.82074407,
+       "lon": -69.12604628,
+       "dist_m": 107103.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "",
+         "locality": "Distrito Eugenio Bustos",
+         "postcode": "",
+         "region": "M",
+         "country": "AR"
+        }
+       ],
+       "websites": null,
+       "phones": [
+        "+5492622533173"
+       ],
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/795171914013862"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.2450697422027588,
+       "version": 9,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "795171914013862",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.2450697422027588,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1962.0
+      }
+     ]
+    }
+   }
+  },
+  "SuperUco": {
+   "exactName": {
+    "SuperUco": [
+     {
+      "id": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+      "names": {
+       "primary": "SuperUco",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "SuperUco"
+      ],
+      "lat": -33.60353978,
+      "lon": -69.22870399,
+      "dist_m": 87058.0,
+      "domain": "WIDER_DIAGNOSTIC",
+      "addresses": [
+       {
+        "freeform": "Ruta Nacional 94 11",
+        "locality": "El Manzano Histórico",
+        "postcode": "5562",
+        "region": "M",
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.superuco.com/"
+      ],
+      "phones": [
+       "+542616819773"
+      ],
+      "emails": [
+       "info@superuco.com"
+      ],
+      "socials": [
+       "https://www.facebook.com/276131252581993"
+      ],
+      "taxonomy": {
+       "primary": "restaurant",
+       "hierarchy": [
+        "food_and_drink",
+        "restaurant"
+       ],
+       "alternates": null
+      },
+      "basic_category": "restaurant",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9928604817390442,
+      "version": 9,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "276131252581993",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9689586162567139,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ],
+    "Super Uco": []
+   },
+   "tokenSequence": {
+    "SuperUco": [
+     {
+      "id": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+      "names": {
+       "primary": "SuperUco",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "SuperUco"
+      ],
+      "lat": -33.60353978,
+      "lon": -69.22870399,
+      "dist_m": 87058.0,
+      "domain": "WIDER_DIAGNOSTIC",
+      "addresses": [
+       {
+        "freeform": "Ruta Nacional 94 11",
+        "locality": "El Manzano Histórico",
+        "postcode": "5562",
+        "region": "M",
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.superuco.com/"
+      ],
+      "phones": [
+       "+542616819773"
+      ],
+      "emails": [
+       "info@superuco.com"
+      ],
+      "socials": [
+       "https://www.facebook.com/276131252581993"
+      ],
+      "taxonomy": {
+       "primary": "restaurant",
+       "hierarchy": [
+        "food_and_drink",
+        "restaurant"
+       ],
+       "alternates": null
+      },
+      "basic_category": "restaurant",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9928604817390442,
+      "version": 9,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "276131252581993",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9689586162567139,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ],
+    "Super Uco": []
+   },
+   "neighbourhoods": {
+    "overture_superuco_point_2km": {
+     "point": {
+      "lat": -33.60353978,
+      "lon": -69.22870399,
+      "radiusM": 2000
+     },
+     "rows": [
+      {
+       "id": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+       "names": {
+        "primary": "SuperUco",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "SuperUco"
+       ],
+       "lat": -33.60353978,
+       "lon": -69.22870399,
+       "dist_m": 87058.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "Ruta Nacional 94 11",
+         "locality": "El Manzano Histórico",
+         "postcode": "5562",
+         "region": "M",
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.superuco.com/"
+       ],
+       "phones": [
+        "+542616819773"
+       ],
+       "emails": [
+        "info@superuco.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/276131252581993"
+       ],
+       "taxonomy": {
+        "primary": "restaurant",
+        "hierarchy": [
+         "food_and_drink",
+         "restaurant"
+        ],
+        "alternates": null
+       },
+       "basic_category": "restaurant",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9928604817390442,
+       "version": 9,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "276131252581993",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9689586162567139,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 0.0
+      },
+      {
+       "id": "f511cc16-4865-43f7-bf17-d65fa7bfac2d",
+       "names": {
+        "primary": "SoloContigo Wines",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "SoloContigo Wines"
+       ],
+       "lat": -33.60167687,
+       "lon": -69.22979126,
+       "dist_m": 86907.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "Ruta Provincial 94 km 11",
+         "locality": "Tunuyán",
+         "postcode": "5560",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.solocontigowines.com/"
+       ],
+       "phones": [
+        "+5492622377529"
+       ],
+       "emails": [
+        "hospitality@solocontigowine.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/142404852563011"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9804970026016235,
+       "version": 6,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "142404852563011",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9804970026016235,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 230.0
+      },
+      {
+       "id": "e1a6601b-3520-4e92-9267-4f099358ecbd",
+       "names": {
+        "primary": "Corazón del Sol Vineyards",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Corazón del Sol Vineyards"
+       ],
+       "lat": -33.60138263895845,
+       "lon": -69.22874970284158,
+       "dist_m": 86839.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "Ruta 94 Km. 11",
+         "locality": "Mendoza",
+         "postcode": null,
+         "region": "Mendoza",
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "https://www.corazondelsol.com"
+       ],
+       "phones": [
+        "0261 314-3900"
+       ],
+       "emails": null,
+       "socials": null,
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": null,
+       "operating_status": null,
+       "confidence": 0.77,
+       "version": 6,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "Foursquare",
+         "license": "Apache-2.0",
+         "record_id": "57227f68498ea26fa7541cf4",
+         "update_time": "2026-03-03T00:00:00.000",
+         "confidence": 0.77,
+         "between": null,
+         "provider": "foursquare",
+         "resource": "foursquare",
+         "version": "2026-04-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 240.0
+      },
+      {
+       "id": "f65a37e5-caac-4491-b1fd-229a5d25cd0d",
+       "names": {
+        "primary": "Bodega Corazón Del Sol",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Bodega Corazón Del Sol"
+       ],
+       "lat": -33.603912550986,
+       "lon": -69.22113597393,
+       "dist_m": 86823.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "Ruta 94 - Km 11",
+         "locality": "Tunuyán",
+         "postcode": null,
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.corazondelsol.com/"
+       ],
+       "phones": [
+        "+542613143900"
+       ],
+       "emails": [
+        "info@corazondelsol.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/740793575996355"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9402957558631897,
+       "version": 2,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "740793575996355",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9402957558631897,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 702.0
+      },
+      {
+       "id": "0aec0e35-18c2-4e1c-93f4-29653d3acd42",
+       "names": {
+        "primary": "Gimenez Riili Bodega & Vinedos",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Gimenez Riili Bodega & Vinedos"
+       ],
+       "lat": -33.603811,
+       "lon": -69.22046,
+       "dist_m": 86789.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "Ruta 94 S/N",
+         "locality": null,
+         "postcode": "",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.gimenezriili.com"
+       ],
+       "phones": [
+        "+542613470392"
+       ],
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/393756277310443"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9452162599563598,
+       "version": 13,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "393756277310443",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.7618098258972168,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 764.0
+      },
+      {
+       "id": "1c2c46d5-0d05-4597-ad59-8d8d009ff112",
+       "names": {
+        "primary": "Gimenez Rilli",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Gimenez Rilli"
+       ],
+       "lat": -33.602812,
+       "lon": -69.220263,
+       "dist_m": 86679.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "Ruta Provincial 94",
+         "locality": "Los Sauce",
+         "postcode": "M5563",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.gimenezriili.com"
+       ],
+       "phones": [
+        "+542614987863"
+       ],
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/1808010652759398"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9478935599327087,
+       "version": 9,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "1808010652759398",
+         "update_time": "2026-08-24T00:00:00.000Z",
+         "confidence": 0.9478935599327087,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-08-24"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 786.0
+      },
+      {
+       "id": "1a809723-d5ab-4aef-93da-640c175d2df4",
+       "names": {
+        "primary": "Los Chacayes",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Los Chacayes"
+       ],
+       "lat": -33.60525,
+       "lon": -69.21647,
+       "dist_m": 86795.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": null,
+         "locality": "Tunuyán",
+         "postcode": null,
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "https://linktr.ee/loschacayes"
+       ],
+       "phones": null,
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/103387631631475"
+       ],
+       "taxonomy": {
+        "primary": "agriculture",
+        "hierarchy": [
+         "services_and_business",
+         "b2b_service",
+         "b2b_agriculture_service",
+         "agriculture"
+        ],
+        "alternates": null
+       },
+       "basic_category": "b2b_service",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.44295063614845276,
+       "version": 8,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "103387631631475",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.44295063614845276,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1149.0
+      },
+      {
+       "id": "7fd0c8df-1e06-463a-a661-f907ac700fff",
+       "names": {
+        "primary": "Francis Mallmann's Siete Fuegos",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Francis Mallmann's Siete Fuegos"
+       ],
+       "lat": -33.58980889,
+       "lon": -69.22071196,
+       "dist_m": 85363.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "The Vines Resort & Spa",
+         "locality": "Tunuyán",
+         "postcode": "5500",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.sietefuegosrestaurant.com/"
+       ],
+       "phones": [
+        "+542614613900"
+       ],
+       "emails": [
+        "7fuegos@vinesresortandspa.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/529989010422567"
+       ],
+       "taxonomy": {
+        "primary": "restaurant",
+        "hierarchy": [
+         "food_and_drink",
+         "restaurant"
+        ],
+        "alternates": null
+       },
+       "basic_category": "restaurant",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9954448056221008,
+       "version": 10,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "529989010422567",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9801948070526123,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1697.0
+      },
+      {
+       "id": "6da9d98e-f593-40ec-b4d2-ea7a6b858661",
+       "names": {
+        "primary": "Junta De Gobierno Colonia Ensayo",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Junta De Gobierno Colonia Ensayo"
+       ],
+       "lat": -33.589745660685,
+       "lon": -69.220723636023,
+       "dist_m": 85357.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "Ruta Provincial 11",
+         "locality": "Tunuyán",
+         "postcode": null,
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": null,
+       "phones": null,
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/241903583357164"
+       ],
+       "taxonomy": {
+        "primary": "government_office",
+        "hierarchy": [
+         "community_and_government",
+         "government_office"
+        ],
+        "alternates": null
+       },
+       "basic_category": "government_office",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.5312077403068542,
+       "version": 8,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "241903583357164",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.5312077403068542,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1703.0
+      },
+      {
+       "id": "1e3e97c8-2375-47bb-8e90-cd1af7a6bc31",
+       "names": {
+        "primary": "Costa De Miramar",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Costa De Miramar"
+       ],
+       "lat": -33.589744857015,
+       "lon": -69.220726705788,
+       "dist_m": 85357.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "Ruta Provincial 11",
+         "locality": "Tunuyán",
+         "postcode": null,
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": null,
+       "phones": null,
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/163099890504971"
+       ],
+       "taxonomy": {
+        "primary": "beach",
+        "hierarchy": [
+         "geographic_entities",
+         "land_feature",
+         "beach"
+        ],
+        "alternates": null
+       },
+       "basic_category": "beach",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.7169945240020752,
+       "version": 2,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "163099890504971",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.7169945240020752,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1703.0
+      },
+      {
+       "id": "96a654eb-d056-41cf-ae57-ba640b1d3f77",
+       "names": {
+        "primary": "The Vines Resort & Spa",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "The Vines Resort & Spa"
+       ],
+       "lat": -33.58978436,
+       "lon": -69.22027077,
+       "dist_m": 85345.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "Ruta Provincial 94, km 11",
+         "locality": "Vistalba",
+         "postcode": null,
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://vinesresortandspa.com/"
+       ],
+       "phones": [
+        "+5492615340435"
+       ],
+       "emails": [
+        "info@vinesresortandspa.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/469365513090056"
+       ],
+       "taxonomy": {
+        "primary": "hotel",
+        "hierarchy": [
+         "lodging",
+         "hotel"
+        ],
+        "alternates": null
+       },
+       "basic_category": "hotel",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9939898759126663,
+       "version": 10,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "469365513090056",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9738690257072449,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1717.0
+      },
+      {
+       "id": "4c33409b-9389-4c4a-a88f-4296bc96c258",
+       "names": {
+        "primary": "Quincho Escondido",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Quincho Escondido"
+       ],
+       "lat": -33.586913734132,
+       "lon": -69.232846163213,
+       "dist_m": 85516.0,
+       "domain": "WIDER_DIAGNOSTIC",
+       "addresses": [
+        {
+         "freeform": "Calle Lencinas sin número",
+         "locality": null,
+         "postcode": "5565",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": null,
+       "phones": [
+        "+542622504367"
+       ],
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/100380752779610"
+       ],
+       "taxonomy": {
+        "primary": "party_and_event_planning",
+        "hierarchy": [
+         "services_and_business",
+         "event_or_party_service",
+         "party_and_event_planning"
+        ],
+        "alternates": null
+       },
+       "basic_category": "event_or_party_service",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.8153128027915955,
+       "version": 9,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "100380752779610",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.8153128027915955,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1888.0
+      }
+     ]
+    }
+   }
+  },
+  "Bodega Azul / Bodega La Azul": {
+   "exactName": {
+    "Bodega Azul": [],
+    "Bodega La Azul": [
+     {
+      "id": "62f80ec2-6c8a-4ba7-91f4-0dd6fff2a47c",
+      "names": {
+       "primary": "Bodega la Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega la Azul"
+      ],
+      "lat": -32.940898,
+      "lon": -68.872209,
+      "dist_m": 6495.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Calle Dique Valle De Uco",
+        "locality": "Godoy Cruz",
+        "postcode": "5501",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": null,
+      "phones": null,
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/813428749039923"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.6639925241470337,
+      "version": 8,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "813428749039923",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.6639925241470337,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "d97a65d2-7613-41eb-ab26-fc577699f26d",
+      "names": {
+       "primary": "Bodega La Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega La Azul"
+      ],
+      "lat": -33.46941806,
+      "lon": -69.22094381,
+      "dist_m": 73247.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Caminos del Vino",
+        "locality": "Tupungato",
+        "postcode": "M5561",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.bodegalaazul.com"
+      ],
+      "phones": [
+       "+542622423593"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/1893816807339177"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9855024683475494,
+      "version": 11,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "1893816807339177",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9369672536849976,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "673c6cb8-b314-4650-a5c1-ef10d59be7c0",
+      "names": {
+       "primary": "Bodega la Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega la Azul"
+      ],
+      "lat": -33.57818742,
+      "lon": -69.01609022,
+      "dist_m": 78605.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Avenida Gral San Martin 1131",
+        "locality": "Tunuyán",
+        "postcode": "5560",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.bodegalaazul.com"
+      ],
+      "phones": [
+       "+542622423593"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/323045118358807"
+      ],
+      "taxonomy": {
+       "primary": "grocery_store",
+       "hierarchy": [
+        "shopping",
+        "food_and_beverage_store",
+        "grocery_store"
+       ],
+       "alternates": null
+      },
+      "basic_category": "food_and_beverage_store",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.6825395226478577,
+      "version": 12,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "323045118358807",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.6825395226478577,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ],
+    "La Azul": [
+     {
+      "id": "33e0b236-1c1b-4d41-9ef0-dac80959a3b8",
+      "names": {
+       "primary": "La Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "La Azul"
+      ],
+      "lat": -32.89260231,
+      "lon": -68.84885716,
+      "dist_m": 1637.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "RP 89 s/n",
+        "locality": "Mendoza",
+        "postcode": "M5500AAK",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": null,
+      "phones": [
+       "+542622423593"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/308352672648870"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.40408363938331604,
+      "version": 2,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "308352672648870",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.40408363938331604,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ]
+   },
+   "tokenSequence": {
+    "Bodega Azul": [],
+    "Bodega La Azul": [
+     {
+      "id": "62f80ec2-6c8a-4ba7-91f4-0dd6fff2a47c",
+      "names": {
+       "primary": "Bodega la Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega la Azul"
+      ],
+      "lat": -32.940898,
+      "lon": -68.872209,
+      "dist_m": 6495.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Calle Dique Valle De Uco",
+        "locality": "Godoy Cruz",
+        "postcode": "5501",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": null,
+      "phones": null,
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/813428749039923"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.6639925241470337,
+      "version": 8,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "813428749039923",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.6639925241470337,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "d97a65d2-7613-41eb-ab26-fc577699f26d",
+      "names": {
+       "primary": "Bodega La Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega La Azul"
+      ],
+      "lat": -33.46941806,
+      "lon": -69.22094381,
+      "dist_m": 73247.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Caminos del Vino",
+        "locality": "Tupungato",
+        "postcode": "M5561",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.bodegalaazul.com"
+      ],
+      "phones": [
+       "+542622423593"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/1893816807339177"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9855024683475494,
+      "version": 11,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "1893816807339177",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9369672536849976,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "673c6cb8-b314-4650-a5c1-ef10d59be7c0",
+      "names": {
+       "primary": "Bodega la Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega la Azul"
+      ],
+      "lat": -33.57818742,
+      "lon": -69.01609022,
+      "dist_m": 78605.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Avenida Gral San Martin 1131",
+        "locality": "Tunuyán",
+        "postcode": "5560",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.bodegalaazul.com"
+      ],
+      "phones": [
+       "+542622423593"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/323045118358807"
+      ],
+      "taxonomy": {
+       "primary": "grocery_store",
+       "hierarchy": [
+        "shopping",
+        "food_and_beverage_store",
+        "grocery_store"
+       ],
+       "alternates": null
+      },
+      "basic_category": "food_and_beverage_store",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.6825395226478577,
+      "version": 12,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "323045118358807",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.6825395226478577,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ],
+    "La Azul": [
+     {
+      "id": "33e0b236-1c1b-4d41-9ef0-dac80959a3b8",
+      "names": {
+       "primary": "La Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "La Azul"
+      ],
+      "lat": -32.89260231,
+      "lon": -68.84885716,
+      "dist_m": 1637.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "RP 89 s/n",
+        "locality": "Mendoza",
+        "postcode": "M5500AAK",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": null,
+      "phones": [
+       "+542622423593"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/308352672648870"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.40408363938331604,
+      "version": 2,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "308352672648870",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.40408363938331604,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "62f80ec2-6c8a-4ba7-91f4-0dd6fff2a47c",
+      "names": {
+       "primary": "Bodega la Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega la Azul"
+      ],
+      "lat": -32.940898,
+      "lon": -68.872209,
+      "dist_m": 6495.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Calle Dique Valle De Uco",
+        "locality": "Godoy Cruz",
+        "postcode": "5501",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": null,
+      "phones": null,
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/813428749039923"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.6639925241470337,
+      "version": 8,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "813428749039923",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.6639925241470337,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "a0c8b7e4-d630-441e-937c-e907d5ff7026",
+      "names": {
+       "primary": "Casa de Huéspedes Finca La Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Casa de Huéspedes Finca La Azul"
+      ],
+      "lat": -33.47163119,
+      "lon": -69.21056584,
+      "dist_m": 73032.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Ruta Provincial 89 s/n",
+        "locality": "Distrito Cordón del Plata",
+        "postcode": "M5561",
+        "region": "M",
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://fincalaazul.com.ar/"
+      ],
+      "phones": [
+       "+542615883379"
+      ],
+      "emails": [
+       "laazulfinca@gmail.com"
+      ],
+      "socials": [
+       "https://www.facebook.com/268934073306612"
+      ],
+      "taxonomy": {
+       "primary": "hotel",
+       "hierarchy": [
+        "lodging",
+        "hotel"
+       ],
+       "alternates": null
+      },
+      "basic_category": "hotel",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9960878431797028,
+      "version": 9,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "268934073306612",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9829906225204468,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "d97a65d2-7613-41eb-ab26-fc577699f26d",
+      "names": {
+       "primary": "Bodega La Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega La Azul"
+      ],
+      "lat": -33.46941806,
+      "lon": -69.22094381,
+      "dist_m": 73247.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Caminos del Vino",
+        "locality": "Tupungato",
+        "postcode": "M5561",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.bodegalaazul.com"
+      ],
+      "phones": [
+       "+542622423593"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/1893816807339177"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9855024683475494,
+      "version": 11,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "1893816807339177",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9369672536849976,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "673c6cb8-b314-4650-a5c1-ef10d59be7c0",
+      "names": {
+       "primary": "Bodega la Azul",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega la Azul"
+      ],
+      "lat": -33.57818742,
+      "lon": -69.01609022,
+      "dist_m": 78605.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Avenida Gral San Martin 1131",
+        "locality": "Tunuyán",
+        "postcode": "5560",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.bodegalaazul.com"
+      ],
+      "phones": [
+       "+542622423593"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/323045118358807"
+      ],
+      "taxonomy": {
+       "primary": "grocery_store",
+       "hierarchy": [
+        "shopping",
+        "food_and_beverage_store",
+        "grocery_store"
+       ],
+       "alternates": null
+      },
+      "basic_category": "food_and_beverage_store",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.6825395226478577,
+      "version": 12,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "323045118358807",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.6825395226478577,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ]
+   },
+   "neighbourhoods": {
+    "osm_node_4851595199_1500m": {
+     "point": {
+      "lat": -33.4692562,
+      "lon": -69.2207912,
+      "radiusM": 1500
+     },
+     "rows": [
+      {
+       "id": "d97a65d2-7613-41eb-ab26-fc577699f26d",
+       "names": {
+        "primary": "Bodega La Azul",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Bodega La Azul"
+       ],
+       "lat": -33.46941806,
+       "lon": -69.22094381,
+       "dist_m": 73247.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Caminos del Vino",
+         "locality": "Tupungato",
+         "postcode": "M5561",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.bodegalaazul.com"
+       ],
+       "phones": [
+        "+542622423593"
+       ],
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/1893816807339177"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9855024683475494,
+       "version": 11,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "1893816807339177",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9369672536849976,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 23.0
+      },
+      {
+       "id": "97a318d8-ccc4-4fe8-a6c1-0cc3c43218ff",
+       "names": {
+        "primary": "Hotel de Cielo - Valle de Uco",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Hotel de Cielo - Valle de Uco"
+       ],
+       "lat": -33.46901,
+       "lon": -69.22128,
+       "dist_m": 73221.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Valle de Uco - Mendoza ",
+         "locality": "Tupungato",
+         "postcode": "5560",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.hoteldecielo.com/"
+       ],
+       "phones": [
+        "+5492612181040"
+       ],
+       "emails": [
+        "hotel@hoteldecielo.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/108279078984504"
+       ],
+       "taxonomy": {
+        "primary": "hotel",
+        "hierarchy": [
+         "lodging",
+         "hotel"
+        ],
+        "alternates": null
+       },
+       "basic_category": "hotel",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.8785955309867859,
+       "version": 10,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "108279078984504",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.8785955309867859,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 53.0
+      },
+      {
+       "id": "2b86d58a-76a8-43da-85ae-6ab3b3828098",
+       "names": {
+        "primary": "Finca Adelma",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Finca Adelma"
+       ],
+       "lat": -33.46807783,
+       "lon": -69.21795337,
+       "dist_m": 72988.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "",
+         "locality": "Distrito Cordón del Plata",
+         "postcode": "M5561",
+         "region": "M",
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.fincaadelma.com.ar/"
+       ],
+       "phones": [
+        "+5492622606968"
+       ],
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/360369727393147"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9355111718177795,
+       "version": 10,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "360369727393147",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9355111718177795,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 294.0
+      },
+      {
+       "id": "a0c8b7e4-d630-441e-937c-e907d5ff7026",
+       "names": {
+        "primary": "Casa de Huéspedes Finca La Azul",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Casa de Huéspedes Finca La Azul"
+       ],
+       "lat": -33.47163119,
+       "lon": -69.21056584,
+       "dist_m": 73032.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Ruta Provincial 89 s/n",
+         "locality": "Distrito Cordón del Plata",
+         "postcode": "M5561",
+         "region": "M",
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://fincalaazul.com.ar/"
+       ],
+       "phones": [
+        "+542615883379"
+       ],
+       "emails": [
+        "laazulfinca@gmail.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/268934073306612"
+       ],
+       "taxonomy": {
+        "primary": "hotel",
+        "hierarchy": [
+         "lodging",
+         "hotel"
+        ],
+        "alternates": null
+       },
+       "basic_category": "hotel",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9960878431797028,
+       "version": 9,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "268934073306612",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9829906225204468,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 985.0
+      },
+      {
+       "id": "b150c4a6-3b34-4221-9ed8-2f02861b451f",
+       "names": {
+        "primary": "Casa Petrini",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Casa Petrini"
+       ],
+       "lat": -33.47484189,
+       "lon": -69.21184267,
+       "dist_m": 73404.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "RP89 11",
+         "locality": "Distrito Cordón del Plata",
+         "postcode": "M5561",
+         "region": "M",
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.casapetrini.com/"
+       ],
+       "phones": [
+        "+542622301600"
+       ],
+       "emails": [
+        "frontdesk@casapetrini.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/983855704977325"
+       ],
+       "taxonomy": {
+        "primary": "restaurant",
+        "hierarchy": [
+         "food_and_drink",
+         "restaurant"
+        ],
+        "alternates": null
+       },
+       "basic_category": "restaurant",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9735804796218872,
+       "version": 11,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "983855704977325",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9735804796218872,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1037.0
+      },
+      {
+       "id": "b816cccc-552d-4dec-89e0-78139814b9a8",
+       "names": {
+        "primary": "Finca Sophenia",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Finca Sophenia"
+       ],
+       "lat": -33.45968363503882,
+       "lon": -69.22322374997202,
+       "dist_m": 72384.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Ruta 89",
+         "locality": "Villa Tupungato",
+         "postcode": "5561",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "https://tienda.sophenia.com.ar/"
+       ],
+       "phones": [
+        "+541147819840"
+       ],
+       "emails": [
+        "consultas@sophenia.com.ar"
+       ],
+       "socials": [
+        "https://www.facebook.com/279582982063125"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.8474882245063782,
+       "version": 4,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "279582982063125",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.8474882245063782,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1088.0
+      }
+     ]
+    }
+   }
+  },
+  "A16": {
+   "exactName": {
+    "A16": [],
+    "Bodega A16": [
+     {
+      "id": "8a73108f-cdd4-4b19-8a24-7cc78f14fbd2",
+      "names": {
+       "primary": "Bodega A16",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega A16"
+      ],
+      "lat": -33.091156,
+      "lon": -68.90458,
+      "dist_m": 23470.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Cobos 5890",
+        "locality": "Luján de Cuyo",
+        "postcode": "5509",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "https://www.a16sa.com.ar/"
+      ],
+      "phones": [
+       "+5492616538963"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/1396967760585038"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9649602770805359,
+      "version": 6,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "1396967760585038",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9649602770805359,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "7eaf553c-dfdb-4462-ab4e-1f3d6656f3f1",
+      "names": {
+       "primary": "Bodega A16",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega A16"
+      ],
+      "lat": -33.0917642,
+      "lon": -68.9144161,
+      "dist_m": 23708.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Calle Cobos",
+        "locality": "Luján de Cuyo",
+        "postcode": "5507",
+        "region": "Mendoza",
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.a16sa.com.ar/"
+      ],
+      "phones": [
+       "02616538963"
+      ],
+      "emails": null,
+      "socials": null,
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": null,
+      "operating_status": null,
+      "confidence": 0.85,
+      "version": 8,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "Microsoft",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "1407374888439853",
+        "update_time": "2023-07-14T00:04:22.690Z",
+        "confidence": 0.85,
+        "between": null,
+        "provider": "microsoft",
+        "resource": "microsoft",
+        "version": "2025-10-20"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ]
+   },
+   "tokenSequence": {
+    "A16": [
+     {
+      "id": "7f2359ca-9ab6-4faf-8722-e05a00866e37",
+      "names": {
+       "primary": "Cava A16",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Cava A16"
+      ],
+      "lat": -32.886628801,
+      "lon": -68.86067144699999,
+      "dist_m": 420.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": null,
+        "locality": "Mendoza",
+        "postcode": null,
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": null,
+      "phones": null,
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/328094461310519"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.8591439723968506,
+      "version": 10,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "328094461310519",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.8591439723968506,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "b39b14be-854b-44b5-b531-5c5d361f4276",
+      "names": {
+       "primary": "A16 Wine & Deli",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "A16 Wine & Deli"
+      ],
+      "lat": -32.8867086,
+      "lon": -68.8606855,
+      "dist_m": 427.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "M5500CXH, Avenida Emilio Civit 757",
+        "locality": "Mendoza",
+        "postcode": "5500",
+        "region": "Mendoza",
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.a16sa.com/"
+      ],
+      "phones": [
+       "02612019937"
+      ],
+      "emails": null,
+      "socials": null,
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": null,
+      "operating_status": null,
+      "confidence": 0.85,
+      "version": 8,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "Microsoft",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "1407374888439815",
+        "update_time": "2023-07-13T23:11:14.070Z",
+        "confidence": 0.85,
+        "between": null,
+        "provider": "microsoft",
+        "resource": "microsoft",
+        "version": "2025-10-20"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "bed5590c-e5fb-476b-a941-2b304b0efe71",
+      "names": {
+       "primary": "Bodega A16 - Administrador",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega A16 - Administrador"
+      ],
+      "lat": -32.89615405555795,
+      "lon": -68.83968285555261,
+      "dist_m": 2558.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Emilio Civit ",
+        "locality": "Mendoza",
+        "postcode": "5500",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": null,
+      "phones": null,
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/111429737388062"
+      ],
+      "taxonomy": {
+       "primary": "restaurant",
+       "hierarchy": [
+        "food_and_drink",
+        "restaurant"
+       ],
+       "alternates": null
+      },
+      "basic_category": "restaurant",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.7662494778633118,
+      "version": 4,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "111429737388062",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.7662494778633118,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "8a73108f-cdd4-4b19-8a24-7cc78f14fbd2",
+      "names": {
+       "primary": "Bodega A16",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega A16"
+      ],
+      "lat": -33.091156,
+      "lon": -68.90458,
+      "dist_m": 23470.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Cobos 5890",
+        "locality": "Luján de Cuyo",
+        "postcode": "5509",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "https://www.a16sa.com.ar/"
+      ],
+      "phones": [
+       "+5492616538963"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/1396967760585038"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9649602770805359,
+      "version": 6,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "1396967760585038",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9649602770805359,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "7eaf553c-dfdb-4462-ab4e-1f3d6656f3f1",
+      "names": {
+       "primary": "Bodega A16",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega A16"
+      ],
+      "lat": -33.0917642,
+      "lon": -68.9144161,
+      "dist_m": 23708.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Calle Cobos",
+        "locality": "Luján de Cuyo",
+        "postcode": "5507",
+        "region": "Mendoza",
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.a16sa.com.ar/"
+      ],
+      "phones": [
+       "02616538963"
+      ],
+      "emails": null,
+      "socials": null,
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": null,
+      "operating_status": null,
+      "confidence": 0.85,
+      "version": 8,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "Microsoft",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "1407374888439853",
+        "update_time": "2023-07-14T00:04:22.690Z",
+        "confidence": 0.85,
+        "between": null,
+        "provider": "microsoft",
+        "resource": "microsoft",
+        "version": "2025-10-20"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ],
+    "Bodega A16": [
+     {
+      "id": "bed5590c-e5fb-476b-a941-2b304b0efe71",
+      "names": {
+       "primary": "Bodega A16 - Administrador",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega A16 - Administrador"
+      ],
+      "lat": -32.89615405555795,
+      "lon": -68.83968285555261,
+      "dist_m": 2558.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Emilio Civit ",
+        "locality": "Mendoza",
+        "postcode": "5500",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": null,
+      "phones": null,
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/111429737388062"
+      ],
+      "taxonomy": {
+       "primary": "restaurant",
+       "hierarchy": [
+        "food_and_drink",
+        "restaurant"
+       ],
+       "alternates": null
+      },
+      "basic_category": "restaurant",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.7662494778633118,
+      "version": 4,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "111429737388062",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.7662494778633118,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "8a73108f-cdd4-4b19-8a24-7cc78f14fbd2",
+      "names": {
+       "primary": "Bodega A16",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega A16"
+      ],
+      "lat": -33.091156,
+      "lon": -68.90458,
+      "dist_m": 23470.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Cobos 5890",
+        "locality": "Luján de Cuyo",
+        "postcode": "5509",
+        "region": null,
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "https://www.a16sa.com.ar/"
+      ],
+      "phones": [
+       "+5492616538963"
+      ],
+      "emails": null,
+      "socials": [
+       "https://www.facebook.com/1396967760585038"
+      ],
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": {
+       "wikidata": null,
+       "names": {
+        "primary": null,
+        "common": null,
+        "rules": null
+       }
+      },
+      "operating_status": null,
+      "confidence": 0.9649602770805359,
+      "version": 6,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "meta",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "1396967760585038",
+        "update_time": "2026-09-14T00:00:00.000Z",
+        "confidence": 0.9649602770805359,
+        "between": null,
+        "provider": "meta",
+        "resource": "meta",
+        "version": "2026-09-14"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     },
+     {
+      "id": "7eaf553c-dfdb-4462-ab4e-1f3d6656f3f1",
+      "names": {
+       "primary": "Bodega A16",
+       "common": null,
+       "rules": null
+      },
+      "declared_names": [
+       "Bodega A16"
+      ],
+      "lat": -33.0917642,
+      "lon": -68.9144161,
+      "dist_m": 23708.0,
+      "domain": "AUTHORIZED_DOMAIN",
+      "addresses": [
+       {
+        "freeform": "Calle Cobos",
+        "locality": "Luján de Cuyo",
+        "postcode": "5507",
+        "region": "Mendoza",
+        "country": "AR"
+       }
+      ],
+      "websites": [
+       "http://www.a16sa.com.ar/"
+      ],
+      "phones": [
+       "02616538963"
+      ],
+      "emails": null,
+      "socials": null,
+      "taxonomy": {
+       "primary": "winery",
+       "hierarchy": [
+        "food_and_drink",
+        "alcoholic_beverage_venue",
+        "winery"
+       ],
+       "alternates": null
+      },
+      "basic_category": "winery",
+      "brand": null,
+      "operating_status": null,
+      "confidence": 0.85,
+      "version": 8,
+      "sources": [
+       {
+        "property": "",
+        "dataset": "Microsoft",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": "1407374888439853",
+        "update_time": "2023-07-14T00:04:22.690Z",
+        "confidence": 0.85,
+        "between": null,
+        "provider": "microsoft",
+        "resource": "microsoft",
+        "version": "2025-10-20"
+       },
+       {
+        "property": "/properties/confidence",
+        "dataset": "Overture",
+        "license": "CDLA-Permissive-2.0",
+        "record_id": null,
+        "update_time": "2026-09-17T22:52:12Z",
+        "confidence": null,
+        "between": null,
+        "provider": "overture",
+        "resource": "confidence_calculation",
+        "version": "2026-09-17"
+       }
+      ]
+     }
+    ]
+   },
+   "neighbourhoods": {
+    "overture_bodega_a16_meta_point_1500m": {
+     "point": {
+      "lat": -33.091156,
+      "lon": -68.90458,
+      "radiusM": 1500
+     },
+     "rows": [
+      {
+       "id": "8a73108f-cdd4-4b19-8a24-7cc78f14fbd2",
+       "names": {
+        "primary": "Bodega A16",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Bodega A16"
+       ],
+       "lat": -33.091156,
+       "lon": -68.90458,
+       "dist_m": 23470.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Cobos 5890",
+         "locality": "Luján de Cuyo",
+         "postcode": "5509",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "https://www.a16sa.com.ar/"
+       ],
+       "phones": [
+        "+5492616538963"
+       ],
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/1396967760585038"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9649602770805359,
+       "version": 6,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "1396967760585038",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9649602770805359,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 0.0
+      },
+      {
+       "id": "024495ee-7857-46a9-ba6c-d408d4553681",
+       "names": {
+        "primary": "Bodega Sottano",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Bodega Sottano"
+       ],
+       "lat": -33.094040778396575,
+       "lon": -68.90565470695063,
+       "dist_m": 23803.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Ruta 7",
+         "locality": "Luján de Cuyo",
+         "postcode": "5507",
+         "region": "Mendoza",
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.bodegasottano.com"
+       ],
+       "phones": [
+        "0261 405-8335"
+       ],
+       "emails": null,
+       "socials": null,
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": null,
+       "operating_status": null,
+       "confidence": 0.77,
+       "version": 6,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "Foursquare",
+         "license": "Apache-2.0",
+         "record_id": "4be851ec9a54a59395d30911",
+         "update_time": "2026-03-06T00:00:00.000",
+         "confidence": 0.77,
+         "between": null,
+         "provider": "foursquare",
+         "resource": "foursquare",
+         "version": "2026-04-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 336.0
+      },
+      {
+       "id": "7eaf553c-dfdb-4462-ab4e-1f3d6656f3f1",
+       "names": {
+        "primary": "Bodega A16",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Bodega A16"
+       ],
+       "lat": -33.0917642,
+       "lon": -68.9144161,
+       "dist_m": 23708.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Calle Cobos",
+         "locality": "Luján de Cuyo",
+         "postcode": "5507",
+         "region": "Mendoza",
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.a16sa.com.ar/"
+       ],
+       "phones": [
+        "02616538963"
+       ],
+       "emails": null,
+       "socials": null,
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": null,
+       "operating_status": null,
+       "confidence": 0.85,
+       "version": 8,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "Microsoft",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "1407374888439853",
+         "update_time": "2023-07-14T00:04:22.690Z",
+         "confidence": 0.85,
+         "between": null,
+         "provider": "microsoft",
+         "resource": "microsoft",
+         "version": "2025-10-20"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 919.0
+      },
+      {
+       "id": "04850738-737a-4ec1-8d62-9ecf2956bb9e",
+       "names": {
+        "primary": "Terrazas de los Andes",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Terrazas de los Andes"
+       ],
+       "lat": -33.082454211783315,
+       "lon": -68.89692716853818,
+       "dist_m": 22403.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Thames",
+         "locality": "Luján de Cuyo",
+         "postcode": "5507",
+         "region": "Mendoza",
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.terrazasdelosandes.com"
+       ],
+       "phones": [
+        "0261 488-0058"
+       ],
+       "emails": [
+        "info@terrazasdelosandes.com"
+       ],
+       "socials": null,
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": null,
+       "operating_status": null,
+       "confidence": 0.77,
+       "version": 6,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "Foursquare",
+         "license": "Apache-2.0",
+         "record_id": "4bc323ddf8219c74eba2b510",
+         "update_time": "2026-03-06T00:00:00.000",
+         "confidence": 0.77,
+         "between": null,
+         "provider": "foursquare",
+         "resource": "foursquare",
+         "version": "2026-04-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1202.0
+      },
+      {
+       "id": "a6768452-9d6f-4a17-8f6a-e278ae73545c",
+       "names": {
+        "primary": "BARDO en la Bodega",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "BARDO en la Bodega"
+       ],
+       "lat": -33.09898988,
+       "lon": -68.91540184,
+       "dist_m": 24513.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Cobos 6445",
+         "locality": "Distrito Agrelo",
+         "postcode": "M5509",
+         "region": "M",
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "https://bardo.meitre.com/"
+       ],
+       "phones": [
+        "+5492612318488"
+       ],
+       "emails": [
+        "bardoenlabodega@gmail.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/465462349987295"
+       ],
+       "taxonomy": {
+        "primary": "restaurant",
+        "hierarchy": [
+         "food_and_drink",
+         "restaurant"
+        ],
+        "alternates": null
+       },
+       "basic_category": "restaurant",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.7591189742088318,
+       "version": 6,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "465462349987295",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.7591189742088318,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1332.0
+      },
+      {
+       "id": "a89b7368-6d55-4349-be0c-4ffa4c60c16b",
+       "names": {
+        "primary": "Minimal Pequeños Universos ",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Minimal Pequeños Universos "
+       ],
+       "lat": -33.081179208088,
+       "lon": -68.913315,
+       "dist_m": 22536.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Cobos 1401, Cipoletti 1200",
+         "locality": "Coronel Dorrego",
+         "postcode": "M5519",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": null,
+       "phones": [
+        "+5492617054321"
+       ],
+       "emails": [
+        "universos@fincaminimal.com"
+       ],
+       "socials": [
+        "https://www.facebook.com/320431381149171"
+       ],
+       "taxonomy": {
+        "primary": "restaurant",
+        "hierarchy": [
+         "food_and_drink",
+         "restaurant"
+        ],
+        "alternates": null
+       },
+       "basic_category": "restaurant",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.5460560917854309,
+       "version": 6,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "320431381149171",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.5460560917854309,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1376.0
+      },
+      {
+       "id": "6b8f8344-009a-4e3e-95d8-d379825ca248",
+       "names": {
+        "primary": "Finca Dominante",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Finca Dominante"
+       ],
+       "lat": -33.08108451,
+       "lon": -68.91329603,
+       "dist_m": 22525.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Cobos 4440",
+         "locality": "Distrito Perdriel",
+         "postcode": "M5509",
+         "region": "M",
+         "country": "AR"
+        }
+       ],
+       "websites": null,
+       "phones": [
+        "+542615569472"
+       ],
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/100532788248739"
+       ],
+       "taxonomy": {
+        "primary": "bed_and_breakfast",
+        "hierarchy": [
+         "lodging",
+         "bed_and_breakfast"
+        ],
+        "alternates": null
+       },
+       "basic_category": "bed_and_breakfast",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.6900980472564697,
+       "version": 11,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "100532788248739",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.6900980472564697,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1383.0
+      },
+      {
+       "id": "57439b7c-7263-47bf-9eaa-ec0b47eab181",
+       "names": {
+        "primary": "Villa Trinidad Guesthouse",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Villa Trinidad Guesthouse"
+       ],
+       "lat": -33.08444482500447,
+       "lon": -68.91723742500201,
+       "dist_m": 22970.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Cobos 4731",
+         "locality": "Perdriel",
+         "postcode": "5509",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": null,
+       "phones": [
+        "+542615166120"
+       ],
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/181581049132349"
+       ],
+       "taxonomy": {
+        "primary": "hotel",
+        "hierarchy": [
+         "lodging",
+         "hotel"
+        ],
+        "alternates": null
+       },
+       "basic_category": "hotel",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9451085925102234,
+       "version": 10,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "181581049132349",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9451085925102234,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1395.0
+      },
+      {
+       "id": "7c1bc658-daa7-4dc0-9bce-c9dae9c1ed47",
+       "names": {
+        "primary": "Iglesia Pentecostal Unida La Luz Del Mundo",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Iglesia Pentecostal Unida La Luz Del Mundo"
+       ],
+       "lat": -33.09451979,
+       "lon": -68.88998088,
+       "dist_m": 23652.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "",
+         "locality": "Distrito Perdriel",
+         "postcode": "5509",
+         "region": "M",
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "http://www.ipua.org/"
+       ],
+       "phones": [
+        "+542616670627"
+       ],
+       "emails": null,
+       "socials": [
+        "https://www.facebook.com/104461741164813"
+       ],
+       "taxonomy": {
+        "primary": "pentecostal_place_of_worship",
+        "hierarchy": [
+         "cultural_and_historic",
+         "place_of_worship",
+         "christian_place_of_worship",
+         "protestant_place_of_worship",
+         "pentecostal_place_of_worship"
+        ],
+        "alternates": null
+       },
+       "basic_category": "christian_place_of_worship",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.8401510119438171,
+       "version": 12,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "104461741164813",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.8401510119438171,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1411.0
+      },
+      {
+       "id": "6b6d5604-7154-4990-a467-100f853fa285",
+       "names": {
+        "primary": "Bermellón Casa de Vinos",
+        "common": null,
+        "rules": null
+       },
+       "declared_names": [
+        "Bermellón Casa de Vinos"
+       ],
+       "lat": -33.08052494,
+       "lon": -68.91352853,
+       "dist_m": 22469.0,
+       "domain": "AUTHORIZED_DOMAIN",
+       "addresses": [
+        {
+         "freeform": "Cobos 4397",
+         "locality": "Perdriel",
+         "postcode": "5509",
+         "region": null,
+         "country": "AR"
+        }
+       ],
+       "websites": [
+        "https://www.bermellon.ar/experiencia-bermellon/"
+       ],
+       "phones": [
+        "+542617502500"
+       ],
+       "emails": [
+        "casa@bermellon.ar"
+       ],
+       "socials": [
+        "https://www.facebook.com/101403928626223"
+       ],
+       "taxonomy": {
+        "primary": "winery",
+        "hierarchy": [
+         "food_and_drink",
+         "alcoholic_beverage_venue",
+         "winery"
+        ],
+        "alternates": null
+       },
+       "basic_category": "winery",
+       "brand": {
+        "wikidata": null,
+        "names": {
+         "primary": null,
+         "common": null,
+         "rules": null
+        }
+       },
+       "operating_status": null,
+       "confidence": 0.9578752517700195,
+       "version": 11,
+       "sources": [
+        {
+         "property": "",
+         "dataset": "meta",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": "101403928626223",
+         "update_time": "2026-09-14T00:00:00.000Z",
+         "confidence": 0.9578752517700195,
+         "between": null,
+         "provider": "meta",
+         "resource": "meta",
+         "version": "2026-09-14"
+        },
+        {
+         "property": "/properties/confidence",
+         "dataset": "Overture",
+         "license": "CDLA-Permissive-2.0",
+         "record_id": null,
+         "update_time": "2026-09-17T22:52:12Z",
+         "confidence": null,
+         "between": null,
+         "provider": "overture",
+         "resource": "confidence_calculation",
+         "version": "2026-09-17"
+        }
+       ],
+       "from_point_m": 1447.0
+      }
+     ]
+    }
+   }
+  }
+ }
+}
