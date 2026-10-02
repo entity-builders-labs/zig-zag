@@ -22,7 +22,7 @@ classification contract and deterministic validation are unchanged.
 
 **Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY (native producer cutover complete; v4 legacy paths deleted; modular domain audit split complete; zero avoidable `any`).**  
 **RW3 final classification/warm-reuse gate — CLOSED / ACCEPTED.**  
-**RW4 — AUTHORIZED / NEXT GATE** (2026-10-02: stable deep-source examination [x]; work-unit geographic authorization landed; persistence/WARM open — see COLD #11).
+**RW4 — AUTHORIZED / NEXT GATE** (2026-10-02: stable deep-source examination [x]; work-unit geographic authorization landed; persistence/WARM open — blocked on identity acquisition coverage, see identity characterization after COLD #11).
 
 **Active track: Gate C real-world generalization — RW4 NEXT. RW3 final live COLD/WARM acceptance passed on 2026-09-29 with sequence integrity, canonical catalog reuse, zero WARM walk acquisition/classifier calls, and Generation Trace v5 evidence.**
 
@@ -194,6 +194,66 @@ RW3-N6 resolution and live verification status:
   classifier) into the existing identity/geography validation. Do not
   interrupt the RW4 web-acquisition gate for it.
 
+
+### RW4 trace-policy fix + winery identity characterization — 2026-10-02
+
+- Trace defect (found in COLD #11): the recorder's credential sanitizer
+  (`SECRET_KEY` in `generation-trace-recorder.util.ts`) redacts any key
+  containing "authorization", so `geographicAuthorization` was recorded as
+  `[REDACTED]`. Fix `3066b4ad` `fix(trace): expose candidate geographic
+  policy`: trace projections emit `geographicPolicy` (kind, workUnit,
+  ownedIntent, ownedDeficit, admittedAs); domain type unchanged; credential
+  redaction unchanged. Recorder-path regression proves the policy and
+  work-unit provenance are visible while apiKey / Authorization header /
+  token stay `[REDACTED]`; architecture guard forbids authorization-named
+  trace keys. Gates: unit 178/2310, integration 23/104, typecheck, lint,
+  build, `git diff --check` green.
+- No COLD/WARM rerun. Characterization dossier:
+  `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/`
+  (README + per-component worksheets). Method: the COLD #11 composites
+  replayed through the real resolver and real providers (local Nominatim/
+  Overpass, Geoapify, Wikidata) with a stub catalog and a fresh disposable
+  DB (0 rows after the probe), plus bounded source-justified query variants,
+  local Overpass tag search, Wikidata search and one fetch of each
+  source-linked official site. The replay reproduces COLD #11 exactly.
+- Alfa Crux: no candidate in any enabled source (OSM, Nominatim, Geoapify,
+  Wikidata; source-justified variants included) -> coverage gap. Its source
+  link is a page on the group host agostinowinegroup.com; that page declares
+  "Calle Los Indios s/n, El Cepillo, Valle de Uco", while the same host is the
+  OSM website of a different winery (Finca Agostino, Maipú).
+- SuperUco: no candidate anywhere -> coverage gap; official site behind a bot
+  challenge (403), no address in the source.
+- Bodega Azul: acquired "Bodega La Azul" (osm:node:4851595199, 73.2 km, only
+  under ROUTE_SCALE). REJECTED because the only evidence was
+  `WIKIDATA_IDENTITY_MATCH {NEARBY, hintMatched: false, candidateMatched:
+  false}` (no Wikidata item exists); no exact name, alias, address or
+  convergence. The OSM node and Geoapify details expose no website, alias or
+  QID, so SAME identity cannot be strongly established even though the source
+  links bodegalaazul.com ("Bodega La azul", Tupungato). A "La Azul"
+  restaurant node sits at the same site.
+- A16 (Luján composite): "A16" query acquires an unrelated "FC Belgrano"
+  object (correctly rejected); A16 absent from all sources.
+- Secondary findings, not blockers: non-matching Wikidata nearby search is
+  encoded as REJECTED (should be unknown/insufficient); source hyperlink
+  targets are dropped at extraction (`GeoEntityHint` has no URL field).
+- Official-domain equality as future identity evidence: CONDITIONAL
+  (safeguards in the dossier README: anchored link capture, redirect
+  resolution, aggregator/group-host exclusion, single-candidate domain
+  multiplicity, provider-declared website). Not implemented.
+- first causal identity blocker = identity acquisition coverage: Alfa Crux and
+  SuperUco have no candidate in any enabled identity source, so the Uco
+  composite cannot complete regardless of verifier corroboration.
+- Recommended next task: rerun the same harness with the existing Google
+  Places adapter (`PLACES_PROVIDER=google`) for these components, within the
+  Google quota, to decide whether an identity source covers them; if none
+  does, reconsider the RW4 target composite (product decision).
+- RW4 exit criteria:
+  - [x] stable deep-source examination
+  - [ ] real multi-component Experience persisted
+  - [ ] WARM reuses it
+  - [ ] RW4 CLOSED
+- Next blocker: identity acquisition coverage for source-backed Uco winery
+  components (Alfa Crux, SuperUco) in the enabled identity sources.
 
 ### RW4 work-unit geographic authorization + canonical COLD #11 — 2026-10-02
 

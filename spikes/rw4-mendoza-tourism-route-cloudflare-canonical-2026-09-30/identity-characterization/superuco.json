@@ -1,0 +1,39 @@
+{
+  "component": "SuperUco",
+  "sourceComposite": "Uco Valley Wine Tasting Itinerary",
+  "source": {
+    "span": "2. [SuperUco](https://superuco.com/) – 12 pm – … 40 minutes to drive here from Alfa Crux…",
+    "hyperlinkTarget": "https://superuco.com/",
+    "context": "Corazon del Sol and Solo Contigo 'are on the same property as SuperUco (as they form part of The Vines)'",
+    "addressText": null
+  },
+  "officialSite": {
+    "status": 403,
+    "note": "bot-protection challenge on superuco.com and www.superuco.com; no readable facts"
+  },
+  "acquisition": {
+    "strategiesAttempted": [
+      "CATALOG_REUSE (stub/empty in probe; COLD #11 fresh DB)",
+      "TRUSTED_OBSERVATION_REUSE",
+      "LOCAL_OSM_POOL",
+      "NOMINATIM",
+      "PLACES (geoapify, ROUTE_SCALE 80 km)"
+    ],
+    "queriesAttempted": [
+      "SuperUco"
+    ],
+    "controlledVariants": {
+      "Super Uco (tokenization)": "Geoapify: unrelated 'Super Vea', 'Valle de Uco' streets/lodge/sanatorium; Nominatim 0",
+      "Bodega SuperUco": "Geoapify: generic 'Bodega …' list; Nominatim 0",
+      "The Vines of Mendoza (property context, NOT alias)": "Geoapify 0; Nominatim 0"
+    },
+    "osmLocalOverpass": "no object named SuperUco/Super Uco/The Vines/Solo Contigo/Corazón del Sol in Mendoza province",
+    "wikidata": "no entity",
+    "candidateAcquired": false
+  },
+  "verification": "not reached (no candidate)",
+  "classification": [
+    "A_PROVIDER_COVERAGE_GAP",
+    "H_INSUFFICIENT_ACCESSIBLE_PUBLIC_EVIDENCE (official site unreadable; no address in source)"
+  ]
+}
