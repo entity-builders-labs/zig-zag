@@ -52,7 +52,7 @@ jobs:
     steps:
       - run: |
           echo "Contextual review skipped: PR head repository is not entity-builders-labs/zig-zag."
-          echo "No OPENAI_API_KEY is exposed to untrusted fork code."
+          echo "No GROQ_API_KEY is exposed to untrusted fork code."
 
   review:
     needs: resolve-pr
@@ -131,21 +131,24 @@ jobs:
       - name: Report already-current review
         if: steps.existing.outputs.current == 'true'
         run: echo "A contextual review is already anchored to this exact PR head."
-      - name: Require OpenAI configuration
+      - name: Require review provider configuration
         if: steps.existing.outputs.current != 'true'
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
-          if [ -z "$OPENAI_API_KEY" ]; then
-            echo "REVIEW UNAVAILABLE / FAILED: configure repository secret OPENAI_API_KEY." >&2
+          if [ -z "$GROQ_API_KEY" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: configure repository secret GROQ_API_KEY." >&2
             exit 1
           fi
       - id: codex
         if: steps.existing.outputs.current != 'true'
-        # openai/codex-action v1
+        # openai/codex-action v1 with Groq provider override
         uses: openai/codex-action@86365089eb2b84e0a8fb0717b304f8bdcb13b20e
         with:
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          openai-api-key: ${{ secrets.GROQ_API_KEY }}
+          responses-api-endpoint: https://api.groq.com/openai/v1/responses
+          model: qwen/qwen3.8-27b
+          effort: high
           prompt-file: .github/codex/track-review-prompt.md
           output-file: .github/codex/track-review-output.json
           output-schema-file: .github/codex/track-review-schema.json
