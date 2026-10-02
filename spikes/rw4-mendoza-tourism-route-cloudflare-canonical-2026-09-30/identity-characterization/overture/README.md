@@ -20,6 +20,11 @@ Verdict and analysis: `assessment.md`.
   Route-scale bbox `[-69.7190, -33.6025, -68.0055, -32.1636]`. A 0.3°
   `WIDER_DIAGNOSTIC` margin was queried in the same pass. Rows beyond 80 km
   are labelled and never counted as candidates.
+  *Correction (2026-10-02): this 80 km destination-centered domain is
+  historical code behavior, not a valid geographic authority — see
+  `assessment.md` (correction note) and
+  `docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md`
+  Part II. The probe facts stand; the "authorized" label does not.*
 
 ## Files
 

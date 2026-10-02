@@ -2,7 +2,7 @@
 
 <!-- agent-track: id=preference-first-selection; status=ACTIVE; branch=feat/preference-first-selection; integration=main; base=016f10586d4faf9fe7e703a2d28684136cf99abe; plan=docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md -->
 
-Updated: 2026-09-30
+Updated: 2026-10-02
 Branch: `feat/preference-first-selection`
 Repository: `entity-builders-labs/zig-zag`
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
@@ -22,7 +22,7 @@ classification contract and deterministic validation are unchanged.
 
 **Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY (native producer cutover complete; v4 legacy paths deleted; modular domain audit split complete; zero avoidable `any`).**  
 **RW3 final classification/warm-reuse gate — CLOSED / ACCEPTED.**  
-**RW4 — AUTHORIZED / NEXT GATE** (2026-10-02: stable deep-source examination [x]; work-unit geographic authorization landed; persistence/WARM open — blocked on identity acquisition coverage, see identity characterization after COLD #11).
+**RW4 — AUTHORIZED / NEXT GATE** (2026-10-02: stable deep-source examination [x]; work-unit geographic authorization landed; persistence/WARM open — blocked on the unimplemented Experience geographic-scope architecture and open product decision PD1, see "RW4 geographic scope audit" below; identity coverage is re-evaluated after it).
 
 **Active track: Gate C real-world generalization — RW4 NEXT. RW3 final live COLD/WARM acceptance passed on 2026-09-29 with sequence integrity, canonical catalog reuse, zero WARM walk acquisition/classifier calls, and Generation Trace v5 evidence.**
 
@@ -195,6 +195,56 @@ RW3-N6 resolution and live verification status:
   interrupt the RW4 web-acquisition gate for it.
 
 
+### RW4 geographic scope audit (distance thresholds) — 2026-10-02
+
+- Docs-only architecture audit; no production change (`git diff -- be/src
+  fe` empty). Contract: Part II of
+  `docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md`.
+- Trigger: Overture characterization
+  (`spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/overture/assessment.md`)
+  found Alfa Crux (105.2 km) and SuperUco (87.1 km) in a licensable source,
+  outside the destination-centered 80 km "route-scale domain".
+- History: `route.maxRadiusMeters = 80_000` was created on 2026-08-31
+  (`e3c3d5d7`) as an internal route-coherence radius around the components'
+  own centroid, with no rationale. `cc1e102b` (same evening) reused it as a
+  destination-centroid circle, contradicting the same-day plan ("city plus
+  surroundings remains out of scope"). `47ccae89` moved it into destination
+  compatibility for identity resolution. `4da75fac` made it the ROUTE_LIKE
+  Places identity search circle. No product requirement justified any reuse.
+- Verdict: every geographic distance threshold in the tour engine is
+  UNJUSTIFIED, UNKNOWN or an operational/provider cap. None is PRODUCT_POLICY
+  (structural "≥2 components" excepted). `neighborhoodWalk` 2/4 km and
+  `route.minAnchors` are dead code.
+- Defect: one constant answered three different questions (composition
+  coherence, destination compatibility, identity search scope). The existing
+  candidate-owned AREA primitive (`canonical_area`, area-role hints,
+  `evaluateAreaScopeMembership`) and route-scope membership are both gated by
+  the destination polygon, so a regional Experience can never own a scope.
+- Target: authorization (DEFAULT/WALK/ROUTE_LIKE) selects a policy class
+  only. Experience scope = work-unit anchor ∧ (candidate-owned canonical
+  AREA/ROUTE | destination AREA/POINT_RADIUS) else `GEOGRAPHIC_SCOPE_UNKNOWN`
+  (fail-closed). Destination relation becomes a typed fact consumed by
+  eligibility/planning. Identity search windows are derived from scope
+  geometry. Milestones S0–S9 (spec §P2-14).
+- Historical interpretation: COLD #11 correctly proved candidate-scoped
+  ROUTE_LIKE authorization and its propagation into the then-current 80 km
+  identity scope. It did not prove that 80 km is a correct product policy.
+- Overture assessment corrected (annotations, not rewritten): provider
+  coverage FOUND (Alfa Crux, SuperUco); current admission blocked by the
+  superseded 80 km policy; identity value to be reassessed after S1–S5 and
+  the S7 rerun. Verdict not upgraded.
+- Open product decisions: PD1 tour eligibility of an Experience that extends
+  beyond the trip destination before routing-backed feasibility exists; PD2
+  UNKNOWN-scope policy (fail-closed recommended); PD3 point-destination
+  radius value (25 km, UNKNOWN; may stay deferred).
+- RW4 exit criteria unchanged: [x] stable deep-source examination;
+  [ ] multi-component persisted; [ ] WARM reuse; [ ] RW4 CLOSED.
+- Next blocker: the Experience geographic-scope architecture (S1–S5) is not
+  implemented, and PD1 is open. Under the corrected architecture the COLD #11
+  Uco candidate (3 venue hints, no area hint, components outside Ciudad de
+  Mendoza) is `GEOGRAPHIC_SCOPE_UNKNOWN`. Its internal geometry is coherent
+  (centroid radius ≈ 20.9 km, max pairwise ≈ 38.4 km).
+
 ### RW4 Google identity gates (legal, cost, portability) — 2026-10-02
 
 - Characterization only: no production change, no COLD/WARM, no persisted
@@ -319,6 +369,9 @@ RW3-N6 resolution and live verification status:
     search uses `routeScaleDestinationRadius` (destination centroid +
     `route.maxRadiusMeters` = 80 km, the same owner destination
     compatibility uses); DEFAULT/WALK keep the 50 km default circle.
+    *(Historical code behavior / superseded interpretation: the 80 km
+    destination-centered domain is not a valid authority — geographic scope
+    audit 2026-10-02, spec Part II.)*
   - Observability: `resolution.component_identity` step per multi-component
     candidate (strategies, acquired?, selected candidate name/provider/
     coordinates, identity verdict, destination compatibility, final
@@ -403,7 +456,10 @@ RW3-N6 resolution and live verification status:
   components of the route_like-owned composite — Alfa Crux and SuperUco
   produce no identity candidate under enabled sources even within the
   route-scale Places domain, and "Bodega Azul" vs "Bodega La Azul" is
-  rejected by IdentityVerifier. Prerequisite before the next COLD: stop the
+  rejected by IdentityVerifier. *(Superseded 2026-10-02: the "route-scale
+  Places domain" is historical code behavior, not a valid authority; see the
+  geographic scope audit above. COLD #11 proved authorization propagation,
+  not the 80 km policy.)* Prerequisite before the next COLD: stop the
   trace sanitizer from redacting `geographicAuthorization`.
 - Evidence: `cold11/` (`generation-trace.json`, `provenance.json`,
   `run-manifest.json`, `request-stimulus.json`, `input-control.json`,

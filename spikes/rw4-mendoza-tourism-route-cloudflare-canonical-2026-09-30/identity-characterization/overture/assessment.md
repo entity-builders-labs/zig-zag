@@ -8,6 +8,27 @@ Question: can Overture give Zig-Zag a licensed, persistent, provider-native
 identity source for real-world entities missing from its current canonical
 sources?
 
+> **Correction (2026-10-02, geographic scope audit).** This assessment used
+> the destination-centered 80 km "route-scale domain" as its authorized
+> domain. The audit in
+> `docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md`
+> Part II (§P2-3 T7, §P2-4, §P2-5) found that domain is **not** a valid
+> geographic authority: 80 km was created as an internal route-coherence
+> radius around the components' own centroid and was reused, without product
+> rationale, as a destination-centroid compatibility circle and as an
+> identity search circle. Read every `OUTSIDE_AUTHORIZED_DOMAIN` below as:
+>
+> - MEASURED FACT: Alfa Crux is 105.2 km and SuperUco 87.1 km from the
+>   current destination-boundary centroid (Ciudad de Mendoza).
+> - CURRENT CODE BEHAVIOR: both fall outside the current destination-centered
+>   80 km policy, so the current resolver would not admit them.
+> - ARCHITECTURAL STATUS: that policy is superseded (Part II); the label is
+>   *outside the historical 80 km circle*, not *outside the Experience's
+>   geography*.
+>
+> Measured facts in §§2–10 (licensing, GERS stability, conflation, aliases,
+> multiplicity) are unaffected. The verdict is re-split in §11 below.
+
 ## 1. Data and scope
 
 - Release `2026-09-23.1` (STAC `latest`), schema `v2.0.0` (`categories`
@@ -15,7 +36,8 @@ sources?
   `base`/`building_part` only; places are unaffected.
 - One Parquet partition intersects the domain (STAC item `00004`); bbox
   covering-column pushdown reads 29 202 rows in ~20 s. No bulk download.
-- Authorized domain = COLD #11 route-scale: destination-boundary centroid
+- Authorized domain *(historical code behavior, superseded — see the
+  correction above)* = COLD #11 route-scale: destination-boundary centroid
   `-32.88309217907325, -68.86223810433484`, 80 km haversine
   (`destination-compatibility.policy.ts` route-scale rule).
   Route-scale bbox `[-69.7190, -33.6025, -68.0055, -32.1636]`.
@@ -246,6 +268,27 @@ dimension:
 OVERTURE IDENTITY COVERAGE VERDICT = PARTIAL_VALUE
 ```
 
+> **Corrected reading (2026-10-02, scope audit).** The single verdict mixed
+> three different questions. Separated:
+>
+> ```text
+> PROVIDER COVERAGE:      Alfa Crux FOUND (79eb9ee4, exact name, SINGLE)
+>                         SuperUco  FOUND (753ed444, exact name, SINGLE)
+>                         Bodega Azul: source name NOT FOUND; "Bodega La Azul" MULTIPLE
+>                         A16: exact NOT FOUND (fail-closed)
+> CURRENT ADMISSION:      Alfa Crux, SuperUco blocked by the current
+>                         destination-centered 80 km policy (code fact)
+> IDENTITY VALUE:         to be reassessed after the geographic scope
+>                         architecture (Part II, S1–S5) is implemented and the
+>                         probe is rerun under the Experience's own scope (S7)
+> ```
+>
+> The provider-coverage fact must not be understated: Overture is the only
+> examined licensable source that contains Alfa Crux and SuperUco. Reason 1
+> below ("not inside the authorized domain") is withdrawn as a reason against
+> Overture; reasons 2–5 stand. The verdict is **not** upgraded to
+> STRONG_CANDIDATE here.
+
 - **Value:** Overture has records for all four physical entities. Two of
   them (Alfa Crux, SuperUco) are in none of OSM, Nominatim, Geoapify or
   Wikidata, and A16's winery is also in none of them. Licensing is explicit
@@ -269,9 +312,11 @@ Would hypothetical OVERTURE_IDENTITY now allow the currently observed Uco
 multi-component Experience to resolve all mandatory components?   NO
 ```
 
-- Alfa Crux: NO. The record exists, but at 105.2 km it is outside the 80 km
-  route-scale domain, so it is not a candidate.
-- SuperUco: NO. The record exists, but at 87.1 km it is outside the domain.
+- Alfa Crux: NO *under current code*. The record exists, but at 105.2 km it
+  is outside the 80 km route-scale circle (superseded policy), so the current
+  resolver would not admit it.
+- SuperUco: NO *under current code*. The record exists, at 87.1 km, outside
+  the same superseded circle.
 - Bodega Azul: NO. No record declares the source name; the "Bodega La Azul"
   probe is MULTIPLE, so AMBIGUOUS.
 - (Other Uco components were not re-characterized here.)
@@ -334,3 +379,7 @@ mandatory components (Alfa Crux 105.2 km, SuperUco 87.1 km) lie outside the
 80 km destination-centered route-scale domain, so no identity source,
 Overture included, can supply them as candidates. Underneath that, the
 existing providers still have a coverage gap.
+
+*(Superseded 2026-10-02 by the geographic scope audit, Part II §P2-16: the
+80 km domain is not an authority; the next blocker is the unimplemented
+Experience-scope architecture plus product decision PD1.)*

@@ -145,3 +145,9 @@ SuperUco, but they lie at 105.2 km and 87.1 km, outside the 80 km domain.
 "A16" has no exact match (fails closed). Verdict PARTIAL_VALUE. Overture
 alone does not unblock the Uco composite; the next blocker is the composite's
 geographic domain.
+
+*Correction (2026-10-02, geographic scope audit): "outside the 80 km domain"
+above is a measured distance from the destination-boundary centroid plus
+current code behavior. The 80 km destination-centered domain is superseded as
+an authority (`docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md`
+Part II); Overture's provider coverage of Alfa Crux and SuperUco stands.*
