@@ -17,10 +17,16 @@ const fs = require('fs');
 
 const REQUIRED_THEMES = ['wine'];
 const REQUIRED_INTENTS = ['route_like', 'visit'];
-// Expected acquisition partition for this request shape: the anchored
-// route_like deficit goes to area_route_walk, the rest stays generic.
-const EXPECTED_AREA_ROUTE_WALK = ['intent:route_like'];
+// Expected acquisition work units for this request shape (geographic
+// authorization contract, docs/superpowers/specs/2026-10-02-geographic-
+// validation-authorization-review.md): the anchored route_like deficit is
+// owned by its own AREA_ROUTE_WALK unit; theme:wine + intent:visit form the
+// one GENERIC unit. A free-text intent:walk is a VALID additional request
+// need: it must be owned by its own unit, never by GENERIC.
+const EXPECTED_OWNED = ['AREA_ROUTE_WALK:intent:route_like'];
+const OPTIONAL_OWNED_KEYS = ['intent:walk'];
 const EXPECTED_GENERIC = ['theme:wine', 'intent:visit'];
+const POLICY_KEYS = ['intent:walk', 'intent:route_like'];
 
 function checkRequestIntent(intent, failures, label) {
   const interests = intent?.interests ?? [];
@@ -57,18 +63,38 @@ function checkTrace(trace, failures) {
       failures.push(`PreferenceSpec missing wizard facet ${key}`);
   }
   const routing = steps.find((s) => s.name === 'acquisition.routing')?.output;
-  const generic = (routing?.generic ?? []).map((d) => `${d.dimension}:${d.key}`);
-  const areaRouteWalk = (routing?.areaRouteWalk ?? []).map(
-    (r) => `${(r.deficit ?? r).dimension}:${(r.deficit ?? r).key}`,
-  );
+  const units = routing?.workUnits ?? [];
+  const keyOf = (d) => `${d.dimension}:${d.key}`;
+  const generic = units
+    .filter((u) => u.kind === 'GENERIC')
+    .flatMap((u) => (u.deficits ?? []).map(keyOf));
+  const owned = units
+    .filter((u) => u.kind === 'AREA_ROUTE_WALK' || u.kind === 'DEDICATED_INTENT')
+    .map((u) => `${u.kind}:${keyOf(u.deficit)}`);
   if (!routing) failures.push('no acquisition.routing step');
   else {
-    if (!sameSet(areaRouteWalk, EXPECTED_AREA_ROUTE_WALK))
-      failures.push(`area_route_walk partition ${JSON.stringify(areaRouteWalk)}`);
+    for (const expected of EXPECTED_OWNED)
+      if (!owned.includes(expected))
+        failures.push(`missing owning work unit ${expected} in ${JSON.stringify(owned)}`);
+    for (const unit of owned) {
+      const key = unit.split(':').slice(1).join(':');
+      if (!EXPECTED_OWNED.includes(unit) && !OPTIONAL_OWNED_KEYS.includes(key))
+        failures.push(`unexpected owning work unit ${unit}`);
+    }
     if (!sameSet(generic, EXPECTED_GENERIC))
-      failures.push(`generic partition ${JSON.stringify(generic)}`);
+      failures.push(`generic work unit ${JSON.stringify(generic)}`);
+    if (generic.some((key) => POLICY_KEYS.includes(key)))
+      failures.push('policy-bearing deficit coalesced into GENERIC');
+    for (const unit of units) {
+      const grant = unit.geographicGrant;
+      const ownsPolicy = unit.kind === 'AREA_ROUTE_WALK' || unit.kind === 'DEDICATED_INTENT';
+      if (ownsPolicy && !(grant?.kind === 'OWNED_INTENT' && grant.intent === unit.deficit?.key))
+        failures.push(`work unit ${unit.kind}:${unit.deficit?.key} grant ${JSON.stringify(grant)}`);
+      if (!ownsPolicy && grant?.kind !== 'NONE')
+        failures.push(`work unit ${unit.kind} grants ${JSON.stringify(grant)}`);
+    }
   }
-  return { request, facets: facetKeys, partition: { areaRouteWalk, generic } };
+  return { request, facets: facetKeys, workUnits: { owned, generic } };
 }
 
 const [mode, file] = process.argv.slice(2);

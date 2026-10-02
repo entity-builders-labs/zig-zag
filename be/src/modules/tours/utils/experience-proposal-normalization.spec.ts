@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from './geographic-validation-authorization.util';
 import { extractExperienceCandidates } from './experience-candidate-extraction.util';
 import {
   isUnsupportedComponentSourceSupportResult,
@@ -467,7 +468,7 @@ describe('RW3-N5 Source Typo Normalization Contract', () => {
     const resolutionResponse = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [
+      candidates: withDefaultGeographicAuthorization([
         {
           name: 'Visita La Bombonera',
           themes: ['sports'],
@@ -487,7 +488,7 @@ describe('RW3-N5 Source Typo Normalization Contract', () => {
           evidenceKeys: ['ev-5'],
           shortReason: 'Stadium visit',
         },
-      ],
+      ]),
       evidence: [
         {
           key: 'ev-5',

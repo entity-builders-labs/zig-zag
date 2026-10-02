@@ -53,8 +53,16 @@ The primary flow when a user creates a tour from the mobile app wizard:
 3. **The async tour-generation processor** (background):
    - Reads only the persisted canonical generation request
    - Interprets free-text preferences through the configured LLM
-   - Discovers candidate Experiences with grounded search
-   - Resolves component hints against Places/OSM and validates geographic coherence
+   - Discovers candidate Experiences with grounded search, through acquisition
+     work units (`utils/acquisition-strategy-selector.util.ts`): each open
+     `intent:walk` / `intent:route_like` deficit has its own unit
+     (`AREA_ROUTE_WALK` or `DEDICATED_INTENT`); everything else is one
+     `GENERIC` unit; planner backfill is `PLANNER_CAPACITY`
+   - Resolves component hints against Places/OSM and validates geographic coherence.
+     A wider (walk / route-scale) geographic policy is granted per candidate,
+     only by the unit that owns that walk/route_like deficit and only to its
+     multi-component candidates (`utils/geographic-validation-authorization.util.ts`);
+     every other candidate uses the default destination policy
    - Runs deterministic daily planning and persists `TourExperience` snapshots
    - Publishes media work through the existing outbox flow
 

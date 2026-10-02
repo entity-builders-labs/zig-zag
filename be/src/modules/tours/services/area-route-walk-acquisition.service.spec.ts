@@ -4,7 +4,10 @@ import {
 } from './area-route-walk-acquisition.service';
 import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from './experience-classification.service';
 import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
-import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
+import {
+  GeographicIntentDeficit,
+  GeographicPolicyIntent,
+} from '../interfaces/geographic-validation-authorization.interface';
 
 // Cutover M4: classification (grouping-by-canonical-id, evidence-scoping,
 // reuse-vs-recompute) is no longer owned by AreaRouteWalkAcquisitionService
@@ -13,7 +16,8 @@ import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-pla
 // in this unit spec. That behavior is now exhaustively covered by
 // experience-classification-convergence.util.spec.ts. What THIS file still
 // owns and must keep proving: warm reuse (modes A/B/C), cold-miss routing,
-// the validationScope/validationIntent threaded into materializeExecution,
+// the validationScope + owned-deficit geographic grant threaded into
+// materializeExecution,
 // and the post-check's acceptedIds/semantic-eligibility restriction --
 // using classifiedRow()/degradedRow() fixtures to simulate what
 // materializeExecution's own classification step would have already
@@ -156,7 +160,9 @@ const tourismRouteAnchor: ResolvedAnchor = {
   unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',
 };
 
-function deficitFor(intentKey: 'walk' | 'route_like'): PreferenceFacetDeficit {
+function deficitFor(
+  intentKey: GeographicPolicyIntent,
+): GeographicIntentDeficit {
   return {
     origin: 'preference_facet',
     dimension: 'intent',
@@ -165,13 +171,15 @@ function deficitFor(intentKey: 'walk' | 'route_like'): PreferenceFacetDeficit {
   };
 }
 
+/** `intentKey` selects the owned deficit; the unit has no other intent input. */
 function baseInput(
-  overrides: Partial<AreaRouteWalkAcquisitionInput> = {},
+  overrides: Partial<Omit<AreaRouteWalkAcquisitionInput, 'intentKey'>> & {
+    intentKey?: GeographicPolicyIntent;
+  } = {},
 ): AreaRouteWalkAcquisitionInput {
-  const intentKey = overrides.intentKey ?? 'walk';
+  const { intentKey = 'walk', ...rest } = overrides;
   return {
     anchor: areaAnchor,
-    intentKey,
     destination: {
       destinationName: 'Buenos Aires',
       latitude: -34.6,
@@ -183,7 +191,7 @@ function baseInput(
       boundary: { id: 'osm:relation:1', name: 'Buenos Aires' } as any,
     },
     deficit: deficitFor(intentKey),
-    ...overrides,
+    ...rest,
   };
 }
 
@@ -293,7 +301,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
     ).not.toHaveBeenCalled();
   });
 
-  it('B: cold miss routes acquisition with the anchor + validationScope/validationIntent', async () => {
+  it('B: cold miss routes acquisition with the anchor + validationScope + owned-deficit grant', async () => {
     const mocks = buildMocks();
     mocks.anchorResolver.resolveArea.mockResolvedValue({
       resolved: true,
@@ -328,9 +336,17 @@ describe('AreaRouteWalkAcquisitionService', () => {
           kind: 'AREA',
           geoEntityId: 'geo-san-telmo',
         }),
-        validationIntent: 'walk',
+        geographicGrant: {
+          kind: 'OWNED_INTENT',
+          intent: 'walk',
+          ownedDeficit: deficitFor('walk'),
+          workUnit: 'AREA_ROUTE_WALK',
+        },
       }),
     );
+    expect(
+      mocks.acquisitionService.materializeExecution.mock.calls[0][1],
+    ).not.toHaveProperty('validationIntent');
   });
 
   it('forwards semanticQuery and anchors directly into buildAcquisitionPlan without alteration', async () => {
@@ -425,7 +441,7 @@ describe('AreaRouteWalkAcquisitionService', () => {
     expect(context.entityResolutionScope).toBeUndefined();
   });
 
-  it('B2: mode C (unresolved canonical ROUTE) still passes validationIntent, but validationScope is undefined', async () => {
+  it('B2: mode C (unresolved canonical ROUTE) still passes its route_like grant, but validationScope is undefined', async () => {
     const mocks = buildMocks();
     mocks.anchorResolver.resolveRoute.mockResolvedValue({ resolved: false });
     mocks.catalog.findVerifiedTourismRouteByName.mockResolvedValue([]);
@@ -452,7 +468,12 @@ describe('AreaRouteWalkAcquisitionService', () => {
       expect.anything(),
       expect.objectContaining({
         validationScope: undefined,
-        validationIntent: 'route_like',
+        geographicGrant: {
+          kind: 'OWNED_INTENT',
+          intent: 'route_like',
+          ownedDeficit: deficitFor('route_like'),
+          workUnit: 'AREA_ROUTE_WALK',
+        },
       }),
     );
   });

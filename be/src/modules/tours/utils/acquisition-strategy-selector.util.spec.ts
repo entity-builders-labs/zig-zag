@@ -1,6 +1,7 @@
 import {
-  partitionDeficitsByStrategy,
+  partitionDeficitsIntoWorkUnits,
   selectAcquisitionStrategy,
+  workUnitGeographicGrant,
 } from './acquisition-strategy-selector.util';
 import { AcquisitionDeficit } from '../interfaces/experience-acquisition-plan.interface';
 import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
@@ -99,7 +100,6 @@ describe('selectAcquisitionStrategy', () => {
       deficit,
       anchor: areaAnchor,
       anchorMode: 'canonical',
-      intentKey: 'walk',
     });
     // Reference identity: the original object is passed through, never
     // reconstructed.
@@ -117,7 +117,6 @@ describe('selectAcquisitionStrategy', () => {
       deficit,
       anchor: routeAnchor,
       anchorMode: 'canonical',
-      intentKey: 'route_like',
     });
     expect(strategy.kind === 'AREA_ROUTE_WALK' && strategy.deficit).toBe(
       deficit,
@@ -131,16 +130,23 @@ describe('selectAcquisitionStrategy', () => {
     expect(strategy).toEqual({ kind: 'GENERIC', deficit });
   });
 
-  it('keeps an intent:walk deficit GENERIC when the only anchor is a venue (not area/route)', () => {
+  it('routes an intent:walk deficit to its own DEDICATED_INTENT unit when the only anchor is a venue (never GENERIC)', () => {
     const deficit = walkDeficit();
     const strategy = selectAcquisitionStrategy(deficit, [venueAnchor]);
-    expect(strategy).toEqual({ kind: 'GENERIC', deficit });
+    expect(strategy).toEqual({ kind: 'DEDICATED_INTENT', deficit });
   });
 
-  it('keeps an intent:walk deficit GENERIC when no anchors are present at all', () => {
+  it('routes an intent:walk deficit to DEDICATED_INTENT when no anchors are present at all', () => {
     const deficit = walkDeficit();
     const strategy = selectAcquisitionStrategy(deficit, []);
-    expect(strategy).toEqual({ kind: 'GENERIC', deficit });
+    expect(strategy).toEqual({ kind: 'DEDICATED_INTENT', deficit });
+    expect(strategy.deficit).toBe(deficit);
+  });
+
+  it('routes an intent:route_like deficit to DEDICATED_INTENT when no anchors are present at all', () => {
+    const deficit = routeLikeDeficit();
+    const strategy = selectAcquisitionStrategy(deficit, []);
+    expect(strategy).toEqual({ kind: 'DEDICATED_INTENT', deficit });
   });
 
   it('routes an unresolved named_path through the explicit tourism-route mode', () => {
@@ -154,23 +160,23 @@ describe('selectAcquisitionStrategy', () => {
     });
   });
 
-  it('does not route an unrelated unresolved anchor', () => {
+  it('does not route an unrelated unresolved anchor through AREA_ROUTE_WALK', () => {
     const deficit = walkDeficit();
     expect(
       selectAcquisitionStrategy(deficit, [unresolvedIrrelevantAnchor]),
     ).toEqual({
-      kind: 'GENERIC',
+      kind: 'DEDICATED_INTENT',
       deficit,
     });
   });
 
-  it('keeps an intent:walk deficit GENERIC when 2+ relevant area/route anchors exist (mode D, not handled by this primitive)', () => {
+  it('routes an intent:walk deficit to DEDICATED_INTENT when 2+ relevant area/route anchors exist (mode D is not AREA_ROUTE_WALK)', () => {
     const deficit = walkDeficit();
     const strategy = selectAcquisitionStrategy(deficit, [
       areaAnchor,
       routeAnchor,
     ]);
-    expect(strategy).toEqual({ kind: 'GENERIC', deficit });
+    expect(strategy).toEqual({ kind: 'DEDICATED_INTENT', deficit });
   });
 
   it('keeps a non-walk/route_like intent deficit GENERIC even with a relevant anchor', () => {
@@ -206,39 +212,156 @@ describe('selectAcquisitionStrategy', () => {
   });
 });
 
-describe('partitionDeficitsByStrategy', () => {
-  it('splits a mixed deficit list into areaRouteWalk and generic buckets, preserving each deficit unmodified', () => {
+describe('partitionDeficitsIntoWorkUnits', () => {
+  it('gives each policy-bearing deficit its own unit and coalesces the rest into one GENERIC unit, preserving each deficit unmodified', () => {
     const walk = walkDeficit();
     const theme = themeDeficit('food');
     const capacity = globalCapacityDeficit();
 
-    const { areaRouteWalk, generic } = partitionDeficitsByStrategy(
+    const units = partitionDeficitsIntoWorkUnits(
       [walk, theme, capacity],
       [areaAnchor],
     );
 
-    expect(areaRouteWalk).toEqual([
+    expect(units).toEqual([
       {
+        kind: 'AREA_ROUTE_WALK',
         deficit: walk,
         anchor: areaAnchor,
         anchorMode: 'canonical',
-        intentKey: 'walk',
       },
+      { kind: 'GENERIC', deficits: [theme, capacity] },
     ]);
-    expect(areaRouteWalk[0].deficit).toBe(walk);
-    expect(generic).toEqual([theme, capacity]);
-    expect(generic[0]).toBe(theme);
-    expect(generic[1]).toBe(capacity);
+    expect(units[0].kind === 'AREA_ROUTE_WALK' && units[0].deficit).toBe(walk);
+    const generic = units[1];
+    expect(generic.kind === 'GENERIC' && generic.deficits[0]).toBe(theme);
+    expect(generic.kind === 'GENERIC' && generic.deficits[1]).toBe(capacity);
   });
 
-  it('routes everything GENERIC when no anchors are present', () => {
+  // Test A / B: a lone policy deficit without an AREA/ROUTE anchor.
+  it('A/B: route_like or walk alone without an anchor -> exactly one DEDICATED_INTENT unit, no GENERIC unit', () => {
+    const routeLike = routeLikeDeficit();
+    expect(partitionDeficitsIntoWorkUnits([routeLike], [])).toEqual([
+      { kind: 'DEDICATED_INTENT', deficit: routeLike },
+    ]);
+    const walk = walkDeficit();
+    expect(partitionDeficitsIntoWorkUnits([walk], [])).toEqual([
+      { kind: 'DEDICATED_INTENT', deficit: walk },
+    ]);
+  });
+
+  // Test C: walk + route_like + visit -> independent work, no ambiguity.
+  it('C: walk + route_like + visit -> a walk unit, a route_like unit and one generic visit unit, each with its own grant', () => {
     const walk = walkDeficit();
     const routeLike = routeLikeDeficit();
-    const { areaRouteWalk, generic } = partitionDeficitsByStrategy(
-      [walk, routeLike],
+    const visit: AcquisitionDeficit = {
+      origin: 'preference_facet',
+      dimension: 'intent',
+      key: 'visit',
+      reason:
+        'Preference facet [intent:visit] has no strong catalog match yet.',
+    };
+
+    const units = partitionDeficitsIntoWorkUnits([walk, routeLike, visit], []);
+
+    expect(units).toEqual([
+      { kind: 'DEDICATED_INTENT', deficit: walk },
+      { kind: 'DEDICATED_INTENT', deficit: routeLike },
+      { kind: 'GENERIC', deficits: [visit] },
+    ]);
+    expect(units.map(workUnitGeographicGrant)).toEqual([
+      {
+        kind: 'OWNED_INTENT',
+        intent: 'walk',
+        ownedDeficit: walk,
+        workUnit: 'DEDICATED_INTENT',
+      },
+      {
+        kind: 'OWNED_INTENT',
+        intent: 'route_like',
+        ownedDeficit: routeLike,
+        workUnit: 'DEDICATED_INTENT',
+      },
+      { kind: 'NONE' },
+    ]);
+  });
+
+  it('C: with one AREA anchor, walk and route_like each get their own AREA_ROUTE_WALK unit and grant', () => {
+    const walk = walkDeficit();
+    const routeLike = routeLikeDeficit();
+    const theme = themeDeficit('wine');
+
+    const units = partitionDeficitsIntoWorkUnits(
+      [theme, routeLike, walk],
+      [areaAnchor],
+    );
+
+    expect(units.map((unit) => unit.kind)).toEqual([
+      'AREA_ROUTE_WALK',
+      'AREA_ROUTE_WALK',
+      'GENERIC',
+    ]);
+    expect(units.map(workUnitGeographicGrant)).toEqual([
+      expect.objectContaining({
+        intent: 'route_like',
+        workUnit: 'AREA_ROUTE_WALK',
+      }),
+      expect.objectContaining({ intent: 'walk', workUnit: 'AREA_ROUTE_WALK' }),
+      { kind: 'NONE' },
+    ]);
+  });
+
+  it('never puts a walk/route_like deficit into the GENERIC unit, whatever the anchors', () => {
+    const anchorSets: ResolvedAnchor[][] = [
+      [],
+      [areaAnchor],
+      [routeAnchor],
+      [venueAnchor],
+      [areaAnchor, routeAnchor],
+      [unresolvedNamedPathAnchor],
+      [unresolvedIrrelevantAnchor],
+    ];
+    for (const anchors of anchorSets) {
+      const units = partitionDeficitsIntoWorkUnits(
+        [walkDeficit(), routeLikeDeficit(), themeDeficit('wine')],
+        anchors,
+      );
+      for (const unit of units) {
+        if (unit.kind !== 'GENERIC') continue;
+        expect(
+          unit.deficits.some(
+            (deficit) =>
+              deficit.origin === 'preference_facet' &&
+              deficit.dimension === 'intent' &&
+              (deficit.key === 'walk' || deficit.key === 'route_like'),
+          ),
+        ).toBe(false);
+      }
+    }
+  });
+
+  // Test D / I: generic and planner-capacity units grant nothing.
+  it('D/I: GENERIC and PLANNER_CAPACITY units grant NONE even when route_like is open elsewhere', () => {
+    const units = partitionDeficitsIntoWorkUnits(
+      [routeLikeDeficit(), themeDeficit('wine')],
       [],
     );
-    expect(areaRouteWalk).toEqual([]);
-    expect(generic).toEqual([walk, routeLike]);
+    const generic = units.find((unit) => unit.kind === 'GENERIC')!;
+    expect(workUnitGeographicGrant(generic)).toEqual({ kind: 'NONE' });
+    expect(
+      workUnitGeographicGrant({
+        kind: 'PLANNER_CAPACITY',
+        deficit: {
+          origin: 'global_capacity',
+          reason: 'Planner residual capacity',
+          currentEligibleCount: 3,
+          requiredEligibleCount: 4,
+        },
+      }),
+    ).toEqual({ kind: 'NONE' });
+  });
+
+  it('returns no units for no deficits', () => {
+    expect(partitionDeficitsIntoWorkUnits([], [areaAnchor])).toEqual([]);
   });
 });

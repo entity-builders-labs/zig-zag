@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from 'src/modules/tours/utils/geographic-validation-authorization.util';
 import { ExperienceCatalogService } from 'src/modules/tours/services/experience-catalog.service';
 import { ExperienceProposalResolverService } from 'src/modules/tours/services/experience-proposal-resolver.service';
 import { CompositeGeographicValidationService } from 'src/modules/tours/services/composite-geographic-validation.service';
@@ -765,7 +766,7 @@ describe('tour-generation integration · experience identity / dedupe gate (pre-
 
       const result = await resolver.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate],
+        candidates: withDefaultGeographicAuthorization([candidate]),
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
       });
 

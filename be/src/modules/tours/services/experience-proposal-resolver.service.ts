@@ -60,6 +60,7 @@ import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containme
 import {
   DestinationCompatibility,
   evaluateDestinationCompatibility,
+  routeScaleDestinationRadius,
 } from '../utils/destination-compatibility.policy';
 import {
   RouteRetrievalVariantKind,
@@ -88,6 +89,14 @@ import {
 import { IdentityVerifier } from './identity-verifier.service';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
 import { traceCandidateKey } from '../utils/experience-candidate-correlation.util';
+import {
+  AuthorizedExperienceCandidate,
+  GeographicValidationAuthorization,
+} from '../interfaces/geographic-validation-authorization.interface';
+import {
+  authorizesRouteScale,
+  DEFAULT_GEOGRAPHIC_AUTHORIZATION,
+} from '../utils/geographic-validation-authorization.util';
 
 /**
  * Picks a real candidate out of the Places top-N instead of trusting
@@ -178,7 +187,10 @@ type CatalogAcquisitionResult =
 // outskirts (matches the same order of magnitude as
 // destination-resolution.service.ts's own MAX_DESTINATION_DISTANCE_METERS)
 // without being so wide it stops disambiguating same-named places in
-// different cities.
+// different cities. This is the DEFAULT identity-search circle; a
+// ROUTE_LIKE-authorized candidate searches the route-scale compatibility
+// domain owned by `routeScaleDestinationRadius` instead (never a global
+// widening of this constant).
 export const PLACES_FALLBACK_BIAS_RADIUS_METERS = 50_000;
 
 /**
@@ -323,9 +335,9 @@ export class ExperienceProposalResolverService
     const resolutionResults = await mapWithBoundedConcurrency(
       candidates,
       RESOLVER_CANDIDATE_CONCURRENCY,
-      (candidate: any) =>
+      (authorized: AuthorizedExperienceCandidate) =>
         this.resolveCandidate(
-          candidate,
+          authorized.candidate,
           poolBoundary,
           getPoiLookup,
           poolScope,
@@ -334,7 +346,7 @@ export class ExperienceProposalResolverService
           evidence,
           input.destinationCountryCode,
           input.observations ?? [],
-          input.validationIntent,
+          authorized.geographicAuthorization,
         ),
     );
 
@@ -352,7 +364,11 @@ export class ExperienceProposalResolverService
         geographicScope: scope,
       });
       result.audit.componentResolution = componentResolution;
-      return { ...result.resolved, componentResolution };
+      return {
+        ...result.resolved,
+        componentResolution,
+        geographicAuthorization: result.audit.geographicAuthorization,
+      };
     });
     const forensicAudit = resolutionResults.map((result) => result.audit);
     const acceptedForValidation = resolvedCandidates.filter(
@@ -377,7 +393,7 @@ export class ExperienceProposalResolverService
           item,
           boundary,
           input.validationScope,
-          input.validationIntent,
+          item.geographicAuthorization ?? DEFAULT_GEOGRAPHIC_AUTHORIZATION,
           scope,
         );
         validationByCandidate.set(item, result);
@@ -581,7 +597,6 @@ export class ExperienceProposalResolverService
       geographicValidation,
       materialization: { resolved },
       validationScope: input.validationScope,
-      validationIntent: input.validationIntent,
       destinationBoundary: boundary
         ? {
             name: boundary.name,
@@ -602,9 +617,12 @@ export class ExperienceProposalResolverService
     evidence: ExperienceResolutionRequest['evidence'] = [],
     destinationCountryCode?: string,
     observations: SourceObservation[] = [],
-    validationIntent?: 'walk' | 'route_like',
+    // Fail-closed: absent authorization is the default destination policy.
+    geographicAuthorization: GeographicValidationAuthorization = DEFAULT_GEOGRAPHIC_AUTHORIZATION,
   ): Promise<ResolvedCandidateWithAudit> {
-    const routeScale = validationIntent === 'route_like';
+    // The ONLY source of route-scale identity acquisition/compatibility:
+    // the authorization the producing work unit granted THIS candidate.
+    const routeScale = authorizesRouteScale(geographicAuthorization);
     const entities: ResolvedGeoEntity[] = [];
     const componentAudits: CandidateResolutionAudit['componentAudits'] = [];
     const destinationAssociationVerified =
@@ -680,6 +698,13 @@ export class ExperienceProposalResolverService
                   externalId: acquisition.entity.externalId,
                   kind: acquisition.entity.kind,
                   identities: strongIdentitiesOf(acquisition.entity),
+                  ...(Number.isFinite(acquisition.entity.latitude) &&
+                  Number.isFinite(acquisition.entity.longitude)
+                    ? {
+                        latitude: acquisition.entity.latitude as number,
+                        longitude: acquisition.entity.longitude as number,
+                      }
+                    : {}),
                 }
               : undefined,
           identityEvidence: verification?.evidence ?? [],
@@ -1315,6 +1340,7 @@ export class ExperienceProposalResolverService
             (hint: any) => hint.key,
           ),
           componentAudits,
+          geographicAuthorization,
         },
       };
     }
@@ -1335,6 +1361,7 @@ export class ExperienceProposalResolverService
           (hint: any) => hint.key,
         ),
         componentAudits,
+        geographicAuthorization,
       },
     };
   }
@@ -2476,21 +2503,47 @@ export class ExperienceProposalResolverService
     }
 
     const providerLabel = placesAcquisitionLabel(this.placesApi.provider);
+    // Identity-search scope follows the candidate's geographic authorization:
+    // a ROUTE_LIKE-authorized candidate searches exactly the domain
+    // route-scale destination compatibility can accept (the policy's own
+    // routeScaleDestinationRadius); every other candidate keeps the default
+    // destination search circle. No global widening.
+    const routeRadius = routeScale
+      ? routeScaleDestinationRadius(destinationScope)
+      : undefined;
+    const searchScope = routeRadius
+      ? {
+          kind: 'ROUTE_SCALE' as const,
+          center: routeRadius.center,
+          radiusMeters: routeRadius.radiusMeters,
+        }
+      : destinationPoint
+        ? {
+            kind: 'DEFAULT' as const,
+            center: destinationPoint,
+            radiusMeters: PLACES_FALLBACK_BIAS_RADIUS_METERS,
+          }
+        : undefined;
     try {
       const result = await this.placesApi.searchText({
         textQuery: hint.name,
         maxResultCount: PLACES_TEXT_SEARCH_RESULT_WINDOW,
-        locationBias: destinationPoint
-          ? {
-              center: destinationPoint,
-              radius: PLACES_FALLBACK_BIAS_RADIUS_METERS,
-            }
+        locationBias: searchScope
+          ? { center: searchScope.center, radius: searchScope.radiusMeters }
           : undefined,
       });
       const placeSearch: PlaceSearchAudit = {
         resultCount: result.data.length,
         rejected: [],
         viableCount: 0,
+        ...(searchScope
+          ? {
+              searchScope: {
+                kind: searchScope.kind,
+                radiusMeters: searchScope.radiusMeters,
+              },
+            }
+          : {}),
       };
       const viable: PlaceData[] = [];
       for (const place of result.data) {

@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from 'src/modules/tours/utils/geographic-validation-authorization.util';
 import { ExperienceCatalogService } from 'src/modules/tours/services/experience-catalog.service';
 import { CompositeGeographicValidationService } from 'src/modules/tours/services/composite-geographic-validation.service';
 import { ExperienceProposalResolverService } from 'src/modules/tours/services/experience-proposal-resolver.service';
@@ -89,7 +90,7 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
     return service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: SCOPE,
-      candidates,
+      candidates: withDefaultGeographicAuthorization(candidates),
       evidence: [
         { key: 'ev-1', source: 'web', title: 'San Telmo walk', snippet: '' },
       ],
@@ -272,7 +273,7 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: SCOPE,
-      candidates: [walk(['A', 'B', 'C'])],
+      candidates: withDefaultGeographicAuthorization([walk(['A', 'B', 'C'])]),
     });
 
     const candidate = result.resolved[0];

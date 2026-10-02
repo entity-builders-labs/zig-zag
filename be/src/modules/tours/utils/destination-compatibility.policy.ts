@@ -79,6 +79,35 @@ function adminLevelOf(tags: Record<string, string> | undefined) {
   return Number.isFinite(level) ? level : undefined;
 }
 
+/**
+ * The circle outside the destination polygon inside which route-scale
+ * compatibility accepts a location: centered on the destination centroid,
+ * with the canonical route radius threshold. The single owner of that
+ * domain -- consumed by `evaluateDestinationCompatibility` and by identity
+ * acquisition, so a route-scale-authorized component's identity search
+ * covers exactly what route-scale compatibility can accept. Undefined when
+ * the destination has no polygon (route-scale compatibility is UNKNOWN).
+ */
+export function routeScaleDestinationRadius(
+  destination: GeographicScope | undefined,
+): { center: Coordinates; radiusMeters: number } | undefined {
+  const geometry =
+    destination?.kind === 'AREA_BOUNDARY'
+      ? destination.boundary?.geometry
+      : undefined;
+  if (
+    !geometry ||
+    (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon')
+  ) {
+    return undefined;
+  }
+  return {
+    center: centroidOfGeometry(geometry),
+    radiusMeters:
+      DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS.route.maxRadiusMeters,
+  };
+}
+
 export function evaluateDestinationCompatibility(
   candidate: DestinationCompatibilityCandidate,
   destination: GeographicScope | undefined,
@@ -114,14 +143,16 @@ export function evaluateDestinationCompatibility(
     geometryContainsPoint(geometry, p.longitude, p.latitude),
   );
   if (!inside) {
-    if (options?.routeScale && !candidate.self) {
-      const destinationCenter = centroidOfGeometry(geometry);
+    const routeRadius = options?.routeScale
+      ? routeScaleDestinationRadius(destination)
+      : undefined;
+    if (routeRadius && !candidate.self) {
       const withinRadius = probes.some(
         (p) =>
-          distanceMeters(destinationCenter, {
+          distanceMeters(routeRadius.center, {
             latitude: p.latitude,
             longitude: p.longitude,
-          }) <= DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS.route.maxRadiusMeters,
+          }) <= routeRadius.radiusMeters,
       );
       if (withinRadius) {
         return {

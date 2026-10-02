@@ -58,6 +58,11 @@ import {
 } from '../utils/acquisition-source-plan-fingerprint.util';
 import { classifyAcceptedResultsByExperience } from '../utils/experience-classification-convergence.util';
 import { candidateSatisfiesEvidenceRequirement } from '../utils/acquisition-candidate-requirement.util';
+import { WorkUnitGeographicGrant } from '../interfaces/geographic-validation-authorization.interface';
+import {
+  authorizeCandidates,
+  withDefaultGeographicAuthorization,
+} from '../utils/geographic-validation-authorization.util';
 import {
   CorroborationMergeResult,
   CorroborationReason,
@@ -1306,8 +1311,10 @@ export class ExperienceAcquisitionService {
         url: obs.sourceUrl,
       }));
 
+      // Nearby catalog acquisition owns no policy-bearing deficit: every
+      // candidate is validated under the default destination policy.
       const resolution = await this.proposalResolver!.resolve({
-        candidates: acquisition.candidates,
+        candidates: withDefaultGeographicAuthorization(acquisition.candidates),
         destinationName: input.destinationName,
         destinationCountryCode: input.destinationCountryCode,
         geographicScope: input.geographicScope!,
@@ -1384,10 +1391,15 @@ export class ExperienceAcquisitionService {
       destinationName?: string;
       destinationCountryCode?: string;
       geographicScope?: GeographicScope;
-      [key: string]: unknown;
+      /**
+       * The geographic grant of the ONE work unit that produced
+       * `execution` (see acquisition-strategy-selector.util.ts). Each
+       * candidate is authorized from this grant and its own admitted shape
+       * only; no request-level or cross-unit intent exists here.
+       */
+      geographicGrant: WorkUnitGeographicGrant;
       /** Task B5 — see ExperienceValidationScope. */
       validationScope?: ExperienceValidationScope;
-      validationIntent?: 'walk' | 'route_like';
       /** Task A6 — see ExperienceResolutionRequest.entityResolutionScope. */
       entityResolutionScope?: GeographicScope;
     },
@@ -1398,14 +1410,16 @@ export class ExperienceAcquisitionService {
       );
     }
     const response = await this.proposalResolver.resolve({
-      candidates: execution.candidates,
+      candidates: authorizeCandidates(
+        context.geographicGrant,
+        execution.candidates,
+      ),
       destinationName: context.destinationName,
       destinationCountryCode: context.destinationCountryCode,
       geographicScope: context.geographicScope,
       evidence: execution.evidence,
       observations: execution.observations,
       validationScope: context.validationScope,
-      validationIntent: context.validationIntent,
       entityResolutionScope: context.entityResolutionScope,
     });
 

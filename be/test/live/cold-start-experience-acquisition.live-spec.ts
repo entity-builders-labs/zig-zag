@@ -1,3 +1,4 @@
+import { NO_GEOGRAPHIC_GRANT } from 'src/modules/tours/utils/geographic-validation-authorization.util';
 import * as fs from 'fs';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -587,6 +588,7 @@ function webUnavailable(
           const resolution =
             execution.candidates.length > 0
               ? await acquisition.materializeExecution(execution, {
+                  geographicGrant: NO_GEOGRAPHIC_GRANT,
                   destinationName: DESTINATION.name,
                   destinationCountryCode: DESTINATION.countryCode,
                   geographicScope: {

@@ -13,6 +13,10 @@ import {
   describeComponentResolution,
   describeCompositeOutcome,
 } from '../component-resolution-facts.util';
+import {
+  DEFAULT_GEOGRAPHIC_AUTHORIZATION,
+  projectGeographicAuthorization,
+} from '../geographic-validation-authorization.util';
 
 export function projectEntityResolutionStepInput(
   resolution: ExperienceResolutionResponse,
@@ -239,7 +243,6 @@ export function projectGeographicValidationStepInput(
       rejectedCount: geoValidation?.rejectedCount ?? 0,
       destinationBoundary: result.destinationBoundary,
       validationScope: result.validationScope,
-      validationIntent: result.validationIntent,
       geographicValidationAudit: (geoValidation?.results ?? []).map(
         (entry, index) => {
           const resolvedCandidate = geoValidation?.resolved?.[index];
@@ -257,7 +260,10 @@ export function projectGeographicValidationStepInput(
             accepted: entry.accepted,
             status: entry.status,
             strategy: entry.strategy,
-            validationIntent: result.validationIntent,
+            geographicAuthorization: projectGeographicAuthorization(
+              resolvedCandidate?.geographicAuthorization ??
+                DEFAULT_GEOGRAPHIC_AUTHORIZATION,
+            ),
             destinationBoundary: result.destinationBoundary,
             rejectionReasons: entry.rejectionReasons,
             coherence: entry.coherence,
@@ -282,5 +288,179 @@ export function projectGeographicValidationStepInput(
         },
       ),
     },
+  };
+}
+
+/**
+ * COLD #11 observability prerequisite: one compact, bounded step per
+ * MULTI-component candidate with exactly the per-component identity facts
+ * needed to diagnose a composite (no raw provider payloads, no identity
+ * evidence lists, no rejected-place name lists). The full
+ * `resolution.entity` step can exceed the trace step payload limit and be
+ * truncated; this projection is sized per candidate instead.
+ */
+export function projectComponentIdentityStepInputs(
+  resolution: ExperienceResolutionResponse,
+  context: { strategy: string; passNumber: number; workUnitKind: string },
+): SerializableTraceStepInput[] {
+  const forensicAudits: CandidateResolutionAudit[] =
+    resolution.entityResolution?.forensicAudit ??
+    (resolution as { forensicAudit?: CandidateResolutionAudit[] })
+      .forensicAudit ??
+    [];
+  const resolvedByKey = new Map(
+    resolution.resolved.map((entry) => [
+      traceCandidateKey(entry.candidate),
+      entry,
+    ]),
+  );
+
+  return forensicAudits
+    .filter((audit) => audit.componentAudits.length >= 2)
+    .map((audit) => {
+      const resolved = resolvedByKey.get(audit.candidateTraceKey);
+      const authorization = projectGeographicAuthorization(
+        audit.geographicAuthorization ?? DEFAULT_GEOGRAPHIC_AUTHORIZATION,
+      );
+      const components = audit.componentAudits.map(projectComponentIdentity);
+      const resolvedCount = components.filter(
+        (component) => component.finalStatus === 'resolved',
+      ).length;
+      return {
+        name: 'resolution.component_identity',
+        description: `Identidad por componente de "${audit.candidateName}": ${resolvedCount}/${components.length} resueltos (autorización geográfica ${authorization.kind})`,
+        component: 'ExperienceProposalResolverService',
+        decision: {
+          status:
+            resolvedCount === components.length
+              ? ('PASS' as const)
+              : ('WARN' as const),
+          outcome:
+            resolvedCount === components.length
+              ? 'ALL_COMPONENTS_RESOLVED'
+              : resolvedCount > 0
+                ? 'PARTIAL_COMPONENTS_RESOLVED'
+                : 'NO_COMPONENTS_RESOLVED',
+        },
+        facts: {
+          acquisitionContext: {
+            strategy: context.strategy,
+            passNumber: context.passNumber,
+            workUnitKind: context.workUnitKind,
+          },
+          candidateTraceKey: audit.candidateTraceKey,
+          candidateName: audit.candidateName,
+          geographicAuthorization: authorization,
+          ...(resolved
+            ? {
+                candidateStatus: resolved.status,
+                rejectionReasons: resolved.rejectionReasons,
+              }
+            : {}),
+          components,
+        },
+        subjects: [
+          {
+            subject: {
+              kind: 'candidate',
+              id: audit.candidateTraceKey,
+              label: audit.candidateName,
+            },
+            decision: {
+              status:
+                resolvedCount === components.length
+                  ? ('PASS' as const)
+                  : ('WARN' as const),
+              outcome: `${resolvedCount}_OF_${components.length}_RESOLVED`,
+            },
+          },
+        ],
+      };
+    });
+}
+
+function projectComponentIdentity(component: ComponentResolutionAudit) {
+  const attempts = component.attempts.map((attempt) => ({
+    strategy: attempt.strategy,
+    ...(attempt.provider ? { provider: attempt.provider } : {}),
+    executionStatus: attempt.executionStatus,
+    candidateAcquired: attempt.candidateAcquired,
+    ...(attempt.selectedCandidate
+      ? {
+          selectedCandidate: {
+            name: attempt.selectedCandidate.canonicalName,
+            kind: attempt.selectedCandidate.kind,
+            ...(attempt.selectedCandidate.latitude !== undefined &&
+            attempt.selectedCandidate.longitude !== undefined
+              ? {
+                  latitude: attempt.selectedCandidate.latitude,
+                  longitude: attempt.selectedCandidate.longitude,
+                }
+              : {}),
+          },
+        }
+      : {}),
+    ...(attempt.verificationDecision
+      ? { verificationDecision: attempt.verificationDecision }
+      : {}),
+    ...(attempt.destinationCompatibility
+      ? { destinationCompatibility: attempt.destinationCompatibility }
+      : {}),
+    ...(attempt.placeSearch
+      ? {
+          placeSearch: {
+            resultCount: attempt.placeSearch.resultCount,
+            viableCount: attempt.placeSearch.viableCount,
+            rejectedCount: attempt.placeSearch.rejected.length,
+            ...(attempt.placeSearch.searchScope
+              ? { searchScope: attempt.placeSearch.searchScope }
+              : {}),
+          },
+        }
+      : {}),
+    ...(attempt.failureReason ? { failureReason: attempt.failureReason } : {}),
+  }));
+  // The attempt whose candidate decided the component: the verified one,
+  // else the last attempt that acquired a candidate.
+  const deciding =
+    [...component.attempts]
+      .reverse()
+      .find((attempt) => attempt.verificationDecision === 'VERIFIED') ??
+    [...component.attempts]
+      .reverse()
+      .find((attempt) => attempt.candidateAcquired);
+  return {
+    hintKey: component.hintKey,
+    name: component.hintName,
+    role: component.role,
+    ...(component.expectedKind ? { expectedKind: component.expectedKind } : {}),
+    strategiesAttempted: component.attempts.map((attempt) => attempt.strategy),
+    candidateAcquired: component.attempts.some(
+      (attempt) => attempt.candidateAcquired,
+    ),
+    ...(deciding?.selectedCandidate
+      ? {
+          selectedCandidate: {
+            name: deciding.selectedCandidate.canonicalName,
+            provider: deciding.provider,
+            ...(deciding.selectedCandidate.latitude !== undefined &&
+            deciding.selectedCandidate.longitude !== undefined
+              ? {
+                  latitude: deciding.selectedCandidate.latitude,
+                  longitude: deciding.selectedCandidate.longitude,
+                }
+              : {}),
+          },
+        }
+      : {}),
+    ...(deciding?.verificationDecision
+      ? { identityVerdict: deciding.verificationDecision }
+      : {}),
+    ...(deciding?.destinationCompatibility
+      ? { destinationCompatibility: deciding.destinationCompatibility }
+      : {}),
+    finalStatus: component.finalStatus,
+    ...(component.finalReason ? { finalReason: component.finalReason } : {}),
+    attempts,
   };
 }

@@ -61,12 +61,15 @@ import { ExperienceAcquisitionPlannerService } from './experience-acquisition-pl
 import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
 import { AreaRouteWalkAcquisitionService } from './area-route-walk-acquisition.service';
 import { AreaRouteAnchorResolverService } from './area-route-anchor-resolver.service';
-import { partitionDeficitsByStrategy } from '../utils/acquisition-strategy-selector.util';
 import {
-  deriveRequestValidationIntent,
-  RequestValidationIntent,
-  validationIntentOf,
-} from '../utils/request-validation-intent.util';
+  AreaRouteWalkWorkUnit,
+  DedicatedIntentWorkUnit,
+  GenericWorkUnit,
+  partitionDeficitsIntoWorkUnits,
+  PlannerCapacityWorkUnit,
+  workUnitDeficits,
+  workUnitGeographicGrant,
+} from '../utils/acquisition-strategy-selector.util';
 import { GenerationTraceRecorder } from '../utils/generation-trace-recorder.util';
 import { GenerationTraceV5 } from '../interfaces/generation-trace-v5.interface';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
@@ -93,7 +96,10 @@ import {
   ComposableExperience,
   CompositionSelectionResult,
 } from '../interfaces/preference-spec.interface';
-import { AcquisitionDeficit } from '../interfaces/experience-acquisition-plan.interface';
+import {
+  AcquisitionDeficit,
+  GlobalCapacityDeficit,
+} from '../interfaces/experience-acquisition-plan.interface';
 import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fingerprint.util';
 
 /**
@@ -605,9 +611,10 @@ export class ExperienceGenerationService {
   }
 
   /**
-   * Shared acquisition mechanics for both pre-planner and planner-capacity
-   * convergence. Strategy selection remains with the caller; this seam only
-   * executes the already-built plan, materializes accepted candidates, and
+   * Shared acquisition mechanics for the generic, dedicated-intent and
+   * planner-capacity work units. Work-unit assignment remains with the
+   * partition; this seam only executes the unit's already-built plan,
+   * materializes its candidates under THAT unit's geographic grant, and
    * records the canonical stage trace.
    */
   private async executeAndMaterializeAcquisitionPlan(
@@ -617,7 +624,6 @@ export class ExperienceGenerationService {
       destinationName?: string;
       destinationCountryCode?: string;
       geographicScope: GeographicScope;
-      validationIntent: RequestValidationIntent | undefined;
     },
     traceRecorder: GenerationTraceRecorder,
     providerState: {
@@ -625,7 +631,10 @@ export class ExperienceGenerationService {
       failed: Set<string>;
     },
     executionLedger: AcquisitionExecutionLedger,
-    strategy: 'generic' | 'planner_capacity' = 'generic',
+    workUnit:
+      | GenericWorkUnit
+      | DedicatedIntentWorkUnit
+      | PlannerCapacityWorkUnit,
   ): Promise<ExecuteAcquisitionPlanResult> {
     const execution = await this.experienceAcquisition.executePlan(
       plan,
@@ -646,21 +655,22 @@ export class ExperienceGenerationService {
       if (web.status === 'failed') providerState.failed.add(webProvider);
     }
 
-    // `context.validationIntent` is the REQUEST-level intent derived once by
-    // the caller (deriveRequestValidationIntent). It is deliberately NOT
-    // reconstructed from `plan.deficits`: strategy partitioning may route
-    // the request's own intent deficit to another strategy, and that must
-    // not change geographic policy for candidates materialized here.
+    // Geographic authority comes ONLY from the unit that produced this
+    // execution: a DEDICATED_INTENT unit grants its own walk/route_like
+    // deficit; GENERIC and PLANNER_CAPACITY grant nothing, whatever else
+    // the tour requested or is still open elsewhere.
+    const geographicGrant = workUnitGeographicGrant(workUnit);
     let resolution: FinalExperienceResolutionResponse | undefined;
     if (execution.candidates.length > 0) {
       resolution = await this.experienceAcquisition.materializeExecution(
         execution,
-        context,
+        { ...context, geographicGrant },
       );
     }
     recordAcquisitionLifecycle(traceRecorder, {
       passNumber,
-      strategy,
+      workUnit,
+      geographicGrant,
       plan,
       execution,
       resolution,
@@ -835,20 +845,6 @@ export class ExperienceGenerationService {
         request,
         preferenceSpec,
       });
-
-      // Request-level geographic validation intent, derived once and reused
-      // by every acquisition pass that materializes candidates.
-      const requestValidationIntentDecision = deriveRequestValidationIntent(
-        preferenceSpec.facets,
-      );
-      if (requestValidationIntentDecision.status === 'MIXED_UNSUPPORTED') {
-        this.logger.warn(
-          `[ExperienceGenerationService] Unsupported mixed request intents (both route_like and walk); failing closed without regional route relaxation.`,
-        );
-      }
-      const requestValidationIntent = validationIntentOf(
-        requestValidationIntentDecision,
-      );
 
       const destinationResolution =
         await this.destinationResolutionService.resolveDestination(
@@ -1055,60 +1051,75 @@ export class ExperienceGenerationService {
             for (let pass = 1; pass <= MAX_ACQUISITION_PASSES; pass++) {
               if (currentPreferenceCoverage.sufficient) break;
 
-              // M3 (preference-first live cutover): the ONE place deficits
-              // are routed to an acquisition strategy. An area/route anchor
-              // + walk/route_like deficit goes to
-              // AreaRouteWalkAcquisitionService; every other deficit
-              // (including every global_capacity deficit, deliberately
-              // dimensionless and never anchor-routable) continues through
-              // generic acquisition exactly as before. The canonical
-              // deficit objects from FacetRetrievalService/
-              // preference-sufficiency.util.ts are passed straight through
-              // to whichever strategy handles them -- never recomputed,
-              // never reconstructed.
-              const { areaRouteWalk, generic } = partitionDeficitsByStrategy(
+              // The ONE place open deficits are assigned to acquisition work
+              // units (acquisition-strategy-selector.util.ts): each
+              // walk/route_like deficit gets its own AREA_ROUTE_WALK or
+              // DEDICATED_INTENT unit (one owner, one geographic grant);
+              // every other deficit -- including every dimensionless
+              // global_capacity deficit -- joins the single GENERIC unit.
+              // The canonical deficit objects from FacetRetrievalService/
+              // preference-sufficiency.util.ts pass straight through --
+              // never recomputed, never reconstructed.
+              const workUnits = partitionDeficitsIntoWorkUnits(
                 currentPreferenceCoverage.acquisitionDeficits,
                 resolvedAnchors,
               );
               recordDeficitRoutingStep(traceRecorder, {
-                areaRouteWalk,
-                generic,
+                workUnits,
                 resolvedAnchors,
                 acquisitionDeficits:
                   currentPreferenceCoverage.acquisitionDeficits,
               });
 
-              // M2 (preference-first live cutover): deficits are now the
-              // real FacetRetrievalService-derived unsatisfied facets
-              // (`origin: 'preference_facet'`) and are passed through as the
-              // one canonical deficit source feeding acquisition routing.
-              const acquisitionPlan =
-                this.experienceAcquisitionPlanner.buildAcquisitionPlan({
-                  destination: acquisitionScope,
-                  deficits: generic,
-                  semanticQuery: preferenceSpec.semanticQuery,
-                  breadth: 'focused',
-                  anchors: resolvedAnchors,
-                });
-              const genericRoutable = acquisitionPlan.sourcePlans.length > 0;
+              // GENERIC and DEDICATED_INTENT units share the generic
+              // acquisition pipeline, each with a plan built from ONLY its
+              // own deficits, so a dedicated unit's query, requested
+              // intents and evidence requirement keep its one deficit's
+              // provenance.
+              const plannedUnits = workUnits
+                .flatMap((unit) =>
+                  unit.kind === 'GENERIC' || unit.kind === 'DEDICATED_INTENT'
+                    ? [
+                        {
+                          unit,
+                          plan: this.experienceAcquisitionPlanner.buildAcquisitionPlan(
+                            {
+                              destination: acquisitionScope,
+                              deficits: workUnitDeficits(unit),
+                              semanticQuery: preferenceSpec.semanticQuery,
+                              breadth: 'focused',
+                              anchors: resolvedAnchors,
+                            },
+                          ),
+                        },
+                      ]
+                    : [],
+                )
+                .filter(({ plan }) => plan.sourcePlans.length > 0);
+              const areaRouteWalkUnits = workUnits.filter(
+                (unit): unit is AreaRouteWalkWorkUnit =>
+                  unit.kind === 'AREA_ROUTE_WALK',
+              );
 
-              if (!genericRoutable && areaRouteWalk.length === 0) {
+              if (
+                plannedUnits.length === 0 &&
+                areaRouteWalkUnits.length === 0
+              ) {
                 // Nothing routable — a soft-only deficit. Stop acquiring; the
                 // gap stays visible in the coverage trace, never fatal.
                 break;
               }
 
-              for (const routed of areaRouteWalk) {
+              for (const routed of areaRouteWalkUnits) {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  `Buscando una experiencia de tipo "${routed.intentKey}" en "${routed.anchor.rawName}"...`,
+                  `Buscando una experiencia de tipo "${routed.deficit.key}" en "${routed.anchor.rawName}"...`,
                 );
 
                 const areaRouteWalkResult =
                   await this.areaRouteWalkAcquisition.acquireOrReuse({
                     anchor: routed.anchor,
-                    intentKey: routed.intentKey,
                     destination: acquisitionScope,
                     destinationCountryCode: destinationResolution.countryCode,
                     destinationPoint: {
@@ -1122,7 +1133,6 @@ export class ExperienceGenerationService {
                   });
                 recordAreaRouteWalkStep(traceRecorder, {
                   anchor: routed.anchor,
-                  intentKey: routed.intentKey,
                   deficit: routed.deficit,
                   result: areaRouteWalkResult,
                 });
@@ -1133,8 +1143,8 @@ export class ExperienceGenerationService {
                 ) {
                   recordAcquisitionLifecycle(traceRecorder, {
                     passNumber: pass,
-                    strategy: 'area_route_walk',
-                    anchor: routed.anchor,
+                    workUnit: routed,
+                    geographicGrant: workUnitGeographicGrant(routed),
                     plan: areaRouteWalkResult.lifecycle.plan,
                     execution: areaRouteWalkResult.lifecycle.execution,
                     resolution: areaRouteWalkResult.lifecycle.materialization,
@@ -1162,23 +1172,24 @@ export class ExperienceGenerationService {
                 }
               }
 
-              if (genericRoutable) {
+              for (const { unit, plan } of plannedUnits) {
                 await this.updateGenerationStatus(
                   tourId,
                   'generating',
-                  `Buscando más Experiences (fuentes: ${acquisitionPlan.sourcePlans
-                    .map((sourcePlan) => sourcePlan.provider)
-                    .join(', ')})...`,
+                  unit.kind === 'DEDICATED_INTENT'
+                    ? `Buscando una experiencia de tipo "${unit.deficit.key}"...`
+                    : `Buscando más Experiences (fuentes: ${plan.sourcePlans
+                        .map((sourcePlan) => sourcePlan.provider)
+                        .join(', ')})...`,
                 );
 
                 await this.executeAndMaterializeAcquisitionPlan(
-                  acquisitionPlan,
+                  plan,
                   pass,
                   {
                     destinationName: canonicalDestinationName,
                     destinationCountryCode: destinationResolution.countryCode,
                     geographicScope,
-                    validationIntent: requestValidationIntent,
                   },
                   traceRecorder,
                   {
@@ -1186,6 +1197,7 @@ export class ExperienceGenerationService {
                     failed: acquisitionProvidersFailed,
                   },
                   acquisitionExecutionLedger,
+                  unit,
                 );
               }
 
@@ -1537,7 +1549,7 @@ export class ExperienceGenerationService {
           this.dailyPlanningPolicy.backfill.maxAcquisitionPasses
       ) {
         acquisitionPasses++;
-        const plannerDeficit: AcquisitionDeficit = {
+        const plannerDeficit: GlobalCapacityDeficit = {
           origin: 'global_capacity',
           reason: `Planner has ${meaningfulResidual.availableMinutes} minutes of residual capacity on day ${meaningfulResidual.dayNumber}`,
           currentEligibleCount: allEligibleExperiencesById.size,
@@ -1579,7 +1591,6 @@ export class ExperienceGenerationService {
               destinationName: canonicalDestinationName,
               destinationCountryCode: destinationResolution.countryCode,
               geographicScope,
-              validationIntent: requestValidationIntent,
             },
             traceRecorder,
             {
@@ -1587,7 +1598,9 @@ export class ExperienceGenerationService {
               failed: acquisitionProvidersFailed,
             },
             acquisitionExecutionLedger,
-            'planner_capacity',
+            // Residual capacity owns no policy-bearing deficit: grant NONE,
+            // whatever intents the tour requested elsewhere.
+            { kind: 'PLANNER_CAPACITY', deficit: plannerDeficit },
           );
 
           const refreshed = await this.refreshCatalogAndRecompose(

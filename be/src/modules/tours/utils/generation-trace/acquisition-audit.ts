@@ -23,9 +23,84 @@ import { SourceObservation } from '../../interfaces/experience-acquisition.inter
 import { traceCandidateKey } from '../experience-candidate-correlation.util';
 import {
   projectCatalogMaterializationStepInput,
+  projectComponentIdentityStepInputs,
   projectEntityResolutionStepInput,
   projectGeographicValidationStepInput,
 } from './resolution-audit';
+import {
+  AcquisitionWorkUnit,
+  workUnitGeographicGrant,
+} from '../acquisition-strategy-selector.util';
+import { WorkUnitGeographicGrant } from '../../interfaces/geographic-validation-authorization.interface';
+
+export type AcquisitionWorkUnitStrategyLabel =
+  | 'area_route_walk'
+  | 'dedicated_intent'
+  | 'generic'
+  | 'planner_capacity';
+
+export function workUnitStrategyLabel(
+  unit: AcquisitionWorkUnit,
+): AcquisitionWorkUnitStrategyLabel {
+  switch (unit.kind) {
+    case 'AREA_ROUTE_WALK':
+      return 'area_route_walk';
+    case 'DEDICATED_INTENT':
+      return 'dedicated_intent';
+    case 'GENERIC':
+      return 'generic';
+    case 'PLANNER_CAPACITY':
+      return 'planner_capacity';
+  }
+}
+
+/** Bounded trace projection of a work-unit geographic grant. */
+export function projectWorkUnitGeographicGrant(grant: WorkUnitGeographicGrant):
+  | { kind: 'NONE' }
+  | {
+      kind: 'OWNED_INTENT';
+      intent: string;
+      workUnit: string;
+      ownedDeficit: string;
+    } {
+  return grant.kind === 'NONE'
+    ? { kind: 'NONE' }
+    : {
+        kind: 'OWNED_INTENT',
+        intent: grant.intent,
+        workUnit: grant.workUnit,
+        ownedDeficit: `intent:${grant.ownedDeficit.key}`,
+      };
+}
+
+/** Trace projection of one acquisition work unit (deficits + grant). */
+export function projectAcquisitionWorkUnit(unit: AcquisitionWorkUnit) {
+  const geographicGrant = projectWorkUnitGeographicGrant(
+    workUnitGeographicGrant(unit),
+  );
+  switch (unit.kind) {
+    case 'AREA_ROUTE_WALK':
+      return {
+        kind: unit.kind,
+        intentKey: unit.deficit.key,
+        deficit: unit.deficit,
+        anchor: unit.anchor,
+        anchorMode: unit.anchorMode,
+        geographicGrant,
+      };
+    case 'DEDICATED_INTENT':
+      return {
+        kind: unit.kind,
+        intentKey: unit.deficit.key,
+        deficit: unit.deficit,
+        geographicGrant,
+      };
+    case 'GENERIC':
+      return { kind: unit.kind, deficits: unit.deficits, geographicGrant };
+    case 'PLANNER_CAPACITY':
+      return { kind: unit.kind, deficit: unit.deficit, geographicGrant };
+  }
+}
 
 export function recordCatalogSearchStep(
   recorder: GenerationTraceRecorder,
@@ -167,36 +242,25 @@ export function recordPreferenceCoverageStep(
 export function recordDeficitRoutingStep(
   recorder: GenerationTraceRecorder,
   input: {
-    areaRouteWalk: Array<{
-      anchor: ResolvedAnchor;
-      anchorMode: string;
-      intentKey: string;
-      deficit: AcquisitionDeficit;
-    }>;
-    generic: AcquisitionDeficit[];
+    workUnits: AcquisitionWorkUnit[];
     resolvedAnchors: ResolvedAnchor[];
     acquisitionDeficits: AcquisitionDeficit[];
   },
 ): TraceStepV5 {
-  const { areaRouteWalk, generic, resolvedAnchors, acquisitionDeficits } =
-    input;
+  const { workUnits, resolvedAnchors, acquisitionDeficits } = input;
+  const count = (kind: AcquisitionWorkUnit['kind']) =>
+    workUnits.filter((unit) => unit.kind === kind).length;
   return recorder.record({
     name: 'acquisition.routing',
-    description: `Enrutamiento de déficits de adquisición: AREA_ROUTE_WALK=${areaRouteWalk.length}; GENERIC=${generic.length}.`,
-    component: 'partitionDeficitsByStrategy',
+    description: `Asignación de déficits a unidades de adquisición: AREA_ROUTE_WALK=${count('AREA_ROUTE_WALK')}; DEDICATED_INTENT=${count('DEDICATED_INTENT')}; GENERIC=${count('GENERIC')}.`,
+    component: 'partitionDeficitsIntoWorkUnits',
     decision: { status: 'INFO', outcome: 'ROUTED' },
     input: {
       anchors: resolvedAnchors,
       acquisitionDeficits,
     },
     output: {
-      areaRouteWalk: areaRouteWalk.map((routed) => ({
-        anchor: routed.anchor,
-        anchorMode: routed.anchorMode,
-        intentKey: routed.intentKey,
-        deficit: routed.deficit,
-      })),
-      generic,
+      workUnits: workUnits.map(projectAcquisitionWorkUnit),
     },
   });
 }
@@ -205,12 +269,12 @@ export function recordAreaRouteWalkStep(
   recorder: GenerationTraceRecorder,
   input: {
     anchor: ResolvedAnchor;
-    intentKey: string;
-    deficit: AcquisitionDeficit;
+    deficit: AcquisitionDeficit & { key: string };
     result: AreaRouteWalkAcquisitionResult;
   },
 ): TraceStepV5 {
-  const { anchor, intentKey, deficit, result } = input;
+  const { anchor, deficit, result } = input;
+  const intentKey = deficit.key;
   const outputs = Object.fromEntries(
     Object.entries(result).filter(([key]) => key !== 'lifecycle'),
   );
@@ -232,16 +296,24 @@ export function recordAcquisitionLifecycle(
   recorder: GenerationTraceRecorder,
   input: {
     passNumber: number;
-    strategy: 'generic' | 'area_route_walk' | 'planner_capacity';
-    anchor?: ResolvedAnchor;
+    /** The ONE work unit that produced this execution. */
+    workUnit: AcquisitionWorkUnit;
+    geographicGrant: WorkUnitGeographicGrant;
     plan: ExperienceAcquisitionPlan;
     execution: ExecuteAcquisitionPlanResult;
     resolution?: FinalExperienceResolutionResponse;
   },
 ): void {
-  const { passNumber, strategy, anchor, plan, execution, resolution } = input;
-  const anchorSlug = anchor?.rawName
-    ? `-${anchor.rawName
+  const { passNumber, workUnit, geographicGrant, plan, execution, resolution } =
+    input;
+  const strategy = workUnitStrategyLabel(workUnit);
+  const anchor =
+    workUnit.kind === 'AREA_ROUTE_WALK' ? workUnit.anchor : undefined;
+  const slugSource =
+    anchor?.rawName ??
+    (workUnit.kind === 'DEDICATED_INTENT' ? workUnit.deficit.key : undefined);
+  const anchorSlug = slugSource
+    ? `-${slugSource
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '')}`
@@ -272,7 +344,10 @@ export function recordAcquisitionLifecycle(
     facts: {
       passNumber,
       strategy,
+      workUnit: projectAcquisitionWorkUnit(workUnit),
+      geographicGrant: projectWorkUnitGeographicGrant(geographicGrant),
       ...(anchor ? { anchor } : {}),
+      ...projectWebPlanFacts(plan),
       candidateCount: execution.candidates.length,
       observationCount: execution.observations.length,
     },
@@ -596,6 +671,17 @@ export function recordAcquisitionLifecycle(
       ...projectEntityResolutionStepInput(resolution, { strategy, passNumber }),
     });
 
+    // 6a'. resolution.component_identity -- one bounded step per
+    // multi-component candidate (the full resolution.entity payload can
+    // exceed the trace step limit and be truncated).
+    for (const stepInput of projectComponentIdentityStepInputs(resolution, {
+      strategy,
+      passNumber,
+      workUnitKind: workUnit.kind,
+    })) {
+      recorder.record({ parentId: passId, ...stepInput });
+    }
+
     // 6b. geography.validation
     if (resolution.geographicValidation) {
       recorder.record({
@@ -700,5 +786,24 @@ function projectExtractionAttempt(attempt: WebExtractionAttemptAudit) {
     })),
     sourceSupportAudits: attempt.sourceSupportAudits,
     failureReason: attempt.failureReason,
+  };
+}
+
+/** The web query / requested intents / anchor names this unit searched with. */
+function projectWebPlanFacts(plan: ExperienceAcquisitionPlan) {
+  const web = plan.sourcePlans.find(
+    (sourcePlan): sourcePlan is Extract<SourcePlan, { provider: 'web' }> =>
+      sourcePlan.provider === 'web',
+  )?.web;
+  return {
+    evidenceRequirements: plan.evidenceRequirements,
+    ...(web
+      ? {
+          webQuery: web.query,
+          requestedIntents: web.requestedIntents ?? [],
+          requestedThemes: web.requestedThemes ?? [],
+          anchorNames: web.anchorNames ?? [],
+        }
+      : {}),
   };
 }

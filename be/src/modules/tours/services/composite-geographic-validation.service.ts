@@ -42,6 +42,31 @@ import {
   RouteScopeMembershipAudit,
 } from '../interfaces/route-scope-membership.interface';
 import { evaluateRouteScopeMembership } from '../utils/route-scope-membership-policy';
+import { isUsableRouteGeometry } from '../utils/route-geometry.util';
+import { GeographicValidationAuthorization } from '../interfaces/geographic-validation-authorization.interface';
+import {
+  authorizesAnchoredAreaMembership,
+  authorizesRouteScale,
+  DEFAULT_GEOGRAPHIC_AUTHORIZATION,
+} from '../utils/geographic-validation-authorization.util';
+
+/**
+ * Canonical physical ROUTE authority: a RESOLVED component whose canonical
+ * GeoEntity kind is ROUTE and whose geometry is a usable route line. The
+ * source hint role must also be `route` (source-composition correspondence),
+ * but the role alone never establishes route reality: a `route`-role hint
+ * resolved to a PLACE, or without usable route geometry, fails closed.
+ */
+export function isCanonicalPhysicalRouteComponent(
+  entity: ResolvedGeoEntity,
+): boolean {
+  return (
+    entity.role === 'route' &&
+    entity.status === 'resolved' &&
+    entity.kind === 'ROUTE' &&
+    isUsableRouteGeometry(entity.geometry)
+  );
+}
 
 @Injectable()
 export class CompositeGeographicValidationService {
@@ -71,7 +96,7 @@ export class CompositeGeographicValidationService {
     resolvedProposal: ResolvedExperienceCandidate,
     destinationBoundary: OsmCandidate | undefined,
     validationScope?: ExperienceValidationScope,
-    validationIntent?: 'walk' | 'route_like',
+    geographicAuthorization: GeographicValidationAuthorization = DEFAULT_GEOGRAPHIC_AUTHORIZATION,
     geographicScope?: GeographicScope,
   ): GeographicValidationResult {
     const { candidate, resolvedEntities } = resolvedProposal;
@@ -98,7 +123,7 @@ export class CompositeGeographicValidationService {
             withCoordinates,
             validationScope,
             groundedEvidenceKeys,
-            validationIntent,
+            geographicAuthorization,
             destinationBoundary,
           )
         : undefined;
@@ -139,7 +164,7 @@ export class CompositeGeographicValidationService {
               withCoordinates,
               destinationBoundary,
               groundedEvidenceKeys,
-              validationIntent,
+              geographicAuthorization,
             )
           : this.rejected(
               candidate.name,
@@ -348,7 +373,7 @@ export class CompositeGeographicValidationService {
     withCoordinates: ResolvedGeoEntity[],
     validationScope: ExperienceValidationScope,
     evidenceKeys: string[],
-    validationIntent?: 'walk' | 'route_like',
+    geographicAuthorization: GeographicValidationAuthorization,
     destinationBoundary?: OsmCandidate,
   ): {
     result?: GeographicValidationResult;
@@ -397,7 +422,7 @@ export class CompositeGeographicValidationService {
 
     if (validationScope.kind === 'AREA') {
       const policy: AreaScopeMembershipPolicy =
-        validationIntent === 'walk' || validationIntent === 'route_like'
+        authorizesAnchoredAreaMembership(geographicAuthorization)
           ? 'AREA_ANCHORED_ROUTE'
           : 'AREA_CONTAINED';
       const decision = evaluateAreaScopeMembership(
@@ -527,19 +552,7 @@ export class CompositeGeographicValidationService {
         geometry.coordinates.length > 0
       );
     }
-    if (geometry.type === 'MultiLineString') {
-      return (
-        Array.isArray(geometry.coordinates) &&
-        geometry.coordinates.some(
-          (line) => Array.isArray(line) && line.length >= 2,
-        )
-      );
-    }
-    return (
-      geometry.type === 'LineString' &&
-      Array.isArray(geometry.coordinates) &&
-      geometry.coordinates.length >= 2
-    );
+    return isUsableRouteGeometry(geometry);
   }
 
   /**
@@ -566,7 +579,7 @@ export class CompositeGeographicValidationService {
     const proposalName = resolvedProposal.candidate.name;
 
     const canonicalRoute = withCoordinates.find(
-      (entity) => entity.role === 'route' && entity.geometry,
+      isCanonicalPhysicalRouteComponent,
     );
     if (canonicalRoute) {
       const routeMismatch = this.routeDestinationMismatch(
@@ -592,7 +605,7 @@ export class CompositeGeographicValidationService {
       // component too, not just the one canonical ROUTE entity (the
       // composition is complete here, see rejectIfSourceCompositionIncomplete).
       const nonRouteEntities = withCoordinates.filter(
-        (entity) => entity.role !== 'route',
+        (entity) => entity !== canonicalRoute,
       );
       const fullSet = [canonicalRoute, ...nonRouteEntities];
       const fullMismatch = this.routeDestinationMismatch(
@@ -719,7 +732,7 @@ export class CompositeGeographicValidationService {
     withCoordinates: ResolvedGeoEntity[],
     destinationBoundary: OsmCandidate,
     evidenceKeys: string[],
-    validationIntent?: 'walk' | 'route_like',
+    geographicAuthorization: GeographicValidationAuthorization,
   ): GeographicValidationResult {
     const proposal = resolvedProposal.candidate;
     const proposalName = proposal.name;
@@ -730,18 +743,21 @@ export class CompositeGeographicValidationService {
     const anchors = this.dedupeEntities(
       withCoordinates.filter((entity) => entity.role !== 'area'),
     );
+    // Route-scale thresholds have exactly two authorities:
+    //  1. an independently verified physical fact -- a resolved canonical
+    //     ROUTE GeoEntity with usable route geometry (the source hint role
+    //     only confirms correspondence; it never proves a route), or
+    //  2. the ROUTE_LIKE authorization the producing work unit granted THIS
+    //     candidate (never `proposal.intents`/`themes`/`traits`, never a
+    //     request-level intent, never a deficit owned by another unit).
+    // This does not mean `route_like == ROUTE`; it only widens which
+    // threshold set applies below.
     const hasCanonicalRouteComponent = anchors.some(
-      (entity) => entity.role === 'route',
+      isCanonicalPhysicalRouteComponent,
     );
-    // Task B5 (correctness points 15/19): route-scale geographic policy
-    // applies to a real route_like tourism Experience with NO canonical
-    // ROUTE component too -- sourced ONLY from the request's own
-    // `validationIntent`, NEVER from `proposal.intents`/`themes`/`traits`
-    // (discovery-extraction fields that are not authoritative and, post-B6,
-    // are not even populated). This does not mean `route_like == ROUTE`;
-    // it only widens which threshold set applies below.
     const routeScale =
-      hasCanonicalRouteComponent || validationIntent === 'route_like';
+      hasCanonicalRouteComponent ||
+      authorizesRouteScale(geographicAuthorization);
 
     if (venueCentric) {
       if (evidenceKeys.length === 0) {

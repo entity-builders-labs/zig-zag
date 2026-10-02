@@ -8,6 +8,7 @@ import {
   AcquisitionProviderResult,
   SourceObservation,
 } from '../interfaces/experience-acquisition.interface';
+import { NO_GEOGRAPHIC_GRANT } from '../utils/geographic-validation-authorization.util';
 
 const VENUE_ANCHOR_EVIDENCE_REQUIREMENTS = ['SINGLE_PLACE'] as const;
 
@@ -84,6 +85,8 @@ export class VenueAnchorResolutionService {
           destinationName: input.destinationName,
           destinationCountryCode: input.destinationCountryCode,
           geographicScope: input.geographicScope,
+          // Venue-anchor resolution owns no walk/route_like deficit.
+          geographicGrant: NO_GEOGRAPHIC_GRANT,
         },
       );
       const accepted = response.resolved

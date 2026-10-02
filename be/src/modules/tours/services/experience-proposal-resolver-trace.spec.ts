@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
 import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
 
 describe('ExperienceProposalResolverService trace contract', () => {
@@ -70,7 +71,7 @@ describe('ExperienceProposalResolverService trace contract', () => {
     const response = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [
+      candidates: withDefaultGeographicAuthorization([
         {
           name: 'Visita Museo Real',
           themes: ['culture'],
@@ -88,7 +89,7 @@ describe('ExperienceProposalResolverService trace contract', () => {
           evidenceKeys: ['ev-1'],
           shortReason: 'Grounded museum visit',
         },
-      ],
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -115,7 +116,7 @@ describe('ExperienceProposalResolverService trace contract', () => {
     );
   });
 
-  it('returns validationIntent and destinationBoundary summary in resolver response', async () => {
+  it('returns per-candidate geographic authorization (no batch intent) and destinationBoundary summary in resolver response', async () => {
     const boundary: any = {
       id: 'osm:relation:2223069',
       name: 'San Telmo',
@@ -184,7 +185,7 @@ describe('ExperienceProposalResolverService trace contract', () => {
     const response = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [
+      candidates: withDefaultGeographicAuthorization([
         {
           name: 'Visita Museo Real',
           themes: ['culture'],
@@ -202,7 +203,7 @@ describe('ExperienceProposalResolverService trace contract', () => {
           evidenceKeys: ['ev-1'],
           shortReason: 'Grounded museum visit',
         },
-      ],
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -211,10 +212,17 @@ describe('ExperienceProposalResolverService trace contract', () => {
           snippet: 'Museo Real en Buenos Aires',
         },
       ],
-      validationIntent: 'walk',
     });
 
-    expect(response.validationIntent).toBe('walk');
+    // No batch-level geographic intent exists: the candidate carries the
+    // authorization it was paired with, and the validator received exactly it.
+    expect(response).not.toHaveProperty('validationIntent');
+    expect(response.resolved[0].geographicAuthorization).toEqual({
+      kind: 'DEFAULT',
+    });
+    expect(geographicValidator.validate.mock.calls[0][3]).toEqual({
+      kind: 'DEFAULT',
+    });
     expect(response.destinationBoundary).toEqual({
       name: 'San Telmo',
       externalId: 'osm:relation:2223069',

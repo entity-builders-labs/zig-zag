@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from 'src/modules/tours/utils/geographic-validation-authorization.util';
 import { GeoEntityKind, Prisma } from '@prisma/client';
 import { ExperienceCatalogService } from 'src/modules/tours/services/experience-catalog.service';
 import { ExperienceProposalResolverService } from 'src/modules/tours/services/experience-proposal-resolver.service';
@@ -368,7 +369,7 @@ describe('tour-generation integration · verified hint memory', () => {
         destinationName: 'Buenos Aires, Argentina',
         destinationCountryCode: 'AR',
         geographicScope: DESTINATION,
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           {
             name: 'Farmacia la Estrella visit',
             themes: ['history'],
@@ -386,7 +387,7 @@ describe('tour-generation integration · verified hint memory', () => {
             evidenceKeys: ['ev-1'],
             shortReason: 'source-backed place',
           },
-        ],
+        ]),
         evidence: [
           {
             key: 'ev-1',

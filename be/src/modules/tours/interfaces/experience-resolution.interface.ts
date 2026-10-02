@@ -14,6 +14,10 @@ import {
 } from './area-scope-membership.interface';
 import { RouteScopeMembershipAudit } from './route-scope-membership.interface';
 import { SourceObservation } from './experience-acquisition.interface';
+import {
+  AuthorizedExperienceCandidate,
+  GeographicValidationAuthorization,
+} from './geographic-validation-authorization.interface';
 import { GeographicValidationDecisionEntity } from './geographic-validation.interface';
 import type {
   DestinationCompatibilityReason,
@@ -210,6 +214,9 @@ export interface ResolutionAttemptAudit {
     kind: GeoEntityKind;
     /** Every strong identity the candidate carried into verification. */
     identities?: StrongIdentity[];
+    /** Candidate representative point, when the provider supplied one. */
+    latitude?: number;
+    longitude?: number;
   };
   /** Bounded facts of a PLACES text search (no raw payloads). */
   placeSearch?: PlaceSearchAudit;
@@ -261,6 +268,15 @@ export interface PlaceSearchAudit {
   /** Results left for bounded selection after both filters. */
   viableCount: number;
   /**
+   * The identity-search circle used: DEFAULT = the ordinary destination
+   * search bias; ROUTE_SCALE = the route-scale compatibility domain of a
+   * ROUTE_LIKE-authorized candidate.
+   */
+  searchScope?: {
+    kind: 'DEFAULT' | 'ROUTE_SCALE';
+    radiusMeters: number;
+  };
+  /**
    * Place Details enrichment of the ONE selected candidate: NOT_SUPPORTED
    * when the provider cannot declare cross-identities (no call made).
    */
@@ -306,6 +322,8 @@ export interface CandidateResolutionAudit {
   componentAudits: ComponentResolutionAudit[];
   /** Per-component identity/geography facts + coverage (Stage 4). */
   componentResolution?: CompositeComponentResolution;
+  /** The geographic policy this candidate was resolved/validated under. */
+  geographicAuthorization: GeographicValidationAuthorization;
 }
 
 /**
@@ -543,6 +561,11 @@ export interface ResolvedExperienceCandidate {
    * Transient (trace/audit only); never persisted as a partial Experience.
    */
   componentResolution?: CompositeComponentResolution;
+  /**
+   * The geographic policy the resolver applied to THIS candidate (paired on
+   * the request, see AuthorizedExperienceCandidate). Transient audit fact.
+   */
+  geographicAuthorization?: GeographicValidationAuthorization;
   experienceId?: string;
   dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
   dedupeEvidence?: DedupeEvidence;
@@ -550,7 +573,11 @@ export interface ResolvedExperienceCandidate {
 }
 
 export interface ExperienceResolutionRequest {
-  candidates: ExperienceCandidate[];
+  /**
+   * Each candidate already paired with the geographic authorization of the
+   * work unit that produced it. There is no batch-level geographic policy.
+   */
+  candidates: AuthorizedExperienceCandidate[];
   destinationName?: string;
   /**
    * ISO 3166-1 alpha-2 country code of the resolved destination, when known.
@@ -599,15 +626,6 @@ export interface ExperienceResolutionRequest {
    * than AreaRouteWalkAcquisitionService (ordinary generation-loop
    * deficits, acquireNearby) — no behavior change there. */
   validationScope?: ExperienceValidationScope;
-  /**
-   * Task B5 — the REQUEST's own acquisition intent ('walk'/'route_like'),
-   * used ONLY to select a geographic threshold policy (routeScale) inside
-   * CompositeGeographicValidationService. Never derived from anything the
-   * extractor/candidate claims, never persisted, never used to satisfy
-   * candidateMatchesPreferenceFacet, and never treated as Experience
-   * semantic truth.
-   */
-  validationIntent?: 'walk' | 'route_like';
 }
 
 export interface ExperienceGeographicValidationResult {
@@ -700,12 +718,6 @@ export interface FinalExperienceResolutionResponse
   extends ExperienceResolutionResponse {
   geographicValidation: ExperienceGeographicValidationBatchResult;
   validationScope?: ExperienceValidationScope;
-  /**
-   * The request's acquisition intent ('walk'/'route_like'), used ONLY to select
-   * a geographic threshold policy inside CompositeGeographicValidationService.
-   * Never derived from anything the extractor/candidate claims.
-   */
-  validationIntent?: 'walk' | 'route_like';
   /**
    * Non-geometry summary of the destination boundary used for geographic
    * validation. Populated from the actual runtime value used by the validator.

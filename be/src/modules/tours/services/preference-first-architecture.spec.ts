@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const source = (name: string) => readFileSync(join(__dirname, name), 'utf8');
@@ -57,17 +57,60 @@ describe('preference-first architecture boundaries', () => {
     const generation = source('experience-generation.service.ts');
     expect(interpreter).not.toMatch(/AnchoredPlace\['kind'\]/);
     expect(generation).toMatch(
-      /partitionDeficitsByStrategy\([\s\S]*resolvedAnchors/,
+      /partitionDeficitsIntoWorkUnits\([\s\S]*resolvedAnchors/,
     );
     expect(generation).toMatch(/resolveNamedAnchors\(/);
   });
 
-  it('forwards resolved anchors into the GENERIC acquisition plan (RW2 fix)', () => {
+  it('forwards resolved anchors into the GENERIC / DEDICATED_INTENT acquisition plans (RW2 fix)', () => {
     const generation = source('experience-generation.service.ts');
-    // The GENERIC buildAcquisitionPlan call must pass `anchors: resolvedAnchors`
-    // so structured anchors survive as typed facts, never only via semanticQuery.
+    // Each unit's buildAcquisitionPlan call must pass `anchors: resolvedAnchors`
+    // so structured anchors survive as typed facts, never only via semanticQuery,
+    // and must be built from ONLY that unit's own deficits.
     expect(generation).toMatch(
-      /buildAcquisitionPlan\(\{[\s\S]*?deficits:\s*generic[\s\S]*?anchors:\s*resolvedAnchors/,
+      /buildAcquisitionPlan\(\s*\{[\s\S]*?deficits:\s*workUnitDeficits\(unit\)[\s\S]*?anchors:\s*resolvedAnchors/,
     );
+  });
+
+  // Geographic-authorization contract
+  // (docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md).
+  it('has no request-global geographic validation intent anywhere', () => {
+    expect(
+      existsSync(join(__dirname, '../utils/request-validation-intent.util.ts')),
+    ).toBe(false);
+    const sources = [
+      'experience-generation.service.ts',
+      'experience-acquisition.service.ts',
+      'area-route-walk-acquisition.service.ts',
+      'experience-proposal-resolver.service.ts',
+      'composite-geographic-validation.service.ts',
+      'venue-anchor-resolution.service.ts',
+      '../interfaces/experience-resolution.interface.ts',
+      '../utils/generation-trace/resolution-audit.ts',
+      '../utils/generation-trace/acquisition-audit.ts',
+    ].map(source);
+    for (const text of sources) {
+      expect(text).not.toMatch(
+        /deriveRequestValidationIntent|validationIntentOf|MIXED_UNSUPPORTED|requestValidationIntent|validationIntent/,
+      );
+    }
+  });
+
+  it('pairs every resolver candidate with its own authorization (no batch policy)', () => {
+    expect(source('../interfaces/experience-resolution.interface.ts')).toMatch(
+      /candidates:\s*AuthorizedExperienceCandidate\[\]/,
+    );
+    expect(source('experience-acquisition.service.ts')).toMatch(
+      /authorizeCandidates\(\s*context\.geographicGrant,\s*execution\.candidates,?\s*\)/,
+    );
+  });
+
+  it('never grants route-scale geography from a source hint role alone', () => {
+    const validator = source('composite-geographic-validation.service.ts');
+    expect(validator).not.toMatch(/role === 'route' && entity\.geometry/);
+    expect(validator).not.toMatch(
+      /anchors\.some\(\s*\(entity\) => entity\.role === 'route',?\s*\)/,
+    );
+    expect(validator).toMatch(/entity\.kind === 'ROUTE'/);
   });
 });

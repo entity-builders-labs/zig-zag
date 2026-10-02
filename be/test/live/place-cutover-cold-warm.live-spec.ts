@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from 'src/modules/tours/utils/geographic-validation-authorization.util';
 import * as fs from 'fs';
 import * as path from 'path';
 import axios from 'axios';
@@ -258,7 +259,7 @@ describeIfRun('Stage 3 PLACE cutover -- live COLD/WARM controls', () => {
         destinationName: DESTINATION.label,
         destinationCountryCode: 'AR',
         geographicScope: scope,
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           {
             name: hint,
             themes: ['history'],
@@ -276,7 +277,7 @@ describeIfRun('Stage 3 PLACE cutover -- live COLD/WARM controls', () => {
             evidenceKeys: ['ev-1'],
             shortReason: 'live PLACE cutover control',
           },
-        ],
+        ]),
         evidence: [
           {
             key: 'ev-1',

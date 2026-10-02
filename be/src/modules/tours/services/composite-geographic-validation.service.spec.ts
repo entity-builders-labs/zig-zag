@@ -1,3 +1,4 @@
+import { ownedAuthorization } from '../fixtures/geographic-authorization.fixture';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
@@ -101,6 +102,7 @@ describe('CompositeGeographicValidationService', () => {
             provider: 'osm',
             externalId: 'way:1',
             role: 'route',
+            kind: 'ROUTE',
             nameEvidenceMultiplicity: {
               exactName: 'UNKNOWN',
               declaredAlias: 'UNKNOWN',
@@ -156,6 +158,7 @@ describe('CompositeGeographicValidationService', () => {
             provider: 'osm',
             externalId: 'way:2',
             role: 'route',
+            kind: 'ROUTE',
             nameEvidenceMultiplicity: {
               exactName: 'UNKNOWN',
               declaredAlias: 'UNKNOWN',
@@ -902,6 +905,7 @@ describe('CompositeGeographicValidationService', () => {
       provider: 'osm',
       externalId: 'way:1',
       role: 'route' as const,
+      kind: 'ROUTE' as const,
       nameEvidenceMultiplicity: {
         exactName: 'UNKNOWN',
         declaredAlias: 'UNKNOWN',
@@ -1091,7 +1095,7 @@ describe('CompositeGeographicValidationService', () => {
       },
     ];
 
-    it('applies route-scale geographic thresholds when validationIntent is route_like, even with NO route component', () => {
+    it('applies route-scale geographic thresholds under a ROUTE_LIKE work-unit authorization, even with NO route component', () => {
       const candidate: ExperienceCandidate = {
         name: 'Ruta del Vino de Mendoza',
         themes: [],
@@ -1117,7 +1121,7 @@ describe('CompositeGeographicValidationService', () => {
         ],
       };
 
-      const withoutValidationIntent =
+      const withoutAuthorization =
         new CompositeGeographicValidationService().validate(
           {
             candidate,
@@ -1130,12 +1134,12 @@ describe('CompositeGeographicValidationService', () => {
       // Sanity check: these same stops genuinely fail the tighter
       // `experience`-scale thresholds -- proves route-scale is a REAL
       // widening, not a no-op.
-      expect(withoutValidationIntent.accepted).toBe(false);
-      expect(withoutValidationIntent.rejectionReasons).toContain(
+      expect(withoutAuthorization.accepted).toBe(false);
+      expect(withoutAuthorization.rejectionReasons).toContain(
         'geographic_incoherence',
       );
 
-      const withValidationIntent =
+      const withRouteLikeAuthorization =
         new CompositeGeographicValidationService().validate(
           {
             candidate,
@@ -1145,13 +1149,13 @@ describe('CompositeGeographicValidationService', () => {
           },
           wideBoundary,
           undefined,
-          'route_like',
+          ownedAuthorization('route_like'),
         );
-      expect(withValidationIntent.accepted).toBe(true);
-      expect(withValidationIntent.strategy).toBe('component_defined');
+      expect(withRouteLikeAuthorization.accepted).toBe(true);
+      expect(withRouteLikeAuthorization.strategy).toBe('component_defined');
     });
 
-    it('does NOT apply route-scale thresholds from candidate.intents alone -- only validationIntent selects the policy', () => {
+    it('does NOT apply route-scale thresholds from candidate.intents alone -- only the work-unit authorization selects the policy', () => {
       const candidate: ExperienceCandidate = {
         name: 'Ruta del Vino de Mendoza',
         themes: [],
@@ -1176,8 +1180,8 @@ describe('CompositeGeographicValidationService', () => {
           },
         ],
       };
-      // candidate.intents says route_like, but validationIntent is NOT
-      // passed -- must still use the tighter `experience` scale (this is
+      // candidate.intents says route_like, but no work-unit authorization
+      // is passed -- must still use the tighter `experience` scale (this is
       // the exact regression Task B5 point 19 guards against).
       const result = new CompositeGeographicValidationService().validate(
         {
@@ -1256,7 +1260,7 @@ describe('CompositeGeographicValidationService', () => {
         },
         boundary,
         undefined,
-        'route_like',
+        ownedAuthorization('route_like'),
       );
       expect(result.accepted).toBe(false);
       expect(result.rejectionReasons).toContain('destination_mismatch');
@@ -1753,6 +1757,7 @@ describe('CompositeGeographicValidationService', () => {
               provider: 'osm',
               externalId: 'way:1',
               role: 'route',
+              kind: 'ROUTE',
               nameEvidenceMultiplicity: {
                 exactName: 'UNKNOWN',
                 declaredAlias: 'UNKNOWN',
@@ -1865,6 +1870,7 @@ describe('CompositeGeographicValidationService', () => {
               provider: 'osm',
               externalId: 'way:1',
               role: 'route',
+              kind: 'ROUTE',
               nameEvidenceMultiplicity: {
                 exactName: 'UNKNOWN',
                 declaredAlias: 'UNKNOWN',
@@ -1914,6 +1920,7 @@ describe('CompositeGeographicValidationService', () => {
               provider: 'osm',
               externalId: 'way:1',
               role: 'route',
+              kind: 'ROUTE',
               nameEvidenceMultiplicity: {
                 exactName: 'UNKNOWN',
                 declaredAlias: 'UNKNOWN',
@@ -2706,7 +2713,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
         },
         boundary,
         sanTelmoScope,
-        'walk',
+        ownedAuthorization('walk', 'AREA_ROUTE_WALK'),
       );
       expect(result.accepted).toBe(true);
       expect(result.areaScopeMembership).toMatchObject({
@@ -2766,7 +2773,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
         },
         boundary,
         sanTelmoScope,
-        'walk',
+        ownedAuthorization('walk', 'AREA_ROUTE_WALK'),
       );
       expect(result.accepted).toBe(false);
       expect(result.rejectionReasons).toEqual([
@@ -3558,5 +3565,181 @@ describe('Regression tests for forensic geographic trace evidence', () => {
         plannerResult.walkingDiagnostics?.dailyWalkingMeters,
       ).toBeGreaterThan(8000);
     });
+  });
+});
+
+describe('CompositeGeographicValidationService · canonical physical ROUTE authority vs hint role (matrix F/G)', () => {
+  // Wide destination: two venues ~78km apart stay inside it and within the
+  // route-scale radius, so ONLY the threshold set chosen decides.
+  const wideBoundary: any = {
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [-58.6, -34.9],
+          [-58.2, -34.9],
+          [-58.2, -34.1],
+          [-58.6, -34.1],
+          [-58.6, -34.9],
+        ],
+      ],
+    },
+  };
+  const venue = (key: string, latitude: number) => ({
+    hintKey: key,
+    hintName: `Winery ${key}`,
+    provider: 'osm',
+    externalId: `node:${key}`,
+    role: 'venue' as const,
+    nameEvidenceMultiplicity: {
+      exactName: 'UNKNOWN',
+      declaredAlias: 'UNKNOWN',
+    } as const,
+    status: 'resolved' as const,
+    latitude,
+    longitude: -58.4,
+  });
+  const routeHintCandidate = (intents: string[] = []): ExperienceCandidate => ({
+    name: 'Wine road',
+    themes: [],
+    traits: [],
+    intents,
+    evidenceKeys: ['e'],
+    shortReason: 'grounded',
+    componentHints: [
+      {
+        key: 'r',
+        name: 'Wine road',
+        role: 'route',
+        expectedKind: 'ROUTE',
+        evidenceKeys: ['e'],
+      },
+      {
+        key: 'w1',
+        name: 'Winery w1',
+        role: 'venue',
+        expectedKind: 'PLACE',
+        evidenceKeys: ['e'],
+      },
+      {
+        key: 'w2',
+        name: 'Winery w2',
+        role: 'venue',
+        expectedKind: 'PLACE',
+        evidenceKeys: ['e'],
+      },
+    ],
+  });
+  const routeRoleEntity = (facts: {
+    kind?: 'ROUTE' | 'PLACE';
+    geometry?: unknown;
+  }) => ({
+    hintKey: 'r',
+    hintName: 'Wine road',
+    provider: 'osm',
+    externalId: 'way:wine',
+    role: 'route' as const,
+    nameEvidenceMultiplicity: {
+      exactName: 'UNKNOWN',
+      declaredAlias: 'UNKNOWN',
+    } as const,
+    status: 'resolved' as const,
+    latitude: -34.5,
+    longitude: -58.4,
+    ...(facts.kind ? { kind: facts.kind } : {}),
+    ...(facts.geometry ? { geometry: facts.geometry } : {}),
+  });
+  const validate = (
+    routeEntity: ReturnType<typeof routeRoleEntity>,
+    candidate = routeHintCandidate(),
+  ) =>
+    new CompositeGeographicValidationService().validate(
+      {
+        candidate,
+        status: 'accepted',
+        resolvedEntities: [
+          routeEntity,
+          venue('w1', -34.15),
+          venue('w2', -34.85),
+        ],
+        rejectionReasons: [],
+      },
+      wideBoundary,
+    );
+
+  it.each([
+    [
+      'resolved to a PLACE',
+      {
+        kind: 'PLACE' as const,
+        geometry: { type: 'Point', coordinates: [-58.4, -34.5] },
+      },
+    ],
+    ['resolved to a ROUTE without geometry', { kind: 'ROUTE' as const }],
+    [
+      'resolved to a ROUTE with a non-line geometry',
+      {
+        kind: 'ROUTE' as const,
+        geometry: { type: 'Point', coordinates: [-58.4, -34.5] },
+      },
+    ],
+    [
+      'with a line geometry but no canonical ROUTE kind',
+      {
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [-58.4, -34.5],
+            [-58.39, -34.51],
+          ],
+        },
+      },
+    ],
+    [
+      'resolved to a ROUTE with a degenerate one-point line',
+      {
+        kind: 'ROUTE' as const,
+        geometry: { type: 'LineString', coordinates: [[-58.4, -34.5]] },
+      },
+    ],
+  ])(
+    'F: a route-role hint %s grants NO route-scale geography (fails closed to experience thresholds)',
+    (_label, facts) => {
+      const result = validate(routeRoleEntity(facts));
+      expect(result.strategy).not.toBe('canonical_geometry');
+      expect(result.accepted).toBe(false);
+      expect(result.rejectionReasons).toContain('geographic_incoherence');
+    },
+  );
+
+  it('F+E: a route-role hint plus candidate.intents route_like still cannot widen a DEFAULT candidate', () => {
+    const result = validate(
+      routeRoleEntity({
+        kind: 'PLACE',
+        geometry: { type: 'Point', coordinates: [-58.4, -34.5] },
+      }),
+      routeHintCandidate(['route_like']),
+    );
+    expect(result.accepted).toBe(false);
+  });
+
+  it('G: a VERIFIED canonical ROUTE GeoEntity with usable line geometry keeps canonical route-geometry validation, independent of any request intent', () => {
+    const result = validate(
+      routeRoleEntity({
+        kind: 'ROUTE',
+        geometry: {
+          type: 'MultiLineString',
+          coordinates: [
+            [
+              [-58.4, -34.5],
+              [-58.39, -34.51],
+            ],
+          ],
+        },
+      }),
+    );
+    expect(result.accepted).toBe(true);
+    expect(result.strategy).toBe('canonical_geometry');
+    expect(result.kind).toBe('ROUTE');
   });
 });

@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from 'src/modules/tours/utils/geographic-validation-authorization.util';
 import { GeoEntityKind } from '@prisma/client';
 import { ExperienceCatalogService } from 'src/modules/tours/services/experience-catalog.service';
 import { ExperienceProposalResolverService } from 'src/modules/tours/services/experience-proposal-resolver.service';
@@ -7,7 +8,11 @@ import { ExperienceAcquisitionPlannerService } from 'src/modules/tours/services/
 import { AreaRouteWalkAcquisitionService } from 'src/modules/tours/services/area-route-walk-acquisition.service';
 import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from 'src/modules/tours/services/experience-classification.service';
 import { ExperienceCandidate } from 'src/modules/tours/interfaces/experience-discovery.interface';
-import { PreferenceFacetDeficit } from 'src/modules/tours/interfaces/experience-acquisition-plan.interface';
+import {
+  authorizeCandidates,
+  ownedIntentGrant,
+} from 'src/modules/tours/utils/geographic-validation-authorization.util';
+import { geographicIntentDeficit } from 'src/modules/tours/fixtures/geographic-authorization.fixture';
 import { getPrisma, resetDb, closeDb } from '../support/test-db';
 
 /**
@@ -351,7 +356,7 @@ describe('tour-generation integration · area/route walk geographic validation (
           kind: 'AREA_BOUNDARY' as const,
           boundary: BUENOS_AIRES_BOUNDARY,
         },
-        candidates: [candidate],
+        candidates: withDefaultGeographicAuthorization([candidate]),
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
         validationScope: {
           kind: 'AREA',
@@ -424,7 +429,7 @@ describe('tour-generation integration · area/route walk geographic validation (
           kind: 'AREA_BOUNDARY' as const,
           boundary: BUENOS_AIRES_BOUNDARY,
         },
-        candidates: [candidate],
+        candidates: withDefaultGeographicAuthorization([candidate]),
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
         validationScope: {
           kind: 'AREA',
@@ -523,7 +528,7 @@ describe('tour-generation integration · area/route walk geographic validation (
           kind: 'AREA_BOUNDARY' as const,
           boundary: BUENOS_AIRES_BOUNDARY,
         },
-        candidates: [candidate],
+        candidates: withDefaultGeographicAuthorization([candidate]),
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
       });
 
@@ -701,7 +706,7 @@ describe('tour-generation integration · area/route walk geographic validation (
           kind: 'AREA_BOUNDARY' as const,
           boundary: BUENOS_AIRES_BOUNDARY,
         },
-        candidates: [candidate],
+        candidates: withDefaultGeographicAuthorization([candidate]),
         evidence: [
           {
             key: 'ev-1',
@@ -815,7 +820,7 @@ describe('tour-generation integration · area/route walk geographic validation (
           kind: 'AREA_BOUNDARY',
           boundary: BUENOS_AIRES_BOUNDARY,
         },
-        candidates: [routeCandidate()],
+        candidates: withDefaultGeographicAuthorization([routeCandidate()]),
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
       });
 
@@ -867,7 +872,7 @@ describe('tour-generation integration · area/route walk geographic validation (
           kind: 'AREA_BOUNDARY',
           boundary: BUENOS_AIRES_BOUNDARY,
         },
-        candidates: [routeCandidate()],
+        candidates: withDefaultGeographicAuthorization([routeCandidate()]),
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
       });
 
@@ -880,7 +885,7 @@ describe('tour-generation integration · area/route walk geographic validation (
     });
   });
 
-  describe('E2/O/P: route_like route-scale geography is driven ONLY by validationIntent, real resolver end-to-end', () => {
+  describe('E2/O/P: route_like route-scale geography is driven ONLY by the owning work unit authorization, real resolver end-to-end', () => {
     function wineryCandidate(intents: string[]): ExperienceCandidate {
       return {
         name: 'Ruta del Vino',
@@ -956,7 +961,7 @@ describe('tour-generation integration · area/route walk geographic validation (
       };
     }
 
-    it('E2/O: accepts under route-scale thresholds when validationIntent is route_like, even with no route component', async () => {
+    it('E2/O: accepts under route-scale thresholds when the owning route_like unit authorizes the candidate, even with no route component', async () => {
       const geographicValidator = new CompositeGeographicValidationService();
       const resolver = new ExperienceProposalResolverService(
         wineryOsmPlaces() as any,
@@ -966,15 +971,22 @@ describe('tour-generation integration · area/route walk geographic validation (
 
       const result = await resolver.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary: WIDE_BOUNDARY },
-        candidates: [wineryCandidate([])], // real B6 shape -- no intents on the candidate
+        // real B6 shape -- no intents on the candidate; the authority is the
+        // DEDICATED_INTENT unit that owns intent:route_like.
+        candidates: authorizeCandidates(
+          ownedIntentGrant(
+            'DEDICATED_INTENT',
+            geographicIntentDeficit('route_like'),
+          ),
+          [wineryCandidate([])],
+        ),
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
-        validationIntent: 'route_like',
-      } as any);
+      });
 
       expect(result.acceptedCount).toBe(1);
     });
 
-    it("P: a candidate declaring intents:['route_like'] itself CANNOT substitute for validationIntent -- ordinary (tighter) thresholds still apply and reject", async () => {
+    it("P: a candidate declaring intents:['route_like'] itself CANNOT substitute for a work-unit authorization -- ordinary (tighter) thresholds still apply and reject", async () => {
       const geographicValidator = new CompositeGeographicValidationService();
       const resolver = new ExperienceProposalResolverService(
         wineryOsmPlaces() as any,
@@ -984,9 +996,11 @@ describe('tour-generation integration · area/route walk geographic validation (
 
       const result = await resolver.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary: WIDE_BOUNDARY },
-        candidates: [wineryCandidate(['route_like'])], // candidate claims route_like...
+        candidates: withDefaultGeographicAuthorization([
+          wineryCandidate(['route_like']),
+        ]), // candidate claims route_like...
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
-        // ...but validationIntent is NOT passed -- must still reject.
+        // ...but no unit owning route_like authorized it -- must still reject.
       });
 
       expect(result.acceptedCount).toBe(0);
@@ -1069,7 +1083,7 @@ describe('tour-generation integration · area/route walk geographic validation (
           kind: 'AREA_BOUNDARY',
           boundary: BUENOS_AIRES_BOUNDARY,
         },
-        candidates: [candidate],
+        candidates: withDefaultGeographicAuthorization([candidate]),
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
         validationScope: routeValidationScope,
       } as any);
@@ -1289,7 +1303,6 @@ describe('tour-generation integration · area/route walk geographic validation (
           provider: 'openstreetmap',
           geometry: SAN_TELMO_BOUNDARY as any,
         },
-        intentKey: 'walk',
         destination: {
           destinationName: 'Buenos Aires',
           latitude: -34.6,
@@ -1306,7 +1319,7 @@ describe('tour-generation integration · area/route walk geographic validation (
           key: 'walk',
           reason:
             'Preference facet [intent:walk] has no strong catalog match yet.',
-        } as PreferenceFacetDeficit,
+        },
       });
 
       expect(unrelatedWalkId).toBeDefined();
@@ -1458,7 +1471,6 @@ describe('tour-generation integration · area/route walk geographic validation (
           status: 'unresolved' as const,
           unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',
         },
-        intentKey: 'route_like' as const,
         destination: {
           destinationName: 'Buenos Aires',
           latitude: -34.6,
@@ -1469,13 +1481,7 @@ describe('tour-generation integration · area/route walk geographic validation (
           kind: 'AREA_BOUNDARY' as const,
           boundary: BUENOS_AIRES_BOUNDARY,
         },
-        deficit: {
-          origin: 'preference_facet',
-          dimension: 'intent',
-          key: 'route_like',
-          reason:
-            'Preference facet [intent:route_like] has no strong catalog match yet.',
-        } as PreferenceFacetDeficit,
+        deficit: geographicIntentDeficit('route_like'),
       };
 
       const round1 = await service.acquireOrReuse(input);

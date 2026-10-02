@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from './geographic-validation-authorization.util';
 import { GeoEntityKind } from '@prisma/client';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
@@ -182,6 +183,7 @@ function resolutionOf(
       candidateHintKeys: candidate.componentHints.map((item) => item.key),
       componentAudits,
       componentResolution,
+      geographicAuthorization: { kind: 'DEFAULT' },
     },
   };
 }
@@ -644,7 +646,7 @@ describe('Stage 5 resolver summary fidelity', () => {
     const result = await service.resolve({
       destinationName: 'San Juan',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [
+      candidates: withDefaultGeographicAuthorization([
         {
           name: 'Visit Casa Vieja',
           themes: ['history'],
@@ -661,7 +663,7 @@ describe('Stage 5 resolver summary fidelity', () => {
             },
           ],
         },
-      ],
+      ]),
       evidence,
     });
 
@@ -694,7 +696,7 @@ describe('Stage 5 resolver summary fidelity', () => {
     const result = await service.resolve({
       destinationName: 'San Juan',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [
+      candidates: withDefaultGeographicAuthorization([
         {
           name: 'Two stops',
           themes: ['history'],
@@ -718,7 +720,7 @@ describe('Stage 5 resolver summary fidelity', () => {
             },
           ],
         },
-      ],
+      ]),
       evidence,
     });
     const [candidate] = result.entityResolution!.resolved;

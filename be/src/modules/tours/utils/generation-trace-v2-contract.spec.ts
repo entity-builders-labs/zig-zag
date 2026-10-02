@@ -1,3 +1,4 @@
+import { ownedAuthorization } from '../fixtures/geographic-authorization.fixture';
 import {
   projectEntityResolutionStepInput,
   projectGeographicValidationStepInput,
@@ -311,15 +312,17 @@ describe('GenerationTrace V5 decision audit coverage', () => {
             status: 'accepted',
             resolvedEntities: entities,
             rejectionReasons: [],
+            geographicAuthorization: ownedAuthorization(
+              'walk',
+              'AREA_ROUTE_WALK',
+            ),
           } as any,
         ],
-        validationIntent: 'walk' as const,
         destinationBoundary: {
           name: 'San Telmo',
           externalId: 'osm:relation:2223069',
         },
       },
-      validationIntent: 'walk' as const,
       destinationBoundary: {
         name: 'San Telmo',
         externalId: 'osm:relation:2223069',
@@ -331,7 +334,13 @@ describe('GenerationTrace V5 decision audit coverage', () => {
     // Native audit preserves forensic fields
     const facts = step.facts as any;
     const audit = facts.geographicValidationAudit![0];
-    expect(audit.validationIntent).toBe('walk');
+    expect(audit).not.toHaveProperty('validationIntent');
+    expect(audit.geographicAuthorization).toEqual({
+      kind: 'WALK',
+      workUnit: 'AREA_ROUTE_WALK',
+      ownedDeficit: 'intent:walk',
+      admittedAs: 'MULTI_COMPONENT_EXPERIENCE',
+    });
     expect(audit.destinationBoundary).toEqual({
       name: 'San Telmo',
       externalId: 'osm:relation:2223069',

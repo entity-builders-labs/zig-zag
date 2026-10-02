@@ -1,3 +1,8 @@
+import {
+  NO_GEOGRAPHIC_GRANT,
+  ownedIntentGrant,
+} from './geographic-validation-authorization.util';
+import { geographicIntentDeficit } from '../fixtures/geographic-authorization.fixture';
 import { GenerationTraceRecorder } from './generation-trace-recorder.util';
 import {
   recordAcquisitionLifecycle,
@@ -14,7 +19,8 @@ describe('experience-generation-trace.util', () => {
 
     recordAcquisitionLifecycle(recorder, {
       passNumber: 1,
-      strategy: 'generic',
+      workUnit: { kind: 'GENERIC', deficits: [] },
+      geographicGrant: NO_GEOGRAPHIC_GRANT,
       plan: {
         destination: {
           destinationName: 'Buenos Aires',
@@ -231,7 +237,8 @@ describe('experience-generation-trace.util', () => {
 
     recordAcquisitionLifecycle(recorder, {
       passNumber: 1,
-      strategy: 'generic',
+      workUnit: { kind: 'GENERIC', deficits: [] },
+      geographicGrant: NO_GEOGRAPHIC_GRANT,
       plan: {
         destination: {
           destinationName: 'Buenos Aires',
@@ -365,6 +372,7 @@ describe('experience-generation-trace.util', () => {
             candidateEvidenceKeys: [],
             candidateHintKeys: [],
             componentAudits: [],
+            geographicAuthorization: { kind: 'DEFAULT' },
           },
         ],
       },
@@ -437,7 +445,8 @@ describe('experience-generation-trace.util', () => {
 
     recordAcquisitionLifecycle(recorder, {
       passNumber: 1,
-      strategy: 'generic',
+      workUnit: { kind: 'GENERIC', deficits: [] },
+      geographicGrant: NO_GEOGRAPHIC_GRANT,
       plan: {
         destination: { destinationName: 'Buenos Aires' },
         deficits: [],
@@ -567,7 +576,8 @@ describe('experience-generation-trace.util', () => {
 
     recordAcquisitionLifecycle(recorder, {
       passNumber: 1,
-      strategy: 'generic',
+      workUnit: { kind: 'GENERIC', deficits: [] },
+      geographicGrant: NO_GEOGRAPHIC_GRANT,
       plan: {
         destination: { destinationName: 'Buenos Aires' },
         deficits: [],
@@ -648,7 +658,8 @@ describe('experience-generation-trace.util', () => {
 
     recordAcquisitionLifecycle(recorder, {
       passNumber: 1,
-      strategy: 'generic',
+      workUnit: { kind: 'GENERIC', deficits: [] },
+      geographicGrant: NO_GEOGRAPHIC_GRANT,
       plan: {
         destination: { destinationName: 'Buenos Aires' },
         deficits: [],
@@ -706,7 +717,14 @@ describe('experience-generation-trace.util', () => {
       const recorder = new GenerationTraceRecorder();
       recordAcquisitionLifecycle(recorder, {
         passNumber: 1,
-        strategy: 'area_route_walk',
+        workUnit: {
+          kind: 'DEDICATED_INTENT',
+          deficit: geographicIntentDeficit('walk'),
+        },
+        geographicGrant: ownedIntentGrant(
+          'DEDICATED_INTENT',
+          geographicIntentDeficit('walk'),
+        ),
         plan: {
           destination: { destinationName: 'Buenos Aires' },
           deficits: [],

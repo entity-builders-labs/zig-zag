@@ -172,7 +172,7 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
         priority: 'must',
       }),
     );
-    expect(call.intentKey).toBe('walk');
+    expect(call.deficit.key).toBe('walk');
     // 5. The original canonical deficit is passed through untouched -- the
     // exact production message format `computePreferenceCoverage` builds,
     // never a reconstructed/placeholder deficit.
@@ -263,7 +263,7 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
         priority: 'must',
       }),
     );
-    expect(call.intentKey).toBe('route_like');
+    expect(call.deficit.key).toBe('route_like');
     expect(call.deficit).toEqual({
       origin: 'preference_facet',
       dimension: 'intent',
@@ -295,6 +295,126 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
     await harness.generate(tourId);
 
     expect(acquireSpy).not.toHaveBeenCalled();
+  });
+
+  it('3b. walk + route_like + visit/history without an AREA/ROUTE anchor -> independent DEDICATED_INTENT walk and route_like work plus one generic unit (no global intent ambiguity)', async () => {
+    harness.fakes.langChain.generateChatResponse.mockResolvedValueOnce(
+      interpreterResponse({
+        preferredFacets: [
+          {
+            dimension: 'intent',
+            key: 'walk',
+            confidence: 0.95,
+            strength: 'strong',
+            evidence: ['caminar'],
+          },
+          {
+            dimension: 'intent',
+            key: 'route_like',
+            confidence: 0.95,
+            strength: 'strong',
+            evidence: ['ruta'],
+          },
+          {
+            dimension: 'intent',
+            key: 'visit',
+            confidence: 0.95,
+            strength: 'strong',
+            evidence: ['visitar'],
+          },
+          {
+            dimension: 'theme',
+            key: 'history',
+            confidence: 0.95,
+            strength: 'strong',
+            evidence: ['historia'],
+          },
+        ],
+        positiveSemanticQuery: 'walks, scenic routes and historic visits',
+      }),
+    );
+    harness.configure({
+      groundedSearch: { evidence: [] },
+      discoveryExtractor: { candidates: [] },
+    });
+    const acquireSpy = jest.spyOn(
+      harness.app.get(AreaRouteWalkAcquisitionService),
+      'acquireOrReuse',
+    );
+    const plannerSpy = jest.spyOn(
+      harness.app.get(ExperienceAcquisitionPlannerService),
+      'buildAcquisitionPlan',
+    );
+
+    const tourId = await seedTour(harness.prisma, {
+      destinationLabel: 'San Telmo, Buenos Aires, Argentina',
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      radiusMeters: 12000,
+      days: 1,
+      interests: [],
+      intents: [],
+      additionalPreferences:
+        'caminar, una ruta escenica, visitar museos de historia',
+    });
+
+    await harness.generate(tourId);
+
+    expect(acquireSpy).not.toHaveBeenCalled();
+    const planDeficitKeys = plannerSpy.mock.calls.map((call) =>
+      (call[0].deficits ?? [])
+        .map((d: any) =>
+          d.origin === 'preference_facet'
+            ? `${d.dimension}:${d.key}`
+            : d.origin,
+        )
+        .sort()
+        .join(','),
+    );
+    // Each policy-bearing intent is acquired by its OWN plan...
+    expect(planDeficitKeys).toContain('intent:walk');
+    expect(planDeficitKeys).toContain('intent:route_like');
+    // ...and never coalesced with any other deficit.
+    for (const keys of planDeficitKeys) {
+      if (keys.includes('intent:walk') || keys.includes('intent:route_like')) {
+        expect(['intent:walk', 'intent:route_like']).toContain(keys);
+      }
+    }
+    // The remaining (non-policy) open deficits form one generic unit.
+    expect(planDeficitKeys.some((keys) => keys.includes('theme:history'))).toBe(
+      true,
+    );
+
+    const tour = await harness.loadTour(tourId);
+    const routing = harness
+      .traceSteps(tour.trace)
+      .find((step) => step.component === 'partitionDeficitsIntoWorkUnits');
+    expect(
+      routing.outputs.workUnits.map((unit: any) => [
+        unit.kind,
+        unit.geographicGrant.kind === 'NONE'
+          ? 'NONE'
+          : unit.geographicGrant.intent,
+      ]),
+    ).toEqual(
+      expect.arrayContaining([
+        ['DEDICATED_INTENT', 'walk'],
+        ['DEDICATED_INTENT', 'route_like'],
+        ['GENERIC', 'NONE'],
+      ]),
+    );
+    const passes = harness
+      .traceSteps(tour.trace)
+      .filter((step) => step.name === 'acquisition.pass');
+    for (const pass of passes) {
+      const grant = pass.facts.geographicGrant;
+      if (pass.facts.strategy === 'generic') {
+        expect(grant).toEqual({ kind: 'NONE' });
+      } else if (pass.facts.strategy === 'dedicated_intent') {
+        expect(grant.kind).toBe('OWNED_INTENT');
+        expect(pass.facts.requestedIntents).toEqual([grant.intent]);
+      }
+    }
   });
 
   it('4. a global_capacity deficit never routes through AreaRouteWalkAcquisitionService even with a relevant anchor present', async () => {

@@ -273,7 +273,7 @@ describe('tour-generation integration · canonical orchestration', () => {
       .find((step) => step.stage === 'coverage_analysis');
     const routing = harness
       .traceSteps(tour.trace)
-      .find((step) => step.component === 'partitionDeficitsByStrategy');
+      .find((step) => step.component === 'partitionDeficitsIntoWorkUnits');
     const destination = harness
       .traceSteps(tour.trace)
       .find((step) => step.stage === 'destination_resolution');
@@ -298,8 +298,9 @@ describe('tour-generation integration · canonical orchestration', () => {
         key: 'walk',
       }),
     ]);
-    expect(routing.outputs.areaRouteWalk).toEqual([
+    expect(routing.outputs.workUnits).toEqual([
       expect.objectContaining({
+        kind: 'AREA_ROUTE_WALK',
         anchor: expect.objectContaining({
           rawName: 'Historic District',
           usage: 'geographic_scope',
@@ -317,10 +318,14 @@ describe('tour-generation integration · canonical orchestration', () => {
         // RW3-F4: a resolved canonical area anchor routes as 'canonical'
         // (vs the 'tourism_route' fallback for unresolved named paths).
         anchorMode: 'canonical',
+        // The unit that owns intent:walk is the only geographic authority.
+        geographicGrant: {
+          kind: 'OWNED_INTENT',
+          intent: 'walk',
+          workUnit: 'AREA_ROUTE_WALK',
+          ownedDeficit: 'intent:walk',
+        },
       }),
-    ]);
-    expect(routing.outputs.generic).not.toEqual([
-      expect.objectContaining({ dimension: 'intent', key: 'walk' }),
     ]);
     expect(harness.areaRouteWalkAcquire).toHaveBeenCalled();
     expect(harness.areaRouteWalkAcquire.mock.calls[0][0]).toEqual(
@@ -333,7 +338,6 @@ describe('tour-generation integration · canonical orchestration', () => {
           kind: 'area',
           canonicalName: 'Historic District',
         }),
-        intentKey: 'walk',
         deficit: expect.objectContaining({
           origin: 'preference_facet',
           dimension: 'intent',

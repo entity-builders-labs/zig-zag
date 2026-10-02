@@ -13,7 +13,8 @@ import {
   readPersistedClassification,
 } from './experience-classification.service';
 import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
-import { PreferenceFacetDeficit } from '../interfaces/experience-acquisition-plan.interface';
+import { GeographicIntentDeficit } from '../interfaces/geographic-validation-authorization.interface';
+import { ownedIntentGrant } from '../utils/geographic-validation-authorization.util';
 import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
 import {
   ExperienceValidationScope,
@@ -41,7 +42,6 @@ export interface AreaRouteWalkAcquisitionInput {
    * and filters out 'venue'/'unknown' anchors before calling.
    */
   anchor: ResolvedAnchor;
-  intentKey: 'walk' | 'route_like';
   /** .latitude/.longitude/.radiusMeters feed the tourism-route identity
    * check (mode C) when the canonical ROUTE does not resolve. */
   destination: ExperienceDiscoveryScope;
@@ -49,10 +49,11 @@ export interface AreaRouteWalkAcquisitionInput {
   destinationPoint?: Coordinates;
   geographicScope?: GeographicScope;
   executionLedger?: AcquisitionExecutionLedger;
-  [key: string]: unknown;
-  /** The canonical facet deficit this call is acquiring for -- routed
-   * straight into the plan, never recomputed from a candidate pool. */
-  deficit: PreferenceFacetDeficit;
+  /** The canonical walk/route_like deficit this work unit exclusively owns
+   * -- routed straight into the plan, never recomputed from a candidate
+   * pool. Its key is the requested intent and the ONLY source of this
+   * unit's geographic grant. */
+  deficit: GeographicIntentDeficit;
   semanticQuery?: string;
 }
 
@@ -164,7 +165,7 @@ export class AreaRouteWalkAcquisitionService {
       (input.anchor.status === 'resolved' && input.anchor.kind === 'route') ||
       (input.anchor.status === 'unresolved' &&
         input.anchor.usage === 'named_path');
-    const facet = normalizeWizardFacet('intent', input.intentKey);
+    const facet = normalizeWizardFacet('intent', input.deficit.key);
 
     // Resolve ONCE per call -- reused by the warm check, the
     // validationScope passed into acquisition/materialization, AND the
@@ -240,11 +241,13 @@ export class AreaRouteWalkAcquisitionService {
     > => {
       if (isAreaAnchor) {
         if (!resolution.resolved) return [];
+        // Reuse of a persisted MULTI-component walk/route for this unit's
+        // owned walk/route_like deficit: anchored membership, the same
+        // policy the unit's grant authorizes for its own admitted
+        // multi-component candidates.
         return this.catalog.findVerifiedMultiComponentInArea(
           resolution.geoEntityId,
-          input.intentKey === 'walk' || input.intentKey === 'route_like'
-            ? 'AREA_ANCHORED_ROUTE'
-            : 'AREA_CONTAINED',
+          'AREA_ANCHORED_ROUTE',
         );
       }
       if (isRouteAnchor) {
@@ -525,8 +528,10 @@ export class AreaRouteWalkAcquisitionService {
         destinationName: input.destination.destinationName,
         destinationCountryCode: input.destinationCountryCode,
         geographicScope: input.geographicScope,
+        // This unit exclusively owns `input.deficit`: its grant authorizes
+        // only its own multi-component admitted candidates.
+        geographicGrant: ownedIntentGrant('AREA_ROUTE_WALK', input.deficit),
         validationScope,
-        validationIntent: input.intentKey,
         entityResolutionScope,
       },
     );

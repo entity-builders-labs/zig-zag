@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
 import { GeoEntityKind } from '@prisma/client';
 import {
   OsmLookupResult,
@@ -232,7 +233,9 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
         destinationCountryCode: 'AR',
         geographicScope: DESTINATION,
         entityResolutionScope: SAN_TELMO_ANCHOR,
-        candidates: [routeCandidate('Defensa Street')],
+        candidates: withDefaultGeographicAuthorization([
+          routeCandidate('Defensa Street'),
+        ]),
       } as any);
 
       // One targeted lookup per bounded retrieval variant, nothing else.
@@ -310,7 +313,9 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: DESTINATION,
-        candidates: [routeCandidate('Defensa')],
+        candidates: withDefaultGeographicAuthorization([
+          routeCandidate('Defensa'),
+        ]),
       } as any);
 
       expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();
@@ -332,7 +337,9 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: DESTINATION,
-        candidates: [routeCandidate('Defensa')],
+        candidates: withDefaultGeographicAuthorization([
+          routeCandidate('Defensa'),
+        ]),
       } as any);
 
       expect(resolvedEntity(result)).toMatchObject({
@@ -382,7 +389,9 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: DESTINATION,
-        candidates: [routeCandidate('Defensa')],
+        candidates: withDefaultGeographicAuthorization([
+          routeCandidate('Defensa'),
+        ]),
       } as any);
 
       expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();
@@ -406,7 +415,9 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: DESTINATION,
-        candidates: [routeCandidate('Defensa')],
+        candidates: withDefaultGeographicAuthorization([
+          routeCandidate('Defensa'),
+        ]),
       } as any);
 
       const targeted = componentAudit(result).attempts.find(
@@ -449,7 +460,9 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
         destinationName: 'Buenos Aires',
         geographicScope: DESTINATION,
         entityResolutionScope: SAN_TELMO_ANCHOR,
-        candidates: [routeCandidate('Defensa Street')],
+        candidates: withDefaultGeographicAuthorization([
+          routeCandidate('Defensa Street'),
+        ]),
       } as any);
 
       // Bounded exact lookups, one per retrieval variant, over the
@@ -498,7 +511,9 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: DESTINATION,
-        candidates: [routeCandidate('Pasaje San Lorenzo')],
+        candidates: withDefaultGeographicAuthorization([
+          routeCandidate('Pasaje San Lorenzo'),
+        ]),
       } as any);
 
       expect(osmPlaces.lookupHighwaysByName).toHaveBeenCalled();
@@ -534,7 +549,9 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: DESTINATION,
-        candidates: [routeCandidate('Defensa')],
+        candidates: withDefaultGeographicAuthorization([
+          routeCandidate('Defensa'),
+        ]),
       } as any);
 
       expect(osmPlaces.lookupHighwaysByName).toHaveBeenCalled();
@@ -585,7 +602,9 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
         destinationName: 'Buenos Aires',
         destinationCountryCode: 'AR',
         geographicScope: DESTINATION,
-        candidates: [areaCandidate('San Martín')],
+        candidates: withDefaultGeographicAuthorization([
+          areaCandidate('San Martín'),
+        ]),
         evidence: [{ key: 'ev-1', snippet: 'Buenos Aires walk' }],
       } as any);
 
@@ -613,7 +632,9 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
         destinationName: 'Buenos Aires',
         destinationCountryCode: 'AR',
         geographicScope: DESTINATION,
-        candidates: [areaCandidate('San Martín')],
+        candidates: withDefaultGeographicAuthorization([
+          areaCandidate('San Martín'),
+        ]),
         evidence: [{ key: 'ev-1', snippet: 'Buenos Aires walk' }],
       } as any);
 
@@ -636,7 +657,9 @@ describe('ExperienceProposalResolverService -- Stage 3 ROUTE/AREA cutover', () =
           longitude: -58.37,
           radiusMeters: 5000,
         },
-        candidates: [areaCandidate('San Martín')],
+        candidates: withDefaultGeographicAuthorization([
+          areaCandidate('San Martín'),
+        ]),
         evidence: [{ key: 'ev-1', snippet: 'Buenos Aires walk' }],
       } as any);
 

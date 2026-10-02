@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
 import { GeoEntityKind } from '@prisma/client';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { ExperienceGeographicValidationResult } from '../interfaces/experience-resolution.interface';
@@ -102,7 +103,7 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidate()],
+      candidates: withDefaultGeographicAuthorization([candidate()]),
     });
 
     expect(osmPlaces.lookupPoisWithin).toHaveBeenCalledWith(boundary);
@@ -110,7 +111,7 @@ describe('ExperienceProposalResolverService', () => {
       expect.objectContaining({ status: 'accepted' }),
       boundary,
       undefined,
-      undefined,
+      { kind: 'DEFAULT' },
       { kind: 'AREA_BOUNDARY', boundary },
     );
     expect(result.acceptedCount).toBe(1);
@@ -184,7 +185,7 @@ describe('ExperienceProposalResolverService', () => {
         longitude: -58.3631,
         radiusMeters: 1200,
       },
-      candidates: [routeCandidate],
+      candidates: withDefaultGeographicAuthorization([routeCandidate]),
     });
 
     expect(osmPlaces.lookupHighwaysByName).toHaveBeenCalledWith({
@@ -289,7 +290,7 @@ describe('ExperienceProposalResolverService', () => {
         kind: 'AREA_BOUNDARY',
         boundary: { ...boundary, name: 'Recoleta' },
       },
-      candidates: [twoHintCandidate],
+      candidates: withDefaultGeographicAuthorization([twoHintCandidate]),
     });
 
     expect(result.acceptedCount).toBe(1);
@@ -343,7 +344,7 @@ describe('ExperienceProposalResolverService', () => {
 
     await service.resolve({
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [withTraits],
+      candidates: withDefaultGeographicAuthorization([withTraits]),
     });
 
     expect(catalog.resolveOrCreateTraitDefinitions).toHaveBeenCalledWith([
@@ -431,7 +432,7 @@ describe('ExperienceProposalResolverService', () => {
 
     await service.resolve({
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [twoStopCandidate],
+      candidates: withDefaultGeographicAuthorization([twoStopCandidate]),
     });
 
     expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
@@ -520,7 +521,7 @@ describe('ExperienceProposalResolverService', () => {
 
     await service.resolve({
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [orderedCandidate],
+      candidates: withDefaultGeographicAuthorization([orderedCandidate]),
     });
 
     expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
@@ -592,7 +593,9 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidate('Tigre Delta day trip', 'Tigre', ['day_trip'])],
+      candidates: withDefaultGeographicAuthorization([
+        candidate('Tigre Delta day trip', 'Tigre', ['day_trip']),
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -689,13 +692,13 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'San Juan, Argentina',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [
+      candidates: withDefaultGeographicAuthorization([
         candidate(
           'Ischigualasto Provincial Park - Valle de la Luna Full-Day Tour',
           'Ischigualasto Provincial Park',
           ['day_trip'],
         ),
-      ],
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -766,7 +769,9 @@ describe('ExperienceProposalResolverService', () => {
       destinationName: 'San Juan, Argentina',
       destinationCountryCode: 'AR',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidate('Cerro Alcázar hike', 'Cerro Alcázar', ['walk'])],
+      candidates: withDefaultGeographicAuthorization([
+        candidate('Cerro Alcázar hike', 'Cerro Alcázar', ['walk']),
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -871,13 +876,13 @@ describe('ExperienceProposalResolverService', () => {
       destinationName: 'San Juan, Argentina',
       destinationCountryCode: 'AR',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary: sanJuanBoundary },
-      candidates: [
+      candidates: withDefaultGeographicAuthorization([
         candidate(
           'Catedral San Juan Bautista tour',
           'Catedral San Juan Bautista',
           ['visit'],
         ),
-      ],
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -982,13 +987,13 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'San Juan, Argentina',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary: sanJuanBoundary },
-      candidates: [
+      candidates: withDefaultGeographicAuthorization([
         candidate(
           'Catedral San Juan Bautista tour',
           'Catedral San Juan Bautista',
           ['visit'],
         ),
-      ],
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -1075,7 +1080,9 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires, Argentina',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidate('Café Tortoni visit', 'Café Tortoni', ['visit'])],
+      candidates: withDefaultGeographicAuthorization([
+        candidate('Café Tortoni visit', 'Café Tortoni', ['visit']),
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -1160,7 +1167,9 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires, Argentina',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidate('Café Tortoni visit', 'Café Tortoni', ['visit'])],
+      candidates: withDefaultGeographicAuthorization([
+        candidate('Café Tortoni visit', 'Café Tortoni', ['visit']),
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -1249,7 +1258,9 @@ describe('ExperienceProposalResolverService', () => {
           },
         },
       },
-      candidates: [candidate('Café Tortoni visit', 'Café Tortoni', ['visit'])],
+      candidates: withDefaultGeographicAuthorization([
+        candidate('Café Tortoni visit', 'Café Tortoni', ['visit']),
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -1286,9 +1297,9 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'San Juan, Argentina',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [
+      candidates: withDefaultGeographicAuthorization([
         candidate('Ghost Cathedral tour', 'Ghost Cathedral', ['visit']),
-      ],
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -1349,7 +1360,9 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'San Juan, Argentina',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidate('Visit Casa Vieja', 'Casa Vieja')],
+      candidates: withDefaultGeographicAuthorization([
+        candidate('Visit Casa Vieja', 'Casa Vieja'),
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -1393,7 +1406,9 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidate('Visit Eiffel Tower', 'Eiffel Tower')],
+      candidates: withDefaultGeographicAuthorization([
+        candidate('Visit Eiffel Tower', 'Eiffel Tower'),
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -1416,7 +1431,10 @@ describe('ExperienceProposalResolverService', () => {
       {} as any,
     );
     await expect(
-      service.resolve({ candidates: [], geographicScope: undefined }),
+      service.resolve({
+        candidates: withDefaultGeographicAuthorization([]),
+        geographicScope: undefined,
+      }),
     ).rejects.toThrow('Experience resolution requires a geographic scope');
   });
 
@@ -1440,7 +1458,7 @@ describe('ExperienceProposalResolverService', () => {
         longitude: -58.4,
         radiusMeters: 1200,
       },
-      candidates: [],
+      candidates: withDefaultGeographicAuthorization([]),
     });
 
     expect(result.acceptedCount).toBe(0);
@@ -1500,7 +1518,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidate()],
+      candidates: withDefaultGeographicAuthorization([candidate()]),
     });
 
     expect(result.acceptedCount).toBe(0);
@@ -1544,7 +1562,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [
+      candidates: withDefaultGeographicAuthorization([
         {
           ...candidate('Defensa Walk', 'Defensa'),
           componentHints: [
@@ -1557,7 +1575,7 @@ describe('ExperienceProposalResolverService', () => {
             },
           ],
         },
-      ],
+      ]),
     });
 
     const attempts =
@@ -1595,7 +1613,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [
+      candidates: withDefaultGeographicAuthorization([
         {
           ...candidate('Museum Walk', 'Museum'),
           componentHints: [
@@ -1608,7 +1626,7 @@ describe('ExperienceProposalResolverService', () => {
             },
           ],
         },
-      ],
+      ]),
     });
 
     const attempts =
@@ -1687,7 +1705,7 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           {
             ...candidate('San Telmo Walk', 'San Telmo'),
             componentHints: [
@@ -1700,7 +1718,7 @@ describe('ExperienceProposalResolverService', () => {
               },
             ],
           },
-        ],
+        ]),
         evidence: [
           {
             key: 'ev-1',
@@ -1776,7 +1794,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [areaCandidate],
+      candidates: withDefaultGeographicAuthorization([areaCandidate]),
     });
 
     expect(result.acceptedCount).toBe(1);
@@ -1865,7 +1883,7 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [areaCandidate],
+      candidates: withDefaultGeographicAuthorization([areaCandidate]),
       evidence: [
         {
           key: 'ev-1',
@@ -1964,7 +1982,7 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [areaCandidate],
+      candidates: withDefaultGeographicAuthorization([areaCandidate]),
       evidence: [
         {
           key: 'ev-1',
@@ -2064,7 +2082,9 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidateWithPlaceMisclassification],
+      candidates: withDefaultGeographicAuthorization([
+        candidateWithPlaceMisclassification,
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -2184,7 +2204,7 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidateWithLocalDecoy],
+      candidates: withDefaultGeographicAuthorization([candidateWithLocalDecoy]),
       evidence: [
         {
           key: 'ev-1',
@@ -2274,7 +2294,9 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidateWithAreaMisclassification],
+      candidates: withDefaultGeographicAuthorization([
+        candidateWithAreaMisclassification,
+      ]),
       evidence: [
         {
           key: 'ev-1',
@@ -2388,7 +2410,7 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [areaCandidate],
+      candidates: withDefaultGeographicAuthorization([areaCandidate]),
       evidence: [
         {
           key: 'ev-1',
@@ -2453,7 +2475,7 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           {
             name: 'Too Broad Walk',
             themes: ['history'],
@@ -2471,7 +2493,7 @@ describe('ExperienceProposalResolverService', () => {
               },
             ],
           },
-        ],
+        ]),
         evidence: [
           {
             key: 'ev-1',
@@ -2517,7 +2539,7 @@ describe('ExperienceProposalResolverService', () => {
 
     const result = await service.resolve({
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [candidate()],
+      candidates: withDefaultGeographicAuthorization([candidate()]),
     });
 
     expect(result.acceptedCount).toBe(0);
@@ -2618,7 +2640,10 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidateA, candidateB],
+        candidates: withDefaultGeographicAuthorization([
+          candidateA,
+          candidateB,
+        ]),
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
       });
 
@@ -2737,7 +2762,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [walkCandidate],
+        candidates: withDefaultGeographicAuthorization([walkCandidate]),
       });
 
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
@@ -2805,7 +2830,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [dedupeCandidate],
+        candidates: withDefaultGeographicAuthorization([dedupeCandidate]),
       });
 
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
@@ -2870,7 +2895,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [dedupeCandidate],
+        candidates: withDefaultGeographicAuthorization([dedupeCandidate]),
       });
 
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
@@ -2935,7 +2960,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [dedupeCandidate],
+        candidates: withDefaultGeographicAuthorization([dedupeCandidate]),
       });
 
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
@@ -2992,7 +3017,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [rated],
+        candidates: withDefaultGeographicAuthorization([rated]),
       });
 
       // 4.6 with 900 reviews (well past the confidence-saturation cap) is
@@ -3035,7 +3060,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [unrated],
+        candidates: withDefaultGeographicAuthorization([unrated]),
       });
 
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
@@ -3164,7 +3189,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [threeComponentWalk],
+        candidates: withDefaultGeographicAuthorization([threeComponentWalk]),
       });
 
       // Batched: exactly one call, for the unique QIDs -- never one
@@ -3207,7 +3232,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [threeComponentWalk],
+        candidates: withDefaultGeographicAuthorization([threeComponentWalk]),
       });
 
       // Zero real QIDs collected -> never even calls the Wikidata API.
@@ -3248,7 +3273,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [threeComponentWalk],
+        candidates: withDefaultGeographicAuthorization([threeComponentWalk]),
       });
 
       expect(result.acceptedCount).toBe(1);
@@ -3287,7 +3312,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [threeComponentWalk],
+        candidates: withDefaultGeographicAuthorization([threeComponentWalk]),
       });
 
       const expectedQualityScore = computeQualityScore({
@@ -3386,7 +3411,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [sameEntityCandidate],
+        candidates: withDefaultGeographicAuthorization([sameEntityCandidate]),
       });
 
       // Only 2 distinct real components -> Q100's count contributes once.
@@ -3445,7 +3470,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate()],
+        candidates: withDefaultGeographicAuthorization([candidate()]),
       });
 
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
@@ -3497,7 +3522,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate()],
+        candidates: withDefaultGeographicAuthorization([candidate()]),
       });
 
       expect(result.acceptedCount).toBe(1);
@@ -3557,7 +3582,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Recoleta Walk', 'Recoleta Cemetery')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Recoleta Walk', 'Recoleta Cemetery'),
+        ]),
       });
 
       const rejected = result.entityResolution.resolved[0];
@@ -3630,7 +3657,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Recoleta Walk', 'Recoleta Cemetery')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Recoleta Walk', 'Recoleta Cemetery'),
+        ]),
       });
 
       const rejected = result.entityResolution.resolved[0];
@@ -3696,9 +3725,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           candidate('Museum Latin American', 'Museum Latin American'),
-        ],
+        ]),
       });
 
       expect(wikidata.findNearbyPlaces).toHaveBeenCalledWith(
@@ -3741,7 +3770,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('San Ignacio Church', 'San Ignacio Church')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('San Ignacio Church', 'San Ignacio Church'),
+        ]),
       });
 
       expect(result.acceptedCount).toBe(0);
@@ -3786,7 +3817,9 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('San Ignacio Church', 'San Ignacio Church')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('San Ignacio Church', 'San Ignacio Church'),
+        ]),
         evidence: [
           {
             key: 'ev-1',
@@ -3844,7 +3877,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('San Ignacio Church', 'San Ignacio Church')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('San Ignacio Church', 'San Ignacio Church'),
+        ]),
       });
 
       expect(result.acceptedCount).toBe(0);
@@ -3908,7 +3943,9 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Visit Some Place', 'Some Place')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Visit Some Place', 'Some Place'),
+        ]),
         evidence: [
           {
             key: 'ev-1',
@@ -3970,7 +4007,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Visit Plaza de Mayo', 'Plaza de Mayo')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Visit Plaza de Mayo', 'Plaza de Mayo'),
+        ]),
       });
 
       expect(result.acceptedCount).toBe(0);
@@ -4020,7 +4059,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Visit Plaza de Mayo', 'Plaza de Mayo')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Visit Plaza de Mayo', 'Plaza de Mayo'),
+        ]),
       });
 
       expect(result.acceptedCount).toBe(1);
@@ -4082,7 +4123,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Visit Plaza de Mayo', 'Plaza de Mayo')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Visit Plaza de Mayo', 'Plaza de Mayo'),
+        ]),
       });
 
       // matchOsmCandidateByName's exact branch picks the FIRST exact match
@@ -4144,7 +4187,9 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Visit Plaza de Mayo', 'Plaza de Mayo')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Visit Plaza de Mayo', 'Plaza de Mayo'),
+        ]),
         evidence: [
           {
             key: 'ev-1',
@@ -4205,7 +4250,9 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Visit Plaza de Mayo', 'Plaza de Mayo')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Visit Plaza de Mayo', 'Plaza de Mayo'),
+        ]),
         evidence: [
           {
             key: 'ev-1',
@@ -4286,7 +4333,7 @@ describe('ExperienceProposalResolverService', () => {
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates: [areaCandidate],
+      candidates: withDefaultGeographicAuthorization([areaCandidate]),
       evidence: [
         {
           key: 'ev-1',
@@ -4365,9 +4412,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           candidate('Museum Latin American', 'Museum Latin American'),
-        ],
+        ]),
       });
 
       expect(wikidata.getEntitySummaries).toHaveBeenCalledWith(['Q1808336']);
@@ -4433,7 +4480,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('San Telmo Market', 'SAN TELMO MARKET')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('San Telmo Market', 'SAN TELMO MARKET'),
+        ]),
       });
 
       expect(result.acceptedCount).toBe(1);
@@ -4498,7 +4547,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Recoleta Walk', 'Recoleta Cemetery')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Recoleta Walk', 'Recoleta Cemetery'),
+        ]),
       });
 
       expect(wikidata.getEntitySummaries).toHaveBeenCalledWith(['Q999']);
@@ -4562,9 +4613,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           candidate('Museum Latin American', 'Museum Latin American'),
-        ],
+        ]),
       });
 
       expect(wikidata.getEntitySummaries).toHaveBeenCalledWith(['Q99999999']);
@@ -4607,9 +4658,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           candidate('Museum Latin American', 'Museum Latin American'),
-        ],
+        ]),
       });
 
       expect(result.acceptedCount).toBe(0);
@@ -4667,9 +4718,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           candidate('Museum Latin American', 'Museum Latin American'),
-        ],
+        ]),
       });
 
       expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
@@ -4741,7 +4792,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Recoleta Walk', 'Recoleta Cemetery')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Recoleta Walk', 'Recoleta Cemetery'),
+        ]),
       });
 
       expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
@@ -4825,7 +4878,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [museumCandidate],
+        candidates: withDefaultGeographicAuthorization([museumCandidate]),
         observations: [
           {
             provider: 'wikivoyage',
@@ -4900,7 +4953,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [museumCandidate],
+        candidates: withDefaultGeographicAuthorization([museumCandidate]),
         observations: [
           {
             provider: 'wikivoyage',
@@ -4969,7 +5022,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [recoletaCandidate],
+        candidates: withDefaultGeographicAuthorization([recoletaCandidate]),
         observations: [
           {
             provider: 'wikivoyage',
@@ -5048,7 +5101,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [museumCandidate],
+        candidates: withDefaultGeographicAuthorization([museumCandidate]),
         // No `observations` field at all.
       });
 
@@ -5110,7 +5163,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('San Telmo Market', 'San Telmo Market')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('San Telmo Market', 'San Telmo Market'),
+        ]),
       });
 
       // Golden alias case 1: primary name MUST NOT equal hint.
@@ -5172,12 +5227,12 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           candidate(
             'Catedral Metropolitana de Buenos Aires',
             'Catedral Metropolitana de Buenos Aires',
           ),
-        ],
+        ]),
       });
 
       // Golden alias case 2: primary name MUST NOT equal hint.
@@ -5238,9 +5293,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           candidate('Museum Latin American', 'Museum Latin American'),
-        ],
+        ]),
       });
 
       expect(wikidata.findNearbyPlaces).toHaveBeenCalled();
@@ -5299,7 +5354,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Example Museum', hintName)],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Example Museum', hintName),
+        ]),
       });
 
       // Two alias-matching candidates -> declaredAlias = MULTIPLE -> AMBIGUOUS.
@@ -5393,7 +5450,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [withAddressHint],
+        candidates: withDefaultGeographicAuthorization([withAddressHint]),
       });
 
       expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
@@ -5443,7 +5500,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate()],
+        candidates: withDefaultGeographicAuthorization([candidate()]),
       });
 
       expect(result.acceptedCount).toBe(1);
@@ -5523,9 +5580,9 @@ describe('ExperienceProposalResolverService', () => {
           kind: 'AREA_BOUNDARY',
           boundary: narrowBoundary,
         },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           candidate('San Telmo Market Visit', 'Mercado de San Telmo'),
-        ],
+        ]),
         evidence: [{ key: 'ev-1', source: 'test', title: 'T', snippet: 'S' }],
       });
 
@@ -5539,7 +5596,7 @@ describe('ExperienceProposalResolverService', () => {
         expect.anything(),
         wideBoundary,
         undefined,
-        undefined,
+        { kind: 'DEFAULT' },
         expect.objectContaining({ boundary: wideBoundary }),
       );
     });
@@ -5581,7 +5638,7 @@ describe('ExperienceProposalResolverService', () => {
       // use a local street pool at all (targeted route acquisition).
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary: boundary2 },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           {
             name: 'Mixed Walk',
             themes: ['culture'],
@@ -5599,7 +5656,7 @@ describe('ExperienceProposalResolverService', () => {
             evidenceKeys: ['ev-1'],
             shortReason: 'Venue hint (ROUTE no longer uses a local pool)',
           },
-        ],
+        ]),
         evidence: [],
       });
 
@@ -5688,7 +5745,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [webCandidate],
+        candidates: withDefaultGeographicAuthorization([webCandidate]),
         observations: [zanjonObservation],
       });
 
@@ -5760,7 +5817,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [webCandidate],
+        candidates: withDefaultGeographicAuthorization([webCandidate]),
         observations: [zanjonObservation],
       });
 
@@ -5824,7 +5881,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [webCandidate],
+        candidates: withDefaultGeographicAuthorization([webCandidate]),
         observations: [zanjonObservation, secondObservation],
       });
 
@@ -5898,7 +5955,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [webCandidate],
+        candidates: withDefaultGeographicAuthorization([webCandidate]),
         observations: [],
       });
 
@@ -5959,7 +6016,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [webCandidate],
+        candidates: withDefaultGeographicAuthorization([webCandidate]),
         observations: [farAwayObservation],
       });
 
@@ -6017,7 +6074,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [webCandidate],
+        candidates: withDefaultGeographicAuthorization([webCandidate]),
         observations: [zanjonObservation],
       });
 
@@ -6077,7 +6134,7 @@ describe('ExperienceProposalResolverService', () => {
 
       await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [webCandidate],
+        candidates: withDefaultGeographicAuthorization([webCandidate]),
         observations: [geoapifyObservation],
       });
 
@@ -6147,7 +6204,7 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [webCandidate],
+        candidates: withDefaultGeographicAuthorization([webCandidate]),
         observations: [geoapifyObservation],
       });
 
@@ -6204,7 +6261,7 @@ describe('ExperienceProposalResolverService', () => {
 
         await service.resolve({
           geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-          candidates: [webCandidate],
+          candidates: withDefaultGeographicAuthorization([webCandidate]),
           observations: [zanjonObservation],
         });
 
@@ -6267,7 +6324,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Recoleta Cemetery', 'Recoleta Cemetery')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Recoleta Cemetery', 'Recoleta Cemetery'),
+        ]),
       });
 
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
@@ -6327,7 +6386,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Plaza de Mayo', 'Plaza de Mayo')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Plaza de Mayo', 'Plaza de Mayo'),
+        ]),
       });
 
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
@@ -6389,7 +6450,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('San Ignacio', 'San Ignacio')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('San Ignacio', 'San Ignacio'),
+        ]),
       });
 
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
@@ -6442,7 +6505,9 @@ describe('ExperienceProposalResolverService', () => {
 
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Teatro Colón', 'Teatro Colón')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Teatro Colón', 'Teatro Colón'),
+        ]),
       });
 
       expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
@@ -6499,7 +6564,9 @@ describe('ExperienceProposalResolverService', () => {
       );
       await serviceUnverified.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Historical Museum', 'Historical Museum')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Historical Museum', 'Historical Museum'),
+        ]),
       });
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
 
@@ -6525,7 +6592,9 @@ describe('ExperienceProposalResolverService', () => {
       );
       const res = await serviceVerified.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Historical Museum', 'Historical Museum')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Historical Museum', 'Historical Museum'),
+        ]),
       });
       expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
       expect(res.resolved[0].resolvedEntities[0]).toMatchObject({
@@ -6595,7 +6664,9 @@ describe('ExperienceProposalResolverService', () => {
       await serviceUnverified.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('Tigre day trip', 'Tigre', ['day_trip'])],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Tigre day trip', 'Tigre', ['day_trip']),
+        ]),
         evidence: [
           {
             key: 'ev-1',
@@ -6639,7 +6710,9 @@ describe('ExperienceProposalResolverService', () => {
           longitude: -58.3816,
           radiusMeters: 50_000,
         },
-        candidates: [candidate('Tigre day trip', 'Tigre', ['day_trip'])],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Tigre day trip', 'Tigre', ['day_trip']),
+        ]),
         evidence: [
           {
             key: 'ev-1',
@@ -6712,9 +6785,9 @@ describe('ExperienceProposalResolverService', () => {
       await serviceUnverified.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           candidate('Visit Café Tortoni', 'Café Tortoni', ['visit']),
-        ],
+        ]),
         evidence: [
           {
             key: 'ev-1',
@@ -6750,9 +6823,9 @@ describe('ExperienceProposalResolverService', () => {
       const res = await serviceVerified.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           candidate('Visit Café Tortoni', 'Café Tortoni', ['visit']),
-        ],
+        ]),
         evidence: [
           {
             key: 'ev-1',
@@ -6824,7 +6897,9 @@ describe('ExperienceProposalResolverService', () => {
       );
       await serviceUnverified.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('El Zanjón', 'El Zanjón', ['visit'])],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('El Zanjón', 'El Zanjón', ['visit']),
+        ]),
         observations: [observation],
       });
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
@@ -6852,7 +6927,9 @@ describe('ExperienceProposalResolverService', () => {
       );
       const res = await serviceVerified.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate('El Zanjón', 'El Zanjón', ['visit'])],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('El Zanjón', 'El Zanjón', ['visit']),
+        ]),
         observations: [observation],
       });
       expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
@@ -6999,7 +7076,7 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'San Telmo, Buenos Aires, Argentina',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [selfGuidedRoute],
+        candidates: withDefaultGeographicAuthorization([selfGuidedRoute]),
         evidence: [
           {
             key: 'ev-10',
@@ -7188,7 +7265,7 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'San Telmo, Buenos Aires, Argentina',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [zanjonProposal],
+        candidates: withDefaultGeographicAuthorization([zanjonProposal]),
         evidence: [
           {
             key: 'ev-4',
@@ -7367,7 +7444,7 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           {
             name: 'Real Walk',
             themes: ['culture'],
@@ -7392,7 +7469,7 @@ describe('ExperienceProposalResolverService', () => {
             evidenceKeys: ['ev-1'],
             shortReason: 'Both components already canonical in the catalog',
           },
-        ],
+        ]),
       });
 
       // No-network proof (checkpoint §10).
@@ -7490,7 +7567,9 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
-        candidates: [candidate('Plaza Dorrego Visit', 'Plaza Dorrego')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Plaza Dorrego Visit', 'Plaza Dorrego'),
+        ]),
         observations: [observation],
       });
 
@@ -7576,7 +7655,9 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
-        candidates: [candidate('Plaza Dorrego Visit', 'Plaza Dorrego')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Plaza Dorrego Visit', 'Plaza Dorrego'),
+        ]),
         observations: [observation],
       });
 
@@ -7643,7 +7724,7 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           {
             name: 'Mixed Walk',
             themes: ['culture'],
@@ -7675,7 +7756,7 @@ describe('ExperienceProposalResolverService', () => {
             evidenceKeys: ['ev-1'],
             shortReason: 'A and C already canonical; B is genuinely new',
           },
-        ],
+        ]),
       });
 
       // The shared POI pool is fetched only because B needs it, and only once.
@@ -7774,7 +7855,9 @@ describe('ExperienceProposalResolverService', () => {
       const result = await service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
-        candidates: [candidate('Ambiguous Visit', 'Plaza Ambigua')],
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Ambiguous Visit', 'Plaza Ambigua'),
+        ]),
       });
 
       const componentAudits =
@@ -7831,7 +7914,7 @@ describe('ExperienceProposalResolverService', () => {
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary: areaBoundary },
         entityResolutionScope: narrowScope,
-        candidates: [
+        candidates: withDefaultGeographicAuthorization([
           {
             ...candidate('San Telmo Walk', 'San Telmo'),
             componentHints: [
@@ -7844,7 +7927,7 @@ describe('ExperienceProposalResolverService', () => {
               },
             ],
           },
-        ],
+        ]),
       });
 
       expect(findGeoEntityCandidatesForHint).toHaveBeenCalledWith({

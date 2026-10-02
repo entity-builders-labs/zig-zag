@@ -1,3 +1,9 @@
+import {
+  NO_GEOGRAPHIC_GRANT,
+  ownedIntentGrant,
+  withDefaultGeographicAuthorization,
+} from '../utils/geographic-validation-authorization.util';
+import { geographicIntentDeficit } from '../fixtures/geographic-authorization.fixture';
 import { ExperienceAcquisitionService } from './experience-acquisition.service';
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
@@ -3249,13 +3255,16 @@ describe('ExperienceAcquisitionService', () => {
 
             const resolution = await serviceWithResolver.materializeExecution(
               resultNormal,
-              { geographicScope: { kind: 'DESTINATION_DEFAULT' } as any },
+              {
+                geographicScope: { kind: 'DESTINATION_DEFAULT' } as any,
+                geographicGrant: NO_GEOGRAPHIC_GRANT,
+              },
             );
 
             expect(mockResolver.resolve).toHaveBeenCalledTimes(1);
             // resolver received candidates, not groundedEvidence
             expect(mockResolver.resolve.mock.calls[0][0].candidates).toEqual(
-              resultNormal.candidates,
+              withDefaultGeographicAuthorization(resultNormal.candidates),
             );
             expect(resolution.resolved).toHaveLength(1);
           });
@@ -3364,7 +3373,13 @@ describe('ExperienceAcquisitionService', () => {
         });
 
         expect(proposalResolver.resolve).toHaveBeenCalledWith({
-          candidates: [mockCandidate],
+          // Nearby acquisition owns no walk/route_like deficit: DEFAULT.
+          candidates: [
+            {
+              candidate: mockCandidate,
+              geographicAuthorization: { kind: 'DEFAULT' },
+            },
+          ],
           destinationName: 'Buenos Aires',
           destinationCountryCode: 'AR',
           geographicScope: {
@@ -3706,6 +3721,7 @@ describe('ExperienceAcquisitionService', () => {
             evidence: [{ key: 'ev-1', source: 'x', snippet: 'real evidence' }],
           } as any,
           {
+            geographicGrant: NO_GEOGRAPHIC_GRANT,
             geographicScope: {
               kind: 'AREA_BOUNDARY',
               boundary: { id: 'osm:relation:1' } as any,
@@ -3762,6 +3778,7 @@ describe('ExperienceAcquisitionService', () => {
             evidence: [{ key: 'ev-1', source: 'x', snippet: 'real evidence' }],
           } as any,
           {
+            geographicGrant: NO_GEOGRAPHIC_GRANT,
             geographicScope: {
               kind: 'AREA_BOUNDARY',
               boundary: { id: 'osm:relation:1' } as any,
@@ -3784,6 +3801,7 @@ describe('ExperienceAcquisitionService', () => {
             evidence: [{ key: 'ev-1', source: 'x', snippet: 'real evidence' }],
           } as any,
           {
+            geographicGrant: NO_GEOGRAPHIC_GRANT,
             geographicScope: {
               kind: 'AREA_BOUNDARY',
               boundary: { id: 'osm:relation:1' } as any,
@@ -3809,6 +3827,7 @@ describe('ExperienceAcquisitionService', () => {
         await service.materializeExecution(
           { candidates: [], observations: [], providerResults: {} } as any,
           {
+            geographicGrant: NO_GEOGRAPHIC_GRANT,
             geographicScope: {
               kind: 'AREA_BOUNDARY',
               boundary: { id: 'osm:relation:1' } as any,
@@ -3848,12 +3867,85 @@ describe('ExperienceAcquisitionService', () => {
           {
             destinationName: 'Buenos Aires',
             entityResolutionScope: narrowScope,
+            geographicGrant: NO_GEOGRAPHIC_GRANT,
           },
         );
 
         expect(proposalResolver.resolve).toHaveBeenCalledWith(
           expect.objectContaining({ entityResolutionScope: narrowScope }),
         );
+      });
+
+      describe('candidate-scoped geographic authorization (work-unit grant)', () => {
+        const hint = (name: string) => ({
+          key: name,
+          name,
+          role: 'venue' as const,
+          expectedKind: 'PLACE' as const,
+          evidenceKeys: ['ev-1'],
+        });
+        const candidateOf = (names: string[], intents: string[] = []) => ({
+          name: names.join(' + '),
+          themes: [] as string[],
+          traits: [] as string[],
+          intents,
+          evidenceKeys: ['ev-1'],
+          shortReason: 'grounded',
+          componentHints: names.map(hint),
+        });
+        const materialize = async (grant: any, candidates: any[]) => {
+          proposalResolver.resolve.mockResolvedValue({ resolved: [] });
+          await buildService(false).materializeExecution(
+            { candidates, observations: [], providerResults: {} } as any,
+            { geographicGrant: grant },
+          );
+          return proposalResolver.resolve.mock.calls
+            .at(-1)[0]
+            .candidates.map((item: any) => item.geographicAuthorization.kind);
+        };
+
+        it('A/H: an owning route_like unit authorizes only its multi-component candidates; single places stay DEFAULT', async () => {
+          const grant = ownedIntentGrant(
+            'DEDICATED_INTENT',
+            geographicIntentDeficit('route_like'),
+          );
+          expect(
+            await materialize(grant, [
+              candidateOf(['Winery A', 'Winery B']),
+              candidateOf(['Winery C']),
+            ]),
+          ).toEqual(['ROUTE_LIKE', 'DEFAULT']);
+        });
+
+        it('J/K: AREA_ROUTE_WALK grants follow the owned deficit intent', async () => {
+          expect(
+            await materialize(
+              ownedIntentGrant(
+                'AREA_ROUTE_WALK',
+                geographicIntentDeficit('route_like'),
+              ),
+              [candidateOf(['A', 'B'])],
+            ),
+          ).toEqual(['ROUTE_LIKE']);
+          expect(
+            await materialize(
+              ownedIntentGrant(
+                'AREA_ROUTE_WALK',
+                geographicIntentDeficit('walk'),
+              ),
+              [candidateOf(['A', 'B'])],
+            ),
+          ).toEqual(['WALK']);
+        });
+
+        it('D/E/I: a unit without a grant (generic, planner capacity) leaves every candidate DEFAULT, even self-claimed route_like composites', async () => {
+          expect(
+            await materialize(NO_GEOGRAPHIC_GRANT, [
+              candidateOf(['Winery A', 'Winery B'], ['route_like']),
+              candidateOf(['Winery C'], ['walk']),
+            ]),
+          ).toEqual(['DEFAULT', 'DEFAULT']);
+        });
       });
     });
   });

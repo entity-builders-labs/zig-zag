@@ -86,3 +86,26 @@ function distancePointToSegmentMeters(
   };
   return distanceMeters(point, closest);
 }
+
+/**
+ * True only for a real, usable route geometry: a LineString with at least
+ * two positions, or a MultiLineString with at least one such line. The
+ * single owner of "is this geometry a usable canonical ROUTE line" -- used
+ * for external ROUTE scopes and for canonical ROUTE GeoEntities alike.
+ */
+export function isUsableRouteGeometry(geometry: unknown): boolean {
+  const candidate = geometry as
+    | { type?: unknown; coordinates?: unknown }
+    | null
+    | undefined;
+  if (!candidate || !Array.isArray(candidate.coordinates)) return false;
+  if (candidate.type === 'LineString') {
+    return candidate.coordinates.length >= 2;
+  }
+  if (candidate.type === 'MultiLineString') {
+    return candidate.coordinates.some(
+      (line) => Array.isArray(line) && line.length >= 2,
+    );
+  }
+  return false;
+}

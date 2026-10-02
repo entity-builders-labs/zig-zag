@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
 import { GeoEntityKind } from '@prisma/client';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
@@ -316,7 +317,7 @@ describe('Stage 4: `required` carries no geographic authority', () => {
       );
       const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates: [candidate],
+        candidates: withDefaultGeographicAuthorization([candidate]),
       });
       return { result, catalog, validateSpy };
     };

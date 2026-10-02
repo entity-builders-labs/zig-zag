@@ -1,7 +1,13 @@
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
 import { GeoEntityKind } from '@prisma/client';
 import { PlaceData } from '@integrations/google-places/interfaces/places-api.interface';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
-import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
+import {
+  ExperienceProposalResolverService,
+  PLACES_FALLBACK_BIAS_RADIUS_METERS,
+} from './experience-proposal-resolver.service';
+import { routeScaleDestinationRadius } from '../utils/destination-compatibility.policy';
+import { ownedAuthorization } from '../fixtures/geographic-authorization.fixture';
 import { CatalogGeoEntityCandidate } from './experience-catalog.service';
 
 /**
@@ -209,7 +215,7 @@ const resolveHint = (
     destinationName: 'Buenos Aires, Argentina',
     destinationCountryCode: 'AR',
     geographicScope: DESTINATION,
-    candidates: [placeCandidate(hintName)],
+    candidates: withDefaultGeographicAuthorization([placeCandidate(hintName)]),
     evidence: [
       {
         key: 'ev-1',
@@ -758,7 +764,9 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
         destinationName: 'Buenos Aires, Argentina',
         destinationCountryCode: 'AR',
         geographicScope: DESTINATION,
-        candidates: [placeCandidate('Farmacia la Estrella')],
+        candidates: withDefaultGeographicAuthorization([
+          placeCandidate('Farmacia la Estrella'),
+        ]),
         evidence: [
           {
             key: 'ev-1',
@@ -1150,5 +1158,260 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
       expectNoProviderCall(built);
       expect(built.catalog.rememberVerifiedHintName).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('ExperienceProposalResolverService -- candidate-scoped geographic authorization (matrix L/M)', () => {
+  const twoVenueCandidate = (name: string, hintNames: [string, string]) => ({
+    name,
+    themes: ['wine'],
+    traits: [] as string[],
+    intents: [] as string[],
+    componentHints: hintNames.map((hintName, index) => ({
+      key: `${name}-${index}`,
+      name: hintName,
+      role: 'venue' as const,
+      expectedKind: 'PLACE' as const,
+      evidenceKeys: ['ev-1'],
+    })),
+    evidenceKeys: ['ev-1'],
+    shortReason: 'source-backed multi-stop experience',
+  });
+  const evidence = (names: string[]) => [
+    {
+      key: 'ev-1',
+      source: 'web',
+      title: 'Buenos Aires itinerary',
+      snippet: `${names.join(', ')} in Buenos Aires`,
+    },
+  ];
+  const routeRadius = routeScaleDestinationRadius(DESTINATION)!;
+  const searchCircleFor = (
+    placesApi: ReturnType<typeof build>['placesApi'],
+    hintName: string,
+  ) =>
+    placesApi.searchText.mock.calls.find(
+      ([params]: any[]) => params.textQuery === hintName,
+    )?.[0].locationBias;
+
+  it('L: a ROUTE_LIKE-authorized candidate searches the route-scale compatibility domain; a DEFAULT candidate keeps the default circle (no global widening)', async () => {
+    const { service, placesApi } = build({ searchResults: [] });
+    const routeCandidate = twoVenueCandidate('Wine road', [
+      'Bodega Uno',
+      'Bodega Dos',
+    ]);
+    const defaultCandidate = placeCandidate('Farmacia la Estrella');
+
+    const result = await service.resolve({
+      destinationName: 'Buenos Aires, Argentina',
+      destinationCountryCode: 'AR',
+      geographicScope: DESTINATION,
+      candidates: [
+        {
+          candidate: routeCandidate,
+          geographicAuthorization: ownedAuthorization('route_like'),
+        },
+        {
+          candidate: defaultCandidate,
+          geographicAuthorization: { kind: 'DEFAULT' },
+        },
+      ],
+      evidence: evidence(['Bodega Uno', 'Bodega Dos', 'Farmacia la Estrella']),
+    });
+
+    expect(routeRadius.radiusMeters).toBe(80_000);
+    for (const hintName of ['Bodega Uno', 'Bodega Dos']) {
+      expect(searchCircleFor(placesApi, hintName)).toEqual({
+        center: routeRadius.center,
+        radius: routeRadius.radiusMeters,
+      });
+    }
+    expect(searchCircleFor(placesApi, 'Farmacia la Estrella')).toEqual({
+      center: expect.any(Object),
+      radius: PLACES_FALLBACK_BIAS_RADIUS_METERS,
+    });
+    expect(PLACES_FALLBACK_BIAS_RADIUS_METERS).toBe(50_000);
+
+    const scopes = result.entityResolution.forensicAudit.map((audit) =>
+      audit.componentAudits.map(
+        (component) =>
+          component.attempts.find((attempt) => attempt.strategy === 'PLACES')
+            ?.placeSearch?.searchScope?.kind,
+      ),
+    );
+    expect(scopes).toEqual([['ROUTE_SCALE', 'ROUTE_SCALE'], ['DEFAULT']]);
+  });
+
+  it('L: a place 70km out is a viable identity candidate only for a ROUTE_LIKE-authorized component', async () => {
+    // ~70km south-west of the destination centroid: outside the city
+    // polygon, inside the 80km route-scale radius.
+    const farWinery = place(
+      'geo-far-winery',
+      'Bodega Lejana',
+      -35.1,
+      -58.9,
+      'point_of_interest',
+    );
+    const resolveFar = (authorization: any) => {
+      const built = build({ searchResults: [farWinery] });
+      return built.service
+        .resolve({
+          destinationName: 'Buenos Aires, Argentina',
+          destinationCountryCode: 'AR',
+          geographicScope: DESTINATION,
+          candidates: [
+            {
+              candidate: twoVenueCandidate('Far road', [
+                'Bodega Lejana',
+                'Bodega Lejana Dos',
+              ]),
+              geographicAuthorization: authorization,
+            },
+          ],
+          evidence: evidence(['Bodega Lejana', 'Bodega Lejana Dos']),
+        })
+        .then((result) =>
+          result.entityResolution.forensicAudit[0].componentAudits[0].attempts.find(
+            (attempt) => attempt.strategy === 'PLACES',
+          ),
+        );
+    };
+
+    const asRoute = await resolveFar(ownedAuthorization('route_like'));
+    expect(asRoute?.placeSearch?.viableCount).toBe(1);
+    expect(asRoute?.candidateAcquired).toBe(true);
+    expect(asRoute?.selectedCandidate).toEqual(
+      expect.objectContaining({ latitude: -35.1, longitude: -58.9 }),
+    );
+
+    const asDefault = await resolveFar({ kind: 'DEFAULT' });
+    expect(asDefault?.placeSearch?.viableCount).toBe(0);
+    expect(asDefault?.placeSearch?.rejected).toEqual([
+      expect.objectContaining({
+        reason: 'DESTINATION_INCOMPATIBLE',
+        destinationReason: 'OUTSIDE_DESTINATION_BOUNDARY',
+      }),
+    ]);
+  });
+
+  it('M: one batch with ROUTE_LIKE, DEFAULT and WALK candidates applies each its own policy -- no batch-level leakage', async () => {
+    const { service, placesApi } = build({ searchResults: [] });
+    const a = twoVenueCandidate('A route', ['Alpha One', 'Alpha Two']);
+    const b = placeCandidate('Bravo');
+    const c = twoVenueCandidate('C walk', ['Charlie One', 'Charlie Two']);
+
+    const result = await service.resolve({
+      destinationName: 'Buenos Aires, Argentina',
+      destinationCountryCode: 'AR',
+      geographicScope: DESTINATION,
+      candidates: [
+        {
+          candidate: a,
+          geographicAuthorization: ownedAuthorization('route_like'),
+        },
+        { candidate: b, geographicAuthorization: { kind: 'DEFAULT' } },
+        {
+          candidate: c,
+          geographicAuthorization: ownedAuthorization(
+            'walk',
+            'AREA_ROUTE_WALK',
+          ),
+        },
+      ],
+      evidence: evidence([
+        'Alpha One',
+        'Alpha Two',
+        'Bravo',
+        'Charlie One',
+        'Charlie Two',
+      ]),
+    });
+
+    const radiusOf = (hintName: string) =>
+      searchCircleFor(placesApi, hintName)?.radius;
+    expect(radiusOf('Alpha One')).toBe(80_000);
+    expect(radiusOf('Alpha Two')).toBe(80_000);
+    expect(radiusOf('Bravo')).toBe(50_000);
+    // WALK never widens destination compatibility or identity search.
+    expect(radiusOf('Charlie One')).toBe(50_000);
+    expect(radiusOf('Charlie Two')).toBe(50_000);
+
+    expect(
+      result.entityResolution.forensicAudit.map(
+        (audit) => audit.geographicAuthorization.kind,
+      ),
+    ).toEqual(['ROUTE_LIKE', 'DEFAULT', 'WALK']);
+    expect(result.resolved.map((r) => r.geographicAuthorization?.kind)).toEqual(
+      ['ROUTE_LIKE', 'DEFAULT', 'WALK'],
+    );
+  });
+
+  it("M: geographic validation receives each accepted candidate's OWN authorization", async () => {
+    const { service } = build({ searchResults: [] });
+    const validator = (service as any).geographicValidator;
+    // Accept every candidate at identity time so all reach validation.
+    jest
+      .spyOn(service as any, 'resolveCandidate')
+      .mockImplementation(async (candidate: any, ...rest: any[]) => {
+        const authorization = rest[rest.length - 1];
+        return {
+          resolved: {
+            candidate,
+            status: 'accepted',
+            resolvedEntities: [],
+            rejectionReasons: [],
+          },
+          audit: {
+            candidateTraceKey: candidate.name,
+            candidateName: candidate.name,
+            candidateEvidenceKeys: [],
+            candidateHintKeys: [],
+            componentAudits: [],
+            geographicAuthorization: authorization,
+          },
+        };
+      });
+    validator.validate.mockReturnValue({
+      accepted: false,
+      rejectionReasons: ['x'],
+    });
+    const routeAuthorization = ownedAuthorization('route_like');
+    const walkAuthorization = ownedAuthorization('walk', 'AREA_ROUTE_WALK');
+
+    await service.resolve({
+      destinationName: 'Buenos Aires, Argentina',
+      geographicScope: DESTINATION,
+      candidates: [
+        {
+          candidate: twoVenueCandidate('A route', ['Alpha One', 'Alpha Two']),
+          geographicAuthorization: routeAuthorization,
+        },
+        {
+          candidate: placeCandidate('Bravo'),
+          geographicAuthorization: { kind: 'DEFAULT' },
+        },
+        {
+          candidate: twoVenueCandidate('C walk', [
+            'Charlie One',
+            'Charlie Two',
+          ]),
+          geographicAuthorization: walkAuthorization,
+        },
+      ],
+      evidence: evidence(['Alpha One', 'Bravo', 'Charlie One']),
+    });
+
+    expect(
+      validator.validate.mock.calls.map(
+        ([resolved, , , authorization]: any[]) => [
+          resolved.candidate.name,
+          authorization,
+        ],
+      ),
+    ).toEqual([
+      ['A route', routeAuthorization],
+      ['Bravo visit', { kind: 'DEFAULT' }],
+      ['C walk', walkAuthorization],
+    ]);
   });
 });

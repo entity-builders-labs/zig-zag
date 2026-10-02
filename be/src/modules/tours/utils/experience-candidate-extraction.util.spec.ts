@@ -1,3 +1,4 @@
+import { NO_GEOGRAPHIC_GRANT } from './geographic-validation-authorization.util';
 import { extractExperienceCandidates } from './experience-candidate-extraction.util';
 import { GenerationTraceRecorder } from './generation-trace-recorder.util';
 import { recordAcquisitionLifecycle } from './generation-trace/acquisition-audit';
@@ -1447,7 +1448,8 @@ describe('extractExperienceCandidates', () => {
 
     recordAcquisitionLifecycle(recorder, {
       passNumber: 1,
-      strategy: 'generic',
+      workUnit: { kind: 'GENERIC', deficits: [] },
+      geographicGrant: NO_GEOGRAPHIC_GRANT,
       plan: {
         destination: { destinationName: 'Buenos Aires' } as any,
         deficits: [],

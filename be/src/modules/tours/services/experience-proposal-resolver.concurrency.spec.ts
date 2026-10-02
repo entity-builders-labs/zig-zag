@@ -1,3 +1,4 @@
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { ExperienceGeographicValidationResult } from '../interfaces/experience-resolution.interface';
 import {
@@ -159,7 +160,7 @@ describe('ExperienceProposalResolverService — bounded candidate concurrency', 
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates,
+      candidates: withDefaultGeographicAuthorization(candidates),
     });
 
     // Peak overlap of the two candidate-level fan-outs stays bounded.
@@ -193,7 +194,7 @@ describe('ExperienceProposalResolverService — bounded candidate concurrency', 
     const result = await service.resolve({
       destinationName: 'Buenos Aires',
       geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-      candidates,
+      candidates: withDefaultGeographicAuthorization(candidates),
     });
 
     expect(result.resolved.map((r: any) => r.candidate.name)).toEqual(
@@ -222,7 +223,7 @@ describe('ExperienceProposalResolverService — bounded candidate concurrency', 
       service.resolve({
         destinationName: 'Buenos Aires',
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
-        candidates,
+        candidates: withDefaultGeographicAuthorization(candidates),
       }),
     ).rejects.toThrow('persist boom');
   });

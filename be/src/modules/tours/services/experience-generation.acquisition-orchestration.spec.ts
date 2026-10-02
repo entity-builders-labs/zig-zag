@@ -2,14 +2,26 @@ import { ExperienceGenerationService } from './experience-generation.service';
 import { GenerationTraceRecorder } from '../utils/generation-trace-recorder.util';
 import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fingerprint.util';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
-import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-plan.interface';
-import { RequestedFacet } from '../interfaces/preference-spec.interface';
 import {
-  deriveRequestValidationIntent,
-  validationIntentOf,
-} from '../utils/request-validation-intent.util';
+  AcquisitionDeficit,
+  ExperienceAcquisitionPlan,
+} from '../interfaces/experience-acquisition-plan.interface';
+import {
+  DedicatedIntentWorkUnit,
+  GenericWorkUnit,
+  partitionDeficitsIntoWorkUnits,
+  PlannerCapacityWorkUnit,
+} from '../utils/acquisition-strategy-selector.util';
+import { geographicIntentDeficit } from '../fixtures/geographic-authorization.fixture';
 
-describe('ExperienceGenerationService acquisition orchestration (request-level validationIntent propagation)', () => {
+/**
+ * Geographic authorization is owned by the acquisition work unit that
+ * produced an execution -- never derived once for the whole tour request
+ * (docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md).
+ * These cases prove the shared generic/dedicated/planner seam hands
+ * materialization exactly that unit's grant.
+ */
+describe('ExperienceGenerationService acquisition orchestration (work-unit geographic grant)', () => {
   let generationService: ExperienceGenerationService;
   let mockExperienceAcquisition: {
     executePlan: jest.Mock;
@@ -71,138 +83,160 @@ describe('ExperienceGenerationService acquisition orchestration (request-level v
     executionLedger = { executedSourcePlanFingerprints: new Set() };
   });
 
-  const facet = (dimension: string, key: string): RequestedFacet => ({
-    dimension,
-    key,
-    weight: 1,
-    source: 'wizard',
-    required: false,
-  });
-
-  // The generic partition of a route_like request: the request's own
-  // intent:route_like deficit was routed to area_route_walk, so the generic
-  // plan carries only theme:wine + intent:visit (canonical COLD #7 shape).
-  const genericPartitionPlan = () =>
-    createPlan([
-      {
-        origin: 'preference_facet',
-        dimension: 'theme',
-        key: 'wine',
-        reason: 'needed',
-      },
-      {
-        origin: 'preference_facet',
-        dimension: 'intent',
-        key: 'visit',
-        reason: 'needed',
-      },
-    ]);
+  const wine: AcquisitionDeficit = {
+    origin: 'preference_facet',
+    dimension: 'theme',
+    key: 'wine',
+    reason: 'needed',
+  };
+  const visit: AcquisitionDeficit = {
+    origin: 'preference_facet',
+    dimension: 'intent',
+    key: 'visit',
+    reason: 'needed',
+  };
 
   const execute = (
-    plan: ExperienceAcquisitionPlan,
-    facets: RequestedFacet[],
-    strategy: 'generic' | 'planner_capacity' = 'generic',
+    unit: GenericWorkUnit | DedicatedIntentWorkUnit | PlannerCapacityWorkUnit,
   ) =>
     (generationService as any).executeAndMaterializeAcquisitionPlan(
-      plan,
+      createPlan(unit.kind === 'GENERIC' ? unit.deficits : [unit.deficit]),
       1,
       {
         destinationName: 'Test Destination',
         destinationCountryCode: 'AR',
         geographicScope: dummyScope,
-        validationIntent: validationIntentOf(
-          deriveRequestValidationIntent(facets),
-        ),
       },
       traceRecorder,
       providerState,
       executionLedger,
-      strategy,
+      unit,
     );
 
-  const materializedValidationIntent = () =>
-    mockExperienceAcquisition.materializeExecution.mock.calls[0][1]
-      .validationIntent;
+  const materializedContexts = () =>
+    mockExperienceAcquisition.materializeExecution.mock.calls.map(
+      ([, context]) => context,
+    );
 
-  it('Case A: generic pass preserves request route_like although the generic plan has no route_like deficit', async () => {
-    await execute(genericPartitionPlan(), [
-      facet('theme', 'wine'),
-      facet('intent', 'visit'),
-      facet('intent', 'route_like'),
-    ]);
+  it('D: the generic wine+visit unit grants NONE although route_like is open in the same pass (COLD #7 shape)', async () => {
+    const units = partitionDeficitsIntoWorkUnits(
+      [wine, visit, geographicIntentDeficit('route_like')],
+      [],
+    );
+    const generic = units.find(
+      (unit): unit is GenericWorkUnit => unit.kind === 'GENERIC',
+    )!;
 
-    expect(mockExperienceAcquisition.materializeExecution).toHaveBeenCalledWith(
-      expect.anything(),
+    await execute(generic);
+
+    expect(materializedContexts()[0]).toEqual(
       expect.objectContaining({
         destinationName: 'Test Destination',
-        validationIntent: 'route_like',
+        geographicGrant: { kind: 'NONE' },
       }),
     );
+    expect(materializedContexts()[0]).not.toHaveProperty('validationIntent');
   });
 
-  it('Case B: generic pass preserves request walk although the generic plan has no walk deficit', async () => {
-    await execute(genericPartitionPlan(), [
-      facet('theme', 'wine'),
-      facet('intent', 'walk'),
-    ]);
+  it('A: a DEDICATED_INTENT route_like unit grants route_like from its own owned deficit', async () => {
+    const routeLike = geographicIntentDeficit('route_like');
 
-    expect(materializedValidationIntent()).toBe('walk');
+    await execute({ kind: 'DEDICATED_INTENT', deficit: routeLike });
+
+    expect(materializedContexts()[0].geographicGrant).toEqual({
+      kind: 'OWNED_INTENT',
+      intent: 'route_like',
+      ownedDeficit: routeLike,
+      workUnit: 'DEDICATED_INTENT',
+    });
   });
 
-  it('Case C: no request geographic intent yields undefined', async () => {
-    await execute(genericPartitionPlan(), [
-      facet('theme', 'wine'),
-      facet('intent', 'visit'),
-    ]);
+  it('B: a DEDICATED_INTENT walk unit grants walk from its own owned deficit', async () => {
+    const walk = geographicIntentDeficit('walk');
 
-    expect(materializedValidationIntent()).toBeUndefined();
+    await execute({ kind: 'DEDICATED_INTENT', deficit: walk });
+
+    expect(materializedContexts()[0].geographicGrant).toEqual({
+      kind: 'OWNED_INTENT',
+      intent: 'walk',
+      ownedDeficit: walk,
+      workUnit: 'DEDICATED_INTENT',
+    });
   });
 
-  it('Case D: mixed walk + route_like request fails closed to undefined', async () => {
-    await execute(genericPartitionPlan(), [
-      facet('intent', 'walk'),
-      facet('intent', 'route_like'),
-    ]);
-
-    expect(materializedValidationIntent()).toBeUndefined();
-  });
-
-  it('never re-derives intent from strategy-local plan deficits', async () => {
-    const planWithRouteDeficit = createPlan([
-      {
-        origin: 'preference_facet',
-        dimension: 'intent',
-        key: 'route_like',
-        reason: 'needed',
-      },
-    ]);
-
-    await execute(planWithRouteDeficit, [facet('theme', 'wine')]);
-
-    expect(materializedValidationIntent()).toBeUndefined();
-  });
-
-  it('Case E: the same request intent reaches materialization unchanged across acquisition strategies', async () => {
-    const facets = [facet('theme', 'wine'), facet('intent', 'route_like')];
-
-    await execute(genericPartitionPlan(), facets, 'generic');
-    await execute(
-      createPlan([
-        {
-          origin: 'global_capacity',
-          reason: 'planner residual capacity',
-          currentEligibleCount: 3,
-          requiredEligibleCount: 4,
-        },
-      ]),
-      facets,
-      'planner_capacity',
+  it('C: walk + route_like + visit execute as independent units, each with its own grant -- no MIXED_UNSUPPORTED', async () => {
+    const units = partitionDeficitsIntoWorkUnits(
+      [
+        geographicIntentDeficit('walk'),
+        geographicIntentDeficit('route_like'),
+        visit,
+      ],
+      [],
     );
 
-    const intents =
-      mockExperienceAcquisition.materializeExecution.mock.calls.map(
-        ([, context]) => context.validationIntent,
-      );
-    expect(intents).toEqual(['route_like', 'route_like']);
+    for (const unit of units) {
+      if (unit.kind === 'AREA_ROUTE_WALK') throw new Error('no anchor given');
+      await execute(unit);
+    }
+
+    expect(
+      materializedContexts().map((context) =>
+        context.geographicGrant.kind === 'NONE'
+          ? 'NONE'
+          : `${context.geographicGrant.workUnit}:${context.geographicGrant.intent}`,
+      ),
+    ).toEqual(['DEDICATED_INTENT:walk', 'DEDICATED_INTENT:route_like', 'NONE']);
+    expect(
+      mockExperienceAcquisition.executePlan.mock.calls.map(([plan]) =>
+        plan.deficits.map((deficit: AcquisitionDeficit) =>
+          deficit.origin === 'preference_facet'
+            ? `${deficit.dimension}:${deficit.key}`
+            : deficit.origin,
+        ),
+      ),
+    ).toEqual([['intent:walk'], ['intent:route_like'], ['intent:visit']]);
+  });
+
+  it('I: a PLANNER_CAPACITY unit grants NONE even when the tour requested route_like', async () => {
+    await execute({
+      kind: 'PLANNER_CAPACITY',
+      deficit: {
+        origin: 'global_capacity',
+        reason: 'planner residual capacity',
+        currentEligibleCount: 3,
+        requiredEligibleCount: 4,
+      },
+    });
+
+    expect(materializedContexts()[0].geographicGrant).toEqual({ kind: 'NONE' });
+  });
+
+  it('records each unit with its own strategy label, work unit and grant in the trace', async () => {
+    await execute({
+      kind: 'DEDICATED_INTENT',
+      deficit: geographicIntentDeficit('route_like'),
+    });
+    await execute({ kind: 'GENERIC', deficits: [wine, visit] });
+
+    const trace = traceRecorder.build({
+      canonicalRequest: {},
+      result: { status: 'COMPLETED', outcome: 'COMPLETED' },
+    } as any);
+    const passes = trace.steps.filter(
+      (step: any) => step.name === 'acquisition.pass',
+    );
+    expect(passes.map((step: any) => step.id)).toEqual([
+      'acquisition-pass-1-dedicated_intent-route-like',
+      'acquisition-pass-1-generic',
+    ]);
+    expect(passes.map((step: any) => step.facts.geographicGrant)).toEqual([
+      {
+        kind: 'OWNED_INTENT',
+        intent: 'route_like',
+        workUnit: 'DEDICATED_INTENT',
+        ownedDeficit: 'intent:route_like',
+      },
+      { kind: 'NONE' },
+    ]);
   });
 });
