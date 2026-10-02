@@ -22,7 +22,7 @@ classification contract and deterministic validation are unchanged.
 
 **Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY (native producer cutover complete; v4 legacy paths deleted; modular domain audit split complete; zero avoidable `any`).**  
 **RW3 final classification/warm-reuse gate — CLOSED / ACCEPTED.**  
-**RW4 — AUTHORIZED / NEXT GATE** (2026-10-02: stable deep-source examination [x]; persistence/WARM open — see COLD #10).
+**RW4 — AUTHORIZED / NEXT GATE** (2026-10-02: stable deep-source examination [x]; work-unit geographic authorization landed; persistence/WARM open — see COLD #11).
 
 **Active track: Gate C real-world generalization — RW4 NEXT. RW3 final live COLD/WARM acceptance passed on 2026-09-29 with sequence integrity, canonical catalog reuse, zero WARM walk acquisition/classifier calls, and Generation Trace v5 evidence.**
 
@@ -194,6 +194,132 @@ RW3-N6 resolution and live verification status:
   classifier) into the existing identity/geography validation. Do not
   interrupt the RW4 web-acquisition gate for it.
 
+
+### RW4 work-unit geographic authorization + canonical COLD #11 — 2026-10-02
+
+- Contract: `docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md`.
+- Production `4da75fac` `fix(tours): scope geographic authorization to acquisition work`:
+  - Work units (`partitionDeficitsIntoWorkUnits`): each open
+    `intent:walk`/`intent:route_like` deficit is owned by its own
+    `AREA_ROUTE_WALK` (single area/route/named-path anchor) or
+    `DEDICATED_INTENT` unit (otherwise; plan built from that ONE deficit,
+    so query, `requestedIntents`, evidence requirement and grant keep its
+    provenance); every other deficit -> one `GENERIC` unit; planner
+    backfill -> `PLANNER_CAPACITY`.
+  - Global singleton removed: `request-validation-intent.util.ts`,
+    `deriveRequestValidationIntent`, `validationIntentOf`,
+    `MIXED_UNSUPPORTED`, `requestValidationIntent` and the batch
+    `validationIntent` on resolver request/response are deleted
+    (architecture guard in `preference-first-architecture.spec.ts`).
+  - Typed `WorkUnitGeographicGrant` (`NONE | OWNED_INTENT`) and per-candidate
+    `GeographicValidationAuthorization` (`DEFAULT | WALK | ROUTE_LIKE`, the
+    latter two carrying the owning grant + `MULTI_COMPONENT_EXPERIENCE`),
+    derived only from the unit's grant x `candidateSatisfiesEvidenceRequirement`.
+    Resolver input is `AuthorizedExperienceCandidate[]`; GENERIC,
+    PLANNER_CAPACITY, nearby and venue-anchor materialization are DEFAULT;
+    single places inside owning units are DEFAULT.
+  - Canonical physical ROUTE authority: canonical route geometry and
+    route-scale thresholds require a resolved component with GeoEntity
+    `kind === ROUTE` and usable LineString/MultiLineString geometry
+    (`isUsableRouteGeometry`); the hint role `route` only confirms
+    correspondence. AREA behaviour unchanged.
+  - Identity-search scope: a ROUTE_LIKE-authorized candidate's Places
+    search uses `routeScaleDestinationRadius` (destination centroid +
+    `route.maxRadiusMeters` = 80 km, the same owner destination
+    compatibility uses); DEFAULT/WALK keep the 50 km default circle.
+  - Observability: `resolution.component_identity` step per multi-component
+    candidate (strategies, acquired?, selected candidate name/provider/
+    coordinates, identity verdict, destination compatibility, final
+    status/reason, search scope); selected-candidate coordinates added to
+    attempt audits; `acquisition.pass` facts carry work unit, grant, web
+    query, requested intents/themes, anchor names, evidence requirements.
+  - RW4 input-control gate (`request-stimulus.cjs`) reads `workUnits`; a
+    free-text `walk` owned by its own unit is valid (gate tests 12/12).
+- Deterministic matrix A–M **PASS** (selector, authorization util,
+  orchestration, acquisition materialization, ARW, resolver Places-scope L
+  and batch heterogeneity M, validator F/G, compact-trace payload gate,
+  integration 3b walk+route_like+visit/history).
+  Gates: unit 178/2308, integration 23/104 (`zigzag_test`), e2e 4/41,
+  typecheck, lint, build, `git diff --check` green.
+- Canonical COLD #11: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/cold11/`
+  (DB `zigzag_spike_rw4_canonical_cold_11`, port 4111). **CANONICAL**:
+  source HEAD = manifest sourceHead = buildCommit = trace
+  `runtime.buildCommit` = production `4da75fac260dfc0d...`;
+  `canonical: true`, `failures: []`; dist `ff4c952fa036045e...`; fresh DB;
+  `AI_CACHE_MODE=off`; preflight PASS; serper / cloudflare retrieval /
+  cloudflare `@cf/qwen/qwen3.8-27b` / geoapify. Input control **PASS**
+  (wizard `theme:wine`, `intent:route_like`, `intent:visit`; no free-text
+  walk this run). Generation `completed` in 224 s.
+- Work units (`cold11/analysis/cold11-summary.out.json`):
+  - AREA_ROUTE_WALK `intent:route_like` ("Ruta del Vino de Mendoza"),
+    grant OWNED_INTENT route_like. Pass 1 query "Ciudad de Mendoza Ruta del
+    Vino de Mendoza scenic routes tours …", `requestedIntents=[route_like]`,
+    requirement MULTI_COMPONENT_EXPERIENCE. SolSalute retrieved
+    (discoverywinemendoza retrieval failed); deep window 1/17 ->
+    `STOP_REQUIREMENT_SATISFIED`; admitted "Uco Valley Wine Tasting
+    Itinerary" (Alfa Crux, SuperUco, Bodega Azul; source support 3/3
+    `DECLARED_KEY_VERIFIED`) and "Lujan de Cuyo Wine Tasting Itinerary"
+    (A16, Ojo de Agua). Outcome `no_result / no_accepted_results`.
+    Pass 2: 0 candidates.
+  - GENERIC `theme:wine`+`intent:visit`, grant NONE. 14 candidates (all
+    single venues), 10 materialized as single-component Experiences;
+    argentina4u deep window extracted 0. No generic Uco this run.
+  - PLANNER_CAPACITY, grant NONE: 0 candidates (both deep sources failed
+    retrieval).
+  - DEDICATED_INTENT: not executed (route_like had a single anchor; no
+    walk deficit).
+- Route-like-owned lifecycle (Uco): route_like deficit -> AREA_ROUTE_WALK
+  unit -> SolSalute -> extraction -> 3/3 source support -> admitted
+  MULTI_COMPONENT -> ROUTE_LIKE authorization -> component identity:
+  every Places attempt ran with `searchScope ROUTE_SCALE / 80000`
+  (reachable only through a ROUTE_LIKE authorization):
+  - Alfa Crux: catalog, trusted observation, local OSM, Nominatim, Places
+    -> no candidate (Places 0 results at 80 km) -> `NO_OSM_MATCH`.
+  - SuperUco: same strategies -> no candidate -> `NO_OSM_MATCH`.
+  - Bodega Azul: Nominatim match `INCOMPATIBLE /
+    OUTSIDE_ROUTE_DESTINATION_RADIUS`; Places "Bodega La Azul"
+    (-33.4693, -69.2208, ~73 km) viable under route scale, identity
+    verifier `REJECTED` -> `UNCONFIRMED_MATCH` (the source links
+    bodegalaazul.com).
+  - Candidate rejected (`NO_OSM_MATCH`, `UNCONFIRMED_MATCH`); geography
+    not evaluated; not persisted.
+  - Lujan de Cuyo: Ojo de Agua VERIFIED (Nominatim); A16 -> Places "FC
+    Belgrano" REJECTED -> `INCOMPLETE_SOURCE_COMPOSITION`.
+- Observability: compact steps 4,339 / 3,238 chars (intact) while
+  `resolution.entity` (55,002 chars) was again truncated. **Defect found**:
+  the trace sanitizer's secret-key pattern (`authorization`) redacts the
+  per-candidate `geographicAuthorization` field to `[REDACTED]` in the
+  compact and geography steps; the unit grant (`geographicGrant`) and the
+  ROUTE_SCALE search scope are intact, so the ROUTE_LIKE authorization is
+  established by construction + scope, not by the redacted field. The
+  payload test projected the step but did not assert recorder
+  sanitization. Fix pending (rename the trace field), not done in this run.
+- First causal blocker = the route_like-owned AREA_ROUTE_WALK unit admits
+  the source-backed Uco composite with ROUTE_LIKE authorization and
+  route-scale identity search, but component Alfa Crux has no identity
+  candidate under the enabled sources (also SuperUco; Bodega Azul's only
+  candidate "Bodega La Azul" is rejected by identity verification).
+- Persistence: GeoEntity 0 -> 11 (PLACE), Experience 0 -> 10 (all
+  single-component, VERIFIED), ExperienceComponent 0 -> 10. No
+  multi-component Experience persisted. **WARM: NOT RUN.**
+- RW4 exit criteria:
+  - [x] stable deep-source examination
+  - [ ] real multi-component Experience persisted
+  - [ ] WARM reuses it
+  - [ ] RW4 CLOSED
+- Next blocker: component identity coverage for source-backed winery
+  components of the route_like-owned composite — Alfa Crux and SuperUco
+  produce no identity candidate under enabled sources even within the
+  route-scale Places domain, and "Bodega Azul" vs "Bodega La Azul" is
+  rejected by IdentityVerifier. Prerequisite before the next COLD: stop the
+  trace sanitizer from redacting `geographicAuthorization`.
+- Evidence: `cold11/` (`generation-trace.json`, `provenance.json`,
+  `run-manifest.json`, `request-stimulus.json`, `input-control.json`,
+  `db-before.json`, `db-after.json`, `provider-preflight.json`,
+  `provider-config.txt`, `provider-requests.ndjson`, `backend.log`,
+  `build.log`, `run.log`, `terminal-tour.json`,
+  `analysis/cold11-summary.{cjs,out.json}`). Artifacts audited against all
+  22 secret values in `.env`: 0 hits.
 
 ### RW4 progressive deep-source extraction + canonical COLD #10 — 2026-10-02
 

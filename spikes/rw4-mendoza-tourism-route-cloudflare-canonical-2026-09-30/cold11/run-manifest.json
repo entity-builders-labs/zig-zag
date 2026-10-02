@@ -1,0 +1,35 @@
+{
+  "runLabel": "rw4-mendoza-cold11",
+  "tourId": "331a6d62-f06f-400c-be39-810a44563a4a",
+  "email": "rw3-spike-rw4-mendoza-cold11-1790955501354@example.com",
+  "baseUrl": "http://localhost:4111",
+  "requestFile": "request.json",
+  "createHttpMs": 35,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 224487,
+  "startedAt": "2026-10-02T15:38:21.500Z",
+  "finishedAt": "2026-10-02T15:42:05.996Z",
+  "provenance": {
+    "sourceHead": "4da75fac260dfc0d83a90e1764ae169ba6fe9443",
+    "sourceBranch": "feat/preference-first-selection",
+    "buildCommit": "4da75fac260dfc0d83a90e1764ae169ba6fe9443",
+    "buildTimestamp": "2026-10-02T15:38:14Z",
+    "distSha256": "ff4c952fa036045e356bd33e8b799bc8163c691b93033c506d6d833a7b0fcc3d",
+    "runtimeBuildCommit": "4da75fac260dfc0d83a90e1764ae169ba6fe9443",
+    "runtimeBuildTimestamp": "2026-10-02T15:38:14Z"
+  },
+  "effectiveConfig": {
+    "groundedSearchProvider": "serper",
+    "webSourceContentProvider": "cloudflare",
+    "discoveryExtractorProvider": "cloudflare",
+    "cloudflareDiscoveryModel": "@cf/qwen/qwen3.8-27b",
+    "cloudflareDiscoveryMaxCompletionTokens": 4096,
+    "classificationProvider": "gemini",
+    "geminiClassificationModel": "gemini-3.5-flash-lite",
+    "placesProvider": "geoapify",
+    "aiCacheMode": "off"
+  }
+}

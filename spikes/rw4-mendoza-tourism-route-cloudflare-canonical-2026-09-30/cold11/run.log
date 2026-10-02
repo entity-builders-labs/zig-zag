@@ -1,0 +1,29 @@
+[rw4-mendoza-cold11] requesting dev code for rw3-spike-rw4-mendoza-cold11-1790955501354@example.com
+[rw4-mendoza-cold11] verifying
+[rw4-mendoza-cold11] POST /tours/generate-tour
+[rw4-mendoza-cold11] tourId = 331a6d62-f06f-400c-be39-810a44563a4a create http ms = 35
+[rw4-mendoza-cold11] polling until terminal (timeout 900000 ms)
+[rw4-mendoza-cold11] polling: {"elapsedMs":15,"generationStatus":"pending","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":10115,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":20268,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":30396,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":40498,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":50607,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":60706,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":70782,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":80937,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":91066,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":101203,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":111360,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":121477,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":131590,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":141669,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":151878,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":161940,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":180065,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":190151,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":200257,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":210360,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] polling: {"elapsedMs":220440,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] terminal: {"elapsedMs":224487,"generationStatus":"completed","generationMessage":"¡Listo! 4 experiencias generadas exitosamente.","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold11] done. generationStatus = completed observationTimeout = false

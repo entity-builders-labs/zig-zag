@@ -1,0 +1,30 @@
+{
+  "mode": "trace",
+  "verdict": "PASS",
+  "observed": {
+    "request": {
+      "interests": [
+        "wine"
+      ],
+      "intents": [
+        "route_like",
+        "visit"
+      ]
+    },
+    "facets": [
+      "theme:wine:wizard",
+      "intent:route_like:wizard",
+      "intent:visit:wizard"
+    ],
+    "workUnits": {
+      "owned": [
+        "AREA_ROUTE_WALK:intent:route_like"
+      ],
+      "generic": [
+        "theme:wine",
+        "intent:visit"
+      ]
+    }
+  },
+  "failures": []
+}
