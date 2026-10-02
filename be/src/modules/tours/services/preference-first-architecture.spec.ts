@@ -113,4 +113,15 @@ describe('preference-first architecture boundaries', () => {
     );
     expect(validator).toMatch(/entity\.kind === 'ROUTE'/);
   });
+
+  it('never emits a trace key the credential sanitizer would redact as domain audit state', () => {
+    // generation-trace-recorder.util.ts SECRET_KEY redacts any key containing
+    // "authorization"; COLD #11 lost the per-candidate policy that way.
+    for (const name of [
+      '../utils/generation-trace/resolution-audit.ts',
+      '../utils/generation-trace/acquisition-audit.ts',
+    ]) {
+      expect(source(name)).not.toMatch(/\b\w*[Aa]uthorization\w*\s*:/);
+    }
+  });
 });

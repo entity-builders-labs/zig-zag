@@ -335,9 +335,10 @@ describe('GenerationTrace V5 decision audit coverage', () => {
     const facts = step.facts as any;
     const audit = facts.geographicValidationAudit![0];
     expect(audit).not.toHaveProperty('validationIntent');
-    expect(audit.geographicAuthorization).toEqual({
+    expect(audit.geographicPolicy).toEqual({
       kind: 'WALK',
       workUnit: 'AREA_ROUTE_WALK',
+      ownedIntent: 'walk',
       ownedDeficit: 'intent:walk',
       admittedAs: 'MULTI_COMPONENT_EXPERIENCE',
     });

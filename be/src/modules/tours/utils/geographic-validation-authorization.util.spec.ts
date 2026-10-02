@@ -7,7 +7,7 @@ import {
   isGeographicIntentDeficit,
   NO_GEOGRAPHIC_GRANT,
   ownedIntentGrant,
-  projectGeographicAuthorization,
+  projectGeographicPolicy,
 } from './geographic-validation-authorization.util';
 import { geographicIntentDeficit } from '../fixtures/geographic-authorization.fixture';
 
@@ -50,9 +50,10 @@ describe('geographic validation authorization', () => {
       admittedAs: 'MULTI_COMPONENT_EXPERIENCE',
     });
     expect(authorizesRouteScale(authorization)).toBe(true);
-    expect(projectGeographicAuthorization(authorization)).toEqual({
+    expect(projectGeographicPolicy(authorization)).toEqual({
       kind: 'ROUTE_LIKE',
       workUnit: 'DEDICATED_INTENT',
+      ownedIntent: 'route_like',
       ownedDeficit: 'intent:route_like',
       admittedAs: 'MULTI_COMPONENT_EXPERIENCE',
     });

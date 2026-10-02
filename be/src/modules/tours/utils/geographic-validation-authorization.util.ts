@@ -4,6 +4,7 @@ import {
   AuthorizedExperienceCandidate,
   GeographicGrantingWorkUnitKind,
   GeographicIntentDeficit,
+  GeographicPolicyIntent,
   GeographicValidationAuthorization,
   OwnedIntentGeographicGrant,
   WorkUnitGeographicGrant,
@@ -117,12 +118,16 @@ export function authorizesAnchoredAreaMembership(
   return authorization.kind === 'WALK' || authorization.kind === 'ROUTE_LIKE';
 }
 
-/** Bounded trace projection: kind + owning work unit + owned deficit key. */
-export function projectGeographicAuthorization(
+/**
+ * Bounded trace projection (trace field `geographicPolicy`): kind + owning
+ * work unit + owned intent/deficit + admitted shape. Non-secret domain state.
+ */
+export function projectGeographicPolicy(
   authorization: GeographicValidationAuthorization,
 ): {
   kind: GeographicValidationAuthorization['kind'];
   workUnit?: GeographicGrantingWorkUnitKind;
+  ownedIntent?: GeographicPolicyIntent;
   ownedDeficit?: string;
   admittedAs?: 'MULTI_COMPONENT_EXPERIENCE';
 } {
@@ -130,6 +135,7 @@ export function projectGeographicAuthorization(
   return {
     kind: authorization.kind,
     workUnit: authorization.authorizedBy.workUnit,
+    ownedIntent: authorization.authorizedBy.intent,
     ownedDeficit: `intent:${authorization.authorizedBy.ownedDeficit.key}`,
     admittedAs: authorization.admittedAs,
   };

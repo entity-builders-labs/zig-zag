@@ -15,7 +15,7 @@ import {
 } from '../component-resolution-facts.util';
 import {
   DEFAULT_GEOGRAPHIC_AUTHORIZATION,
-  projectGeographicAuthorization,
+  projectGeographicPolicy,
 } from '../geographic-validation-authorization.util';
 
 export function projectEntityResolutionStepInput(
@@ -260,7 +260,10 @@ export function projectGeographicValidationStepInput(
             accepted: entry.accepted,
             status: entry.status,
             strategy: entry.strategy,
-            geographicAuthorization: projectGeographicAuthorization(
+            // Trace vocabulary: `geographicPolicy`, never a key containing
+            // "authorization" -- the trace sanitizer redacts such keys as
+            // credentials (generation-trace-recorder.util.ts SECRET_KEY).
+            geographicPolicy: projectGeographicPolicy(
               resolvedCandidate?.geographicAuthorization ??
                 DEFAULT_GEOGRAPHIC_AUTHORIZATION,
             ),
@@ -319,7 +322,7 @@ export function projectComponentIdentityStepInputs(
     .filter((audit) => audit.componentAudits.length >= 2)
     .map((audit) => {
       const resolved = resolvedByKey.get(audit.candidateTraceKey);
-      const authorization = projectGeographicAuthorization(
+      const policy = projectGeographicPolicy(
         audit.geographicAuthorization ?? DEFAULT_GEOGRAPHIC_AUTHORIZATION,
       );
       const components = audit.componentAudits.map(projectComponentIdentity);
@@ -328,7 +331,7 @@ export function projectComponentIdentityStepInputs(
       ).length;
       return {
         name: 'resolution.component_identity',
-        description: `Identidad por componente de "${audit.candidateName}": ${resolvedCount}/${components.length} resueltos (autorización geográfica ${authorization.kind})`,
+        description: `Identidad por componente de "${audit.candidateName}": ${resolvedCount}/${components.length} resueltos (política geográfica ${policy.kind})`,
         component: 'ExperienceProposalResolverService',
         decision: {
           status:
@@ -350,7 +353,7 @@ export function projectComponentIdentityStepInputs(
           },
           candidateTraceKey: audit.candidateTraceKey,
           candidateName: audit.candidateName,
-          geographicAuthorization: authorization,
+          geographicPolicy: policy,
           ...(resolved
             ? {
                 candidateStatus: resolved.status,

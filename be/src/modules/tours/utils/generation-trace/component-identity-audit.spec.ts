@@ -150,9 +150,10 @@ describe('resolution.component_identity compact audit', () => {
     );
     const facts = step.facts as any;
     expect(facts.candidateTraceKey).toBe('candidate:uco-like');
-    expect(facts.geographicAuthorization).toEqual({
+    expect(facts.geographicPolicy).toEqual({
       kind: 'ROUTE_LIKE',
       workUnit: 'DEDICATED_INTENT',
+      ownedIntent: 'route_like',
       ownedDeficit: 'intent:route_like',
       admittedAs: 'MULTI_COMPONENT_EXPERIENCE',
     });
@@ -248,5 +249,130 @@ describe('resolution.component_identity compact audit', () => {
         TRACE_LIMITS.maxStepPayloadChars / 2,
       );
     }
+  });
+
+  // COLD #11 defect: the recorder's credential sanitizer redacted any key
+  // containing "authorization", hiding the per-candidate policy. This test
+  // goes through the REAL recorder path (record -> sanitizeTraceValue ->
+  // build), not just the projection.
+  it('keeps the geographic policy and its provenance visible after the real recorder sanitization, while real secrets stay redacted', () => {
+    const recorder = new GenerationTraceRecorder();
+    const unit = {
+      kind: 'AREA_ROUTE_WALK' as const,
+      deficit: geographicIntentDeficit('route_like'),
+      anchor: {
+        rawName: 'Ruta del Vino de Mendoza',
+        usage: 'named_path' as const,
+        priority: 'must' as const,
+        status: 'unresolved' as const,
+        unresolvedReason: 'NO_CONFIDENT_ROUTE_MATCH',
+      },
+      anchorMode: 'tourism_route' as const,
+    };
+    const audit = heavyAudit(2);
+    audit.geographicAuthorization = ownedAuthorization(
+      'route_like',
+      'AREA_ROUTE_WALK',
+    );
+    const resolution: any = resolutionWith([audit]);
+    resolution.geographicValidation = {
+      results: [
+        {
+          proposalName: audit.candidateName,
+          kind: 'EXPERIENCE',
+          status: 'REJECTED',
+          accepted: false,
+          anchors: [],
+          groundedEvidenceKeys: [],
+          rejectionReasons: ['geographic_incoherence'],
+          validatorVersion: 1,
+        },
+      ],
+      acceptedCount: 0,
+      rejectedCount: 1,
+      resolved: [
+        {
+          ...resolution.resolved[0],
+          geographicAuthorization: audit.geographicAuthorization,
+        },
+      ],
+    };
+    recordAcquisitionLifecycle(recorder, {
+      passNumber: 1,
+      workUnit: unit,
+      geographicGrant: ownedIntentGrant('AREA_ROUTE_WALK', unit.deficit),
+      plan: {
+        destination: { destinationName: 'Mendoza' },
+        deficits: [unit.deficit],
+        evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+        breadth: 'focused',
+        sourcePlans: [],
+      },
+      execution: {
+        candidates: [],
+        observations: [],
+        providerResults: {},
+        webResults: [],
+      } as any,
+      resolution,
+    });
+    // Real secret-shaped fields recorded through the same recorder.
+    recorder.record({
+      name: 'provider.request',
+      description: 'secret fixture',
+      facts: {
+        apiKey: 'sk-live-should-never-leak',
+        headers: { Authorization: 'Bearer abc.def.ghi' },
+        token: 'tok-should-never-leak',
+        accessToken: 'tok-2',
+      },
+    });
+
+    const trace = recorder.build({
+      canonicalRequest: {},
+      result: { status: 'COMPLETED', outcome: 'COMPLETED' },
+    } as any);
+    const expectedPolicy = {
+      kind: 'ROUTE_LIKE',
+      workUnit: 'AREA_ROUTE_WALK',
+      ownedIntent: 'route_like',
+      ownedDeficit: 'intent:route_like',
+      admittedAs: 'MULTI_COMPONENT_EXPERIENCE',
+    };
+
+    const compact: any = trace.steps.find(
+      (step) => step.name === 'resolution.component_identity',
+    );
+    expect(compact.facts.geographicPolicy).toEqual(expectedPolicy);
+    const geography: any = trace.steps.find(
+      (step) => step.name === 'geography.validation',
+    );
+    expect(
+      geography.facts.geographicValidationAudit[0].geographicPolicy,
+    ).toEqual(expectedPolicy);
+    const pass: any = trace.steps.find(
+      (step) => step.name === 'acquisition.pass',
+    );
+    expect(pass.facts.geographicGrant).toEqual({
+      kind: 'OWNED_INTENT',
+      intent: 'route_like',
+      workUnit: 'AREA_ROUTE_WALK',
+      ownedDeficit: 'intent:route_like',
+    });
+    expect(pass.facts.workUnit.kind).toBe('AREA_ROUTE_WALK');
+
+    const secrets: any = trace.steps.find(
+      (step) => step.name === 'provider.request',
+    );
+    expect(secrets.facts.apiKey).toBe('[REDACTED]');
+    expect(secrets.facts.headers.Authorization).toBe('[REDACTED]');
+    expect(secrets.facts.token).toBe('[REDACTED]');
+    expect(secrets.facts.accessToken).toBe('[REDACTED]');
+    const serialized = JSON.stringify(trace);
+    expect(serialized).not.toContain('sk-live-should-never-leak');
+    expect(serialized).not.toContain('abc.def.ghi');
+    expect(serialized).not.toContain('tok-should-never-leak');
+    // No geographic policy field anywhere in the trace is redacted.
+    expect(serialized).not.toMatch(/"geographicPolicy":"\[REDACTED\]"/);
   });
 });
