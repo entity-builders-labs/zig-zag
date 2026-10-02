@@ -5,6 +5,9 @@ TOP="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 [ -n "$TOP" ] || { echo 'Not inside a Git worktree.' >&2; exit 1; }
 
 BRANCH="$(git branch --show-current)"
+if [ -z "$BRANCH" ] && [ -n "${GITHUB_HEAD_REF:-}" ]; then
+  BRANCH="$GITHUB_HEAD_REF"
+fi
 [ -n "$BRANCH" ] || { echo 'PROGRESS GATE FAIL: detached HEAD' >&2; exit 1; }
 
 CONTEXT="$(cd "$TOP" && scripts/agent-track context 2>/dev/null)" || {
