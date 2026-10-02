@@ -1,0 +1,66 @@
+{
+  "checkedAt": "2026-10-02",
+  "billingRegion": "NOT ESTABLISHED in this task (non-EEA Service Specific Terms analysed; if the billing address is in the EEA, the EEA terms apply instead and were not analysed)",
+  "sources": {
+    "placesPolicies": "https://developers.google.com/maps/documentation/places/web-service/policies",
+    "placeId": "https://developers.google.com/maps/documentation/places/web-service/place-id",
+    "termsOfService": "https://cloud.google.com/maps-platform/terms (page 'Last modified August 26, 2026')",
+    "serviceSpecificTerms": "https://cloud.google.com/maps-platform/terms/maps-service-terms (page 'Last modified June 10, 2026')"
+  },
+  "clauses": {
+    "ToS 3.2.3(a) No Scraping": "Customer will not ... (i) pre-fetch, index, store, reshare, or rehost Google Maps Content outside the services; ... (iii) copy and save business names, addresses, or user reviews",
+    "ToS 3.2.3(b) No Caching": "Customer will not cache Google Maps Content except as expressly permitted under the Maps Service Specific Terms",
+    "ToS 3.2.3(c)(iv) No Creating Content": "Customer will not ... use latitude/longitude values from the Places API as an input for point-in-polygon analysis",
+    "ToS 3.2.3(e) No Use With Non-Google Maps": "Customer will not ... (i) display or use Places content on a non-Google Map",
+    "SST A.3 Google ID Caching": "Customer may cache ... place_id from Places API",
+    "SST 14.1/14.2 Places API": "may use without a Google Map; must not use Google Maps Content from the Places API in conjunction with a non-Google map",
+    "SST 14.3 Caching": "may temporarily cache latitude and longitude values from the Places API for up to 30 consecutive calendar days, after which Customer must delete the cached latitude and longitude values",
+    "Place ID doc": "Place IDs are exempt from the caching restrictions in 3.2.3(b) ... recommended to refresh them if they are over 12 months old",
+    "Places policies": "Places API results displayed on a map must be shown on a Google Map; Google Maps attribution required"
+  },
+  "fields": {
+    "placeId": {
+      "persistIndefinitely": "YES (SST A.3, Place ID doc)",
+      "note": "refresh if >12 months old"
+    },
+    "displayName": {
+      "persistIndefinitely": "NO (ToS 3.2.3(a)(iii) business names; no SST caching permission)",
+      "temporaryCache": "no express permission found"
+    },
+    "formattedAddress": {
+      "persistIndefinitely": "NO (ToS 3.2.3(a)(iii) addresses)",
+      "temporaryCache": "no express permission found for Places"
+    },
+    "coordinates": {
+      "persistIndefinitely": "NO",
+      "temporaryCache": "YES, max 30 consecutive days (SST 14.3)",
+      "additionalBan": "no point-in-polygon analysis (ToS 3.2.3(c)(iv))"
+    },
+    "websiteUri": {
+      "persistIndefinitely": "NO (no SST permission; ToS 3.2.3(b))"
+    },
+    "phone": {
+      "persistIndefinitely": "NO (no SST permission)"
+    },
+    "businessStatus": {
+      "persistIndefinitely": "NO (no SST permission)"
+    },
+    "types": {
+      "persistIndefinitely": "NO (no SST permission)"
+    }
+  },
+  "zigzagCompatibility": {
+    "GeoEntity.name/latitude/longitude/geometry": "INCOMPATIBLE: persistVerifiedCandidate copies candidate canonicalName, latitude, longitude permanently (experience-proposal-resolver.service.ts upsertGeoEntityWithIdentities)",
+    "GeoEntityIdentity(google placeId)": "COMPATIBLE as an identifier",
+    "destination compatibility": "INCOMPATIBLE: evaluateDestinationCompatibility runs polygon containment on candidate coordinates (ToS 3.2.3(c)(iv))",
+    "map stack": "web renders Google Maps (@react-google-maps/api); native uses react-native-maps WITHOUT a provider prop (Apple Maps on iOS) -> Places content on a non-Google map on iOS (ToS 3.2.3(e), SST 14.2)",
+    "SourceObservation from GooglePlacesAcquisitionProvider": "copies name, address, website, ratings into observations/metadata that feed persisted Experiences"
+  },
+  "verdictForCanonicalIdentitySource": "NOT COMPATIBLE (verified contractual text)",
+  "unresolvedInterpretations": [
+    "Whether a Google place_id may be attached as a cross-reference to a GeoEntity whose canonical facts come from licensed sources, when the decision to link was made by comparing against Google name/coordinates (possible 'create content based on Google Maps Content').",
+    "Whether diagnostic, non-persisted identity comparison counts as point-in-polygon analysis under 3.2.3(c)(iv) (it uses the same code path).",
+    "EEA terms not analysed; billing address not established."
+  ],
+  "existingDeploymentFinding": "terraform/templates/backend-user-data.sh.tftpl sets PLACES_PROVIDER: \"google\" for the deployed backend, so the current production path already persists Google names/coordinates into GeoEntity/Experience rows and runs polygon checks on Places coordinates. Pre-existing; outside this task; needs a product/legal decision."
+}

@@ -195,6 +195,38 @@ RW3-N6 resolution and live verification status:
   interrupt the RW4 web-acquisition gate for it.
 
 
+### RW4 Google identity gates (legal, cost, portability) — 2026-10-02
+
+- Characterization only: no production change, no COLD/WARM, no persisted
+  diagnostic data, **0 live Google requests**. Dossier:
+  `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/google/`.
+- Provenance correction: the Alfa Crux address comes from the
+  source-LINKED page (group host), not from the SolSalute source; level-1
+  extraction had no address for `GeoEntityHint.addressHint`.
+- Legal gate FAILED for Google as a canonical identity source (verified
+  terms, non-EEA): only the Place ID may be stored; names/addresses may not
+  be saved (ToS 3.2.3(a)(iii)); coordinates max 30 days (SST 14.3) and never
+  input to point-in-polygon analysis (ToS 3.2.3(c)(iv)); no use with
+  non-Google maps (ToS 3.2.3(e), SST 14.2). Zig-Zag persists candidate
+  names/coordinates into GeoEntity, runs polygon destination compatibility
+  on them, and renders Apple Maps on iOS. Unresolved: Place-ID-only
+  cross-reference; EEA terms.
+- Pre-existing finding: the deployed backend sets `PLACES_PROVIDER:
+  "google"` (`terraform/templates/backend-user-data.sh.tftpl`). Needs a
+  product/legal decision; not changed here.
+- Cost gate: adapter `searchText` mask is Text Search Enterprise (rating,
+  priceLevel, opening hours, websiteUri); an identity-only mask would be
+  Pro. Calls skipped because the legal gate failed first and the real
+  resolver path would itself perform the prohibited polygon analysis.
+- Decision: unresolved coverage — no production implementation justified.
+  Next task: bounded offline coverage check of an openly licensed global POI
+  dataset (Overture Maps Places: CDLA-Permissive-2.0 / Apache-2.0 / CC0) for
+  the four fixtures plus out-of-domain negative controls.
+- RW4 exit criteria unchanged: [x] stable deep-source examination;
+  [ ] multi-component persisted; [ ] WARM reuse; [ ] RW4 CLOSED.
+- Next blocker: identity acquisition coverage in a licensable identity
+  source for poorly indexed entities (Alfa Crux/SuperUco class).
+
 ### RW4 trace-policy fix + winery identity characterization — 2026-10-02
 
 - Trace defect (found in COLD #11): the recorder's credential sanitizer

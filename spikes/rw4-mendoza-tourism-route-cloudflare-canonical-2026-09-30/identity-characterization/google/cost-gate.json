@@ -1,0 +1,22 @@
+{
+  "adapter": "be/src/modules/integrations/google-places/services/google-places-api.service.ts",
+  "searchTextFieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.types,places.primaryType,places.priceLevel,places.regularOpeningHours,places.businessStatus,places.websiteUri,places.primaryTypeDisplayName",
+  "searchTextSku": "Text Search Enterprise (highest tier present: rating, userRatingCount, priceLevel, regularOpeningHours, websiteUri)",
+  "placeDetailsFields": "id,nationalPhoneNumber,websiteUri,displayName,formattedAddress,businessStatus",
+  "placeDetailsSku": "Place Details Enterprise (nationalPhoneNumber, websiteUri)",
+  "resolverUsesPlaceDetailsForGoogle": "NO (declaresSourceIdentitiesInDetails=false)",
+  "minimalIdentityMask": "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.businessStatus -> Text Search Pro; websiteUri alone would raise it to Enterprise",
+  "skuSource": "https://developers.google.com/maps/documentation/places/web-service/data-fields",
+  "quotaState": "not inspected live (no Cloud console/billing access from this session); memory records a small searchText quota",
+  "budgetCeilings": {
+    "searchText": 12,
+    "getPlaceDetails": 8,
+    "searchNearby": 0
+  },
+  "liveCallsMade": {
+    "searchText": 0,
+    "getPlaceDetails": 0,
+    "searchNearby": 0
+  },
+  "reasonNoCalls": "legal gate failed first; the real resolver path would itself run point-in-polygon on Places coordinates (ToS 3.2.3(c)(iv)) and could not retain results; a coverage-only lookup would not change the recommendation"
+}

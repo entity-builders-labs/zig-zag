@@ -126,3 +126,12 @@ fix is an identity-source selection decision (product/config) and,
 separately, official-domain corroboration under the safeguards above. If it
 does not, RW4 cannot close on this Uco composite with available map data,
 and the RW4 target composite should be reconsidered (product decision).
+
+## Follow-up: Google gates (2026-10-02)
+
+See `google/assessment.md`. Google Places failed the **legal gate** for a
+canonical identity source (names/addresses may not be saved, coordinates
+max 30 days and never input to point-in-polygon analysis, no use with
+non-Google maps; only the Place ID may be stored). Zero live Google calls.
+The recommended Google coverage probe above is therefore superseded by a
+coverage check of an openly licensed POI dataset (Overture Maps Places).
