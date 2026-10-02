@@ -113,19 +113,6 @@ else
     fi
   fi
 
-  while IFS=$'\t' read -r OTHER_BRANCH _OTHER_PROGRESS OTHER_MARKER OTHER_REF; do
-    OTHER_ID="$(track_field "$OTHER_MARKER" id)"
-    [ "$OTHER_BRANCH" != "$CURRENT_BRANCH" ] || continue
-    [ -n "$OTHER_REF" ] || continue
-    PAIR_BASE="$(git merge-base HEAD "$OTHER_REF" 2>/dev/null)" || {
-      warn "peer overlap unavailable: $OTHER_ID" "no common merge base with $OTHER_REF"
-      continue
-    }
-    CURRENT_PAIR_FILES="$(git diff --name-only "$PAIR_BASE"..HEAD | sort -u)"
-    OTHER_PAIR_FILES="$(git diff --name-only "$PAIR_BASE".."$OTHER_REF" | sort -u)"
-    FILE_OVERLAP="$(comm -12 <(printf '%s\n' "$CURRENT_PAIR_FILES" | sed '/^$/d') <(printf '%s\n' "$OTHER_PAIR_FILES" | sed '/^$/d') || true)"
-    [ -z "$FILE_OVERLAP" ] || warn "file overlap: $OTHER_ID" "$(printf '%s' "$FILE_OVERLAP" | tr '\n' ' ')"
-  done < <(discover_active_track_records "$TOP")
   while IFS= read -r OVERLAP_REF; do
     [ -n "$OVERLAP_REF" ] || continue
     PAIR_BASE="$(git merge-base HEAD "$OVERLAP_REF" 2>/dev/null)" || continue

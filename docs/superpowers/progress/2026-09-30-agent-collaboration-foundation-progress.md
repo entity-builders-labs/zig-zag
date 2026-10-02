@@ -102,6 +102,17 @@ stale peer no longer hides fetched remote overlap via `discover_overlap_refs`),
 GOV-SHELLCHECK-1 (mandatory ShellCheck command passes), and
 GOV-REVIEW-BINDING-1 (duplicate-review detection requires `commit_id == SHA`).
 
+GOV-REMOTE-OVERLAP-2 is resolved: `discover_overlap_refs()` collects refs from
+both `registered_worktree_track_records` and `remote_track_records` before
+identity deduplication, preserving distinct Git tips even when declarations are
+identical. Preflight uses one canonical overlap-inspection loop. The SC2329
+info diagnostic is suppressed with a documented directive for indirect
+invocation via process substitution.
+
+The `track-progress-freshness` CI job is added to enforce progress freshness
+on every PR head. The `agent-governance` job runs preflight, ShellCheck, and
+the governance fixture suite.
+
 ## Next authorized action
 
 Monitor the contextual review workflow for PR #70's current head. Do not
