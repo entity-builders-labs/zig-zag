@@ -504,8 +504,9 @@ deficits must never be coalesced into generic plans).
 
 # Part II — Geographic scope, distance thresholds and destination relation
 
-Status: **ARCHITECTURE CORRECTION / ACTIVE CONTRACT (docs-only, not
-implemented)**. Written 2026-10-02 at `ee0f55c1`. Trigger: the Overture
+Status: **ACTIVE CONTRACT — S1–S6 IMPLEMENTED (2026-10-02, see §P2-17)**.
+Written 2026-10-02 at `ee0f55c1` as a docs-only correction; product
+decisions PD1/PD2/PD3 recorded in §P2-17. Trigger: the Overture
 identity characterization
 (`spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/overture/assessment.md`)
 found Alfa Crux (105.2 km) and SuperUco (87.1 km) in a licensed provider, but
@@ -923,3 +924,48 @@ the route_like-owned regional composite has no Experience-scope authority
 (destination-centroid 80 km is not one), and product decision PD1 (eligibility
 of an Experience that extends beyond the trip destination) is open. Identity
 coverage (Alfa Crux, SuperUco, Bodega Azul) is re-evaluated only after that.
+
+## P2-17. Implementation status (S1–S6 cutover, 2026-10-02)
+
+Product decisions (user-approved for the cutover):
+
+- **PD1** — a geographically verified Experience may be persisted in the
+  catalog whatever its relation to the trip destination (catalog validity is
+  not trip-relative). Tour eligibility is separate: from the destination
+  retrieval window only `WITHIN_DESTINATION` Experiences are tour-eligible;
+  a regional Experience enters a tour only through an explicit request scope
+  (a user-named `geographic_scope` AREA anchor owned by a ROUTE_LIKE unit).
+  No travel time is fabricated; routing-backed feasibility stays with
+  Planner Product Acceptance.
+- **PD2** — fail closed: a multi-component candidate that needs a regional
+  scope and has none is rejected `GEOGRAPHIC_SCOPE_UNKNOWN`; no circle.
+- **PD3** — the 25 km point-destination radius (T15) is DEFERRED, unchanged,
+  and never borrowed for a regional Experience.
+
+| | Milestone | Status | Code |
+| --- | --- | --- | --- |
+| S1 | Contracts | COMPLETE | `interfaces/experience-geographic-scope.interface.ts` (`ExperienceGeographicScope` + provenance + `UNKNOWN`, `WorkUnitAnchorScope` — the renamed `ExperienceValidationScope`, its unused POINT_RADIUS variant deleted — `ScopeDestinationRelation`, `ExperienceDestinationRelation`, `ScopeSearchWindow`); `ComponentGeographicScope` evolved to the same provenance; reasons `geographic_scope_unknown`, `outside_experience_scope`, `GEOGRAPHIC_SCOPE_UNKNOWN`, `OUTSIDE_EXPERIENCE_ROUTE_SCOPE`; validator version 2 |
+| S2 | Scope derivation + production | COMPLETE (code) / real Uco AREA unavailable | single owner `deriveExperienceGeographicScope` (`utils/experience-geographic-scope.policy.ts`): exactly one verified candidate-owned ROUTE (S-c) or AREA (S-b), else a regional user anchor (ROUTE_LIKE only), else S-d/S-e; §P2-6 admissibility table. Two-phase resolver (scope hints first — a ROUTE_LIKE AREA hint is searched within the destination country, no radius bias; components second, bounded by the derived scope). Extraction: an `area` hint alongside member components is a scope claim whose verified span must literally name the area (`SCOPE_NAME_NOT_IN_SUPPORT_SPAN`), plus a prompt rule. Coarse-AREA guard = existing area-scale rank band + `isCoarserThanDestination` (admin evidence only) + in-country homonym ambiguity |
+| S3 | Identity acquisition scope | COMPLETE | Places/Nominatim/catalog windows = `scopeSearchWindow` of the scope that will judge the component; `PLACES_FALLBACK_BIAS_RADIUS_METERS`, `NOMINATIM_BIAS_RADIUS_METERS`, `routeScaleDestinationRadius`, `ROUTE_SCALE` deleted; Nominatim bias carries the window; Google adapter sends a rectangle bias above its 50 km circle cap; Overpass highway cap renamed operational and refuses (UNAVAILABLE) instead of clamping; T14 `?? 5000` replaced by explicit failure; dead `StructuredGeoEntityResolverService` (50 km semantic filter) deleted |
+| S4 | Composite validation | COMPLETE | validator dispatches on the derived scope: S-b area membership, S-c topological route membership (topology before destination), S-d destination containment, S-e point radius, UNKNOWN rejected; COUNTRY/REGION contradictions kept; T1–T5, T7, T8 and `routeDestinationMismatch` deleted; source-composition completeness unchanged |
+| S5 | Destination relation + regional retrieval | COMPLETE | `evaluateDestinationCompatibility` polygon-only (`routeScale` option + route reasons deleted); `evaluateExperienceDestinationRelation` fact on every validation result; tour eligibility gate `utils/tour-destination-eligibility.policy.ts` in generation/facet retrieval/sufficiency; regional `geographic_scope` AREA anchors resolve (unique in-country, fallback after in-destination candidates; WALK units refuse them) so WARM reuse runs through `findVerifiedMultiComponentInArea` over the persisted area-role component (existing schema; no migration) |
+| S6 | Guards + regressions | COMPLETE | `services/geographic-distance-authority.architecture.spec.ts` (forbidden superseded symbols, polygon-only destination policy, resolver import rules, registry of every named distance constant with owner/status, no coherence-threshold objects); scenario matrix `services/geographic-scope-cutover.spec.ts`; WARM integration `test/integration/tour-generation/regional-catalog-reuse.integration-spec.ts` |
+| S7–S9 | Overture / COLD #12 | NOT STARTED | out of scope |
+
+Real-world evidence (2026-10-02, `spikes/rw4-geographic-scope-uco-area-probe-2026-10-02/`):
+
+- **Source-backed AREA hint for Uco: SUPPORTED by the source, NOT obtained
+  live.** The COLD #11 SolSalute excerpt states "If I were to plan a wine
+  tasting in Valle de Uco Itinerary for a friend"; the deterministic
+  extraction contract accepts an AREA hint quoting it. The live COLD #11
+  extractor did not emit it.
+- **Canonical polygon resolvable: NO.** Public and local Nominatim return
+  only two residential streets named "Valle de Uco" ("Uco Valley": none).
+  Even an OSM `place=region` would fall outside the existing area-scale rank
+  band (13–25). The real Uco candidate therefore cannot yet reach scoped
+  identity acquisition; with the current extraction it is case E
+  (`GEOGRAPHIC_SCOPE_UNKNOWN` once its wineries are positively found beyond
+  the destination).
+
+COLD #11 proved candidate-scoped authorization propagation; it did NOT prove
+the 80 km geographic policy (§P2-4). That historical record is unchanged.

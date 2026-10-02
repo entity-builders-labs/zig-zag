@@ -22,7 +22,7 @@ classification contract and deterministic validation are unchanged.
 
 **Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY (native producer cutover complete; v4 legacy paths deleted; modular domain audit split complete; zero avoidable `any`).**  
 **RW3 final classification/warm-reuse gate — CLOSED / ACCEPTED.**  
-**RW4 — AUTHORIZED / NEXT GATE** (2026-10-02: stable deep-source examination [x]; work-unit geographic authorization landed; persistence/WARM open — blocked on the unimplemented Experience geographic-scope architecture and open product decision PD1, see "RW4 geographic scope audit" below; identity coverage is re-evaluated after it).
+**RW4 — AUTHORIZED / NEXT GATE** (2026-10-02: stable deep-source examination [x]; work-unit geographic authorization landed; Experience geographic-scope architecture S1–S6 IMPLEMENTED with PD1/PD2/PD3 recorded, see "RW4 geographic scope cutover (S1–S6)" below; persistence/WARM of a REAL multi-component Experience still open — the real Uco AREA has no canonical polygon, and identity coverage/corroboration is the next evaluation).
 
 **Active track: Gate C real-world generalization — RW4 NEXT. RW3 final live COLD/WARM acceptance passed on 2026-09-29 with sequence integrity, canonical catalog reuse, zero WARM walk acquisition/classifier calls, and Generation Trace v5 evidence.**
 
@@ -194,6 +194,45 @@ RW3-N6 resolution and live verification status:
   classifier) into the existing identity/geography validation. Do not
   interrupt the RW4 web-acquisition gate for it.
 
+
+### RW4 geographic scope cutover (S1–S6) — 2026-10-02
+
+- Contract: spec `2026-10-02-geographic-validation-authorization-review.md`
+  Part II; implementation status in its §P2-17 (all of S1–S6 COMPLETE).
+- Product decisions: PD1 (verified regional Experiences persist; from the
+  destination window only WITHIN Experiences are tour-eligible; regional
+  ones enter a tour only through an explicit ROUTE_LIKE `geographic_scope`
+  anchor; no fabricated travel feasibility), PD2 (fail closed
+  `GEOGRAPHIC_SCOPE_UNKNOWN`), PD3 (25 km point radius DEFERRED, unchanged).
+- Removed authorities: `routeScaleDestinationRadius`, `routeScale` option,
+  `ROUTE_SCALE` search scope, `WITHIN/OUTSIDE_ROUTE_DESTINATION_RADIUS`,
+  `routeDestinationMismatch`, `authorizesRouteScale`,
+  `DEFAULT_GEOGRAPHIC_VALIDATION_THRESHOLDS` (2/4/30/60/80/160 km),
+  `PLACES_FALLBACK_BIAS_RADIUS_METERS`, `NOMINATIM_BIAS_RADIUS_METERS`, the
+  T14 5 km default and the dead `StructuredGeoEntityResolverService`.
+- Replacement authorities: `deriveExperienceGeographicScope` (scope),
+  `scopeSearchWindow` (identity search), polygon-only
+  `evaluateDestinationCompatibility` + `evaluateExperienceDestinationRelation`
+  (destination fact), `isTourEligibleForDestinationRequest` (eligibility).
+- Real Uco check: source supports a "Valle de Uco" AREA hint (not emitted
+  live); canonical polygon NOT resolvable in public/local Nominatim (two
+  streets only). The real candidate remains UNKNOWN-scoped; deterministic
+  fixtures prove the scope path, not the live Uco result.
+- COLD #11 proved candidate-scoped authorization propagation; it did NOT
+  prove the 80 km policy (unchanged historical record).
+- Remaining, kept separate: real Uco AREA availability (provider coverage /
+  area-scale band for regions); identity coverage (Alfa Crux, SuperUco,
+  Bodega Azul); identity corroboration (Overture evaluation, S7/S8);
+  planning feasibility (routing-backed eligibility of regional Experiences,
+  Planner Product Acceptance).
+
+```text
+RW4 EXIT CRITERIA
+[x] stable deep-source examination
+[ ] real multi-component Experience persisted
+[ ] WARM reuses it
+[ ] RW4 CLOSED
+```
 
 ### RW4 geographic scope audit (distance thresholds) — 2026-10-02
 

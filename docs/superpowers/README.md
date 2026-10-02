@@ -31,7 +31,7 @@ Component-resolution / RW1        CLOSED
 Experience dedupe correction      DONE
 RW2                               CLOSED
 RW3 Caminito route                CLOSED / ACCEPTED
-RW4                               AUTHORIZED / NEXT GATE (blocked on geographic-scope architecture, spec 2026-10-02 Part II)
+RW4                               AUTHORIZED / NEXT GATE (geographic-scope S1–S6 implemented; real Uco AREA + identity coverage open)
 RW5                               PENDING
 RW6 anti-fabrication              PENDING
 Preference-First Core CLOSED      PENDING
@@ -60,7 +60,7 @@ evidence, not execution authority.
 | Real-world gates RW1–RW6 | `plans/2026-09-12-real-world-tourism-research-spike-gate.md` | **ACTIVE ACCEPTANCE GATE** |
 | Preference-First architecture | `specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md` | **CANONICAL DESIGN** |
 | Component-resolution amendment | `specs/2026-09-22-component-resolution-geographic-validation-and-enrichment-amendment.md` | **ACCEPTED DOMAIN REFERENCE; milestone closed unless regression** |
-| Geographic validation authorization + geographic scope | `specs/2026-10-02-geographic-validation-authorization-review.md` | **Part I (work-unit authorization): ACCEPTED, IMPLEMENTED (`4da75fac`). Part II (Experience scope vs authorization vs destination relation; distance-threshold audit): ACTIVE ARCHITECTURE CONTRACT, not implemented — supersedes the destination-centered 80 km "route-scale" domain everywhere it appears** |
+| Geographic validation authorization + geographic scope | `specs/2026-10-02-geographic-validation-authorization-review.md` | **Part I (work-unit authorization): ACCEPTED, IMPLEMENTED (`4da75fac`). Part II (Experience scope vs authorization vs destination relation; distance-threshold audit): ACTIVE CONTRACT, S1–S6 IMPLEMENTED 2026-10-02 (status §P2-17) — the destination-centered 80 km "route-scale" domain is deleted; S7–S9 not started** |
 | Independent post-resolution review | `characterization/2026-09-25-post-component-resolution-independent-architecture-review.md` | **SUPPORTING EVIDENCE** |
 
 Do not add another current execution pointer without changing this table and
