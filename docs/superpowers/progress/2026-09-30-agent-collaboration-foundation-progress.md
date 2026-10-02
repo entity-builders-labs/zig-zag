@@ -93,7 +93,8 @@ sandbox, structured output validates, and the review artifact publishes to
 PR #70 with `commit_id` binding via `gh api -F body=@file`. The workflow
 validates the real PR head SHA, exposes discovery ambiguity explicitly, writes
 review input to `$RUNNER_TEMP`, and enforces canonical review authenticity.
-The progress freshness gate handles detached HEAD in CI and is enforced both
+The progress freshness gate handles detached HEAD in CI via `GITHUB_HEAD_REF`
+in both `agent-track context` and the gate script, and is enforced both
 locally (publish skill) and in CI (`track-progress-freshness`).
 
 ## Next authorized action

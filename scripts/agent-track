@@ -167,6 +167,9 @@ agent_track_list() {
 agent_track_context() {
   local top="$1" requested_id="${2:-}" branch progress marker id status declared_branch integration plan base worktree head tree_state remote
   branch="$(git -C "$top" branch --show-current)"
+  if [ -z "$branch" ] && [ -n "${GITHUB_HEAD_REF:-}" ]; then
+    branch="$GITHUB_HEAD_REF"
+  fi
   if [ -n "$requested_id" ]; then
     if ! resolve_track_by_id "$top" "$requested_id"; then
       printf 'TRACK CONTEXT UNAVAILABLE: expected exactly one track with id %s\n' "$requested_id" >&2
