@@ -155,7 +155,7 @@ pass 'canonical context, structured output, marker, and stale semantics are expl
 for required in \
   'configure repository secret OPENAI_API_KEY' \
   'Validate structured review output' \
-  'gh pr review' \
+  'gh api' \
   'Avoid duplicate review for the same head'; do
   grep -Fq "$required" "$REVIEW_WORKFLOW"
 done
@@ -474,7 +474,8 @@ expect_ok bash -c "jq -e '
 ' <<<'{\"commit_id\":\"abc123\",\"event\":\"COMMENT\"}'"
 pass 'published review request binds commit_id and event'
 
-# Workflow uses --commit-id for review publication
+# Workflow uses commit_id binding for review publication
 # shellcheck disable=SC2016 # These are literal workflow expressions.
-grep -Fq 'gh pr review "$PR_NUMBER" --comment --commit-id "$HEAD_SHA"' "$REVIEW_WORKFLOW"
+grep -Fq 'commit_id="$HEAD_SHA"' "$REVIEW_WORKFLOW"
+grep -Fq 'event="COMMENT"' "$REVIEW_WORKFLOW"
 pass 'workflow publishes review with commit_id binding'

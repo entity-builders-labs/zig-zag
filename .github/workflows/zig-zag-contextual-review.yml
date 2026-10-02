@@ -186,4 +186,8 @@ jobs:
             printf '\nVerification:\n'
             jq -r .verification_summary .github/codex/track-review-output.json
           } > .github/codex/track-review-body.md
-          gh pr review "$PR_NUMBER" --comment --commit-id "$HEAD_SHA" --body-file .github/codex/track-review-body.md
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" \
+            -X POST \
+            -f commit_id="$HEAD_SHA" \
+            -f event="COMMENT" \
+            -f body=@.github/codex/track-review-body.md
