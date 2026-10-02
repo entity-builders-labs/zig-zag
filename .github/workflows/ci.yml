@@ -29,6 +29,17 @@ jobs:
       - name: Agent collaboration preflight
         run: bash scripts/agent-preflight --ci
 
+  track-progress-freshness:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Track progress freshness
+        run: bash scripts/agent-progress-gate
+
   backend:
     runs-on: ubuntu-latest
     steps:

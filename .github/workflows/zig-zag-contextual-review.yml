@@ -114,9 +114,15 @@ jobs:
         run: |
           set -euo pipefail
           reviews="$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews")"
-          if jq -e --arg sha "$HEAD_SHA" --arg track "$TRACK" \
-            '.[] | select(.body | contains("<!-- zig-zag-contextual-review\ntrack=" + $track + "\nreviewed_head=" + $sha + "\n-->"))' \
-            <<<"$reviews" >/dev/null; then
+          if jq -e --arg sha "$HEAD_SHA" --arg track "$TRACK" '
+            .[] | select(
+              .user.login == "github-actions[bot]" and
+              (.state == "COMMENTED" or .state == "APPROVED" or .state == "CHANGES_REQUESTED") and
+              (.body | contains("<!-- zig-zag-contextual-review\ntrack=" + $track + "\nreviewed_head=" + $sha + "\n-->")) and
+              (.body | contains("CODE REVIEW:")) and
+              (.body | contains("ARCHITECTURE_"))
+            )
+          ' <<<"$reviews" >/dev/null; then
             echo "current=true" >> "$GITHUB_OUTPUT"
           else
             echo "current=false" >> "$GITHUB_OUTPUT"
@@ -180,4 +186,4 @@ jobs:
             printf '\nVerification:\n'
             jq -r .verification_summary .github/codex/track-review-output.json
           } > .github/codex/track-review-body.md
-          gh pr review "$PR_NUMBER" --comment --body-file .github/codex/track-review-body.md
+          gh pr review "$PR_NUMBER" --comment --commit-id "$HEAD_SHA" --body-file .github/codex/track-review-body.md

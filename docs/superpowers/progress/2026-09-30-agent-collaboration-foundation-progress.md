@@ -88,16 +88,16 @@ exact publication and remote-identity gates.
 ## Current checkpoint
 
 Milestone 3B — implementation, verification, and publication are complete.
-`OPENAI_API_KEY` is configured and accepted. Codex reached the model in
-read-only sandbox. The remaining failure was invalid Structured Outputs
-schema: `findings[].line` was declared in `properties` but omitted from
-`required`. The bounded fix adds `line` to the required array and clarifies
-the review prompt.
+The contextual review workflow runs end-to-end: Codex executes in read-only
+sandbox, structured output validates, and the review artifact publishes to
+PR #70. The workflow now validates the real PR head SHA (not the synthetic
+merge commit), exposes discovery ambiguity explicitly, and writes review
+input to `$RUNNER_TEMP` to keep the checkout clean.
 
 ## Next authorized action
 
-Push the schema fix to trigger the contextual review workflow for PR #70's
-current head. Do not merge or begin an autonomous fix loop.
+Monitor the contextual review workflow for PR #70's current head. Do not
+merge or begin an autonomous fix loop.
 
 ## Open findings / blockers
 
@@ -122,11 +122,10 @@ current head. Do not merge or begin an autonomous fix loop.
 - Milestone 3B must keep contextual review in the PR artifact layer: no
   progress review fields, no local imitation of authoritative review, no
   automatic coder/fixer loop, push, merge, or integration behavior.
-- Milestone 3B live review: schema fix in progress. Workflow run `36920414665`
-  reached canonical context reconstruction but stopped at the required missing
-  `OPENAI_API_KEY` gate; Codex did not execute and no review artifact exists.
-  Subsequent run `36921758100` reached the model but failed Structured Outputs
-  schema validation because `findings[].line` was declared but not required.
+- Milestone 3B live review: CLOSED. The contextual review workflow runs
+  end-to-end. Schema fix (add `line` to `findings[].required`), jq fix
+  (iterate `.findings[]`), CI head validation, discovery ambiguity, and
+  reviewer harness cleanliness are all committed and published.
 - PR #70 is intentionally DRAFT and UNMERGED.
 - The integration branch is active product work and may advance independently.
   Re-run canonical preflight/mergeability checks immediately before integration.

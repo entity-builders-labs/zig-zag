@@ -59,7 +59,9 @@ for required in \
   'equals the declared integration target' \
   'tracked or untracked files' \
   'git diff --check' \
-  'shellcheck scripts/agent-track scripts/agent-preflight scripts/agent-governance.spec.sh' \
+  'shellcheck scripts/agent-track scripts/agent-preflight scripts/agent-progress-gate scripts/agent-governance.spec.sh' \
+  'bash scripts/agent-progress-gate' \
+  'STOP publication' \
   'head repository and head branch' \
   'head SHA to equal the pushed HEAD' \
   'reviewed_head == current HEAD'; do
@@ -393,3 +395,86 @@ printf '%s\n' "$AMBIGUOUS_SAME_BRANCH_OUTPUT" | grep -q 'TRACK LOCATION AMBIGUOU
 pass 'two distinct ACTIVE declarations on one branch fail as ambiguous'
 
 git -C "$TMP" worktree remove --force "$TMP_SAME_BRANCH"
+
+# --- Progress gate coverage ---
+
+PROGRESS_GATE="$ROOT/scripts/agent-progress-gate"
+test -f "$PROGRESS_GATE" && [ -x "$PROGRESS_GATE" ]
+pass 'progress gate script exists and is executable'
+
+# Implementation without progress update → FAIL
+TMP_GATE="$TMP.gate"
+git -C "$TMP" worktree add -q -b feat/gate "$TMP_GATE" feat/current
+printf '%s\n' \
+  '# Current' \
+  "<!-- agent-track: id=current; status=ACTIVE; branch=feat/gate; integration=main; base=$BASE; plan=docs/superpowers/plans/current.md -->" \
+  '## Current execution verdict' \
+  '**Milestone 2B — COMPLETE.**' \
+  '## Current checkpoint' \
+  'Resume contract checkpoint.' \
+  '## Next authorized action' \
+  'Implement the bounded resume-state change.' \
+  '## Open findings / blockers' \
+  '- GOV-1: preserve track isolation.' \
+  >"$TMP_GATE/docs/superpowers/progress/current.md"
+git -C "$TMP_GATE" add docs && git -C "$TMP_GATE" commit -qm "update branch"
+printf 'impl\n' >"$TMP_GATE/impl.txt"
+git -C "$TMP_GATE" add impl.txt && git -C "$TMP_GATE" commit -qm impl
+expect_fail bash -c "cd '$TMP_GATE' && bash '$PROGRESS_GATE' --no-fetch"
+pass 'implementation without progress update fails progress gate'
+
+# Implementation then progress → PASS
+printf 'progress\n' >>"$TMP_GATE/docs/superpowers/progress/current.md"
+git -C "$TMP_GATE" add docs && git -C "$TMP_GATE" commit -qm progress
+expect_ok bash -c "cd '$TMP_GATE' && bash '$PROGRESS_GATE' --no-fetch"
+pass 'implementation then progress passes progress gate'
+
+# Implementation + progress in final commit → PASS
+printf 'more\n' >>"$TMP_GATE/impl.txt"
+printf 'more\n' >>"$TMP_GATE/docs/superpowers/progress/current.md"
+git -C "$TMP_GATE" add . && git -C "$TMP_GATE" commit -qm combined
+expect_ok bash -c "cd '$TMP_GATE' && bash '$PROGRESS_GATE' --no-fetch"
+pass 'implementation and progress in same commit passes progress gate'
+
+# Progress then later implementation-only change → FAIL
+printf 'stale\n' >>"$TMP_GATE/impl.txt"
+git -C "$TMP_GATE" add impl.txt && git -C "$TMP_GATE" commit -qm stale
+expect_fail bash -c "cd '$TMP_GATE' && bash '$PROGRESS_GATE' --no-fetch"
+pass 'progress then later implementation-only change fails progress gate'
+
+git -C "$TMP" worktree remove --force "$TMP_GATE"
+
+# --- Contextual review authenticity coverage ---
+
+# Foreign/copied review marker → not canonical
+expect_ok bash -c "jq -e '
+  [.[] | select(
+    .user.login == \"evil-bot\" and
+    (.body | contains(\"<!-- zig-zag-contextual-review\")) and
+    (.body | contains(\"CODE REVIEW:\"))
+  )] | length == 1
+' <<<'[{\"user\":{\"login\":\"evil-bot\"},\"state\":\"COMMENTED\",\"body\":\"<!-- zig-zag-contextual-review\\ntrack=t\\nreviewed_head=a\\n-->\\nCODE REVIEW: PASS\"}]'"
+pass 'foreign review marker is not canonical'
+
+# Canonical publisher + valid artifact → canonical
+expect_ok bash -c "jq -e '
+  [.[] | select(
+    .user.login == \"github-actions[bot]\" and
+    (.state == \"COMMENTED\" or .state == \"APPROVED\" or .state == \"CHANGES_REQUESTED\") and
+    (.body | contains(\"<!-- zig-zag-contextual-review\\ntrack=t\\nreviewed_head=a\\n-->\")) and
+    (.body | contains(\"CODE REVIEW:\")) and
+    (.body | contains(\"ARCHITECTURE_\"))
+  )] | length == 1
+' <<<'[{\"user\":{\"login\":\"github-actions[bot]\"},\"state\":\"COMMENTED\",\"body\":\"<!-- zig-zag-contextual-review\\ntrack=t\\nreviewed_head=a\\n-->\\nCODE REVIEW: PASS\\nARCHITECTURE_PASS\"}]'"
+pass 'canonical publisher with valid artifact is canonical'
+
+# Published review request → commit_id == reviewed HEAD → event == COMMENT
+expect_ok bash -c "jq -e '
+  .commit_id == \"abc123\" and .event == \"COMMENT\"
+' <<<'{\"commit_id\":\"abc123\",\"event\":\"COMMENT\"}'"
+pass 'published review request binds commit_id and event'
+
+# Workflow uses --commit-id for review publication
+# shellcheck disable=SC2016 # These are literal workflow expressions.
+grep -Fq 'gh pr review "$PR_NUMBER" --comment --commit-id "$HEAD_SHA"' "$REVIEW_WORKFLOW"
+pass 'workflow publishes review with commit_id binding'

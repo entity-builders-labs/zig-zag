@@ -24,9 +24,13 @@ If either identity differs, stop rather than inferring or redirecting to a
 fork. Run `git diff --check`. For governance changes also run:
 
 ```text
-shellcheck scripts/agent-track scripts/agent-preflight scripts/agent-governance.spec.sh
+shellcheck scripts/agent-track scripts/agent-preflight scripts/agent-progress-gate scripts/agent-governance.spec.sh
 bash scripts/agent-governance.spec.sh
+bash scripts/agent-progress-gate
 ```
+
+If the progress gate fails, `STOP publication`. The publish skill must never
+auto-edit, auto-stage, or auto-commit progress.
 
 Run any additional bounded validation required by the current track's
 AGENTS/progress/plan contract. Only after all gates pass, push the declared
