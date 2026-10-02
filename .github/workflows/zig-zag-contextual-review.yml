@@ -147,9 +147,6 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/codex-home"
           cat > "$RUNNER_TEMP/codex-home/config.toml" <<'TOML'
-          model = "qwen/qwen3.8-27b"
-          model_provider = "groq"
-
           [model_providers.groq]
           name = "Groq"
           base_url = "https://api.groq.com/openai/v1"
