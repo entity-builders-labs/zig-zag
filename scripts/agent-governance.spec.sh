@@ -421,6 +421,64 @@ git -C "$TMP" checkout -q feat/current
 expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'file overlap: other.*shared.txt'"
 pass 'stale local peer does not hide fetched remote overlap'
 
+# --- Registered stale peer + newer remote overlap coverage ---
+
+# Clean up any existing worktrees (skip main — always first)
+git -C "$TMP" worktree list --porcelain | grep '^worktree ' | sed 's/^worktree //' | tail -n +2 | while IFS= read -r wt; do
+  git -C "$TMP" worktree remove --force "$wt" 2>/dev/null || true
+done
+git -C "$TMP" checkout -q main
+git -C "$TMP" branch -f feat/peer "$BASE" 2>/dev/null || true
+git -C "$TMP" checkout -q feat/peer
+mkdir -p "$TMP/docs/superpowers/progress"
+printf '%s\n' \
+  '# Other' \
+  "<!-- agent-track: id=other; status=ACTIVE; branch=feat/peer; integration=main; base=$BASE; plan=docs/superpowers/plans/other.md -->" \
+  >"$TMP/docs/superpowers/progress/other.md"
+printf 'stale\n' >"$TMP/shared.txt"
+git -C "$TMP" add docs shared.txt && git -C "$TMP" commit -qm stale-peer
+# Register a worktree for feat/peer
+TMP_REGISTERED="$TMP.registered"
+git -C "$TMP" worktree add -q "$TMP_REGISTERED" feat/peer
+# Advance origin/feat/peer with the overlapping change
+git -C "$TMP" checkout -q feat/peer
+printf 'overlap-remote\n' >"$TMP/shared.txt"
+git -C "$TMP" add shared.txt && git -C "$TMP" commit -qm remote-peer-change
+git -C "$TMP" update-ref refs/remotes/origin/feat/peer "$(git -C "$TMP" rev-parse HEAD)"
+git -C "$TMP" checkout -q feat/current
+printf 'overlap-current\n' >"$TMP/shared.txt"
+git -C "$TMP" add shared.txt && git -C "$TMP" commit -qm current-change
+expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'file overlap.*shared.txt'"
+pass 'registered stale peer does not hide fetched remote overlap'
+# list/locate still show one logical peer identity
+expect_ok bash -c "cd '$TMP' && scripts/agent-track list | grep -c '^other' | grep -q '1'"
+pass 'list shows one logical peer identity despite distinct refs'
+git -C "$TMP" worktree remove --force "$TMP_REGISTERED"
+
+# --- Review commit binding coverage ---
+
+# Mismatched commit_id → not canonical
+expect_ok bash -c "jq -e '
+  [.[] | select(
+    .user.login == \"github-actions[bot]\" and
+    .commit_id == \"oldsha\" and
+    (.body | contains(\"<!-- zig-zag-contextual-review\ntrack=t\nreviewed_head=newsha\n-->\")) and
+    (.body | contains(\"CODE REVIEW:\"))
+  )] | length == 0
+' <<<'[{\"user\":{\"login\":\"github-actions[bot]\"},\"state\":\"COMMENTED\",\"commit_id\":\"oldsha\",\"body\":\"<!-- zig-zag-contextual-review\\ntrack=t\\nreviewed_head=newsha\\n-->\\nCODE REVIEW: PASS\"}]'"
+pass 'mismatched commit_id is not canonical'
+
+# Matching commit_id → canonical
+expect_ok bash -c "jq -e '
+  [.[] | select(
+    .user.login == \"github-actions[bot]\" and
+    .commit_id == \"newsha\" and
+    (.body | contains(\"<!-- zig-zag-contextual-review\ntrack=t\\nreviewed_head=newsha\\n-->\")) and
+    (.body | contains(\"CODE REVIEW:\"))
+  )] | length == 1
+' <<<'[{\"user\":{\"login\":\"github-actions[bot]\"},\"state\":\"COMMENTED\",\"commit_id\":\"newsha\",\"body\":\"<!-- zig-zag-contextual-review\\ntrack=t\\nreviewed_head=newsha\\n-->\\nCODE REVIEW: PASS\"}]'"
+pass 'matching commit_id is canonical'
+
 # --- Context ID assertion coverage ---
 
 # Foreign ID must fail

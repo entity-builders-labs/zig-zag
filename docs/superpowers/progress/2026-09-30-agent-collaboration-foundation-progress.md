@@ -97,9 +97,10 @@ The progress freshness gate handles detached HEAD in CI via `GITHUB_HEAD_REF`
 in both `agent-track context` and the gate script, and is enforced both
 locally (publish skill) and in CI (`track-progress-freshness`).
 
-Three contextual-review findings are being resolved: stale local peer ref
-hiding fetched remote overlap, context ID escaping checkout-local authority,
-and mandatory ShellCheck command passing.
+Three contextual-review findings are resolved: GOV-REMOTE-OVERLAP-1 (registered
+stale peer no longer hides fetched remote overlap via `discover_overlap_refs`),
+GOV-SHELLCHECK-1 (mandatory ShellCheck command passes), and
+GOV-REVIEW-BINDING-1 (duplicate-review detection requires `commit_id == SHA`).
 
 ## Next authorized action
 

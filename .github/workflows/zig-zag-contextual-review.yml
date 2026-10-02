@@ -118,6 +118,7 @@ jobs:
             .[] | select(
               .user.login == "github-actions[bot]" and
               (.state == "COMMENTED" or .state == "APPROVED" or .state == "CHANGES_REQUESTED") and
+              .commit_id == $sha and
               (.body | contains("<!-- zig-zag-contextual-review\ntrack=" + $track + "\nreviewed_head=" + $sha + "\n-->")) and
               (.body | contains("CODE REVIEW:")) and
               (.body | contains("ARCHITECTURE_"))

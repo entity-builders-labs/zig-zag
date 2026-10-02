@@ -126,6 +126,14 @@ else
     FILE_OVERLAP="$(comm -12 <(printf '%s\n' "$CURRENT_PAIR_FILES" | sed '/^$/d') <(printf '%s\n' "$OTHER_PAIR_FILES" | sed '/^$/d') || true)"
     [ -z "$FILE_OVERLAP" ] || warn "file overlap: $OTHER_ID" "$(printf '%s' "$FILE_OVERLAP" | tr '\n' ' ')"
   done < <(discover_active_track_records "$TOP")
+  while IFS= read -r OVERLAP_REF; do
+    [ -n "$OVERLAP_REF" ] || continue
+    PAIR_BASE="$(git merge-base HEAD "$OVERLAP_REF" 2>/dev/null)" || continue
+    CURRENT_PAIR_FILES="$(git diff --name-only "$PAIR_BASE"..HEAD | sort -u)"
+    OTHER_PAIR_FILES="$(git diff --name-only "$PAIR_BASE".."$OVERLAP_REF" | sort -u)"
+    FILE_OVERLAP="$(comm -12 <(printf '%s\n' "$CURRENT_PAIR_FILES" | sed '/^$/d') <(printf '%s\n' "$OTHER_PAIR_FILES" | sed '/^$/d') || true)"
+    [ -z "$FILE_OVERLAP" ] || warn "file overlap (remote)" "$(printf '%s' "$FILE_OVERLAP" | tr '\n' ' ')"
+  done < <(discover_overlap_refs "$TOP")
 fi
 
 printf '\n'
