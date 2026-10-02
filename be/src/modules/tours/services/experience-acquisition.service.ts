@@ -36,8 +36,9 @@ import {
   WebSourceContentResultItem,
 } from '../interfaces/web-source-content.interface';
 import {
+  SourceContentWindow,
   SourceContentWindowingAudit,
-  windowSourceContent,
+  windowSourceContentSequence,
 } from '../utils/source-content-windowing.util';
 import { GooglePlacesAcquisitionProvider } from '../providers/google-places-acquisition.provider';
 import { WikivoyageAcquisitionProvider } from '../providers/wikivoyage-acquisition.provider';
@@ -111,14 +112,45 @@ export interface ResolverEvidenceItem {
 }
 
 /**
- * One source-content retrieval as recorded in the trace. For a retrieved
- * source, `content` is exactly the windowed text handed to extraction (never
- * a second full copy of the page) and `windowing` explains which source text
- * was kept and why; `contentChars` stays the transport's full length.
+ * One source-content retrieval as recorded in the trace. The page text
+ * itself is never copied here: `windowSequence` describes the finite,
+ * ordered windows the source was split into (ranges only), and each window
+ * actually examined records its exact text on its own extraction attempt.
+ * `contentChars` stays the transport's full length.
  */
-export type WebSourceContentTraceItem = WebSourceContentResultItem & {
-  windowing?: SourceContentWindowingAudit;
+export type WebSourceContentTraceItem = Omit<
+  WebSourceContentResultItem,
+  'content'
+> & {
+  windowSequence?: SourceContentWindowingAudit[];
 };
+
+/**
+ * Why the progressive deep-source scan stopped or continued after one
+ * window's extraction attempt.
+ */
+export type WebDeepSourceScanDecision =
+  /** An admitted candidate closed the MULTI_COMPONENT_EXPERIENCE gap. */
+  | 'STOP_REQUIREMENT_SATISFIED'
+  /** No admitted candidate closed the gap; an unexamined window remains. */
+  | 'CONTINUE_NO_QUALIFYING_CANDIDATE'
+  /** No admitted candidate closed the gap and no window remains. */
+  | 'STOP_SOURCES_EXHAUSTED'
+  /** The extractor response as a whole was unusable (fail-closed). */
+  | 'STOP_EXTRACTION_FAILED';
+
+/** The single source window one deep-source extraction attempt examined. */
+export interface WebDeepSourceWindowAudit {
+  sourceUrl: string;
+  windowing: SourceContentWindowingAudit;
+  /** Exactly the source text substituted for this URL's evidence. */
+  content: string;
+}
+
+export type WebDeepSourceScanOutcome =
+  | 'REQUIREMENT_SATISFIED'
+  | 'SOURCES_EXHAUSTED'
+  | 'EXTRACTION_FAILED';
 
 /**
  * Per-`web` SourcePlan execution record. Web does NOT produce SourceObservations
@@ -184,6 +216,18 @@ export interface WebAcquisitionResult {
     totalDurationMs?: number;
     reExtractionAttempted?: boolean;
     selectionAudit?: WebDeepSourceSelectionAudit;
+    /**
+     * Progressive deep-source scan summary. Attempts run round-robin by
+     * window ordinal across the retrieved sources (window 1 of every source,
+     * then window 2, ...), one source window per attempt.
+     */
+    scan?: {
+      outcome: WebDeepSourceScanOutcome;
+      attemptCount: number;
+      /** Windows the finite sequences held in total (the attempt bound). */
+      windowCount: number;
+      satisfiedBy?: { sourceUrl: string; windowOrdinal: number };
+    };
   };
   /**
    * Every discovery-extraction attempt this web plan ran, in execution order
@@ -233,6 +277,10 @@ export interface WebExtractionAttemptAudit {
   sourceSupportAudits?: CandidateSourceSupportAudit[];
   /** Raw error message when `status === 'failed'`. */
   failureReason?: string;
+  /** Deep-source attempts only: the one source window examined. */
+  sourceWindow?: WebDeepSourceWindowAudit;
+  /** Deep-source attempts only: what the scan did after this attempt. */
+  scanDecision?: WebDeepSourceScanDecision;
 }
 
 export type WebDeepSourceDecisionReason =
@@ -775,16 +823,20 @@ export class ExperienceAcquisitionService {
       // Runs one extraction over the current `grounded` evidence and appends
       // its audit (completed or failed) before returning or rethrowing, so a
       // later attempt can never overwrite an earlier one's evidence.
-      const runExtraction = async (inputKind: WebExtractionInputKind) => {
+      const runExtraction = async (
+        inputKind: WebExtractionInputKind,
+        input: typeof grounded,
+        sourceWindow?: WebDeepSourceWindowAudit,
+      ) => {
         stage = 'EXTRACTION';
         try {
           const result = await discoveryExtractor.extractExperiences(
             request,
-            grounded,
+            input,
             { bypassCache: true },
           );
           const decisions = decideAdmission(result.candidates);
-          extractionAttempts.push({
+          const audit: WebExtractionAttemptAudit = {
             inputKind,
             status: 'completed',
             extractorProvider: result.provider,
@@ -795,8 +847,10 @@ export class ExperienceAcquisitionService {
             admittedCandidateCount: decisions.filter((d) => d.accepted).length,
             candidateDecisions: decisions,
             sourceSupportAudits: result.sourceSupportAudits,
-          });
-          return { extracted: result, decisions };
+            ...(sourceWindow ? { sourceWindow } : {}),
+          };
+          extractionAttempts.push(audit);
+          return { extracted: result, decisions, audit };
         } catch (error: any) {
           extractionAttempts.push({
             inputKind,
@@ -806,12 +860,16 @@ export class ExperienceAcquisitionService {
             admittedCandidateCount: 0,
             candidateDecisions: [],
             failureReason: error?.message ?? String(error),
+            ...(sourceWindow ? { sourceWindow } : {}),
           });
           throw error;
         }
       };
 
-      const initial = await runExtraction('grounded_snippets');
+      const initial = await runExtraction('grounded_snippets', grounded);
+      // The evidence set behind the emitted candidates. Never mutated in
+      // place: the provider's result object stays exactly as returned.
+      let emittedEvidence = grounded.evidence;
       let extracted = initial.extracted;
       let candidateDecisions = initial.decisions;
       let admissibleCandidates = candidateDecisions
@@ -821,9 +879,20 @@ export class ExperienceAcquisitionService {
       const isMultiComponentRequested = plan.evidenceRequirements.includes(
         'MULTI_COMPONENT_EXPERIENCE',
       );
-      const satisfiesMultiComponent = admissibleCandidates.some((c) =>
-        candidateSatisfiesEvidenceRequirement(c, 'MULTI_COMPONENT_EXPERIENCE'),
-      );
+      // The one definition of "the composition gap is closed", used both to
+      // trigger deep retrieval and to stop the progressive window scan.
+      const closesCompositionGap = (
+        decisions: WebCandidateAdmissionDecision[],
+      ): boolean =>
+        decisions.some(
+          (d) =>
+            d.accepted &&
+            candidateSatisfiesEvidenceRequirement(
+              d.candidate,
+              'MULTI_COMPONENT_EXPERIENCE',
+            ),
+        );
+      const satisfiesMultiComponent = closesCompositionGap(candidateDecisions);
       // Only an extraction-level failure (the extractor response as a whole
       // was unusable) keeps deep retrieval fail-closed. Candidate-level
       // invalidity never does: a candidate rejected for naming no stops is
@@ -982,21 +1051,23 @@ export class ExperienceAcquisitionService {
             urls: targetUrls,
           });
 
-          // The single canonical windowing policy: each source's complete
-          // text is reduced to its most relevant excerpts under the fixed
-          // evidence budget, ranked against context already known for that
-          // exact source (its grounded titles/snippets) and this request.
+          // The single canonical windowing policy turns each source's
+          // complete text (fetched once) into a finite, ordered sequence of
+          // budget-bounded windows, window 1 ranked against context already
+          // known for that exact source (its grounded titles/snippets) and
+          // this request.
           const queries = [web.query, web.semanticQuery].filter(
             (q): q is string => Boolean(q),
           );
+          const windowsByUrl = new Map<string, SourceContentWindow[]>();
           const traceItems: WebSourceContentTraceItem[] =
-            retrievalResult.items.map((item) => {
-              if (item.status !== 'retrieved' || !item.content) return item;
+            retrievalResult.items.map(({ content, ...item }) => {
+              if (item.status !== 'retrieved' || !content) return item;
               const sameSource = grounded.evidence.filter(
                 (e) => e.url === item.requestedUrl,
               );
-              const window = windowSourceContent(
-                item.content,
+              const windows = windowSourceContentSequence(
+                content,
                 {
                   titles: sameSource
                     .map((e) => e.title)
@@ -1008,14 +1079,12 @@ export class ExperienceAcquisitionService {
                 },
                 DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
               );
-              return {
-                ...item,
-                content: window.content,
-                windowing: window.audit,
-              };
+              windowsByUrl.set(item.requestedUrl, windows);
+              return { ...item, windowSequence: windows.map((w) => w.audit) };
             });
-          const retrievedItems = traceItems.filter(
-            (item) => item.status === 'retrieved' && item.content,
+          // Selection order (targetUrls) is the source traversal order.
+          const retrievedUrls = targetUrls.filter((url) =>
+            windowsByUrl.has(url),
           );
 
           sourceContentRetrievalTrace = {
@@ -1023,7 +1092,7 @@ export class ExperienceAcquisitionService {
             provider: this.webSourceContentProvider.providerName,
             triggerReason,
             requestedUrls: targetUrls,
-            retrievedUrls: retrievedItems.map((i) => i.requestedUrl),
+            retrievedUrls,
             failedUrls: retrievalResult.items
               .filter((i) => i.status === 'failed')
               .map((i) => i.requestedUrl),
@@ -1033,39 +1102,123 @@ export class ExperienceAcquisitionService {
             selectionAudit: deepSourceSelectionTrace,
           };
 
-          if (retrievedItems.length > 0) {
+          if (retrievedUrls.length > 0) {
             sourceContentRetrievalTrace.reExtractionAttempted = true;
 
-            const contentByUrl = new Map<string, string>();
-            for (const item of retrievedItems) {
-              contentByUrl.set(item.requestedUrl, item.content!);
+            // Progressive examination: ranking only orders the windows.
+            // Round-robin by window ordinal, one source window per attempt,
+            // so each attempt's composition authority is a single source and
+            // window 1 of every source runs before any later window. The
+            // schedule is the finite union of the sequences: no window is
+            // examined twice and the scan cannot loop.
+            const schedule: Array<{
+              url: string;
+              window: SourceContentWindow;
+            }> = [];
+            const longest = Math.max(
+              ...retrievedUrls.map((url) => windowsByUrl.get(url)!.length),
+            );
+            for (let k = 0; k < longest; k++) {
+              for (const url of retrievedUrls) {
+                const window = windowsByUrl.get(url)![k];
+                if (window) schedule.push({ url, window });
+              }
             }
 
-            // Update grounded.evidence in place, preserving URL identity and source
-            grounded.evidence = grounded.evidence.map((item) => {
-              if (item.url && contentByUrl.has(item.url)) {
-                return {
-                  ...item,
-                  snippet: contentByUrl.get(item.url)!,
-                  evidenceQuality: 'original_content' as const,
+            let satisfied:
+              | {
+                  extracted: typeof extracted;
+                  decisions: WebCandidateAdmissionDecision[];
+                  evidence: typeof grounded.evidence;
+                }
+              | undefined;
+            let outcome: WebDeepSourceScanOutcome = 'SOURCES_EXHAUSTED';
+            let attemptCount = 0;
+            for (const [index, { url, window }] of schedule.entries()) {
+              // Substitute ONLY this source's window; every other evidence
+              // item stays as grounded search returned it. Candidates are
+              // never merged across attempts.
+              const windowInput = {
+                ...grounded,
+                evidence: grounded.evidence.map((item) =>
+                  item.url === url
+                    ? {
+                        ...item,
+                        snippet: window.content,
+                        evidenceQuality: 'original_content' as const,
+                      }
+                    : item,
+                ),
+              };
+              attemptCount++;
+              const deep = await runExtraction(
+                'deep_source_content',
+                windowInput,
+                {
+                  sourceUrl: url,
+                  windowing: window.audit,
+                  content: window.content,
+                },
+              );
+              if (closesCompositionGap(deep.decisions)) {
+                deep.audit.scanDecision = 'STOP_REQUIREMENT_SATISFIED';
+                outcome = 'REQUIREMENT_SATISFIED';
+                satisfied = {
+                  extracted: deep.extracted,
+                  decisions: deep.decisions,
+                  evidence: windowInput.evidence,
                 };
+                sourceContentRetrievalTrace.scan = {
+                  outcome,
+                  attemptCount,
+                  windowCount: schedule.length,
+                  satisfiedBy: {
+                    sourceUrl: url,
+                    windowOrdinal: window.audit.windowOrdinal,
+                  },
+                };
+                break;
               }
-              return item;
-            });
+              // Same fail-closed rule as the deep-retrieval trigger: only an
+              // unusable extractor response stops the scan. Candidate-level
+              // invalidity (validation errors, unsupported components,
+              // wrong-shape admitted candidates) continues to the next window.
+              if (deep.extracted.extractionFailures.length > 0) {
+                deep.audit.scanDecision = 'STOP_EXTRACTION_FAILED';
+                outcome = 'EXTRACTION_FAILED';
+                break;
+              }
+              deep.audit.scanDecision =
+                index === schedule.length - 1
+                  ? 'STOP_SOURCES_EXHAUSTED'
+                  : 'CONTINUE_NO_QUALIFYING_CANDIDATE';
+            }
 
-            // Re-run semantic extraction with enriched grounded evidence
-            const deep = await runExtraction('deep_source_content');
-            extracted = deep.extracted;
-            candidateDecisions = deep.decisions;
-            admissibleCandidates = candidateDecisions
-              .filter((decision) => decision.accepted)
-              .map((decision) => decision.candidate);
+            if (satisfied) {
+              // The satisfying attempt is the authority: its candidates and
+              // exactly the evidence it examined flow downstream together.
+              extracted = satisfied.extracted;
+              candidateDecisions = satisfied.decisions;
+              emittedEvidence = satisfied.evidence;
+              admissibleCandidates = candidateDecisions
+                .filter((decision) => decision.accepted)
+                .map((decision) => decision.candidate);
+            } else {
+              // No window closed the gap: no single deep window has authority
+              // over the others, so the grounded-snippet attempt's result and
+              // evidence stand, unmerged with any deep attempt.
+              sourceContentRetrievalTrace.scan = {
+                outcome,
+                attemptCount,
+                windowCount: schedule.length,
+              };
+            }
           }
         }
       }
 
       sink.webCandidates.push(...admissibleCandidates);
-      for (const ev of grounded.evidence) {
+      for (const ev of emittedEvidence) {
         sink.webEvidence.push({
           key: ev.key,
           source: ev.source,

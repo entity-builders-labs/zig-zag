@@ -78,7 +78,7 @@ export interface WebSourceContentResultItem {
    * The page's own readable content, COMPLETE as the transport returned it.
    * Present only when `status === 'retrieved'`. A provider never bounds or
    * slices it: choosing which source text fits the extractor's evidence
-   * budget is the single downstream policy `windowSourceContent`
+   * budget is the single downstream policy `windowSourceContentSequence`
    * (`utils/source-content-windowing.util.ts`), which has the per-source
    * relevance context (title, grounded snippet, research query) that a
    * transport does not.
@@ -122,9 +122,9 @@ export const EXPERIENCE_WEB_SOURCE_CONTENT_PROVIDER =
 
 /**
  * Per-source evidence budget (characters) handed to the extractor after
- * `windowSourceContent` selects the most relevant source text. Small enough
- * that enriching several evidence entries in one query does not blow up the
- * extractor prompt. Same bound the pre-capability Tavily search enrichment
- * used, so the extractor's prompt budget is unchanged.
+ * `windowSourceContentSequence` bounds EACH source window. A deep-source
+ * extraction attempt substitutes exactly one such window, so the extractor
+ * prompt stays bounded however long the page is. Same bound the
+ * pre-capability Tavily search enrichment used.
  */
 export const DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS = 6000;

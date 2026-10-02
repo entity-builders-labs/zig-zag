@@ -502,6 +502,37 @@ export function recordAcquisitionLifecycle(
       });
     }
 
+    // 5c'. acquisition.deep_source_window — one step per progressive
+    // deep-source attempt, carrying the exact window text it examined.
+    for (const attempt of webResult.extractionAttempts) {
+      if (!attempt.sourceWindow) continue;
+      const { sourceUrl, windowing, content } = attempt.sourceWindow;
+      recorder.record({
+        parentId: passId,
+        name: 'acquisition.deep_source_window',
+        description: `Extracción sobre ventana ${windowing.windowOrdinal}/${windowing.windowCount} de ${sourceUrl}`,
+        component: 'ExperienceDiscoveryExtractor',
+        decision: {
+          status:
+            attempt.status === 'failed' ||
+            attempt.scanDecision === 'STOP_EXTRACTION_FAILED'
+              ? 'FAIL'
+              : attempt.scanDecision === 'STOP_REQUIREMENT_SATISFIED'
+                ? 'PASS'
+                : attempt.scanDecision === 'STOP_SOURCES_EXHAUSTED'
+                  ? 'WARN'
+                  : 'INFO',
+          outcome: attempt.scanDecision ?? 'FAILED',
+        },
+        facts: {
+          ...projectExtractionAttempt(attempt),
+          sourceUrl,
+          windowing,
+          content,
+        },
+      });
+    }
+
     // 5c. acquisition.semantic_extraction
     recorder.record({
       parentId: passId,
@@ -531,9 +562,13 @@ export function recordAcquisitionLifecycle(
         rawOutput: webResult.extractorRawOutput,
         sourceSupportAudits: webResult.sourceSupportAudits,
         // Every attempt in execution order; the fields above are the final
-        // attempt only.
-        extractionAttempts: webResult.extractionAttempts.map(
-          projectExtractionAttempt,
+        // attempt only. Deep-source window attempts are summarized here and
+        // detailed in their own `acquisition.deep_source_window` steps, so a
+        // long progressive scan cannot overflow this step's payload.
+        extractionAttempts: webResult.extractionAttempts.map((attempt) =>
+          attempt.inputKind === 'deep_source_content'
+            ? summarizeDeepExtractionAttempt(attempt)
+            : projectExtractionAttempt(attempt),
         ),
       },
       subjects: webResult.candidateDecisions?.map(
@@ -624,6 +659,27 @@ export function recordAcquisitionLifecycle(
  * to their identity and admission outcome; the full candidates of the final
  * attempt remain on the step's `subjects`.
  */
+function summarizeDeepExtractionAttempt(attempt: WebExtractionAttemptAudit) {
+  return {
+    inputKind: attempt.inputKind,
+    status: attempt.status,
+    ...(attempt.sourceWindow
+      ? {
+          sourceUrl: attempt.sourceWindow.sourceUrl,
+          windowOrdinal: attempt.sourceWindow.windowing.windowOrdinal,
+          windowCount: attempt.sourceWindow.windowing.windowCount,
+          retainedContentChars:
+            attempt.sourceWindow.windowing.retainedContentChars,
+        }
+      : {}),
+    extractedCandidateCount: attempt.extractedCandidateCount,
+    admittedCandidateCount: attempt.admittedCandidateCount,
+    validationErrorCount: attempt.validationErrors.length,
+    scanDecision: attempt.scanDecision,
+    failureReason: attempt.failureReason,
+  };
+}
+
 function projectExtractionAttempt(attempt: WebExtractionAttemptAudit) {
   return {
     inputKind: attempt.inputKind,

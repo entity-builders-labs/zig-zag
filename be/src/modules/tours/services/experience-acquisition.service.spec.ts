@@ -4,7 +4,7 @@ import { StructuredCandidateCorroborationService } from './structured-candidate-
 import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-plan.interface';
 import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fingerprint.util';
 import { DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS } from '../interfaces/web-source-content.interface';
-import { windowSourceContent } from '../utils/source-content-windowing.util';
+import { windowSourceContentSequence } from '../utils/source-content-windowing.util';
 import { extractExperienceCandidates } from '../utils/experience-candidate-extraction.util';
 
 describe('ExperienceAcquisitionService', () => {
@@ -1176,7 +1176,19 @@ describe('ExperienceAcquisitionService', () => {
 
               const result = await service.executePlan(multiComponentWebPlan);
 
-              expect(extractExperiences).toHaveBeenCalledTimes(2);
+              const windows = windowSourceContentSequence(
+                fullContent,
+                {
+                  titles: ['San Telmo Walk'],
+                  snippets: ['First hand tips and sample itineraries'],
+                  queries: ['Buenos Aires historic walk'],
+                },
+                DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+              );
+              // Nothing qualifies, so every window is examined exactly once.
+              expect(extractExperiences).toHaveBeenCalledTimes(
+                1 + windows.length,
+              );
               const enriched =
                 extractExperiences.mock.calls[1][1].evidence.find(
                   (e: any) => e.key === 'ev-1',
@@ -1187,23 +1199,16 @@ describe('ExperienceAcquisitionService', () => {
               expect(enriched.snippet).toContain(
                 'Start at Plaza Dorrego, then walk down Defensa to Parque Lezama.',
               );
-              expect(enriched.snippet).toBe(
-                windowSourceContent(
-                  fullContent,
-                  {
-                    titles: ['San Telmo Walk'],
-                    snippets: ['First hand tips and sample itineraries'],
-                    queries: ['Buenos Aires historic walk'],
-                  },
-                  DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
-                ).content,
-              );
+              expect(enriched.snippet).toBe(windows[0].content);
 
               const traceItem =
                 result.webResults?.[0].sourceContentRetrieval?.items[0];
-              expect(traceItem?.content).toBe(enriched.snippet);
+              expect(traceItem).not.toHaveProperty('content');
               expect(traceItem?.contentChars).toBe(fullContent.length);
-              expect(traceItem?.windowing).toMatchObject({
+              expect(traceItem?.windowSequence).toEqual(
+                windows.map((w) => w.audit),
+              );
+              expect(traceItem?.windowSequence?.[0]).toMatchObject({
                 selectionStrategy: 'RELEVANCE_WINDOWS',
                 originalContentChars: fullContent.length,
                 retainedContentChars: enriched.snippet.length,
@@ -1213,6 +1218,428 @@ describe('ExperienceAcquisitionService', () => {
             });
           },
         );
+
+        describe('progressive deep-source window scan', () => {
+          const URL_A = 'https://buenosaires.travel/san-telmo-walk';
+          const URL_B = 'https://travelblog.com/la-boca';
+
+          /** ~350 chars of prose carrying `marker`. */
+          const paragraph = (label: string, marker: string) =>
+            `${marker} ${Array.from(
+              { length: 4 },
+              (_, i) =>
+                `${label} sentence ${i} describes ordinary scenery and transport in plain words.`,
+            ).join(' ')}`;
+
+          // The composition sits in an early section the snippet does not
+          // advertise; the advertised ("zebra") prose fills window 1, so
+          // the composition first appears in window 2 (document order).
+          const composition =
+            'Start at Plaza Dorrego, then walk to Parque Lezama and finish at Caminito.';
+          const pageWithLateWindowComposition = [
+            '# Guide',
+            '',
+            '## Itinerary',
+            '',
+            `${composition} ${'Plain words about the day follow here. '.repeat(25)}`,
+            '',
+            '## Notes',
+            '',
+            Array.from({ length: 32 }, (_, i) =>
+              paragraph(`Notes-${i}`, 'zebra quokka'),
+            ).join('\n\n'),
+          ].join('\n');
+
+          const groundedAdvertisingZebra = {
+            ...groundedWithUrls,
+            evidence: groundedWithUrls.evidence.map((e) =>
+              e.key === 'ev-1' ? { ...e, snippet: 'zebra quokka notes' } : e,
+            ),
+          };
+
+          const hint = (key: string, name: string, evidenceKey = 'ev-1') => ({
+            key,
+            name,
+            role: 'venue',
+            expectedKind: 'PLACE',
+            evidenceKeys: [evidenceKey],
+          });
+          const walk = (name: string, ...hints: any[]) => ({
+            name,
+            themes: ['history'],
+            componentHints: hints,
+            evidenceKeys: [...new Set(hints.flatMap((h) => h.evidenceKeys))],
+            shortReason: 'fixture',
+          });
+          const extraction = (candidates: any[], extra: any = {}) => ({
+            candidates,
+            extractionFailures: [],
+            validationErrors: [],
+            provider: 'gemini',
+            model: 'gemini-x',
+            rawOutput: '{"candidates":[]}',
+            ...extra,
+          });
+          const deepEvidence = (call: any[]) =>
+            call[1].evidence.filter(
+              (e: any) => e.evidenceQuality === 'original_content',
+            );
+
+          function serviceFor(
+            pages: Record<string, string>,
+            extractExperiences: jest.Mock,
+            grounded: any = groundedAdvertisingZebra,
+            evidenceRequirements: ExperienceAcquisitionPlan['evidenceRequirements'] = [
+              'MULTI_COMPONENT_EXPERIENCE',
+            ],
+          ) {
+            const retrieve = jest.fn().mockResolvedValue({
+              provider: 'cloudflare',
+              requestedCount: 2,
+              retrievedCount: Object.keys(pages).length,
+              items: Object.entries(pages).map(([url, content]) => ({
+                requestedUrl: url,
+                status: 'retrieved',
+                contentType: 'markdown',
+                content,
+                contentChars: content.length,
+                provider: 'cloudflare',
+              })),
+              totalDurationMs: 10,
+            });
+            const service = new ExperienceAcquisitionService(
+              {} as any,
+              {} as any,
+              { acquire: jest.fn() } as any,
+              { acquire: jest.fn() } as any,
+              new StructuredExperienceCandidateSynthesizerService(),
+              new StructuredCandidateCorroborationService(),
+              undefined,
+              { search: jest.fn().mockResolvedValue(grounded) } as any,
+              { extractExperiences } as any,
+              undefined,
+              { providerName: 'cloudflare', retrieve } as any,
+            );
+            const plan: ExperienceAcquisitionPlan = {
+              ...multiComponentWebPlan,
+              evidenceRequirements,
+            };
+            return { service, retrieve, plan };
+          }
+
+          /** Extractor double: the composition is only "found" when a deep
+           * window actually contains its text. */
+          const findsCompositionWhenVisible = (otherwise: () => any) =>
+            jest.fn().mockImplementation((_req: any, grounded: any) => {
+              const visible = deepEvidence([null, grounded]).some((e: any) =>
+                e.snippet.includes(composition),
+              );
+              return Promise.resolve(
+                visible
+                  ? extraction([
+                      walk(
+                        'San Telmo walk',
+                        hint('c1', 'Plaza Dorrego'),
+                        hint('c2', 'Parque Lezama'),
+                        hint('c3', 'Caminito'),
+                      ),
+                    ])
+                  : otherwise(),
+              );
+            });
+
+          it('fast path: window 1 satisfies the requirement — one fetch, one deep attempt', async () => {
+            const page = `# Guide\n\n${composition}\n\n${'filler text. '.repeat(800)}`;
+            const extractExperiences = findsCompositionWhenVisible(() =>
+              extraction([]),
+            );
+            const { service, retrieve, plan } = serviceFor(
+              { [URL_A]: page },
+              extractExperiences,
+              {
+                ...groundedWithUrls,
+                evidence: groundedWithUrls.evidence.map((e) =>
+                  e.key === 'ev-1'
+                    ? { ...e, snippet: 'Plaza Dorrego Parque Lezama Caminito' }
+                    : e,
+                ),
+              },
+            );
+
+            const result = await service.executePlan(plan);
+
+            expect(retrieve).toHaveBeenCalledTimes(1);
+            expect(extractExperiences).toHaveBeenCalledTimes(2);
+            const web = result.webResults![0];
+            expect(web.sourceContentRetrieval?.scan).toMatchObject({
+              outcome: 'REQUIREMENT_SATISFIED',
+              attemptCount: 1,
+              satisfiedBy: { sourceUrl: URL_A, windowOrdinal: 1 },
+            });
+            expect(
+              web.sourceContentRetrieval!.scan!.windowCount,
+            ).toBeGreaterThan(1);
+            expect(result.candidates.map((c) => c.name)).toEqual([
+              'San Telmo walk',
+            ]);
+          });
+
+          it('recovers a composition the ranked window missed from window 2, then stops', async () => {
+            const windows = windowSourceContentSequence(
+              pageWithLateWindowComposition,
+              {
+                titles: ['San Telmo Walk'],
+                snippets: ['zebra quokka notes'],
+                queries: ['Buenos Aires historic walk'],
+              },
+              DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+            );
+            expect(windows[0].content).not.toContain(composition);
+            expect(windows[1].content).toContain(composition);
+            expect(windows.length).toBeGreaterThan(2);
+
+            const extractExperiences = findsCompositionWhenVisible(() =>
+              extraction([]),
+            );
+            const { service, retrieve, plan } = serviceFor(
+              { [URL_A]: pageWithLateWindowComposition },
+              extractExperiences,
+            );
+
+            const result = await service.executePlan(plan);
+
+            expect(retrieve).toHaveBeenCalledTimes(1);
+            // 1 snippet attempt + exactly 2 deep attempts.
+            expect(extractExperiences).toHaveBeenCalledTimes(3);
+            const web = result.webResults![0];
+            expect(
+              web.extractionAttempts.map((a) => [
+                a.inputKind,
+                a.sourceWindow?.windowing.windowOrdinal,
+                a.scanDecision,
+              ]),
+            ).toEqual([
+              ['grounded_snippets', undefined, undefined],
+              ['deep_source_content', 1, 'CONTINUE_NO_QUALIFYING_CANDIDATE'],
+              ['deep_source_content', 2, 'STOP_REQUIREMENT_SATISFIED'],
+            ]);
+            expect(web.extractionAttempts[2].sourceWindow?.content).toBe(
+              windows[1].content,
+            );
+            expect(result.candidates.map((c) => c.name)).toEqual([
+              'San Telmo walk',
+            ]);
+            // The satisfying window's text is the evidence that flows on.
+            expect(result.evidence.find((e) => e.key === 'ev-1')).toMatchObject(
+              {
+                snippet: windows[1].content,
+                evidenceQuality: 'original_content',
+              },
+            );
+          });
+
+          it('examines every finite window exactly once and terminates when nothing qualifies', async () => {
+            const extractExperiences = jest
+              .fn()
+              .mockImplementation(() => Promise.resolve(extraction([])));
+            const { service, plan } = serviceFor(
+              { [URL_A]: pageWithLateWindowComposition },
+              extractExperiences,
+            );
+
+            const result = await service.executePlan(plan);
+
+            const windows =
+              result.webResults![0].sourceContentRetrieval!.items[0]
+                .windowSequence!;
+            expect(extractExperiences).toHaveBeenCalledTimes(
+              1 + windows.length,
+            );
+            const examined = extractExperiences.mock.calls
+              .slice(1)
+              .map((call) => deepEvidence(call)[0].snippet);
+            expect(new Set(examined).size).toBe(windows.length);
+            const deep = result.webResults![0].extractionAttempts.slice(1);
+            expect(
+              deep.map((a) => a.sourceWindow?.windowing.windowOrdinal),
+            ).toEqual(windows.map((w) => w.windowOrdinal));
+            expect(deep[deep.length - 1].scanDecision).toBe(
+              'STOP_SOURCES_EXHAUSTED',
+            );
+            expect(
+              deep
+                .slice(0, -1)
+                .every(
+                  (a) => a.scanDecision === 'CONTINUE_NO_QUALIFYING_CANDIDATE',
+                ),
+            ).toBe(true);
+            expect(result.webResults![0].sourceContentRetrieval?.scan).toEqual({
+              outcome: 'SOURCES_EXHAUSTED',
+              attemptCount: windows.length,
+              windowCount: windows.length,
+            });
+            // No deep window has authority: the grounded snippets stand.
+            expect(result.evidence.find((e) => e.key === 'ev-1')).toMatchObject(
+              { snippet: 'zebra quokka notes' },
+            );
+          });
+
+          it('continues past a window whose only candidate violated the source contract', async () => {
+            let deepCalls = 0;
+            const extractExperiences = findsCompositionWhenVisible(() =>
+              extraction([], {
+                validationErrors: [
+                  'candidate "Ghost walk": SOURCE_CONTRACT_VIOLATION (0/3 components supported)',
+                ],
+              }),
+            );
+            extractExperiences.mockImplementationOnce(() =>
+              Promise.resolve(extraction([])),
+            );
+            const wrapped = jest.fn((...args: any[]) => {
+              deepCalls++;
+              return extractExperiences(...args);
+            });
+            const { service, plan } = serviceFor(
+              { [URL_A]: pageWithLateWindowComposition },
+              wrapped,
+            );
+
+            const result = await service.executePlan(plan);
+
+            expect(deepCalls).toBe(3);
+            const deep = result.webResults![0].extractionAttempts.slice(1);
+            expect(deep[0].validationErrors).toHaveLength(1);
+            expect(deep[0].scanDecision).toBe(
+              'CONTINUE_NO_QUALIFYING_CANDIDATE',
+            );
+            expect(deep[1].scanDecision).toBe('STOP_REQUIREMENT_SATISFIED');
+          });
+
+          it('continues past an admitted candidate of the wrong shape', async () => {
+            const extractExperiences = findsCompositionWhenVisible(() =>
+              extraction([walk('Plaza only', hint('c1', 'Plaza Dorrego'))]),
+            );
+            const { service, plan } = serviceFor(
+              { [URL_A]: pageWithLateWindowComposition },
+              extractExperiences,
+              groundedAdvertisingZebra,
+              ['MULTI_COMPONENT_EXPERIENCE', 'SINGLE_PLACE'],
+            );
+
+            const result = await service.executePlan(plan);
+
+            const deep = result.webResults![0].extractionAttempts.slice(1);
+            expect(deep[0].admittedCandidateCount).toBe(1);
+            expect(deep[0].scanDecision).toBe(
+              'CONTINUE_NO_QUALIFYING_CANDIDATE',
+            );
+            expect(deep[1].scanDecision).toBe('STOP_REQUIREMENT_SATISFIED');
+            // Only the satisfying attempt's candidates flow on.
+            expect(result.candidates.map((c) => c.name)).toEqual([
+              'San Telmo walk',
+            ]);
+          });
+
+          it('stops fail-closed when a window extraction fails as a whole', async () => {
+            const extractExperiences = jest
+              .fn()
+              .mockResolvedValueOnce(extraction([]))
+              .mockResolvedValueOnce(
+                extraction([], {
+                  extractionFailures: ['unparseable envelope'],
+                }),
+              );
+            const { service, plan } = serviceFor(
+              { [URL_A]: pageWithLateWindowComposition },
+              extractExperiences,
+            );
+
+            const result = await service.executePlan(plan);
+
+            expect(extractExperiences).toHaveBeenCalledTimes(2);
+            expect(
+              result.webResults![0].sourceContentRetrieval?.scan,
+            ).toMatchObject({ outcome: 'EXTRACTION_FAILED', attemptCount: 1 });
+            expect(
+              result.webResults![0].extractionAttempts[1].scanDecision,
+            ).toBe('STOP_EXTRACTION_FAILED');
+          });
+
+          it('never merges single components found in different windows into one candidate', async () => {
+            const extractExperiences = jest
+              .fn()
+              .mockResolvedValueOnce(extraction([]))
+              .mockResolvedValueOnce(
+                extraction([walk('A only', hint('c1', 'Plaza Dorrego'))]),
+              )
+              .mockResolvedValueOnce(
+                extraction([walk('B only', hint('c1', 'Parque Lezama'))]),
+              )
+              .mockImplementation(() => Promise.resolve(extraction([])));
+            const { service, plan } = serviceFor(
+              { [URL_A]: pageWithLateWindowComposition },
+              extractExperiences,
+              groundedAdvertisingZebra,
+              ['MULTI_COMPONENT_EXPERIENCE', 'SINGLE_PLACE'],
+            );
+
+            const result = await service.executePlan(plan);
+
+            expect(
+              result.webResults![0].sourceContentRetrieval?.scan?.outcome,
+            ).toBe('SOURCES_EXHAUSTED');
+            // No synthetic A+B candidate; deep attempts never had authority.
+            expect(result.candidates).toEqual([]);
+            for (const attempt of result.webResults![0].extractionAttempts) {
+              for (const d of attempt.candidateDecisions) {
+                expect(d.candidate.componentHints).toHaveLength(1);
+              }
+            }
+          });
+
+          it('isolates sources: one deep source per attempt, round-robin by window ordinal', async () => {
+            const extractExperiences = jest
+              .fn()
+              .mockImplementation(() => Promise.resolve(extraction([])));
+            const { service, plan } = serviceFor(
+              {
+                [URL_A]: pageWithLateWindowComposition,
+                [URL_B]: pageWithLateWindowComposition.replace(
+                  /Notes/g,
+                  'Boca',
+                ),
+              },
+              extractExperiences,
+            );
+
+            const result = await service.executePlan(plan);
+
+            const items = result.webResults![0].sourceContentRetrieval!.items;
+            const total = items.reduce(
+              (n, i) => n + (i.windowSequence?.length ?? 0),
+              0,
+            );
+            const deepCalls = extractExperiences.mock.calls.slice(1);
+            expect(deepCalls).toHaveLength(total);
+            for (const call of deepCalls) {
+              // Exactly one source carries deep content in each attempt.
+              expect(deepEvidence(call)).toHaveLength(1);
+            }
+            const order = result
+              .webResults![0].extractionAttempts.slice(1)
+              .map((a) => [
+                a.sourceWindow?.sourceUrl,
+                a.sourceWindow?.windowing.windowOrdinal,
+              ]);
+            expect(order.slice(0, 4)).toEqual([
+              [URL_A, 1],
+              [URL_B, 1],
+              [URL_A, 2],
+              [URL_B, 2],
+            ]);
+          });
+        });
 
         it('skips deep retrieval when MULTI_COMPONENT_EXPERIENCE is already satisfied on the first pass', async () => {
           const search = jest.fn().mockResolvedValue(groundedWithUrls);

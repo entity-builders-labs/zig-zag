@@ -1,6 +1,7 @@
 import {
   SOURCE_EXCERPT_SEPARATOR,
-  windowSourceContent,
+  SourceContentRelevanceContext,
+  windowSourceContentSequence,
 } from './source-content-windowing.util';
 
 const BUDGET = 6000;
@@ -61,11 +62,20 @@ function excerpts(content: string): string[] {
   return content.split(SOURCE_EXCERPT_SEPARATOR);
 }
 
-describe('windowSourceContent', () => {
+/** Window 1 — the relevance-ranked fast path. */
+function firstWindow(
+  content: string,
+  context: SourceContentRelevanceContext,
+  maxChars: number,
+) {
+  return windowSourceContentSequence(content, context, maxChars)[0];
+}
+
+describe('windowSourceContentSequence — window 1', () => {
   it('keeps a relevant late section that a raw prefix would discard', () => {
     expect(LATE_SECTION_DOCUMENT.indexOf('Alfa Crux')).toBeGreaterThan(BUDGET);
 
-    const window = windowSourceContent(
+    const window = firstWindow(
       LATE_SECTION_DOCUMENT,
       LATE_SECTION_CONTEXT,
       BUDGET,
@@ -95,7 +105,7 @@ describe('windowSourceContent', () => {
   });
 
   it('emits every excerpt verbatim from the normalized source', () => {
-    const window = windowSourceContent(
+    const window = firstWindow(
       LATE_SECTION_DOCUMENT,
       LATE_SECTION_CONTEXT,
       BUDGET,
@@ -125,7 +135,7 @@ describe('windowSourceContent', () => {
     ].join('\n');
     expect(document.length).toBeGreaterThan(BUDGET * 3);
 
-    const window = windowSourceContent(
+    const window = firstWindow(
       document,
       { snippets: ['sample itineraries across the valley'] },
       BUDGET,
@@ -157,7 +167,7 @@ describe('windowSourceContent', () => {
     ].join('\n\n');
     expect(document.indexOf(relevant)).toBeGreaterThan(BUDGET);
 
-    const window = windowSourceContent(
+    const window = firstWindow(
       document,
       { snippets: ['a recommended loop past the lighthouse and fish market'] },
       BUDGET,
@@ -176,7 +186,7 @@ describe('windowSourceContent', () => {
       BUDGET / 2,
     );
 
-    const window = windowSourceContent(
+    const window = firstWindow(
       document,
       { snippets: ['hidden lighthouse loop'] },
       BUDGET / 2,
@@ -204,7 +214,7 @@ describe('windowSourceContent', () => {
       'The lighthouse and the fish market and the customs house form the loop.',
     ].join('\n');
 
-    const window = windowSourceContent(
+    const window = firstWindow(
       document,
       { snippets: ['lighthouse fish market customs house loop'] },
       BUDGET,
@@ -222,7 +232,7 @@ describe('windowSourceContent', () => {
 
   it('returns a short document whole, without separators', () => {
     const document = '# Short\n\nOne paragraph only.';
-    const window = windowSourceContent(document, {}, BUDGET);
+    const window = firstWindow(document, {}, BUDGET);
     expect(window.content).toBe(document);
     expect(window.audit).toMatchObject({
       selectionStrategy: 'WHOLE_DOCUMENT',
@@ -232,14 +242,175 @@ describe('windowSourceContent', () => {
   });
 
   it('is deterministic', () => {
-    const a = windowSourceContent(
+    const a = firstWindow(LATE_SECTION_DOCUMENT, LATE_SECTION_CONTEXT, BUDGET);
+    const b = firstWindow(LATE_SECTION_DOCUMENT, LATE_SECTION_CONTEXT, BUDGET);
+    expect(b).toEqual(a);
+  });
+});
+
+/** A paragraph of ~1000 chars carrying `marker`, distinct per `label`. */
+function longParagraph(label: string, marker: string): string {
+  return `${marker} ${Array.from(
+    { length: 8 },
+    (_, i) =>
+      `${label} sentence ${i} describes ordinary local scenery and transport options in plain words.`,
+  ).join(' ')}`;
+}
+
+describe('windowSourceContentSequence — progressive windows', () => {
+  const STABLE_CONTEXT = {
+    titles: ['The Best Wineries in Mendoza, A Wine Tasting Guide'],
+    queries: ['Ciudad de Mendoza wine tasting wineries wine route'],
+  };
+
+  it('keeps window 1 the ranked fast path and covers every chunk exactly once beyond overlap', () => {
+    const windows = windowSourceContentSequence(
       LATE_SECTION_DOCUMENT,
       LATE_SECTION_CONTEXT,
       BUDGET,
     );
-    const b = windowSourceContent(
+
+    expect(windows.length).toBeGreaterThan(1);
+    expect(windows[0].audit.selectionStrategy).toBe('RELEVANCE_WINDOWS');
+    expect(windows[0].content).toContain('Alfa Crux');
+    for (const [i, w] of windows.entries()) {
+      expect(w.audit.windowOrdinal).toBe(i + 1);
+      expect(w.audit.windowCount).toBe(windows.length);
+      expect(w.content.length).toBeLessThanOrEqual(BUDGET);
+      expect(w.audit.retainedContentChars).toBe(w.content.length);
+      // Every window makes progress through previously unseen text.
+      expect(w.audit.newChunkCount).toBeGreaterThan(0);
+      if (i > 0) {
+        expect(w.audit.selectionStrategy).toBe('DOCUMENT_ORDER_CONTINUATION');
+      }
+    }
+    const chunkCount = windows[0].audit.chunkCount;
+    expect(windows.reduce((n, w) => n + w.audit.newChunkCount, 0)).toBe(
+      chunkCount,
+    );
+    expect(windows[windows.length - 1].audit.unexaminedChunkCountAfter).toBe(0);
+  });
+
+  it('eventually exposes every paragraph of the source, verbatim', () => {
+    const windows = windowSourceContentSequence(
       LATE_SECTION_DOCUMENT,
-      LATE_SECTION_CONTEXT,
+      STABLE_CONTEXT,
+      BUDGET,
+    );
+    const examined = windows.map((w) => w.content).join('\n');
+    for (const paragraph of LATE_SECTION_DOCUMENT.split(/\n\s*\n/)) {
+      expect(examined).toContain(paragraph.trim());
+    }
+    for (const w of windows) {
+      for (const excerpt of excerpts(w.content)) {
+        expect(LATE_SECTION_DOCUMENT).toContain(excerpt);
+      }
+    }
+  });
+
+  it('makes a section ranking missed examinable regardless of the snippet', () => {
+    const itineraryOrdinal = (context: SourceContentRelevanceContext) =>
+      windowSourceContentSequence(LATE_SECTION_DOCUMENT, context, BUDGET).find(
+        (w) =>
+          excerpts(w.content).some(
+            (e) =>
+              e.includes('Alfa Crux') &&
+              e.includes('SuperUco') &&
+              e.includes('Bodega Azul'),
+          ),
+      )?.audit.windowOrdinal;
+
+    // Ranked into window 1 when the snippet advertises it…
+    expect(itineraryOrdinal(LATE_SECTION_CONTEXT)).toBe(1);
+    // …and still reached, intact in one excerpt, when it does not.
+    const withoutSnippet = itineraryOrdinal(STABLE_CONTEXT);
+    expect(withoutSnippet).toBeGreaterThan(1);
+    expect(
+      itineraryOrdinal({
+        ...STABLE_CONTEXT,
+        snippets: ['how to visit Maipu, Lujan de Cuyo and the Uco Valley'],
+      }),
+    ).toBeDefined();
+  });
+
+  it('keeps a coherent section whole in one later window when ranking split it', () => {
+    const document = [
+      '# Guide',
+      '',
+      fillerParagraphs(40, 'Intro'),
+      '',
+      '## Route',
+      '',
+      longParagraph('Route-head', 'ROUTE-START zebra quokka itinerary'),
+      '',
+      longParagraph('Route-tail', 'ROUTE-END'),
+      '',
+      '## Outro',
+      '',
+      fillerParagraphs(10, 'Outro'),
+    ].join('\n');
+    const windows = windowSourceContentSequence(
+      document,
+      { snippets: ['zebra quokka'] },
+      BUDGET,
+    );
+
+    // Ranking keeps only the matching half of the section in window 1.
+    expect(windows[0].content).toContain('ROUTE-START');
+    expect(windows[0].content).not.toContain('ROUTE-END');
+    // A later window re-includes the examined half so the whole section
+    // reaches one extraction as ONE contiguous excerpt.
+    const whole = windows
+      .slice(1)
+      .find((w) =>
+        excerpts(w.content).some(
+          (e) => e.includes('ROUTE-START') && e.includes('ROUTE-END'),
+        ),
+      );
+    expect(whole).toBeDefined();
+    expect(whole!.audit.overlapChunkCount).toBeGreaterThan(0);
+  });
+
+  it('walks an oversized unstructured section with one shared boundary chunk and terminates', () => {
+    const document = fillerParagraphs(120, 'Plain');
+    const windows = windowSourceContentSequence(document, {}, BUDGET);
+
+    expect(windows.length).toBeGreaterThan(2);
+    expect(windows[windows.length - 1].audit.unexaminedChunkCountAfter).toBe(0);
+    for (const w of windows) {
+      expect(w.content.length).toBeLessThanOrEqual(BUDGET);
+      expect(w.audit.newChunkCount).toBeGreaterThan(0);
+    }
+    // Runs after the first continuation share exactly one boundary chunk.
+    expect(windows.slice(2).every((w) => w.audit.overlapChunkCount === 1)).toBe(
+      true,
+    );
+    const examined = windows.map((w) => w.content).join('\n');
+    for (let i = 0; i < 120; i++) {
+      expect(examined).toContain(`Plain paragraph ${i}:`);
+    }
+  });
+
+  it('returns a single window for a document that fits the budget', () => {
+    const windows = windowSourceContentSequence('short text', {}, BUDGET);
+    expect(windows).toHaveLength(1);
+    expect(windows[0].audit).toMatchObject({
+      selectionStrategy: 'WHOLE_DOCUMENT',
+      windowOrdinal: 1,
+      windowCount: 1,
+      unexaminedChunkCountAfter: 0,
+    });
+  });
+
+  it('is deterministic', () => {
+    const a = windowSourceContentSequence(
+      LATE_SECTION_DOCUMENT,
+      STABLE_CONTEXT,
+      BUDGET,
+    );
+    const b = windowSourceContentSequence(
+      LATE_SECTION_DOCUMENT,
+      STABLE_CONTEXT,
       BUDGET,
     );
     expect(b).toEqual(a);

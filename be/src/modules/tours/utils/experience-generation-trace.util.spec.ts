@@ -902,6 +902,67 @@ describe('experience-generation-trace.util', () => {
       });
     });
 
+    const deepAttempt = (
+      ordinal: number,
+      rawOutput: string,
+    ): WebExtractionAttemptAudit => ({
+      inputKind: 'deep_source_content',
+      status: 'completed',
+      extractorProvider: 'extractor-b',
+      extractorModel: 'model-b',
+      rawOutput,
+      validationErrors: [],
+      extractedCandidateCount: 0,
+      admittedCandidateCount: 0,
+      candidateDecisions: [],
+      sourceWindow: {
+        sourceUrl: 'https://a.test/walk',
+        content: `WINDOW-${ordinal}-TEXT`,
+        windowing: {
+          selectionStrategy:
+            ordinal === 1 ? 'RELEVANCE_WINDOWS' : 'DOCUMENT_ORDER_CONTINUATION',
+          originalContentChars: 18_000,
+          removedPayloadChars: 0,
+          normalizedContentChars: 18_000,
+          retainedContentChars: 5_900,
+          maxChars: 6_000,
+          truncated: true,
+          chunkCount: 12,
+          selectedExcerpts: [{ start: 0, end: 5_900, headings: [] }],
+          windowOrdinal: ordinal,
+          windowCount: 3,
+          newChunkCount: 4,
+          overlapChunkCount: 0,
+          unexaminedChunkCountAfter: 12 - 4 * ordinal,
+        },
+      },
+      scanDecision: 'CONTINUE_NO_QUALIFYING_CANDIDATE',
+    });
+
+    it('keeps the extraction step within its payload limit across a long progressive scan', () => {
+      const { step } = traceFor({
+        status: 'success',
+        query: 'historic walk',
+        groundingStatus: 'applied',
+        evidenceKeys: ['ev-1', 'ev-2'],
+        validationErrors: [],
+        extractedCandidateCount: 0,
+        candidateCount: 0,
+        candidateDecisions: [],
+        extractionAttempts: [
+          snippetAttempt,
+          ...Array.from({ length: 30 }, (_, i) =>
+            deepAttempt(i + 1, 'R'.repeat(3_000)),
+          ),
+        ],
+        deepSourceSelection: selection,
+      });
+
+      const facts = step('acquisition.semantic_extraction')!.facts!;
+      expect(facts).not.toHaveProperty('truncated');
+      expect((facts.extractionAttempts as any[]).length).toBe(31);
+    });
+
     it('projects every extraction attempt and every selection snippet', () => {
       const { step } = traceFor({
         status: 'success',
@@ -917,17 +978,7 @@ describe('experience-generation-trace.util', () => {
         candidateDecisions: [],
         extractionAttempts: [
           snippetAttempt,
-          {
-            inputKind: 'deep_source_content',
-            status: 'completed',
-            extractorProvider: 'extractor-b',
-            extractorModel: 'model-b',
-            rawOutput: 'RAW-DEEP-ATTEMPT',
-            validationErrors: [],
-            extractedCandidateCount: 0,
-            admittedCandidateCount: 0,
-            candidateDecisions: [],
-          },
+          deepAttempt(1, 'RAW-DEEP-ATTEMPT'),
         ],
         deepSourceSelection: selection,
       });
@@ -936,8 +987,27 @@ describe('experience-generation-trace.util', () => {
         .extractionAttempts as any[];
       expect(attempts.map((a) => [a.inputKind, a.rawOutput])).toEqual([
         ['grounded_snippets', 'RAW-SNIPPET-ATTEMPT'],
-        ['deep_source_content', 'RAW-DEEP-ATTEMPT'],
+        // Deep window attempts are summarized here…
+        ['deep_source_content', undefined],
       ]);
+      expect(attempts[1]).toMatchObject({
+        sourceUrl: 'https://a.test/walk',
+        windowOrdinal: 1,
+        windowCount: 3,
+        scanDecision: 'CONTINUE_NO_QUALIFYING_CANDIDATE',
+      });
+      // …and detailed, with the exact window text, in their own step.
+      const window = step('acquisition.deep_source_window')!;
+      expect(window.decision).toEqual({
+        status: 'INFO',
+        outcome: 'CONTINUE_NO_QUALIFYING_CANDIDATE',
+      });
+      expect(window.facts).toMatchObject({
+        rawOutput: 'RAW-DEEP-ATTEMPT',
+        sourceUrl: 'https://a.test/walk',
+        content: 'WINDOW-1-TEXT',
+        windowing: { windowOrdinal: 1, windowCount: 3 },
+      });
       expect(attempts[0].candidateDecisions).toEqual([
         expect.objectContaining({
           name: 'Partial walk',
