@@ -70,14 +70,58 @@ loop of any kind.
 
 ### Provider harness
 
-- Use `OpenCode CLI` + `Groq` + `Qwen 3.8 27B`.
-- Resolve the OpenCode provider-qualified model identifier with the installed
-  version's own model-discovery command. The Groq API model ID and OpenCode's
-  provider-qualified identifier are **not** assumed to be identical.
-- Use the existing repository secret `GROQ_API_KEY`.
+The reviewer runs through `OpenCode CLI` with a read-only agent. OpenCode
+already accepts and parses a well-formed request on Groq; the failure is a
+quota ceiling, not a protocol fault. See "Provider decision" below.
+
 - Install a deliberate, pinned OpenCode version and verify its documented
-  headless CLI flags before relying on them.
+  headless CLI flags before relying on them. Verified locally: `opencode run`
+  supports `--standalone`, `--agent`, `--model provider/model`, `--format json`,
+  and `--file`. A leading dash in a positional message must be passed after
+  `--`.
 - Do **not** retry `openai/codex-action` or the direct Codex CLI.
+- Resolve the OpenCode provider-qualified model identifier with the installed
+  version's own model-discovery command. The upstream API model ID and
+  OpenCode's provider-qualified identifier are **not** assumed to be identical.
+  Verified: Groq API `qwen/qwen3.8-27b` vs OpenCode `groq/qwen/qwen3.8-27b`.
+
+### Provider decision
+
+Groq was the first choice and is **blocked by free-tier quota**, demonstrated
+2026-10-02 against the account behind `GROQ_API_KEY`:
+
+| OpenCode configuration | OpenCode model | Request tokens | Org cap | Result |
+| --- | --- | --- | --- | --- |
+| default agent, all tools | `groq/qwen/qwen3.8-27b` | 13,501 | 7,000 ITPM | 413 |
+| deny-by-default, read + grep | `groq/qwen/qwen3.8-27b` | 11,483 | 7,000 ITPM | 413 |
+| single `read` tool | `groq/qwen/qwen3.8-27b` | 11,172 | 7,000 ITPM | 413 |
+| zero tools (normalization phase) | `groq/qwen/qwen3.8-27b` | 10,928 | 7,000 ITPM | 413 |
+| read-only agent | `groq/openai/gpt-oss-120b` | 11,667 | 8,000 TPM | 413 |
+| read-only agent | `groq/openai/gpt-oss-20b` | 12,354 | 8,000 TPM | 413 |
+
+OpenCode v2.0.21's intrinsic floor is ~10.9k input tokens with **no tools and no
+content**; the account is on Groq's free tier, which caps TPM at 7–8k for every
+model this key can reach. `llama-3.3-70b-versatile`, `llama-3.1-8b-instant` and
+`groq/compound-mini` return 404 for this key. An empty "reply OK" prompt
+therefore fails. Groq also cannot carry the canonical context set: `AGENTS.md`
+alone is ~5.7k tokens and the full ordered context is ~30k.
+
+Upgrading Groq and enabling paid billing are **explicitly refused**.
+
+A single bounded provider substitution was authorized within this same track and
+PR: **Cloudflare Workers AI** through OpenCode's documented native provider
+integration — not `codex-action` and not another proxy.
+
+- Provider: `cloudflare-workers-ai`
+- OpenCode model identifier: `cloudflare-workers-ai/@cf/qwen/qwen3.8-27b`
+- Upstream model ID: `@cf/qwen/qwen3.8-27b`
+- Required environment: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_KEY`
+- Advertised context: 262,144 tokens — 37x the Groq cap
+- Advertised tool calling: supported
+
+The substitution is bounded to exactly one provider and one model. No further
+provider-hopping is authorized, and no new reviewer architecture, track,
+worktree, or PR may be created for it.
 
 ### Required runtime isolation
 
@@ -180,6 +224,22 @@ Cover, without weakening the existing governance fixture suite:
 11. provider failure publishing no canonical review;
 12. review publication using the actual HEAD.
 
+### Minimal provider probe
+
+Before any review implementation, run exactly one minimal live OpenCode request
+against the authorized provider using the dedicated read-only review agent, over
+a real repository file. Acceptance:
+
+- the provider accepts a request exceeding the Groq free-tier token limit;
+- OpenCode executes at least one real repository-read tool call;
+- the model returns a meaningful result;
+- no tracked or untracked repository file is modified;
+- actual neuron consumption is recorded where available;
+- no paid usage occurs.
+
+If the probe fails, stop and report the exact blocker. No further
+provider-hopping.
+
 ### Real provider calibration
 
 Run one bounded live review against the known historical governance snapshot
@@ -209,10 +269,14 @@ GitHub Actions execution must prove:
 
 ## Stop conditions
 
-- **Hard provider stop.** If OpenCode + Groq also fails at the
-  tool-calling/protocol boundary, stop and report the exact sanitized failure.
-  Do not introduce another proxy, model provider, agent framework, or paid
-  fallback.
+- **Hard provider stop.** If the authorized provider is unavailable, requires
+  paid access, or a basic agentic read fails, stop and report the exact
+  blocker. Do not introduce another proxy, model provider, agent framework, or
+  paid fallback. Groq quota exhaustion is already a demonstrated hard stop and
+  may not be worked around by enabling billing.
+- **Credentials stop.** If the authorized provider's credentials are absent,
+  stop and name the exact scoped repository secrets required. Do not create a
+  paid account or enable paid overages.
 - **Authorization stop.** If GitHub permissions or account configuration block
   the live run, stop and report the exact authorization needed.
 - **Failure honesty.** On model error, rate limit, invalid structured output, or
