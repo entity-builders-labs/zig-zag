@@ -190,7 +190,12 @@ jobs:
           sed -n '/^CHANGED_FILES<<EOF$/,/^EOF$/p' "$range" | sed '1d;$d' > "$RUNNER_TEMP/changed-files.txt"
           [ -s "$RUNNER_TEMP/changed-files.txt" ] || { echo "REVIEW UNAVAILABLE / FAILED: resolved range produced no changed files" >&2; exit 1; }
           pr_metadata="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" | jq '{title, url, draft, state, head: .head.sha, base: .base.ref}')"
-          check_evidence="$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA/check-runs" 2>/dev/null | jq '[.check_runs[] | {name, status, conclusion}]' || printf '%s' '"UNAVAILABLE"')'
+          # A CI failure or a GitHub outage must not be reported as an empty
+          # check list. UNAVAILABLE is an explicit unknown, distinct from [].
+          check_evidence="$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA/check-runs" 2>/dev/null | jq -c '[.check_runs[] | {name, status, conclusion}]')"
+          if ! jq -e . > /dev/null 2>&1 <<<"$check_evidence"; then
+            check_evidence='"UNAVAILABLE"'
+          fi
           {
             printf '%s\n' '# Runtime review input'
             printf '\ntrack=%s\npr_number=%s\nreviewed_head=%s\nbase_branch=%s\n' "$TRACK" "$PR_NUMBER" "$HEAD_SHA" "$BASE_REF"

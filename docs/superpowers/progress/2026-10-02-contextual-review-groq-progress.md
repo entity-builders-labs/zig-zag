@@ -40,7 +40,7 @@ Preserved from the accepted bootstrap:
 Local verification actually executed for this checkpoint:
 
 ```text
-scripts/agent-review-baseline.spec.sh   17 fixtures PASS, exit 0
+scripts/agent-review-baseline.spec.sh   18 fixtures PASS, exit 0
 scripts/agent-governance.spec.sh        59 assertions PASS, exit 0
 shellcheck (7 governance + review scripts)   clean
 ruby YAML parse, both workflows                valid
@@ -159,10 +159,37 @@ reproduction:
    empty comment while the step still exited 0 — a silent wrong answer rather
    than a failure. Replaced with a portable per-key loop.
 
-Defects 3 and 4 are the reason fixture 15 rebuilds the marker under `/bin/sh`
-with POSIX tools only, and fixture 16 asserts no `printf` format begins with a
+Defects 3 and 4 are the reason fixture 17 rebuilds the marker under `/bin/sh`
+with POSIX tools only, and fixture 18 asserts no `printf` format begins with a
 bare dash. A workflow that only ever runs on `ubuntu-latest` still has to be
 readable by a human running the same logic locally.
+
+**Defect 5 — an unterminated `$(` in the CI evidence fallback, introduced by my
+own edit.** Run 37094285856 reached `Prepare the reviewed delta and canonical
+context` and exited 2 with `unexpected EOF while looking for matching "'`. The
+cause was a stray trailing quote on the `check_evidence` assignment, which I
+introduced when moving that line out of the `track` step. The line read:
+
+```bash
+check_evidence="$(gh api ... || printf '%s' '"UNAVAILABLE"')'
+```
+
+The closing `"` was missing, so the command substitution never terminated. It is
+replaced with an explicit assignment followed by a JSON validity check, so the
+fallback is also clearer: a GitHub outage yields the literal `UNAVAILABLE`,
+which is a distinct explicit unknown rather than an empty check list that would
+read as "no checks ran".
+
+This defect was shipped to CI by me, not discovered by CI. That is the honest
+account. Three CI round trips were spent on shell typos that a syntax check
+would have caught in milliseconds, and two of them were self-inflicted.
+
+**Fixture 15 now extracts every `run:` block from the workflow and runs
+`bash -n` on each.** It is the check whose absence allowed all three failures. I
+verified it is not vacuous by reinjecting the exact defect-5 line into the
+workflow and confirming the fixture fails with the identical parser error CI
+produced, then restoring the fix. An assertion that has never been observed
+failing is not evidence.
 
 ## Next authorized action
 
@@ -188,14 +215,15 @@ loop, and do not merge PR #72.
 
 ## Open findings / blockers
 
-- **Live GitHub Actions execution failed on the first push and is not yet
-  proven.** Run 37094163381 on `c3002986` reached `Select the incremental review
-  range`, correctly resolved the baseline, then exited 2 on `printf '-->'`.
-  The range logic itself behaved correctly: it reported
+- **Live GitHub Actions execution has failed twice and is not yet proven.** Two
+  runs on `c3002986` and `56f16332` exited 2 on shell defects in the range and
+  prepare steps respectively. The range logic itself behaved correctly in both:
   `COVERAGE=latest-commit-only`, `COMMIT_COUNT=1`, `CHANGED_FILE_COUNT=11`,
-  `DOCS_ONLY=false`, and stated the coverage limitation explicitly rather than
-  claiming full history. No review was published. Both defects are fixed and
-  guarded, but a green run is still required.
+  `DOCS_ONLY=false`, with the coverage limitation stated rather than claiming
+  full history. No review has been published. All three defects are fixed, and
+  fixture 15 now syntax-checks every embedded `run:` block — but a green run
+  through OpenCode, normalization, validation, and publication is still
+  required, and every phase past `prepare` is still unexercised in CI.
 - **Repository secrets are not yet set.** The probe read credentials from a
   sibling worktree's local `.env`. CI needs `CLOUDFLARE_ACCOUNT_ID` and
   `CLOUDFLARE_API_TOKEN` as scoped repository secrets before the workflow can

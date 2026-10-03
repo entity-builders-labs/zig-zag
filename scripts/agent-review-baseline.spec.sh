@@ -209,7 +209,39 @@ done
 # The root-commit path must not fall back to a silently empty `..HEAD` range.
 grep -Fq 'diff-tree --root -r --no-commit-id -p' "$WF" || fail '14 missing root-commit diff path'
 grep -Fq 'diff-tree --root -r --no-commit-id --name-only' "$BASELINE" || fail '14 selector missing root-commit file list'
-# --- case 15: range marker survives a POSIX shell, not just GNU sed ---------
+# --- case 15: every embedded run: block is valid shell ---------------------
+# Two CI failures came from shell syntax inside the workflow that nothing
+# checked: `printf '-->'` (parsed as an option) and a stray quote in the
+# check-evidence fallback. Extract each run: block and syntax-check it, so a
+# typo in embedded shell cannot reach a runner again.
+run_blocks_dir="$TMP/runs"
+mkdir -p "$run_blocks_dir"
+ruby -ryaml -e '
+d = YAML.load_file(ARGV.fetch(0))
+out = ARGV.fetch(1)
+d.fetch("jobs").each do |job_name, job|
+  (job["steps"] || []).each_with_index do |step, i|
+    run = step["run"]
+    next unless run
+    name = step["id"] || step["name"] || "step#{i}"
+    File.write(File.join(out, "#{job_name}-#{i}-#{name}".gsub(%r{[^\w.-]}, "_")), run)
+  end
+end
+' "$WF" "$run_blocks_dir"
+block_count=0
+for block in "$run_blocks_dir"/*; do
+  [ -f "$block" ] || continue
+  block_count=$((block_count + 1))
+  if ! bash -n "$block" 2>"$run_blocks_dir/err"; then
+    echo "invalid shell in workflow block: $(basename "$block")" >&2
+    cat "$run_blocks_dir/err" >&2
+    fail '15 an embedded run: block is not valid shell'
+  fi
+done
+[ "$block_count" -ge 10 ] || fail "15 expected the review workflow blocks, found $block_count"
+pass "all $block_count embedded run: blocks are valid shell"
+
+# --- case 17: range marker survives a POSIX shell, not just GNU sed ---------
 # The original marker used `\|` alternation inside a BRE, a GNU sed extension.
 # On BSD sed that matches nothing, so the marker rendered empty while the step
 # still exited 0. Reproduce the marker build under /bin/sh with POSIX tools only.
@@ -230,20 +262,20 @@ WF_MARKER_OUT="$(mktemp)"
 for key in BASELINE_SHA REVIEWED_SHA COVERAGE COMMIT_COUNT REVIEW_KIND DOCS_ONLY; do
   grep -Fq "contextual-review-groq:$key=" "$WF_MARKER_OUT" || fail "15 marker missing $key"
 done
-[ "$(grep -c 'zig-zag-contextual-review-range' "$WF_MARKER_OUT")" -eq 1 ] || fail '15 marker comment must appear once'
+[ "$(grep -c 'zig-zag-contextual-review-range' "$WF_MARKER_OUT")" -eq 1 ] || fail '17 marker comment must appear once'
 rm -f "$WF_MARKER_OUT"
 # The workflow must not reintroduce the non-portable BRE alternation.
 if grep -Eq "s\/^\\\\\(" "$WF"; then
-  fail '15 workflow must not use BRE backslash-paren alternation (non-portable)'
+  fail '17 workflow must not use BRE backslash-paren alternation (non-portable)'
 fi
 grep -Fq 'printf %s@' "$WF" || true
 pass 'range marker is built portably and is non-empty'
 
-# --- case 16: no printf format begins with a bare dash ----------------------
+# --- case 18: no printf format begins with a bare dash ----------------------
 # `printf '-->'` is parsed as an option by GNU coreutils printf and exits 2,
 # failing the run after the range was already resolved.
 if grep -Eq "printf '[-:]" "$WF"; then
-  fail '16 printf format starts with a dash and will be read as an option'
+  fail '18 printf format starts with a dash and will be read as an option'
 fi
 pass 'no printf format starts with a bare dash'
 
