@@ -209,6 +209,42 @@ done
 # The root-commit path must not fall back to a silently empty `..HEAD` range.
 grep -Fq 'diff-tree --root -r --no-commit-id -p' "$WF" || fail '14 missing root-commit diff path'
 grep -Fq 'diff-tree --root -r --no-commit-id --name-only' "$BASELINE" || fail '14 selector missing root-commit file list'
-pass 'empty resolved range fails closed in both selector and workflow'
+# --- case 15: range marker survives a POSIX shell, not just GNU sed ---------
+# The original marker used `\|` alternation inside a BRE, a GNU sed extension.
+# On BSD sed that matches nothing, so the marker rendered empty while the step
+# still exited 0. Reproduce the marker build under /bin/sh with POSIX tools only.
+WF_MARKER_OUT="$(mktemp)"
+(
+  set -eu
+  TRACK='contextual-review-groq'
+  range="$TMP/out.env"
+  {
+    printf '%s\n' '<!-- zig-zag-contextual-review-range'
+    for key in BASELINE_SHA REVIEWED_SHA COVERAGE COMMIT_COUNT REVIEW_KIND DOCS_ONLY; do
+      value="$(sed -n "s/^$key=//p" "$range")"
+      printf '%s:%s=%s\n' "$TRACK" "$key" "$value"
+    done
+    printf '%s\n' '-->'
+  } > "$WF_MARKER_OUT"
+)
+for key in BASELINE_SHA REVIEWED_SHA COVERAGE COMMIT_COUNT REVIEW_KIND DOCS_ONLY; do
+  grep -Fq "contextual-review-groq:$key=" "$WF_MARKER_OUT" || fail "15 marker missing $key"
+done
+[ "$(grep -c 'zig-zag-contextual-review-range' "$WF_MARKER_OUT")" -eq 1 ] || fail '15 marker comment must appear once'
+rm -f "$WF_MARKER_OUT"
+# The workflow must not reintroduce the non-portable BRE alternation.
+if grep -Eq "s\/^\\\\\(" "$WF"; then
+  fail '15 workflow must not use BRE backslash-paren alternation (non-portable)'
+fi
+grep -Fq 'printf %s@' "$WF" || true
+pass 'range marker is built portably and is non-empty'
+
+# --- case 16: no printf format begins with a bare dash ----------------------
+# `printf '-->'` is parsed as an option by GNU coreutils printf and exits 2,
+# failing the run after the range was already resolved.
+if grep -Eq "printf '[-:]" "$WF"; then
+  fail '16 printf format starts with a dash and will be read as an option'
+fi
+pass 'no printf format starts with a bare dash'
 
 printf 'ALL BASELINE FIXTURES PASSED\n'

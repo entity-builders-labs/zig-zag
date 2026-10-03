@@ -131,10 +131,16 @@ jobs:
           REVIEW_HEAD_SHA="$HEAD_SHA" TRACK="$TRACK" PR_EVENT_SHA="$EVENT_BASELINE" \
             bash scripts/agent-review-baseline "$RUNNER_TEMP/reviews.json" > "$RUNNER_TEMP/range.env"
           cat "$RUNNER_TEMP/range.env"
+          # Portable marker construction: `\|` alternation in a BRE is a GNU sed
+          # extension and silently matches nothing on BSD sed, which would emit
+          # an empty range marker while reporting success.
           {
             printf '%s\n' '<!-- zig-zag-contextual-review-range'
-            sed -n 's/^\(BASELINE_SHA\|REVIEWED_SHA\|COVERAGE\|COMMIT_COUNT\|REVIEW_KIND\|DOCS_ONLY\)=/'"$TRACK"':\1=/p' "$RUNNER_TEMP/range.env"
-            printf '-->'
+            for key in BASELINE_SHA REVIEWED_SHA COVERAGE COMMIT_COUNT REVIEW_KIND DOCS_ONLY; do
+              value="$(sed -n "s/^$key=//p" "$RUNNER_TEMP/range.env")"
+              printf '%s:%s=%s\n' "$TRACK" "$key" "$value"
+            done
+            printf '%s\n' '-->'
           } > "$RUNNER_TEMP/range-marker.txt"
           cat "$RUNNER_TEMP/range-marker.txt"
           {

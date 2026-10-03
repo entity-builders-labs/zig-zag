@@ -40,7 +40,7 @@ Preserved from the accepted bootstrap:
 Local verification actually executed for this checkpoint:
 
 ```text
-scripts/agent-review-baseline.spec.sh   15 fixtures PASS, exit 0
+scripts/agent-review-baseline.spec.sh   17 fixtures PASS, exit 0
 scripts/agent-governance.spec.sh        59 assertions PASS, exit 0
 shellcheck (7 governance + review scripts)   clean
 ruby YAML parse, both workflows                valid
@@ -146,7 +146,23 @@ silent-wrong-answer bugs, not crashes:
    resolved range selects no commits, produces an empty diff, or produces no
    changed files.
 
-Fixtures 13 and 14 exist specifically to catch these two regressions.
+Fixtures 13–16 exist specifically to catch these regressions. Two further
+defects were then caught by the first real CI run and by local POSIX-shell
+reproduction:
+
+3. `printf '-->'` is parsed as an *option* by GNU coreutils `printf`, not as a
+   format string, so the range step exited 2 immediately after successfully
+   resolving the range. The marker closing delimiter is now emitted via
+   `printf '%s\n' '-->'`.
+4. The marker body was built with `\|` alternation inside a BRE. That is a GNU
+   sed extension; on BSD `sed` it matches nothing, so the marker rendered as an
+   empty comment while the step still exited 0 — a silent wrong answer rather
+   than a failure. Replaced with a portable per-key loop.
+
+Defects 3 and 4 are the reason fixture 15 rebuilds the marker under `/bin/sh`
+with POSIX tools only, and fixture 16 asserts no `printf` format begins with a
+bare dash. A workflow that only ever runs on `ubuntu-latest` still has to be
+readable by a human running the same logic locally.
 
 ## Next authorized action
 
@@ -172,10 +188,14 @@ loop, and do not merge PR #72.
 
 ## Open findings / blockers
 
-- **Live GitHub Actions execution is still unproven.** The provider probe
-  proved model access and tool use locally; it did not prove the workflow. Every
-  fail-closed guard is currently verified only by fixtures and static
-  assertions.
+- **Live GitHub Actions execution failed on the first push and is not yet
+  proven.** Run 37094163381 on `c3002986` reached `Select the incremental review
+  range`, correctly resolved the baseline, then exited 2 on `printf '-->'`.
+  The range logic itself behaved correctly: it reported
+  `COVERAGE=latest-commit-only`, `COMMIT_COUNT=1`, `CHANGED_FILE_COUNT=11`,
+  `DOCS_ONLY=false`, and stated the coverage limitation explicitly rather than
+  claiming full history. No review was published. Both defects are fixed and
+  guarded, but a green run is still required.
 - **Repository secrets are not yet set.** The probe read credentials from a
   sibling worktree's local `.env`. CI needs `CLOUDFLARE_ACCOUNT_ID` and
   `CLOUDFLARE_API_TOKEN` as scoped repository secrets before the workflow can
