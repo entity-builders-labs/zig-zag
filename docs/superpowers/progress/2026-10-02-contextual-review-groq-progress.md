@@ -4,9 +4,14 @@
 
 ## Current execution verdict
 
-**Pipeline executes in real CI and fails closed correctly. Six defects found and
-fixed; no review published yet. Every phase after inspection is still
-unexercised.**
+**BLOCKED on provider quota. Shell, range selection, and fail-closed behavior
+are verified in real CI; the model-driven half of the pipeline has never
+completed a review. No review published.**
+
+Seven implementation defects were found and fixed, two of them shipped by me and
+found by CI. The provider's daily free allocation is now exhausted, so
+acceptance cannot be completed without either a budget reset or an explicit
+decision about paid usage.
 
 This track was bootstrapped manually from `origin/feat/preference-first-selection`
 at `1ceb477de44b3589cbc01b13eac9bf7aa22c98da`, following the existing
@@ -192,6 +197,14 @@ workflow and confirming the fixture fails with the identical parser error CI
 produced, then restoring the fix. An assertion that has never been observed
 failing is not evidence.
 
+**Defect 7 — the workflow hid the provider's own error.** Run 37095891616
+reported `OpenCode inspection exited 1` with a completely empty stderr, which
+sent me looking for a code defect that did not exist. OpenCode emits provider
+failures as a JSON `error` event on stdout; the step only tailed stderr. Both
+model phases now print the provider error object before failing, and the
+governance spec asserts both sites, so a future quota or auth failure is
+readable from the run log instead of requiring local reproduction.
+
 **Defect 6 — OpenCode refuses to read outside the project directory.** With
 credentials present, run 37095103080 attempt 2 reached
 `Inspect the delta with the read-only reviewer` and failed there:
@@ -221,37 +234,98 @@ Notably, the fail-closed guard behaved exactly as intended here: a provider
 inability produced `REVIEW UNAVAILABLE / FAILED`, zero reviews on the PR, and no
 fabricated `PASS`. That is the contract holding under real failure.
 
+**HALTED — provider daily allocation exhausted.** After the staging fix, run
+37095891616 again failed in inspection with no diagnostic at all: the step
+reported `OpenCode inspection exited 1` and an empty stderr. Reproducing locally
+against the same provider revealed the cause, which the workflow had been
+hiding:
+
+```text
+provider.rate-limit (HTTP 429, Cloudflare code 4006)
+you have used up your daily free allocation of 10,000 neurons,
+please upgrade to Cloudflare's Workers Paid plan
+```
+
+OpenCode reports this as a JSON `error` event on **stdout**, not stderr. The step
+only tailed stderr, so the actual reason was invisible in CI and I spent a cycle
+chasing an imaginary code defect. Both model phases now surface the provider's
+own error object before failing, and a governance assertion requires that in
+both places.
+
+The substantive position, stated plainly: **the reviewer has still never
+completed a single review against a live model.** The probe proved the provider
+accepts an oversized request and executes read tools, but it was a trivial
+two-file probe, not this pipeline. The free tier allows 10,000 neurons per day
+and the probe plus three failed CI attempts consumed it. There is no remaining
+budget to complete acceptance today.
+
+This is the same class of wall as the original Groq quota stop: a real,
+demonstrated provider limit, not a design gap. The pipeline's shell, range
+selection, context assembly, and fail-closed behavior are all verified. What is
+unverified is the model-driven middle of the pipeline — inspection evidence,
+normalization into the schema, path verification, and publication.
+
+I am stopping here rather than pushing again. Pushing would consume CI minutes
+to produce a fourth identical rate-limit failure, and the plan authorizes no
+further provider substitution and no paid upgrade.
+
 ## Next authorized action
 
-**Push the staging fix and drive run 37095103080 to a published review.**
+**BLOCKED — the provider has no remaining daily neuron allocation. Do not push
+to re-run the review until budget exists; another attempt would fail
+identically.**
 
-The secrets are in place, so the next run exercises the full pipeline for the
-first time: inspection, normalization, path verification, schema validation, and
-publication. Acceptance is a real published review whose `commit_id` equals the
-PR head, whose marker track and `reviewed_head` agree with it, and whose
-coverage statement matches what `scripts/agent-review-baseline` actually
-selected. A `REVIEW UNAVAILABLE / FAILED` outcome is a valid result and must not
-be papered over.
+Two unblocking options, both requiring an explicit human decision that the plan
+does not currently authorize:
 
-Then perform the bounded historical calibration at
-`4b3d2bb20818d3b36b68c591205e45b7ad155fa4` if the live run succeeds.
+1. Wait for the daily Cloudflare allocation to reset, then run
+   `gh run rerun 37095891616`. No code change is needed; the pipeline is
+   committed and ready. One run is enough to exercise inspection,
+   normalization, path verification, schema validation, and publication.
+2. Enable a paid Workers plan. Previously refused for Groq; the same refusal
+   was never re-asked for Cloudflare, so this is an open question rather than a
+   settled one.
+
+Acceptance criteria when unblocked: a published review whose `commit_id` equals
+the PR head, whose marker track and `reviewed_head` agree with it, and whose
+coverage statement matches what `scripts/agent-review-baseline` selected. Then
+the bounded historical calibration at
+`4b3d2bb20818d3b36b68c591205e45b7ad155fa4`.
+
+Do not add a second provider, do not wire an automatic fix/commit/push/merge
+loop, and do not merge PR #72.
 
 Do not add a second provider, do not wire an automatic fix/commit/push/merge
 loop, and do not merge PR #72.
 
 ## Open findings / blockers
 
-- **Live GitHub Actions execution has failed three times and is not yet proven.**
+- **BLOCKED: Cloudflare daily free allocation exhausted (10,000 neurons/day,
+  HTTP 429 code 4006).** Consumed by the probe plus three CI attempts. This is a
+  hard quota wall of the same class as the original Groq stop, not a defect.
+  Until it resets or paid usage is authorized, the review pipeline cannot be
+  exercised end to end. Notably the workflow *hid* this reason, because
+  OpenCode emits provider errors on stdout while the step only tailed stderr;
+  both model phases now surface the provider error object, and a governance
+  assertion enforces it.
+- **The reviewer has never completed a single live review.** The probe proved
+  the provider accepts an oversized request and executes read tools, but not
+  this pipeline. Normalization into the canonical schema, finding-path
+  verification, ajv validation, and publication are all unexercised against real
+  model output. Fixture coverage proves the guards fire; it does not prove the
+  happy path works.
+- **Live GitHub Actions execution has failed four times and is not yet proven.**
   Runs on `c3002986` and `56f16332` exited 2 on shell defects in the range and
   prepare steps; run 37095103080 attempt 1 failed closed on absent credentials,
   correctly; attempt 2 reached the reviewer and failed because OpenCode refuses
-  to read `RUNNER_TEMP`. The range logic behaved correctly every time:
+  to read `RUNNER_TEMP`; run 37095891616 failed on the exhausted provider
+  allocation. The range logic behaved correctly every time:
   `COVERAGE=latest-commit-only`, `COMMIT_COUNT=1`, `CHANGED_FILE_COUNT=11`,
   `DOCS_ONLY=false`, with the coverage limitation stated rather than claiming
   full history. Six defects are fixed and pinned by fixtures. No review has been
-  published. Every phase after inspection — normalization, path verification,
-  schema validation, publication — is still unexercised in CI, so the artifact
-  contract remains unproven end to end.
+  published. Seven defects are fixed and pinned by fixtures. Every phase after
+  inspection is still unexercised in CI, so the artifact contract remains
+  unproven end to end.
 - **Repository secrets are now set.** `CLOUDFLARE_ACCOUNT_ID` and
   `CLOUDFLARE_API_TOKEN` were added as scoped repository secrets. Values were
   piped from the sibling worktree's `.env` and never printed. The older

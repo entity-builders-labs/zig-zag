@@ -287,6 +287,12 @@ jobs:
           fi
           if [ "$status" -ne 0 ]; then
             echo "REVIEW UNAVAILABLE / FAILED: OpenCode inspection exited $status" >&2
+            # The provider's own error is the only useful diagnostic. OpenCode
+            # reports rate limits and auth failures as a JSON error event on
+            # stdout, not on stderr, so a stderr-only tail reports nothing and
+            # hides the actual cause.
+            jq -c 'select(.type=="error") | .error | {type, message}' \
+              "$RUNNER_TEMP/inspect.jsonl" >&2 || true
             tail -20 "$RUNNER_TEMP/inspect.err" >&2
             exit 1
           fi
@@ -339,6 +345,8 @@ jobs:
           set -e
           if [ "$status" -ne 0 ]; then
             echo "REVIEW UNAVAILABLE / FAILED: normalization exited $status" >&2
+            jq -c 'select(.type=="error") | .error | {type, message}' \
+              "$RUNNER_TEMP/normalize.jsonl" >&2 || true
             tail -20 "$RUNNER_TEMP/normalize.err" >&2
             exit 1
           fi

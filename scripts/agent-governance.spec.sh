@@ -229,6 +229,19 @@ for required in \
   'not present in the reviewed checkout'; do
   grep -Fq "$required" "$REVIEW_WORKFLOW"
 done
+
+# A provider failure must report the provider's own reason. OpenCode surfaces
+# rate limits and auth failures as a JSON error event on stdout, so a stderr-only
+# tail reports nothing and hides the cause of the failure.
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+[ "$(grep -Fc 'select(.type=="error") | .error | {type, message}' "$REVIEW_WORKFLOW")" -eq 2 ] \
+  || fail 'both model phases must surface the provider error object on failure'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq 'inspect.jsonl" >&2 || true' "$REVIEW_WORKFLOW" \
+  || fail 'inspection failure must surface the provider error object'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq 'normalize.jsonl" >&2 || true' "$REVIEW_WORKFLOW" \
+  || fail 'normalization failure must surface the provider error object'
 for forbidden in 'git commit' 'git push' 'gh pr merge' 'git merge ' 'git rebase'; do
   if grep -Fq "$forbidden" "$REVIEW_WORKFLOW"; then
     echo "forbidden autonomous mutation: $forbidden" >&2
