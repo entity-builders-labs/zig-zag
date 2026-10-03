@@ -63,7 +63,7 @@ production files (resolver, verifier, evidence builder, interface).
 | RW1 El Zanjón, Case A (resolver spec, from `15af1ccb`) | VERIFIED, persisted | VERIFIED, persisted | YES (verbatim) | The Nominatim country-bounded response holds only osm:node:9953027884 and the window was not reached, so the result is `NO_MATERIAL_COMPETITOR`. The NOMINATIM convergence verifies. |
 | RW1 Farmacia gate, IDENTITY_CONFLICT, hint memory COLD/WARM (`place-cutover`, `verified-hint-memory.integration-spec`) | as accepted | same | YES (verbatim) | Same complete Nominatim pool. The record carries the candidate's own name ("Farmacia de la Estrella"). |
 | Baseline verifier unit "verifies immediately on IDENTITY_CONVERGENCE, with no other evidence needed" | VERIFIED | **INSUFFICIENT_EVIDENCE** | Input verbatim; **expectation changed** | The input carries only convergence. That is defect A itself. The real El Zanjón facts are projected in a companion test (VERIFIED) and proven on the resolver fixture. **Flagged for independent review.** |
-| Baseline verifier unit "IDENTITY_CONVERGENCE overrides an otherwise-rejecting WIKIDATA_IDENTITY_MATCH" | VERIFIED | **REJECTED** | Input verbatim; **expectation changed** | Same reason. With the projected examination fact, the companion test is VERIFIED. **Flagged for independent review.** |
+| Baseline verifier unit "IDENTITY_CONVERGENCE overrides an otherwise-rejecting WIKIDATA_IDENTITY_MATCH" | VERIFIED | **REJECTED** (superseded: INSUFFICIENT_EVIDENCE, see RW4-ID-NEARBY-1 below) | Input verbatim; **expectation changed** | Same reason. With the projected examination fact, the companion test is VERIFIED. **Review outcome: REJECTED not accepted; corrected below.** |
 | c708b9a9-era verifier units ("%s convergence with no known collision confirms", "independent upstreams ... decide even a collision") | VERIFIED | rewritten as defect A/C tests | n/a (they encoded the defects) | These asserted the false-positive paths the brief identifies. |
 | P0.2 / A3 / A6 / Galería Güemes G1 (destination-bounded local/Places `SINGLE`) | VERIFIED | VERIFIED | YES | Retained: the accepted single-destination contract. See RW4-ID-DEST-UNIQUENESS-1. |
 | P0.2 "own wikidata tag disambiguates one of two exact candidates" | VERIFIED | VERIFIED | YES | `OWN_QID` corroboration stays discriminating (RW4-ID-QID-HOMONYM-1). |
@@ -88,3 +88,46 @@ Validation on the final tree:
   and 2 of 10 with c708b9a9's production code.
 
 No live COLD/WARM run was executed.
+
+## NEARBY non-corroboration (RW4-ID-NEARBY-1, 2026-10-03, after `272d50ef`)
+
+Defect: `NEARBY(true, false)` and `NEARBY(false, true)` returned REJECTED
+when nothing decided earlier. They are textual non-corroboration, not a
+contradiction (amendment §6). Rule and decision table:
+`ambiguity-policy-characterization.md`, "NEARBY non-corroboration".
+
+Changed expectations (inputs verbatim in every case):
+
+| Test | Origin | Old | New | Why the old expectation was wrong |
+| --- | --- | --- | --- | --- |
+| Verifier Test B, "convergence ... plus a non-corroborating NEARBY match" | input `15af1ccb`, expectation `272d50ef` | REJECTED | INSUFFICIENT_EVIDENCE | No incompatible identity is in the input. Convergence without competitor examination decides nothing (Test A stays INSUFFICIENT_EVIDENCE). |
+| Verifier "a nearby Wikidata match the candidate only half-shares ..." | `662d817c` | REJECTED | INSUFFICIENT_EVIDENCE | Pre-§6 veto: a failed NEARBY confirmation was read as disproof. |
+| Verifier RW1 Stage 1 characterization, Case A (three strategies, NEARBY(true, false) only) | `a0b6c75b` | REJECTED | INSUFFICIENT_EVIDENCE | The test itself recorded that freezing REJECTED "does not imply the REJECTED outcome is correct". |
+| Verifier "a partial nearby Wikidata match (hint=%s, candidate=%s)" | `92da63b1` | REJECTED | INSUFFICIENT_EVIDENCE | It encoded "positive evidence of a different identity", which a label match on one side does not establish. |
+| Resolver RW1 Case A: the intermediate LOCAL_OSM_POOL attempt decision | `15af1ccb` | REJECTED | INSUFFICIENT_EVIDENCE | Same rule. Only the per-attempt audit value changes. |
+
+Preserved (companion regressions, all passing on unchanged fixtures):
+
+| Scenario | Verdict |
+| --- | --- |
+| RW1 El Zanjón resolver Case A (`15af1ccb` fixture): NOMINATIM convergence | VERIFIED, persisted once as `openstreetmap / osm:node:9953027884` |
+| Projected El Zanjón facts: convergence + `NO_MATERIAL_COMPETITOR` (+ NEARBY(true, false)) | VERIFIED |
+| RW1 Farmacia gate, IDENTITY_CONFLICT, PLACES-alone negative, hint memory COLD/WARM (unit and `verified-hint-memory.integration-spec`) | unchanged |
+| Ojo de Agua: Córdoba hamlet negatives, real Luján pool AMBIGUOUS, contextual-positive VERIFIED, two equally compatible establishments AMBIGUOUS, heading is no assertion | unchanged |
+| `COMPETITOR_EXAMINATION: MATERIAL_COMPETITOR_KNOWN` with any NEARBY combination | AMBIGUOUS |
+| Partial or missing competitor examination plus convergence | not decisive |
+| Explicit source/candidate QID mismatch with any positive fact | REJECTED |
+| Source QID equal to candidate QID | VERIFIED |
+| Failing `OWN_QID` (false, true) / `OBSERVATION_QID` (true, false) | REJECTED (unchanged; RW4-ID-QID-LABEL-1) |
+
+Running the final tests against `272d50ef`'s verifier produced exactly the
+8 changed cases listed above. The other 201 verifier and resolver cases
+were identical.
+
+Validation on the final tree:
+- Unit: 2554/2554 (187 suites).
+- Integration: 113/113.
+- E2E: 41/41.
+- Typecheck, lint and build: green.
+
+No live COLD/WARM run was executed. COLD #12 was not run.

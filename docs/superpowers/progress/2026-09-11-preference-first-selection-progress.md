@@ -2163,7 +2163,15 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
     cases. They are now INSUFFICIENT_EVIDENCE or AMBIGUOUS.
   - Two baseline verifier unit inputs (convergence with nothing about
     competitors) changed expectation. They are flagged in the matrix for
-    independent review.
+    independent review. Review outcome: Test A (INSUFFICIENT_EVIDENCE) is
+    accepted; Test B's REJECTED was not, see RW4-ID-NEARBY-1.
+- NEARBY non-corroboration (2026-10-03, after `272d50ef`, RW4-ID-NEARBY-1).
+  A NEARBY Wikidata result other than one item naming both the hint and
+  the candidate is NOT_CORROBORATED, never REJECTED. Only that fallthrough
+  changed. Running the new tests against `272d50ef` changed exactly 8
+  cases, all REJECTED → INSUFFICIENT_EVIDENCE, and left 201 identical.
+  El Zanjón, Farmacia, Ojo de Agua and `COMPETITOR_EXAMINATION` are
+  unchanged.
 
 ## Next authorized action
 
@@ -2259,6 +2267,21 @@ before RW4 COLD #12. That review does not block the extractor work above.
   (1) A historical Prisma migration was rewritten. (2) Publishing one
   partition supersedes the other independently imported partitions of the
   same country. (3) COMPLETE_COUNTRY declarations lack adequate proof.
+- RW4-ID-NEARBY-1: CLOSED (2026-10-03). `NEARBY(true, false)` and
+  `NEARBY(false, true)` returned REJECTED when no earlier rule decided.
+  A nearby label naming only one of the two texts is textual
+  non-corroboration. El Zanjón's "(historic ruins)" suffix is enough to
+  produce it. It is not a contradiction (amendment §6). Five historical
+  expectations moved from REJECTED to INSUFFICIENT_EVIDENCE with their
+  inputs verbatim; the matrix records each one.
+- RW4-ID-QID-LABEL-1: OPEN, LOW, review. A failing `OWN_QID` label match
+  (the candidate's own item does not name the hint) or `OBSERVATION_QID`
+  label match (the source's item does not name the candidate) is still
+  REJECTED. That is label-text matching on an item structurally linked to
+  one side, not a typed QID contradiction. It is accepted policy (Recoleta
+  collision, `662d817c`) and was deliberately left unchanged. The verifier
+  tests A9/A10 use `OWN_QID (true, false)`, a shape the collector never
+  produces.
 - RW4-ID-QID-HOMONYM-1: OPEN, LOW. A corroborating OWN_QID/OBSERVATION_QID
   still singles out a MULTIPLE same-name member by label-only matching
   (retained for RW1 San Telmo). It is a potential false positive for

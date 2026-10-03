@@ -92,6 +92,14 @@ export type IdentityEvidence =
   | { type: 'ADDRESS_MATCH' }
   | { type: 'DECLARED_ALIAS_MATCH'; identityMultiplicity: IdentityMultiplicity }
   | {
+      /**
+       * Text matches of Wikidata labels against the hint and the
+       * candidate's name. OWN_QID / OBSERVATION_QID compare the labels of
+       * one item structurally linked to the candidate or the source.
+       * NEARBY compares labels of items found around the candidate's own
+       * point: only `true/true` (one item naming both) corroborates; any
+       * other combination is NOT_CORROBORATED, never a contradiction.
+       */
       type: 'WIKIDATA_IDENTITY_MATCH';
       source: 'OWN_QID' | 'OBSERVATION_QID' | 'NEARBY';
       hintMatched: boolean;

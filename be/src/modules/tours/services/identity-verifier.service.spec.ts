@@ -66,7 +66,17 @@ describe('IdentityVerifier', () => {
     ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
   });
 
-  it('convergence with no examination of competitors does not outweigh a rejecting WIKIDATA_IDENTITY_MATCH (baseline input; defect A)', async () => {
+  /**
+   * Test B (baseline 15af1ccb input, kept verbatim). 15af1ccb expected
+   * VERIFIED (defect A); 272d50ef changed it to REJECTED, reading the
+   * NEARBY(hint=true, candidate=false) label match as a contradiction. It
+   * is not one: a nearby label naming only the hint text (El Zanjón: the
+   * candidate's "(historic ruins)" suffix defeats the label match)
+   * establishes no incompatible identity (amendment §6, NOT_CORROBORATED).
+   * With convergence and nothing examined about competitors, the input
+   * carries no decisive fact either way (RW4-ID-NEARBY-1).
+   */
+  it('convergence with no examination of competitors plus a non-corroborating NEARBY match is INSUFFICIENT_EVIDENCE (baseline input; defect A, RW4-ID-NEARBY-1)', async () => {
     const verifier = new IdentityVerifier();
 
     await expect(
@@ -89,7 +99,7 @@ describe('IdentityVerifier', () => {
           },
         ]),
       ),
-    ).toEqual({ status: 'REJECTED' });
+    ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
   });
 
   describe('RW1 El Zanjón facts, projected: convergence over an examined competitor set', () => {
@@ -201,7 +211,10 @@ describe('IdentityVerifier', () => {
     ).toEqual({ status: 'VERIFIED' });
   });
 
-  it('rejects a nearby Wikidata match when the candidate only shares half its tokens', async () => {
+  // 662d817c expected REJECTED here: a failed NEARBY confirmation was a
+  // veto. Since amendment §6 it is NOT_CORROBORATED: the item names the
+  // hint, nothing ties it to another identity (RW4-ID-NEARBY-1).
+  it('a nearby Wikidata match the candidate only half-shares is not corroboration, and not a rejection', async () => {
     const verifier = new IdentityVerifier();
 
     await expect(
@@ -216,7 +229,7 @@ describe('IdentityVerifier', () => {
           },
         ]),
       ),
-    ).toEqual({ status: 'REJECTED' });
+    ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
   });
 
   it('returns insufficient evidence when Wikidata is unavailable', async () => {
@@ -383,9 +396,11 @@ describe('IdentityVerifier', () => {
     // IdentityVerifier rejected all three. This is the exact baseline the
     // amendment's "candidate convergence is evidence; provider voting is
     // not policy" section (§5) and "corroboration is additive; absence is
-    // not contradiction" section (§6) are written against. Freezing it here
-    // does not imply the REJECTED outcome is correct.
-    it('Case A: El Zanjón de Granados — real acquisition-path convergence on osm:node:9953027884 still REJECTED by a non-corroborating Wikidata NEARBY match', async () => {
+    // not contradiction" section (§6) are written against. The frozen
+    // REJECTED was not correct: per §6 each attempt alone is
+    // INSUFFICIENT_EVIDENCE (RW4-ID-NEARBY-1, 2026-10-03). The resolver-level
+    // Case A test proves the original fixture still VERIFIES and persists.
+    it('Case A: El Zanjón de Granados — a non-corroborating Wikidata NEARBY match alone leaves each attempt INSUFFICIENT_EVIDENCE, never REJECTED', async () => {
       const verifier = new IdentityVerifier();
       const zanjonHint = { name: 'El Zanjón de Granados' };
       const nonCorroboratingNearbyMatch: ResolutionAttempt['evidence'] = [
@@ -398,7 +413,7 @@ describe('IdentityVerifier', () => {
       ];
 
       // Same real externalId (osm:node:9953027884), three independent
-      // acquisition strategies, three identical rejections.
+      // acquisition strategies, three identical non-decisions.
       for (const strategy of [
         'LOCAL_OSM_POOL',
         'NOMINATIM',
@@ -413,7 +428,7 @@ describe('IdentityVerifier', () => {
           },
           evidence: nonCorroboratingNearbyMatch,
         });
-        expect(result).toEqual({ status: 'REJECTED' });
+        expect(result).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
       }
     });
 
@@ -832,20 +847,21 @@ describe('IdentityVerifier', () => {
       ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
     });
 
-    // A Wikidata item matching only the hint (or only the candidate) near
-    // the candidate is positive evidence of a different identity there.
+    // 92da63b1 expected REJECTED here ("positive evidence of a different
+    // identity"). A label naming one of the two texts identifies no other
+    // entity: NOT_CORROBORATED (RW4-ID-NEARBY-1). See the NEARBY matrix.
     it.each([
       [true, false],
       [false, true],
     ])(
-      'a partial nearby Wikidata match (hint=%s, candidate=%s) stays REJECTED',
+      'a partial nearby Wikidata match (hint=%s, candidate=%s) is INSUFFICIENT_EVIDENCE, not REJECTED',
       (hintMatched, candidateMatched) => {
         expect(
           verifier.verify(
             { name: 'Recoleta Cemetery' },
             attempt([nearby(hintMatched, candidateMatched)], 'UNKNOWN'),
           ),
-        ).toEqual({ status: 'REJECTED' });
+        ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
       },
     );
 
@@ -1298,5 +1314,235 @@ describe('IdentityVerifier', () => {
         ),
       ).toEqual({ status: 'REJECTED' });
     });
+  });
+
+  /**
+   * RW4-ID-NEARBY-1 (2026-10-03). A NEARBY result is text matches of
+   * labels found around the candidate's own point. Only one item naming
+   * both texts corroborates; every other combination is NOT_CORROBORATED
+   * and leaves the decision to the remaining evidence and the competitor
+   * policy. A contradiction needs positive evidence of another identity
+   * (a typed IDENTITY_CONTRADICTION).
+   */
+  describe('NEARBY non-corroboration is never a contradiction (RW4-ID-NEARBY-1)', () => {
+    const verifier = new IdentityVerifier();
+    const nearby = (hintMatched: boolean, candidateMatched: boolean) => ({
+      type: 'WIKIDATA_IDENTITY_MATCH' as const,
+      source: 'NEARBY' as const,
+      hintMatched,
+      candidateMatched,
+    });
+    const examination = (
+      outcome: 'MATERIAL_COMPETITOR_KNOWN' | 'NO_MATERIAL_COMPETITOR',
+    ) => ({
+      type: 'COMPETITOR_EXAMINATION' as const,
+      outcome,
+      examinedStrategies: ['LOCAL_OSM_POOL' as const, 'NOMINATIM' as const],
+      competitorCount: outcome === 'MATERIAL_COMPETITOR_KNOWN' ? 1 : 0,
+    });
+    const convergence = {
+      type: 'IDENTITY_CONVERGENCE' as const,
+      priorStrategy: 'LOCAL_OSM_POOL' as const,
+      identity: {
+        provider: 'openstreetmap',
+        externalId: 'osm:node:9953027884',
+      },
+    };
+    const qidConflict = {
+      type: 'IDENTITY_CONTRADICTION' as const,
+      fact: 'WIKIDATA_QID' as const,
+      sourceQid: 'Q100',
+      candidateQid: 'Q200',
+    };
+    const hint = { name: 'El Zanjón de Granados' };
+
+    it.each([
+      [true, false],
+      [false, true],
+      [false, false],
+    ])(
+      'NEARBY(hint=%s, candidate=%s) with no discriminating fact is INSUFFICIENT_EVIDENCE',
+      (hintMatched, candidateMatched) => {
+        expect(
+          verifier.verify(
+            hint,
+            attempt([nearby(hintMatched, candidateMatched)], 'UNKNOWN'),
+          ),
+        ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+      },
+    );
+
+    it.each([
+      [true, true],
+      [true, false],
+      [false, true],
+      [false, false],
+    ])(
+      'NEARBY(hint=%s, candidate=%s) with a material competitor known is AMBIGUOUS',
+      (hintMatched, candidateMatched) => {
+        expect(
+          verifier.verify(
+            hint,
+            attempt([
+              nearby(hintMatched, candidateMatched),
+              examination('MATERIAL_COMPETITOR_KNOWN'),
+            ]),
+          ),
+        ).toEqual({ status: 'AMBIGUOUS' });
+      },
+    );
+
+    it('NEARBY(true, false) with a material competitor and convergence is still AMBIGUOUS', () => {
+      expect(
+        verifier.verify(
+          hint,
+          attempt([
+            convergence,
+            nearby(true, false),
+            examination('MATERIAL_COMPETITOR_KNOWN'),
+          ]),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    });
+
+    it('NEARBY(true, false) with convergence over a complete pool and no material competitor VERIFIES', () => {
+      expect(
+        verifier.verify(
+          hint,
+          attempt([
+            convergence,
+            nearby(true, false),
+            examination('NO_MATERIAL_COMPETITOR'),
+          ]),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
+
+    it.each([
+      [true, false],
+      [false, true],
+    ])(
+      'NEARBY(hint=%s, candidate=%s) over a MULTIPLE exact-name pool stays AMBIGUOUS',
+      (hintMatched, candidateMatched) => {
+        expect(
+          verifier.verify(
+            hint,
+            attempt(
+              [
+                { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+                nearby(hintMatched, candidateMatched),
+              ],
+              'MULTIPLE',
+            ),
+          ),
+        ).toEqual({ status: 'AMBIGUOUS' });
+      },
+    );
+
+    it('NEARBY(true, false) never outweighs EXACT_NAME + SINGLE', () => {
+      expect(
+        verifier.verify(
+          hint,
+          attempt([
+            { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+            nearby(true, false),
+          ]),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
+
+    it.each([
+      [
+        'EXACT_NAME + SINGLE',
+        [
+          {
+            type: 'EXACT_NAME' as const,
+            identityMultiplicity: 'SINGLE' as const,
+          },
+        ],
+      ],
+      [
+        'convergence over an examined set',
+        [convergence, examination('NO_MATERIAL_COMPETITOR')],
+      ],
+    ])('Wikidata unavailable keeps %s VERIFIED', (_label, positive) => {
+      expect(
+        verifier.verify(
+          hint,
+          attempt([...positive, { type: 'WIKIDATA_UNAVAILABLE' }]),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
+
+    it.each([
+      ['a corroborating NEARBY match', [nearby(true, true)]],
+      ['a non-corroborating NEARBY match', [nearby(true, false)]],
+      [
+        'convergence over an examined set',
+        [convergence, examination('NO_MATERIAL_COMPETITOR')],
+      ],
+      [
+        'EXACT_NAME + SINGLE',
+        [
+          {
+            type: 'EXACT_NAME' as const,
+            identityMultiplicity: 'SINGLE' as const,
+          },
+        ],
+      ],
+    ])(
+      'a source/candidate QID mismatch with %s is REJECTED',
+      (_label, positive) => {
+        expect(
+          verifier.verify(hint, attempt([qidConflict, ...positive])),
+        ).toEqual({ status: 'REJECTED' });
+      },
+    );
+
+    it('an equal source/candidate QID keeps its positive correspondence despite a NEARBY non-match', () => {
+      expect(
+        verifier.verify(
+          hint,
+          attempt([
+            {
+              type: 'SOURCE_DECLARED_IDENTITY_MATCH',
+              identity: { provider: 'wikidata', externalId: 'Q100' },
+            },
+            nearby(true, false),
+          ]),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
+
+    // Characterization, unchanged by RW4-ID-NEARBY-1: a candidate's own
+    // QID whose labels do not name the hint (the only failing OWN_QID shape
+    // the collector produces) and a source-declared QID the candidate's
+    // name does not match stay REJECTED. They are label comparisons on an
+    // item structurally linked to one side, not a typed QID contradiction;
+    // see RW4-ID-QID-LABEL-1 in the regression matrix.
+    it.each([
+      ['OWN_QID' as const, false, true],
+      ['OBSERVATION_QID' as const, true, false],
+    ])(
+      'a failing %s label match (hint=%s, candidate=%s) stays REJECTED',
+      (source, hintMatched, candidateMatched) => {
+        expect(
+          verifier.verify(
+            hint,
+            attempt(
+              [
+                {
+                  type: 'WIKIDATA_IDENTITY_MATCH',
+                  source,
+                  hintMatched,
+                  candidateMatched,
+                },
+              ],
+              'UNKNOWN',
+            ),
+          ),
+        ).toEqual({ status: 'REJECTED' });
+      },
+    );
   });
 });

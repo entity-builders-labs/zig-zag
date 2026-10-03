@@ -7175,19 +7175,19 @@ describe('ExperienceProposalResolverService', () => {
     // matching): real evidence showed LOCAL_OSM_POOL and NOMINATIM
     // independently converging on the exact same canonical OSM object
     // (osm:node:9953027884) for "El Zanjón de Granados", both previously
-    // REJECTED by a non-corroborating Wikidata NEARBY match (hintMatched:
+    // not verified by a non-corroborating Wikidata NEARBY match (hintMatched:
     // true, candidateMatched: false — the candidate's own display name
     // carries a purely descriptive "(historic ruins)" suffix the nearby
     // Wikidata entity's plain label never had). The fix is NOT a smarter
-    // string comparison: LOCAL_OSM_POOL's own attempt still gets REJECTED
-    // exactly as before (nothing about the name-matching changed). Instead,
+    // string comparison: LOCAL_OSM_POOL's own attempt still does not verify
+    // (nothing about the name-matching changed). Instead,
     // once NOMINATIM (a second, structurally independent acquisition
     // strategy) acquires a candidate with the exact same (provider,
     // externalId) LOCAL_OSM_POOL already saw for this hint, the resolver
     // records IDENTITY_CONVERGENCE evidence -- pure ID equality across two
     // independent lookups -- and IdentityVerifier verifies on that alone,
     // without ever consulting Wikidata for this second attempt.
-    it('Case A: NOMINATIM verifies "El Zanjón de Granados" via IDENTITY_CONVERGENCE with LOCAL_OSM_POOL\'s own (rejected) osm:node:9953027884 acquisition', async () => {
+    it('Case A: NOMINATIM verifies "El Zanjón de Granados" via IDENTITY_CONVERGENCE with LOCAL_OSM_POOL\'s own (unverified) osm:node:9953027884 acquisition', async () => {
       const zanjonOsmNode = {
         id: 'osm:node:9953027884',
         name: 'El Zanjón de Granados (historic ruins)',
@@ -7300,14 +7300,19 @@ describe('ExperienceProposalResolverService', () => {
       );
       const nominatimAttempt = attempts.find((a) => a.strategy === 'NOMINATIM');
 
-      // LOCAL_OSM_POOL's own attempt is unaffected by the fix: it still
-      // acquires the real object and still gets REJECTED on its own
-      // (non-corroborating) Wikidata NEARBY evidence -- nothing about name
-      // matching changed.
+      // LOCAL_OSM_POOL's own attempt acquires the real object but cannot
+      // verify it alone: its only fact is the non-corroborating NEARBY
+      // match. Until 2026-10-03 this asserted REJECTED, treating a label
+      // that names only the hint as a contradiction; it is
+      // NOT_CORROBORATED (amendment §6), so the attempt is
+      // INSUFFICIENT_EVIDENCE. Input unchanged; the final decision below is
+      // unaffected (RW4-ID-NEARBY-1).
       expect(localOsmAttempt?.selectedCandidate?.externalId).toBe(
         'osm:node:9953027884',
       );
-      expect(localOsmAttempt?.verificationDecision).toBe('REJECTED');
+      expect(localOsmAttempt?.verificationDecision).toBe(
+        'INSUFFICIENT_EVIDENCE',
+      );
       expect(
         localOsmAttempt?.identityEvidence?.some(
           (e: any) => e.type === 'IDENTITY_CONVERGENCE',

@@ -41,7 +41,7 @@ and the resolver treat competing same-name records.
 | --- | --- |
 | Positive correspondence (discriminating) | Grounded locality or kind that singles out one member (`CONTEXTUAL_CORRESPONDENCE: DISTINGUISHED`). A source-declared QID equal to the candidate's QID. A source address matched by the candidate (`ADDRESS_MATCH`). A recorded prior verification (`CATALOG_VERIFIED_HINT_MATCH`). A single structural route cluster. |
 | Positive correspondence (record-level, not discriminating) | `EXACT_NAME`, `DECLARED_ALIAS_MATCH`, `IDENTITY_CONVERGENCE` (two lookups for the hint land on one strong identity), Wikidata `OWN_QID` or `NEARBY` corroboration |
-| Uncertainty | Multiplicity `UNKNOWN`, a partial pool, a saturated window, an undetermined upstream, a provider failure, an ungrounded locality |
+| Uncertainty (NOT_CORROBORATED) | Multiplicity `UNKNOWN`, a partial pool, a saturated window, an undetermined upstream, a provider failure, an ungrounded locality, Wikidata unavailable, and any `NEARBY` result other than one item naming both the hint and the candidate (RW4-ID-NEARBY-1) |
 | Contradiction (REJECTED) | A source QID that differs from the candidate's QID. A record outside a grounded component locality. A structure that contradicts a stated kind. |
 
 A record-level fact says that a record matches the hint text. It says
@@ -115,3 +115,52 @@ asserted this directly.
 Both cases already carried a complete examination: the country-bounded
 Nominatim response was untruncated and held only the candidate. The new
 policy reads that fact explicitly. It injects nothing.
+
+## NEARBY non-corroboration (RW4-ID-NEARBY-1, after `272d50ef`)
+
+`WIKIDATA_IDENTITY_MATCH` with `source: NEARBY` records text matches of
+labels found within 200 m of the candidate's own point. The collector sets
+`hintMatched`/`candidateMatched` from `requireAllTokens` name overlap.
+`NEARBY(true, false)` means a nearby label names the hint text but no
+single label names both. In El Zanjón, the candidate's descriptive
+"(historic ruins)" suffix alone defeats the candidate-side match.
+
+Neither partial combination identifies an incompatible entity. Until
+`272d50ef` the verifier returned REJECTED for `NEARBY(true, false)` and
+`NEARBY(false, true)` whenever nothing decided earlier. That collapsed
+NOT_CORROBORATED into CONTRADICTED, against amendment §6.
+
+The corrected rule is that every `NEARBY` combination except `true/true`
+is NOT_CORROBORATED, so the decision falls through to the remaining
+evidence and the multiplicity fallback. Rules 1 to 6 are unchanged and
+still run first: contradictions, discriminating facts,
+`COMPETITOR_EXAMINATION` and convergence over an examined set.
+`NEARBY(true, true)` keeps its accepted meaning: it confirms only a
+candidate with no known name collision and never decides one.
+
+| NEARBY | Other evidence | Before (`272d50ef`) | After |
+| --- | --- | --- | --- |
+| (true, false) | none | REJECTED | INSUFFICIENT_EVIDENCE |
+| (false, true) | none | REJECTED | INSUFFICIENT_EVIDENCE |
+| (false, false) | none | INSUFFICIENT_EVIDENCE | INSUFFICIENT_EVIDENCE |
+| (true, false) | convergence, no competitor examination (Test B) | REJECTED | INSUFFICIENT_EVIDENCE |
+| any | `MATERIAL_COMPETITOR_KNOWN` | AMBIGUOUS | AMBIGUOUS |
+| (true, false) | convergence + `NO_MATERIAL_COMPETITOR` | VERIFIED | VERIFIED |
+| (true, false) / (false, true) | `EXACT_NAME` MULTIPLE | AMBIGUOUS | AMBIGUOUS |
+| (true, false) | `EXACT_NAME` SINGLE | VERIFIED | VERIFIED |
+| (true, true) | no collision, nothing else | VERIFIED | VERIFIED |
+| (true, true) | `EXACT_NAME` / alias MULTIPLE | AMBIGUOUS | AMBIGUOUS |
+| any | `IDENTITY_CONTRADICTION` (QID, locality, kind) | REJECTED | REJECTED |
+| (true, false) | `SOURCE_DECLARED_IDENTITY_MATCH` | VERIFIED | VERIFIED |
+| — (Wikidata unavailable) | `EXACT_NAME` SINGLE, or convergence + `NO_MATERIAL_COMPETITOR` | VERIFIED | VERIFIED |
+
+The "Before" column was produced by running the new tests against
+`272d50ef`'s verifier. Exactly the rows marked as changed differed.
+
+`OWN_QID` and `OBSERVATION_QID` are untouched. The collector always sets
+`candidateMatched: true` for `OWN_QID`, so its only failing production
+shape is `(false, true)`: the candidate's own item does not name the hint.
+`OBSERVATION_QID (true, false)` means the source's item does not name the
+candidate. Both stay REJECTED. They compare labels on an item structurally
+linked to one side; they are not a typed QID contradiction. That concern
+is recorded separately as RW4-ID-QID-LABEL-1 and is not changed here.

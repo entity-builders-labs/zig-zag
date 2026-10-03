@@ -1103,7 +1103,10 @@ order has no score and no threshold:
    can claim `SINGLE` only when it covered the admission scope. A saturated
    window, or a destination-bounded pool for an Experience admitted beyond
    the destination, reports `UNKNOWN` for a lone member.
-7. **Wikidata corroboration.** NEARBY never decides a name collision.
+7. **Wikidata corroboration.** NEARBY never decides a name collision. A
+   NEARBY result other than one item naming both the hint and the
+   candidate is NOT_CORROBORATED (§6), never a contradiction. The decision
+   falls through to the remaining evidence (RW4-ID-NEARBY-1).
 8. **Missing evidence**, which yields INSUFFICIENT_EVIDENCE or AMBIGUOUS.
 
 **Competitors (2026-10-03).** A record is a material competitor when all

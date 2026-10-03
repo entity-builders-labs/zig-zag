@@ -27,7 +27,8 @@ import {
  *     over an examined competitor set (NO_MATERIAL_COMPETITOR). Over an
  *     unexamined one it confirms a record, nothing more.
  *  6. Name, address and alias evidence with its own multiplicity.
- *  7. Wikidata corroboration (NEARBY never decides a name collision).
+ *  7. Wikidata corroboration (NEARBY never decides a name collision, and
+ *     a NEARBY non-match is NOT_CORROBORATED, never a contradiction).
  *  8. Missing evidence -> INSUFFICIENT_EVIDENCE / AMBIGUOUS.
  */
 export class IdentityVerifier {
@@ -195,16 +196,17 @@ export class IdentityVerifier {
       if (namePoolHasCollision) {
         return { status: 'AMBIGUOUS' };
       }
-      // NEARBY matching neither name only means no Wikidata item was found
-      // there: NOT_CORROBORATED, never CONTRADICTED (2026-09-22 amendment
-      // §6). Fall through to the multiplicity fallback below. An item that
-      // matches only one of the two names, or a candidate's own/observed
-      // QID that fails to match, is positive evidence of another identity.
-      const nothingFoundNearby =
-        wikidataMatch.source === 'NEARBY' &&
-        !wikidataMatch.hintMatched &&
-        !wikidataMatch.candidateMatched;
-      if (!nothingFoundNearby) {
+      // Any NEARBY result other than one item matching both names is
+      // NOT_CORROBORATED, never CONTRADICTED (2026-09-22 amendment §6). Its
+      // booleans are text matches of labels found around the candidate's
+      // own point: a label matching only the hint (El Zanjón: the
+      // candidate's "(historic ruins)" suffix defeats the label match) or
+      // only the candidate establishes no incompatible identity, so the
+      // decision falls through to the remaining evidence. A positive
+      // contradiction is a typed IDENTITY_CONTRADICTION (rule 1). A failing
+      // OWN_QID / OBSERVATION_QID match is a structural link to one item
+      // that does not name both sides, and stays REJECTED.
+      if (wikidataMatch.source !== 'NEARBY') {
         return { status: 'REJECTED' };
       }
     }
