@@ -2123,40 +2123,35 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
-RW4 contextual physical identity: milestones 1 and 2 of 3 are DONE
-(2026-10-03).
+RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
+(2026-10-03, amendment §19, dossier
+`identity-characterization/contextual-identity-2026-10-03/`).
 
-- M1: `IdentityVerifier` follows the ordered policy in amendment §19.
-- M2: the extractor may propose a component `localityAssertion` and a
-  `physicalKindAssertion`. A deterministic gate admits one only when it
-  appears in that component's own evidence and one sentence names both the
-  component and the fact. `sourceLink` is taken from the Markdown link.
-  `OsmComponentLocalityGrounder` grounds a stated locality to exactly one
-  OSM administrative boundary, using the outermost of a nested chain, and
-  fails closed on unrelated homonyms. Verified hint memory is reused only
-  when it does not contradict a stated locality.
-- Real replay (dossier
-  `identity-characterization/contextual-identity-2026-10-03/`):
-  - "Lujan de Cuyo" grounds to `osm:relation:2989830`, with the Agrelo
-    restaurant INSIDE and the Córdoba hamlet OUTSIDE.
-  - Ojo de Agua stays AMBIGUOUS. The extractor (Gemini; Cloudflare was at
-    its quota and Groq returned 0 candidates) emitted no locality assertion
-    for the admissible caption.
-  - Alfa Crux, SuperUco and Bodega Azul are INSUFFICIENT_EVIDENCE.
-  - A16 has no candidate.
-- M3 (Overture pool) is next.
+- M1: ordered verifier policy with typed contradictions, independent-only
+  convergence and contextual pool evaluation.
+- M2: grounded component locality and kind assertions, the real OSM
+  locality grounder, and hint memory reused only when it agrees with a
+  stated locality.
+- M3: Overture returns its whole pool. No storage change was needed: no
+  discarded Overture field changes a fixture decision.
+- Real decisions: Ojo de Agua is AMBIGUOUS on the Luján restaurant (the
+  extractor emitted no locality assertion); Alfa Crux and SuperUco are
+  INSUFFICIENT_EVIDENCE; Bodega Azul is INSUFFICIENT_EVIDENCE; A16 has no
+  candidate. 0 rows persisted.
+- Intended RW1 change: El Zanjón and Farmacia la Estrella no longer verify
+  on shared-upstream OSM convergence alone.
 
 ## Next authorized action
 
-Close the RW4 component-identity evidence gap without changing verifier
-policy. The next task is a reviewed, repo-owned Overture importer that
-publishes a `COMPLETE_COUNTRY` AR snapshot and retains the provider
-website, category and locality. This establishes or refutes SINGLE for
-Alfa Crux and SuperUco, and gives component-bound facts somewhere to land.
-After that, decide on source-fact extraction: a typed component URL and an
-explicit locality on `GeoEntityHint` (Ojo de Agua, Bodega Azul). COLD #12 is
-NOT ready: the Uco composition needs every member, and Bodega Azul, A16 and
-Ojo de Agua stay unresolved.
+Make the discovery extractor reliably propose component-specific locality
+assertions that the deterministic gate can admit. On the real SolSalute
+window the admissible caption ("Wine and lunch at Ojo de Agua in Lujan de
+Cuyo") never became an assertion across three Gemini runs; Groq returned 0
+candidates, and Cloudflare (the COLD #11 extractor) was over its daily
+quota. Re-run the contextual replay with the COLD #11 extractor first. Do
+not change the gate or the verifier to compensate. COLD #12 is NOT ready:
+the Uco composition requires Alfa Crux, SuperUco and Bodega Azul, and none
+has a discriminating fact.
 
 The draft pull request for `feat/preference-first-selection` -> `main` exists
 for review only. Do not merge to `main`, do not change RW4 conclusions, and do
@@ -2177,30 +2172,34 @@ not start an autonomous reviewer/fixer loop.
   merge result. The merge result's `be/` tree is byte-identical to this branch
   head, so this is product-suite flakiness in the RW4 area, not a governance
   regression. Do not weaken an invariant or a fixture to hide it.
-- RW4-ID-CONTRADICTION-1: CLOSED for the one structural contradiction the
-  evidence carries: a source QID that differs from the candidate's QID is
-  `IDENTITY_CONTRADICTION`, which precedes every positive rule. No typed
-  address-mismatch or physical-kind contradiction exists yet. Composite
-  geography (REGION/COUNTRY_CONFLICT) still runs after persistence.
+- RW4-ID-CONTRADICTION-1: CLOSED. Typed `IDENTITY_CONTRADICTION` covers
+  WIKIDATA_QID, LOCALITY (outside a grounded stated locality) and
+  PHYSICAL_KIND (structure contradicts a stated kind), and it precedes every
+  positive rule. An address mismatch is still not a typed contradiction.
 - RW4-ID-SEL-1: CLOSED. The NOMINATIM component window (top 5 by global
   importance) truncated the only plausible member before selection (Ojo de
   Agua). It now uses the provider-maximum window.
-- RW4-ID-OVERTURE-SEL-1: OPEN, LOW. `OVERTURE_IDENTITY` selects `rows[0]`
-  by featureId and skips `admitComponentLocation`, unlike NOMINATIM and
-  PLACES. No wrong decision has been demonstrated: MULTIPLE is AMBIGUOUS
-  whichever row is selected, and only the name reaches the verifier.
-- RW4-ID-CONVERGENCE-OSM-1: OPEN, LOW. NOMINATIM and Geoapify both index
-  OSM. Their `IDENTITY_CONVERGENCE` is one upstream record found twice by
-  name and proximity, and it verifies even over a MULTIPLE pool. Not
-  observed in RW4 (Geoapify returned 0 for Ojo de Agua).
-- RW4-ID-SOURCE-FACTS-1: OPEN, MEDIUM. The source's component URL and
-  explicit locality ("Ojo de Agua in Lujan de Cuyo", `ojodeagua.ch`) are
-  not typed on `GeoEntityHint`. The Overture import drops the website,
-  category and locality. This is the evidence gap behind the remaining
-  AMBIGUOUS and INSUFFICIENT results.
-- Overture migration/snapshot-partition findings from the earlier review
-  remain separate. This identity task did not touch them, and their
-  details are not recorded on this track.
+- RW4-ID-OVERTURE-SEL-1: CLOSED. Overture returns its whole exact-name
+  pool. Selection uses the shared contextual policy plus nearest-to-window,
+  and the selected member answers to the same scope admission.
+- RW4-ID-CONVERGENCE-OSM-1: CLOSED. Convergence carries its upstream
+  relation and decides only across independent upstreams. RW1 El Zanjón and
+  Farmacia la Estrella no longer verify on shared-upstream convergence
+  alone (amendment §5/§9 notes).
+- RW4-ID-SOURCE-FACTS-1: PARTIALLY CLOSED. Locality, kind and link
+  assertions are typed, grounded and audited. OPEN: the real extractor does
+  not reliably emit the locality assertion. The Overture import still drops
+  website, category and locality; no fixture decision depends on them.
+- RW4-ID-OVERTURE-COVERAGE-1: OPEN, LOW. A snapshot's spatial extent exists
+  only in the untyped `manifest` JSON, so an Overture pool is never a
+  complete comparison for a locality. A typed coverage geometry is a
+  storage change.
+- RW4-ID-ADDRESS-1: OPEN, LOW. `addressConfirmed` (ADDRESS_MATCH) is still
+  computed only on LOCAL_OSM_POOL.
+- Overture storage findings: OPEN, separate from identity, untouched here.
+  (1) A historical Prisma migration was rewritten. (2) Publishing one
+  partition supersedes the other independently imported partitions of the
+  same country. (3) COMPLETE_COUNTRY declarations lack adequate proof.
 - RW4-ID-QID-HOMONYM-1: OPEN, LOW. A corroborating OWN_QID/OBSERVATION_QID
   still singles out a MULTIPLE same-name member by label-only matching
   (retained for RW1 San Telmo). It is a potential false positive for

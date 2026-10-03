@@ -1116,6 +1116,12 @@ order has no score and no threshold:
   material uncertainty unresolved. A later timeout does not undo an identity
   the examined pool already established.
 
+Overture participates on the same terms. The index returns every
+exact-name record, and the resolver chooses which one to try. A snapshot's
+spatial extent is not a typed fact, so a partial Overture pool is never a
+complete comparison for a locality. Records carry their upstream dataset
+(`meta`, for example) for the convergence rule.
+
 Geography used here distinguishes physical identities. It is not the
 geography that decides whether a source-defined Experience is valid
 (§P2-18): contextual identity never constrains composition.

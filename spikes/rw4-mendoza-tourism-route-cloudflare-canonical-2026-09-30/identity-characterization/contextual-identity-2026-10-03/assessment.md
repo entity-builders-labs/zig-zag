@@ -60,3 +60,45 @@ containment against a real boundary, not by matching an address string.
 - **Hamlet in Córdoba:** never selected, because the full window holds the
   Luján member. When the hamlet is reached (pre-fix window, in unit tests),
   LOCALITY and PHYSICAL_KIND contradictions reject it.
+
+## Milestone 3: Overture (analysis first, no storage change)
+
+The full Overture records captured on 2026-10-02 (`../overture/*.json`)
+were checked against the new policy. Each one was asked whether a field
+the import discards would change a decision.
+
+| Fixture | Fields discarded at import | Would it change the decision? |
+| --- | --- | --- |
+| Alfa Crux (Meta 113197860037852) | locality "Villa San Carlos", category `winery`, group homepage website, phone shared with "Crux Cocina" | No. The source states no component locality. The website and phone are shared, so they are not identity. The category would only show kind compatibility. |
+| SuperUco (Meta 276131252581993) | locality "El Manzano Histórico", category `restaurant`, website `superuco.com` (the same host as the source link) | No. The source states no locality, and a URL is provenance, not identity. |
+| Bodega Azul / La Azul | the winery (Tupungato) and the store (Tunuyán) share website and phone | No. No record carries the source's exact name; the shared website and phone identify neither facility. |
+| A16 | — | No. No record carries the exact name. |
+
+**Decision: no migration, no reimport.** The snapshot's spatial extent
+exists only inside the untyped `manifest` JSON
+(`operationalBoundary.bbox`). Reading it would make a canonical decision
+depend on a metadata bag, so an Overture pool is never a complete
+comparison for a locality (`NOT_ESTABLISHED`).
+
+**Implemented:**
+- `lookupExactPlace` returns every exact-name row (`candidates`) instead of
+  `rows[0]`.
+- The resolver selects from the pool with the shared policy: the
+  context-distinguished member, otherwise the member nearest the scope
+  window. This is a choice of what to try, not evidence.
+- The selected member answers to the same scope admission as NOMINATIM and
+  PLACES.
+- Each candidate carries `upstreamDatasets` (`meta`, for example) and
+  `structuralKind: UNKNOWN`.
+
+## Final five-fixture replay on the M3 code (`fixtures-replay-m3/`)
+
+Hand-built COLD #11 hints, real providers, real Overture index, 0 writes.
+
+| Component | Decision |
+| --- | --- |
+| Alfa Crux | INSUFFICIENT_EVIDENCE: Overture EXACT_NAME/UNKNOWN |
+| SuperUco | INSUFFICIENT_EVIDENCE: Overture EXACT_NAME/UNKNOWN |
+| Bodega Azul | INSUFFICIENT_EVIDENCE: the Nominatim wine shop in Azul (BA), not an exact name |
+| A16 | no candidate acquired |
+| Ojo de Agua | AMBIGUOUS: the Luján restaurant from a pool of 31, with no stated locality on the hint |

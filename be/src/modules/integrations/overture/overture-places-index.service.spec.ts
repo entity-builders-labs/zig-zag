@@ -39,7 +39,7 @@ describe('OverturePlacesIndexService', () => {
       role: 'venue',
     });
     expect(result.coverage).toBe('PARTIAL_OR_UNKNOWN');
-    expect(result.candidate?.nameEvidenceMultiplicity.exactName).toBe(
+    expect(result.candidates[0]?.nameEvidenceMultiplicity.exactName).toBe(
       'UNKNOWN',
     );
   });
@@ -62,8 +62,10 @@ describe('OverturePlacesIndexService', () => {
       role: 'venue',
     });
     expect(result.coverage).toBe('COMPLETE_COUNTRY');
-    expect(result.candidate?.nameEvidenceMultiplicity.exactName).toBe('SINGLE');
-    expect(result.candidate?.provider).toBe('overture');
+    expect(result.candidates[0]?.nameEvidenceMultiplicity.exactName).toBe(
+      'SINGLE',
+    );
+    expect(result.candidates[0]?.provider).toBe('overture');
   });
 
   it('keeps multiple exact matches ambiguous even with incomplete coverage', async () => {
@@ -85,7 +87,7 @@ describe('OverturePlacesIndexService', () => {
       countryCode: 'AR',
       role: 'venue',
     });
-    expect(result.candidate?.nameEvidenceMultiplicity.exactName).toBe(
+    expect(result.candidates[0]?.nameEvidenceMultiplicity.exactName).toBe(
       'MULTIPLE',
     );
   });

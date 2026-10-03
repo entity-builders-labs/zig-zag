@@ -6,6 +6,10 @@ import {
 } from 'src/modules/integrations/overture/overture-places-index.service';
 import { IdentityVerifier } from 'src/modules/tours/services/identity-verifier.service';
 import { buildLocalIdentityEvidence } from 'src/modules/tours/utils/identity-evidence-builder.util';
+import {
+  IdentityEvidence,
+  VerificationDecision,
+} from 'src/modules/tours/interfaces/experience-resolution.interface';
 import { closeDb, getPrisma, resetDb } from './support/test-db';
 import { assertDisposableDatabase } from '../support/assert-disposable-database';
 
@@ -139,28 +143,37 @@ describe('Overture identity lookup -> IdentityVerifier (real Postgres)', () => {
       countryCode,
       role: 'venue',
     });
-    if (!lookup.candidate) {
-      return { lookup, evidence: [], decision: undefined };
+    // Every pool member carries the same pool-level name multiplicity, so
+    // the decision without source context is the same for each of them.
+    const candidate = lookup.candidates[0];
+    if (!candidate) {
+      return {
+        lookup,
+        candidate: undefined,
+        evidence: [] as IdentityEvidence[],
+        decision: undefined as VerificationDecision | undefined,
+      };
     }
-    const evidence = buildLocalIdentityEvidence(
-      { name: hintName },
-      lookup.candidate,
-    );
+    const evidence = buildLocalIdentityEvidence({ name: hintName }, candidate);
     const decision = verifier.verify(
       { name: hintName },
-      { strategy: 'OVERTURE_IDENTITY', candidate: lookup.candidate, evidence },
+      { strategy: 'OVERTURE_IDENTITY', candidate, evidence },
     );
-    return { lookup, evidence, decision };
+    return { lookup, candidate, evidence, decision };
   }
 
   it('Alfa Crux / SuperUco from the published AOI snapshot: exact but multiplicity UNKNOWN -> INSUFFICIENT_EVIDENCE, provenance carried', async () => {
     await publish('ar-uco-aoi', 'AR', 'PARTIAL_PARTITION', AOI_RECORDS);
 
     for (const record of [ALFA_CRUX, SUPERUCO]) {
-      const { lookup, evidence, decision } = await decide(record.name);
+      const { lookup, candidate, evidence, decision } = await decide(
+        record.name,
+      );
       expect(lookup.coverage).toBe('PARTIAL_OR_UNKNOWN');
-      expect(lookup.candidate?.externalId).toBe(record.featureId);
-      expect(lookup.candidate?.persistenceMetadata).toMatchObject({
+      expect(candidate?.externalId).toBe(record.featureId);
+      expect(candidate?.upstreamDatasets).toEqual(['meta']);
+      expect(candidate?.structuralKind).toBe('UNKNOWN');
+      expect(candidate?.persistenceMetadata).toMatchObject({
         overture: {
           release: RELEASE,
           upstreamDataset: 'meta',
@@ -190,6 +203,11 @@ describe('Overture identity lookup -> IdentityVerifier (real Postgres)', () => {
 
     const { lookup, decision } = await decide('Bodega La Azul');
     expect(lookup.resultCount).toBe(2);
+    // The whole pool reaches candidate selection, not an arbitrary row.
+    expect(lookup.candidates).toHaveLength(2);
+    expect(
+      new Set(lookup.candidates.map((candidate) => candidate.externalId)).size,
+    ).toBe(2);
     expect(decision).toEqual({ status: 'AMBIGUOUS' });
   });
 
@@ -198,7 +216,7 @@ describe('Overture identity lookup -> IdentityVerifier (real Postgres)', () => {
 
     const { lookup, decision } = await decide('Bodega Azul');
     expect(lookup.resultCount).toBe(0);
-    expect(lookup.candidate).toBeUndefined();
+    expect(lookup.candidates).toEqual([]);
     expect(decision).toBeUndefined();
   });
 
@@ -207,7 +225,7 @@ describe('Overture identity lookup -> IdentityVerifier (real Postgres)', () => {
 
     const a16 = await decide('A16');
     expect(a16.lookup.resultCount).toBe(0);
-    expect(a16.lookup.candidate).toBeUndefined();
+    expect(a16.lookup.candidates).toEqual([]);
 
     const bodegaA16 = await decide('Bodega A16');
     expect(bodegaA16.lookup.resultCount).toBe(2);
@@ -231,10 +249,10 @@ describe('Overture identity lookup -> IdentityVerifier (real Postgres)', () => {
 
     const ar = await decide('SuperUco', 'AR');
     expect(ar.lookup.resultCount).toBe(1);
-    expect(ar.lookup.candidate?.externalId).toBe(SUPERUCO.featureId);
+    expect(ar.candidate?.externalId).toBe(SUPERUCO.featureId);
     expect(ar.decision).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
 
     const unknownCountry = await decide('SuperUco', 'UY');
-    expect(unknownCountry.lookup.candidate).toBeUndefined();
+    expect(unknownCountry.lookup.candidates).toEqual([]);
   });
 });

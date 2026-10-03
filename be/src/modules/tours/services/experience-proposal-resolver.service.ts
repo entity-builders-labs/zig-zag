@@ -59,6 +59,7 @@ import {
 import { selectBestPlaceCandidate } from '../utils/places-candidate-selector.util';
 import { buildCompositeComponentResolution } from '../utils/component-resolution-facts.util';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
+import { calculateDistance } from '@shared/utils/distance.utils';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { computeQualityScore } from '../utils/quality-score.util';
 import { IWikidataApiService } from '@integrations/wikidata/interfaces/wikidata.interface';
@@ -1375,12 +1376,19 @@ export class ExperienceProposalResolverService
         identityPlan.countryCode
       ) {
         try {
-          const overture = await this.overturePlaces.lookupExactPlace({
+          const lookup = await this.overturePlaces.lookupExactPlace({
             hintKey: hint.key,
             hintName: hint.name,
             countryCode: identityPlan.countryCode,
             role: hint.role,
           });
+          const overture = this.selectPoolCandidate(
+            lookup.candidates,
+            identityContext,
+            componentScope,
+            destinationScope,
+            destinationCountryCode,
+          );
           if (overture.candidate) {
             const verification = await this.isVerified(
               'OVERTURE_IDENTITY',
@@ -1397,7 +1405,7 @@ export class ExperienceProposalResolverService
                 status: 'completed',
                 provider: 'overture',
                 query: hint.name,
-                providerResultCount: overture.resultCount,
+                providerResultCount: lookup.resultCount,
                 entity: overture.candidate,
               },
               verification,
@@ -1421,7 +1429,13 @@ export class ExperienceProposalResolverService
                 status: 'no_candidate',
                 provider: 'overture',
                 query: hint.name,
-                providerResultCount: overture.resultCount,
+                providerResultCount: lookup.resultCount,
+                ...(overture.destinationCompatibility
+                  ? {
+                      destinationCompatibility:
+                        overture.destinationCompatibility,
+                    }
+                  : {}),
               },
               undefined,
             );
@@ -2279,6 +2293,85 @@ export class ExperienceProposalResolverService
       structuralKind: structuralKindFromOsmTags(matched.tags),
       upstreamDatasets: ['openstreetmap'],
       persistenceMetadata: { tags: matched.tags },
+    };
+  }
+
+  /**
+   * Candidate selection over an exact-name pool a provider returned whole
+   * (Overture): the member the source context singles out, otherwise the
+   * member nearest the scope window -- a choice of which record to TRY,
+   * never identity evidence. The pool's contextual evaluation travels with
+   * the candidate. A snapshot's spatial coverage is not a typed fact, so
+   * the comparison is never known complete for a locality (it can expose
+   * an equally consistent competitor, never single one out). The chosen
+   * record then answers to the same scope admission as NOMINATIM/PLACES;
+   * the lookup is bounded to the destination country, like theirs.
+   */
+  private selectPoolCandidate(
+    pool: EntityCandidate[],
+    context: ComponentIdentityContext,
+    componentScope: ComponentAcquisitionScope,
+    destinationScope: GeographicScope,
+    destinationCountryCode: string | undefined,
+  ): {
+    candidate?: EntityCandidate;
+    destinationCompatibility?: DestinationCompatibility;
+  } {
+    if (pool.length === 0) return {};
+    const contextualPool = evaluateContextualPool(
+      context,
+      pool.map(
+        (member): ContextualPoolMember => ({
+          identityKey: candidateIdentityKey(member),
+          latitude: member.latitude ?? undefined,
+          longitude: member.longitude ?? undefined,
+          structuralKind: member.structuralKind ?? 'UNKNOWN',
+        }),
+      ),
+      'NOT_ESTABLISHED',
+    );
+    const distinguished = contextuallyDistinguishedKey(contextualPool);
+    const center = componentScope.window?.center;
+    const distanceTo = (member: EntityCandidate) =>
+      center &&
+      Number.isFinite(member.latitude) &&
+      Number.isFinite(member.longitude)
+        ? calculateDistance(center, {
+            latitude: member.latitude as number,
+            longitude: member.longitude as number,
+          })
+        : Infinity;
+    const selected =
+      (distinguished &&
+        pool.find(
+          (member) => candidateIdentityKey(member) === distinguished,
+        )) ||
+      [...pool].sort((a, b) => distanceTo(a) - distanceTo(b))[0];
+    const admission = componentScope.scope
+      ? admitComponentLocation(
+          componentScope.scope,
+          Number.isFinite(selected.latitude) &&
+            Number.isFinite(selected.longitude)
+            ? {
+                latitude: selected.latitude as number,
+                longitude: selected.longitude as number,
+              }
+            : undefined,
+          destinationScope,
+          {
+            countryBounded:
+              componentScope.admitsCountryBoundedBeyondDestination &&
+              Boolean(destinationCountryCode),
+          },
+        )
+      : { admitted: true as const };
+    if (!admission.admitted) {
+      return admission.reason === 'DESTINATION_INCOMPATIBLE'
+        ? { destinationCompatibility: admission.destinationCompatibility }
+        : {};
+    }
+    return {
+      candidate: contextualPool ? { ...selected, contextualPool } : selected,
     };
   }
 

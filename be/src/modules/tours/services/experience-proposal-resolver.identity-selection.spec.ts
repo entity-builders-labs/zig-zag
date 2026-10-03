@@ -62,6 +62,7 @@ function build(options: {
   localityBoundary?: GeoJsonGeometry;
   placesFailure?: Error;
   catalogCandidates?: unknown[];
+  overtureCandidates?: unknown[];
 }) {
   const osmPlaces = {
     lookupPoisWithin: jest
@@ -138,7 +139,15 @@ function build(options: {
     nominatim as any,
     placesApi as any,
     wikidata as any,
-    undefined,
+    options.overtureCandidates
+      ? ({
+          lookupExactPlace: jest.fn().mockResolvedValue({
+            candidates: options.overtureCandidates,
+            resultCount: options.overtureCandidates.length,
+            coverage: 'PARTIAL_OR_UNKNOWN',
+          }),
+        } as any)
+      : undefined,
     localityGrounder,
   );
   return { service, catalog, nominatim, wikidata, localityGrounder, placesApi };
@@ -829,5 +838,143 @@ describe('ExperienceProposalResolverService -- contextual identity on the real O
       );
       expect(nominatim.search).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('ExperienceProposalResolverService -- Overture pool on the same terms', () => {
+  // Simplified Luján de Cuyo boundary, as above.
+  const LUJAN: GeoJsonGeometry = {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [-69.3, -33.45],
+        [-68.75, -33.45],
+        [-68.75, -32.95],
+        [-69.3, -32.95],
+        [-69.3, -33.45],
+      ],
+    ],
+  };
+  const overtureRow = (
+    featureId: string,
+    latitude: number,
+    longitude: number,
+    exactName: 'MULTIPLE' | 'UNKNOWN' | 'SINGLE',
+  ) => ({
+    hintKey: 'component',
+    hintName: 'Finca Ejemplo',
+    provider: 'overture',
+    externalId: featureId,
+    canonicalName: 'Finca Ejemplo',
+    kind: 'PLACE',
+    latitude,
+    longitude,
+    geometry: { type: 'Point', coordinates: [longitude, latitude] },
+    role: 'venue',
+    nameEvidenceMultiplicity: { exactName, declaredAlias: 'UNKNOWN' },
+    structuralKind: 'UNKNOWN',
+    upstreamDatasets: ['meta'],
+  });
+  const lujanLocality = {
+    localityAssertion: {
+      locality: 'Lujan de Cuyo',
+      evidenceKey: 'ev-1',
+      supportSpan: 'Lunch at Finca Ejemplo in Lujan de Cuyo',
+    },
+  };
+
+  it('feature-id order is not a preference: the member nearest the scope window is tried, and a name collision stays AMBIGUOUS', async () => {
+    const { service, catalog } = build({
+      overtureCandidates: [
+        // First by feature id, far away (Salta).
+        overtureRow('0000-far', -24.79, -65.41, 'MULTIPLE'),
+        overtureRow('ffff-near', -32.9, -68.85, 'MULTIPLE'),
+      ],
+    });
+
+    const result = await resolveRouteLike(service, 'Finca Ejemplo');
+
+    const attempt = attemptOf(result, 'OVERTURE_IDENTITY');
+    expect(attempt.providerResultCount).toBe(2);
+    expect(attempt.selectedCandidate.externalId).toBe('ffff-near');
+    expect(attempt.verificationDecision).toBe('AMBIGUOUS');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('a stated locality picks no Overture member alone (snapshot coverage is not a typed fact) and rejects one outside it', async () => {
+    const { service, catalog } = build({
+      overtureCandidates: [overtureRow('outside', -32.9, -68.85, 'SINGLE')],
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Finca Ejemplo',
+      undefined,
+      lujanLocality,
+    );
+
+    const attempt = attemptOf(result, 'OVERTURE_IDENTITY');
+    expect(attempt.identityEvidence).toContainEqual(
+      expect.objectContaining({
+        type: 'IDENTITY_CONTRADICTION',
+        fact: 'LOCALITY',
+      }),
+    );
+    expect(attempt.verificationDecision).toBe('REJECTED');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('two Overture members inside the stated locality stay AMBIGUOUS', async () => {
+    const { service, catalog } = build({
+      overtureCandidates: [
+        overtureRow('a', -33.13, -68.96, 'MULTIPLE'),
+        overtureRow('b', -33.2, -69.0, 'MULTIPLE'),
+      ],
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Finca Ejemplo',
+      undefined,
+      lujanLocality,
+    );
+
+    const attempt = attemptOf(result, 'OVERTURE_IDENTITY');
+    expect(attempt.identityEvidence).toContainEqual(
+      expect.objectContaining({
+        type: 'CONTEXTUAL_CORRESPONDENCE',
+        outcome: 'AMBIGUOUS',
+        consistentCount: 2,
+      }),
+    );
+    expect(attempt.verificationDecision).toBe('AMBIGUOUS');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('one partial-snapshot member inside the stated locality is an INCOMPLETE comparison: INSUFFICIENT_EVIDENCE, not VERIFIED', async () => {
+    const { service, catalog } = build({
+      overtureCandidates: [overtureRow('inside', -33.13, -68.96, 'UNKNOWN')],
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Finca Ejemplo',
+      undefined,
+      lujanLocality,
+    );
+
+    const attempt = attemptOf(result, 'OVERTURE_IDENTITY');
+    expect(attempt.identityEvidence).toContainEqual(
+      expect.objectContaining({
+        type: 'CONTEXTUAL_CORRESPONDENCE',
+        coverage: 'NOT_ESTABLISHED',
+        outcome: 'INCOMPLETE_COMPARISON',
+      }),
+    );
+    expect(attempt.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+    expectNoIdentityWrites(catalog);
   });
 });

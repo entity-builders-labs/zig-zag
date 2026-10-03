@@ -42,7 +42,12 @@ export interface OverturePlacesImportSession {
 }
 
 export interface OvertureIdentityLookup {
-  candidate?: EntityCandidate;
+  /**
+   * Every exact-name record of the published snapshot, ordered by feature
+   * id (a stable order, never a preference). Choosing which one to try is
+   * the resolver's candidate-selection policy, not the index's.
+   */
+  candidates: EntityCandidate[];
   resultCount: number;
   /** The population supporting exact-name multiplicity. */
   coverage: 'COMPLETE_COUNTRY' | 'PARTIAL_OR_UNKNOWN';
@@ -193,12 +198,13 @@ export class OverturePlacesIndexService {
   }): Promise<OvertureIdentityLookup> {
     const normalizedName = normalizeGeoName(input.hintName);
     if (!normalizedName)
-      return { resultCount: 0, coverage: 'PARTIAL_OR_UNKNOWN' };
+      return { candidates: [], resultCount: 0, coverage: 'PARTIAL_OR_UNKNOWN' };
     const snapshot = await this.prisma.overturePlacesImportSession.findFirst({
       where: { countryCode: input.countryCode, status: 'PUBLISHED' },
       orderBy: { publishedAt: 'desc' },
     });
-    if (!snapshot) return { resultCount: 0, coverage: 'PARTIAL_OR_UNKNOWN' };
+    if (!snapshot)
+      return { candidates: [], resultCount: 0, coverage: 'PARTIAL_OR_UNKNOWN' };
     const rows = await this.prisma.overturePlaceIndex.findMany({
       where: { importSessionId: snapshot.id, normalizedName },
       orderBy: { featureId: 'asc' },
@@ -207,18 +213,17 @@ export class OverturePlacesIndexService {
       snapshot.completeness === 'COMPLETE_COUNTRY'
         ? 'COMPLETE_COUNTRY'
         : 'PARTIAL_OR_UNKNOWN';
-    if (!rows.length) return { resultCount: 0, coverage };
+    if (!rows.length) return { candidates: [], resultCount: 0, coverage };
     const multiplicity =
       rows.length > 1
         ? 'MULTIPLE'
         : coverage === 'COMPLETE_COUNTRY'
           ? 'SINGLE'
           : 'UNKNOWN';
-    const row = rows[0];
     return {
       resultCount: rows.length,
       coverage,
-      candidate: {
+      candidates: rows.map((row) => ({
         hintKey: input.hintKey,
         hintName: input.hintName,
         provider: 'overture',
@@ -233,6 +238,13 @@ export class OverturePlacesIndexService {
           exactName: multiplicity,
           declaredAlias: 'UNKNOWN',
         },
+        // The import keeps no category, so the structure is unknown; the
+        // record derives from its upstream dataset (e.g. Meta), not from
+        // Overture itself.
+        structuralKind: 'UNKNOWN',
+        ...(row.upstreamDataset
+          ? { upstreamDatasets: [row.upstreamDataset.toLowerCase()] }
+          : {}),
         persistenceMetadata: {
           overture: {
             release: snapshot.release,
@@ -242,7 +254,7 @@ export class OverturePlacesIndexService {
             license: row.license,
           },
         } as Prisma.InputJsonValue,
-      },
+      })),
     };
   }
 }
