@@ -85,32 +85,13 @@ discover_overlap_refs() {
   done | awk '!seen[$0]++'
 }
 
-discover_overlap_refs() {
-  local top="$1" branch progress marker ref
-  while IFS=$'\t' read -r branch progress marker ref; do
-    [ -n "$ref" ] || continue
-    printf '%s\n' "$ref"
-  done < <(discover_active_track_records "$top")
-}
-
-track_ref_for_branch() {
-  local top="$1" branch="$2"
-  if git -C "$top" show-ref --verify --quiet "refs/heads/$branch"; then
-    printf '%s' "$branch"
-  elif git -C "$top" show-ref --verify --quiet "refs/remotes/origin/$branch"; then
-    printf '%s' "origin/$branch"
-  else
-    return 1
-  fi
-}
-
 resolve_track_by_branch() {
   local top="$1" branch="$2" progress marker status declared_branch matches=0
   RESOLVED_TRACK_RECORD=""
   while IFS=$'\t' read -r progress marker; do
     status="$(track_field "$marker" status)"
     declared_branch="$(track_field "$marker" branch)"
-    [ "$status" = "ACTIVE" ] && [ "$declared_branch" = "$branch" ] || continue
+    if [ "$status" != "ACTIVE" ] || [ "$declared_branch" != "$branch" ]; then continue; fi
     matches=$((matches + 1))
     RESOLVED_TRACK_RECORD="$progress"$'\t'"$marker"
   done < <(track_records "$top")

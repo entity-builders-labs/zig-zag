@@ -119,7 +119,7 @@ else
     CURRENT_PAIR_FILES="$(git diff --name-only "$PAIR_BASE"..HEAD | sort -u)"
     OTHER_PAIR_FILES="$(git diff --name-only "$PAIR_BASE".."$OVERLAP_REF" | sort -u)"
     FILE_OVERLAP="$(comm -12 <(printf '%s\n' "$CURRENT_PAIR_FILES" | sed '/^$/d') <(printf '%s\n' "$OTHER_PAIR_FILES" | sed '/^$/d') || true)"
-    [ -z "$FILE_OVERLAP" ] || warn "file overlap (remote)" "$(printf '%s' "$FILE_OVERLAP" | tr '\n' ' ')"
+    [ -z "$FILE_OVERLAP" ] || warn "file overlap: $OVERLAP_REF" "$(printf '%s' "$FILE_OVERLAP" | tr '\n' ' ')"
   done < <(discover_overlap_refs "$TOP")
 fi
 

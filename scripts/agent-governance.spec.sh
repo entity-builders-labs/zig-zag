@@ -110,7 +110,7 @@ for required in \
   'permission-profile: :read-only' \
   'without persisted credentials' \
   'head_repo != github.repository' \
-  'No OPENAI_API_KEY is exposed to untrusted fork code.'; do
+  'No GROQ_API_KEY is exposed to untrusted fork code.'; do
   grep -Fq "$required" "$REVIEW_WORKFLOW"
 done
 for forbidden in 'contents: write' 'actions: write' 'issues: write' 'pull_request_target'; do
@@ -153,7 +153,7 @@ fi
 pass 'canonical context, structured output, marker, and stale semantics are explicit'
 
 for required in \
-  'configure repository secret OPENAI_API_KEY' \
+  'configure repository secret GROQ_API_KEY' \
   'Validate structured review output' \
   'gh api' \
   'Avoid duplicate review for the same head'; do
@@ -247,7 +247,7 @@ expect_fail bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch"
 git -C "$TMP" checkout -- other.txt
 pass 'dirty worktree fails unless explicitly allowed'
 
-expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'file overlap: other'"
+expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'file overlap'"
 pass 'same changed file on a branch-local peer produces warning'
 
 git -C "$TMP" checkout -q main
@@ -262,7 +262,7 @@ printf 'unrelated\n' >"$TMP/other.txt"
 git -C "$TMP" add docs other.txt && git -C "$TMP" commit -qm unrelated
 git -C "$TMP" update-ref refs/remotes/origin/feat/other HEAD
 git -C "$TMP" checkout -q feat/current
-expect_ok bash -c "cd '$TMP' && ! bash scripts/agent-preflight --no-fetch | grep -q 'file overlap: other'"
+expect_ok bash -c "cd '$TMP' && ! bash scripts/agent-preflight --no-fetch | grep -q 'file overlap'"
 pass 'unrelated branch changes do not produce overlap'
 
 git -C "$TMP" checkout -q main
@@ -286,13 +286,13 @@ git -C "$TMP" add docs shared.txt && git -C "$TMP" commit -qm child-after-diverg
 git -C "$TMP" update-ref refs/remotes/origin/feat/other HEAD
 git -C "$TMP" checkout -q feat/current
 git -C "$TMP" update-ref refs/remotes/origin/feat/current HEAD
-expect_ok bash -c "cd '$TMP' && ! bash scripts/agent-preflight --no-fetch | grep -q 'file overlap: other'"
+expect_ok bash -c "cd '$TMP' && ! bash scripts/agent-preflight --no-fetch | grep -q 'file overlap'"
 pass 'parent changes inherited before child divergence do not produce overlap'
 
 printf 'parent after divergence\n' >"$TMP/shared.txt"
 git -C "$TMP" add shared.txt && git -C "$TMP" commit -qm parent-after-divergence
 git -C "$TMP" update-ref refs/remotes/origin/feat/current HEAD
-expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'file overlap: other.*shared.txt'"
+expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'file overlap.*shared.txt'"
 pass 'parent and child changes after divergence produce overlap'
 
 git -C "$TMP" checkout -q main
@@ -346,7 +346,7 @@ printf '%s\n' "$LOCATE_OTHER" | grep -q 'Worktree: <not registered>'
 pass 'locate finds a remote-only peer without creating a worktree'
 
 expect_fail bash -c "cd '$TMP' && scripts/agent-track locate unknown"
-UNKNOWN_OUTPUT="$(cd "$TMP" && scripts/agent-track locate unknown 2>&1 || true)"
+UNKNOWN_OUTPUT="$(cd "$TMP" && scripts/agent-track locate unknown 2>&1)" || true
 printf '%s\n' "$UNKNOWN_OUTPUT" | grep -q 'TRACK LOCATION UNAVAILABLE'
 pass 'unknown track ID fails explicitly'
 
@@ -368,7 +368,7 @@ printf '%s\n' \
 git -C "$TMP_DUPLICATE" add docs && git -C "$TMP_DUPLICATE" commit -qm duplicate
 git -C "$TMP" update-ref refs/remotes/origin/feat/duplicate "$(git -C "$TMP_DUPLICATE" rev-parse HEAD)"
 expect_fail bash -c "cd '$TMP' && scripts/agent-track locate other"
-AMBIGUOUS_OUTPUT="$(cd "$TMP" && scripts/agent-track locate other 2>&1 || true)"
+AMBIGUOUS_OUTPUT="$(cd "$TMP" && scripts/agent-track locate other 2>&1)" || true
 printf '%s\n' "$AMBIGUOUS_OUTPUT" | grep -q 'TRACK LOCATION AMBIGUOUS'
 pass 'duplicate ACTIVE track IDs across branches fail as ambiguous'
 
@@ -390,7 +390,7 @@ printf '%s\n' \
 git -C "$TMP_SAME_BRANCH" add docs && git -C "$TMP_SAME_BRANCH" commit -qm same-branch
 git -C "$TMP" update-ref refs/remotes/origin/feat/other "$(git -C "$TMP_SAME_BRANCH" rev-parse HEAD)"
 expect_fail bash -c "cd '$TMP' && scripts/agent-track locate other"
-AMBIGUOUS_SAME_BRANCH_OUTPUT="$(cd "$TMP" && scripts/agent-track locate other 2>&1 || true)"
+AMBIGUOUS_SAME_BRANCH_OUTPUT="$(cd "$TMP" && scripts/agent-track locate other 2>&1)" || true
 printf '%s\n' "$AMBIGUOUS_SAME_BRANCH_OUTPUT" | grep -q 'TRACK LOCATION AMBIGUOUS'
 pass 'two distinct ACTIVE declarations on one branch fail as ambiguous'
 
@@ -418,7 +418,7 @@ printf 'overlap-remote\n' >"$TMP/shared.txt"
 git -C "$TMP" add shared.txt && git -C "$TMP" commit -qm remote-peer-change
 git -C "$TMP" update-ref refs/remotes/origin/feat/peer "$(git -C "$TMP" rev-parse HEAD)"
 git -C "$TMP" checkout -q feat/current
-expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'file overlap: other.*shared.txt'"
+expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'file overlap.*shared.txt'"
 pass 'stale local peer does not hide fetched remote overlap'
 
 # --- Registered stale peer + newer remote overlap coverage ---
@@ -429,55 +429,90 @@ git -C "$TMP" worktree list --porcelain | grep '^worktree ' | sed 's/^worktree /
 done
 git -C "$TMP" checkout -q main
 git -C "$TMP" branch -f feat/peer "$BASE" 2>/dev/null || true
-git -C "$TMP" checkout -q feat/peer
+# Create the stale-peer commit on a detached HEAD so feat/peer is not checked out
+git -C "$TMP" checkout -q --detach "$BASE"
 mkdir -p "$TMP/docs/superpowers/progress"
 printf '%s\n' \
-  '# Other' \
-  "<!-- agent-track: id=other; status=ACTIVE; branch=feat/peer; integration=main; base=$BASE; plan=docs/superpowers/plans/other.md -->" \
-  >"$TMP/docs/superpowers/progress/other.md"
-printf 'stale\n' >"$TMP/shared.txt"
-git -C "$TMP" add docs shared.txt && git -C "$TMP" commit -qm stale-peer
-# Register a worktree for feat/peer
+  '# Peer' \
+  "<!-- agent-track: id=peer; status=ACTIVE; branch=feat/peer; integration=main; base=$BASE; plan=docs/superpowers/plans/peer.md -->" \
+  >"$TMP/docs/superpowers/progress/peer.md"
+# Registered peer does NOT change shared.txt; it only adds its progress doc
+git -C "$TMP" add docs && git -C "$TMP" commit -qm stale-peer
+git -C "$TMP" branch -f feat/peer HEAD
+PEER_LOCAL_SHA="$(git -C "$TMP" rev-parse HEAD)"
+# Register a worktree for feat/peer at the stale local SHA
 TMP_REGISTERED="$TMP.registered"
 git -C "$TMP" worktree add -q "$TMP_REGISTERED" feat/peer
-# Advance origin/feat/peer with the overlapping change
-git -C "$TMP" checkout -q feat/peer
+# Advance origin/feat/peer with the overlapping change WITHOUT moving local feat/peer
+git -C "$TMP" checkout -q --detach feat/peer
 printf 'overlap-remote\n' >"$TMP/shared.txt"
 git -C "$TMP" add shared.txt && git -C "$TMP" commit -qm remote-peer-change
-git -C "$TMP" update-ref refs/remotes/origin/feat/peer "$(git -C "$TMP" rev-parse HEAD)"
+PEER_REMOTE_SHA="$(git -C "$TMP" rev-parse HEAD)"
+git -C "$TMP" update-ref refs/remotes/origin/feat/peer "$PEER_REMOTE_SHA"
 git -C "$TMP" checkout -q feat/current
-printf 'overlap-current\n' >"$TMP/shared.txt"
+# Current track independently changes shared.txt on its own side
+printf 'overlap-current-registered\n' >"$TMP/shared.txt"
 git -C "$TMP" add shared.txt && git -C "$TMP" commit -qm current-change
+# Assert registered local peer SHA is unchanged while origin peer advances
+[ "$(git -C "$TMP" rev-parse feat/peer)" = "$PEER_LOCAL_SHA" ]
+[ "$(git -C "$TMP" rev-parse origin/feat/peer)" != "$PEER_LOCAL_SHA" ]
+pass 'registered local peer SHA is unchanged while origin peer advances'
 expect_ok bash -c "cd '$TMP' && bash scripts/agent-preflight --no-fetch | grep -q 'file overlap.*shared.txt'"
 pass 'registered stale peer does not hide fetched remote overlap'
 # list/locate still show one logical peer identity
-expect_ok bash -c "cd '$TMP' && scripts/agent-track list | grep -c '^other' | grep -q '1'"
+expect_ok bash -c "cd '$TMP' && scripts/agent-track list | grep -cE '^peer[[:space:]]' | grep -qx '1'"
 pass 'list shows one logical peer identity despite distinct refs'
+LOCATE_REGISTERED="$(cd "$TMP" && scripts/agent-track locate peer)"
+[ "$(printf '%s\n' "$LOCATE_REGISTERED" | grep -c '^Track: peer$')" -eq 1 ]
+printf '%s\n' "$LOCATE_REGISTERED" | grep -q "Worktree: $(cd "$TMP_REGISTERED" && pwd -P)"
+pass 'locate shows one logical peer identity despite distinct refs'
 git -C "$TMP" worktree remove --force "$TMP_REGISTERED"
 
 # --- Review commit binding coverage ---
 
-# Mismatched commit_id → not canonical
-expect_ok bash -c "jq -e '
-  [.[] | select(
-    .user.login == \"github-actions[bot]\" and
-    .commit_id == \"oldsha\" and
-    (.body | contains(\"<!-- zig-zag-contextual-review\ntrack=t\nreviewed_head=newsha\n-->\")) and
-    (.body | contains(\"CODE REVIEW:\"))
-  )] | length == 0
-' <<<'[{\"user\":{\"login\":\"github-actions[bot]\"},\"state\":\"COMMENTED\",\"commit_id\":\"oldsha\",\"body\":\"<!-- zig-zag-contextual-review\\ntrack=t\\nreviewed_head=newsha\\n-->\\nCODE REVIEW: PASS\"}]'"
+# One shared authenticity filter implements the canonical rules in
+# .github/codex/track-review-contract.md: publisher author, eligible state,
+# exact marker, commit_id equal to the marked reviewed_head, and both verdict
+# fields. Only the review data varies between assertions.
+canonical_review_count() {
+  jq '[ .[]
+    | . as $review
+    | (try ($review.body | capture("zig-zag-contextual-review\\ntrack=(?<track>[^\\n]+)\\nreviewed_head=(?<reviewed_head>[^\\n]+)\\n-->")) catch null) as $marker
+    | select(
+        $marker != null and
+        ($review.user.login == "github-actions[bot]") and
+        (["COMMENTED", "APPROVED", "CHANGES_REQUESTED"] | index($review.state)) != null and
+        ($review.commit_id == $marker.reviewed_head) and
+        ($marker.track == "t") and
+        ($review.body | contains("CODE REVIEW:")) and
+        ($review.body | contains("ARCHITECTURE_"))
+      )
+  ] | length'
+}
+
+# commit_id <markered reviewed_head> → the review is bound to another commit
+review_fixture() {
+  jq -n --arg author "${3:-github-actions[bot]}" --arg commit_id "$1" \
+    --arg reviewed_head "$2" \
+    --arg architecture "${4:-ARCHITECTURE_: PASS}" '[{
+      user: {login: $author},
+      state: "COMMENTED",
+      commit_id: $commit_id,
+      body: ("<!-- zig-zag-contextual-review\ntrack=t\nreviewed_head=" + $reviewed_head + "\n-->\nCODE REVIEW: PASS\n" + $architecture)
+    }]'
+}
+
+[ "$(review_fixture oldsha newsha | canonical_review_count)" = 0 ]
 pass 'mismatched commit_id is not canonical'
 
-# Matching commit_id → canonical
-expect_ok bash -c "jq -e '
-  [.[] | select(
-    .user.login == \"github-actions[bot]\" and
-    .commit_id == \"newsha\" and
-    (.body | contains(\"<!-- zig-zag-contextual-review\ntrack=t\\nreviewed_head=newsha\\n-->\")) and
-    (.body | contains(\"CODE REVIEW:\"))
-  )] | length == 1
-' <<<'[{\"user\":{\"login\":\"github-actions[bot]\"},\"state\":\"COMMENTED\",\"commit_id\":\"newsha\",\"body\":\"<!-- zig-zag-contextual-review\\ntrack=t\\nreviewed_head=newsha\\n-->\\nCODE REVIEW: PASS\"}]'"
+[ "$(review_fixture newsha newsha | canonical_review_count)" = 1 ]
 pass 'matching commit_id is canonical'
+
+[ "$(review_fixture newsha newsha impostor | canonical_review_count)" = 0 ]
+pass 'a copied marker from another author is not canonical'
+
+[ "$(review_fixture newsha newsha github-actions[bot] 'no verdict fields' | canonical_review_count)" = 0 ]
+pass 'a review without both verdict fields is not canonical'
 
 # --- Context ID assertion coverage ---
 

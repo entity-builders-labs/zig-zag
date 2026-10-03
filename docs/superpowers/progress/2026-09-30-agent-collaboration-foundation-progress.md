@@ -6,7 +6,7 @@
 
 **Milestone 2B — HISTORICALLY ACCEPTED ON GOVERNANCE BRANCH / NOT YET
 INTEGRATED. Milestone 3A — ACCEPTED ON GOVERNANCE BRANCH / PUBLISHED TO DRAFT
-PR #70. Milestone 3B — ACTIVE.**
+PR #70. Milestone 3B — ACTIVE / BLOCKED ON REVIEW PROVIDER.**
 
 The former initiative registry and manual semantic-ownership model have been
 replaced by progress-owned track identity, actual branch-diff overlap warnings,
@@ -81,18 +81,29 @@ push-triggered, read-only, HEAD-anchored Codex review for the existing track
 PR contract, without persisting review state into track metadata or creating
 an autonomous coder/fixer/integration loop.
 
-The 3A command skills and deterministic governance coverage are implemented,
-committed, and published. Milestone 3B publication remains subject to the
-exact publication and remote-identity gates.
+The deterministic governance surface is now repaired and verified locally:
+ShellCheck exits 0 on the four governance scripts, the governance fixture suite
+exits 0 across 58 assertions, `scripts/agent-progress-gate` passes, and
+`git diff --check` is clean.
+
+Milestone 3B is BLOCKED, not complete, on review provider compatibility: the
+Codex CLI request body is not accepted by Groq's OpenAI-compatible surface. No
+canonical review can be published for this track or for the integration branch
+until a provider that accepts the Codex request body is chosen. That provider
+decision is a human call; this track will not build another adapter, proxy, or
+framework to work around it.
 
 ## Current checkpoint
 
-Milestone 3B — implementation, verification, and publication are complete.
-The contextual review workflow runs end-to-end: Codex executes in read-only
-sandbox, structured output validates, and the review artifact publishes to
-PR #70 with `commit_id` binding via `gh api -F body=@file`. The workflow
-validates the real PR head SHA, exposes discovery ambiguity explicitly, writes
-review input to `$RUNNER_TEMP`, and enforces canonical review authenticity.
+Milestone 3B — the deterministic review machinery is implemented and
+published, but the checkpoint is BLOCKED on review provider compatibility, so
+Milestone 3B is not complete. The workflow shape is verified: Codex executes in
+read-only sandbox, structured output validates, and the review artifact
+publishes to PR #70 with `commit_id` binding via `gh api -F body=@file`. The
+workflow validates the real PR head SHA, exposes discovery ambiguity
+explicitly, writes review input to `$RUNNER_TEMP`, and enforces canonical review
+authenticity. What it cannot currently do is obtain a model response, because
+the configured provider rejects the Codex CLI request body.
 The progress freshness gate handles detached HEAD in CI via `GITHUB_HEAD_REF`
 in both `agent-track context` and the gate script, and is enforced both
 locally (publish skill) and in CI (`track-progress-freshness`).
@@ -102,12 +113,15 @@ stale peer no longer hides fetched remote overlap via `discover_overlap_refs`),
 GOV-SHELLCHECK-1 (mandatory ShellCheck command passes), and
 GOV-REVIEW-BINDING-1 (duplicate-review detection requires `commit_id == SHA`).
 
-GOV-REMOTE-OVERLAP-2 is resolved: `discover_overlap_refs()` collects refs from
-both `registered_worktree_track_records` and `remote_track_records` before
-identity deduplication, preserving distinct Git tips even when declarations are
-identical. Preflight uses one canonical overlap-inspection loop. The SC2329
-info diagnostic is suppressed with a documented directive for indirect
-invocation via process substitution.
+GOV-REMOTE-OVERLAP-2 is resolved: there is exactly one
+`discover_overlap_refs()` definition. It collects refs from both
+`registered_worktree_track_records` and `remote_track_records` before identity
+deduplication, preserving distinct Git tips even when declarations are
+identical, and dedupes only identical refs. `list`/`locate` still deduplicate by
+logical identity. The dead `track_ref_for_branch` helper is removed, and
+preflight has a single canonical overlap-inspection loop. The SC2329 info
+diagnostic is suppressed with a documented directive for indirect invocation
+via process substitution.
 
 The `track-progress-freshness` CI job is added to enforce progress freshness
 on every PR head. The `agent-governance` job runs preflight, ShellCheck, and
@@ -117,16 +131,43 @@ GOV-SHELLCHECK-2 is resolved: all SC2015 diagnostics in `scripts/agent-track`
 are fixed with explicit if/else conditionals. The mandatory ShellCheck command
 passes with exit code 0.
 
-The contextual review provider is migrated from OpenAI to Groq. The
-`openai/codex-action` is configured with `responses-api-endpoint` pointing to
-Groq's Responses API, model `qwen/qwen3.8-27b`, and high reasoning effort.
-The custom `[model_providers.groq]` configuration is removed; the action
-configures its own proxy provider.
+GOV-SPEC-2 is resolved. The fixture suite now reaches and passes its last
+assertion (58 cases, exit 0). Three defects blocked it: the registered
+stale-peer case wrote identical `shared.txt` content on both sides so the
+`current-change` commit was empty; `locate other` was already ambiguous from
+earlier same-ID fixture branches, so that case used a dedicated track ID; and
+the review-binding jq asserted `length == 0` while every predicate matched,
+making the mismatched-commit case vacuous. The suite now asserts behavior
+instead of unreachable expectations.
+
+The committed review workflow still points `openai/codex-action` at Groq's
+Responses API (`GROQ_API_KEY`, `responses-api-endpoint`,
+model `qwen/qwen3.8-27b`, high reasoning effort, `:read-only` permission
+profile). That configuration cannot produce a review: the Codex CLI request
+body is rejected by Groq.
+
+The direct Codex CLI + Groq migration is stopped at its explicit abort
+condition. Sanitized failure evidence, reproducible against Groq with a plain
+HTTP replay of the captured body:
+
+- `unknown field client_metadata in request body`
+- `Field 'include' is not supported`
+- `failed to render text output: ... Unexpected message role.`
+- `invalid JSON body`
+
+Codex CLI 0.159.2 and 0.160.0 always send `client_metadata` and
+`include: ["reasoning.encrypted_content"]`, and ship non-standard tool types.
+No configuration knob suppresses those fields, so the incompatibility is a
+protocol/body mismatch, not a configuration error. Standard function tools
+alone are accepted, and Groq's `/v1/responses` answers plain curl requests.
 
 ## Next authorized action
 
-Monitor the contextual review workflow for PR #70's current head. Do not
-merge or begin an autonomous fix loop.
+Publish the repaired deterministic governance state to PR #70 and require the
+`agent-governance` and `track-progress-freshness` CI jobs to pass. Report the
+review-provider blocker to the human owner and wait for an explicit provider
+decision. Do not merge, do not retry an alternative provider, and do not begin
+an autonomous fix loop.
 
 ## Open findings / blockers
 
@@ -151,10 +192,26 @@ merge or begin an autonomous fix loop.
 - Milestone 3B must keep contextual review in the PR artifact layer: no
   progress review fields, no local imitation of authoritative review, no
   automatic coder/fixer loop, push, merge, or integration behavior.
-- Milestone 3B live review: CLOSED. The contextual review workflow runs
-  end-to-end. Schema fix (add `line` to `findings[].required`), jq fix
-  (iterate `.findings[]`), CI head validation, discovery ambiguity, and
-  reviewer harness cleanliness are all committed and published.
+- Milestone 3B live review: CLOSED as a publication-path fix. Schema fix (add
+  `line` to `findings[].required`), jq fix (iterate `.findings[]`), CI head
+  validation, discovery ambiguity, and reviewer harness cleanliness are all
+  committed and published.
+- GOV-REVIEW-PROVIDER-1: OPEN, BLOCKING. No canonical contextual review can be
+  published while Groq rejects the Codex CLI request body. Affected: this
+  track's own review, and the first product review of the integration branch.
+  Requires a human provider decision. No adapter, proxy, or framework
+  workaround is authorized from this track.
+- GOV-SPEC-1: CLOSED. The fixture suite asserted unreachable expectations
+  rather than behavior. The registered stale-peer case could not commit because
+  both sides wrote identical `shared.txt` content; it now uses a dedicated track
+  ID so `list`/`locate` prove one logical identity across distinct refs. The
+  review-binding cases asserted `length == 0` while every predicate matched, so
+  the mismatched-commit case passed vacuously; a single shared filter now
+  implements the contract's canonical rules (publisher author, eligible state,
+  exact marker, `commit_id == reviewed_head`, both verdict fields) and adds the
+  copied-marker and missing-verdict cases.
+- GOV-MESSAGE-1: CLOSED. Overlap warnings name the offending ref
+  (`file overlap:<ref>`) so every warning is traceable and greppable.
 - PR #70 is intentionally DRAFT and UNMERGED.
 - The integration branch is active product work and may advance independently.
   Re-run canonical preflight/mergeability checks immediately before integration.
