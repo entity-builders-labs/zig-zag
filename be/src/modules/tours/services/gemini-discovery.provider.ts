@@ -1,7 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import aiConfig from '@shared/ai/ai.config';
-import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
+import {
+  DiscoveryStructuredCompletionRequest,
+  ExperienceDiscoveryRequest,
+} from '../interfaces/experience-discovery.interface';
 import { ExperienceGroundedSearchResult } from '../interfaces/experience-grounding.interface';
 import {
   buildDiscoveryResponseJsonSchema,
@@ -78,7 +81,11 @@ export class GeminiDiscoveryProvider {
       };
     const evidence = searchResult.evidence ?? [];
     const prompt = buildDiscoveryUserPrompt(request, evidence);
-    const raw = await this.callInteractionsApi(apiKey, prompt);
+    const raw = await this.callInteractionsApi(apiKey, {
+      system: SYSTEM_INSTRUCTION,
+      user: prompt,
+      jsonSchema: RESPONSE_SCHEMA,
+    });
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
@@ -107,33 +114,41 @@ export class GeminiDiscoveryProvider {
     };
   }
 
+  async completeStructured(
+    request: DiscoveryStructuredCompletionRequest,
+  ): Promise<string> {
+    const apiKey = this.config.discoveryExtractor.gemini.apiKey;
+    if (!apiKey) throw new Error('Missing Gemini API key');
+    return this.callInteractionsApi(apiKey, request);
+  }
+
   private async callInteractionsApi(
     apiKey: string,
-    userPrompt: string,
+    request: DiscoveryStructuredCompletionRequest,
   ): Promise<string> {
     try {
-      return await this.fetchInteraction(apiKey, userPrompt);
+      return await this.fetchInteraction(apiKey, request);
     } catch (error: any) {
       if (error?.name !== 'TimeoutError' && error?.name !== 'AbortError') {
         throw error;
       }
       this.logger.warn('Gemini Interactions API timed out; retrying once.');
-      return this.fetchInteraction(apiKey, userPrompt);
+      return this.fetchInteraction(apiKey, request);
     }
   }
 
   private async fetchInteraction(
     apiKey: string,
-    userPrompt: string,
+    request: DiscoveryStructuredCompletionRequest,
   ): Promise<string> {
     const resp = await fetch(`${this.apiUrl}?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: `models/${this.model}`,
-        system_instruction: SYSTEM_INSTRUCTION,
-        input: userPrompt,
-        response_format: RESPONSE_SCHEMA,
+        system_instruction: request.system,
+        input: request.user,
+        response_format: request.jsonSchema,
       }),
       signal: AbortSignal.timeout(this.timeoutMs),
     });

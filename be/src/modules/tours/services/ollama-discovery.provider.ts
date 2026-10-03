@@ -2,7 +2,10 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import aiConfig from '@shared/ai/ai.config';
 import { Ollama } from 'ollama';
-import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
+import {
+  DiscoveryStructuredCompletionRequest,
+  ExperienceDiscoveryRequest,
+} from '../interfaces/experience-discovery.interface';
 import { ExperienceGroundedSearchResult } from '../interfaces/experience-grounding.interface';
 import {
   buildDiscoveryResponseJsonSchema,
@@ -55,50 +58,17 @@ export class OllamaDiscoveryProvider {
       rawOutput?: string;
     }
   > {
-    const { baseUrl, apiKey, model, timeoutMs, numCtx } =
-      this.config.discoveryExtractor.ollama;
-    const headers =
-      apiKey && apiKey !== PLACEHOLDER_API_KEY
-        ? { Authorization: `Bearer ${apiKey}` }
-        : undefined;
-    const client = new Ollama({ host: baseUrl, headers });
-
     const evidence = searchResult.evidence ?? [];
-    const system = buildDiscoverySystemPrompt();
-    const user = buildDiscoveryUserPrompt(request, evidence);
-
-    let raw: string;
-    try {
-      const resp = await this.withTimeout(
-        client.chat({
-          model,
-          stream: false,
-          // Ollama structured outputs: a full JSON Schema (not the bare
-          // 'json' string) is what actually holds a small local model to the
-          // ExperienceCandidate / componentHint shape and the controlled
-          // theme/intent enums.
-          format: buildDiscoveryResponseJsonSchema(),
-          options: {
-            temperature: 0,
-            ...(numCtx ? { num_ctx: numCtx } : {}),
-          },
-          messages: [
-            { role: 'system', content: system },
-            { role: 'user', content: user },
-          ],
-        }),
-        timeoutMs,
-        () => client.abort(),
-      );
-      raw = (resp.message?.content ?? '')
-        .replace(/<think>[\s\S]*?<\/think>/gi, '')
-        .trim();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      throw new Error(
-        `Ollama discovery request failed against ${baseUrl} (model ${model}): ${message}`,
-      );
-    }
+    const model = this.model;
+    const raw = await this.chatJson(
+      buildDiscoverySystemPrompt(),
+      buildDiscoveryUserPrompt(request, evidence),
+      // Ollama structured outputs: a full JSON Schema (not the bare 'json'
+      // string) is what actually holds a small local model to the
+      // ExperienceCandidate / componentHint shape and the controlled
+      // theme/intent enums.
+      buildDiscoveryResponseJsonSchema(),
+    );
 
     let parsed: unknown;
     try {
@@ -126,6 +96,53 @@ export class OllamaDiscoveryProvider {
       model,
       rawOutput: raw,
     };
+  }
+
+  async completeStructured(
+    request: DiscoveryStructuredCompletionRequest,
+  ): Promise<string> {
+    return this.chatJson(request.system, request.user, request.jsonSchema);
+  }
+
+  private async chatJson(
+    system: string,
+    user: string,
+    format: Record<string, unknown>,
+  ): Promise<string> {
+    const { baseUrl, apiKey, model, timeoutMs, numCtx } =
+      this.config.discoveryExtractor.ollama;
+    const headers =
+      apiKey && apiKey !== PLACEHOLDER_API_KEY
+        ? { Authorization: `Bearer ${apiKey}` }
+        : undefined;
+    const client = new Ollama({ host: baseUrl, headers });
+    try {
+      const resp = await this.withTimeout(
+        client.chat({
+          model,
+          stream: false,
+          format,
+          options: {
+            temperature: 0,
+            ...(numCtx ? { num_ctx: numCtx } : {}),
+          },
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: user },
+          ],
+        }),
+        timeoutMs,
+        () => client.abort(),
+      );
+      return (resp.message?.content ?? '')
+        .replace(/<think>[\s\S]*?<\/think>/gi, '')
+        .trim();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Ollama discovery request failed against ${baseUrl} (model ${model}): ${message}`,
+      );
+    }
   }
 
   private async withTimeout<T>(

@@ -205,3 +205,31 @@ describe('OllamaDiscoveryProvider', () => {
     );
   });
 });
+
+describe('OllamaDiscoveryProvider.completeStructured (transport only)', () => {
+  it('sends the given prompts with the given schema as the structured format', async () => {
+    chatMock.mockReset();
+    chatMock.mockResolvedValue({ message: { content: '{"reports":[]}' } });
+    const provider = await makeProvider();
+
+    const content = await provider.completeStructured({
+      system: 'SYS',
+      user: 'USER',
+      jsonSchema: {
+        type: 'object',
+        properties: { reports: { type: 'array' } },
+      },
+    });
+
+    const chatArg = chatMock.mock.calls[0][0];
+    expect(chatArg.format).toEqual({
+      type: 'object',
+      properties: { reports: { type: 'array' } },
+    });
+    expect(chatArg.messages).toEqual([
+      { role: 'system', content: 'SYS' },
+      { role: 'user', content: 'USER' },
+    ]);
+    expect(content).toBe('{"reports":[]}');
+  });
+});

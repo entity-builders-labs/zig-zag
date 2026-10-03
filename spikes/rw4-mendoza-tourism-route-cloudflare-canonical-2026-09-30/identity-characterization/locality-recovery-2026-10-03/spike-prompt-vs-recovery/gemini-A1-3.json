@@ -1,0 +1,27 @@
+{
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "variant": "A1",
+  "run": "3",
+  "ms": 3585,
+  "summary": [
+    {
+      "name": "Uco Valley Wine Itinerary",
+      "components": [
+        {
+          "name": "Alfa Crux",
+          "localityAssertion": null
+        },
+        {
+          "name": "SuperUco",
+          "localityAssertion": null
+        },
+        {
+          "name": "Bodega Azul",
+          "localityAssertion": null
+        }
+      ]
+    }
+  ],
+  "raw": "{\n  \"candidates\": [\n    {\n      \"name\": \"Uco Valley Wine Itinerary\",\n      \"description\": \"A tried and tested day of wine tasting in the Uco Valley starting at Alfa Crux, continuing to SuperUco, and finishing with lunch at Bodega Azul.\",\n      \"themes\": [\n        \"wine\",\n        \"gastronomy\",\n        \"food\"\n      ],\n      \"traits\": [\n        \"wineries\",\n        \"tasting\",\n        \"lunch\",\n        \"scenic\"\n      ],\n      \"intents\": [\n        \"route_like\",\n        \"visit\",\n        \"food\"\n      ],\n      \"componentHints\": [\n        {\n          \"key\": \"alfacrux\",\n          \"name\": \"Alfa Crux\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"1. Alfa Crux – 10 am – This winery is the furthest, so start here and work your way back up.\",\n          \"physicalKindAssertion\": {\n            \"kind\": \"ESTABLISHMENT\",\n            \"term\": \"winery\",\n            \"supportSpan\": \"1. Alfa Crux – 10 am – This winery is the furthest, so start here and work your way back up.\"\n          }\n        },\n        {\n          \"key\": \"superuco\",\n          \"name\": \"SuperUco\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"2. SuperUco – 12 pm – It will take you 40 minutes to drive here from Alfa Crux so you’ll need to schedule SuperUco for no earlier than noon.\"\n        },\n        {\n          \"key\": \"bodegaazul\",\n          \"name\": \"Bodega Azul\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"4. Bodega Azul – 2:30 pm for lunch – You’ll spend the remaining hours of your afternoon hours here, so sit back and enjoy the meal.\"\n        }\n      ],\n      \"suggestedDurationMinutes\": 360,\n      \"shortReason\": \"A structured wine tasting day through the Uco Valley featuring Alfa Crux, SuperUco, and Bodega Azul.\",\n      \"evidenceKeys\": [\n        \"ev-1\"\n      ],\n      \"orderedByEvidence\": true\n    }\n  ]\n}"
+}

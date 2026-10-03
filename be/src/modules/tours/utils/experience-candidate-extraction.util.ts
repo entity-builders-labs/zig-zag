@@ -15,6 +15,7 @@ import {
   ComponentAssertionAudit,
   verifyComponentSourceAssertions,
 } from './component-source-assertions.util';
+import type { LocalityRecoveryAudit } from './component-locality-recovery.util';
 
 const ROLES = new Set(['area', 'waypoint', 'route', 'venue']);
 const KINDS = new Set(['PLACE', 'AREA', 'ROUTE']);
@@ -113,6 +114,11 @@ export interface ExperienceExtractionResult {
    */
   extractionFailures: string[];
   sourceSupportAudits: CandidateSourceSupportAudit[];
+  /**
+   * Source locality recovery for this extraction (§19.1), set by the
+   * shared recovery step that runs after every provider's extraction.
+   */
+  localityRecovery?: LocalityRecoveryAudit;
 }
 
 /**
@@ -384,8 +390,9 @@ export function extractExperienceCandidates(
           });
           continue;
         }
-        // Component-specific source facts (locality, physical kind, link):
-        // admitted only from THIS component's own verified evidence.
+        // Component-specific source facts (physical kind, link): admitted
+        // only from THIS component's own verified evidence. The locality is
+        // recovered afterwards from the same evidence (§19.1).
         const assertions = verifyComponentSourceAssertions(
           hint,
           sourceName,
@@ -425,9 +432,6 @@ export function extractExperienceCandidates(
           evidenceKeys: support.verifiedEvidenceKeys,
           declaredEvidenceKeys: support.declaredEvidenceKeys,
           ...(addressHint ? { addressHint } : {}),
-          ...(assertions.localityAssertion
-            ? { localityAssertion: assertions.localityAssertion }
-            : {}),
           ...(assertions.physicalKindAssertion
             ? { physicalKindAssertion: assertions.physicalKindAssertion }
             : {}),

@@ -1171,3 +1171,86 @@ Geography used here distinguishes physical identities. It is not the
 geography that decides whether a source-defined Experience is valid
 (§P2-18): contextual identity never constrains composition.
 
+
+### 19.1 Source locality recovery (2026-10-03, RW4)
+
+**Why.** The discovery extractor reads a whole source and proposes a
+composition. On the real SolSalute window it never emitted the locality the
+source states for Ojo de Agua in an image caption outside the itinerary
+entry ("Wine and lunch at Ojo de Agua in Lujan de Cuyo"). That held across
+the existing prompt and a strengthened one (0 of 6 Gemini runs, 0
+candidates on Groq). The fact was lost at extraction (failure mode 1), not
+at the gate, not in attribution and not in grounding. Dossier:
+`spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/locality-recovery-2026-10-03/`.
+
+**Contract.** Source locality recovery is the only producer of
+`localityAssertion`. The main extraction prompt no longer asks for it, and
+extraction ignores one if a model still emits it. Recovery runs once per
+extraction, on the configured extractor's own provider, inside
+`LocalityRecoveringDiscoveryExtractor`. Providers expose only a transport
+method (`completeStructured`).
+
+1. **Selection (deterministic).**
+   - For each source-supported `PLACE` component, take the statements of
+     its own cited evidence that literally name its source name.
+     Statements are sentences, list entries, headings and captions. An
+     image description and the caption after it are separate statements.
+   - A name shared by components of several compositions that cite the same
+     evidence is not examined (`SAME_NAME_IN_SEVERAL_COMPOSITIONS`): a
+     statement about that name cannot be attributed to one of them.
+   - A component named in more than 12 statements is not examined
+     (`STATEMENT_LIMIT_EXCEEDED`).
+   - The destination, headings that do not name the component, titles and
+     other records are never sent.
+2. **Classification (one bounded model call).** For each statement, the
+   model reports the places it relates to that component and how:
+   `LOCATED_IN`, `NEAR`, `NOT_IN`, `ALTERNATIVE`, `SAME_NAME_OTHER_PLACE`
+   or `OTHER`. It cites statement ids and never writes a span.
+3. **Admission (deterministic).** A locality is admitted only when all of
+   these hold:
+   - The reported place is written in the statement, outside the
+     component's own name.
+   - The component has no `ALTERNATIVE` or `SAME_NAME_OTHER_PLACE` report
+     (otherwise `LOCATION_QUALIFIED`).
+   - The containment statement names no other component
+     (`STATEMENT_NAMES_ANOTHER_COMPONENT`) and no second non-`NEAR` place
+     (`SEVERAL_PLACES_IN_STATEMENT`).
+   - Every `LOCATED_IN` report agrees on one place, and no `NOT_IN` report
+     denies it (`CONFLICTING_LOCALITIES`). A denial whose place is not
+     written literally in its statement cannot be compared, so it counts
+     as a denial.
+   - The canonical gate (`verifyLocalityAssertion`) accepts the statement as
+     a literal span of the component's own evidence, naming the component
+     and, outside that name, the locality.
+4. **Failure.** A provider failure or an unparseable answer admits nothing.
+   It is recorded (`localityRecovery.status = FAILED`) and leaves the
+   extraction unchanged. A missing locality is missing evidence, never a
+   contradiction.
+
+An admitted locality is still a source claim. It identifies nothing until
+the grounder resolves it to exactly one administrative boundary (§19,
+"Source grounding"). The verifier's policy is unchanged.
+
+**Literal matching** (`literal-source-text.util.ts`, which also backs
+`supportSpanNamesEntity` and source-link text):
+- It is script-aware. Compatibility forms are unified, and diacritics are
+  removed from Latin letters only.
+- Word boundaries are spaces plus ICU word boundaries. Scripts written
+  without spaces therefore work, and a name starting inside a word does not
+  match.
+- No translation or transliteration is ever applied.
+
+**Residual risk.** The relation is the model's semantic judgement. The
+backend cannot detect, in a language-neutral way, a single negated
+statement labelled `LOCATED_IN`. Literalness, attribution and unanimity are
+deterministic, and grounding and verifier contradictions still apply.
+
+**Limits (fail closed).**
+- The grounder folds the locality with `normalizeGeoName`, so a non-Latin
+  locality is never grounded (`NO_BOUNDARY`).
+- A locality glued to a suffix that the segmenter keeps in the same word
+  (a Korean particle) is not found.
+- A hierarchical locality in one statement ("in Shinjuku, Tokyo") is refused.
+- `normalizeGeoName` also folds every non-Latin name to an empty string in
+  identity matching (RW4-I18N-NAME-1). Identity outside Latin-script
+  geographies is therefore **not** claimed by this amendment.

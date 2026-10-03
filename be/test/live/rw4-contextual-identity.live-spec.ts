@@ -35,7 +35,10 @@ jest.setTimeout(20 * 60 * 1000);
  *     from or written to canonical state.
  *
  * Whether a component carries a locality/kind assertion is decided by the
- * extractor and the deterministic admission gate, never by this spec.
+ * extractor, source locality recovery (§19.1) and the deterministic
+ * admission gate, never by this spec. The configured extractor is the
+ * application's (`EXPERIENCE_DISCOVERY_PROVIDER`), which runs recovery on
+ * the same provider after extraction.
  */
 const RUN = process.env.RUN_RW4_CONTEXTUAL_PROBE === '1';
 const describeIfRun = RUN ? describe : describe.skip;
@@ -228,6 +231,40 @@ describeIfRun('RW4 contextual identity replay (diagnostic)', () => {
             hints: candidate.componentHints,
           })),
           sourceSupportAudits: extraction.sourceSupportAudits,
+          localityRecovery: extraction.localityRecovery ?? null,
+          componentTrace: response.entityResolution.forensicAudit.flatMap(
+            (audit) =>
+              audit.componentAudits.map((component: any) => {
+                const decisive = [...(component.attempts ?? [])]
+                  .reverse()
+                  .find((attempt: any) => attempt.verificationDecision);
+                const support = extraction.sourceSupportAudits
+                  .find((item) => item.candidateName === audit.candidateName)
+                  ?.components.find((item) => item.name === component.hintName);
+                return {
+                  candidate: audit.candidateName,
+                  component: component.hintName,
+                  proposedLocalityReports: (
+                    extraction.localityRecovery?.reports ?? []
+                  ).filter(
+                    (report) =>
+                      report.candidateName === audit.candidateName &&
+                      report.componentKey === support?.key,
+                  ),
+                  localityAdmission:
+                    support?.assertionAudits?.find(
+                      (item) => item.assertion === 'LOCALITY',
+                    ) ?? null,
+                  identityContext: component.identityContext ?? null,
+                  selectedCandidate:
+                    decisive?.selectedCandidate?.externalId ?? null,
+                  selectedCandidateName:
+                    decisive?.selectedCandidate?.name ?? null,
+                  verificationDecision: decisive?.verificationDecision ?? null,
+                  strategy: decisive?.strategy ?? null,
+                };
+              }),
+          ),
           groundingProbe: {
             note: 'Diagnostic only; never passed to the resolver.',
             status: grounding.status,

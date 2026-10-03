@@ -28,6 +28,7 @@ import { GeminiDiscoveryProvider } from './services/gemini-discovery.provider';
 import { OllamaDiscoveryProvider } from './services/ollama-discovery.provider';
 import { CloudflareDiscoveryProvider } from './services/cloudflare-discovery.provider';
 import { selectDiscoveryExtractor } from './services/discovery-extractor-selection.util';
+import { LocalityRecoveringDiscoveryExtractor } from './services/locality-recovering-discovery-extractor';
 import { GreedyDailyPlanningSolver } from './services/greedy-daily-planning.solver';
 import { ApproximateTravelEstimateProvider } from './services/approximate-travel-estimate.provider';
 import { GeoapifyTravelEstimateProvider } from './services/geoapify-travel-estimate.provider';
@@ -214,12 +215,14 @@ import { MediaModule } from '../media/media.module';
         ollama: OllamaDiscoveryProvider,
         cloudflare: CloudflareDiscoveryProvider,
       ) =>
-        selectDiscoveryExtractor(config.discoveryExtractor.provider, {
-          gemini,
-          groq,
-          ollama,
-          cloudflare,
-        }),
+        new LocalityRecoveringDiscoveryExtractor(
+          selectDiscoveryExtractor(config.discoveryExtractor.provider, {
+            gemini,
+            groq,
+            ollama,
+            cloudflare,
+          }),
+        ),
       inject: [
         aiConfig.KEY,
         GeminiDiscoveryProvider,

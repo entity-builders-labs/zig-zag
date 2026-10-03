@@ -5,21 +5,31 @@ import {
 } from '../interfaces/experience-discovery.interface';
 import {
   EvidenceSupportText,
-  supportSpanNamesEntity,
   verifyTextualComponentSourceSupport,
 } from './component-source-support.util';
+import {
+  foldLiteralText,
+  literalOccurrences,
+  occurrencesOverlap,
+  sourceStatements,
+} from './literal-source-text.util';
 
 /**
- * Deterministic admission of component-specific source facts proposed by
- * the extractor (RW4 contextual identity, amendment §19). An assertion is
- * kept only when:
+ * Deterministic admission of component-specific source facts (RW4
+ * contextual identity, amendment §19). An assertion is kept only when:
  *  - its span is a literal substring of THIS component's own verified
  *    evidence (never re-attributed to another evidence item), and
- *  - one sentence of that span names both the component and the fact.
- * The same-sentence rule is what keeps an itinerary heading ("Lujan de
+ *  - one statement of that span names both the component and the fact,
+ *    with the fact written outside the component's own name ("Azul" in
+ *    "Bodega Azul" states no locality, "Bodega" states no kind).
+ * The same-statement rule is what keeps an itinerary heading ("Lujan de
  * Cuyo Itinerary") or a neighbouring component's passage from becoming a
  * component assertion. A rejected assertion is dropped and audited; it
  * never invalidates the component itself.
+ *
+ * The physical kind is proposed by the discovery extractor. The locality is
+ * proposed by source locality recovery (`component-locality-recovery.util.ts`,
+ * §19.1), which also checks attribution before calling this gate.
  *
  * A source link is never an LLM claim: it is a Markdown link in the
  * component's own evidence whose text is the component's source name, with
@@ -40,11 +50,24 @@ export type ComponentAssertionRejection =
 export interface ComponentAssertionAudit {
   assertion: ComponentAssertionKind;
   status: 'ACCEPTED' | 'REJECTED';
-  reason?: ComponentAssertionRejection;
+  reason?: ComponentAssertionRejection | LocalityRecoveryRejection;
+  /** Locality audits only: the locality that was proposed. */
+  proposedLocality?: string;
 }
 
+/**
+ * Why source locality recovery admitted no locality for a component, before
+ * or instead of the gate below (§19.1).
+ */
+export type LocalityRecoveryRejection =
+  | 'SAME_NAME_IN_SEVERAL_COMPOSITIONS'
+  | 'STATEMENT_LIMIT_EXCEEDED'
+  | 'STATEMENT_NAMES_ANOTHER_COMPONENT'
+  | 'SEVERAL_PLACES_IN_STATEMENT'
+  | 'LOCATION_QUALIFIED'
+  | 'CONFLICTING_LOCALITIES';
+
 export interface VerifiedComponentAssertions {
-  localityAssertion?: ComponentLocalityAssertion;
   physicalKindAssertion?: ComponentPhysicalKindAssertion;
   sourceLink?: ComponentSourceLink;
   audits: ComponentAssertionAudit[];
@@ -52,35 +75,22 @@ export interface VerifiedComponentAssertions {
 
 const PHYSICAL_KINDS = new Set(['ESTABLISHMENT', 'SETTLEMENT']);
 
-function sentencesOf(span: string): string[] {
-  return span
-    .split(/(?<=[.!?])\s+|\n+/)
-    .map((sentence) => sentence.trim())
-    .filter(Boolean);
-}
-
-function statedTogether(span: string, ...names: string[]): boolean {
-  return sentencesOf(span).some((sentence) =>
-    names.every((name) => supportSpanNamesEntity(sentence, name)),
-  );
-}
-
 /**
- * The kind term must be stated by the sentence itself, not merely be part
- * of the component's own name ("Bodega" in "Bodega Azul" states nothing).
+ * Whether one statement of the span names the component and, outside that
+ * name, the fact.
  */
-function kindStatedWithComponent(
+function statedWithComponent(
   span: string,
   componentName: string,
-  term: string,
+  fact: string,
 ): boolean {
-  const name = foldLinkText(componentName);
-  return sentencesOf(span).some((sentence) => {
-    if (!supportSpanNamesEntity(sentence, componentName)) return false;
-    const withoutName = ` ${foldLinkText(sentence)} `
-      .split(` ${name} `)
-      .join(' ');
-    return supportSpanNamesEntity(withoutName, term);
+  return sourceStatements(span).some((statement) => {
+    const names = literalOccurrences(statement, componentName);
+    if (names.length === 0) return false;
+    return literalOccurrences(statement, fact).some(
+      (occurrence) =>
+        !names.some((name) => occurrencesOverlap(name, occurrence)),
+    );
   });
 }
 
@@ -113,58 +123,57 @@ function nonEmpty(value: unknown): string | undefined {
 
 const MARKDOWN_LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
 
-function foldLinkText(value: string): string {
-  return value
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
+/**
+ * Admits a proposed locality for one component. `supportSpan` must be a
+ * literal substring of the component's own evidence, and one statement of
+ * it must name the component and, outside that name, the locality.
+ */
+export function verifyLocalityAssertion(
+  proposal: { locality: string; supportSpan: string },
+  sourceName: string,
+  componentKeys: readonly string[],
+  evidenceByKey: ReadonlyMap<string, EvidenceSupportText>,
+): {
+  localityAssertion?: ComponentLocalityAssertion;
+  audit: ComponentAssertionAudit;
+} {
+  const locality = nonEmpty(proposal.locality);
+  const audit = (
+    status: ComponentAssertionAudit['status'],
+    reason?: ComponentAssertionRejection,
+  ): ComponentAssertionAudit => ({
+    assertion: 'LOCALITY',
+    status,
+    ...(reason ? { reason } : {}),
+    ...(locality ? { proposedLocality: locality } : {}),
+  });
+  if (!locality) return { audit: audit('REJECTED', 'MALFORMED') };
+  const verified = verifySpanInComponentEvidence(
+    proposal.supportSpan,
+    componentKeys,
+    evidenceByKey,
+  );
+  if (!verified) {
+    return { audit: audit('REJECTED', 'SPAN_NOT_IN_COMPONENT_EVIDENCE') };
+  }
+  if (!statedWithComponent(verified.supportSpan, sourceName, locality)) {
+    return {
+      audit: audit('REJECTED', 'NOT_STATED_IN_ONE_SENTENCE_WITH_COMPONENT'),
+    };
+  }
+  return {
+    localityAssertion: { locality, ...verified },
+    audit: audit('ACCEPTED'),
+  };
 }
 
 export function verifyComponentSourceAssertions(
-  rawHint: { localityAssertion?: unknown; physicalKindAssertion?: unknown },
+  rawHint: { physicalKindAssertion?: unknown },
   sourceName: string,
   componentKeys: readonly string[],
   evidenceByKey: ReadonlyMap<string, EvidenceSupportText>,
 ): VerifiedComponentAssertions {
   const result: VerifiedComponentAssertions = { audits: [] };
-
-  const rawLocality = rawHint.localityAssertion as
-    | { locality?: unknown; supportSpan?: unknown }
-    | undefined;
-  if (rawLocality !== undefined) {
-    const locality = nonEmpty(rawLocality?.locality);
-    const verified = locality
-      ? verifySpanInComponentEvidence(
-          rawLocality.supportSpan,
-          componentKeys,
-          evidenceByKey,
-        )
-      : undefined;
-    if (!locality) {
-      result.audits.push({
-        assertion: 'LOCALITY',
-        status: 'REJECTED',
-        reason: 'MALFORMED',
-      });
-    } else if (!verified) {
-      result.audits.push({
-        assertion: 'LOCALITY',
-        status: 'REJECTED',
-        reason: 'SPAN_NOT_IN_COMPONENT_EVIDENCE',
-      });
-    } else if (!statedTogether(verified.supportSpan, sourceName, locality)) {
-      result.audits.push({
-        assertion: 'LOCALITY',
-        status: 'REJECTED',
-        reason: 'NOT_STATED_IN_ONE_SENTENCE_WITH_COMPONENT',
-      });
-    } else {
-      result.localityAssertion = { locality, ...verified };
-      result.audits.push({ assertion: 'LOCALITY', status: 'ACCEPTED' });
-    }
-  }
 
   const rawKind = rawHint.physicalKindAssertion as
     | { kind?: unknown; term?: unknown; supportSpan?: unknown }
@@ -195,9 +204,7 @@ export function verifyComponentSourceAssertions(
         status: 'REJECTED',
         reason: 'SPAN_NOT_IN_COMPONENT_EVIDENCE',
       });
-    } else if (
-      !kindStatedWithComponent(verified.supportSpan, sourceName, term)
-    ) {
+    } else if (!statedWithComponent(verified.supportSpan, sourceName, term)) {
       result.audits.push({
         assertion: 'PHYSICAL_KIND',
         status: 'REJECTED',
@@ -209,7 +216,7 @@ export function verifyComponentSourceAssertions(
     }
   }
 
-  const needle = foldLinkText(sourceName);
+  const needle = foldLiteralText(sourceName);
   const links = new Map<string, { evidenceKey: string; linkText: string }>();
   for (const key of componentKeys) {
     const record = evidenceByKey.get(key);
@@ -218,7 +225,7 @@ export function verifyComponentSourceAssertions(
       for (const match of text.matchAll(MARKDOWN_LINK)) {
         if (
           needle &&
-          foldLinkText(match[1]) === needle &&
+          foldLiteralText(match[1]) === needle &&
           !links.has(match[2])
         ) {
           links.set(match[2], { evidenceKey: key, linkText: match[1].trim() });

@@ -522,3 +522,54 @@ describe('CloudflareDiscoveryProvider', () => {
     expect(result.candidates[0].name).toBe('Paseo');
   });
 });
+
+describe('CloudflareDiscoveryProvider.completeStructured (transport only)', () => {
+  let fetchSpy: jest.SpyInstance;
+  afterEach(() => fetchSpy.mockRestore());
+  const respond = (content: string, finish_reason?: string) =>
+    (fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        choices: [{ message: { content }, finish_reason }],
+      }),
+    } as any));
+
+  it('sends the given system and user prompts on the configured model and strips transport artifacts', async () => {
+    respond('<think>x</think>```json\n{"reports":[]}\n```');
+    const provider = await makeProvider();
+
+    const content = await provider.completeStructured({
+      system: 'SYS',
+      user: 'USER',
+      jsonSchema: {
+        type: 'object',
+        properties: { reports: { type: 'array' } },
+      },
+    });
+
+    const body = JSON.parse(fetchSpy.mock.calls[0][1].body as string);
+    expect(body.model).toBe('@cf/qwen/qwen3.8-27b');
+    expect(body.messages).toEqual([
+      { role: 'system', content: 'SYS' },
+      { role: 'user', content: 'USER' },
+    ]);
+    expect(content).toBe('{"reports":[]}');
+  });
+
+  it('throws on truncation instead of returning partial JSON', async () => {
+    respond('{"reports":[', 'length');
+    const provider = await makeProvider();
+
+    await expect(
+      provider.completeStructured({
+        system: 'SYS',
+        user: 'USER',
+        jsonSchema: {
+          type: 'object',
+          properties: { reports: { type: 'array' } },
+        },
+      }),
+    ).rejects.toThrow(/truncated/);
+  });
+});

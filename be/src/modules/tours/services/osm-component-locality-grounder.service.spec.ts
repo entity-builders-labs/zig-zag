@@ -124,6 +124,30 @@ describe('OsmComponentLocalityGrounder', () => {
     });
   });
 
+  it('LIMITATION (§19.1): a non-Latin locality is never grounded, even when a same-script boundary exists (fails closed as NO_BOUNDARY)', async () => {
+    const { grounder, nominatim } = build(
+      [
+        {
+          ...relation(4, '渋谷区', 35.66, 139.7),
+          displayName: '渋谷区, 東京都, 日本',
+        },
+      ],
+      { 4: square(139.6, 35.6, 139.8, 35.7) },
+    );
+
+    expect(
+      await grounder.groundLocality(
+        {
+          locality: '渋谷区',
+          evidenceKey: 'ev-1',
+          supportSpan: '青山カフェは東京都渋谷区にあります。',
+        },
+        'JP',
+      ),
+    ).toMatchObject({ status: 'UNGROUNDED', reason: 'NO_BOUNDARY' });
+    expect(nominatim.search).not.toHaveBeenCalled();
+  });
+
   it('a provider failure or a missing country is explicit missing evidence', async () => {
     const failing = new OsmComponentLocalityGrounder(
       { lookupBoundaryById: jest.fn() } as any,

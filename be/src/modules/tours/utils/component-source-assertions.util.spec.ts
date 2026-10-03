@@ -1,6 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { verifyComponentSourceAssertions } from './component-source-assertions.util';
+import {
+  verifyComponentSourceAssertions,
+  verifyLocalityAssertion,
+} from './component-source-assertions.util';
 
 /**
  * The REAL SolSalute window the COLD #11 extractor saw (captured from the
@@ -19,12 +22,10 @@ const EVIDENCE = new Map([
 ]);
 const CAPTION = 'Wine and lunch at Ojo de Agua in Lujan de Cuyo';
 
-describe('verifyComponentSourceAssertions (real SolSalute window)', () => {
+describe('component source assertions (real SolSalute window)', () => {
   it('admits the component-specific caption as Ojo de Agua locality, with its evidence key and literal span', () => {
-    const result = verifyComponentSourceAssertions(
-      {
-        localityAssertion: { locality: 'Lujan de Cuyo', supportSpan: CAPTION },
-      },
+    const result = verifyLocalityAssertion(
+      { locality: 'Lujan de Cuyo', supportSpan: CAPTION },
       'Ojo de Agua',
       ['ev-1'],
       EVIDENCE,
@@ -34,38 +35,34 @@ describe('verifyComponentSourceAssertions (real SolSalute window)', () => {
       evidenceKey: 'ev-1',
       supportSpan: CAPTION,
     });
-    expect(result.audits).toContainEqual({
+    expect(result.audit).toEqual({
       assertion: 'LOCALITY',
       status: 'ACCEPTED',
+      proposedLocality: 'Lujan de Cuyo',
     });
   });
 
   it('rejects the itinerary heading: no sentence names Ojo de Agua together with the locality', () => {
-    const result = verifyComponentSourceAssertions(
+    const result = verifyLocalityAssertion(
       {
-        localityAssertion: {
-          locality: 'Lujan de Cuyo',
-          supportSpan:
-            'This is my ideal day in Lujan de Cuyo, and it’s tried and tested because this is how we spent a day here this year.',
-        },
+        locality: 'Lujan de Cuyo',
+        supportSpan:
+          'This is my ideal day in Lujan de Cuyo, and it’s tried and tested because this is how we spent a day here this year.',
       },
       'Ojo de Agua',
       ['ev-1'],
       EVIDENCE,
     );
     expect(result.localityAssertion).toBeUndefined();
-    expect(result.audits).toContainEqual({
-      assertion: 'LOCALITY',
+    expect(result.audit).toMatchObject({
       status: 'REJECTED',
       reason: 'NOT_STATED_IN_ONE_SENTENCE_WITH_COMPONENT',
     });
   });
 
   it('never leaks one component’s locality to another (the Ojo de Agua caption does not name A16)', () => {
-    const result = verifyComponentSourceAssertions(
-      {
-        localityAssertion: { locality: 'Lujan de Cuyo', supportSpan: CAPTION },
-      },
+    const result = verifyLocalityAssertion(
+      { locality: 'Lujan de Cuyo', supportSpan: CAPTION },
       'A16',
       ['ev-1'],
       EVIDENCE,
@@ -74,20 +71,17 @@ describe('verifyComponentSourceAssertions (real SolSalute window)', () => {
   });
 
   it('rejects a span found only in evidence the component does not cite (no re-attribution)', () => {
-    const result = verifyComponentSourceAssertions(
+    const result = verifyLocalityAssertion(
       {
-        localityAssertion: {
-          locality: 'Cordoba',
-          supportSpan: 'Ojo de Agua is a hamlet in Cordoba.',
-        },
+        locality: 'Cordoba',
+        supportSpan: 'Ojo de Agua is a hamlet in Cordoba.',
       },
       'Ojo de Agua',
       ['ev-1'],
       EVIDENCE,
     );
     expect(result.localityAssertion).toBeUndefined();
-    expect(result.audits).toContainEqual({
-      assertion: 'LOCALITY',
+    expect(result.audit).toMatchObject({
       status: 'REJECTED',
       reason: 'SPAN_NOT_IN_COMPONENT_EVIDENCE',
     });
@@ -192,13 +186,11 @@ describe('verifyComponentSourceAssertions (real SolSalute window)', () => {
 
   it('claims no locality for Alfa Crux or SuperUco: the window never places them in one', () => {
     for (const name of ['Alfa Crux', 'SuperUco']) {
-      const result = verifyComponentSourceAssertions(
+      const result = verifyLocalityAssertion(
         {
-          localityAssertion: {
-            locality: 'Valle de Uco',
-            supportSpan:
-              'If I were to plan a wine tasting in Valle de Uco Itinerary for a friend, this is the day I’d schedule for them.',
-          },
+          locality: 'Valle de Uco',
+          supportSpan:
+            'If I were to plan a wine tasting in Valle de Uco Itinerary for a friend, this is the day I’d schedule for them.',
         },
         name,
         ['ev-1'],
@@ -206,5 +198,100 @@ describe('verifyComponentSourceAssertions (real SolSalute window)', () => {
       );
       expect(result.localityAssertion).toBeUndefined();
     }
+  });
+
+  it('rejects a locality that is only part of the component’s own name ("Azul" in "Bodega Azul")', () => {
+    const result = verifyLocalityAssertion(
+      {
+        locality: 'Azul',
+        supportSpan:
+          'Bodega Azul – 2:30 pm for lunch – You’ll spend the remaining hours of your afternoon hours here, so sit back and enjoy the meal.',
+      },
+      'Bodega Azul',
+      ['ev-1'],
+      EVIDENCE,
+    );
+    expect(result.localityAssertion).toBeUndefined();
+    expect(result.audit.reason).toBe(
+      'NOT_STATED_IN_ONE_SENTENCE_WITH_COMPONENT',
+    );
+  });
+});
+
+describe('component source assertions (synthetic, Unicode)', () => {
+  const JAPANESE = new Map([
+    [
+      'ev-1',
+      {
+        text: '青山カフェは東京都渋谷区にあります。銀座カフェは中央区にあります。',
+      },
+    ],
+  ]);
+
+  it('admits a Japanese-script locality stated with a Japanese-script name', () => {
+    const result = verifyLocalityAssertion(
+      {
+        locality: '渋谷区',
+        supportSpan: '青山カフェは東京都渋谷区にあります。',
+      },
+      '青山カフェ',
+      ['ev-1'],
+      JAPANESE,
+    );
+    expect(result.localityAssertion).toEqual({
+      locality: '渋谷区',
+      evidenceKey: 'ev-1',
+      supportSpan: '青山カフェは東京都渋谷区にあります。',
+    });
+  });
+
+  it('keeps Japanese statements apart: the next statement’s locality is not this component’s', () => {
+    const result = verifyLocalityAssertion(
+      {
+        locality: '中央区',
+        supportSpan:
+          '青山カフェは東京都渋谷区にあります。銀座カフェは中央区にあります。',
+      },
+      '青山カフェ',
+      ['ev-1'],
+      JAPANESE,
+    );
+    expect(result.localityAssertion).toBeUndefined();
+  });
+
+  it('never matches a name inside another word ("山カフェ" is not "青山カフェ")', () => {
+    const result = verifyLocalityAssertion(
+      {
+        locality: '渋谷区',
+        supportSpan: '青山カフェは東京都渋谷区にあります。',
+      },
+      '山カフェ',
+      ['ev-1'],
+      JAPANESE,
+    );
+    expect(result.localityAssertion).toBeUndefined();
+  });
+
+  it('never matches across scripts: "Tokyo" is not stated by "東京"', () => {
+    const result = verifyLocalityAssertion(
+      {
+        locality: 'Tokyo',
+        supportSpan: '青山カフェは東京都渋谷区にあります。',
+      },
+      '青山カフェ',
+      ['ev-1'],
+      JAPANESE,
+    );
+    expect(result.localityAssertion).toBeUndefined();
+  });
+
+  it('does not attach another mixed-script name’s link ("Café 渋谷" is not "Café 青山")', () => {
+    const evidence = new Map([
+      ['ev-1', { text: 'Start at [Café 渋谷](https://shibuya.example/).' }],
+    ]);
+    expect(
+      verifyComponentSourceAssertions({}, 'Café 青山', ['ev-1'], evidence)
+        .sourceLink,
+    ).toBeUndefined();
   });
 });

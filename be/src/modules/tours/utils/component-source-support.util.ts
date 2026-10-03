@@ -45,6 +45,7 @@
  */
 
 import { SOURCE_EXCERPT_SEPARATOR } from './source-content-windowing.util';
+import { textNamesLiterally } from './literal-source-text.util';
 
 export type ComponentSourceSupportReason =
   | 'NO_SUPPORT_SPAN'
@@ -318,27 +319,15 @@ export function verifyTextualComponentSourceSupport(
   };
 }
 
-function foldForNameContainment(value: string): string {
-  return normalize(value)
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-}
-
 /**
  * Whether a verified support span literally names `entityName` (its source
- * wording) — case/diacritic/punctuation-insensitive token containment, no
- * fuzzy, alias or translation matching. Required for `area`-role scope
- * claims only.
+ * wording) as whole words: case, Latin diacritics and punctuation are
+ * ignored, and no fuzzy, alias, translation or transliteration matching is
+ * done. Script-aware: see `literal-source-text.util.ts`.
  */
 export function supportSpanNamesEntity(
   verifiedSupportSpan: string,
   entityName: string,
 ): boolean {
-  const name = foldForNameContainment(entityName);
-  if (!name) return false;
-  return ` ${foldForNameContainment(verifiedSupportSpan)} `.includes(
-    ` ${name} `,
-  );
+  return textNamesLiterally(verifiedSupportSpan, entityName);
 }

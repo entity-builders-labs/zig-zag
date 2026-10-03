@@ -8,6 +8,8 @@ import { SourceObservation } from '../interfaces/experience-acquisition.interfac
 import { ownedAuthorization } from '../fixtures/geographic-authorization.fixture';
 import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
 import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
+import { extractExperienceCandidates } from '../utils/experience-candidate-extraction.util';
+import { recoverComponentLocalities } from '../utils/component-locality-recovery.util';
 
 /**
  * RW4 candidate selection before identity verification.
@@ -590,6 +592,99 @@ describe('ExperienceProposalResolverService -- contextual identity on the real O
       },
       physicalKind: { kind: 'ESTABLISHMENT', term: 'winery lunch' },
     });
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+      expect.objectContaining({ externalId: LUJAN_RESTAURANT }),
+    );
+  });
+
+  it('POSITIVE (§19.1): the locality recovered from the real caption, with no hand-written assertion and no kind, VERIFIES the restaurant and excludes the Córdoba hamlet', async () => {
+    const window = JSON.parse(
+      fs.readFileSync(
+        path.join(
+          __dirname,
+          '../fixtures/rw4-solsalute-deep-source-window.json',
+        ),
+        'utf8',
+      ),
+    ) as { content: string };
+    const evidence = [{ key: 'ev-1', text: window.content }];
+    const extracted = extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Lujan de Cuyo Wine Tasting Itinerary',
+            themes: ['wine'],
+            traits: [] as string[],
+            intents: ['route_like'],
+            componentHints: [
+              {
+                key: 'a16',
+                name: 'A16',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan:
+                  'A16 – 10 am – Start your day with a tasting and a tour at A16.',
+              },
+              {
+                key: 'ojo-de-agua',
+                name: 'Ojo de Agua',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan:
+                  'Ojo de Agua – 1:30 pm for a winery lunch – It took us about 15-20 minutes to drive to Ojo de Agua from Melipal',
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'source itinerary',
+          },
+        ],
+      },
+      evidence,
+      5,
+    );
+    // The reader reports only where the statement itself writes the place.
+    const recovered = await recoverComponentLocalities(
+      extracted,
+      evidence,
+      async ({ user }) => {
+        const reports: unknown[] = [];
+        let component = '';
+        for (const line of user.split('\n')) {
+          const header = line.match(/^(c\d+): "Ojo de Agua"$/);
+          if (/^c\d+: /.test(line)) component = header ? header[1] : '';
+          const statement = line.match(/^ {2}(s\d+): "(.*)"$/);
+          if (component && statement?.[2].includes('in Lujan de Cuyo')) {
+            reports.push({
+              component,
+              statement: statement[1],
+              place: 'Lujan de Cuyo',
+              relation: 'LOCATED_IN',
+            });
+          }
+        }
+        return JSON.stringify({ reports });
+      },
+    );
+    const ojo = recovered.candidates[0].componentHints.find(
+      (hint) => hint.name === 'Ojo de Agua',
+    )!;
+    expect(ojo.localityAssertion).toEqual(lujanAssertion.localityAssertion);
+    expect(ojo.physicalKindAssertion).toBeUndefined();
+
+    const { service, catalog } = build({
+      nominatimResults: POOL.PROVIDER_MAXIMUM,
+      localityBoundary: LUJAN,
+    });
+    const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+      localityAssertion: ojo.localityAssertion,
+    });
+
+    const attempt = attemptOf(result, 'NOMINATIM');
+    expect(attempt.selectedCandidate.externalId).toBe(LUJAN_RESTAURANT);
+    expect(attempt.selectedCandidate.externalId).not.toBe(CORDOBA_HAMLET);
+    expect(attempt.verificationDecision).toBe('VERIFIED');
     expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
       expect.objectContaining({ externalId: LUJAN_RESTAURANT }),
     );

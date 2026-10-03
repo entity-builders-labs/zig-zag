@@ -1,7 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import aiConfig from '@shared/ai/ai.config';
-import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
+import {
+  DiscoveryStructuredCompletionRequest,
+  ExperienceDiscoveryRequest,
+} from '../interfaces/experience-discovery.interface';
 import { ExperienceGroundedSearchResult } from '../interfaces/experience-grounding.interface';
 import {
   buildDiscoverySystemPrompt,
@@ -158,6 +161,27 @@ export class CloudflareDiscoveryProvider {
       model,
       rawOutput: raw,
     };
+  }
+
+  async completeStructured(
+    request: DiscoveryStructuredCompletionRequest,
+  ): Promise<string> {
+    const { accountId, apiToken, model } = this.cloudflare;
+    if (!accountId) throw new Error('Missing Cloudflare account id');
+    if (!apiToken) throw new Error('Missing Cloudflare API token');
+    const { content, finishReason } = await this.callCloudflare(
+      accountId,
+      apiToken,
+      model,
+      request.system,
+      request.user,
+    );
+    if (finishReason === 'length') {
+      throw new Error(
+        'Cloudflare structured completion truncated at completion token limit',
+      );
+    }
+    return content;
   }
 
   private async callCloudflare(

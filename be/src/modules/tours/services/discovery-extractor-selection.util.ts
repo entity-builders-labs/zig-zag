@@ -1,5 +1,11 @@
 import { DiscoveryExtractorProvider } from '@shared/ai/ai.config';
-import { ExperienceDiscoveryExtractor } from '../interfaces/experience-discovery.interface';
+import {
+  DiscoveryStructuredCompletion,
+  ExperienceDiscoveryExtractor,
+} from '../interfaces/experience-discovery.interface';
+
+type DiscoveryExtractorImpl = ExperienceDiscoveryExtractor &
+  DiscoveryStructuredCompletion;
 
 /**
  * Resolve the grounded discovery extractor purely from
@@ -11,12 +17,12 @@ import { ExperienceDiscoveryExtractor } from '../interfaces/experience-discovery
 export function selectDiscoveryExtractor(
   provider: DiscoveryExtractorProvider,
   impls: {
-    gemini: ExperienceDiscoveryExtractor;
-    groq: ExperienceDiscoveryExtractor;
-    ollama: ExperienceDiscoveryExtractor;
-    cloudflare: ExperienceDiscoveryExtractor;
+    gemini: DiscoveryExtractorImpl;
+    groq: DiscoveryExtractorImpl;
+    ollama: DiscoveryExtractorImpl;
+    cloudflare: DiscoveryExtractorImpl;
   },
-): ExperienceDiscoveryExtractor {
+): DiscoveryExtractorImpl {
   switch (provider) {
     case 'gemini':
       return impls.gemini;

@@ -20,6 +20,7 @@ import {
   ExperienceDiscoveryRequest,
 } from '../interfaces/experience-discovery.interface';
 import { CandidateSourceSupportAudit } from '../utils/experience-candidate-extraction.util';
+import { LocalityRecoveryAudit } from '../utils/component-locality-recovery.util';
 import {
   EXPERIENCE_GROUNDED_SEARCH_PROVIDER,
   ExperienceGroundedSearchProvider,
@@ -280,6 +281,8 @@ export interface WebExtractionAttemptAudit {
   admittedCandidateCount: number;
   candidateDecisions: WebCandidateAdmissionDecision[];
   sourceSupportAudits?: CandidateSourceSupportAudit[];
+  /** Source locality recovery after this extraction (§19.1). */
+  localityRecovery?: LocalityRecoveryAudit;
   /** Raw error message when `status === 'failed'`. */
   failureReason?: string;
   /** Deep-source attempts only: the one source window examined. */
@@ -852,6 +855,9 @@ export class ExperienceAcquisitionService {
             admittedCandidateCount: decisions.filter((d) => d.accepted).length,
             candidateDecisions: decisions,
             sourceSupportAudits: result.sourceSupportAudits,
+            ...(result.localityRecovery
+              ? { localityRecovery: result.localityRecovery }
+              : {}),
             ...(sourceWindow ? { sourceWindow } : {}),
           };
           extractionAttempts.push(audit);

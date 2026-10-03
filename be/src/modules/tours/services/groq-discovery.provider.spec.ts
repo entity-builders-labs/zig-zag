@@ -150,3 +150,71 @@ describe('GroqDiscoveryProvider — controlled facet contract', () => {
     });
   });
 });
+
+describe('GroqDiscoveryProvider.completeStructured (transport only)', () => {
+  it('sends the given prompts on the Groq discovery model in JSON-object mode, never from cache', async () => {
+    const generateChatResponse = jest.fn().mockResolvedValue('{"reports":[]}');
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        GroqDiscoveryProvider,
+        { provide: LangChainService, useValue: { generateChatResponse } },
+        {
+          provide: aiConfig.KEY,
+          useValue: { discoveryExtractor: { groq: { model: 'groq-test' } } },
+        },
+      ],
+    }).compile();
+
+    const content = await module.get(GroqDiscoveryProvider).completeStructured({
+      system: 'SYS',
+      user: 'USER',
+      jsonSchema: {
+        type: 'object',
+        properties: { reports: { type: 'array' } },
+      },
+    });
+
+    expect(generateChatResponse).toHaveBeenCalledWith(
+      'SYS',
+      'USER',
+      {},
+      expect.objectContaining({
+        providerOverride: 'groq',
+        modelOverride: 'groq-test',
+        bypassCache: true,
+        responseFormat: { type: 'json_object' },
+        temperature: 0,
+      }),
+    );
+    expect(content).toBe('{"reports":[]}');
+  });
+});
+
+describe('GroqDiscoveryProvider -- literal braces', () => {
+  it('passes braces through the shared template transport as literal text', async () => {
+    const { PromptTemplate } = await import('@langchain/core/prompts');
+    const generateChatResponse = jest.fn().mockResolvedValue('{"reports":[]}');
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        GroqDiscoveryProvider,
+        { provide: LangChainService, useValue: { generateChatResponse } },
+        {
+          provide: aiConfig.KEY,
+          useValue: { discoveryExtractor: { groq: { model: 'groq-test' } } },
+        },
+      ],
+    }).compile();
+    const user = 'Return JSON only: {"reports":[]} and a source "{x}" brace.';
+
+    await module.get(GroqDiscoveryProvider).completeStructured({
+      system: 'SYS',
+      user,
+      jsonSchema: {},
+    });
+
+    const sent = generateChatResponse.mock.calls[0][1];
+    await expect(PromptTemplate.fromTemplate(sent).format({})).resolves.toBe(
+      user,
+    );
+  });
+});

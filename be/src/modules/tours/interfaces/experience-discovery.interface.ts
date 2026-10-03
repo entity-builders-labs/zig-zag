@@ -183,6 +183,26 @@ export interface ExperienceDiscoveryExtractor {
   >;
 }
 
+/** One schema-constrained JSON completion on the extractor's own transport. */
+export interface DiscoveryStructuredCompletionRequest {
+  system: string;
+  user: string;
+  jsonSchema: Record<string, unknown>;
+}
+
+/**
+ * Transport-only completion every discovery extractor also exposes, so a
+ * shared follow-up step (source locality recovery, §19.1) runs on the
+ * configured provider and model without a provider-specific copy of its
+ * prompt or rules. Returns the JSON text with transport artifacts removed;
+ * throws when the provider fails or truncates.
+ */
+export interface DiscoveryStructuredCompletion {
+  completeStructured(
+    request: DiscoveryStructuredCompletionRequest,
+  ): Promise<string>;
+}
+
 export type ExperienceDiscoveryBreadth = 'focused' | 'broad';
 
 export interface ExperienceDiscoveryScope {

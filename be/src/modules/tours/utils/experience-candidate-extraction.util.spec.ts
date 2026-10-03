@@ -46,12 +46,8 @@ describe('extractExperienceCandidates -- component-specific source facts', () =>
       5,
     );
 
-  it('carries verified locality, kind and link onto the hint, audited on the component', () => {
+  it('carries verified kind and link onto the hint, audited on the component', () => {
     const result = extract({
-      localityAssertion: {
-        locality: 'Lujan de Cuyo',
-        supportSpan: 'Wine and lunch at Ojo de Agua in Lujan de Cuyo.',
-      },
       physicalKindAssertion: {
         kind: 'ESTABLISHMENT',
         term: 'winery lunch',
@@ -61,24 +57,22 @@ describe('extractExperienceCandidates -- component-specific source facts', () =>
     });
 
     expect(result.candidates[0].componentHints[0]).toMatchObject({
-      localityAssertion: { locality: 'Lujan de Cuyo', evidenceKey: 'ev-1' },
       physicalKindAssertion: { kind: 'ESTABLISHMENT', term: 'winery lunch' },
       sourceLink: { url: 'https://ojodeagua.ch/', linkText: 'Ojo de Agua' },
     });
     expect(result.sourceSupportAudits[0].components[0].assertionAudits).toEqual(
       expect.arrayContaining([
-        { assertion: 'LOCALITY', status: 'ACCEPTED' },
         { assertion: 'PHYSICAL_KIND', status: 'ACCEPTED' },
         { assertion: 'SOURCE_LINK', status: 'ACCEPTED' },
       ]),
     );
   });
 
-  it('drops a heading-derived locality but keeps the component (assertions never invalidate it)', () => {
+  it('never takes a locality from the extraction response: source locality recovery is its only producer (§19.1)', () => {
     const result = extract({
       localityAssertion: {
         locality: 'Lujan de Cuyo',
-        supportSpan: 'This is my ideal day in Lujan de Cuyo.',
+        supportSpan: 'Wine and lunch at Ojo de Agua in Lujan de Cuyo.',
       },
     });
 
@@ -87,12 +81,8 @@ describe('extractExperienceCandidates -- component-specific source facts', () =>
       result.candidates[0].componentHints[0].localityAssertion,
     ).toBeUndefined();
     expect(
-      result.sourceSupportAudits[0].components[0].assertionAudits,
-    ).toContainEqual({
-      assertion: 'LOCALITY',
-      status: 'REJECTED',
-      reason: 'NOT_STATED_IN_ONE_SENTENCE_WITH_COMPONENT',
-    });
+      result.sourceSupportAudits[0].components[0].assertionAudits ?? [],
+    ).not.toContainEqual(expect.objectContaining({ assertion: 'LOCALITY' }));
   });
 });
 

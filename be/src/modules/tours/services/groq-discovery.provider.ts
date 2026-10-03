@@ -2,7 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { LangChainService } from '@shared/ai/langchain.service';
 import aiConfig from '@shared/ai/ai.config';
-import { ExperienceDiscoveryRequest } from '../interfaces/experience-discovery.interface';
+import {
+  DiscoveryStructuredCompletionRequest,
+  ExperienceDiscoveryRequest,
+} from '../interfaces/experience-discovery.interface';
 import { ExperienceGroundedSearchResult } from '../interfaces/experience-grounding.interface';
 import {
   buildDiscoverySystemPrompt,
@@ -39,20 +42,10 @@ export class GroqDiscoveryProvider {
   > {
     const evidence = searchResult.evidence ?? [];
     const prompt = buildDiscoveryUserPrompt(request, evidence);
-    const raw = await this.langChainService.generateChatResponse(
+    const raw = await this.chatJson(
       buildDiscoverySystemPrompt(),
       prompt,
-      {},
-      {
-        // DISCOVERY_EXTRACTOR_PROVIDER — not AI_PROVIDER — decides that this
-        // extraction call really goes to Groq, with the Groq discovery model.
-        providerOverride: 'groq',
-        modelOverride: this.model,
-        bypassCache: options?.bypassCache,
-        responseFormat: { type: 'json_object' },
-        groq: { maxCompletionTokens: 4096 },
-        temperature: 0,
-      },
+      options?.bypassCache,
     );
     let parsed: unknown;
     try {
@@ -79,5 +72,37 @@ export class GroqDiscoveryProvider {
       model: this.model,
       rawOutput: raw,
     };
+  }
+
+  /** Groq runs in JSON-object mode: the schema is carried by the prompt. */
+  async completeStructured(
+    request: DiscoveryStructuredCompletionRequest,
+  ): Promise<string> {
+    return this.chatJson(request.system, request.user, true);
+  }
+
+  private chatJson(
+    system: string,
+    user: string,
+    bypassCache: boolean | undefined,
+  ): Promise<string> {
+    return this.langChainService.generateChatResponse(
+      system,
+      // The shared chat transport formats the user prompt as an f-string
+      // template, and this call has no template variables: every brace is
+      // literal text (a JSON example, or source text that contains one).
+      user.replace(/[{}]/g, (brace) => brace + brace),
+      {},
+      {
+        // DISCOVERY_EXTRACTOR_PROVIDER — not AI_PROVIDER — decides that this
+        // extraction call really goes to Groq, with the Groq discovery model.
+        providerOverride: 'groq',
+        modelOverride: this.model,
+        bypassCache,
+        responseFormat: { type: 'json_object' },
+        groq: { maxCompletionTokens: 4096 },
+        temperature: 0,
+      },
+    );
   }
 }

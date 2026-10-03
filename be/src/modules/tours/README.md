@@ -24,8 +24,10 @@ tours/
 │   ├── experience-generation.service.ts # The orchestrator: preferences → coverage → discovery →
 │   │                                     # resolution → ranking → deterministic planning → snapshots
 │   ├── experience-catalog.service.ts    # Verified Experience/GeoEntity persistence + trait/dedupe wiring
-│   ├── experience-discovery-planner.service.ts, groq-discovery.provider.ts,
-│   │   gemini-discovery.provider.ts     # Grounded discovery query planning + extraction
+│   ├── experience-discovery-planner.service.ts, {gemini,groq,ollama,cloudflare}-discovery.provider.ts
+│   │                                     # Grounded discovery query planning + extraction (transport only)
+│   ├── locality-recovering-discovery-extractor.ts # The extractor the app uses: provider extraction,
+│   │                                     # then source locality recovery (amendment §19.1)
 │   ├── experience-proposal-resolver.service.ts # Component resolution + geographic validation
 │   ├── coverage-analyzer.service.ts     # Relevance-based coverage gate (see CLAUDE.md invariant)
 │   ├── greedy-daily-planning.solver.ts, planning-candidate-normalizer.service.ts,
@@ -95,7 +97,7 @@ deliberately deferred to the spatial-feasibility stage.
 
 ### LangChain Prompts
 
-`prompts/` only owns `media-generation.prompt.ts` now — there is no itinerary/planning prompt in this module's live path (planning is a deterministic solver, never an LLM). `PreferenceInterpreterService` and the discovery providers (`groq-discovery.provider.ts`/`gemini-discovery.provider.ts`) build their prompts inline rather than via this folder.
+There is no itinerary/planning prompt in this module's live path (planning is a deterministic solver, never an LLM). `prompts/` holds the media prompt and the two shared discovery contracts every extractor provider sends unchanged: `experience-discovery-extraction.prompt.ts` (candidates and components) and `component-locality-recovery.prompt.ts` (the bounded follow-up that classifies source statements naming a component; the backend admits a locality deterministically, see `utils/component-locality-recovery.util.ts`). `PreferenceInterpreterService` builds its prompt inline.
 
 ## API Endpoints
 

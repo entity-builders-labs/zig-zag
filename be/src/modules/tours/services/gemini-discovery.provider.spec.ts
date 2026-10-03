@@ -151,3 +151,52 @@ describe('GeminiDiscoveryProvider — controlled facet contract', () => {
     expect(prompt).toMatch(/Do not require literal anchor-name occurrence/);
   });
 });
+
+describe('GeminiDiscoveryProvider.completeStructured (transport only)', () => {
+  it('sends the given system prompt, input and response schema', async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        GeminiDiscoveryProvider,
+        {
+          provide: aiConfig.KEY,
+          useValue: {
+            discoveryExtractor: {
+              gemini: { apiKey: 'test-key', model: 'gemini-test' },
+            },
+          },
+        },
+      ],
+    }).compile();
+    const provider = module.get(GeminiDiscoveryProvider);
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        steps: [
+          {
+            type: 'model_output',
+            content: [{ type: 'text', text: '{"reports":[]}' }],
+          },
+        ],
+      }),
+    } as any);
+
+    const content = await provider.completeStructured({
+      system: 'SYS',
+      user: 'USER',
+      jsonSchema: {
+        type: 'object',
+        properties: { reports: { type: 'array' } },
+      },
+    });
+
+    const body = JSON.parse(fetchSpy.mock.calls[0][1].body as string);
+    expect(body).toMatchObject({
+      model: 'models/gemini-test',
+      system_instruction: 'SYS',
+      input: 'USER',
+      response_format: { type: 'object' },
+    });
+    expect(content).toBe('{"reports":[]}');
+    fetchSpy.mockRestore();
+  });
+});

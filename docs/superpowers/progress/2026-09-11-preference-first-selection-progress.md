@@ -199,6 +199,31 @@ RW3-N6 resolution and live verification status:
   interrupt the RW4 web-acquisition gate for it.
 
 
+### RW4 source locality recovery (§19.1) — 2026-10-03
+
+- Dossier: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/locality-recovery-2026-10-03/assessment.md`
+  (real replays on the captured COLD #11 window, stub catalog, 0 rows
+  persisted). No COLD #12 / WARM.
+- Loss point: the extractor omitted the caption's locality it had received
+  (failure mode 1). The prompt-only spike gave 0 assertions in 6 Gemini runs
+  (current prompt and a strengthened one). A bounded recovery prompt gave
+  6/6 (Gemini 3, Groq 3).
+- Implemented: source locality recovery (§19.1), the only producer of
+  `localityAssertion`, with deterministic selection, one model call and
+  deterministic attribution-aware admission through the canonical gate.
+  Script-aware literal matching backs the gate. The verifier is unchanged.
+- Real replays on the new code:
+  - Gemini 3 of 8 replays carried the Luján candidate, and each one ran the
+    full chain: caption → ACCEPTED → GROUNDED `osm:relation:2989830` →
+    `osm:node:4797394430` **VERIFIED**. The Córdoba hamlet was not selected.
+  - The other 5 Gemini replays and all 3 Groq replays omitted the Luján
+    candidate (failure mode 5, not addressed).
+  - Cloudflare (the COLD #11 extractor): HTTP 429, daily allocation
+    exhausted. **Not shown fixed.**
+- Groq defect found and fixed: the shared LangChain transport formats the
+  user prompt as an f-string template, so a literal `{` failed
+  (`Single '}' in template`). The Groq adapter now escapes braces.
+
 ### RW4 candidate selection before identity verification — 2026-10-03
 
 - Dossier: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/selection-characterization-2026-10-03/assessment.md`
@@ -2165,6 +2190,13 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
     competitors) changed expectation. They are flagged in the matrix for
     independent review. Review outcome: Test A (INSUFFICIENT_EVIDENCE) is
     accepted; Test B's REJECTED was not, see RW4-ID-NEARBY-1.
+- Source locality recovery (2026-10-03, after `1f48c462`, amendment §19.1).
+  The source's locality now reaches the verifier without a hand-written
+  assertion. In each real Gemini replay that extracted the Luján candidate
+  (3 of 8), Ojo de Agua VERIFIED on `osm:node:4797394430` from the caption.
+  The candidate itself is omitted in 5 of 8 Gemini and 3 of 3 Groq replays,
+  and the Cloudflare replay is blocked by quota. This is a source-evidence
+  milestone, not RW4 acceptance.
 - NEARBY non-corroboration (2026-10-03, after `272d50ef`, RW4-ID-NEARBY-1).
   A NEARBY Wikidata result other than one item naming both the hint and
   the candidate is NOT_CORROBORATED, never REJECTED. Only that fallthrough
@@ -2175,15 +2207,17 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 
 ## Next authorized action
 
-Make the discovery extractor reliably propose component-specific locality
-assertions that the deterministic gate can admit. On the real SolSalute
-window the admissible caption ("Wine and lunch at Ojo de Agua in Lujan de
-Cuyo") never became an assertion across three Gemini runs; Groq returned 0
-candidates, and Cloudflare (the COLD #11 extractor) was over its daily
-quota. Re-run the contextual replay with the COLD #11 extractor first. Do
-not change the gate or the verifier to compensate. COLD #12 is NOT ready:
-the Uco composition requires Alfa Crux, SuperUco and Bodega Azul, and none
-has a discriminating fact.
+1. Re-run the contextual replay with the COLD #11 extractor (Cloudflare
+   `@cf/qwen/qwen3.8-27b`) once its daily allocation resets (`EXTRACTOR=cloudflare
+   RUN_SUFFIX=../locality-recovery-2026-10-03/replay-cloudflare-N bash
+   .../contextual-identity-2026-10-03/run.sh`). Record every run, not only a
+   favorable one.
+2. Characterize discovery-extraction candidate omission
+   (RW4-EXTRACT-CANDIDATE-1). Do not fabricate the candidate or
+   compensate in recovery, the gate or the verifier.
+
+COLD #12 is NOT ready: the Uco composition requires Alfa Crux, SuperUco and
+Bodega Azul, and the source states no discriminating fact for any of them.
 
 The draft pull request for `feat/preference-first-selection` -> `main` exists
 for review only. Do not merge to `main`, do not change RW4 conclusions, and do
@@ -2254,9 +2288,34 @@ before RW4 COLD #12. That review does not block the extractor work above.
   Changing the contract is a product/architecture decision, not part of
   this fix.
 - RW4-ID-SOURCE-FACTS-1: PARTIALLY CLOSED. Locality, kind and link
-  assertions are typed, grounded and audited. OPEN: the real extractor does
-  not reliably emit the locality assertion. The Overture import still drops
-  website, category and locality; no fixture decision depends on them.
+  assertions are typed, grounded and audited. The locality is now produced
+  by source locality recovery (§19.1), and the real replays show it reaching
+  the verifier (Gemini). OPEN: the Cloudflare replay is blocked by quota.
+  The Overture import still drops website, category and locality; no
+  fixture decision depends on them.
+- RW4-EXTRACT-CANDIDATE-1: OPEN, BLOCKING for the Luján composition. On the
+  real window the extractor emits no Luján candidate in 5 of 8 Gemini
+  replays and 3 of 3 Groq replays (failure mode 5). This is a discovery
+  extraction failure, separate from locality recovery.
+- RW4-I18N-NAME-1: OPEN, HIGH for non-Latin geographies (does not affect
+  the Argentina fixtures). `normalizeGeoName` (64 callers, identity
+  matching) folds every non-Latin name to `""`. "青山カフェ" and "銀座カフェ"
+  therefore compare equal, and `buildIdentityEvidence` would emit
+  `EXACT_NAME` for them (`locality-recovery-2026-10-03/normalize-geo-name-probe.txt`).
+  Fixing it changes identity matching for every caller, so it needs its own
+  characterized change. It was not done here.
+- RW4-I18N-GROUNDING-1: OPEN, LOW. The locality grounder uses the same
+  folding, so a non-Latin locality is `NO_BOUNDARY` (fail closed, pinned by
+  a test). The local Nominatim covers Argentina only.
+- RW4-LOC-RELATION-1: ACCEPTED RESIDUAL RISK. The containment relation is
+  the model's semantic judgement. A single negated statement misread as
+  `LOCATED_IN` cannot be detected in a language-neutral way. Literalness,
+  attribution, unanimity, grounding and verifier contradictions still
+  apply (§19.1).
+- PF-CHAR7-1: OPEN, pre-existing. `test:characterization`
+  `shared-component-identity` "A vs [B] ... AMBIGUOUS" fails with `NEW`. It
+  fails identically at `1f48c462` without this change (checked on
+  2026-10-03). It belongs to Experience dedupe and is untouched here.
 - RW4-ID-OVERTURE-COVERAGE-1: OPEN, LOW. A snapshot's spatial extent exists
   only in the untyped `manifest` JSON, so an Overture pool is never a
   complete comparison for a locality. A typed coverage geometry is a
