@@ -281,6 +281,15 @@ tree_after="$(tracked_tree)"
 printf 'checkout_unchanged=%s\n' "$([ "$tree_after" = "$tree_before" ] && echo true || echo false)" >"$OUT/evidence-meta.txt"
 printf 'inspect_exit=%s\n' "$inspect_status" >>"$OUT/evidence-meta.txt"
 
+# Prove tool use happened rather than trusting a prose summary. This is
+# recorded before the failure branch so a truncated or rate-limited
+# inspection still leaves an auditable trail of what was actually observed.
+tool_calls="$(jq -r 'select(.type=="tool_use") | .part.tool' "$OUT/inspect.jsonl" | sort | uniq -c || true)"
+printf 'tool_calls<<EOF\n%s\nEOF\n' "$tool_calls" >>"$OUT/evidence-meta.txt"
+read_calls="$(jq -r 'select(.type=="tool_use" and .part.tool=="read") | .part.state.input.filePath // .part.state.input.path // empty' "$OUT/inspect.jsonl" 2>/dev/null | sort -u | grep -c . || true)"
+printf 'observed_read_paths=%s\n' "$read_calls" >>"$OUT/evidence-meta.txt"
+jq -r 'select(.type=="text") | .part.text' "$OUT/inspect.jsonl" >"$OUT/inspect-evidence.txt"
+
 if [ "$inspect_status" -ne 0 ]; then
   {
     printf '## Inspection phase failed\n\n'
@@ -295,14 +304,6 @@ if [ "$inspect_status" -ne 0 ]; then
   echo "calibration_incomplete=inspect_exit_$inspect_status"
   exit 1
 fi
-
-# Prove tool use happened rather than trusting a prose summary.
-tool_calls="$(jq -r 'select(.type=="tool_use") | .part.tool' "$OUT/inspect.jsonl" | sort | uniq -c || true)"
-printf 'tool_calls<<EOF\n%s\nEOF\n' "$tool_calls" >>"$OUT/evidence-meta.txt"
-read_calls="$(jq -r 'select(.type=="tool_use" and .part.tool=="read") | .part.state.input.filePath // .part.state.input.path // empty' "$OUT/inspect.jsonl" 2>/dev/null | sort -u | grep -c . || true)"
-printf 'observed_read_paths=%s\n' "$read_calls" >>"$OUT/evidence-meta.txt"
-
-jq -r 'select(.type=="text") | .part.text' "$OUT/inspect.jsonl" >"$OUT/inspect-evidence.txt"
 
 if [ ! -s "$OUT/inspect-evidence.txt" ]; then
   printf 'RESULT=INCOMPLETE\n' >>"$OUT/evidence-meta.txt"
