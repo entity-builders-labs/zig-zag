@@ -2,7 +2,7 @@
 
 <!-- agent-track: id=preference-first-selection; status=ACTIVE; branch=feat/preference-first-selection; integration=main; base=016f10586d4faf9fe7e703a2d28684136cf99abe; plan=docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md -->
 
-Updated: 2026-10-02
+Updated: 2026-10-03
 Branch: `feat/preference-first-selection`
 Repository: `entity-builders-labs/zig-zag`
 Canonical live-cutover plan: `docs/superpowers/plans/2026-09-13-preference-first-live-cutover.md`
@@ -198,6 +198,34 @@ RW3-N6 resolution and live verification status:
   classifier) into the existing identity/geography validation. Do not
   interrupt the RW4 web-acquisition gate for it.
 
+
+### RW4 IdentityVerifier evidence-driven characterization — 2026-10-03
+
+- Dossier: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/verifier-characterization-2026-10-03/assessment.md`
+  (live replay through the real resolver + real Overture index on a
+  disposable DB; stub catalog; 0 rows persisted). No COLD #12 / WARM.
+- Overture snapshot used: `rw4-uco-aoi-20261003` (release `2026-09-23.1`,
+  AR, PARTIAL_PARTITION / OPERATIONAL_AOI). Exact-name multiplicity is
+  therefore UNKNOWN by contract.
+- Observed (post-fix): Alfa Crux and SuperUco are acquired from Overture,
+  EXACT_NAME/UNKNOWN, no Wikidata item nearby -> INSUFFICIENT_EVIDENCE.
+  Bodega Azul has no exact record; the Nominatim supermarket ->
+  INSUFFICIENT_EVIDENCE. A16 has nothing acquired. Ojo de Agua (Lujan
+  control) -> AMBIGUOUS.
+- Demonstrated defects fixed in `IdentityVerifier` rule 4 (generic):
+  (1) Wikidata NEARBY "nothing found" returned REJECTED, which collapses
+  NOT_CORROBORATED into CONTRADICTED (amendment 2026-09-22 §6). It now
+  falls through to the multiplicity fallback. (2) NEARBY corroboration
+  disambiguated a MULTIPLE same-name pool: "Ojo de Agua" VERIFIED to a
+  Cordoba hamlet 383 km away, with GeoEntity and hint-memory writes. It
+  is now AMBIGUOUS. Neither change can produce a new VERIFIED.
+  OWN_QID/OBSERVATION_QID behavior is retained (RW1 San Telmo).
+- Gaps recorded, not changed: the Overture import drops locality, region,
+  category, website and phone; the lookup ignores the stored address and
+  `alternateNames`; `addressConfirmed` exists only on LOCAL_OSM_POOL; the
+  evidence union has no contradiction type, so EXACT_NAME/SINGLE cannot be
+  overridden by contradicting evidence; there is no repo importer.
+- RW4 exit criteria unchanged: [ ] multi-component persisted; [ ] WARM.
 
 ### RW4 source-grounded geography amendment (§P2-18) — 2026-10-02
 
@@ -2064,31 +2092,25 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
-Multi-agent collaboration governance is now merged into this branch: merge
-commit `a4967e48` brings PR #70 head `d5f6f6e6` into
-`feat/preference-first-selection`. `scripts/agent-track`,
-`scripts/agent-preflight`, and `scripts/agent-progress-gate` are therefore
-available in this checkout, and this progress document is the ACTIVE track
-record for `preference-first-selection` (`integration=main`, base
-`016f10586d4faf9fe7e703a2d28684136cf99abe`).
-
-This checkpoint adds the machine-readable execution delta that the track
-contract requires. It is progress-only: no product, RW4, planner, provider, or
-persisted-contract behavior is changed by it.
-
-RW4 product state is unchanged and is recorded here as-is. Geographic-scope
-architecture S1-S6 is IMPLEMENTED with PD1/PD2/PD3 recorded; work-unit
-geographic authorization landed in `4da75fac` with the global
-`requestValidationIntent` singleton deleted; canonical COLD runs #5 through #11
-are recorded above. The open RW4 blocker is unchanged: persistence/WARM of a
-REAL multi-component Experience, where real component IDENTITY
-coverage/corroboration is the next blocker.
+RW4 component identity: the IdentityVerifier characterization is recorded
+(2026-10-03, see the RW4 section above). Two generic verifier defects
+demonstrated live are fixed: NEARBY absence is no longer a REJECTED
+contradiction, and NEARBY corroboration no longer disambiguates a MULTIPLE
+same-name pool. The real Uco components remain unverified, for evidence
+reasons rather than policy reasons. Alfa Crux and SuperUco are exact but
+UNKNOWN multiplicity, because the Overture snapshot is an AOI rather than
+a complete country. Bodega Azul has no exact or declared-alias record, and
+A16 has no exact record.
 
 ## Next authorized action
 
-Run the Gate C RW4 next gate: obtain real component identity
-coverage/corroboration for a multi-component Experience, then prove
-persistence/WARM of that REAL Experience.
+Close the RW4 component-identity evidence gap without changing verifier
+policy. First, a reviewed, repo-owned Overture importer that publishes a
+`COMPLETE_COUNTRY` AR snapshot, which establishes or refutes SINGLE for Alfa
+Crux and SuperUco. Second, an evidence-acquisition decision for Bodega Azul:
+a provider-declared alias, or a component-bound independent fact. COLD #12 is
+NOT ready: even with a complete snapshot, the Uco composition requires every
+member, and Bodega Azul stays unresolved.
 
 The draft pull request for `feat/preference-first-selection` -> `main` exists
 for review only. Do not merge to `main`, do not change RW4 conclusions, and do
@@ -2109,6 +2131,18 @@ not start an autonomous reviewer/fixer loop.
   merge result. The merge result's `be/` tree is byte-identical to this branch
   head, so this is product-suite flakiness in the RW4 area, not a governance
   regression. Do not weaken an invariant or a fixture to hide it.
+- RW4-ID-CONTRADICTION-1: OPEN, MEDIUM. The identity evidence union has no
+  contradiction type, and EXACT_NAME/SINGLE returns before any other
+  evidence. Only composite geography (REGION/COUNTRY_CONFLICT) can catch a
+  contradicted unique name, and that runs after GeoEntity persistence. Not
+  demonstrated by the RW4 fixtures (no contradicting typed fact exists).
+- RW4-ID-QID-HOMONYM-1: OPEN, LOW. A corroborating OWN_QID/OBSERVATION_QID
+  still singles out a MULTIPLE same-name member by label-only matching
+  (retained for RW1 San Telmo). It is a potential false positive for
+  homonyms that each carry a QID. Not demonstrated.
+- RW4-E2E-FLAKE-1: OPEN, LOW. One `yarn test:e2e` run on 2026-10-03 failed
+  1 of 41 tests, and the failing test name was not captured. Six
+  subsequent runs on the same tree passed 41/41.
 - Local, untracked RW4 spike artifacts under
   `spikes/rw4-mendoza-tourism-route-cloudflare-*/` (raw run dumps, roughly
   7 MB) are excluded through `.git/info/exclude`, matching the existing entries
