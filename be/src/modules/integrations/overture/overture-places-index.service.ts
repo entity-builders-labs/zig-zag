@@ -24,13 +24,21 @@ export interface OverturePlaceImportRecord {
 }
 
 export interface OverturePlacesImportBatch {
+  sessionId: string;
+  pageKey: string;
+  records: OverturePlaceImportRecord[];
+}
+
+export interface OverturePlacesImportSession {
+  id: string;
   release: string;
   sourceUri: string;
   countryCode: string;
   partitionKey: string;
   completeness: OvertureCoverageCompleteness;
+  expectedSourceCoverage: 'COUNTRY_ENUMERATED' | 'OPERATIONAL_AOI';
+  expectedPageKeys: string[];
   licenseNotice?: string;
-  records: OverturePlaceImportRecord[];
 }
 
 export interface OvertureIdentityLookup {
@@ -44,47 +52,45 @@ export interface OvertureIdentityLookup {
 export class OverturePlacesIndexService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async beginImport(input: OverturePlacesImportSession): Promise<void> {
+    if (
+      input.completeness === 'COMPLETE_COUNTRY' &&
+      input.expectedSourceCoverage !== 'COUNTRY_ENUMERATED'
+    )
+      throw new Error('Country completeness requires COUNTRY_ENUMERATED evidence');
+    await this.prisma.overturePlacesImportSession.create({
+      data: { ...input, status: 'IMPORTING' },
+    });
+  }
+
   /**
-   * Idempotent bounded import. A partial AOI refresh never lapsed records it
-   * did not observe; only a declared complete refresh of that same indexed
-   * partition may lapse its missing rows.
+   * Idempotent bounded page import. It never changes the active snapshot;
+   * only finalizeImport publishes a whole, verified session.
    */
   async importBatch(batch: OverturePlacesImportBatch): Promise<void> {
     const now = new Date();
-    const ids = batch.records.map((record) => record.featureId);
     await this.prisma.$transaction(async (tx) => {
-      await tx.overturePlacesCoverage.upsert({
-        where: {
-          countryCode_partitionKey_release: {
-            countryCode: batch.countryCode,
-            partitionKey: batch.partitionKey,
-            release: batch.release,
-          },
-        },
-        create: {
-          countryCode: batch.countryCode,
-          partitionKey: batch.partitionKey,
-          release: batch.release,
-          completeness: batch.completeness,
-          sourceUri: batch.sourceUri,
-          licenseNotice: batch.licenseNotice,
-          synchronizedAt: now,
-        },
-        update: {
-          completeness: batch.completeness,
-          sourceUri: batch.sourceUri,
-          licenseNotice: batch.licenseNotice,
-          synchronizedAt: now,
-        },
+      const session = await tx.overturePlacesImportSession.findUniqueOrThrow({
+        where: { id: batch.sessionId },
       });
+      if (session.status !== 'IMPORTING') throw new Error('Import is not active');
+      if (!session.expectedPageKeys.includes(batch.pageKey))
+        throw new Error(`Unexpected import page: ${batch.pageKey}`);
       for (const record of batch.records) {
+        if (record.countryCode !== session.countryCode)
+          throw new Error('Imported record country differs from import session');
         await tx.overturePlaceIndex.upsert({
-          where: { featureId: record.featureId },
+          where: {
+            importSessionId_featureId: {
+              importSessionId: session.id,
+              featureId: record.featureId,
+            },
+          },
           create: {
+            importSessionId: session.id,
             featureId: record.featureId,
-            release: batch.release,
             countryCode: record.countryCode,
-            partitionKey: batch.partitionKey,
+            partitionKey: session.partitionKey,
             name: record.name,
             normalizedName: normalizeGeoName(record.name),
             alternateNames: record.alternateNames ?? [],
@@ -98,9 +104,8 @@ export class OverturePlacesIndexService {
             lastSeenAt: now,
           },
           update: {
-            release: batch.release,
             countryCode: record.countryCode,
-            partitionKey: batch.partitionKey,
+            partitionKey: session.partitionKey,
             name: record.name,
             normalizedName: normalizeGeoName(record.name),
             alternateNames: record.alternateNames ?? [],
@@ -112,20 +117,52 @@ export class OverturePlacesIndexService {
             upstreamUpdatedAt: record.upstreamUpdatedAt,
             license: record.license,
             lastSeenAt: now,
-            lapsedAt: null,
           },
         });
       }
-      if (batch.completeness === 'COMPLETE_COUNTRY') {
-        await tx.overturePlaceIndex.updateMany({
-          where: {
-            countryCode: batch.countryCode,
-            partitionKey: batch.partitionKey,
-            ...(ids.length ? { featureId: { notIn: ids } } : {}),
-          },
-          data: { lapsedAt: now },
-        });
-      }
+      await tx.overturePlacesImportSession.update({
+        where: { id: session.id },
+        data: {
+          completedPageKeys: Array.from(
+            new Set([...session.completedPageKeys, batch.pageKey]),
+          ),
+        },
+      });
+    });
+  }
+
+  async failImport(sessionId: string, partitionKey: string): Promise<void> {
+    await this.prisma.overturePlacesImportSession.update({
+      where: { id: sessionId },
+      data: { status: 'FAILED', failedPartitionKeys: { push: partitionKey } },
+    });
+  }
+
+  async abortImport(sessionId: string): Promise<void> {
+    await this.prisma.overturePlacesImportSession.update({
+      where: { id: sessionId }, data: { status: 'ABORTED' },
+    });
+  }
+
+  async finalizeImport(sessionId: string, manifest: Prisma.InputJsonValue): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const session = await tx.overturePlacesImportSession.findUniqueOrThrow({
+        where: { id: sessionId },
+      });
+      const missing = session.expectedPageKeys.filter(
+        (page) => !session.completedPageKeys.includes(page),
+      );
+      if (session.status !== 'IMPORTING' || missing.length || session.failedPartitionKeys.length)
+        throw new Error('Import cannot publish with missing or failed pages');
+      const now = new Date();
+      await tx.overturePlacesImportSession.updateMany({
+        where: { countryCode: session.countryCode, status: 'PUBLISHED' },
+        data: { status: 'SUPERSEDED' },
+      });
+      await tx.overturePlacesImportSession.update({
+        where: { id: session.id },
+        data: { status: 'PUBLISHED', manifest, finalizedAt: now, publishedAt: now },
+      });
     });
   }
 
@@ -139,26 +176,19 @@ export class OverturePlacesIndexService {
     const normalizedName = normalizeGeoName(input.hintName);
     if (!normalizedName)
       return { resultCount: 0, coverage: 'PARTIAL_OR_UNKNOWN' };
-    const [rows, completeCoverage] = await Promise.all([
-      this.prisma.overturePlaceIndex.findMany({
-        where: {
-          countryCode: input.countryCode,
-          normalizedName,
-          lapsedAt: null,
-        },
-        orderBy: { featureId: 'asc' },
-      }),
-      this.prisma.overturePlacesCoverage.findFirst({
-        where: {
-          countryCode: input.countryCode,
-          completeness: 'COMPLETE_COUNTRY',
-        },
-        orderBy: { synchronizedAt: 'desc' },
-      }),
-    ]);
-    const coverage = completeCoverage
-      ? 'COMPLETE_COUNTRY'
-      : 'PARTIAL_OR_UNKNOWN';
+    const snapshot = await this.prisma.overturePlacesImportSession.findFirst({
+      where: { countryCode: input.countryCode, status: 'PUBLISHED' },
+      orderBy: { publishedAt: 'desc' },
+    });
+    if (!snapshot) return { resultCount: 0, coverage: 'PARTIAL_OR_UNKNOWN' };
+    const rows = await this.prisma.overturePlaceIndex.findMany({
+      where: { importSessionId: snapshot.id, normalizedName },
+      orderBy: { featureId: 'asc' },
+    });
+    const coverage =
+      snapshot.completeness === 'COMPLETE_COUNTRY'
+        ? 'COMPLETE_COUNTRY'
+        : 'PARTIAL_OR_UNKNOWN';
     if (!rows.length) return { resultCount: 0, coverage };
     const multiplicity =
       rows.length > 1
@@ -187,7 +217,7 @@ export class OverturePlacesIndexService {
         },
         persistenceMetadata: {
           overture: {
-            release: row.release,
+            release: snapshot.release,
             upstreamDataset: row.upstreamDataset,
             upstreamRecordId: row.upstreamRecordId,
             upstreamUpdatedAt: row.upstreamUpdatedAt?.toISOString(),

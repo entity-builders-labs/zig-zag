@@ -62,8 +62,8 @@ model GeoEntityIdentity {
 /// never canonical GeoEntity state, and import never creates GeoEntities.
 model OverturePlaceIndex {
   id                String    @id @default(uuid())
-  featureId         String    @unique
-  release           String
+  importSessionId   String
+  featureId         String
   countryCode       String
   partitionKey      String
   name              String
@@ -77,32 +77,40 @@ model OverturePlaceIndex {
   upstreamUpdatedAt DateTime?
   license           String?
   lastSeenAt        DateTime
-  lapsedAt          DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  importSession     OverturePlacesImportSession @relation(fields: [importSessionId], references: [id], onDelete: Cascade)
 
-  @@index([countryCode, normalizedName])
-  @@index([countryCode, partitionKey])
+  @@unique([importSessionId, featureId])
+  @@index([importSessionId, countryCode, normalizedName])
   @@map("overture_place_index")
 }
 
-/// Explicit statement of what a bounded import covered. PARTIAL_PARTITION
-/// cannot support a country-wide SINGLE exact-name claim.
-model OverturePlacesCoverage {
-  id             String   @id @default(uuid())
+/// Provider-owned import lifecycle and published snapshot authority. A session
+/// becomes visible to runtime lookup only after every expected page succeeds.
+model OverturePlacesImportSession {
+  id             String   @id
   countryCode    String
   partitionKey   String
   release        String
   completeness   String
+  expectedSourceCoverage String
   sourceUri      String
   licenseNotice  String?
-  synchronizedAt DateTime
+  expectedPageKeys String[] @default([])
+  completedPageKeys String[] @default([])
+  failedPartitionKeys String[] @default([])
+  status         String
+  manifest       Json?
+  startedAt      DateTime @default(now())
+  finalizedAt    DateTime?
+  publishedAt    DateTime?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  places         OverturePlaceIndex[]
 
-  @@unique([countryCode, partitionKey, release])
-  @@index([countryCode, completeness])
-  @@map("overture_places_coverage")
+  @@index([countryCode, status, publishedAt])
+  @@map("overture_places_import_session")
 }
 
 model Experience {
