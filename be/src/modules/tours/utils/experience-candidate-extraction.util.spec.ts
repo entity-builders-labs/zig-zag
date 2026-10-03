@@ -12,6 +12,90 @@ const ev = (key: string, text: string, title?: string) => ({
   title,
 });
 
+describe('extractExperienceCandidates -- component-specific source facts', () => {
+  const text =
+    'Lujan de Cuyo Itinerary. This is my ideal day in Lujan de Cuyo. ' +
+    '3. [Ojo de Agua](https://ojodeagua.ch/) – 1:30 pm for a winery lunch. ' +
+    'Wine and lunch at Ojo de Agua in Lujan de Cuyo.';
+  const extract = (hint: Record<string, unknown>) =>
+    extractExperienceCandidates(
+      {
+        candidates: [
+          {
+            name: 'Lujan de Cuyo Wine Tasting Itinerary',
+            themes: ['wine'],
+            traits: [],
+            intents: [],
+            componentHints: [
+              {
+                key: 'ojo-de-agua',
+                name: 'Ojo de Agua',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+                supportSpan: '1:30 pm for a winery lunch',
+                ...hint,
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'source itinerary',
+          },
+        ],
+      },
+      [ev('ev-1', text)],
+      5,
+    );
+
+  it('carries verified locality, kind and link onto the hint, audited on the component', () => {
+    const result = extract({
+      localityAssertion: {
+        locality: 'Lujan de Cuyo',
+        supportSpan: 'Wine and lunch at Ojo de Agua in Lujan de Cuyo.',
+      },
+      physicalKindAssertion: {
+        kind: 'ESTABLISHMENT',
+        term: 'winery lunch',
+        supportSpan:
+          '[Ojo de Agua](https://ojodeagua.ch/) – 1:30 pm for a winery lunch.',
+      },
+    });
+
+    expect(result.candidates[0].componentHints[0]).toMatchObject({
+      localityAssertion: { locality: 'Lujan de Cuyo', evidenceKey: 'ev-1' },
+      physicalKindAssertion: { kind: 'ESTABLISHMENT', term: 'winery lunch' },
+      sourceLink: { url: 'https://ojodeagua.ch/', linkText: 'Ojo de Agua' },
+    });
+    expect(result.sourceSupportAudits[0].components[0].assertionAudits).toEqual(
+      expect.arrayContaining([
+        { assertion: 'LOCALITY', status: 'ACCEPTED' },
+        { assertion: 'PHYSICAL_KIND', status: 'ACCEPTED' },
+        { assertion: 'SOURCE_LINK', status: 'ACCEPTED' },
+      ]),
+    );
+  });
+
+  it('drops a heading-derived locality but keeps the component (assertions never invalidate it)', () => {
+    const result = extract({
+      localityAssertion: {
+        locality: 'Lujan de Cuyo',
+        supportSpan: 'This is my ideal day in Lujan de Cuyo.',
+      },
+    });
+
+    expect(result.candidates).toHaveLength(1);
+    expect(
+      result.candidates[0].componentHints[0].localityAssertion,
+    ).toBeUndefined();
+    expect(
+      result.sourceSupportAudits[0].components[0].assertionAudits,
+    ).toContainEqual({
+      assertion: 'LOCALITY',
+      status: 'REJECTED',
+      reason: 'NOT_STATED_IN_ONE_SENTENCE_WITH_COMPONENT',
+    });
+  });
+});
+
 describe('extractExperienceCandidates', () => {
   it('accepts evidence-backed candidates without structural kinds', () => {
     const result = extractExperienceCandidates(

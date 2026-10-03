@@ -11,6 +11,10 @@ import {
   supportSpanNamesEntity,
   verifyTextualComponentSourceSupport,
 } from './component-source-support.util';
+import {
+  ComponentAssertionAudit,
+  verifyComponentSourceAssertions,
+} from './component-source-assertions.util';
 
 const ROLES = new Set(['area', 'waypoint', 'route', 'venue']);
 const KINDS = new Set(['PLACE', 'AREA', 'ROUTE']);
@@ -64,6 +68,8 @@ export interface ComponentSourceSupportAudit {
    * fingerprints, dedupe, or planning. Populated only when verification
    * succeeded. */
   verifiedSupportSpan?: string;
+  /** Admission of the component's own source facts (locality, kind, link). */
+  assertionAudits?: ComponentAssertionAudit[];
 }
 
 /**
@@ -378,6 +384,14 @@ export function extractExperienceCandidates(
           });
           continue;
         }
+        // Component-specific source facts (locality, physical kind, link):
+        // admitted only from THIS component's own verified evidence.
+        const assertions = verifyComponentSourceAssertions(
+          hint,
+          sourceName,
+          support.verifiedEvidenceKeys,
+          evidenceByKey,
+        );
         componentAudits.push({
           index: hintIndex,
           key,
@@ -392,6 +406,9 @@ export function extractExperienceCandidates(
           attributionStatus: support.attributionStatus,
           status: 'SUPPORTED',
           verifiedSupportSpan: support.verifiedSupportSpan,
+          ...(assertions.audits.length > 0
+            ? { assertionAudits: assertions.audits }
+            : {}),
         });
 
         const addressHint =
@@ -408,6 +425,15 @@ export function extractExperienceCandidates(
           evidenceKeys: support.verifiedEvidenceKeys,
           declaredEvidenceKeys: support.declaredEvidenceKeys,
           ...(addressHint ? { addressHint } : {}),
+          ...(assertions.localityAssertion
+            ? { localityAssertion: assertions.localityAssertion }
+            : {}),
+          ...(assertions.physicalKindAssertion
+            ? { physicalKindAssertion: assertions.physicalKindAssertion }
+            : {}),
+          ...(assertions.sourceLink
+            ? { sourceLink: assertions.sourceLink }
+            : {}),
         });
       }
     }

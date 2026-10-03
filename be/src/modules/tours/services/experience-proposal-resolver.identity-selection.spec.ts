@@ -61,6 +61,7 @@ function build(options: {
   /** Boundary the (faked) locality grounder returns for any assertion. */
   localityBoundary?: GeoJsonGeometry;
   placesFailure?: Error;
+  catalogCandidates?: unknown[];
 }) {
   const osmPlaces = {
     lookupPoisWithin: jest
@@ -75,7 +76,7 @@ function build(options: {
   const catalog = {
     findGeoEntityCandidatesForHint: jest
       .fn()
-      .mockResolvedValue({ candidates: [] }),
+      .mockResolvedValue({ candidates: options.catalogCandidates ?? [] }),
     rememberVerifiedHintName: jest.fn().mockResolvedValue('REMEMBERED'),
     findGeoEntityIdsByIdentities: jest.fn().mockResolvedValue([]),
     upsertGeoEntityWithIdentities: jest.fn(),
@@ -740,5 +741,93 @@ describe('ExperienceProposalResolverService -- contextual identity on the real O
     );
     expect(attempt.verificationDecision).toBe('REJECTED');
     expectNoIdentityWrites(catalog);
+  });
+
+  describe('verified hint memory stays bound to the context that verified it', () => {
+    // The GeoEntity a contextual COLD verification persisted, reached WARM
+    // through its remembered hint key.
+    const rememberedRestaurant = {
+      geoEntityId: 'geo-ojo-de-agua',
+      name: 'Ojo de Agua',
+      kind: 'PLACE',
+      latitude: -33.1300868,
+      longitude: -68.9641048,
+      geometry: { type: 'Point', coordinates: [-68.9641048, -33.1300868] },
+      address: null as string | null,
+      identities: [{ provider: 'openstreetmap', externalId: LUJAN_RESTAURANT }],
+      matchKind: 'VERIFIED_HINT',
+    };
+
+    it('COLD: a contextually VERIFIED component is remembered only after persistence', async () => {
+      const { service, catalog } = build({
+        nominatimResults: POOL.PROVIDER_MAXIMUM,
+        localityBoundary: LUJAN,
+      });
+
+      await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+        ...lujanAssertion,
+        ...establishment,
+      });
+
+      expect(catalog.rememberVerifiedHintName).toHaveBeenCalledWith(
+        'geo-1',
+        'Ojo de Agua',
+      );
+    });
+
+    it('WARM, same stated locality: reuses the GeoEntity with no provider acquisition', async () => {
+      const { service, nominatim } = build({
+        catalogCandidates: [rememberedRestaurant],
+        localityBoundary: LUJAN,
+      });
+
+      const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+        ...lujanAssertion,
+      });
+
+      expect(attemptOf(result, 'CATALOG_REUSE').verificationDecision).toBe(
+        'VERIFIED',
+      );
+      expect(nominatim.search).not.toHaveBeenCalled();
+    });
+
+    it('WARM, contradicting stated locality: the remembered name alone cannot reuse it; acquisition continues', async () => {
+      const { service, nominatim } = build({
+        catalogCandidates: [rememberedRestaurant],
+        localityBoundary: TUNUYAN,
+        nominatimResults: [],
+      });
+
+      const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+        localityAssertion: {
+          locality: 'Tunuyan',
+          evidenceKey: 'ev-1',
+          supportSpan: 'Ojo de Agua in Tunuyan',
+        },
+      });
+
+      const reuse = attemptOf(result, 'CATALOG_REUSE');
+      expect(reuse.identityEvidence).toContainEqual(
+        expect.objectContaining({
+          type: 'IDENTITY_CONTRADICTION',
+          fact: 'LOCALITY',
+        }),
+      );
+      expect(reuse.verificationDecision).toBe('REJECTED');
+      expect(nominatim.search).toHaveBeenCalled();
+    });
+
+    it('WARM, no stated locality (an excursion departing from another city): reuse is still allowed', async () => {
+      const { service, nominatim } = build({
+        catalogCandidates: [rememberedRestaurant],
+      });
+
+      const result = await resolveRouteLike(service, 'Ojo de Agua');
+
+      expect(attemptOf(result, 'CATALOG_REUSE').verificationDecision).toBe(
+        'VERIFIED',
+      );
+      expect(nominatim.search).not.toHaveBeenCalled();
+    });
   });
 });

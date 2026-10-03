@@ -2123,19 +2123,28 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
-RW4 contextual physical identity, milestone 1 of 3 DONE (2026-10-03):
-`IdentityVerifier` now follows the ordered policy in amendment §19. The
-order is: contradiction (QID, LOCALITY, PHYSICAL_KIND), then structural
-identity (convergence counts only across independent upstreams), then
-contextual correspondence over the examined pool (DISTINGUISHED verifies
-without country-wide uniqueness; AMBIGUOUS overrides a unique name), then
-name, address and alias, then Wikidata. Pools are evaluated for NOMINATIM,
-PLACES and LOCAL_OSM_POOL. A saturated Nominatim window no longer yields
-SINGLE. Intended behavior change: RW1 "El Zanjón de Granados" and
-"Farmacia la Estrella" verified only through shared-upstream OSM
-convergence and are now unresolved without discriminating evidence.
-Milestones 2 (grounded source assertions + real OSM locality grounding +
-hint-memory safety) and 3 (Overture pool) are next.
+RW4 contextual physical identity: milestones 1 and 2 of 3 are DONE
+(2026-10-03).
+
+- M1: `IdentityVerifier` follows the ordered policy in amendment §19.
+- M2: the extractor may propose a component `localityAssertion` and a
+  `physicalKindAssertion`. A deterministic gate admits one only when it
+  appears in that component's own evidence and one sentence names both the
+  component and the fact. `sourceLink` is taken from the Markdown link.
+  `OsmComponentLocalityGrounder` grounds a stated locality to exactly one
+  OSM administrative boundary, using the outermost of a nested chain, and
+  fails closed on unrelated homonyms. Verified hint memory is reused only
+  when it does not contradict a stated locality.
+- Real replay (dossier
+  `identity-characterization/contextual-identity-2026-10-03/`):
+  - "Lujan de Cuyo" grounds to `osm:relation:2989830`, with the Agrelo
+    restaurant INSIDE and the Córdoba hamlet OUTSIDE.
+  - Ojo de Agua stays AMBIGUOUS. The extractor (Gemini; Cloudflare was at
+    its quota and Groq returned 0 candidates) emitted no locality assertion
+    for the admissible caption.
+  - Alfa Crux, SuperUco and Bodega Azul are INSUFFICIENT_EVIDENCE.
+  - A16 has no candidate.
+- M3 (Overture pool) is next.
 
 ## Next authorized action
 
@@ -2196,6 +2205,10 @@ not start an autonomous reviewer/fixer loop.
   still singles out a MULTIPLE same-name member by label-only matching
   (retained for RW1 San Telmo). It is a potential false positive for
   homonyms that each carry a QID. Not demonstrated.
+- RW4-INT-FLAKE-2: OPEN, LOW. One full `yarn test:integration` run on
+  2026-10-03 (M2 tree) failed `catalog-reuse › reuses the persisted catalog`;
+  the failure message was not captured. Three subsequent runs on the same
+  tree passed (113/113). Likely the same flake as PF-CI-FLAKE-1.
 - RW4-E2E-FLAKE-1: OPEN, LOW. One `yarn test:e2e` run on 2026-10-03 failed
   1 of 41 tests, and the failing test name was not captured. Six
   subsequent runs on the same tree passed 41/41.

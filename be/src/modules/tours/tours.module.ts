@@ -55,6 +55,8 @@ import {
   ExperienceGroundedSearchProvider,
 } from './interfaces/experience-grounding.interface';
 import { EXPERIENCE_PROPOSAL_RESOLVER } from './interfaces/experience-resolution.interface';
+import { COMPONENT_LOCALITY_GROUNDER } from './interfaces/component-identity-context.interface';
+import { OsmComponentLocalityGrounder } from './services/osm-component-locality-grounder.service';
 import {
   DAILY_PLANNING_SOLVER,
   TRAVEL_ESTIMATE_PROVIDER,
@@ -155,6 +157,10 @@ import { MediaModule } from '../media/media.module';
     {
       provide: EXPERIENCE_PROPOSAL_RESOLVER,
       useExisting: ExperienceProposalResolverService,
+    },
+    {
+      provide: COMPONENT_LOCALITY_GROUNDER,
+      useClass: OsmComponentLocalityGrounder,
     },
     {
       provide: TRAVEL_ESTIMATE_PROVIDER,
