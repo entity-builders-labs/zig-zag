@@ -1,0 +1,715 @@
+{
+  "label": "santelmo-cold",
+  "tourId": "030d13ac-7f0d-4341-9bc6-e79d9cac30b4",
+  "generationStatus": "completed",
+  "pollElapsedMs": 349710,
+  "discovery": {
+    "discoverySteps": 3,
+    "candidateCount": 22,
+    "webCandidateCount": 1,
+    "structuredCandidateCount": 21
+  },
+  "candidates": {
+    "total": 22,
+    "simple": 21,
+    "multiComponent": 1,
+    "acceptedAfterResolution": 12
+  },
+  "components": {
+    "total": 28,
+    "resolved": 17,
+    "unresolvedByReason": {
+      "UNCONFIRMED_MATCH": 1,
+      "NO_OSM_MATCH": 10
+    }
+  },
+  "strategies": {
+    "attempts": {
+      "CATALOG_REUSE": 28,
+      "TRUSTED_OBSERVATION_REUSE": 27,
+      "LOCAL_OSM_POOL": 26,
+      "NOMINATIM": 5,
+      "PLACES": 2
+    },
+    "verified": {
+      "NOMINATIM": 3,
+      "LOCAL_OSM_POOL": 12,
+      "TRUSTED_OBSERVATION_REUSE": 1,
+      "CATALOG_REUSE": 1,
+      "IDENTITY_CONVERGENCE": 1
+    }
+  },
+  "route": {
+    "avgSegmentsPerResolved": null,
+    "maxSegments": null,
+    "clustersPerTargetedHint": [],
+    "details": []
+  },
+  "knownDebt": {},
+  "composites": {
+    "multiComponentCandidates": 1,
+    "resolutionBuckets": {
+      "2+partial": 1
+    },
+    "geographicValidation": {
+      "geoVerified": 12,
+      "rejected": 0
+    },
+    "persistedThisRun": 11
+  },
+  "providerCallsDerived": {
+    "catalogLookups": 28,
+    "nominatim": 5,
+    "wikidataEvidenceAttempts": 13,
+    "places": 2
+  },
+  "db": {
+    "experiences": 11,
+    "experienceComponents": 11,
+    "geoEntities": 15,
+    "geoEntityIdentities": 16,
+    "routeGeoEntities": 0,
+    "duplicateIdentityRows": 0,
+    "multiComponentExperiences": [],
+    "routeGeoEntities_detail": []
+  },
+  "forensicControls": {
+    "mafalda": [
+      {
+        "hint": "Mafalda Statue",
+        "kind": "PLACE",
+        "status": "unresolved",
+        "reason": "NO_OSM_MATCH",
+        "strategies": [
+          "CATALOG_REUSE",
+          "TRUSTED_OBSERVATION_REUSE",
+          "LOCAL_OSM_POOL",
+          "NOMINATIM",
+          "PLACES"
+        ],
+        "resolvedGeoEntity": null
+      }
+    ],
+    "zanj": [
+      {
+        "hint": "El Zanjón de Granados (historic ruins)",
+        "kind": "PLACE",
+        "status": "resolved",
+        "reason": null,
+        "strategies": [
+          "CATALOG_REUSE",
+          "TRUSTED_OBSERVATION_REUSE",
+          "LOCAL_OSM_POOL"
+        ],
+        "resolvedGeoEntity": {
+          "provider": "openstreetmap",
+          "externalId": "osm:node:9953027884",
+          "geoEntityId": "a0710304-dcaf-46a6-98e4-5ffc16e07341",
+          "canonicalName": "El Zanjón de Granados (historic ruins)"
+        }
+      },
+      {
+        "hint": "El Zanjón de Granados",
+        "kind": "PLACE",
+        "status": "resolved",
+        "reason": null,
+        "strategies": [
+          "CATALOG_REUSE",
+          "TRUSTED_OBSERVATION_REUSE",
+          "LOCAL_OSM_POOL",
+          "NOMINATIM"
+        ],
+        "resolvedGeoEntity": {
+          "provider": "nominatim",
+          "externalId": "osm:node:9953027884",
+          "geoEntityId": "a0710304-dcaf-46a6-98e4-5ffc16e07341",
+          "canonicalName": "El Zanjón de Granados (historic ruins)"
+        }
+      }
+    ],
+    "defensa": [
+      {
+        "hint": "Carnavales de la Calle Defensa",
+        "kind": "PLACE",
+        "status": "resolved",
+        "reason": null,
+        "strategies": [
+          "CATALOG_REUSE",
+          "TRUSTED_OBSERVATION_REUSE",
+          "LOCAL_OSM_POOL"
+        ],
+        "resolvedGeoEntity": {
+          "provider": "openstreetmap",
+          "externalId": "osm:node:5410557722",
+          "geoEntityId": "e6fabd41-ea15-44a3-9f75-02f36fb291ca",
+          "canonicalName": "Carnavales de la Calle Defensa"
+        }
+      }
+    ],
+    "san lorenzo": [
+      {
+        "hint": "Pasaje San Lorenzo",
+        "kind": "PLACE",
+        "status": "unresolved",
+        "reason": "NO_OSM_MATCH",
+        "strategies": [
+          "CATALOG_REUSE",
+          "TRUSTED_OBSERVATION_REUSE",
+          "LOCAL_OSM_POOL"
+        ],
+        "resolvedGeoEntity": null
+      }
+    ],
+    "dorrego": [
+      {
+        "hint": "Plaza Dorrego",
+        "kind": "PLACE",
+        "status": "resolved",
+        "reason": null,
+        "strategies": [
+          "CATALOG_REUSE",
+          "TRUSTED_OBSERVATION_REUSE",
+          "LOCAL_OSM_POOL"
+        ],
+        "resolvedGeoEntity": {
+          "provider": "openstreetmap",
+          "externalId": "osm:way:31364659",
+          "geoEntityId": "66f8f148-e556-40f1-96e5-b29ce5bec713",
+          "canonicalName": "Plaza Dorrego"
+        }
+      }
+    ]
+  },
+  "candidateDetails": [
+    {
+      "name": "San Telmo Historical Walking Tour",
+      "hintCount": 7,
+      "resolvedCount": 5,
+      "accepted": false,
+      "rejectionReasons": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ],
+      "hints": [
+        {
+          "name": "Basílica de San Francisco",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL",
+            "NOMINATIM"
+          ]
+        },
+        {
+          "name": "Farmacia la Estrella",
+          "kind": "PLACE",
+          "status": "unresolved",
+          "reason": "UNCONFIRMED_MATCH",
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL",
+            "NOMINATIM",
+            "PLACES"
+          ]
+        },
+        {
+          "name": "Convento Santo Domingo",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL",
+            "NOMINATIM"
+          ]
+        },
+        {
+          "name": "Mafalda Statue",
+          "kind": "PLACE",
+          "status": "unresolved",
+          "reason": "NO_OSM_MATCH",
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL",
+            "NOMINATIM",
+            "PLACES"
+          ]
+        },
+        {
+          "name": "Casa Mínima",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        },
+        {
+          "name": "San Telmo Market",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        },
+        {
+          "name": "Lezama Park",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Solar French",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "Solar French",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Museo de las Escuelas",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "Museo de las Escuelas",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Roca granitica",
+      "hintCount": 1,
+      "resolvedCount": 0,
+      "accepted": false,
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "hints": [
+        {
+          "name": "Roca granitica",
+          "kind": "PLACE",
+          "status": "unresolved",
+          "reason": "NO_OSM_MATCH",
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Monasterio San SAVAS",
+      "hintCount": 1,
+      "resolvedCount": 0,
+      "accepted": false,
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "hints": [
+        {
+          "name": "Monasterio San SAVAS",
+          "kind": "PLACE",
+          "status": "unresolved",
+          "reason": "NO_OSM_MATCH",
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Monumento a Pedro de Mendoza",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "Monumento a Pedro de Mendoza",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "El Zanjón de Granados (historic ruins)",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "El Zanjón de Granados (historic ruins)",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "La Hazana",
+      "hintCount": 1,
+      "resolvedCount": 0,
+      "accepted": false,
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "hints": [
+        {
+          "name": "La Hazana",
+          "kind": "PLACE",
+          "status": "unresolved",
+          "reason": "NO_OSM_MATCH",
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Isidoro Cañones",
+      "hintCount": 1,
+      "resolvedCount": 0,
+      "accepted": false,
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "hints": [
+        {
+          "name": "Isidoro Cañones",
+          "kind": "PLACE",
+          "status": "unresolved",
+          "reason": "NO_OSM_MATCH",
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Monumento Canto al Trabajo",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "Monumento Canto al Trabajo",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Baloon",
+      "hintCount": 1,
+      "resolvedCount": 0,
+      "accepted": false,
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "hints": [
+        {
+          "name": "Baloon",
+          "kind": "PLACE",
+          "status": "unresolved",
+          "reason": "NO_OSM_MATCH",
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Museo Histórico Nacional",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "Museo Histórico Nacional",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Carnavales de la Calle Defensa",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "Carnavales de la Calle Defensa",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Museo de la Historia del Traje",
+      "hintCount": 1,
+      "resolvedCount": 0,
+      "accepted": false,
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "hints": [
+        {
+          "name": "Museo de la Historia del Traje",
+          "kind": "PLACE",
+          "status": "unresolved",
+          "reason": "NO_OSM_MATCH",
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Casa Mínima",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "Casa Mínima",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Plaza 30'000 compañeros",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "Plaza 30'000 compañeros",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Princess",
+      "hintCount": 1,
+      "resolvedCount": 0,
+      "accepted": false,
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "hints": [
+        {
+          "name": "Princess",
+          "kind": "PLACE",
+          "status": "unresolved",
+          "reason": "NO_OSM_MATCH",
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Manzana de las Luces",
+      "hintCount": 1,
+      "resolvedCount": 0,
+      "accepted": false,
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "hints": [
+        {
+          "name": "Manzana de las Luces",
+          "kind": "PLACE",
+          "status": "unresolved",
+          "reason": "NO_OSM_MATCH",
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Mercado San Telmo",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "Mercado San Telmo",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Pasaje San Lorenzo",
+      "hintCount": 1,
+      "resolvedCount": 0,
+      "accepted": false,
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "hints": [
+        {
+          "name": "Pasaje San Lorenzo",
+          "kind": "PLACE",
+          "status": "unresolved",
+          "reason": "NO_OSM_MATCH",
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Plaza Dorrego",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "Plaza Dorrego",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "El Zanjón de Granados",
+      "hintCount": 1,
+      "resolvedCount": 1,
+      "accepted": true,
+      "rejectionReasons": [],
+      "hints": [
+        {
+          "name": "El Zanjón de Granados",
+          "kind": "PLACE",
+          "status": "resolved",
+          "reason": null,
+          "strategies": [
+            "CATALOG_REUSE",
+            "TRUSTED_OBSERVATION_REUSE",
+            "LOCAL_OSM_POOL",
+            "NOMINATIM"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "request": {
+    "url": "POST https://places.googleapis.com/v1/places:searchText",
+    "fieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.primaryType",
+    "body": "{\"textQuery\":\"Mafalda\",\"maxResultCount\":10,\"locationBias\":{\"circle\":{\"center\":{\"latitude\":-34.6037,\"longitude\":-58.3816},\"radius\":50000}}}"
+  },
+  "status": 200,
+  "durationMs": 506,
+  "response": {
+    "places": [
+      {
+        "id": "ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+        "types": [
+          "sculpture",
+          "tourist_attraction",
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "9JMH+J8W, Defensa 700, C1065 Cdad. Autónoma de Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.615832,
+          "longitude": -58.3716461
+        },
+        "displayName": {
+          "text": "Estatua de Mafalda",
+          "languageCode": "pt"
+        },
+        "primaryType": "sculpture"
+      },
+      {
+        "id": "ChIJnz02-eu1vJUR0afEpN6-MaQ",
+        "types": [
+          "city_park",
+          "tourist_attraction",
+          "park",
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "Conde 145, C1437 Cdad. Autónoma de Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.5806439,
+          "longitude": -58.445611500000005
+        },
+        "displayName": {
+          "text": "Plaza Mafalda",
+          "languageCode": "es"
+        },
+        "primaryType": "city_park"
+      },
+      {
+        "id": "ChIJLWctJSs1o5URo6LzYDlBzMw",
+        "types": [
+          "clothing_store",
+          "store",
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "Moreno 319, C1091AAG Cdad. Autónoma de Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.61119370000001,
+          "longitude": -58.37084240000001
+        },
+        "displayName": {
+          "text": "El Rinconcito de Mafalda",
+          "languageCode": "es"
+        },
+        "primaryType": "clothing_store"
+      },
+      {
+        "id": "ChIJFeevcQDLvJURKIwa9GKHrNI",
+        "types": [
+          "tourist_attraction",
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "San Nicolás, C1084 Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6085585,
+          "longitude": -58.374448699999995
+        },
+        "displayName": {
+          "text": "El mundo segun Mafalda",
+          "languageCode": "es"
+        },
+        "primaryType": "tourist_attraction"
+      },
+      {
+        "id": "ChIJc-ZNwSo1o5URTB6WZXrV9Pc",
+        "types": [
+          "tourist_attraction",
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "#15-07 The Metropolis Tower 2, 138589 wikipedia, Cdad. Autónoma de Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6127755,
+          "longitude": -58.3705551
+        },
+        "displayName": {
+          "text": "Clemente - Paseo de la Historieta",
+          "languageCode": "es"
+        },
+        "primaryType": "tourist_attraction"
+      },
+      {
+        "id": "ChIJD76Hos01o5URBQPPX7duj6o",
+        "types": [
+          "shopping_mall",
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "Chile 371, C1098AAH, C1098 C1098AAH, Cdad. Autónoma de Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6158485,
+          "longitude": -58.371452
+        },
+        "displayName": {
+          "text": "Feria San Telmo calle defensa y chile",
+          "languageCode": "es"
+        },
+        "primaryType": "shopping_mall"
+      },
+      {
+        "id": "ChIJ_1-dV-61vJURSy-5DxioW6Q",
+        "types": [
+          "association_or_organization",
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "EIF, Santos Dumont 3602, C1427 autonoma de buenos aires, Cdad. Autónoma de Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.584429199999995,
+          "longitude": -58.448036599999995
+        },
+        "displayName": {
+          "text": "Jardin Mafalda",
+          "languageCode": "es"
+        },
+        "primaryType": "association_or_organization"
+      },
+      {
+        "id": "ChIJIVXKOwDLvJURlRthuyBmb5o",
+        "types": [
+          "tourist_attraction",
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "Av. Rivadavia 4879, C1405 Cdad. Autónoma de Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.616349899999996,
+          "longitude": -58.4338796
+        },
+        "displayName": {
+          "text": "Paseo Mafalda",
+          "languageCode": "es"
+        },
+        "primaryType": "tourist_attraction"
+      },
+      {
+        "id": "ChIJUYlcWNHLvJURNGbPmQstx_U",
+        "types": [
+          "store",
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "Serrano 396, C1414 Cdad. Autónoma de Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.5972838,
+          "longitude": -58.4439161
+        },
+        "displayName": {
+          "text": "Maxikiosco Mafalda",
+          "languageCode": "es"
+        },
+        "primaryType": "store"
+      },
+      {
+        "id": "ChIJ36GlNMc1o5URI8jw5Ght0JE",
+        "types": [
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "Defensa 650, C1065AAL Cdad. Autónoma de Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6153954,
+          "longitude": -58.37161679999999
+        },
+        "displayName": {
+          "text": "Feria de San Telmo",
+          "languageCode": "es"
+        }
+      }
+    ]
+  }
+}

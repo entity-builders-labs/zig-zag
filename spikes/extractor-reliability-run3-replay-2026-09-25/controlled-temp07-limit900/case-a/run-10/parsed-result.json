@@ -1,0 +1,13 @@
+{
+  "classification": "NO_CANDIDATE",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.7,
+  "maxCompletionTokens": 900,
+  "responseFormat": "json_object",
+  "elapsedMs": 18018,
+  "candidates": [],
+  "validationErrors": [],
+  "sourceSupportAudits": [],
+  "rawComponentFacts": []
+}

@@ -1,0 +1,99 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
+import { PlanningExperienceCandidate } from '../interfaces/daily-planning.interface';
+import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
+import {
+  buildExperienceFootprint,
+  buildOrderedComponentFootprints,
+} from '../utils/spatial-footprint.util';
+
+export interface PlanningCandidateNormalizationContext {
+  preferenceWeightById?: ReadonlyMap<string, number>;
+  mustIncludeExperienceIds?: ReadonlySet<string>;
+}
+
+/**
+ * Boundary adapter converting ranked, verified Experience records into the
+ * planner's native candidate contract. It preserves every persisted component;
+ * request-specific internal routing is intentionally left to the solver because
+ * only the solver owns the canonical mobility constraints.
+ */
+@Injectable()
+export class PlanningCandidateNormalizerService {
+  constructor(
+    @Inject(dailyPlanningPolicyConfig.KEY)
+    private readonly policy: ConfigType<typeof dailyPlanningPolicyConfig>,
+  ) {}
+
+  async normalizeExperiences(
+    experiences: any[],
+    scoreBreakdownById: Map<string, CandidateScoreBreakdown>,
+    context: PlanningCandidateNormalizationContext = {},
+  ): Promise<PlanningExperienceCandidate[]> {
+    return experiences.map((experience) => {
+      const persistedMobility =
+        experience.mobility ?? experience.metadata?.mobility;
+      const persistedOpeningHours =
+        experience.openingHours ?? experience.metadata?.openingHours;
+      const scoreBreakdown = scoreBreakdownById.get(experience.id);
+      const spatialFootprint = buildExperienceFootprint({
+        latitude: experience.latitude,
+        longitude: experience.longitude,
+        components: experience.components,
+      });
+      const componentFootprints = buildOrderedComponentFootprints(
+        experience.components ?? [],
+      );
+      // Derived once here so the solver's hot loops never need `?? spatialFootprint`
+      // scattered across call sites — a single-component (or component-less)
+      // Experience's start/end both collapse to its one generic footprint.
+      const startFootprint =
+        componentFootprints.length >= 2
+          ? componentFootprints[0]
+          : spatialFootprint;
+      const endFootprint =
+        componentFootprints.length >= 2
+          ? componentFootprints[componentFootprints.length - 1]
+          : spatialFootprint;
+      return {
+        experienceId: experience.id,
+        title: experience.canonicalName ?? experience.name,
+        durationMinutes:
+          experience.durationMinutes ??
+          (experience.duration ? experience.duration * 60 : undefined) ??
+          this.policy.compositeDefaultDurationMinutes,
+        spatialFootprint,
+        componentFootprints,
+        startFootprint,
+        endFootprint,
+        semanticScore: scoreBreakdown?.semanticSimilarity ?? 0,
+        qualityScore:
+          typeof experience.qualityScore === 'number' &&
+          Number.isFinite(experience.qualityScore) &&
+          experience.qualityScore >= 0 &&
+          experience.qualityScore <= 5
+            ? experience.qualityScore
+            : undefined,
+        preferenceWeight: context.preferenceWeightById?.get(experience.id),
+        mustInclude: context.mustIncludeExperienceIds?.has(experience.id)
+          ? true
+          : undefined,
+        mobility: persistedMobility
+          ? {
+              internalWalkingMinutes: persistedMobility.internalWalkingMinutes,
+              internalWalkingDistanceMeters:
+                persistedMobility.internalWalkingDistanceMeters,
+              maxInternalContinuousWalkingDistanceMeters:
+                persistedMobility.maxInternalContinuousWalkingDistanceMeters,
+              internalTravelMinutes: persistedMobility.internalTravelMinutes,
+              routingProviderCounts: persistedMobility.routingProviderCounts,
+              routingFallbackCount: persistedMobility.routingFallbackCount,
+            }
+          : undefined,
+        openingHours: persistedOpeningHours,
+        metadata: { source: 'experience_catalog' },
+      };
+    });
+  }
+}

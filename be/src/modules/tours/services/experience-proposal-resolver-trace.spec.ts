@@ -1,0 +1,233 @@
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
+import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
+
+describe('ExperienceProposalResolverService trace contract', () => {
+  it('returns entity resolution, geographic validation and materialization as separate recorded phases', async () => {
+    const boundary: any = {
+      id: 'osm:relation:1',
+      name: 'Buenos Aires',
+      osmType: 'relation',
+      osmId: 1,
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-58.55, -34.7],
+            [-58.3, -34.7],
+            [-58.3, -34.45],
+            [-58.55, -34.45],
+            [-58.55, -34.7],
+          ],
+        ],
+      },
+      tags: {},
+    };
+    const osmPlaces: any = {
+      lookupPoisWithin: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:node:10',
+            name: 'Museo Real',
+            osmType: 'node',
+            osmId: 10,
+            geometry: { type: 'Point', coordinates: [-58.4, -34.6] },
+            tags: { tourism: 'museum' },
+          },
+        ],
+      }),
+    };
+    const catalog: any = {
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'experience-10',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const validationResult = {
+      proposalName: 'Visita Museo Real',
+      kind: 'EXPERIENCE',
+      status: 'GEO_VERIFIED',
+      accepted: true,
+      strategy: 'venue_centric',
+      anchors: [],
+      groundedEvidenceKeys: ['ev-1'],
+      rejectionReasons: [],
+      validatorVersion: 2,
+    } as const;
+    const geographicValidator: any = {
+      validate: jest.fn().mockReturnValue(validationResult),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces,
+      catalog,
+      geographicValidator,
+    );
+
+    const response = await service.resolve({
+      destinationName: 'Buenos Aires',
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: withDefaultGeographicAuthorization([
+        {
+          name: 'Visita Museo Real',
+          themes: ['culture'],
+          traits: [],
+          intents: ['visit'],
+          componentHints: [
+            {
+              key: 'venue',
+              name: 'Museo Real',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+            },
+          ],
+          evidenceKeys: ['ev-1'],
+          shortReason: 'Grounded museum visit',
+        },
+      ]),
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'official',
+          title: 'Museo Real Buenos Aires',
+          snippet: 'Museo Real en Buenos Aires',
+        },
+      ],
+    });
+
+    expect(response.entityResolution).toBeDefined();
+    expect(response.geographicValidation).toEqual(
+      expect.objectContaining({
+        acceptedCount: 1,
+        rejectedCount: 0,
+        results: [validationResult],
+      }),
+    );
+    expect(response.materialization?.resolved[0]).toEqual(
+      expect.objectContaining({
+        status: 'accepted',
+        experienceId: 'experience-10',
+      }),
+    );
+  });
+
+  it('returns per-candidate geographic authorization (no batch intent) and destinationBoundary summary in resolver response', async () => {
+    const boundary: any = {
+      id: 'osm:relation:2223069',
+      name: 'San Telmo',
+      osmType: 'relation',
+      osmId: 2223069,
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-58.38, -34.63],
+            [-58.36, -34.63],
+            [-58.36, -34.61],
+            [-58.38, -34.61],
+            [-58.38, -34.63],
+          ],
+        ],
+      },
+      tags: {},
+    };
+    const osmPlaces: any = {
+      lookupPoisWithin: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: [
+          {
+            id: 'osm:node:10',
+            name: 'Museo Real',
+            osmType: 'node',
+            osmId: 10,
+            geometry: { type: 'Point', coordinates: [-58.4, -34.6] },
+            tags: { tourism: 'museum' },
+          },
+        ],
+      }),
+    };
+    const catalog: any = {
+      upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-10' }),
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      findGeoEntityCandidatesForHint: jest
+        .fn()
+        .mockResolvedValue({ candidates: [] }),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({
+        id: 'experience-10',
+        dedupeDecision: 'NEW',
+      }),
+    };
+    const validationResult = {
+      proposalName: 'Visita Museo Real',
+      kind: 'EXPERIENCE',
+      status: 'GEO_VERIFIED',
+      accepted: true,
+      strategy: 'venue_centric',
+      anchors: [],
+      groundedEvidenceKeys: ['ev-1'],
+      rejectionReasons: [],
+      validatorVersion: 2,
+    } as const;
+    const geographicValidator: any = {
+      validate: jest.fn().mockReturnValue(validationResult),
+    };
+    const service = new ExperienceProposalResolverService(
+      osmPlaces,
+      catalog,
+      geographicValidator,
+    );
+
+    const response = await service.resolve({
+      destinationName: 'Buenos Aires',
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: withDefaultGeographicAuthorization([
+        {
+          name: 'Visita Museo Real',
+          themes: ['culture'],
+          traits: [],
+          intents: ['visit'],
+          componentHints: [
+            {
+              key: 'venue',
+              name: 'Museo Real',
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+            },
+          ],
+          evidenceKeys: ['ev-1'],
+          shortReason: 'Grounded museum visit',
+        },
+      ]),
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'official',
+          title: 'Museo Real Buenos Aires',
+          snippet: 'Museo Real en Buenos Aires',
+        },
+      ],
+    });
+
+    // No batch-level geographic intent exists: the candidate carries the
+    // authorization it was paired with, and the validator received exactly it.
+    expect(response).not.toHaveProperty('validationIntent');
+    expect(response.resolved[0].geographicAuthorization).toEqual({
+      kind: 'DEFAULT',
+    });
+    expect(geographicValidator.validate.mock.calls[0][3]).toEqual({
+      kind: 'DEFAULT',
+    });
+    expect(response.destinationBoundary).toEqual({
+      name: 'San Telmo',
+      externalId: 'osm:relation:2223069',
+    });
+    // Must NOT include raw geometry
+    expect(response.destinationBoundary).not.toHaveProperty('geometry');
+  });
+});

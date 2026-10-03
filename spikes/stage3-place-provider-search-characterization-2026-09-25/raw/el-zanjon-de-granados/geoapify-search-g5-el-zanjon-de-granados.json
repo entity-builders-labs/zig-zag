@@ -1,0 +1,522 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "El Zanjón de Granados",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 986,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Embassy of El Salvador",
+        "other_names": {
+          "name": "Embajada de El Salvador",
+          "name:es": "Embajada de El Salvador",
+          "name:fr": "Ambassade du Salvador"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1021",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "street": "Rodríguez Peña",
+        "housenumber": "1627",
+        "iso3166_2": "AR-C",
+        "lon": -58.3895903,
+        "lat": -34.5915493,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1536.3455068776855,
+        "formatted": "Embassy of El Salvador, Rodríguez Peña 1627, Recoleta, 1021 Buenos Aires, Argentina",
+        "address_line1": "Embassy of El Salvador",
+        "address_line2": "Rodríguez Peña 1627, Recoleta, 1021 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ56+95",
+        "plus_code_short": "CJ56+95 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.497801585379855,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "515fab4e18de314dc05960bc30e3b74b41c0f00103f901e7f5130301000000c00201920316456d6261737379206f6620456c2053616c7661646f72e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34333436363037303739",
+        "bbox": {
+          "lon1": -58.3896403,
+          "lat1": -34.5915993,
+          "lon2": -58.3895403,
+          "lat2": -34.5914993
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "El Zanjón de Granados (historic ruins)",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1100AAF",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "street": "Defensa",
+        "iso3166_2": "AR-C",
+        "lon": -58.3717972,
+        "lat": -34.6166864,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1700.0125122585287,
+        "formatted": "El Zanjón de Granados (historic ruins), Defensa, San Telmo, C1100 AAF Buenos Aires, Argentina",
+        "address_line1": "El Zanjón de Granados (historic ruins)",
+        "address_line2": "Defensa, San Telmo, C1100 AAF Buenos Aires, Argentina",
+        "category": "entertainment.museum",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JMH+87",
+        "plus_code_short": "MH+87 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000c00201920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329e203236f70656e7374726565746d61703a76656e75653a6e6f64652f39393533303237383834",
+        "bbox": {
+          "lon1": -58.3718472,
+          "lat1": -34.6167364,
+          "lon2": -58.3717472,
+          "lat2": -34.6166364
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "El Mirador de Puerto Madero",
+        "housenumber": "1122",
+        "street": "Juana Manso",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "postcode": "1107",
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "Puerto Madero",
+        "iso3166_2": "AR-C",
+        "lon": -58.36244,
+        "lat": -34.610056,
+        "result_type": "amenity",
+        "distance": 1890.614648784841,
+        "formatted": "El Mirador de Puerto Madero, Juana Manso 1122, Puerto Madero, 1107 Buenos Aires, Argentina",
+        "address_line1": "El Mirador de Puerto Madero",
+        "address_line2": "Juana Manso 1122, Puerto Madero, 1107 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQQ+X2",
+        "plus_code_short": "QQ+X2 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.3200460831877905,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "519161156f642e4dc059425da450164e41c0f00102f9018b39ca1800000000c0020192031b456c204d697261646f722064652050756572746f204d616465726fe203216f70656e7374726565746d61703a76656e75653a7761792f343135393036313837",
+        "bbox": {
+          "lon1": -58.3627136,
+          "lat1": -34.6105606,
+          "lon2": -58.3621397,
+          "lat2": -34.6094808
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "El Mirador de Puerto Madero",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1107",
+        "district": "Comuna 1",
+        "suburb": "Puerto Madero",
+        "housenumber": "1122",
+        "iso3166_2": "AR-C",
+        "lon": -58.3623248,
+        "lat": -34.6100773,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "distance": 1901.279472299439,
+        "formatted": "1122, Puerto Madero, 1107 Buenos Aires, Argentina",
+        "address_line1": "1122",
+        "address_line2": "Puerto Madero, 1107 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQQ+X3",
+        "plus_code_short": "QQ+X3 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.08008279926756692
+        },
+        "place_id": "51cf43b7a8602e4dc05918c45103174e41c0f00102f9018b39ca180000000092031b456c204d697261646f722064652050756572746f204d616465726f",
+        "bbox": {
+          "lon1": -58.3627136,
+          "lat1": -34.6105606,
+          "lon2": -58.3621397,
+          "lat2": -34.6094808
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "El Bar de Kowalski",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1174",
+        "district": "Comuna 5",
+        "suburb": "Almagro",
+        "street": "Billinghurst",
+        "housenumber": "835",
+        "iso3166_2": "AR-C",
+        "lon": -58.4149298,
+        "lat": -34.60034,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 3073.3535451499565,
+        "formatted": "El Bar de Kowalski, Billinghurst 835, Almagro, 1174 Buenos Aires, Argentina",
+        "address_line1": "El Bar de Kowalski",
+        "address_line2": "Billinghurst 835, Almagro, 1174 Buenos Aires, Argentina",
+        "category": "catering.bar",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39HXP+V2",
+        "plus_code_short": "9HXP+V2 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "516391706b1c354dc059863dedf0d74c41c0f00103f901941b8c6001000000c00201920312456c20426172206465204b6f77616c736b69e203236f70656e7374726565746d61703a76656e75653a6e6f64652f35393134373632313332",
+        "bbox": {
+          "lon1": -58.4149798,
+          "lat1": -34.60039,
+          "lon2": -58.4148798,
+          "lat2": -34.60029
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "El Boliche de Roberto",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1176ABF",
+        "district": "Comuna 5",
+        "suburb": "Almagro",
+        "street": "Bulnes",
+        "housenumber": "331",
+        "iso3166_2": "AR-C",
+        "lon": -58.4186119,
+        "lat": -34.6070477,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 3407.8243361001482,
+        "formatted": "El Boliche de Roberto, Bulnes 331, Almagro, C1176 ABF Buenos Aires, Argentina",
+        "address_line1": "El Boliche de Roberto",
+        "address_line2": "Bulnes 331, Almagro, C1176 ABF Buenos Aires, Argentina",
+        "category": "catering.bar",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39HVJ+5H",
+        "plus_code_short": "9HVJ+5H Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.945412345222114,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51b41b221395354dc059574e31bdb34d41c0f00103f90156970a7601000000c00201920315456c20426f6c6963686520646520526f626572746fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f36323735333732383836",
+        "bbox": {
+          "lon1": -58.4186619,
+          "lat1": -34.6070977,
+          "lon2": -58.4185619,
+          "lat2": -34.6069977
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "El Patio de Mingo",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1182",
+        "district": "Comuna 5",
+        "suburb": "Almagro",
+        "street": "Bartolomé Mitre",
+        "housenumber": "3986",
+        "iso3166_2": "AR-C",
+        "lon": -58.4226481,
+        "lat": -34.610122,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 3824.033310134767,
+        "formatted": "El Patio de Mingo, Bartolomé Mitre 3986, Almagro, 1182 Buenos Aires, Argentina",
+        "address_line1": "El Patio de Mingo",
+        "address_line2": "Bartolomé Mitre 3986, Almagro, 1182 Buenos Aires, Argentina",
+        "category": "catering.restaurant",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39HQG+XW",
+        "plus_code_short": "9HQG+XW Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.443077080522063,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51b89b3b5519364dc059f9484a7a184e41c0f00103f901e5b7159d02000000c00201920311456c20506174696f206465204d696e676fe203246f70656e7374726565746d61703a76656e75653a6e6f64652f3131323235333830383337",
+        "bbox": {
+          "lon1": -58.4226981,
+          "lat1": -34.610172,
+          "lon2": -58.4225981,
+          "lat2": -34.610072
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "El despertar de la naturaleza",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1425ATD",
+        "district": "Comuna 14",
+        "neighbourhood": "Palermo Botánico",
+        "suburb": "Palermo",
+        "street": "Avenida General Las Heras",
+        "iso3166_2": "AR-C",
+        "lon": -58.4161887,
+        "lat": -34.582424,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 3952.3770957353067,
+        "formatted": "El despertar de la naturaleza, Avenida General Las Heras, Palermo, C1425 ATD Buenos Aires, Argentina",
+        "address_line1": "El despertar de la naturaleza",
+        "address_line2": "Avenida General Las Heras, Palermo, C1425 ATD Buenos Aires, Argentina",
+        "category": "tourism.attraction.artwork",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH9M+2G",
+        "plus_code_short": "CH9M+2G Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.311222748165429,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "517dbbdbab45354dc059e833a0de8c4a41c0f00103f9011e57f4c000000000c0020192031d456c20646573706572746172206465206c61206e61747572616c657a61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33323337323338353538",
+        "bbox": {
+          "lon1": -58.4162387,
+          "lat1": -34.582474,
+          "lon2": -58.4161387,
+          "lat2": -34.582374
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "El mensaje de Mercurio",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1425BHO",
+        "district": "Comuna 14",
+        "neighbourhood": "Palermo Botánico",
+        "suburb": "Palermo",
+        "street": "Avenida Santa Fe",
+        "iso3166_2": "AR-C",
+        "lon": -58.4184915,
+        "lat": -34.5829912,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 4087.293893731795,
+        "formatted": "El mensaje de Mercurio, Avenida Santa Fe, Palermo, C1425 BHO Buenos Aires, Argentina",
+        "address_line1": "El mensaje de Mercurio",
+        "address_line2": "Avenida Santa Fe, Palermo, C1425 BHO Buenos Aires, Argentina",
+        "category": "tourism.attraction.artwork",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH8J+RJ",
+        "plus_code_short": "CH8J+RJ Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.437128764776651,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51b613252191354dc0598beda4749f4a41c0f00103f901ae5af4c000000000c00201920316456c206d656e73616a65206465204d6572637572696fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f33323337323339343730",
+        "bbox": {
+          "lon1": -58.4185415,
+          "lat1": -34.5830412,
+          "lon2": -58.4184415,
+          "lat2": -34.5829412
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "El Preferido de Palermo",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1425BUN",
+        "district": "Comuna 14",
+        "neighbourhood": "Palermo Soho",
+        "suburb": "Palermo",
+        "street": "Jorge Luis Borges",
+        "housenumber": "2108",
+        "iso3166_2": "AR-C",
+        "lon": -58.4253881,
+        "lat": -34.5854427,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 4492.939372814742,
+        "formatted": "El Preferido de Palermo, Jorge Luis Borges 2108, Palermo, C1425 BUN Buenos Aires, Argentina",
+        "address_line1": "El Preferido de Palermo",
+        "address_line2": "Jorge Luis Borges 2108, Palermo, C1425 BUN Buenos Aires, Argentina",
+        "category": "catering.restaurant",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH7F+RR",
+        "plus_code_short": "CH7F+RR Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51c5cd041e73364dc0594a1751c9ef4a41c0f00103f90176dd104201000000c00201920317456c2050726566657269646f2064652050616c65726d6fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f35343033333638383232",
+        "bbox": {
+          "lon1": -58.4254381,
+          "lat1": -34.5854927,
+          "lon2": -58.4253381,
+          "lat2": -34.5853927
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "parsed": {
+        "house": "El Zanjón de Granados",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

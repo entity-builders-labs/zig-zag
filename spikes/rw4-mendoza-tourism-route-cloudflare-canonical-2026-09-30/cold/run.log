@@ -1,0 +1,11 @@
+[rw4-mendoza-cold] requesting dev code for rw3-spike-rw4-mendoza-cold-1790880825236@example.com
+[rw4-mendoza-cold] verifying
+[rw4-mendoza-cold] POST /tours/generate-tour
+[rw4-mendoza-cold] tourId = 57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 create http ms = 50
+[rw4-mendoza-cold] polling until terminal (timeout 900000 ms)
+[rw4-mendoza-cold] polling: {"elapsedMs":22,"generationStatus":"pending","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold] polling: {"elapsedMs":11320,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold] polling: {"elapsedMs":21556,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold] polling: {"elapsedMs":31749,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold] terminal: {"elapsedMs":39853,"generationStatus":"failed","generationMessage":"Error: Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [theme:wine] has no strong catalog match yet., Preference facet [intent:route_like] has no strong catalog match yet.","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold] done. generationStatus = failed observationTimeout = false

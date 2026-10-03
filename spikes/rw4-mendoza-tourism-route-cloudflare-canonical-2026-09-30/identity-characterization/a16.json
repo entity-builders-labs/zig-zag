@@ -1,0 +1,45 @@
+{
+  "component": "A16 (added: Lujan de Cuyo composite, 1 of 2 resolved)",
+  "sourceComposite": "Lujan de Cuyo Wine Tasting Itinerary",
+  "source": {
+    "span": "1. [A16](http://a16sa.com/en/) – 10 am – Start your day with a tasting and a tour at A16.",
+    "hyperlinkTarget": "http://a16sa.com/en/ -> https://a16sa.com/en/"
+  },
+  "officialSite": {
+    "title": "Bodega A16 Mendoza – Amor por el vino",
+    "declared": [
+      "Winery Ruta 7 y Calle Cobos 5890, Perdriel, Luján de Cuyo, Mendoza",
+      "phone +54 9 261 653 8963"
+    ]
+  },
+  "acquisition": {
+    "queriesAttempted": [
+      "A16"
+    ],
+    "places": "geoapify 'A16' -> 3x 'FC Belgrano' (2 street-class rejected structurally, 1 point_of_interest viable, osm:way:48965326) -> acquired a wrong object",
+    "nominatim": "'A16' -> house numbers / streets elsewhere; nothing selected",
+    "controlledVariants": {
+      "Bodega A16": "generic 'Bodega …' list",
+      "A16 winery": "other wineries (Otero Ramos, Finca Agostino, Andeluna), no A16"
+    },
+    "osmLocalOverpass": "no winery named A16",
+    "wikidata": "no entity",
+    "candidateAcquired": "YES but wrong object (FC Belgrano)"
+  },
+  "verification": {
+    "evidencePresent": [
+      {
+        "type": "WIKIDATA_IDENTITY_MATCH",
+        "source": "NEARBY",
+        "hintMatched": false,
+        "candidateMatched": false
+      }
+    ],
+    "verdict": "REJECTED (correctly: wrong object)"
+  },
+  "classification": [
+    "A_PROVIDER_COVERAGE_GAP",
+    "B_SHORT_ALPHANUMERIC_QUERY_MATCHES_UNRELATED_OBJECTS",
+    "F_SOURCE_LINKED_OFFICIAL_SITE_DECLARES_EXACT_ADDRESS"
+  ]
+}

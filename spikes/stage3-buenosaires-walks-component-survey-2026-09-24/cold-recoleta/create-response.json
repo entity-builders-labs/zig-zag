@@ -1,0 +1,64 @@
+{
+  "id": "7096ff33-c1ee-4dee-b2cd-83bba63471d1",
+  "name": "Buenos Aires, Argentina",
+  "description": "Tour personalizado",
+  "ownerId": "59913e4d-69a3-4a8d-8ef5-b67395458993",
+  "price": null,
+  "duration": null,
+  "maxGroupSize": null,
+  "startDates": [],
+  "totalDays": 1,
+  "totalDistance": null,
+  "estimatedBudget": null,
+  "recommendedGroupSize": null,
+  "coverImage": null,
+  "prompt": "Create a tour from this canonical wizard intent:\nDestination: Buenos Aires, Argentina\nNumber of days: 1\nBudget level: medium\nGroup type: solo\nInterests: history, culture\nExploration style: balanced\nAllowed transportation modes: walking\nTravel pace: moderate\nWalking limits captured (deterministic enforcement arrives in the spatial-feasibility stage): 5000 meters per day; 3000 meters maximum continuous leg\nAdditional preferences: caminata histórica y cultural por Recoleta",
+  "query": null,
+  "categories": [],
+  "metadata": {
+    "generatedAt": "2026-09-24T15:21:05.467Z",
+    "generationStatus": "pending",
+    "generationRequest": {
+      "days": 1,
+      "intent": {
+        "intents": [
+          "walk"
+        ],
+        "interests": [
+          "history",
+          "culture"
+        ],
+        "explorationStyle": "balanced",
+        "additionalPreferences": "caminata histórica y cultural por Recoleta"
+      },
+      "mobility": {
+        "travelPace": "moderate",
+        "accessibilityNeeds": [],
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 5000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "groupType": "solo",
+      "categories": [],
+      "startDates": [],
+      "budgetLevel": "medium",
+      "destination": {
+        "label": "Buenos Aires, Argentina",
+        "latitude": -34.6037,
+        "longitude": -58.3816,
+        "scaleHint": "settlement"
+      },
+      "excludeTours": [],
+      "contractVersion": 1,
+      "dietaryRestrictions": [],
+      "skipImageGeneration": true,
+      "includeExistingExperiences": true
+    }
+  },
+  "createdAt": "2026-09-24T15:21:05.478Z",
+  "updatedAt": "2026-09-24T15:21:05.478Z",
+  "experiences": [],
+  "dayTotals": []
+}

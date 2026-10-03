@@ -1,0 +1,60 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Plaza Dorrego",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:35.716Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 1018
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Plaza Dorrego",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.6204914,-58.374323,18.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Plaza Dorrego",
+        "address": "Humberto 1º 400, C1103 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6204914,
+        "longitude": -58.3717481,
+        "rating": 4.4,
+        "ratingCount": 36796,
+        "type": "City park",
+        "types": [
+          "City park",
+          "Park",
+          "Plaza",
+          "Tourist attraction"
+        ],
+        "website": "https://turismo.buenosaires.gob.ar/es/atractivo/plaza-dorrego",
+        "description": "This historic square with cafes & shops is known for its tango dancers & Sunday antiques market.",
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWnAm8jRGwfw3yIYbfPFyMUDTWLVpyMPjQtI6y_UvaJx4pGJQiH06hnJ20--DUS5rHWBK4wP9OcydQWS7K8UxuvIcvt-cQWn1gpD9VFA6bRTI0pOUJQxxYvVSkjeTfvPO38_2ULmG3xclCM",
+        "cid": "8195367513670431665",
+        "fid": "0x95bccb2cb4a4f489:0x71bbcb55301a33b1",
+        "placeId": "ChIJifSktCzLvJURsTMaMFXLu3E"
+      }
+    ],
+    "credits": 3
+  }
+}

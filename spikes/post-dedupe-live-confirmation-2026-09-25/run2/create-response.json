@@ -1,0 +1,63 @@
+{
+  "id": "a4c5875b-9b4a-4366-b6de-181e4bc10225",
+  "name": "San Telmo, Buenos Aires, Argentina",
+  "description": "Tour personalizado",
+  "ownerId": "0b5bd58d-2981-466d-8098-980d4449c9af",
+  "price": null,
+  "duration": null,
+  "maxGroupSize": null,
+  "startDates": [],
+  "totalDays": 1,
+  "totalDistance": null,
+  "estimatedBudget": null,
+  "recommendedGroupSize": null,
+  "coverImage": null,
+  "prompt": "Create a tour from this canonical wizard intent:\nDestination: San Telmo, Buenos Aires, Argentina\nNumber of days: 1\nBudget level: medium\nGroup type: solo\nInterests: history\nExploration style: balanced\nAllowed transportation modes: walking\nTravel pace: moderate\nWalking limits captured (deterministic enforcement arrives in the spatial-feasibility stage): 5000 meters per day; 3000 meters maximum continuous leg\nAdditional preferences: caminata histórica por San Telmo",
+  "query": null,
+  "categories": [],
+  "metadata": {
+    "generatedAt": "2026-09-26T00:29:01.115Z",
+    "generationStatus": "pending",
+    "generationRequest": {
+      "days": 1,
+      "intent": {
+        "intents": [
+          "walk"
+        ],
+        "interests": [
+          "history"
+        ],
+        "explorationStyle": "balanced",
+        "additionalPreferences": "caminata histórica por San Telmo"
+      },
+      "mobility": {
+        "travelPace": "moderate",
+        "accessibilityNeeds": [],
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 5000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "groupType": "solo",
+      "categories": [],
+      "startDates": [],
+      "budgetLevel": "medium",
+      "destination": {
+        "label": "San Telmo, Buenos Aires, Argentina",
+        "latitude": -34.6214013,
+        "longitude": -58.37375,
+        "scaleHint": "settlement"
+      },
+      "excludeTours": [],
+      "contractVersion": 1,
+      "dietaryRestrictions": [],
+      "skipImageGeneration": true,
+      "includeExistingExperiences": true
+    }
+  },
+  "createdAt": "2026-09-26T00:29:01.127Z",
+  "updatedAt": "2026-09-26T00:29:01.127Z",
+  "experiences": [],
+  "dayTotals": []
+}

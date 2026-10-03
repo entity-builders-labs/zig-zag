@@ -1,0 +1,97 @@
+import {
+  sortCandidatesDeterministically,
+  selectDailyAnchors,
+} from './daily-planning-candidate-sort.util';
+import { PlanningExperienceCandidate } from '../interfaces/daily-planning.interface';
+
+function candidate(
+  id: string,
+  semanticScore: number,
+  qualityScore?: number,
+  preferenceWeight?: number,
+): PlanningExperienceCandidate {
+  const footprint = { type: 'POINT' as const, centroid: { lat: 0, lng: 0 } };
+  return {
+    experienceId: id,
+    title: id,
+    durationMinutes: 60,
+    spatialFootprint: footprint,
+    startFootprint: footprint,
+    endFootprint: footprint,
+    semanticScore,
+    qualityScore,
+    preferenceWeight,
+  };
+}
+
+describe('sortCandidatesDeterministically', () => {
+  it('sorts by semantic score descending when no upstream ranking score exists', () => {
+    const sorted = sortCandidatesDeterministically([
+      candidate('low', 0.2),
+      candidate('high', 0.9),
+    ]);
+    expect(sorted.map((c) => c.experienceId)).toEqual(['high', 'low']);
+  });
+
+  it('includes canonical preference weight in deterministic planner ordering', () => {
+    const sorted = sortCandidatesDeterministically([
+      candidate('semantic-false-friend', 0.95, 4.9),
+      candidate('preference-best-fit', 0.9, 4.4, 1),
+    ]);
+    expect(sorted.map((c) => c.experienceId)).toEqual([
+      'preference-best-fit',
+      'semantic-false-friend',
+    ]);
+  });
+
+  it('breaks a ranking tie by quality score descending', () => {
+    const sorted = sortCandidatesDeterministically([
+      candidate('low-quality', 0.5, 1),
+      candidate('high-quality', 0.5, 4),
+    ]);
+    expect(sorted.map((c) => c.experienceId)).toEqual([
+      'high-quality',
+      'low-quality',
+    ]);
+  });
+
+  it('breaks a full tie by experienceId lexical ascending, stably', () => {
+    const sorted = sortCandidatesDeterministically([
+      candidate('b', 0.5, 1),
+      candidate('a', 0.5, 1),
+    ]);
+    expect(sorted.map((c) => c.experienceId)).toEqual(['a', 'b']);
+  });
+
+  it('never treats an undefined qualityScore as worse than 0', () => {
+    const sorted = sortCandidatesDeterministically([
+      candidate('zero-quality', 0.5, 0),
+      candidate('unknown-quality', 0.5, undefined),
+    ]);
+    // unknown (0 fallback) ties with an explicit 0 — falls through to the
+    // lexical tie-break, not an implicit penalty below the explicit 0.
+    expect(sorted.map((c) => c.experienceId)).toEqual([
+      'unknown-quality',
+      'zero-quality',
+    ]);
+  });
+});
+
+describe('selectDailyAnchors', () => {
+  it('picks the top N sorted candidates as anchors, one per day in order', () => {
+    const sorted = [
+      candidate('a', 0.9),
+      candidate('b', 0.8),
+      candidate('c', 0.7),
+    ];
+    expect(selectDailyAnchors(sorted, 2).map((c) => c.experienceId)).toEqual([
+      'a',
+      'b',
+    ]);
+  });
+
+  it('returns fewer anchors than requested when candidates run out', () => {
+    const sorted = [candidate('a', 0.9)];
+    expect(selectDailyAnchors(sorted, 3)).toHaveLength(1);
+  });
+});

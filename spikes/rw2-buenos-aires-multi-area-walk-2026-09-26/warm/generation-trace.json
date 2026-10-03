@@ -1,0 +1,1949 @@
+{
+  "steps": [
+    {
+      "label": "Interpretación de preferencias",
+      "stage": "preference_interpretation",
+      "inputs": {
+        "intents": [
+          "walk"
+        ],
+        "groupType": "solo",
+        "budgetLevel": "medium",
+        "accessibilityNeeds": [],
+        "dietaryRestrictions": [],
+        "hasAdditionalPreferences": true
+      },
+      "status": "PASS",
+      "timing": {
+        "durationMs": 1365
+      },
+      "outputs": {
+        "intent": {
+          "notes": [],
+          "ambiguities": [],
+          "anchoredPlaces": [
+            {
+              "usage": "geographic_scope",
+              "rawName": "San Telmo",
+              "priority": "soft"
+            },
+            {
+              "usage": "geographic_scope",
+              "rawName": "La Boca",
+              "priority": "soft"
+            }
+          ],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "history",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "especialmente su historia",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.95,
+              "importance": 1
+            },
+            {
+              "key": "architecture",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "especialmente su historia, arquitectura",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.95,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [
+            "landmarks"
+          ],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "history architecture landmarks San Telmo La Boca",
+          "accessibilityPreferences": []
+        },
+        "preferenceSpec": {
+          "trip": {
+            "days": 1,
+            "pace": "moderate",
+            "startDates": []
+          },
+          "facets": [
+            {
+              "key": "history",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "theme"
+            },
+            {
+              "key": "architecture",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "theme"
+            },
+            {
+              "key": "walk",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "intent"
+            }
+          ],
+          "anchors": [
+            {
+              "usage": "geographic_scope",
+              "rawName": "San Telmo",
+              "priority": "soft"
+            },
+            {
+              "usage": "geographic_scope",
+              "rawName": "La Boca",
+              "priority": "soft"
+            }
+          ],
+          "exclusions": {
+            "hard": [],
+            "themes": [],
+            "traits": []
+          },
+          "semanticQuery": "history architecture landmarks San Telmo La Boca",
+          "resolvedAnchors": [
+            {
+              "kind": "area",
+              "usage": "geographic_scope",
+              "status": "resolved",
+              "rawName": "San Telmo",
+              "geometry": {
+                "type": "Polygon"
+              },
+              "priority": "soft",
+              "provider": "openstreetmap",
+              "externalId": "osm:relation:2223069",
+              "geoEntityId": "ad62ec6d-93f0-4fa1-9d50-41bd1d93b8f6",
+              "osmBoundary": {
+                "id": "osm:relation:2223069",
+                "name": "San Telmo",
+                "tags": {
+                  "name": "San Telmo",
+                  "type": "boundary",
+                  "boundary": "administrative",
+                  "wikidata": "Q1026688",
+                  "wikipedia": "es:San Telmo (Buenos Aires)",
+                  "admin_level": "9"
+                },
+                "osmId": 2223069,
+                "osmType": "relation",
+                "geometry": {
+                  "type": "Polygon"
+                }
+              },
+              "canonicalName": "San Telmo"
+            },
+            {
+              "kind": "area",
+              "usage": "geographic_scope",
+              "status": "resolved",
+              "rawName": "La Boca",
+              "geometry": {
+                "type": "Polygon"
+              },
+              "priority": "soft",
+              "provider": "openstreetmap",
+              "externalId": "osm:relation:2223879",
+              "geoEntityId": "4f7442cb-ec44-40e0-bc70-b3a4a5ec8fe5",
+              "osmBoundary": {
+                "id": "osm:relation:2223879",
+                "name": "La Boca",
+                "tags": {
+                  "name": "La Boca",
+                  "type": "boundary",
+                  "boundary": "administrative",
+                  "wikidata": "Q690649",
+                  "wikipedia": "es:La Boca",
+                  "admin_level": "9"
+                },
+                "osmId": 2223879,
+                "osmType": "relation",
+                "geometry": {
+                  "type": "Polygon"
+                }
+              },
+              "canonicalName": "La Boca"
+            }
+          ],
+          "softConstraints": {
+            "group": [],
+            "budget": [],
+            "dietary": [],
+            "accessibility": []
+          },
+          "explorationStyle": "balanced"
+        }
+      },
+      "summary": "Preferencias libres normalizadas y combinadas con filtros.",
+      "component": "PreferenceInterpreterService",
+      "preferenceInterpretation": {
+        "model": "qwen/qwen3.8-27b",
+        "stage": "preference_interpretation",
+        "status": "applied",
+        "provider": "groq",
+        "durationMs": 1365,
+        "userPrompt": "Me interesan San Telmo y La Boca, especialmente su historia, arquitectura y lugares emblemáticos.",
+        "rawResponse": "{\n  \"preferredFacets\": [\n    {\n      \"dimension\": \"theme\",\n      \"key\": \"history\",\n      \"confidence\": 0.95,\n      \"strength\": \"strong\",\n      \"evidence\": [\n        \"especialmente su historia\"\n      ]\n    },\n    {\n      \"dimension\": \"theme\",\n      \"key\": \"architecture\",\n      \"confidence\": 0.95,\n      \"strength\": \"strong\",\n      \"evidence\": [\n        \"especialmente su historia, arquitectura\"\n      ]\n    }\n  ],\n  \"anchoredPlaces\": [\n    {\n      \"rawName\": \"San Telmo\",\n      \"usage\": \"geographic_scope\",\n      \"priority\": \"soft\"\n    },\n    {\n      \"rawName\": \"La Boca\",\n      \"usage\": \"geographic_scope\",\n      \"priority\": \"soft\"\n    }\n  ],\n  \"excludedThemes\": [],\n  \"excludedTraits\": [],\n  \"hardExclusions\": [],\n  \"softConstraints\": [\n    \"landmarks\"\n  ],\n  \"ambiguities\": [],\n  \"dietaryPreferences\": [],\n  \"accessibilityPreferences\": [],\n  \"budgetPreferences\": [],\n  \"groupPreferences\": [],\n  \"positiveSemanticQuery\": \"history architecture landmarks San Telmo La Boca\",\n  \"notes\": []\n}",
+        "systemPrompt": "Interpret the user's supplemental tourism preferences into normalized intent.\nReturn JSON only. You interpret language; deterministic code enforces the result.\nNever invent geographic entities, provider IDs, coordinates, or evidence.\nDo not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.\nFor positive preferences, output preferredFacets as a list of objects with:\n- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.\n- key: CANONICAL domain key in English (e.g. \"architecture\" not \"arquitectura\", \"food\" not \"comida\", \"walk\" not \"caminata\", \"history\" not \"historia\").\n- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.\n- confidence: float between 0 and 1 indicating certainty.\n- strength: \"strong\" | \"medium\" | \"weak\" indicating user emphasis.\n- evidence: one or more short excerpts copied from the user's text that support\n  this facet. Never invent evidence; facets without supporting excerpts are rejected.\nDo not invent arbitrary importance numbers; code derives importance deterministically from strength.\nAlso output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by\nname (never a generic theme). For each, output:\n- rawName: the name as mentioned by the user.\n- usage: \"geographic_scope\" | \"specific_destination\" | \"named_path\" | \"unknown\". This describes how the phrase uses the name, not what geographic entity it is.\n- priority: \"must\" ONLY for explicit, unambiguous named-place intent, for example\n  \"quiero visitar X\", \"incluí X\", \"sí o sí quiero ir a X\", \"no me quiero perder X\".\n  Anything weaker or ambiguous -- including a place mentioned only in passing while\n  describing a theme, e.g. \"me interesa la arquitectura de X\" -- is priority \"soft\".\nExtract anchors conservatively: when in doubt about the name or the intent, omit the anchor\nrather than guessing. Do not invent named places that were not mentioned.\nOther fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,\ndietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,\npositiveSemanticQuery, notes. Use short lowercase phrases.",
+        "parsedResponse": {
+          "notes": [],
+          "ambiguities": [],
+          "anchoredPlaces": [
+            {
+              "usage": "geographic_scope",
+              "rawName": "San Telmo",
+              "priority": "soft"
+            },
+            {
+              "usage": "geographic_scope",
+              "rawName": "La Boca",
+              "priority": "soft"
+            }
+          ],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "history",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "especialmente su historia",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.95,
+              "importance": 1
+            },
+            {
+              "key": "architecture",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "especialmente su historia, arquitectura",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.95,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [
+            "landmarks"
+          ],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "history architecture landmarks San Telmo La Boca",
+          "accessibilityPreferences": []
+        },
+        "responseSchema": {
+          "type": "object",
+          "required": [
+            "preferredFacets",
+            "anchoredPlaces",
+            "excludedThemes",
+            "excludedTraits",
+            "hardExclusions",
+            "softConstraints",
+            "ambiguities",
+            "dietaryPreferences",
+            "accessibilityPreferences",
+            "budgetPreferences",
+            "groupPreferences",
+            "positiveSemanticQuery",
+            "notes"
+          ],
+          "properties": {
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ambiguities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "anchoredPlaces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rawName",
+                  "usage",
+                  "priority"
+                ],
+                "properties": {
+                  "usage": {
+                    "enum": [
+                      "geographic_scope",
+                      "specific_destination",
+                      "named_path",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "rawName": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "enum": [
+                      "soft",
+                      "must"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "excludedThemes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "excludedTraits": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hardExclusions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "preferredFacets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "dimension",
+                  "key",
+                  "confidence"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "strength": {
+                    "enum": [
+                      "strong",
+                      "medium",
+                      "weak"
+                    ],
+                    "type": "string"
+                  },
+                  "dimension": {
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "softConstraints": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "groupPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "budgetPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dietaryPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSemanticQuery": {
+              "type": "string"
+            },
+            "accessibilityPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "validationErrors": [],
+        "facetNormalizationDecisions": [
+          {
+            "rawKey": "history",
+            "reason": "VALID_AS_EMITTED",
+            "accepted": true,
+            "rawDimension": "theme",
+            "normalizedKey": "history",
+            "normalizedDimension": "theme"
+          },
+          {
+            "rawKey": "architecture",
+            "reason": "VALID_AS_EMITTED",
+            "accepted": true,
+            "rawDimension": "theme",
+            "normalizedKey": "architecture",
+            "normalizedDimension": "theme"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Intención y movilidad solicitadas",
+      "rules": [
+        {
+          "rule": "Usar el wizard canónico como fuente de restricciones explícitas",
+          "actual": 1,
+          "reason": "La generación parte de TourGenerationRequest contractVersion=1.",
+          "result": "PASS",
+          "ruleId": "INTENT-CANONICAL-001",
+          "expected": 1
+        },
+        {
+          "rule": "Conservar preferencias adicionales como intención suplementaria",
+          "actual": "Me interesan San Telmo y La Boca, especialmente su historia, arquitectura y lugares emblemáticos.",
+          "reason": "Hay texto adicional disponible para búsqueda/ranking semántico.",
+          "result": "PASS",
+          "ruleId": "INTENT-FREETEXT-001"
+        }
+      ],
+      "stage": "tour_intent",
+      "inputs": {
+        "days": 1,
+        "themes": [
+          "history",
+          "architecture"
+        ],
+        "travelPace": "moderate",
+        "destination": "Buenos Aires, Argentina",
+        "explorationStyle": "balanced",
+        "accessibilityNeeds": [],
+        "additionalPreferences": "Me interesan San Telmo y La Boca, especialmente su historia, arquitectura y lugares emblemáticos.",
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 5000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "outputs": {
+        "requestedDays": 1,
+        "requestedThemes": [
+          "history",
+          "architecture"
+        ]
+      },
+      "summary": "Temas: history, architecture. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"Me interesan San Telmo y La Boca, especialmente su historia, arquitectura y lugares emblemáticos.\".",
+      "decision": {
+        "reason": "La solicitud contiene el contrato canónico requerido por el motor.",
+        "status": "INFO",
+        "outcome": "INTENT_ACCEPTED",
+        "reasonCodes": [
+          "CANONICAL_REQUEST_AVAILABLE"
+        ],
+        "triggeredActions": [
+          "RESOLVE_DESTINATION"
+        ]
+      },
+      "component": "TourGenerationRequest"
+    },
+    {
+      "label": "Resolución del destino",
+      "rules": [
+        {
+          "rule": "Determinar si el destino puede usar boundary real o debe degradar a punto",
+          "actual": "area",
+          "reason": "Se obtuvo boundary administrativo utilizable.",
+          "result": "PASS",
+          "ruleId": "DEST-SCALE-001"
+        }
+      ],
+      "stage": "destination_resolution",
+      "inputs": {
+        "destinationText": "Buenos Aires, Argentina",
+        "attemptedQueries": [
+          "forward:Buenos Aires, Argentina"
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "scale": "area",
+        "boundaryName": "Buenos Aires"
+      },
+      "summary": "\"Buenos Aires, Argentina\" resolvió a un límite real de ciudad: Buenos Aires. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:Buenos Aires, Argentina.",
+      "decision": {
+        "reason": "El boundary real es más preciso que un radio artificial para recuperación local.",
+        "status": "PASS",
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "reasonCodes": [
+          "AREA_BOUNDARY_RESOLVED"
+        ],
+        "triggeredActions": [
+          "RETRIEVE_CATALOG"
+        ]
+      },
+      "component": "DestinationResolutionService"
+    },
+    {
+      "label": "Resolución geográfica de anchors",
+      "stage": "anchor_geo_resolution",
+      "inputs": {
+        "anchors": [
+          {
+            "usage": "geographic_scope",
+            "rawName": "San Telmo",
+            "priority": "soft"
+          },
+          {
+            "usage": "geographic_scope",
+            "rawName": "La Boca",
+            "priority": "soft"
+          }
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "anchors": [
+          {
+            "kind": "area",
+            "usage": "geographic_scope",
+            "status": "resolved",
+            "rawName": "San Telmo",
+            "geometry": {
+              "type": "Polygon"
+            },
+            "priority": "soft",
+            "provider": "openstreetmap",
+            "externalId": "osm:relation:2223069",
+            "geoEntityId": "ad62ec6d-93f0-4fa1-9d50-41bd1d93b8f6",
+            "osmBoundary": {
+              "id": "osm:relation:2223069",
+              "name": "San Telmo",
+              "tags": {
+                "name": "San Telmo",
+                "type": "boundary",
+                "boundary": "administrative",
+                "wikidata": "Q1026688",
+                "wikipedia": "es:San Telmo (Buenos Aires)",
+                "admin_level": "9"
+              },
+              "osmId": 2223069,
+              "osmType": "relation",
+              "geometry": {
+                "type": "Polygon"
+              }
+            },
+            "canonicalName": "San Telmo"
+          },
+          {
+            "kind": "area",
+            "usage": "geographic_scope",
+            "status": "resolved",
+            "rawName": "La Boca",
+            "geometry": {
+              "type": "Polygon"
+            },
+            "priority": "soft",
+            "provider": "openstreetmap",
+            "externalId": "osm:relation:2223879",
+            "geoEntityId": "4f7442cb-ec44-40e0-bc70-b3a4a5ec8fe5",
+            "osmBoundary": {
+              "id": "osm:relation:2223879",
+              "name": "La Boca",
+              "tags": {
+                "name": "La Boca",
+                "type": "boundary",
+                "boundary": "administrative",
+                "wikidata": "Q690649",
+                "wikipedia": "es:La Boca",
+                "admin_level": "9"
+              },
+              "osmId": 2223879,
+              "osmType": "relation",
+              "geometry": {
+                "type": "Polygon"
+              }
+            },
+            "canonicalName": "La Boca"
+          }
+        ]
+      },
+      "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+      "component": "AreaRouteAnchorResolverService"
+    },
+    {
+      "label": "Cobertura de preferencias (facet-first)",
+      "rules": [
+        {
+          "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "actual": 15,
+          "reason": "15 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "result": "PASS",
+          "ruleId": "PCOV-QUANTITY-001",
+          "expected": 4
+        },
+        {
+          "rule": "Cobertura del facet solicitado: theme:history",
+          "actual": 1,
+          "reason": "1 coincidencia(s) fuerte(s), 1 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-THEME-HISTORY",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: theme:architecture",
+          "actual": 1,
+          "reason": "1 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-THEME-ARCHITECTURE",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:walk",
+          "actual": 1,
+          "reason": "1 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-INTENT-WALK",
+          "expected": ">= 1"
+        }
+      ],
+      "stage": "coverage_analysis",
+      "inputs": {
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "requestedFacetCount": 3,
+        "offeredCandidateCount": 4
+      },
+      "status": "PASS",
+      "outputs": {
+        "sufficient": true,
+        "facetResults": [
+          {
+            "key": "history",
+            "dimension": "theme",
+            "satisfied": true,
+            "weakMatchCount": 1,
+            "strongMatchCount": 1
+          },
+          {
+            "key": "architecture",
+            "dimension": "theme",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 1
+          },
+          {
+            "key": "walk",
+            "dimension": "intent",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 1
+          }
+        ],
+        "portfolioTarget": 4,
+        "allFacetsSatisfied": true,
+        "acquisitionDeficits": [],
+        "globalCapacityDeficit": null,
+        "totalDistinctEligibleExperiences": 15
+      },
+      "summary": "Portafolio suficiente: 15 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets solicitados satisfechos.",
+      "decision": {
+        "reason": "Todos los facets solicitados tienen cobertura fuerte y el portafolio elegible alcanza el objetivo.",
+        "status": "PASS",
+        "outcome": "none",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "BUILD_CANDIDATE_POOL"
+        ]
+      },
+      "component": "FacetRetrievalService",
+      "semanticRanking": {
+        "status": "applied",
+        "indexedCandidateCount": 15,
+        "offeredCandidateCount": 4,
+        "eligibleCandidateCount": 15
+      }
+    },
+    {
+      "label": "Recuperación inicial del catálogo",
+      "rules": [
+        {
+          "rule": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+          "actual": 4,
+          "reason": "El catálogo aportó 4 candidato(s).",
+          "result": "PASS",
+          "ruleId": "CATALOG-RETRIEVAL-001"
+        }
+      ],
+      "stage": "db_search",
+      "inputs": {
+        "radiusKm": 13.42013407658705
+      },
+      "status": "PASS",
+      "outputs": {
+        "candidateCount": 4
+      },
+      "summary": "4 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+      "decision": {
+        "reason": "Hay candidatos persistidos para evaluar.",
+        "status": "PASS",
+        "outcome": "CATALOG_POOL_AVAILABLE",
+        "triggeredActions": [
+          "ANALYZE_COVERAGE"
+        ]
+      },
+      "component": "ExperienceCatalog.findVerifiedWithin",
+      "candidates": [
+        {
+          "id": "b353fc85-2a41-4b23-af24-6814100f8d31",
+          "name": "San Telmo to La Boca History Walk",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "79271b79-1a12-4920-84b8-a8427f2a0918",
+          "name": "Museo Casa Taller 'Celia Chevalier'",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "3ddd6c35-be11-4a50-a71f-1aa32f2096ed",
+          "name": "Museo Histórico de Cera",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "a4d8f770-b777-41bd-a3c9-c473fc577ce7",
+          "name": "La flor de la vida",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        }
+      ],
+      "candidateDecisions": [
+        {
+          "id": "b353fc85-2a41-4b23-af24-6814100f8d31",
+          "name": "San Telmo to La Boca History Walk",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "79271b79-1a12-4920-84b8-a8427f2a0918",
+          "name": "Museo Casa Taller 'Celia Chevalier'",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "3ddd6c35-be11-4a50-a71f-1aa32f2096ed",
+          "name": "Museo Histórico de Cera",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "a4d8f770-b777-41bd-a3c9-c473fc577ce7",
+          "name": "La flor de la vida",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Ranking de Experiences",
+      "rules": [
+        {
+          "rule": "Ordenar Experiences por relevancia semántica y calidad",
+          "actual": 15,
+          "reason": "El ranking determinístico consume únicamente Experiences verificadas.",
+          "result": "PASS",
+          "ruleId": "EXPERIENCE-RANK-001"
+        }
+      ],
+      "stage": "candidate_pool",
+      "inputs": {
+        "eligibleCount": 15,
+        "requestedThemes": [
+          "history",
+          "architecture"
+        ],
+        "initialCatalogCount": 15,
+        "postAcquisitionCatalogCount": 15
+      },
+      "status": "PASS",
+      "outputs": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 15,
+          "discovery": 0
+        },
+        "offeredCandidateCount": 15
+      },
+      "summary": "Se evaluaron 15 experiencias elegibles y se ofrecieron 15 candidatas (15 catálogo, 0 adquisición, 0 discovery).",
+      "decision": {
+        "reason": "El pool quedó limitado por capacidad, sin imponer formatos legacy.",
+        "status": "PASS",
+        "outcome": "EXPERIENCE_POOL_RANKED",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "RUN_DAILY_PLANNING"
+        ]
+      },
+      "component": "ExperienceRankingEngine",
+      "candidates": [
+        {
+          "id": "b353fc85-2a41-4b23-af24-6814100f8d31",
+          "name": "San Telmo to La Boca History Walk",
+          "chosen": false,
+          "detail": "score total 3.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 3,
+            "qualityBonus": 3.248793999601972,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 3,
+            "preferenceScore": 3,
+            "semanticSimilarity": 0.8047995683670316
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "79271b79-1a12-4920-84b8-a8427f2a0918",
+          "name": "Museo Casa Taller 'Celia Chevalier'",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6306093555325665
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "3ddd6c35-be11-4a50-a71f-1aa32f2096ed",
+          "name": "Museo Histórico de Cera",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6234963760676171
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "a4d8f770-b777-41bd-a3c9-c473fc577ce7",
+          "name": "La flor de la vida",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6184935938414104
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "26c7c9f9-9c93-4e98-ab9e-b14546fc4375",
+          "name": "Museo de Artistas Argentinos Benito Quinquela Martín",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6172761505030441
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "1e644ea5-ce45-4c61-8f0e-589e611cdd76",
+          "name": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6035736799240112
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "5dd656a6-3fe5-4cba-81a0-bf7a486e86fb",
+          "name": "Museo del Cine Pablo Ducrós Hicken",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5947145400856301
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "5cf8a68e-b6f1-4c30-a706-8571ebffb9fc",
+          "name": "Colón Fábrica",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5932224988937378
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "83f0aaaf-3ad2-490a-a0f2-f32f06309e24",
+          "name": "Roca granitica",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.583624541759491
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "0c1b92f1-b16a-40a5-8479-6489124ad836",
+          "name": "Guillermo Brown",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5811120271682739
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "f5184016-9e85-4431-a08b-f1351c7d5ce1",
+          "name": "Benito Quinquela Martín",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.578184962272644
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "e4ecd908-d4ad-4226-8279-35e60edbbf90",
+          "name": "Juventud",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5774253950968631
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "cd65cd48-2dd8-4f59-b2a9-68618a0feb3f",
+          "name": "Estatua Hugo del Carril",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5722696781158447
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "6cc977a2-f19d-44cd-a72d-f94bf0159030",
+          "name": "La Madre",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5650285650798254
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "6dadfa99-ab7e-434f-9114-6c64d8a64286",
+          "name": "Hidrovértigo",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5490976572036743
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        }
+      ],
+      "candidatePool": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 15,
+          "discovery": 0
+        },
+        "eligibleCount": 15,
+        "llmWindowCount": 15,
+        "initialCatalogCount": 15,
+        "postAcquisitionCatalogCount": 15
+      },
+      "candidateDecisions": [
+        {
+          "id": "b353fc85-2a41-4b23-af24-6814100f8d31",
+          "name": "San Telmo to La Boca History Walk",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 3,
+            "qualityBonus": 3.248793999601972,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 3,
+            "preferenceScore": 3,
+            "semanticSimilarity": 0.8047995683670316
+          }
+        },
+        {
+          "id": "79271b79-1a12-4920-84b8-a8427f2a0918",
+          "name": "Museo Casa Taller 'Celia Chevalier'",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6306093555325665
+          }
+        },
+        {
+          "id": "3ddd6c35-be11-4a50-a71f-1aa32f2096ed",
+          "name": "Museo Histórico de Cera",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6234963760676171
+          }
+        },
+        {
+          "id": "a4d8f770-b777-41bd-a3c9-c473fc577ce7",
+          "name": "La flor de la vida",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6184935938414104
+          }
+        },
+        {
+          "id": "26c7c9f9-9c93-4e98-ab9e-b14546fc4375",
+          "name": "Museo de Artistas Argentinos Benito Quinquela Martín",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6172761505030441
+          }
+        },
+        {
+          "id": "1e644ea5-ce45-4c61-8f0e-589e611cdd76",
+          "name": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6035736799240112
+          }
+        },
+        {
+          "id": "5dd656a6-3fe5-4cba-81a0-bf7a486e86fb",
+          "name": "Museo del Cine Pablo Ducrós Hicken",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5947145400856301
+          }
+        },
+        {
+          "id": "5cf8a68e-b6f1-4c30-a706-8571ebffb9fc",
+          "name": "Colón Fábrica",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5932224988937378
+          }
+        },
+        {
+          "id": "83f0aaaf-3ad2-490a-a0f2-f32f06309e24",
+          "name": "Roca granitica",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.583624541759491
+          }
+        },
+        {
+          "id": "0c1b92f1-b16a-40a5-8479-6489124ad836",
+          "name": "Guillermo Brown",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5811120271682739
+          }
+        },
+        {
+          "id": "f5184016-9e85-4431-a08b-f1351c7d5ce1",
+          "name": "Benito Quinquela Martín",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.578184962272644
+          }
+        },
+        {
+          "id": "e4ecd908-d4ad-4226-8279-35e60edbbf90",
+          "name": "Juventud",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5774253950968631
+          }
+        },
+        {
+          "id": "cd65cd48-2dd8-4f59-b2a9-68618a0feb3f",
+          "name": "Estatua Hugo del Carril",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5722696781158447
+          }
+        },
+        {
+          "id": "6cc977a2-f19d-44cd-a72d-f94bf0159030",
+          "name": "La Madre",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5650285650798254
+          }
+        },
+        {
+          "id": "6dadfa99-ab7e-434f-9114-6c64d8a64286",
+          "name": "Hidrovértigo",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5490976572036743
+          }
+        }
+      ]
+    },
+    {
+      "label": "Ranking semántico",
+      "rules": [
+        {
+          "rule": "Usar similitud semántica solo cuando fue solicitada y está disponible",
+          "actual": "applied",
+          "reason": "La similitud se incorporó al ranking.",
+          "result": "PASS",
+          "ruleId": "RANK-SEMANTIC-001"
+        },
+        {
+          "rule": "Un candidato sin embedding no equivale a score semántico cero",
+          "reason": "La ausencia de embedding se conserva como señal no medida; otras señales pueden mantener el candidato.",
+          "result": "PASS",
+          "ruleId": "RANK-UNKNOWN-001"
+        }
+      ],
+      "stage": "embeddings",
+      "inputs": {
+        "model": "nomic-embed-text",
+        "provider": "ollama",
+        "eligibleCandidateCount": 15
+      },
+      "status": "PASS",
+      "outputs": {
+        "measuredRatio": 1,
+        "indexedCandidateCount": 15,
+        "offeredCandidateCount": 15
+      },
+      "summary": "Ranking semántico solicitado y aplicado sobre 15 candidato(s) elegible(s) del destino: 15 tenían un vector compatible con el índice activo y se ofrecieron 15 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+      "decision": {
+        "reason": "Índice semántico compatible disponible.",
+        "status": "PASS",
+        "outcome": "SEMANTIC_SIGNAL_APPLIED",
+        "reasonCodes": [
+          "APPLIED"
+        ],
+        "triggeredActions": [
+          "BUILD_RANKED_WINDOW"
+        ]
+      },
+      "component": "VectorStoreService + pgvector",
+      "semanticRanking": {
+        "model": "nomic-embed-text",
+        "status": "applied",
+        "provider": "ollama",
+        "dimensions": 256,
+        "documentVersion": 3,
+        "indexedCandidateCount": 15,
+        "offeredCandidateCount": 15,
+        "eligibleCandidateCount": 15
+      }
+    },
+    {
+      "label": "Planificación diaria determinística",
+      "rules": [
+        {
+          "rule": "Mantener exactamente los buckets de días solicitados por el planner",
+          "actual": 1,
+          "reason": "El solver devolvió 1 bucket(s) de día.",
+          "result": "PASS",
+          "ruleId": "PLAN-DAYS-001"
+        },
+        {
+          "rule": "No seleccionar candidatos que el solver haya marcado como no factibles",
+          "reason": "1 candidato(s) quedaron fuera con reason codes explícitos.",
+          "result": "PASS",
+          "ruleId": "PLAN-FEASIBILITY-001"
+        },
+        {
+          "rule": "Declarar si las estimaciones de traslado son aproximadas",
+          "actual": false,
+          "reason": "El solver informa estimaciones de traslado no aproximadas.",
+          "result": "PASS",
+          "ruleId": "PLAN-TRAVEL-001"
+        }
+      ],
+      "stage": "daily_planning",
+      "inputs": {
+        "solver": "GreedyDailyPlanningSolver",
+        "iterations": 1,
+        "approximateTravel": false
+      },
+      "status": "PASS",
+      "outputs": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 5,
+            "totalTravelMinutes": 29.66575,
+            "utilizationMinutes": 629.6657499999999,
+            "totalWalkingMinutes": 29.66575,
+            "totalExperienceMinutes": 600
+          }
+        ],
+        "score": 5,
+        "selectedCount": 5,
+        "unselectedCount": 1,
+        "residualCapacity": [
+          {
+            "dayNumber": 1,
+            "meaningful": false,
+            "availableMinutes": 30.33425000000011
+          }
+        ]
+      },
+      "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 5 Experience(s) seleccionada(s), 1 sin seleccionar (score total 5). Las estimaciones de traslado usadas son reales.",
+      "decision": {
+        "reason": "El solver produjo una asignación determinística y físicamente evaluable.",
+        "status": "PASS",
+        "outcome": "DAILY_PLAN_BUILT",
+        "reasonCodes": [
+          "PLANNING_COMPLETED"
+        ],
+        "triggeredActions": [
+          "VALIDATE_COMPLETENESS",
+          "VALIDATE_FORMAT_COVERAGE"
+        ]
+      },
+      "component": "GreedyDailyPlanningSolver",
+      "dailyPlanning": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 5,
+            "totalTravelMinutes": 29.66575,
+            "utilizationMinutes": 629.6657499999999,
+            "totalWalkingMinutes": 29.66575,
+            "totalExperienceMinutes": 600
+          }
+        ],
+        "score": 5,
+        "solver": "GreedyDailyPlanningSolver",
+        "routing": {
+          "fallbackCount": 0,
+          "providerCounts": {
+            "geoapify": 10
+          },
+          "externalEstimateCount": 4,
+          "internalEstimateCount": 6,
+          "approximateEstimateCount": 0
+        },
+        "dayCount": 1,
+        "iterations": 1,
+        "selectedCount": 5,
+        "unselectedCount": 1,
+        "residualCapacity": [
+          {
+            "dayNumber": 1,
+            "meaningful": false,
+            "availableMinutes": 30.33425000000011
+          }
+        ],
+        "approximateTravel": false
+      },
+      "candidateDecisions": [
+        {
+          "id": "79271b79-1a12-4920-84b8-a8427f2a0918",
+          "name": "79271b79-1a12-4920-84b8-a8427f2a0918",
+          "order": 1,
+          "reason": "Asignada al día 1 en posición 1; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "3ddd6c35-be11-4a50-a71f-1aa32f2096ed",
+          "name": "3ddd6c35-be11-4a50-a71f-1aa32f2096ed",
+          "order": 2,
+          "reason": "Asignada al día 1 en posición 2; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "26c7c9f9-9c93-4e98-ab9e-b14546fc4375",
+          "name": "26c7c9f9-9c93-4e98-ab9e-b14546fc4375",
+          "order": 3,
+          "reason": "Asignada al día 1 en posición 3; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "a4d8f770-b777-41bd-a3c9-c473fc577ce7",
+          "name": "a4d8f770-b777-41bd-a3c9-c473fc577ce7",
+          "order": 4,
+          "reason": "Asignada al día 1 en posición 4; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "1e644ea5-ce45-4c61-8f0e-589e611cdd76",
+          "name": "1e644ea5-ce45-4c61-8f0e-589e611cdd76",
+          "order": 5,
+          "reason": "Asignada al día 1 en posición 5; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "b353fc85-2a41-4b23-af24-6814100f8d31",
+          "name": "b353fc85-2a41-4b23-af24-6814100f8d31",
+          "reason": "MAX_WALKING_PER_DAY_EXCEEDED, MAX_CONTINUOUS_WALKING_EXCEEDED",
+          "status": "UNSELECTED",
+          "reasonCodes": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Completitud del itinerario",
+      "rules": [
+        {
+          "rule": "Cada día debe tener un uso razonable cuando existen candidatos viables",
+          "reason": "Formato pedido sin cubrir: \"walk\".",
+          "result": "WARN",
+          "ruleId": "COMP-DAY-USAGE-001"
+        }
+      ],
+      "stage": "tour_completeness",
+      "inputs": {
+        "retryAttempted": false
+      },
+      "status": "WARN",
+      "outputs": {
+        "issues": [
+          {
+            "code": "UNMET_REQUESTED_FORMAT",
+            "message": "You asked for \"walk\" experiences, but none made it into the final itinerary.",
+            "requestedIntent": "walk"
+          }
+        ],
+        "complete": false
+      },
+      "summary": "Formato pedido sin cubrir: \"walk\".",
+      "decision": {
+        "reason": "Existen días que podrían estar mejor utilizados, o formatos pedidos sin cubrir, según la política actual.",
+        "status": "WARN",
+        "outcome": "TOUR_UNDERFILLED",
+        "reasonCodes": [
+          "UNMET_REQUESTED_FORMAT"
+        ],
+        "triggeredActions": [
+          "RETRY_ONCE"
+        ]
+      },
+      "component": "TourCompletenessValidator",
+      "degradedReason": "underfilled_day",
+      "providerStatus": "failed",
+      "tourCompleteness": {
+        "issues": [
+          {
+            "code": "UNMET_REQUESTED_FORMAT",
+            "message": "You asked for \"walk\" experiences, but none made it into the final itinerary.",
+            "requestedIntent": "walk"
+          }
+        ],
+        "complete": false,
+        "retryAttempted": false
+      }
+    }
+  ],
+  "runtime": {
+    "buildCommit": "unknown",
+    "buildTimestamp": "unknown"
+  },
+  "version": 4,
+  "canonicalRequest": {
+    "days": 1,
+    "intent": {
+      "intents": [
+        "walk"
+      ],
+      "interests": [
+        "history",
+        "architecture"
+      ],
+      "explorationStyle": "balanced",
+      "additionalPreferences": "Me interesan San Telmo y La Boca, especialmente su historia, arquitectura y lugares emblemáticos."
+    },
+    "mobility": {
+      "travelPace": "moderate",
+      "accessibilityNeeds": [],
+      "allowedTransportationModes": [
+        "walking"
+      ],
+      "maxWalkingDistancePerDayMeters": 5000,
+      "maxContinuousWalkingDistanceMeters": 3000
+    },
+    "groupType": "solo",
+    "categories": [],
+    "startDates": [],
+    "budgetLevel": "medium",
+    "destination": {
+      "label": "Buenos Aires, Argentina",
+      "latitude": -34.6037,
+      "longitude": -58.3816,
+      "scaleHint": "settlement"
+    },
+    "excludeTours": [],
+    "contractVersion": 1,
+    "dietaryRestrictions": [],
+    "skipImageGeneration": true,
+    "includeExistingExperiences": true
+  },
+  "executionSummary": {
+    "status": "completed",
+    "orderedStages": [
+      {
+        "stage": "preference_interpretation",
+        "status": "PASS",
+        "ordinal": 1,
+        "summary": "Preferencias libres normalizadas y combinadas con filtros.",
+        "component": "PreferenceInterpreterService"
+      },
+      {
+        "stage": "tour_intent",
+        "counts": {
+          "requestedDays": 1
+        },
+        "status": "INFO",
+        "ordinal": 2,
+        "outcome": "INTENT_ACCEPTED",
+        "summary": "Temas: history, architecture. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"Me interesan San Telmo y La Boca, especialmente su historia, arquitectura y lugares emblemáticos.\".",
+        "component": "TourGenerationRequest"
+      },
+      {
+        "stage": "destination_resolution",
+        "status": "PASS",
+        "ordinal": 3,
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "summary": "\"Buenos Aires, Argentina\" resolvió a un límite real de ciudad: Buenos Aires. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:Buenos Aires, Argentina.",
+        "component": "DestinationResolutionService"
+      },
+      {
+        "stage": "anchor_geo_resolution",
+        "status": "PASS",
+        "ordinal": 4,
+        "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+        "component": "AreaRouteAnchorResolverService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "counts": {
+          "portfolioTarget": 4,
+          "totalDistinctEligibleExperiences": 15
+        },
+        "status": "PASS",
+        "ordinal": 5,
+        "outcome": "none",
+        "summary": "Portafolio suficiente: 15 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets solicitados satisfechos.",
+        "component": "FacetRetrievalService"
+      },
+      {
+        "stage": "db_search",
+        "counts": {
+          "candidateCount": 4
+        },
+        "status": "PASS",
+        "ordinal": 6,
+        "outcome": "CATALOG_POOL_AVAILABLE",
+        "summary": "4 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+        "component": "ExperienceCatalog.findVerifiedWithin"
+      },
+      {
+        "stage": "candidate_pool",
+        "counts": {
+          "offeredCandidateCount": 15
+        },
+        "status": "PASS",
+        "ordinal": 7,
+        "outcome": "EXPERIENCE_POOL_RANKED",
+        "summary": "Se evaluaron 15 experiencias elegibles y se ofrecieron 15 candidatas (15 catálogo, 0 adquisición, 0 discovery).",
+        "component": "ExperienceRankingEngine"
+      },
+      {
+        "stage": "embeddings",
+        "counts": {
+          "measuredRatio": 1,
+          "indexedCandidateCount": 15,
+          "offeredCandidateCount": 15
+        },
+        "status": "PASS",
+        "ordinal": 8,
+        "outcome": "SEMANTIC_SIGNAL_APPLIED",
+        "summary": "Ranking semántico solicitado y aplicado sobre 15 candidato(s) elegible(s) del destino: 15 tenían un vector compatible con el índice activo y se ofrecieron 15 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+        "component": "VectorStoreService + pgvector"
+      },
+      {
+        "stage": "daily_planning",
+        "counts": {
+          "score": 5,
+          "selectedCount": 5,
+          "unselectedCount": 1
+        },
+        "status": "PASS",
+        "ordinal": 9,
+        "outcome": "DAILY_PLAN_BUILT",
+        "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 5 Experience(s) seleccionada(s), 1 sin seleccionar (score total 5). Las estimaciones de traslado usadas son reales.",
+        "component": "GreedyDailyPlanningSolver"
+      },
+      {
+        "stage": "tour_completeness",
+        "status": "WARN",
+        "ordinal": 10,
+        "outcome": "TOUR_UNDERFILLED",
+        "summary": "Formato pedido sin cubrir: \"walk\".",
+        "component": "TourCompletenessValidator"
+      },
+      {
+        "stage": "tour_experience_materialization",
+        "counts": {
+          "componentSnapshots": 5,
+          "selectedExperiences": 5
+        },
+        "status": "PASS",
+        "ordinal": 11,
+        "outcome": "TOUR_EXPERIENCES_PERSISTED",
+        "summary": "5 TourExperience snapshot(s) persistidos desde Experience verificadas.",
+        "component": "Prisma.TourExperience"
+      }
+    ],
+    "rejectedProposals": 0,
+    "acceptedExperiences": 5,
+    "selectedExperiences": 5
+  },
+  "tourCompleteness": {
+    "issues": [
+      {
+        "code": "UNMET_REQUESTED_FORMAT",
+        "message": "You asked for \"walk\" experiences, but none made it into the final itinerary.",
+        "requestedIntent": "walk"
+      }
+    ],
+    "complete": false,
+    "retryAttempted": false
+  },
+  "materializedTourExperiences": [
+    {
+      "order": 1,
+      "dayNumber": 1,
+      "experienceId": "79271b79-1a12-4920-84b8-a8427f2a0918",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 2,
+      "dayNumber": 1,
+      "experienceId": "3ddd6c35-be11-4a50-a71f-1aa32f2096ed",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 3,
+      "dayNumber": 1,
+      "experienceId": "26c7c9f9-9c93-4e98-ab9e-b14546fc4375",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 4,
+      "dayNumber": 1,
+      "experienceId": "a4d8f770-b777-41bd-a3c9-c473fc577ce7",
+      "durationHours": 1.999999999999998,
+      "componentCount": 1
+    },
+    {
+      "order": 5,
+      "dayNumber": 1,
+      "experienceId": "1e644ea5-ce45-4c61-8f0e-589e611cdd76",
+      "durationHours": 2,
+      "componentCount": 1
+    }
+  ]
+}

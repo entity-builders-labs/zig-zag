@@ -1,0 +1,1088 @@
+{
+  "label": "Resolución de entidades reales",
+  "rules": [
+    {
+      "rule": "Resolver hints contra identidades geográficas independientes del LLM",
+      "actual": 6,
+      "reason": "6 entidad(es) reales resueltas; 6 con coordenadas.",
+      "result": "WARN",
+      "ruleId": "RES-IDENTITY-001"
+    },
+    {
+      "rule": "No decidir coherencia geográfica ni persistencia durante entity resolution",
+      "reason": "La salida queda pendiente del GeographicValidationService.",
+      "result": "PASS",
+      "ruleId": "RES-SEPARATION-001"
+    },
+    {
+      "rule": "Toda propuesta no resoluble debe conservar razones explícitas",
+      "reason": "San Telmo Self-Guided Historical Walk: UNRESOLVED_REQUIRED_COMPONENT; San Telmo & Caminito History Walk: UNRESOLVED_REQUIRED_COMPONENT; La Boca and San Telmo History Walk: UNRESOLVED_REQUIRED_COMPONENT; San Telmo Colonial Walking Tour: UNRESOLVED_REQUIRED_COMPONENT",
+      "result": "PASS",
+      "ruleId": "RES-REJECTION-001"
+    }
+  ],
+  "stage": "entity_resolution",
+  "inputs": {
+    "totalCandidates": 4
+  },
+  "status": "WARN",
+  "outputs": {
+    "rejectedCount": 4,
+    "candidateCount": 4,
+    "resolvedEntityCount": 6,
+    "resolutionReadyCount": 0,
+    "entitiesWithCoordinates": 6
+  },
+  "summary": "Entity resolution procesó 4 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 4 no pudieron resolverse. Se obtuvieron 6 entidad(es) provider-backed, 6 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite. Rechazadas: San Telmo Self-Guided Historical Walk: UNRESOLVED_REQUIRED_COMPONENT; San Telmo & Caminito History Walk: UNRESOLVED_REQUIRED_COMPONENT; La Boca and San Telmo History Walk: UNRESOLVED_REQUIRED_COMPONENT; San Telmo Colonial Walking Tour: UNRESOLVED_REQUIRED_COMPONENT.",
+  "decision": {
+    "reason": "Ninguna propuesta produjo suficientes entidades reales para continuar.",
+    "status": "WARN",
+    "outcome": "NO_PROPOSALS_RESOLVED",
+    "reasonCodes": [
+      "UNRESOLVED_REQUIRED_COMPONENT",
+      "UNRESOLVED_REQUIRED_COMPONENT",
+      "UNRESOLVED_REQUIRED_COMPONENT",
+      "UNRESOLVED_REQUIRED_COMPONENT"
+    ],
+    "triggeredActions": [
+      "CONTINUE_WITH_EXISTING_POOL"
+    ]
+  },
+  "component": "ExperienceProposalResolverService",
+  "degradedReason": "no_proposals_resolved",
+  "providerStatus": "failed",
+  "acquisitionContext": {
+    "anchor": {
+      "kind": "area",
+      "usage": "geographic_scope",
+      "status": "resolved",
+      "rawName": "San Telmo",
+      "geometry": {
+        "type": "Polygon"
+      },
+      "priority": "soft",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069",
+      "geoEntityId": "6d3c9fce-3a6f-4ff6-bca7-d5d29233612b",
+      "osmBoundary": {
+        "id": "osm:relation:2223069",
+        "name": "San Telmo",
+        "tags": {
+          "name": "San Telmo",
+          "type": "boundary",
+          "boundary": "administrative",
+          "wikidata": "Q1026688",
+          "wikipedia": "es:San Telmo (Buenos Aires)",
+          "admin_level": "9"
+        },
+        "osmId": 2223069,
+        "osmType": "relation",
+        "geometry": {
+          "type": "Polygon"
+        }
+      },
+      "canonicalName": "San Telmo"
+    },
+    "strategy": "area_route_walk",
+    "passNumber": 1
+  },
+  "candidateDecisions": [
+    {
+      "id": "San Telmo Self-Guided Historical Walk",
+      "name": "San Telmo Self-Guided Historical Walk",
+      "reason": "UNRESOLVED_REQUIRED_COMPONENT",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ]
+    },
+    {
+      "id": "San Telmo & Caminito History Walk",
+      "name": "San Telmo & Caminito History Walk",
+      "reason": "UNRESOLVED_REQUIRED_COMPONENT",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ]
+    },
+    {
+      "id": "La Boca and San Telmo History Walk",
+      "name": "La Boca and San Telmo History Walk",
+      "reason": "UNRESOLVED_REQUIRED_COMPONENT",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ]
+    },
+    {
+      "id": "San Telmo Colonial Walking Tour",
+      "name": "San Telmo Colonial Walking Tour",
+      "reason": "UNRESOLVED_REQUIRED_COMPONENT",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ]
+    }
+  ],
+  "entityResolutionAudit": [
+    {
+      "hints": [
+        {
+          "key": "basilica",
+          "name": "Basílica de San Francisco",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Basílica de San Francisco",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Basílica de San Francisco",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Basílica de San Francisco",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "Basílica de San Francisco",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "MULTIPLE"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:relation:2354152",
+                "canonicalName": "Basílica de San Francisco"
+              },
+              "providerResultCount": 2,
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "Basílica de San Francisco",
+              "provider": "geoapify",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "SINGLE"
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "geoapify:51e8e0f489972f4dc05992bc299b284e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f",
+                "canonicalName": "Basílica de San Francisco"
+              },
+              "providerResultCount": 1,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-12"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "geoapify",
+            "externalId": "geoapify:51e8e0f489972f4dc05992bc299b284e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f",
+            "geoEntityId": "87da5bed-0a8c-41ee-b858-61eddb0c5ba3",
+            "canonicalName": "Basílica de San Francisco"
+          }
+        },
+        {
+          "key": "defensa-street",
+          "name": "Defensa Street",
+          "role": "route",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Defensa Street",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Defensa Street",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": false,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "ROUTE",
+                "externalId": "osm:way:38536550",
+                "canonicalName": "Defensa"
+              },
+              "poolCandidateCount": 180,
+              "verificationDecision": "REJECTED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-12"
+          ],
+          "expectedKind": "ROUTE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "San Telmo Self-Guided Historical Walk",
+      "rejectionReasons": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ],
+      "candidateTraceKey": "san telmo self-guided historical walk:ev-12:basilica:Basílica de San Francisco|defensa-street:Defensa Street"
+    },
+    {
+      "hints": [
+        {
+          "key": "mafalda",
+          "name": "Mafalda Statue",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Mafalda Statue",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Mafalda Statue",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Mafalda Statue",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "Mafalda Statue",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "Mafalda Statue",
+              "provider": "geoapify",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-14"
+          ],
+          "expectedKind": "PLACE"
+        },
+        {
+          "key": "san-telmo-market",
+          "name": "San Telmo Market",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "San Telmo Market",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "San Telmo Market",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "San Telmo Market",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": true,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:158893271",
+                "canonicalName": "Mercado de San Telmo"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-14"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:158893271",
+            "geoEntityId": "1180fa3c-19ef-4bfc-9dc0-7405b39de155",
+            "canonicalName": "Mercado de San Telmo"
+          }
+        },
+        {
+          "key": "dorrego-square",
+          "name": "Dorrego Square",
+          "role": "venue",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Dorrego Square",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Dorrego Square",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Dorrego Square",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": false,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:31364659",
+                "canonicalName": "Plaza Dorrego"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "Dorrego Square",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "Dorrego Square",
+              "provider": "geoapify",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-14"
+          ],
+          "expectedKind": "PLACE"
+        },
+        {
+          "key": "lezama-park",
+          "name": "Lezama Park",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Lezama Park",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Lezama Park",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Lezama Park",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": true,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:17441757",
+                "canonicalName": "Parque Lezama"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-14"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:17441757",
+            "geoEntityId": "21c6faf9-1ece-4e68-a455-6652e7c10d67",
+            "canonicalName": "Parque Lezama"
+          }
+        },
+        {
+          "key": "caminito",
+          "name": "Caminito",
+          "role": "area",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Caminito",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Caminito",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 1
+            },
+            {
+              "query": "Caminito",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "MULTIPLE"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:205650907",
+                "canonicalName": "Caminito"
+              },
+              "providerResultCount": 5,
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "Caminito",
+              "provider": "openstreetmap",
+              "strategy": "AREA_TO_PLACE_CORRECTION",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-14"
+          ],
+          "expectedKind": "AREA"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "San Telmo & Caminito History Walk",
+      "rejectionReasons": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ],
+      "candidateTraceKey": "san telmo & caminito history walk:ev-14:mafalda:Mafalda Statue|san-telmo-market:San Telmo Market|dorrego-square:Dorrego Square|lezama-park:Lezama Park|caminito:Caminito"
+    },
+    {
+      "hints": [
+        {
+          "key": "san-telmo-market",
+          "name": "San Telmo Market",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "San Telmo Market",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "San Telmo Market",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "San Telmo Market",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": true,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:158893271",
+                "canonicalName": "Mercado de San Telmo"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-15"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:158893271",
+            "geoEntityId": "1180fa3c-19ef-4bfc-9dc0-7405b39de155",
+            "canonicalName": "Mercado de San Telmo"
+          }
+        },
+        {
+          "key": "dorrego-square",
+          "name": "Dorrego Square",
+          "role": "venue",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Dorrego Square",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Dorrego Square",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Dorrego Square",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": false,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:31364659",
+                "canonicalName": "Plaza Dorrego"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "REJECTED"
+            },
+            {
+              "query": "Dorrego Square",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "Dorrego Square",
+              "provider": "geoapify",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-15"
+          ],
+          "expectedKind": "PLACE"
+        },
+        {
+          "key": "defensa-street",
+          "name": "Defensa Street",
+          "role": "route",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Defensa Street",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Defensa Street",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": false,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "ROUTE",
+                "externalId": "osm:way:38536550",
+                "canonicalName": "Defensa"
+              },
+              "poolCandidateCount": 180,
+              "verificationDecision": "REJECTED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-15"
+          ],
+          "expectedKind": "ROUTE"
+        },
+        {
+          "key": "caminito-street",
+          "name": "Caminito Street",
+          "role": "route",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Caminito Street",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Caminito Street",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 180
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-15"
+          ],
+          "expectedKind": "ROUTE"
+        },
+        {
+          "key": "boca-stadium",
+          "name": "Boca Juniors Stadium",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Boca Juniors Stadium",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Boca Juniors Stadium",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Boca Juniors Stadium",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "Boca Juniors Stadium",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "Boca Juniors Stadium",
+              "provider": "geoapify",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-15"
+          ],
+          "expectedKind": "PLACE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "La Boca and San Telmo History Walk",
+      "rejectionReasons": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ],
+      "candidateTraceKey": "la boca and san telmo history walk:ev-15:san-telmo-market:San Telmo Market|dorrego-square:Dorrego Square|defensa-street:Defensa Street|caminito-street:Caminito Street|boca-stadium:Boca Juniors Stadium"
+    },
+    {
+      "hints": [
+        {
+          "key": "san-telmo-market",
+          "name": "San Telmo Market",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "San Telmo Market",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "San Telmo Market",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "San Telmo Market",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": true,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:158893271",
+                "canonicalName": "Mercado de San Telmo"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-16"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:158893271",
+            "geoEntityId": "1180fa3c-19ef-4bfc-9dc0-7405b39de155",
+            "canonicalName": "Mercado de San Telmo"
+          }
+        },
+        {
+          "key": "ezeiza-mansion",
+          "name": "Ezeiza Mansion",
+          "role": "venue",
+          "reason": "NO_OSM_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "Ezeiza Mansion",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Ezeiza Mansion",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Ezeiza Mansion",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "poolCandidateCount": 39
+            },
+            {
+              "query": "Ezeiza Mansion",
+              "provider": "nominatim",
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            },
+            {
+              "query": "Ezeiza Mansion",
+              "provider": "geoapify",
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false,
+              "providerResultCount": 0
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-16"
+          ],
+          "expectedKind": "PLACE"
+        },
+        {
+          "key": "lezama-park",
+          "name": "Lezama Park",
+          "role": "venue",
+          "status": "resolved",
+          "attempts": [
+            {
+              "query": "Lezama Park",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Lezama Park",
+              "provider": "trusted_observation",
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "Lezama Park",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "OWN_QID",
+                  "hintMatched": true,
+                  "candidateMatched": true
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "PLACE",
+                "externalId": "osm:way:17441757",
+                "canonicalName": "Parque Lezama"
+              },
+              "poolCandidateCount": 39,
+              "verificationDecision": "VERIFIED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-16"
+          ],
+          "expectedKind": "PLACE",
+          "resolvedGeoEntity": {
+            "provider": "openstreetmap",
+            "externalId": "osm:way:17441757",
+            "geoEntityId": "21c6faf9-1ece-4e68-a455-6652e7c10d67",
+            "canonicalName": "Parque Lezama"
+          }
+        },
+        {
+          "key": "san-lorenzo-passage",
+          "name": "San Lorenzo Passage",
+          "role": "route",
+          "reason": "UNCONFIRMED_MATCH",
+          "status": "unresolved",
+          "attempts": [
+            {
+              "query": "San Lorenzo Passage",
+              "provider": "catalog",
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "identityEvidence": [],
+              "candidateAcquired": false
+            },
+            {
+              "query": "San Lorenzo Passage",
+              "provider": "openstreetmap",
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "kind": "ROUTE",
+                "externalId": "osm:way:22697007",
+                "canonicalName": "San Lorenzo"
+              },
+              "poolCandidateCount": 180,
+              "verificationDecision": "REJECTED"
+            }
+          ],
+          "required": true,
+          "evidenceKeys": [
+            "ev-16"
+          ],
+          "expectedKind": "ROUTE"
+        }
+      ],
+      "accepted": false,
+      "candidateName": "San Telmo Colonial Walking Tour",
+      "rejectionReasons": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ],
+      "candidateTraceKey": "san telmo colonial walking tour:ev-16:ezeiza-mansion:Ezeiza Mansion|lezama-park:Lezama Park|san-lorenzo-passage:San Lorenzo Passage|san-telmo-market:San Telmo Market"
+    }
+  ]
+}

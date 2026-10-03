@@ -1,0 +1,44 @@
+{
+  "cold-1": {
+    "visible": 11,
+    "persistedOutcomes": 11,
+    "composites": [
+      [
+        "San Telmo Walking Tour",
+        "PERSISTED",
+        true
+      ]
+    ],
+    "multiComponentVisible": [
+      "San Telmo Walking Tour"
+    ],
+    "problems": []
+  },
+  "cold-2": {
+    "visible": 11,
+    "persistedOutcomes": 11,
+    "composites": [],
+    "multiComponentVisible": [],
+    "problems": []
+  },
+  "cold-3": {
+    "visible": 11,
+    "persistedOutcomes": 11,
+    "composites": [],
+    "multiComponentVisible": [],
+    "problems": []
+  },
+  "cold-4": {
+    "visible": 11,
+    "persistedOutcomes": 11,
+    "composites": [
+      [
+        "San Telmo Walking Tour",
+        "NOT_PERSISTED",
+        false
+      ]
+    ],
+    "multiComponentVisible": [],
+    "problems": []
+  }
+}

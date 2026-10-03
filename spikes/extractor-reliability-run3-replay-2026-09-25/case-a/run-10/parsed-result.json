@@ -1,0 +1,151 @@
+{
+  "classification": "CANDIDATE",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "elapsedMs": 21173,
+  "candidates": [
+    {
+      "name": "Historical Walk in San Telmo",
+      "description": "A historical walking tour exploring the oldest streets of San Telmo, featuring colonial history, main churches, and traditional houses.",
+      "themes": [
+        "history"
+      ],
+      "traits": [
+        "guided walking tour",
+        "colonial architecture",
+        "narrow cobblestone paths",
+        "traditional houses"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "suggestedDurationMinutes": 120,
+      "componentHints": [
+        {
+          "key": "san-telmo-streets",
+          "name": "Streets of San Telmo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-2"
+          ]
+        },
+        {
+          "key": "san-telmo-churches",
+          "name": "Main Churches of San Telmo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-6"
+          ]
+        },
+        {
+          "key": "san-telmo-houses",
+          "name": "Traditional Houses of San Telmo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-6"
+          ]
+        }
+      ],
+      "evidenceKeys": [
+        "ev-2",
+        "ev-6"
+      ],
+      "shortReason": "Evidence explicitly describes a walk/tour in San Telmo that includes visiting the oldest streets, main churches, and traditional houses as part of the experience.",
+      "orderedByEvidence": false
+    }
+  ],
+  "validationErrors": [],
+  "sourceSupportAudits": [
+    {
+      "candidateName": "Historical Walk in San Telmo",
+      "status": "SUPPORTED",
+      "emittedComponentCount": 3,
+      "supportedComponentCount": 3,
+      "unsupportedComponentCount": 0,
+      "components": [
+        {
+          "index": 0,
+          "key": "san-telmo-streets",
+          "name": "Streets of San Telmo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "status": "SUPPORTED"
+        },
+        {
+          "index": 1,
+          "key": "san-telmo-churches",
+          "name": "Main Churches of San Telmo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-6"
+          ],
+          "status": "SUPPORTED"
+        },
+        {
+          "index": 2,
+          "key": "san-telmo-houses",
+          "name": "Traditional Houses of San Telmo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-6"
+          ],
+          "status": "SUPPORTED"
+        }
+      ]
+    }
+  ],
+  "rawComponentFacts": [
+    {
+      "name": "Historical Walk in San Telmo",
+      "components": [
+        {
+          "index": 0,
+          "key": "san-telmo-streets",
+          "name": "Streets of San Telmo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "walk the oldest streets of Buenos Aires"
+        },
+        {
+          "index": 1,
+          "key": "san-telmo-churches",
+          "name": "Main Churches of San Telmo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-6"
+          ],
+          "supportSpan": "explore its main churches"
+        },
+        {
+          "index": 2,
+          "key": "san-telmo-houses",
+          "name": "Traditional Houses of San Telmo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-6"
+          ],
+          "supportSpan": "traditional houses"
+        }
+      ],
+      "evidenceKeys": [
+        "ev-2",
+        "ev-6"
+      ],
+      "orderedByEvidence": false
+    }
+  ]
+}

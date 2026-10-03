@@ -1,0 +1,189 @@
+{
+  "request": {
+    "url": "https://serpapi.com/search.json",
+    "params": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Estatua de Mafalda",
+      "ll": "@-34.6037,-58.3816,12z",
+      "hl": "es",
+      "gl": "ar",
+      "api_key": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 630,
+  "response": {
+    "search_metadata": {
+      "id": "6ab6646169819dd38e269d29",
+      "status": "Success",
+      "json_endpoint": "https://serpapi.com/searches/SgJqCbNge5WQ5FzeiYqsjv63DAIghZYx3ut0G-jAZIo/6ab6646169819dd38e269d29.json",
+      "markdown_endpoint": "https://serpapi.com/searches/SgJqCbNge5WQ5FzeiYqsjv63DAIghZYx3ut0G-jAZIo/6ab6646169819dd38e269d29.md",
+      "created_at": "2026-09-25 12:09:05 UTC",
+      "processed_at": "2026-09-25 12:09:05 UTC",
+      "google_maps_url": "https://www.google.com/maps/search/Estatua+de+Mafalda/@-34.6037,-58.3816,12z/data=!3m1!4b1!4m2!2m1!6e5?hl=es&gl=ar",
+      "raw_html_file": "https://serpapi.com/searches/SgJqCbNge5WQ5FzeiYqsjv63DAIghZYx3ut0G-jAZIo/6ab6646169819dd38e269d29.html",
+      "prettify_html_file": "https://serpapi.com/searches/SgJqCbNge5WQ5FzeiYqsjv63DAIghZYx3ut0G-jAZIo/6ab6646169819dd38e269d29.prettify",
+      "total_time_taken": 0.44
+    },
+    "search_parameters": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Estatua de Mafalda",
+      "ll": "@-34.6037,-58.3816,12z",
+      "google_domain": "google.com",
+      "hl": "es",
+      "gl": "ar"
+    },
+    "search_information": {
+      "local_results_state": "Results for exact spelling",
+      "query_displayed": "Estatua de Mafalda"
+    },
+    "local_results": [
+      {
+        "position": 1,
+        "title": "Estatua de Mafalda",
+        "place_id": "ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+        "data_id": "0x95a3354dd6271479:0x962789966f588ee6",
+        "data_cid": "10819767908987080422",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95a3354dd6271479%3A0x962789966f588ee6&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95a3354dd6271479%3A0x962789966f588ee6&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.615832,
+          "longitude": -58.3716461
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+        "provider_id": "/g/11t_kp4q5b",
+        "rating": 4.6,
+        "reviews": 8295,
+        "type": "Escultura",
+        "types": [
+          "Escultura",
+          "Atracción turística"
+        ],
+        "type_id": "sculpture",
+        "type_ids": [
+          "sculpture",
+          "tourist_attraction"
+        ],
+        "address": "9JMH+J8W, Defensa 700, C1064 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Abierto las 24 horas",
+        "hours": "Abierto las 24 horas",
+        "operating_hours": {
+          "viernes": "Abierto las 24 horas",
+          "sábado": "Abierto las 24 horas",
+          "domingo": "Abierto las 24 horas",
+          "lunes": "Abierto las 24 horas",
+          "martes": "Abierto las 24 horas",
+          "miércoles": "Abierto las 24 horas",
+          "jueves": "Abierto las 24 horas"
+        },
+        "phone": "011 7125-4793",
+        "extensions": [
+          {
+            "service_options": [
+              "Servicios en el lugar"
+            ]
+          },
+          {
+            "accessibility": [
+              "Entrada accesible para personas en silla de ruedas"
+            ]
+          },
+          {
+            "crowd": [
+              "Amigable con LGBTQ+",
+              "Espacio seguro para personas transgénero"
+            ]
+          }
+        ],
+        "service_options": {
+          "servicios_en_el_lugar": true
+        },
+        "user_review": "\"Frente a esta estatua esta una tienda con muchas cosas de mafalda.\"",
+        "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNM0y_m6YHUynFR0u7Eo-tv9OVg5yT0IOd7ThVR-vSrBTUKJcTtKMnHZhdNI-JUll_kUEyKXsDQc8g6YIpEL9dCtvUpYMtQ8nNazVuUaCP-yH6dpM-Fuv5-j--lpf4c1P4mGDI6=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/TW-iIHicHcTdboIwGADQJ_qkRgU18WJDEGTgHyXDG0MKa7OVtqGlpr7gnsG3MfFcnOc_M0bptedxNptQKSnvRt0NRArTCTMhsvfo0GgNRHsfoVW8L3Lkbr1fJ9iJ-IzGIJJg7OpQ0YUrUXpog5JVZ7CX4bPE2Z6UJstFcmVtkcIec377w5HLvvX2RJbUr1MVfa3a0Fis6tyclqJoHtWIm_AILvFblUM82gX8AnD1MyfT47zfbVN_c58ihIC9JyBeh2REPw"
+      },
+      {
+        "position": 2,
+        "title": "Plaza Mafalda",
+        "place_id": "ChIJnz02-eu1vJUR0afEpN6-MaQ",
+        "data_id": "0x95bcb5ebf9363d9f:0xa431bedea4c4a7d1",
+        "data_cid": "11831447559535372241",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcb5ebf9363d9f%3A0xa431bedea4c4a7d1&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcb5ebf9363d9f%3A0xa431bedea4c4a7d1&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.5806439,
+          "longitude": -58.4456115
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJnz02-eu1vJUR0afEpN6-MaQ",
+        "provider_id": "/g/1q6m1zg15",
+        "rating": 4.3,
+        "reviews": 11626,
+        "type": "Parque local",
+        "types": [
+          "Parque local",
+          "Parque",
+          "Atracción turística"
+        ],
+        "type_id": "city_park",
+        "type_ids": [
+          "city_park",
+          "park",
+          "tourist_attraction"
+        ],
+        "address": "Conde 145, C1437 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Abierto las 24 horas",
+        "hours": "Abierto las 24 horas",
+        "operating_hours": {
+          "viernes": "Abierto las 24 horas",
+          "sábado": "Abierto las 24 horas",
+          "domingo": "Abierto las 24 horas",
+          "lunes": "Abierto las 24 horas",
+          "martes": "Abierto las 24 horas",
+          "miércoles": "Abierto las 24 horas",
+          "jueves": "Abierto las 24 horas"
+        },
+        "website": "https://www.buenosaires.gob.ar/participacionciudadana/participa-en-obras-de-tu-barrio",
+        "description": "Parque en honor a un cómic popular. Parque infantil con arte callejero y un mural de Mafalda, un personaje de tiras cómicas y dibujos animados.",
+        "extensions": [
+          {
+            "highlights": [
+              "Pícnics"
+            ]
+          },
+          {
+            "accessibility": [
+              "Entrada accesible para personas en silla de ruedas",
+              "Estacionamiento accesible para personas en silla de ruedas"
+            ]
+          },
+          {
+            "amenities": [
+              "Columpios",
+              "Mesas de pícnic",
+              "Toboganes"
+            ]
+          },
+          {
+            "children": [
+              "Área de juegos",
+              "Ideal para ir con niños"
+            ]
+          },
+          {
+            "pets": [
+              "Parque para perros",
+              "Se permiten perros"
+            ]
+          }
+        ],
+        "user_review": "\"Una plaza común, podría tener al menos una estatua de Mafalda\"",
+        "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOdJlf2hqhZuVwjgUX0elJczTR8GWjf7lwyaqiYroeG-VVorbtaD4H6TKrQD2PMEpe3sHNcdvICqVyT5UI4XqA012NMnLVYY0s4wYfS3pxC-e0mHiYTcKcR0US90logXN7Z4DBb1A=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/VtZBEnicHcRbcoIwFADQFUUuj_roTD8QOuKLWoVI_MMYEp1AIImi7tAluJvO9Hyc90tY25pPx5HCH3CluGRXwzRVjWWNHVBVO1yXxiBqnDC6tbL-OS1k5YlOHK64v_C8ACYX9Jltx7P9pRrJ_lF2Z6IVmyGMlT7aMg6SYbbUv7G3WX-3zDdJSk-3edThR_aRz4OiC8H10nWzwoSACXpS7fz2HiEGdXImGV3SLeS7CUjFi3R0COLp0Q2_ehcAkPifouYPouVFiw"
+      }
+    ]
+  }
+}

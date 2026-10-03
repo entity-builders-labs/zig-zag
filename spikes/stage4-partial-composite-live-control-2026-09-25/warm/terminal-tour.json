@@ -1,0 +1,3079 @@
+{
+  "id": "0d046085-3ad9-4d71-b5ce-916188704aeb",
+  "name": "San Telmo, Buenos Aires, Argentina",
+  "description": "Tour personalizado",
+  "ownerId": "04912023-8538-4521-b81e-a5c956e642cc",
+  "price": null,
+  "duration": null,
+  "maxGroupSize": null,
+  "startDates": [],
+  "totalDays": 1,
+  "totalDistance": null,
+  "estimatedBudget": null,
+  "recommendedGroupSize": null,
+  "coverImage": "https://upload.wikimedia.org/wikipedia/commons/5/53/San_Telmo_montage.jpg?utm_source=es.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+  "prompt": "Create a tour from this canonical wizard intent:\nDestination: San Telmo, Buenos Aires, Argentina\nNumber of days: 1\nBudget level: medium\nGroup type: solo\nInterests: history\nExploration style: balanced\nAllowed transportation modes: walking\nTravel pace: moderate\nWalking limits captured (deterministic enforcement arrives in the spatial-feasibility stage): 5000 meters per day; 3000 meters maximum continuous leg\nAdditional preferences: caminata histórica por San Telmo",
+  "query": null,
+  "categories": [],
+  "metadata": {
+    "generatedAt": "2026-09-25T20:27:44.912Z",
+    "generationTrace": {
+      "steps": [
+        {
+          "label": "Interpretación de preferencias",
+          "stage": "preference_interpretation",
+          "inputs": {
+            "intents": [
+              "walk"
+            ],
+            "groupType": "solo",
+            "budgetLevel": "medium",
+            "accessibilityNeeds": [],
+            "dietaryRestrictions": [],
+            "hasAdditionalPreferences": true
+          },
+          "status": "WARN",
+          "timing": {
+            "durationMs": 10619
+          },
+          "outputs": {
+            "intent": {
+              "notes": [
+                "deterministic_fallback"
+              ],
+              "ambiguities": [],
+              "anchoredPlaces": [],
+              "excludedThemes": [],
+              "excludedTraits": [],
+              "hardExclusions": [],
+              "preferredFacets": [
+                {
+                  "key": "walk",
+                  "source": "free_text",
+                  "evidence": [
+                    {
+                      "text": "caminata",
+                      "source": "user_free_text"
+                    }
+                  ],
+                  "dimension": "intent",
+                  "confidence": 0.9,
+                  "importance": 1
+                }
+              ],
+              "softConstraints": [],
+              "groupPreferences": [],
+              "budgetPreferences": [],
+              "dietaryPreferences": [],
+              "unresolvedFreeText": "caminata histórica por San Telmo",
+              "interpretationStatus": "failed",
+              "positiveSemanticQuery": "caminata histórica por San Telmo",
+              "accessibilityPreferences": []
+            },
+            "preferenceSpec": {
+              "trip": {
+                "days": 1,
+                "pace": "moderate",
+                "startDates": []
+              },
+              "facets": [
+                {
+                  "key": "history",
+                  "source": "wizard",
+                  "weight": 1,
+                  "required": false,
+                  "dimension": "theme"
+                },
+                {
+                  "key": "walk",
+                  "source": "wizard",
+                  "weight": 1,
+                  "required": false,
+                  "dimension": "intent"
+                }
+              ],
+              "anchors": [],
+              "exclusions": {
+                "hard": [],
+                "themes": [],
+                "traits": []
+              },
+              "semanticQuery": "caminata histórica por San Telmo",
+              "resolvedAnchors": [],
+              "softConstraints": {
+                "group": [],
+                "budget": [],
+                "dietary": [],
+                "accessibility": []
+              },
+              "explorationStyle": "balanced"
+            }
+          },
+          "summary": "Preferencias estructuradas aplicadas con respaldo determinístico.",
+          "component": "PreferenceInterpreterService",
+          "preferenceInterpretation": {
+            "model": "qwen/qwen3.8-27b",
+            "stage": "preference_interpretation",
+            "status": "fallback",
+            "provider": "groq",
+            "durationMs": 10619,
+            "userPrompt": "caminata histórica por San Telmo",
+            "systemPrompt": "Interpret the user's supplemental tourism preferences into normalized intent.\nReturn JSON only. You interpret language; deterministic code enforces the result.\nNever invent geographic entities, provider IDs, coordinates, or evidence.\nDo not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.\nFor positive preferences, output preferredFacets as a list of objects with:\n- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.\n- key: CANONICAL domain key in English (e.g. \"architecture\" not \"arquitectura\", \"food\" not \"comida\", \"walk\" not \"caminata\", \"history\" not \"historia\").\n- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.\n- confidence: float between 0 and 1 indicating certainty.\n- strength: \"strong\" | \"medium\" | \"weak\" indicating user emphasis.\n- evidence: one or more short excerpts copied from the user's text that support\n  this facet. Never invent evidence; facets without supporting excerpts are rejected.\nDo not invent arbitrary importance numbers; code derives importance deterministically from strength.\nAlso output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by\nname (never a generic theme). For each, output:\n- rawName: the name as mentioned by the user.\n- usage: \"geographic_scope\" | \"specific_destination\" | \"named_path\" | \"unknown\". This describes how the phrase uses the name, not what geographic entity it is.\n- priority: \"must\" ONLY for explicit, unambiguous named-place intent, for example\n  \"quiero visitar X\", \"incluí X\", \"sí o sí quiero ir a X\", \"no me quiero perder X\".\n  Anything weaker or ambiguous -- including a place mentioned only in passing while\n  describing a theme, e.g. \"me interesa la arquitectura de X\" -- is priority \"soft\".\nExtract anchors conservatively: when in doubt about the name or the intent, omit the anchor\nrather than guessing. Do not invent named places that were not mentioned.\nOther fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,\ndietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,\npositiveSemanticQuery, notes. Use short lowercase phrases.",
+            "parsedResponse": {
+              "notes": [
+                "deterministic_fallback"
+              ],
+              "ambiguities": [],
+              "anchoredPlaces": [],
+              "excludedThemes": [],
+              "excludedTraits": [],
+              "hardExclusions": [],
+              "preferredFacets": [
+                {
+                  "key": "walk",
+                  "source": "free_text",
+                  "evidence": [
+                    {
+                      "text": "caminata",
+                      "source": "user_free_text"
+                    }
+                  ],
+                  "dimension": "intent",
+                  "confidence": 0.9,
+                  "importance": 1
+                }
+              ],
+              "softConstraints": [],
+              "groupPreferences": [],
+              "budgetPreferences": [],
+              "dietaryPreferences": [],
+              "unresolvedFreeText": "caminata histórica por San Telmo",
+              "interpretationStatus": "failed",
+              "positiveSemanticQuery": "caminata histórica por San Telmo",
+              "accessibilityPreferences": []
+            },
+            "responseSchema": {
+              "type": "object",
+              "required": [
+                "preferredFacets",
+                "anchoredPlaces",
+                "excludedThemes",
+                "excludedTraits",
+                "hardExclusions",
+                "softConstraints",
+                "ambiguities",
+                "dietaryPreferences",
+                "accessibilityPreferences",
+                "budgetPreferences",
+                "groupPreferences",
+                "positiveSemanticQuery",
+                "notes"
+              ],
+              "properties": {
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "ambiguities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "anchoredPlaces": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "rawName",
+                      "usage",
+                      "priority"
+                    ],
+                    "properties": {
+                      "usage": {
+                        "enum": [
+                          "geographic_scope",
+                          "specific_destination",
+                          "named_path",
+                          "unknown"
+                        ],
+                        "type": "string"
+                      },
+                      "rawName": {
+                        "type": "string"
+                      },
+                      "priority": {
+                        "enum": [
+                          "soft",
+                          "must"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "excludedThemes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "excludedTraits": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "hardExclusions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "preferredFacets": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "dimension",
+                      "key",
+                      "confidence"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "evidence": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "strength": {
+                        "enum": [
+                          "strong",
+                          "medium",
+                          "weak"
+                        ],
+                        "type": "string"
+                      },
+                      "dimension": {
+                        "type": "string"
+                      },
+                      "confidence": {
+                        "type": "number"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "softConstraints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "groupPreferences": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "budgetPreferences": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "dietaryPreferences": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "positiveSemanticQuery": {
+                  "type": "string"
+                },
+                "accessibilityPreferences": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "validationErrors": [
+              "Groq error 429: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.8-27b` in organization `org_01kwpqyk3yetvbfwgdqq0b7wag` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1197. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n"
+            ],
+            "unresolvedFreeText": "caminata histórica por San Telmo",
+            "facetNormalizationDecisions": [
+              {
+                "rawKey": "walk",
+                "reason": "VALID_AS_EMITTED",
+                "accepted": true,
+                "rawDimension": "intent",
+                "normalizedKey": "walk",
+                "normalizedDimension": "intent"
+              }
+            ]
+          }
+        },
+        {
+          "label": "Intención y movilidad solicitadas",
+          "rules": [
+            {
+              "rule": "Usar el wizard canónico como fuente de restricciones explícitas",
+              "actual": 1,
+              "reason": "La generación parte de TourGenerationRequest contractVersion=1.",
+              "result": "PASS",
+              "ruleId": "INTENT-CANONICAL-001",
+              "expected": 1
+            },
+            {
+              "rule": "Conservar preferencias adicionales como intención suplementaria",
+              "actual": "caminata histórica por San Telmo",
+              "reason": "Hay texto adicional disponible para búsqueda/ranking semántico.",
+              "result": "PASS",
+              "ruleId": "INTENT-FREETEXT-001"
+            }
+          ],
+          "stage": "tour_intent",
+          "inputs": {
+            "days": 1,
+            "themes": [
+              "history"
+            ],
+            "travelPace": "moderate",
+            "destination": "San Telmo, Buenos Aires, Argentina",
+            "explorationStyle": "balanced",
+            "accessibilityNeeds": [],
+            "additionalPreferences": "caminata histórica por San Telmo",
+            "allowedTransportationModes": [
+              "walking"
+            ],
+            "maxWalkingDistancePerDayMeters": 5000,
+            "maxContinuousWalkingDistanceMeters": 3000
+          },
+          "outputs": {
+            "requestedDays": 1,
+            "requestedThemes": [
+              "history"
+            ]
+          },
+          "summary": "Temas: history. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"caminata histórica por San Telmo\".",
+          "decision": {
+            "reason": "La solicitud contiene el contrato canónico requerido por el motor.",
+            "status": "INFO",
+            "outcome": "INTENT_ACCEPTED",
+            "reasonCodes": [
+              "CANONICAL_REQUEST_AVAILABLE"
+            ],
+            "triggeredActions": [
+              "RESOLVE_DESTINATION"
+            ]
+          },
+          "component": "TourGenerationRequest"
+        },
+        {
+          "label": "Resolución del destino",
+          "rules": [
+            {
+              "rule": "Determinar si el destino puede usar boundary real o debe degradar a punto",
+              "actual": "area",
+              "reason": "Se obtuvo boundary administrativo utilizable.",
+              "result": "PASS",
+              "ruleId": "DEST-SCALE-001"
+            }
+          ],
+          "stage": "destination_resolution",
+          "inputs": {
+            "destinationText": "San Telmo, Buenos Aires, Argentina",
+            "attemptedQueries": [
+              "forward:San Telmo, Buenos Aires, Argentina"
+            ]
+          },
+          "status": "PASS",
+          "outputs": {
+            "scale": "area",
+            "boundaryName": "San Telmo"
+          },
+          "summary": "\"San Telmo, Buenos Aires, Argentina\" resolvió a un límite real de ciudad: San Telmo. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:San Telmo, Buenos Aires, Argentina.",
+          "decision": {
+            "reason": "El boundary real es más preciso que un radio artificial para recuperación local.",
+            "status": "PASS",
+            "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+            "reasonCodes": [
+              "AREA_BOUNDARY_RESOLVED"
+            ],
+            "triggeredActions": [
+              "RETRIEVE_CATALOG"
+            ]
+          },
+          "component": "DestinationResolutionService"
+        },
+        {
+          "label": "Resolución geográfica de anchors",
+          "stage": "anchor_geo_resolution",
+          "inputs": {
+            "anchors": []
+          },
+          "status": "PASS",
+          "outputs": {
+            "anchors": []
+          },
+          "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+          "component": "AreaRouteAnchorResolverService"
+        },
+        {
+          "label": "Cobertura de preferencias (facet-first)",
+          "rules": [
+            {
+              "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+              "actual": 12,
+              "reason": "12 Experience(s) elegible(s) frente a 4 requerida(s).",
+              "result": "PASS",
+              "ruleId": "PCOV-QUANTITY-001",
+              "expected": 4
+            },
+            {
+              "rule": "Cobertura del facet solicitado: theme:history",
+              "actual": 3,
+              "reason": "3 coincidencia(s) fuerte(s), 2 débil(es).",
+              "result": "PASS",
+              "ruleId": "PCOV-FACET-THEME-HISTORY",
+              "expected": ">= 1"
+            },
+            {
+              "rule": "Cobertura del facet solicitado: intent:walk",
+              "actual": 1,
+              "reason": "1 coincidencia(s) fuerte(s), 0 débil(es).",
+              "result": "PASS",
+              "ruleId": "PCOV-FACET-INTENT-WALK",
+              "expected": ">= 1"
+            }
+          ],
+          "stage": "coverage_analysis",
+          "inputs": {
+            "providerHealth": {
+              "status": "healthy"
+            },
+            "requestedFacetCount": 2,
+            "offeredCandidateCount": 4
+          },
+          "status": "PASS",
+          "outputs": {
+            "sufficient": true,
+            "facetResults": [
+              {
+                "key": "history",
+                "dimension": "theme",
+                "satisfied": true,
+                "weakMatchCount": 2,
+                "strongMatchCount": 3
+              },
+              {
+                "key": "walk",
+                "dimension": "intent",
+                "satisfied": true,
+                "weakMatchCount": 0,
+                "strongMatchCount": 1
+              }
+            ],
+            "portfolioTarget": 4,
+            "allFacetsSatisfied": true,
+            "acquisitionDeficits": [],
+            "globalCapacityDeficit": null,
+            "totalDistinctEligibleExperiences": 12
+          },
+          "summary": "Portafolio suficiente: 12 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets solicitados satisfechos.",
+          "decision": {
+            "reason": "Todos los facets solicitados tienen cobertura fuerte y el portafolio elegible alcanza el objetivo.",
+            "status": "PASS",
+            "outcome": "none",
+            "reasonCodes": [],
+            "triggeredActions": [
+              "BUILD_CANDIDATE_POOL"
+            ]
+          },
+          "component": "FacetRetrievalService",
+          "semanticRanking": {
+            "status": "applied",
+            "indexedCandidateCount": 12,
+            "offeredCandidateCount": 4,
+            "eligibleCandidateCount": 12
+          }
+        },
+        {
+          "label": "Recuperación inicial del catálogo",
+          "rules": [
+            {
+              "rule": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+              "actual": 4,
+              "reason": "El catálogo aportó 4 candidato(s).",
+              "result": "PASS",
+              "ruleId": "CATALOG-RETRIEVAL-001"
+            }
+          ],
+          "stage": "db_search",
+          "inputs": {
+            "radiusKm": 1.012179374902135
+          },
+          "status": "PASS",
+          "outputs": {
+            "candidateCount": 4
+          },
+          "summary": "4 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+          "decision": {
+            "reason": "Hay candidatos persistidos para evaluar.",
+            "status": "PASS",
+            "outcome": "CATALOG_POOL_AVAILABLE",
+            "triggeredActions": [
+              "ANALYZE_COVERAGE"
+            ]
+          },
+          "component": "ExperienceCatalog.findVerifiedWithin",
+          "candidates": [
+            {
+              "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+              "name": "San Telmo Historic Walking Tour",
+              "chosen": false,
+              "detail": "sin datos adicionales",
+              "source": "db",
+              "offered": true
+            },
+            {
+              "id": "af952df1-4b53-4454-a531-0f68e0a1a068",
+              "name": "Museo Histórico Nacional",
+              "chosen": false,
+              "detail": "sin datos adicionales",
+              "source": "db",
+              "offered": true
+            },
+            {
+              "id": "1c605c97-c4b3-4ef0-899c-142ae191b3ed",
+              "name": "Plaza Dorrego",
+              "chosen": false,
+              "detail": "sin datos adicionales",
+              "source": "db",
+              "offered": true
+            },
+            {
+              "id": "c0264701-7b0e-4270-ab67-33dc70353934",
+              "name": "El Zanjón de Granados (historic ruins)",
+              "chosen": false,
+              "detail": "sin datos adicionales",
+              "source": "db",
+              "offered": true
+            }
+          ],
+          "candidateDecisions": [
+            {
+              "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+              "name": "San Telmo Historic Walking Tour",
+              "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+              "source": "db",
+              "status": "ELIGIBLE",
+              "reasonCodes": [
+                "CATALOG_MATCH"
+              ]
+            },
+            {
+              "id": "af952df1-4b53-4454-a531-0f68e0a1a068",
+              "name": "Museo Histórico Nacional",
+              "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+              "source": "db",
+              "status": "ELIGIBLE",
+              "reasonCodes": [
+                "CATALOG_MATCH"
+              ]
+            },
+            {
+              "id": "1c605c97-c4b3-4ef0-899c-142ae191b3ed",
+              "name": "Plaza Dorrego",
+              "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+              "source": "db",
+              "status": "ELIGIBLE",
+              "reasonCodes": [
+                "CATALOG_MATCH"
+              ]
+            },
+            {
+              "id": "c0264701-7b0e-4270-ab67-33dc70353934",
+              "name": "El Zanjón de Granados (historic ruins)",
+              "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+              "source": "db",
+              "status": "ELIGIBLE",
+              "reasonCodes": [
+                "CATALOG_MATCH"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Ranking de Experiences",
+          "rules": [
+            {
+              "rule": "Ordenar Experiences por relevancia semántica y calidad",
+              "actual": 12,
+              "reason": "El ranking determinístico consume únicamente Experiences verificadas.",
+              "result": "PASS",
+              "ruleId": "EXPERIENCE-RANK-001"
+            }
+          ],
+          "stage": "candidate_pool",
+          "inputs": {
+            "eligibleCount": 12,
+            "requestedThemes": [
+              "history"
+            ],
+            "initialCatalogCount": 12,
+            "postAcquisitionCatalogCount": 12
+          },
+          "status": "PASS",
+          "outputs": {
+            "bySource": {
+              "refill": 0,
+              "catalog": 12,
+              "discovery": 0
+            },
+            "offeredCandidateCount": 12
+          },
+          "summary": "Se evaluaron 12 experiencias elegibles y se ofrecieron 12 candidatas (12 catálogo, 0 adquisición, 0 discovery).",
+          "decision": {
+            "reason": "El pool quedó limitado por capacidad, sin imponer formatos legacy.",
+            "status": "PASS",
+            "outcome": "EXPERIENCE_POOL_RANKED",
+            "reasonCodes": [],
+            "triggeredActions": [
+              "RUN_DAILY_PLANNING"
+            ]
+          },
+          "component": "ExperienceRankingEngine",
+          "candidates": [
+            {
+              "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+              "name": "San Telmo Historic Walking Tour",
+              "chosen": false,
+              "detail": "score total 2.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 2,
+                "qualityBonus": 3.146365548060118,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 2,
+                "preferenceScore": 2,
+                "semanticSimilarity": 0.6929380893707275
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            },
+            {
+              "id": "af952df1-4b53-4454-a531-0f68e0a1a068",
+              "name": "Museo Histórico Nacional",
+              "chosen": false,
+              "detail": "score total 1.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 1,
+                "qualityBonus": 3.5,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 1,
+                "preferenceScore": 1,
+                "semanticSimilarity": 0.6530068516731262
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            },
+            {
+              "id": "1c605c97-c4b3-4ef0-899c-142ae191b3ed",
+              "name": "Plaza Dorrego",
+              "chosen": false,
+              "detail": "score total 1.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 1,
+                "qualityBonus": 3.5,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 1,
+                "preferenceScore": 1,
+                "semanticSimilarity": 0.5103856477256314
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            },
+            {
+              "id": "c0264701-7b0e-4270-ab67-33dc70353934",
+              "name": "El Zanjón de Granados (historic ruins)",
+              "chosen": false,
+              "detail": "score total 0.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6520565152168274
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            },
+            {
+              "id": "d56e24cf-e5c3-486a-a5cd-dae340a4b4ca",
+              "name": "Mercado San Telmo",
+              "chosen": false,
+              "detail": "score total 0.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 3.5,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6490916013717651
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            },
+            {
+              "id": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+              "name": "Monumento Canto al Trabajo",
+              "chosen": false,
+              "detail": "score total 0.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6437505483627319
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            },
+            {
+              "id": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+              "name": "Museo de las Escuelas",
+              "chosen": false,
+              "detail": "score total 0.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6290815064037298
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            },
+            {
+              "id": "ee46f0c3-262a-4caa-91ee-bddcf9766c76",
+              "name": "Carnavales de la Calle Defensa",
+              "chosen": false,
+              "detail": "score total 0.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6276365518569946
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            },
+            {
+              "id": "e11d073a-78b9-4e68-87ad-77268015930a",
+              "name": "Casa Mínima",
+              "chosen": false,
+              "detail": "score total 0.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6227277702906066
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            },
+            {
+              "id": "a0d0cb81-d2c4-4bf7-9844-5e43d1087c36",
+              "name": "Monumento a Pedro de Mendoza",
+              "chosen": false,
+              "detail": "score total 0.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6145670413970947
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            },
+            {
+              "id": "f9d02141-9e09-4747-984a-c21e7b74deae",
+              "name": "Solar French",
+              "chosen": false,
+              "detail": "score total 0.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.5670286585995158
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            },
+            {
+              "id": "6c0f0376-d3a8-417b-980a-9148a10acd23",
+              "name": "Plaza 30'000 compañeros",
+              "chosen": false,
+              "detail": "score total 0.000",
+              "source": "db",
+              "offered": true,
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.5651294589042664
+              },
+              "coverageContribution": {
+                "themes": []
+              }
+            }
+          ],
+          "candidatePool": {
+            "bySource": {
+              "refill": 0,
+              "catalog": 12,
+              "discovery": 0
+            },
+            "eligibleCount": 12,
+            "llmWindowCount": 12,
+            "initialCatalogCount": 12,
+            "postAcquisitionCatalogCount": 12
+          },
+          "candidateDecisions": [
+            {
+              "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+              "name": "San Telmo Historic Walking Tour",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 2,
+                "qualityBonus": 3.146365548060118,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 2,
+                "preferenceScore": 2,
+                "semanticSimilarity": 0.6929380893707275
+              }
+            },
+            {
+              "id": "af952df1-4b53-4454-a531-0f68e0a1a068",
+              "name": "Museo Histórico Nacional",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 1,
+                "qualityBonus": 3.5,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 1,
+                "preferenceScore": 1,
+                "semanticSimilarity": 0.6530068516731262
+              }
+            },
+            {
+              "id": "1c605c97-c4b3-4ef0-899c-142ae191b3ed",
+              "name": "Plaza Dorrego",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 1,
+                "qualityBonus": 3.5,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 1,
+                "preferenceScore": 1,
+                "semanticSimilarity": 0.5103856477256314
+              }
+            },
+            {
+              "id": "c0264701-7b0e-4270-ab67-33dc70353934",
+              "name": "El Zanjón de Granados (historic ruins)",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6520565152168274
+              }
+            },
+            {
+              "id": "d56e24cf-e5c3-486a-a5cd-dae340a4b4ca",
+              "name": "Mercado San Telmo",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 3.5,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6490916013717651
+              }
+            },
+            {
+              "id": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+              "name": "Monumento Canto al Trabajo",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6437505483627319
+              }
+            },
+            {
+              "id": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+              "name": "Museo de las Escuelas",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6290815064037298
+              }
+            },
+            {
+              "id": "ee46f0c3-262a-4caa-91ee-bddcf9766c76",
+              "name": "Carnavales de la Calle Defensa",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6276365518569946
+              }
+            },
+            {
+              "id": "e11d073a-78b9-4e68-87ad-77268015930a",
+              "name": "Casa Mínima",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6227277702906066
+              }
+            },
+            {
+              "id": "a0d0cb81-d2c4-4bf7-9844-5e43d1087c36",
+              "name": "Monumento a Pedro de Mendoza",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.6145670413970947
+              }
+            },
+            {
+              "id": "f9d02141-9e09-4747-984a-c21e7b74deae",
+              "name": "Solar French",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.5670286585995158
+              }
+            },
+            {
+              "id": "6c0f0376-d3a8-417b-980a-9148a10acd23",
+              "name": "Plaza 30'000 compañeros",
+              "reason": "Entró al pool V2 por relevancia.",
+              "source": "db",
+              "status": "RANKED",
+              "reasonCodes": [
+                "INSIDE_EXPERIENCE_POOL"
+              ],
+              "scoreBreakdown": {
+                "totalScore": 0,
+                "qualityBonus": 0,
+                "diversityBonus": 0,
+                "proximityBonus": 0,
+                "preferenceBonus": 0,
+                "preferenceScore": 0,
+                "semanticSimilarity": 0.5651294589042664
+              }
+            }
+          ]
+        },
+        {
+          "label": "Ranking semántico",
+          "rules": [
+            {
+              "rule": "Usar similitud semántica solo cuando fue solicitada y está disponible",
+              "actual": "applied",
+              "reason": "La similitud se incorporó al ranking.",
+              "result": "PASS",
+              "ruleId": "RANK-SEMANTIC-001"
+            },
+            {
+              "rule": "Un candidato sin embedding no equivale a score semántico cero",
+              "reason": "La ausencia de embedding se conserva como señal no medida; otras señales pueden mantener el candidato.",
+              "result": "PASS",
+              "ruleId": "RANK-UNKNOWN-001"
+            }
+          ],
+          "stage": "embeddings",
+          "inputs": {
+            "model": "nomic-embed-text",
+            "provider": "ollama",
+            "eligibleCandidateCount": 12
+          },
+          "status": "PASS",
+          "outputs": {
+            "measuredRatio": 1,
+            "indexedCandidateCount": 12,
+            "offeredCandidateCount": 12
+          },
+          "summary": "Ranking semántico solicitado y aplicado sobre 12 candidato(s) elegible(s) del destino: 12 tenían un vector compatible con el índice activo y se ofrecieron 12 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+          "decision": {
+            "reason": "Índice semántico compatible disponible.",
+            "status": "PASS",
+            "outcome": "SEMANTIC_SIGNAL_APPLIED",
+            "reasonCodes": [
+              "APPLIED"
+            ],
+            "triggeredActions": [
+              "BUILD_RANKED_WINDOW"
+            ]
+          },
+          "component": "VectorStoreService + pgvector",
+          "semanticRanking": {
+            "model": "nomic-embed-text",
+            "status": "applied",
+            "provider": "ollama",
+            "dimensions": 256,
+            "documentVersion": 3,
+            "indexedCandidateCount": 12,
+            "offeredCandidateCount": 12,
+            "eligibleCandidateCount": 12
+          }
+        },
+        {
+          "label": "Planificación diaria determinística",
+          "rules": [
+            {
+              "rule": "Mantener exactamente los buckets de días solicitados por el planner",
+              "actual": 1,
+              "reason": "El solver devolvió 1 bucket(s) de día.",
+              "result": "PASS",
+              "ruleId": "PLAN-DAYS-001"
+            },
+            {
+              "rule": "No seleccionar candidatos que el solver haya marcado como no factibles",
+              "reason": "0 candidato(s) quedaron fuera con reason codes explícitos.",
+              "result": "PASS",
+              "ruleId": "PLAN-FEASIBILITY-001"
+            },
+            {
+              "rule": "Declarar si las estimaciones de traslado son aproximadas",
+              "actual": false,
+              "reason": "El solver informa estimaciones de traslado no aproximadas.",
+              "result": "PASS",
+              "ruleId": "PLAN-TRAVEL-001"
+            }
+          ],
+          "stage": "daily_planning",
+          "inputs": {
+            "solver": "GreedyDailyPlanningSolver",
+            "iterations": 1,
+            "approximateTravel": false
+          },
+          "status": "PASS",
+          "outputs": {
+            "days": [
+              {
+                "dayNumber": 1,
+                "experienceCount": 5,
+                "totalTravelMinutes": 30.40501666666666,
+                "utilizationMinutes": 648.6708333333331,
+                "totalWalkingMinutes": 48.67083333333333,
+                "totalExperienceMinutes": 618.2658166666666
+              }
+            ],
+            "score": 5,
+            "selectedCount": 5,
+            "unselectedCount": 0,
+            "residualCapacity": [
+              {
+                "dayNumber": 1,
+                "meaningful": false,
+                "availableMinutes": 11.32916666666688
+              }
+            ]
+          },
+          "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 5 Experience(s) seleccionada(s), 0 sin seleccionar (score total 5). Las estimaciones de traslado usadas son reales.",
+          "decision": {
+            "reason": "El solver produjo una asignación determinística y físicamente evaluable.",
+            "status": "PASS",
+            "outcome": "DAILY_PLAN_BUILT",
+            "reasonCodes": [
+              "PLANNING_COMPLETED"
+            ],
+            "triggeredActions": [
+              "VALIDATE_COMPLETENESS",
+              "VALIDATE_FORMAT_COVERAGE"
+            ]
+          },
+          "component": "GreedyDailyPlanningSolver",
+          "dailyPlanning": {
+            "days": [
+              {
+                "dayNumber": 1,
+                "experienceCount": 5,
+                "totalTravelMinutes": 30.40501666666666,
+                "utilizationMinutes": 648.6708333333331,
+                "totalWalkingMinutes": 48.67083333333333,
+                "totalExperienceMinutes": 618.2658166666666
+              }
+            ],
+            "score": 5,
+            "solver": "GreedyDailyPlanningSolver",
+            "routing": {
+              "fallbackCount": 0,
+              "providerCounts": {
+                "geoapify": 6
+              },
+              "externalEstimateCount": 4,
+              "internalEstimateCount": 2,
+              "approximateEstimateCount": 0
+            },
+            "dayCount": 1,
+            "iterations": 1,
+            "selectedCount": 5,
+            "unselectedCount": 0,
+            "residualCapacity": [
+              {
+                "dayNumber": 1,
+                "meaningful": false,
+                "availableMinutes": 11.32916666666688
+              }
+            ],
+            "approximateTravel": false
+          },
+          "candidateDecisions": [
+            {
+              "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+              "name": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+              "order": 1,
+              "reason": "Asignada al día 1 en posición 1; pasó la factibilidad del solver.",
+              "status": "SELECTED",
+              "dayNumber": 1,
+              "reasonCodes": [
+                "FEASIBLE_AND_SELECTED"
+              ]
+            },
+            {
+              "id": "af952df1-4b53-4454-a531-0f68e0a1a068",
+              "name": "af952df1-4b53-4454-a531-0f68e0a1a068",
+              "order": 2,
+              "reason": "Asignada al día 1 en posición 2; pasó la factibilidad del solver.",
+              "status": "SELECTED",
+              "dayNumber": 1,
+              "reasonCodes": [
+                "FEASIBLE_AND_SELECTED"
+              ]
+            },
+            {
+              "id": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+              "name": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+              "order": 3,
+              "reason": "Asignada al día 1 en posición 3; pasó la factibilidad del solver.",
+              "status": "SELECTED",
+              "dayNumber": 1,
+              "reasonCodes": [
+                "FEASIBLE_AND_SELECTED"
+              ]
+            },
+            {
+              "id": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+              "name": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+              "order": 4,
+              "reason": "Asignada al día 1 en posición 4; pasó la factibilidad del solver.",
+              "status": "SELECTED",
+              "dayNumber": 1,
+              "reasonCodes": [
+                "FEASIBLE_AND_SELECTED"
+              ]
+            },
+            {
+              "id": "c0264701-7b0e-4270-ab67-33dc70353934",
+              "name": "c0264701-7b0e-4270-ab67-33dc70353934",
+              "order": 5,
+              "reason": "Asignada al día 1 en posición 5; pasó la factibilidad del solver.",
+              "status": "SELECTED",
+              "dayNumber": 1,
+              "reasonCodes": [
+                "FEASIBLE_AND_SELECTED"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Completitud del itinerario",
+          "rules": [
+            {
+              "rule": "Cada día debe tener un uso razonable cuando existen candidatos viables",
+              "reason": "No se detectaron días subutilizados con alternativas viables.",
+              "result": "PASS",
+              "ruleId": "COMP-DAY-USAGE-001"
+            }
+          ],
+          "stage": "tour_completeness",
+          "inputs": {
+            "retryAttempted": false
+          },
+          "status": "PASS",
+          "outputs": {
+            "issues": [],
+            "complete": true
+          },
+          "summary": "El itinerario generado hace un uso razonable de los días solicitados.",
+          "decision": {
+            "reason": "La política de completitud no detectó déficit accionable.",
+            "status": "PASS",
+            "outcome": "TOUR_COMPLETE",
+            "reasonCodes": [],
+            "triggeredActions": [
+              "CONTINUE"
+            ]
+          },
+          "component": "TourCompletenessValidator",
+          "providerStatus": "success",
+          "tourCompleteness": {
+            "issues": [],
+            "complete": true,
+            "retryAttempted": false
+          }
+        }
+      ],
+      "runtime": {
+        "buildCommit": "unknown",
+        "buildTimestamp": "unknown"
+      },
+      "version": 4,
+      "canonicalRequest": {
+        "days": 1,
+        "intent": {
+          "intents": [
+            "walk"
+          ],
+          "interests": [
+            "history"
+          ],
+          "explorationStyle": "balanced",
+          "additionalPreferences": "caminata histórica por San Telmo"
+        },
+        "mobility": {
+          "travelPace": "moderate",
+          "accessibilityNeeds": [],
+          "allowedTransportationModes": [
+            "walking"
+          ],
+          "maxWalkingDistancePerDayMeters": 5000,
+          "maxContinuousWalkingDistanceMeters": 3000
+        },
+        "groupType": "solo",
+        "categories": [],
+        "startDates": [],
+        "budgetLevel": "medium",
+        "destination": {
+          "label": "San Telmo, Buenos Aires, Argentina",
+          "latitude": -34.6214013,
+          "longitude": -58.37375,
+          "scaleHint": "settlement"
+        },
+        "excludeTours": [],
+        "contractVersion": 1,
+        "dietaryRestrictions": [],
+        "skipImageGeneration": true,
+        "includeExistingExperiences": true
+      },
+      "executionSummary": {
+        "status": "completed",
+        "orderedStages": [
+          {
+            "stage": "preference_interpretation",
+            "status": "WARN",
+            "ordinal": 1,
+            "summary": "Preferencias estructuradas aplicadas con respaldo determinístico.",
+            "component": "PreferenceInterpreterService"
+          },
+          {
+            "stage": "tour_intent",
+            "counts": {
+              "requestedDays": 1
+            },
+            "status": "INFO",
+            "ordinal": 2,
+            "outcome": "INTENT_ACCEPTED",
+            "summary": "Temas: history. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"caminata histórica por San Telmo\".",
+            "component": "TourGenerationRequest"
+          },
+          {
+            "stage": "destination_resolution",
+            "status": "PASS",
+            "ordinal": 3,
+            "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+            "summary": "\"San Telmo, Buenos Aires, Argentina\" resolvió a un límite real de ciudad: San Telmo. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:San Telmo, Buenos Aires, Argentina.",
+            "component": "DestinationResolutionService"
+          },
+          {
+            "stage": "anchor_geo_resolution",
+            "status": "PASS",
+            "ordinal": 4,
+            "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+            "component": "AreaRouteAnchorResolverService"
+          },
+          {
+            "stage": "coverage_analysis",
+            "counts": {
+              "portfolioTarget": 4,
+              "totalDistinctEligibleExperiences": 12
+            },
+            "status": "PASS",
+            "ordinal": 5,
+            "outcome": "none",
+            "summary": "Portafolio suficiente: 12 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets solicitados satisfechos.",
+            "component": "FacetRetrievalService"
+          },
+          {
+            "stage": "db_search",
+            "counts": {
+              "candidateCount": 4
+            },
+            "status": "PASS",
+            "ordinal": 6,
+            "outcome": "CATALOG_POOL_AVAILABLE",
+            "summary": "4 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+            "component": "ExperienceCatalog.findVerifiedWithin"
+          },
+          {
+            "stage": "candidate_pool",
+            "counts": {
+              "offeredCandidateCount": 12
+            },
+            "status": "PASS",
+            "ordinal": 7,
+            "outcome": "EXPERIENCE_POOL_RANKED",
+            "summary": "Se evaluaron 12 experiencias elegibles y se ofrecieron 12 candidatas (12 catálogo, 0 adquisición, 0 discovery).",
+            "component": "ExperienceRankingEngine"
+          },
+          {
+            "stage": "embeddings",
+            "counts": {
+              "measuredRatio": 1,
+              "indexedCandidateCount": 12,
+              "offeredCandidateCount": 12
+            },
+            "status": "PASS",
+            "ordinal": 8,
+            "outcome": "SEMANTIC_SIGNAL_APPLIED",
+            "summary": "Ranking semántico solicitado y aplicado sobre 12 candidato(s) elegible(s) del destino: 12 tenían un vector compatible con el índice activo y se ofrecieron 12 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+            "component": "VectorStoreService + pgvector"
+          },
+          {
+            "stage": "daily_planning",
+            "counts": {
+              "score": 5,
+              "selectedCount": 5,
+              "unselectedCount": 0
+            },
+            "status": "PASS",
+            "ordinal": 9,
+            "outcome": "DAILY_PLAN_BUILT",
+            "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 5 Experience(s) seleccionada(s), 0 sin seleccionar (score total 5). Las estimaciones de traslado usadas son reales.",
+            "component": "GreedyDailyPlanningSolver"
+          },
+          {
+            "stage": "tour_completeness",
+            "status": "PASS",
+            "ordinal": 10,
+            "outcome": "TOUR_COMPLETE",
+            "summary": "El itinerario generado hace un uso razonable de los días solicitados.",
+            "component": "TourCompletenessValidator"
+          },
+          {
+            "stage": "tour_experience_materialization",
+            "counts": {
+              "componentSnapshots": 7,
+              "selectedExperiences": 5
+            },
+            "status": "PASS",
+            "ordinal": 11,
+            "outcome": "TOUR_EXPERIENCES_PERSISTED",
+            "summary": "5 TourExperience snapshot(s) persistidos desde Experience verificadas.",
+            "component": "Prisma.TourExperience"
+          }
+        ],
+        "rejectedProposals": 0,
+        "acceptedExperiences": 5,
+        "selectedExperiences": 5
+      },
+      "tourCompleteness": {
+        "issues": [],
+        "complete": true,
+        "retryAttempted": false
+      },
+      "materializedTourExperiences": [
+        {
+          "order": 1,
+          "dayNumber": 1,
+          "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+          "durationHours": 2.304430277777777,
+          "componentCount": 3
+        },
+        {
+          "order": 2,
+          "dayNumber": 1,
+          "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+          "durationHours": 2,
+          "componentCount": 1
+        },
+        {
+          "order": 3,
+          "dayNumber": 1,
+          "experienceId": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+          "durationHours": 2,
+          "componentCount": 1
+        },
+        {
+          "order": 4,
+          "dayNumber": 1,
+          "experienceId": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+          "durationHours": 1.999999999999998,
+          "componentCount": 1
+        },
+        {
+          "order": 5,
+          "dayNumber": 1,
+          "experienceId": "c0264701-7b0e-4270-ab67-33dc70353934",
+          "durationHours": 2,
+          "componentCount": 1
+        }
+      ]
+    },
+    "generationStatus": "completed",
+    "generationMessage": "¡Listo! 5 experiencias generadas exitosamente.",
+    "generationRequest": {
+      "days": 1,
+      "intent": {
+        "intents": [
+          "walk"
+        ],
+        "interests": [
+          "history"
+        ],
+        "explorationStyle": "balanced",
+        "additionalPreferences": "caminata histórica por San Telmo"
+      },
+      "mobility": {
+        "travelPace": "moderate",
+        "accessibilityNeeds": [],
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 5000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "groupType": "solo",
+      "categories": [],
+      "startDates": [],
+      "budgetLevel": "medium",
+      "destination": {
+        "label": "San Telmo, Buenos Aires, Argentina",
+        "latitude": -34.6214013,
+        "longitude": -58.37375,
+        "scaleHint": "settlement"
+      },
+      "excludeTours": [],
+      "contractVersion": 1,
+      "dietaryRestrictions": [],
+      "skipImageGeneration": true,
+      "includeExistingExperiences": true
+    },
+    "completenessNotice": null,
+    "generationCompletedAt": "2026-09-25T20:28:19.044Z"
+  },
+  "createdAt": "2026-09-25T20:27:44.915Z",
+  "updatedAt": "2026-09-25T20:28:19.051Z",
+  "experiences": [
+    {
+      "id": "677f88c9-e0ea-4aad-b340-108113e6bde7",
+      "tourId": "0d046085-3ad9-4d71-b5ce-916188704aeb",
+      "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+      "dayNumber": 1,
+      "order": 1,
+      "startTime": null,
+      "duration": 2.304430277777777,
+      "notes": null,
+      "travelFromPrevious": null,
+      "createdAt": "2026-09-25T20:28:18.938Z",
+      "updatedAt": "2026-09-25T20:28:18.938Z",
+      "experience": {
+        "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+        "canonicalName": "San Telmo Historic Walking Tour",
+        "description": "A walking experience exploring the colonial architecture, historic sites, and antique markets of San Telmo, including stops at Plaza Dorrego, El Mercado de San Telmo, and Lezama Park.",
+        "durationMinutes": 120,
+        "price": null,
+        "status": "VERIFIED",
+        "qualityScore": 3.146365548060118,
+        "latitude": null,
+        "longitude": null,
+        "openingHours": null,
+        "metadata": {
+          "source": "grounded_experience_discovery",
+          "themes": [
+            "history",
+            "architecture",
+            "tango",
+            "shopping"
+          ],
+          "traits": [
+            "antique fair",
+            "antique galleries",
+            "cobblestone streets",
+            "colonial architecture",
+            "free tour",
+            "historic monument"
+          ],
+          "intents": [
+            "walk"
+          ],
+          "classification": {
+            "state": "classified",
+            "themes": [
+              "history",
+              "architecture",
+              "tango",
+              "shopping"
+            ],
+            "traits": [
+              "colonial architecture",
+              "antique galleries",
+              "historic monument",
+              "free tour"
+            ],
+            "intents": [
+              "walk"
+            ],
+            "modelId": "qwen/qwen3.8-27b",
+            "promptVersion": 1,
+            "reasoningEvidence": [
+              {
+                "facet": "theme:history",
+                "reason": "Evidence mentions the San Telmo Fair's origins, Plaza Dorrego as the second oldest square, and the area being designated a national historic monument.",
+                "evidenceKeys": [
+                  "ev-3",
+                  "ev-8"
+                ]
+              },
+              {
+                "facet": "theme:architecture",
+                "reason": "Evidence explicitly states visitors will admire San Telmo's colonial architecture.",
+                "evidenceKeys": [
+                  "ev-4"
+                ]
+              },
+              {
+                "facet": "theme:tango",
+                "reason": "Evidence lists 'Tango: History and legends' as a specific component of the tour.",
+                "evidenceKeys": [
+                  "ev-8"
+                ]
+              },
+              {
+                "facet": "theme:shopping",
+                "reason": "Evidence mentions walking along 'antique galleries' and 'El Mercado de San Telmo', which are shopping venues.",
+                "evidenceKeys": [
+                  "ev-4"
+                ]
+              },
+              {
+                "facet": "intent:walk",
+                "reason": "The experience is explicitly titled a 'Walking Tour' and described as a 'Free Walking Tour'.",
+                "evidenceKeys": [
+                  "ev-4",
+                  "ev-8"
+                ]
+              },
+              {
+                "facet": "trait:colonial architecture",
+                "reason": "Directly cited in the evidence as a key feature to admire.",
+                "evidenceKeys": [
+                  "ev-4"
+                ]
+              },
+              {
+                "facet": "trait:antique galleries",
+                "reason": "Directly cited in the evidence as a location visited during the tour.",
+                "evidenceKeys": [
+                  "ev-4"
+                ]
+              },
+              {
+                "facet": "trait:historic monument",
+                "reason": "Evidence states the area has been 'designated a national historic monument'.",
+                "evidenceKeys": [
+                  "ev-8"
+                ]
+              },
+              {
+                "facet": "trait:free tour",
+                "reason": "Evidence explicitly describes it as a 'Free Walking Tour'.",
+                "evidenceKeys": [
+                  "ev-8"
+                ]
+              }
+            ]
+          }
+        },
+        "mediaStatus": "ENRICHED",
+        "mediaUpdatedAt": "2026-09-25T20:27:45.755Z",
+        "mediaError": null,
+        "embeddingProvider": "ollama",
+        "embeddingModel": "nomic-embed-text",
+        "embeddingDimensions": 256,
+        "embeddingDocumentVersion": 3,
+        "embeddedAt": "2026-09-25T20:21:59.564Z",
+        "createdAt": "2026-09-25T20:21:59.506Z",
+        "updatedAt": "2026-09-25T20:27:45.787Z",
+        "components": [
+          {
+            "id": "ad889f4e-b8db-4d6b-a3c4-da737f5d157e",
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "geoEntityId": "d7bc539e-cd98-4e57-b438-3eaac4ed0020",
+            "order": null,
+            "role": "venue",
+            "required": true
+          },
+          {
+            "id": "58683152-c933-4a56-94f4-6f395ae29cfb",
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "geoEntityId": "74806aca-8fcc-4ef0-9932-e5e1e703dcc6",
+            "order": null,
+            "role": "venue",
+            "required": true
+          },
+          {
+            "id": "d60bdd33-6d75-46dc-b0f2-fe292a69b1ac",
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "geoEntityId": "869d7769-0717-4b93-9390-8572d090a1e9",
+            "order": null,
+            "role": "venue",
+            "required": true
+          }
+        ],
+        "traits": [
+          {
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "traitDefinitionId": "e960d51b-a9b4-4347-823f-784cdd8b8884"
+          },
+          {
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "traitDefinitionId": "e69bc610-ed0e-432a-af45-6018e47f2226"
+          },
+          {
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "traitDefinitionId": "6e202092-32b4-47d9-b915-fab0c230a2f8"
+          },
+          {
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "traitDefinitionId": "584dc575-1df7-4daf-87cf-99303763302c"
+          },
+          {
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "traitDefinitionId": "db0d209d-5a34-4bde-b840-225280a8f6b1"
+          },
+          {
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "traitDefinitionId": "31a28442-f25c-4bd1-8738-8b0ebd416230"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "de356370-2bdc-4aac-a4b5-e7c365952ecd",
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "source": "What to do in San Telmo",
+            "url": "https://buenosairesfreewalks.com/barrios/san-telmo/what-to-do-in-san-telmo/",
+            "title": "What to do in San Telmo",
+            "snippet": "The San Telmo Fair takes place every Sunday and originated around the famous Dorrego Square, the second oldest square in the city after Plaza ...",
+            "discoveredAt": "2026-09-25T20:21:59.506Z"
+          },
+          {
+            "id": "f9e64783-ad61-44f6-96db-37beeb8b4ddb",
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "source": "San Telmo Walking Tour (with Reviews)",
+            "url": "https://www.tripadvisor.com/AttractionProductReview-g312741-d25466746-San_Telmo_Walking_Tour-Buenos_Aires_Capital_Federal_District.html",
+            "title": "San Telmo Walking Tour (with Reviews)",
+            "snippet": "You'll admire San Telmo ́s colonial architecture, walk along the Lezama Park, the antique galleries, Plaza Dorrego, El Mercado de San Telmo and other iconic ...",
+            "discoveredAt": "2026-09-25T20:21:59.506Z"
+          },
+          {
+            "id": "936c4712-b2d0-491e-841a-8365f92d3e9f",
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "source": "The BEST Free Walking Tours in San Telmo, Buenos Aires!",
+            "url": "https://www.guruwalk.com/buenos-aires/tag/san-telmo",
+            "title": "The BEST Free Walking Tours in San Telmo, Buenos Aires!",
+            "snippet": "San Telmo essential free tour: Tango: History and legends, markets and museums. Duration: 2 hours ・ designated a national historic monument ・ been a National ...",
+            "discoveredAt": "2026-09-25T20:21:59.506Z"
+          }
+        ],
+        "media": [
+          {
+            "id": "8b29d1de-0f30-4cc6-8e54-a03ba476f0bd",
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Buenos_Aires_-_Plaza_Dorrego_-_20061204b.jpg/1280px-Buenos_Aires_-_Plaza_Dorrego_-_20061204b.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 1807,
+            "caption": "Buenos Aires - Plaza Dorrego - 20061204b",
+            "author": "Taken by the uploader, w:es:Usuario:Barcex",
+            "authorUrl": null,
+            "license": "CC BY-SA 3.0",
+            "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Buenos_Aires_-_Plaza_Dorrego_-_20061204b.jpg",
+            "position": 0,
+            "createdAt": "2026-09-25T20:27:45.756Z",
+            "updatedAt": "2026-09-25T20:27:45.756Z"
+          },
+          {
+            "id": "dbfdc6b7-81c6-40bf-91ba-dae3c4d96041",
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282361237604%29.jpg/1280px-Mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282361237604%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 757,
+            "caption": "Mercado de San Telmo, Buenos Aires, Argentina (2361237604)",
+            "author": "Carlos Adampol Galindo from DF, México",
+            "authorUrl": null,
+            "license": "CC BY-SA 2.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mercado_de_San_Telmo,_Buenos_Aires,_Argentina_(2361237604).jpg",
+            "position": 1,
+            "createdAt": "2026-09-25T20:27:45.759Z",
+            "updatedAt": "2026-09-25T20:27:45.759Z"
+          },
+          {
+            "id": "ebf6be8d-1c5e-4b66-ae83-93292b53e73a",
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282361236956%29.jpg/1280px-Mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282361236956%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 327,
+            "caption": "Mercado de San Telmo, Buenos Aires, Argentina (2361236956)",
+            "author": "Carlos Adampol Galindo from DF, México",
+            "authorUrl": null,
+            "license": "CC BY-SA 2.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mercado_de_San_Telmo,_Buenos_Aires,_Argentina_(2361236956).jpg",
+            "position": 2,
+            "createdAt": "2026-09-25T20:27:45.767Z",
+            "updatedAt": "2026-09-25T20:27:45.767Z"
+          },
+          {
+            "id": "fbf6f3a7-afca-477f-9957-69296a138892",
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/El_Ch%C3%A9_en_el_mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282360404227%29.jpg/1280px-El_Ch%C3%A9_en_el_mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282360404227%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 671,
+            "caption": "El Ché en el mercado de San Telmo, Buenos Aires, Argentina (2360404227)",
+            "author": "Carlos Adampol Galindo from DF, México",
+            "authorUrl": null,
+            "license": "CC BY-SA 2.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:El_Ch%C3%A9_en_el_mercado_de_San_Telmo,_Buenos_Aires,_Argentina_(2360404227).jpg",
+            "position": 3,
+            "createdAt": "2026-09-25T20:27:45.779Z",
+            "updatedAt": "2026-09-25T20:27:45.779Z"
+          },
+          {
+            "id": "c40fcd5d-545a-41a8-99d7-ec5e24e231aa",
+            "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Tango_dancers_in_Buenos_Aires%2C_Argentina._%2833570798082%29.jpg/1280px-Tango_dancers_in_Buenos_Aires%2C_Argentina._%2833570798082%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 800,
+            "caption": "Tango dancers in Buenos Aires, Argentina. (33570798082)",
+            "author": "Ralf Steinberger from Milan, Berlin + Munich, Italy + Germany",
+            "authorUrl": null,
+            "license": "CC BY 2.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tango_dancers_in_Buenos_Aires,_Argentina._(33570798082).jpg",
+            "position": 4,
+            "createdAt": "2026-09-25T20:27:45.784Z",
+            "updatedAt": "2026-09-25T20:27:45.784Z"
+          }
+        ],
+        "mediaPresentation": {
+          "photos": [
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Buenos_Aires_-_Plaza_Dorrego_-_20061204b.jpg/1280px-Buenos_Aires_-_Plaza_Dorrego_-_20061204b.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 1807,
+              "caption": "Buenos Aires - Plaza Dorrego - 20061204b",
+              "author": "Taken by the uploader, w:es:Usuario:Barcex",
+              "authorUrl": null,
+              "license": "CC BY-SA 3.0",
+              "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Buenos_Aires_-_Plaza_Dorrego_-_20061204b.jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282361237604%29.jpg/1280px-Mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282361237604%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 757,
+              "caption": "Mercado de San Telmo, Buenos Aires, Argentina (2361237604)",
+              "author": "Carlos Adampol Galindo from DF, México",
+              "authorUrl": null,
+              "license": "CC BY-SA 2.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mercado_de_San_Telmo,_Buenos_Aires,_Argentina_(2361237604).jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282361236956%29.jpg/1280px-Mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282361236956%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 327,
+              "caption": "Mercado de San Telmo, Buenos Aires, Argentina (2361236956)",
+              "author": "Carlos Adampol Galindo from DF, México",
+              "authorUrl": null,
+              "license": "CC BY-SA 2.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mercado_de_San_Telmo,_Buenos_Aires,_Argentina_(2361236956).jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/El_Ch%C3%A9_en_el_mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282360404227%29.jpg/1280px-El_Ch%C3%A9_en_el_mercado_de_San_Telmo%2C_Buenos_Aires%2C_Argentina_%282360404227%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 671,
+              "caption": "El Ché en el mercado de San Telmo, Buenos Aires, Argentina (2360404227)",
+              "author": "Carlos Adampol Galindo from DF, México",
+              "authorUrl": null,
+              "license": "CC BY-SA 2.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:El_Ch%C3%A9_en_el_mercado_de_San_Telmo,_Buenos_Aires,_Argentina_(2360404227).jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Tango_dancers_in_Buenos_Aires%2C_Argentina._%2833570798082%29.jpg/1280px-Tango_dancers_in_Buenos_Aires%2C_Argentina._%2833570798082%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 800,
+              "caption": "Tango dancers in Buenos Aires, Argentina. (33570798082)",
+              "author": "Ralf Steinberger from Milan, Berlin + Munich, Italy + Germany",
+              "authorUrl": null,
+              "license": "CC BY 2.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tango_dancers_in_Buenos_Aires,_Argentina._(33570798082).jpg",
+              "provider": "wikimedia_commons"
+            }
+          ],
+          "primaryPhoto": {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Buenos_Aires_-_Plaza_Dorrego_-_20061204b.jpg/1280px-Buenos_Aires_-_Plaza_Dorrego_-_20061204b.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "caption": "Buenos Aires - Plaza Dorrego - 20061204b",
+            "author": "Taken by the uploader, w:es:Usuario:Barcex",
+            "license": "CC BY-SA 3.0",
+            "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+            "isFallback": false
+          },
+          "source": "DOCUMENTARY"
+        }
+      },
+      "components": [
+        {
+          "id": "8e6cc69d-fd38-4981-9555-6a662b94c311",
+          "tourExperienceId": "677f88c9-e0ea-4aad-b340-108113e6bde7",
+          "geoEntityId": "d7bc539e-cd98-4e57-b438-3eaac4ed0020",
+          "order": null,
+          "role": "venue",
+          "required": true,
+          "name": "Plaza Dorrego",
+          "latitude": -34.6204739,
+          "longitude": -58.3717792,
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -58.3717792,
+              -34.6204739
+            ]
+          }
+        },
+        {
+          "id": "0d65720f-315b-4dd4-a55f-a6cf3e8a6cd9",
+          "tourExperienceId": "677f88c9-e0ea-4aad-b340-108113e6bde7",
+          "geoEntityId": "74806aca-8fcc-4ef0-9932-e5e1e703dcc6",
+          "order": null,
+          "role": "venue",
+          "required": true,
+          "name": "Mercado de San Telmo",
+          "latitude": -34.6190607,
+          "longitude": -58.3722354,
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -58.3722354,
+              -34.6190607
+            ]
+          }
+        },
+        {
+          "id": "91a04c10-f6a2-4550-be26-b86b8d869a35",
+          "tourExperienceId": "677f88c9-e0ea-4aad-b340-108113e6bde7",
+          "geoEntityId": "869d7769-0717-4b93-9390-8572d090a1e9",
+          "order": null,
+          "role": "venue",
+          "required": true,
+          "name": "Parque Lezama",
+          "latitude": -34.6271301,
+          "longitude": -58.369574,
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -58.369574,
+              -34.6271301
+            ]
+          }
+        }
+      ],
+      "experiencePresentation": {
+        "geometryMode": "MULTI_POINT",
+        "hasIntrinsicSequence": false
+      }
+    },
+    {
+      "id": "5dfbd0b5-e145-4f20-bb3d-00ba4f7806c1",
+      "tourId": "0d046085-3ad9-4d71-b5ce-916188704aeb",
+      "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+      "dayNumber": 1,
+      "order": 2,
+      "startTime": null,
+      "duration": 2,
+      "notes": null,
+      "travelFromPrevious": {
+        "mode": "walking",
+        "provider": "geoapify",
+        "approximate": false,
+        "distanceMeters": 218,
+        "walkingMinutes": 3.6186,
+        "durationMinutes": 3.6186,
+        "walkingDistanceMeters": 218
+      },
+      "createdAt": "2026-09-25T20:28:18.949Z",
+      "updatedAt": "2026-09-25T20:28:18.949Z",
+      "experience": {
+        "id": "af952df1-4b53-4454-a531-0f68e0a1a068",
+        "canonicalName": "Museo Histórico Nacional",
+        "description": "Historia de la Argentina, pero todos los subtítulos están en español y exhaustiva ni bien organizada. Entrada por donación",
+        "durationMinutes": null,
+        "price": null,
+        "status": "VERIFIED",
+        "qualityScore": 3.5,
+        "latitude": null,
+        "longitude": null,
+        "openingHours": null,
+        "metadata": {
+          "source": "grounded_experience_discovery",
+          "themes": [
+            "history"
+          ],
+          "traits": [
+            "donation entry",
+            "national museum"
+          ],
+          "intents": [
+            "visit"
+          ],
+          "classification": {
+            "state": "classified",
+            "themes": [
+              "history"
+            ],
+            "traits": [
+              "donation entry",
+              "national museum"
+            ],
+            "intents": [
+              "visit"
+            ],
+            "modelId": "qwen/qwen3.8-27b",
+            "promptVersion": 1,
+            "reasoningEvidence": [
+              {
+                "facet": "theme:history",
+                "reason": "The name 'Museo Histórico Nacional' and the description 'Historia de la Argentina' directly indicate a focus on history.",
+                "evidenceKeys": [
+                  "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+                  "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+                ]
+              },
+              {
+                "facet": "intent:visit",
+                "reason": "The evidence describes a physical location with an address and entry conditions, supporting the intent to visit the site.",
+                "evidenceKeys": [
+                  "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+                  "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+                ]
+              },
+              {
+                "facet": "trait:donation entry",
+                "reason": "The evidence explicitly states 'Entrada por donación' (Entry by donation).",
+                "evidenceKeys": [
+                  "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+                ]
+              },
+              {
+                "facet": "trait:national museum",
+                "reason": "The name 'Museo Histórico Nacional' and the English translation 'National Historical Museum' support this trait.",
+                "evidenceKeys": [
+                  "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c"
+                ]
+              }
+            ]
+          }
+        },
+        "mediaStatus": "ENRICHED",
+        "mediaUpdatedAt": "2026-09-25T20:27:43.536Z",
+        "mediaError": null,
+        "embeddingProvider": "ollama",
+        "embeddingModel": "nomic-embed-text",
+        "embeddingDimensions": 256,
+        "embeddingDocumentVersion": 3,
+        "embeddedAt": "2026-09-25T20:21:59.430Z",
+        "createdAt": "2026-09-25T20:21:59.347Z",
+        "updatedAt": "2026-09-25T20:27:43.559Z",
+        "components": [
+          {
+            "id": "43e94577-62fc-4490-ab28-99077a90c12e",
+            "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+            "geoEntityId": "03648b26-0fbc-4292-8d7e-7814bd757dbb",
+            "order": null,
+            "role": "venue",
+            "required": true
+          }
+        ],
+        "traits": [
+          {
+            "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+            "traitDefinitionId": "f4174db6-c4e6-4fd0-a55a-08ee0efa520b"
+          },
+          {
+            "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+            "traitDefinitionId": "820a3fb3-e656-4173-9db1-51d273136fbb"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "744a9d8e-4f42-4175-adc0-fccdf84ad7a7",
+            "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+            "source": "wikivoyage",
+            "url": null,
+            "title": "Museo Histórico Nacional",
+            "snippet": "Historia de la Argentina, pero todos los subtítulos están en español y exhaustiva ni bien organizada. Entrada por donación",
+            "discoveredAt": "2026-09-25T20:21:59.347Z"
+          },
+          {
+            "id": "e7bf1df9-c224-49c6-9f1c-a616e0ae2d3f",
+            "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+            "source": "geoapify",
+            "url": null,
+            "title": "Museo Histórico Nacional",
+            "snippet": "National Historical Museum, Defensa 1652, San Telmo, C1143 AAH Buenos Aires, Argentina",
+            "discoveredAt": "2026-09-25T20:21:59.347Z"
+          }
+        ],
+        "media": [
+          {
+            "id": "2caadda8-c70c-4b1f-b495-358bea808869",
+            "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Carteles_Museo_Historico_Nacional_%2B_Iglesia_Ortodoxa_Rusa%2C_Buenos_Aires.jpg/1280px-Carteles_Museo_Historico_Nacional_%2B_Iglesia_Ortodoxa_Rusa%2C_Buenos_Aires.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 868,
+            "caption": "Carteles Museo Historico Nacional + Iglesia Ortodoxa Rusa, Buenos Aires",
+            "author": "Geogast",
+            "authorUrl": null,
+            "license": "CC BY 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Carteles_Museo_Historico_Nacional_%2B_Iglesia_Ortodoxa_Rusa,_Buenos_Aires.jpg",
+            "position": 0,
+            "createdAt": "2026-09-25T20:27:43.546Z",
+            "updatedAt": "2026-09-25T20:27:43.546Z"
+          },
+          {
+            "id": "8f511424-98b6-4afa-b013-3ea1f46bf354",
+            "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Museo_Hist%C3%B3rico_Nacional_3.jpg/1280px-Museo_Hist%C3%B3rico_Nacional_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 1600,
+            "caption": "Museo Histórico Nacional 3",
+            "author": "Yami Cairu",
+            "authorUrl": null,
+            "license": "CC BY-SA 4.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Museo_Hist%C3%B3rico_Nacional_3.jpg",
+            "position": 1,
+            "createdAt": "2026-09-25T20:27:43.553Z",
+            "updatedAt": "2026-09-25T20:27:43.553Z"
+          },
+          {
+            "id": "765002f4-94d6-4689-9353-bd8aba8a612c",
+            "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Museo_Hist%C3%B3rico_Nacional_2.jpg/1280px-Museo_Hist%C3%B3rico_Nacional_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 900,
+            "caption": "Museo Histórico Nacional 2",
+            "author": "Yami Cairu",
+            "authorUrl": null,
+            "license": "CC BY-SA 4.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Museo_Hist%C3%B3rico_Nacional_2.jpg",
+            "position": 2,
+            "createdAt": "2026-09-25T20:27:43.555Z",
+            "updatedAt": "2026-09-25T20:27:43.555Z"
+          },
+          {
+            "id": "5fa2070b-dded-4d77-ab37-a730060e0d38",
+            "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Museo_Hist%C3%B3rico_Nacional55.jpg/1280px-Museo_Hist%C3%B3rico_Nacional55.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 1600,
+            "caption": "Museo Histórico Nacional55",
+            "author": "Yami Cairu",
+            "authorUrl": null,
+            "license": "CC BY-SA 4.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Museo_Hist%C3%B3rico_Nacional55.jpg",
+            "position": 3,
+            "createdAt": "2026-09-25T20:27:43.556Z",
+            "updatedAt": "2026-09-25T20:27:43.556Z"
+          },
+          {
+            "id": "b8622574-1cc2-4d46-befc-d8a15ec2d78c",
+            "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+            "provider": "wikimedia_commons",
+            "url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Personalidades_en_el_museo_historico_nacional_1901.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+            "width": 1200,
+            "height": 955,
+            "caption": "Personalidades en el museo historico nacional 1901",
+            "author": "Unknown authorUnknown author",
+            "authorUrl": null,
+            "license": "Public domain",
+            "licenseUrl": null,
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Personalidades_en_el_museo_historico_nacional_1901.jpg",
+            "position": 4,
+            "createdAt": "2026-09-25T20:27:43.558Z",
+            "updatedAt": "2026-09-25T20:27:43.558Z"
+          }
+        ],
+        "mediaPresentation": {
+          "photos": [
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Carteles_Museo_Historico_Nacional_%2B_Iglesia_Ortodoxa_Rusa%2C_Buenos_Aires.jpg/1280px-Carteles_Museo_Historico_Nacional_%2B_Iglesia_Ortodoxa_Rusa%2C_Buenos_Aires.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 868,
+              "caption": "Carteles Museo Historico Nacional + Iglesia Ortodoxa Rusa, Buenos Aires",
+              "author": "Geogast",
+              "authorUrl": null,
+              "license": "CC BY 3.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Carteles_Museo_Historico_Nacional_%2B_Iglesia_Ortodoxa_Rusa,_Buenos_Aires.jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Museo_Hist%C3%B3rico_Nacional_3.jpg/1280px-Museo_Hist%C3%B3rico_Nacional_3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 1600,
+              "caption": "Museo Histórico Nacional 3",
+              "author": "Yami Cairu",
+              "authorUrl": null,
+              "license": "CC BY-SA 4.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Museo_Hist%C3%B3rico_Nacional_3.jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Museo_Hist%C3%B3rico_Nacional_2.jpg/1280px-Museo_Hist%C3%B3rico_Nacional_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 900,
+              "caption": "Museo Histórico Nacional 2",
+              "author": "Yami Cairu",
+              "authorUrl": null,
+              "license": "CC BY-SA 4.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Museo_Hist%C3%B3rico_Nacional_2.jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Museo_Hist%C3%B3rico_Nacional55.jpg/1280px-Museo_Hist%C3%B3rico_Nacional55.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 1600,
+              "caption": "Museo Histórico Nacional55",
+              "author": "Yami Cairu",
+              "authorUrl": null,
+              "license": "CC BY-SA 4.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Museo_Hist%C3%B3rico_Nacional55.jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Personalidades_en_el_museo_historico_nacional_1901.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+              "width": 1200,
+              "height": 955,
+              "caption": "Personalidades en el museo historico nacional 1901",
+              "author": "Unknown authorUnknown author",
+              "authorUrl": null,
+              "license": "Public domain",
+              "licenseUrl": null,
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Personalidades_en_el_museo_historico_nacional_1901.jpg",
+              "provider": "wikimedia_commons"
+            }
+          ],
+          "primaryPhoto": {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Carteles_Museo_Historico_Nacional_%2B_Iglesia_Ortodoxa_Rusa%2C_Buenos_Aires.jpg/1280px-Carteles_Museo_Historico_Nacional_%2B_Iglesia_Ortodoxa_Rusa%2C_Buenos_Aires.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "caption": "Carteles Museo Historico Nacional + Iglesia Ortodoxa Rusa, Buenos Aires",
+            "author": "Geogast",
+            "license": "CC BY 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+            "isFallback": false
+          },
+          "source": "DOCUMENTARY"
+        }
+      },
+      "components": [
+        {
+          "id": "ef628c56-6db0-4562-8b1e-0666aa5f047f",
+          "tourExperienceId": "5dfbd0b5-e145-4f20-bb3d-00ba4f7806c1",
+          "geoEntityId": "03648b26-0fbc-4292-8d7e-7814bd757dbb",
+          "order": null,
+          "role": "venue",
+          "required": true,
+          "name": "Museo Histórico Nacional",
+          "latitude": -34.6270114,
+          "longitude": -58.3705803,
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -58.3705803,
+              -34.6270114
+            ]
+          }
+        }
+      ],
+      "experiencePresentation": {
+        "geometryMode": "POINT",
+        "hasIntrinsicSequence": false
+      }
+    },
+    {
+      "id": "29b9f284-77a5-4f5d-8afe-50ea363f0625",
+      "tourId": "0d046085-3ad9-4d71-b5ce-916188704aeb",
+      "experienceId": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+      "dayNumber": 1,
+      "order": 3,
+      "startTime": null,
+      "duration": 2,
+      "notes": null,
+      "travelFromPrevious": {
+        "mode": "walking",
+        "provider": "geoapify",
+        "approximate": false,
+        "distanceMeters": 687,
+        "walkingMinutes": 10.7166,
+        "durationMinutes": 10.7166,
+        "walkingDistanceMeters": 687
+      },
+      "createdAt": "2026-09-25T20:28:18.960Z",
+      "updatedAt": "2026-09-25T20:28:18.960Z",
+      "experience": {
+        "id": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+        "canonicalName": "Museo de las Escuelas",
+        "description": "Museo de las Escuelas, Avenida Paseo Colón 1318, San Telmo, C1063 ADN Buenos Aires, Argentina",
+        "durationMinutes": null,
+        "price": null,
+        "status": "VERIFIED",
+        "qualityScore": null,
+        "latitude": null,
+        "longitude": null,
+        "openingHours": null,
+        "metadata": {
+          "source": "grounded_experience_discovery",
+          "themes": [],
+          "intents": [],
+          "classification": {
+            "state": "classified",
+            "themes": [],
+            "traits": [],
+            "intents": [],
+            "modelId": "qwen/qwen3.8-27b",
+            "promptVersion": 1,
+            "reasoningEvidence": []
+          }
+        },
+        "mediaStatus": "PENDING",
+        "mediaUpdatedAt": null,
+        "mediaError": null,
+        "embeddingProvider": "ollama",
+        "embeddingModel": "nomic-embed-text",
+        "embeddingDimensions": 256,
+        "embeddingDocumentVersion": 3,
+        "embeddedAt": "2026-09-25T20:21:59.278Z",
+        "createdAt": "2026-09-25T20:21:59.078Z",
+        "updatedAt": "2026-09-25T20:22:07.292Z",
+        "components": [
+          {
+            "id": "fe4162ec-a0cb-4c97-b39e-adc289497ad9",
+            "experienceId": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+            "geoEntityId": "795de811-c4d3-47ba-8beb-020b8a7b6beb",
+            "order": null,
+            "role": "venue",
+            "required": true
+          }
+        ],
+        "traits": [],
+        "evidence": [
+          {
+            "id": "345508e5-1162-4e78-a19c-c06df1d9fef5",
+            "experienceId": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+            "source": "geoapify",
+            "url": null,
+            "title": "Museo de las Escuelas",
+            "snippet": "Museo de las Escuelas, Avenida Paseo Colón 1318, San Telmo, C1063 ADN Buenos Aires, Argentina",
+            "discoveredAt": "2026-09-25T20:21:59.078Z"
+          }
+        ],
+        "media": [],
+        "mediaPresentation": {
+          "photos": [],
+          "primaryPhoto": {
+            "url": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80",
+            "caption": "Experiencia y descubrimiento turístico",
+            "author": "Curated Editorial Collection",
+            "license": "Unsplash / CC Editorial",
+            "isFallback": true
+          },
+          "source": "CURATED_FALLBACK"
+        }
+      },
+      "components": [
+        {
+          "id": "41dc5b0e-03ec-48fe-a973-636b90de1fd5",
+          "tourExperienceId": "29b9f284-77a5-4f5d-8afe-50ea363f0625",
+          "geoEntityId": "795de811-c4d3-47ba-8beb-020b8a7b6beb",
+          "order": null,
+          "role": "venue",
+          "required": true,
+          "name": "Museo de las Escuelas",
+          "latitude": -34.6231646,
+          "longitude": -58.3678119,
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -58.3678119,
+              -34.6231646
+            ]
+          }
+        }
+      ],
+      "experiencePresentation": {
+        "geometryMode": "POINT",
+        "hasIntrinsicSequence": false
+      }
+    },
+    {
+      "id": "30765a21-76d7-4831-8eeb-330ef0dc245e",
+      "tourId": "0d046085-3ad9-4d71-b5ce-916188704aeb",
+      "experienceId": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+      "dayNumber": 1,
+      "order": 4,
+      "startTime": null,
+      "duration": 1.999999999999998,
+      "notes": null,
+      "travelFromPrevious": {
+        "mode": "walking",
+        "provider": "geoapify",
+        "approximate": false,
+        "distanceMeters": 689,
+        "walkingMinutes": 10.28358333333333,
+        "durationMinutes": 10.28358333333333,
+        "walkingDistanceMeters": 689
+      },
+      "createdAt": "2026-09-25T20:28:18.964Z",
+      "updatedAt": "2026-09-25T20:28:18.964Z",
+      "experience": {
+        "id": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+        "canonicalName": "Monumento Canto al Trabajo",
+        "description": "Monumento Canto al Trabajo, Metrobus del Bajo, San Telmo, C1100 AAC Buenos Aires, Argentina",
+        "durationMinutes": null,
+        "price": null,
+        "status": "VERIFIED",
+        "qualityScore": null,
+        "latitude": null,
+        "longitude": null,
+        "openingHours": null,
+        "metadata": {
+          "source": "grounded_experience_discovery",
+          "themes": [
+            "art",
+            "architecture"
+          ],
+          "traits": [
+            "monument",
+            "sculpture"
+          ],
+          "intents": [
+            "visit"
+          ],
+          "classification": {
+            "state": "classified",
+            "themes": [
+              "art",
+              "architecture"
+            ],
+            "traits": [
+              "monument",
+              "sculpture"
+            ],
+            "intents": [
+              "visit"
+            ],
+            "modelId": "qwen/qwen3.8-27b",
+            "promptVersion": 1,
+            "reasoningEvidence": [
+              {
+                "facet": "theme:art",
+                "reason": "The name 'Monumento Canto al Trabajo' (Monument to the Song of Work) indicates it is a public art installation or sculpture, which falls under the art theme.",
+                "evidenceKeys": [
+                  "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f"
+                ]
+              },
+              {
+                "facet": "theme:architecture",
+                "reason": "As a 'Monumento' (monument), it is a physical structure or installation in the public space, which is a form of architectural or urban design element.",
+                "evidenceKeys": [
+                  "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f"
+                ]
+              },
+              {
+                "facet": "intent:visit",
+                "reason": "The experience is a specific landmark/monument, which is typically visited as a point of interest.",
+                "evidenceKeys": [
+                  "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f"
+                ]
+              },
+              {
+                "facet": "trait:monument",
+                "reason": "The name explicitly includes 'Monumento'.",
+                "evidenceKeys": [
+                  "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f"
+                ]
+              },
+              {
+                "facet": "trait:sculpture",
+                "reason": "Monuments of this type in public spaces are typically large-scale sculptures or installations.",
+                "evidenceKeys": [
+                  "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f"
+                ]
+              }
+            ]
+          }
+        },
+        "mediaStatus": "ENRICHED",
+        "mediaUpdatedAt": "2026-09-25T20:27:47.741Z",
+        "mediaError": null,
+        "embeddingProvider": "ollama",
+        "embeddingModel": "nomic-embed-text",
+        "embeddingDimensions": 256,
+        "embeddingDocumentVersion": 3,
+        "embeddedAt": "2026-09-25T20:21:59.412Z",
+        "createdAt": "2026-09-25T20:21:59.299Z",
+        "updatedAt": "2026-09-25T20:27:47.750Z",
+        "components": [
+          {
+            "id": "478c0220-ef67-412e-8bb9-74efee3e00b8",
+            "experienceId": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+            "geoEntityId": "05ea697e-aeb2-42ae-b2e6-a29c4468a784",
+            "order": null,
+            "role": "venue",
+            "required": true
+          }
+        ],
+        "traits": [
+          {
+            "experienceId": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+            "traitDefinitionId": "99f03233-6cb2-4452-8b8a-7303c6981632"
+          },
+          {
+            "experienceId": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+            "traitDefinitionId": "62c541f5-4d40-47c6-bd27-fcde21e7002f"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "ffd0e7f1-3f47-4c71-923f-f13393cf4c74",
+            "experienceId": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+            "source": "geoapify",
+            "url": null,
+            "title": "Monumento Canto al Trabajo",
+            "snippet": "Monumento Canto al Trabajo, Metrobus del Bajo, San Telmo, C1100 AAC Buenos Aires, Argentina",
+            "discoveredAt": "2026-09-25T20:21:59.299Z"
+          }
+        ],
+        "media": [
+          {
+            "id": "da792aeb-eb1b-4e8d-8242-aec2af6dce27",
+            "experienceId": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Monumento_al_Trabajo_en_Buenos_Aires.jpg/1280px-Monumento_al_Trabajo_en_Buenos_Aires.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 675,
+            "caption": "Monumento al Trabajo en Buenos Aires",
+            "author": "Cary Bass-Deschênes",
+            "authorUrl": null,
+            "license": "CC BY-SA 2.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Monumento_al_Trabajo_en_Buenos_Aires.jpg",
+            "position": 0,
+            "createdAt": "2026-09-25T20:27:47.742Z",
+            "updatedAt": "2026-09-25T20:27:47.742Z"
+          },
+          {
+            "id": "8e5cd007-3d0e-4df3-8e96-a67c1ca3db45",
+            "experienceId": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Monumento_al_Trabajo_en_Buenos_Aires_crop.jpg/1280px-Monumento_al_Trabajo_en_Buenos_Aires_crop.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 675,
+            "caption": "Monumento al Trabajo en Buenos Aires crop",
+            "author": "Cary Bass-Deschênes",
+            "authorUrl": null,
+            "license": "CC BY-SA 2.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Monumento_al_Trabajo_en_Buenos_Aires_crop.jpg",
+            "position": 1,
+            "createdAt": "2026-09-25T20:27:47.747Z",
+            "updatedAt": "2026-09-25T20:27:47.747Z"
+          }
+        ],
+        "mediaPresentation": {
+          "photos": [
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Monumento_al_Trabajo_en_Buenos_Aires.jpg/1280px-Monumento_al_Trabajo_en_Buenos_Aires.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 675,
+              "caption": "Monumento al Trabajo en Buenos Aires",
+              "author": "Cary Bass-Deschênes",
+              "authorUrl": null,
+              "license": "CC BY-SA 2.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Monumento_al_Trabajo_en_Buenos_Aires.jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Monumento_al_Trabajo_en_Buenos_Aires_crop.jpg/1280px-Monumento_al_Trabajo_en_Buenos_Aires_crop.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 675,
+              "caption": "Monumento al Trabajo en Buenos Aires crop",
+              "author": "Cary Bass-Deschênes",
+              "authorUrl": null,
+              "license": "CC BY-SA 2.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Monumento_al_Trabajo_en_Buenos_Aires_crop.jpg",
+              "provider": "wikimedia_commons"
+            }
+          ],
+          "primaryPhoto": {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Monumento_al_Trabajo_en_Buenos_Aires.jpg/1280px-Monumento_al_Trabajo_en_Buenos_Aires.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "caption": "Monumento al Trabajo en Buenos Aires",
+            "author": "Cary Bass-Deschênes",
+            "license": "CC BY-SA 2.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+            "isFallback": false
+          },
+          "source": "DOCUMENTARY"
+        }
+      },
+      "components": [
+        {
+          "id": "a7f71727-ef52-48a1-9e63-31237cbd17fb",
+          "tourExperienceId": "30765a21-76d7-4831-8eeb-330ef0dc245e",
+          "geoEntityId": "05ea697e-aeb2-42ae-b2e6-a29c4468a784",
+          "order": null,
+          "role": "venue",
+          "required": true,
+          "name": "Monumento Canto al Trabajo",
+          "latitude": -34.6177688,
+          "longitude": -58.3691116,
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -58.3691116,
+              -34.6177688
+            ]
+          }
+        }
+      ],
+      "experiencePresentation": {
+        "geometryMode": "POINT",
+        "hasIntrinsicSequence": false
+      }
+    },
+    {
+      "id": "a4732e6b-c7b9-428b-8086-c58b42f9ca91",
+      "tourId": "0d046085-3ad9-4d71-b5ce-916188704aeb",
+      "experienceId": "c0264701-7b0e-4270-ab67-33dc70353934",
+      "dayNumber": 1,
+      "order": 5,
+      "startTime": null,
+      "duration": 2,
+      "notes": null,
+      "travelFromPrevious": {
+        "mode": "walking",
+        "provider": "geoapify",
+        "approximate": false,
+        "distanceMeters": 334,
+        "walkingMinutes": 5.786233333333333,
+        "durationMinutes": 5.786233333333333,
+        "walkingDistanceMeters": 334
+      },
+      "createdAt": "2026-09-25T20:28:18.969Z",
+      "updatedAt": "2026-09-25T20:28:18.969Z",
+      "experience": {
+        "id": "c0264701-7b0e-4270-ab67-33dc70353934",
+        "canonicalName": "El Zanjón de Granados (historic ruins)",
+        "description": "El Zanjón de Granados (historic ruins), Defensa, San Telmo, C1100 AAF Buenos Aires, Argentina",
+        "durationMinutes": null,
+        "price": null,
+        "status": "VERIFIED",
+        "qualityScore": null,
+        "latitude": null,
+        "longitude": null,
+        "openingHours": null,
+        "metadata": {
+          "source": "grounded_experience_discovery",
+          "themes": [
+            "history"
+          ],
+          "traits": [
+            "historic ruins"
+          ],
+          "intents": [
+            "visit"
+          ],
+          "classification": {
+            "state": "classified",
+            "themes": [
+              "history"
+            ],
+            "traits": [
+              "historic ruins"
+            ],
+            "intents": [
+              "visit"
+            ],
+            "modelId": "qwen/qwen3.8-27b",
+            "promptVersion": 1,
+            "reasoningEvidence": [
+              {
+                "facet": "theme:history",
+                "reason": "The evidence explicitly identifies the location as 'historic ruins', which directly supports the history theme.",
+                "evidenceKeys": [
+                  "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329"
+                ]
+              },
+              {
+                "facet": "intent:visit",
+                "reason": "The evidence describes a specific physical location (historic ruins) with an address, which is a standard point of interest suitable for a visit.",
+                "evidenceKeys": [
+                  "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329"
+                ]
+              },
+              {
+                "facet": "trait:historic ruins",
+                "reason": "The name and description of the experience explicitly state it is 'historic ruins'.",
+                "evidenceKeys": [
+                  "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329"
+                ]
+              }
+            ]
+          }
+        },
+        "mediaStatus": "ENRICHED",
+        "mediaUpdatedAt": "2026-09-25T20:27:46.982Z",
+        "mediaError": null,
+        "embeddingProvider": "ollama",
+        "embeddingModel": "nomic-embed-text",
+        "embeddingDimensions": 256,
+        "embeddingDocumentVersion": 3,
+        "embeddedAt": "2026-09-25T20:21:59.369Z",
+        "createdAt": "2026-09-25T20:21:59.079Z",
+        "updatedAt": "2026-09-25T20:27:47.006Z",
+        "components": [
+          {
+            "id": "23ebdc99-8d82-4e4c-b700-1c219b709e22",
+            "experienceId": "c0264701-7b0e-4270-ab67-33dc70353934",
+            "geoEntityId": "9da234b1-a17f-4d1e-bb16-07de25b88acb",
+            "order": null,
+            "role": "venue",
+            "required": true
+          }
+        ],
+        "traits": [
+          {
+            "experienceId": "c0264701-7b0e-4270-ab67-33dc70353934",
+            "traitDefinitionId": "3af1b7c7-b625-4dca-8bc9-ea4578f14fa4"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "96aef435-88bc-42af-a14b-215b08c08350",
+            "experienceId": "c0264701-7b0e-4270-ab67-33dc70353934",
+            "source": "geoapify",
+            "url": null,
+            "title": "El Zanjón de Granados (historic ruins)",
+            "snippet": "El Zanjón de Granados (historic ruins), Defensa, San Telmo, C1100 AAF Buenos Aires, Argentina",
+            "discoveredAt": "2026-09-25T20:21:59.079Z"
+          }
+        ],
+        "media": [
+          {
+            "id": "6aad4bd1-83bf-4649-8065-55b256dd0b0b",
+            "experienceId": "c0264701-7b0e-4270-ab67-33dc70353934",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Buenos_Aires_-_San_Telmo_-_La_Casa_M%C3%ADnima.jpg/1280px-Buenos_Aires_-_San_Telmo_-_La_Casa_M%C3%ADnima.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 1801,
+            "caption": "Buenos Aires - San Telmo - La Casa Mínima",
+            "author": "Taken by the uploader, w:es:Usuario:Barcex",
+            "authorUrl": null,
+            "license": "CC BY-SA 3.0",
+            "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Buenos_Aires_-_San_Telmo_-_La_Casa_M%C3%ADnima.jpg",
+            "position": 0,
+            "createdAt": "2026-09-25T20:27:46.985Z",
+            "updatedAt": "2026-09-25T20:27:46.985Z"
+          },
+          {
+            "id": "1fa63d27-c610-43f8-bc28-6f2c751a7489",
+            "experienceId": "c0264701-7b0e-4270-ab67-33dc70353934",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Casa_Colectiva_Rivadavia.JPG/1280px-Casa_Colectiva_Rivadavia.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 900,
+            "caption": "Casa Colectiva Rivadavia",
+            "author": "Elsapucai",
+            "authorUrl": null,
+            "license": "Public domain",
+            "licenseUrl": null,
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Casa_Colectiva_Rivadavia.JPG",
+            "position": 1,
+            "createdAt": "2026-09-25T20:27:46.990Z",
+            "updatedAt": "2026-09-25T20:27:46.990Z"
+          },
+          {
+            "id": "94f8853d-30b0-432c-bd78-cd01605f20eb",
+            "experienceId": "c0264701-7b0e-4270-ab67-33dc70353934",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Nombres_de_la_Calle_Defensa%2C_Buenos_Aires.jpg/1280px-Nombres_de_la_Calle_Defensa%2C_Buenos_Aires.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 378,
+            "caption": "Nombres de la Calle Defensa, Buenos Aires",
+            "author": "Banfield",
+            "authorUrl": null,
+            "license": "CC BY-SA 3.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nombres_de_la_Calle_Defensa,_Buenos_Aires.jpg",
+            "position": 2,
+            "createdAt": "2026-09-25T20:27:46.993Z",
+            "updatedAt": "2026-09-25T20:27:46.993Z"
+          },
+          {
+            "id": "b440b73a-147e-4855-a8fc-6d9c9f7b96ac",
+            "experienceId": "c0264701-7b0e-4270-ab67-33dc70353934",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Lagenaria_siceraria_mate_bowls_-Argentina_-_Buenos_Aires_080_-_San_Telmo_Market.jpg/1280px-Lagenaria_siceraria_mate_bowls_-Argentina_-_Buenos_Aires_080_-_San_Telmo_Market.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 800,
+            "caption": "Lagenaria siceraria mate bowls -Argentina - Buenos Aires 080 - San Telmo Market",
+            "author": "McKay Savage",
+            "authorUrl": null,
+            "license": "CC BY 2.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lagenaria_siceraria_mate_bowls_-Argentina_-_Buenos_Aires_080_-_San_Telmo_Market.jpg",
+            "position": 3,
+            "createdAt": "2026-09-25T20:27:47.001Z",
+            "updatedAt": "2026-09-25T20:27:47.001Z"
+          },
+          {
+            "id": "687d01bd-1a7d-4164-8ae6-2238334e3c7b",
+            "experienceId": "c0264701-7b0e-4270-ab67-33dc70353934",
+            "provider": "wikimedia_commons",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Detalles1.jpg/1280px-Detalles1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "width": 1200,
+            "height": 1600,
+            "caption": "Detalles1",
+            "author": "CChrisDn",
+            "authorUrl": null,
+            "license": "CC BY-SA 4.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Detalles1.jpg",
+            "position": 4,
+            "createdAt": "2026-09-25T20:27:47.003Z",
+            "updatedAt": "2026-09-25T20:27:47.003Z"
+          }
+        ],
+        "mediaPresentation": {
+          "photos": [
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Buenos_Aires_-_San_Telmo_-_La_Casa_M%C3%ADnima.jpg/1280px-Buenos_Aires_-_San_Telmo_-_La_Casa_M%C3%ADnima.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 1801,
+              "caption": "Buenos Aires - San Telmo - La Casa Mínima",
+              "author": "Taken by the uploader, w:es:Usuario:Barcex",
+              "authorUrl": null,
+              "license": "CC BY-SA 3.0",
+              "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Buenos_Aires_-_San_Telmo_-_La_Casa_M%C3%ADnima.jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Casa_Colectiva_Rivadavia.JPG/1280px-Casa_Colectiva_Rivadavia.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 900,
+              "caption": "Casa Colectiva Rivadavia",
+              "author": "Elsapucai",
+              "authorUrl": null,
+              "license": "Public domain",
+              "licenseUrl": null,
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Casa_Colectiva_Rivadavia.JPG",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Nombres_de_la_Calle_Defensa%2C_Buenos_Aires.jpg/1280px-Nombres_de_la_Calle_Defensa%2C_Buenos_Aires.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 378,
+              "caption": "Nombres de la Calle Defensa, Buenos Aires",
+              "author": "Banfield",
+              "authorUrl": null,
+              "license": "CC BY-SA 3.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nombres_de_la_Calle_Defensa,_Buenos_Aires.jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Lagenaria_siceraria_mate_bowls_-Argentina_-_Buenos_Aires_080_-_San_Telmo_Market.jpg/1280px-Lagenaria_siceraria_mate_bowls_-Argentina_-_Buenos_Aires_080_-_San_Telmo_Market.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 800,
+              "caption": "Lagenaria siceraria mate bowls -Argentina - Buenos Aires 080 - San Telmo Market",
+              "author": "McKay Savage",
+              "authorUrl": null,
+              "license": "CC BY 2.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lagenaria_siceraria_mate_bowls_-Argentina_-_Buenos_Aires_080_-_San_Telmo_Market.jpg",
+              "provider": "wikimedia_commons"
+            },
+            {
+              "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Detalles1.jpg/1280px-Detalles1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "width": 1200,
+              "height": 1600,
+              "caption": "Detalles1",
+              "author": "CChrisDn",
+              "authorUrl": null,
+              "license": "CC BY-SA 4.0",
+              "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+              "sourceUrl": "https://commons.wikimedia.org/wiki/File:Detalles1.jpg",
+              "provider": "wikimedia_commons"
+            }
+          ],
+          "primaryPhoto": {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Buenos_Aires_-_San_Telmo_-_La_Casa_M%C3%ADnima.jpg/1280px-Buenos_Aires_-_San_Telmo_-_La_Casa_M%C3%ADnima.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "caption": "Buenos Aires - San Telmo - La Casa Mínima",
+            "author": "Taken by the uploader, w:es:Usuario:Barcex",
+            "license": "CC BY-SA 3.0",
+            "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+            "isFallback": false
+          },
+          "source": "DOCUMENTARY"
+        }
+      },
+      "components": [
+        {
+          "id": "95c2783f-59b2-47f1-9e8f-c6a1440ab766",
+          "tourExperienceId": "a4732e6b-c7b9-428b-8086-c58b42f9ca91",
+          "geoEntityId": "9da234b1-a17f-4d1e-bb16-07de25b88acb",
+          "order": null,
+          "role": "venue",
+          "required": true,
+          "name": "El Zanjón de Granados (historic ruins)",
+          "latitude": -34.6166864,
+          "longitude": -58.3717972,
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -58.3717972,
+              -34.6166864
+            ]
+          }
+        }
+      ],
+      "experiencePresentation": {
+        "geometryMode": "POINT",
+        "hasIntrinsicSequence": false
+      }
+    }
+  ],
+  "dayTotals": [
+    {
+      "dayNumber": 1,
+      "experienceCount": 5,
+      "totalExperienceMinutes": 618,
+      "totalTravelMinutes": 30,
+      "totalTravelWalkingMinutes": 30,
+      "totalMinutes": 649
+    }
+  ]
+}

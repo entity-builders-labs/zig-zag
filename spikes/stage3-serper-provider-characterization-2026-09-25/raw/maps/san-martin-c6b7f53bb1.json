@@ -1,0 +1,67 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "San Martín"
+  },
+  "capturedAt": "2026-09-25T12:54:56.952Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 1288
+  },
+  "data": {
+    "searchParameters": {
+      "q": "San Martín",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "engine": "google"
+    },
+    "ll": "@32.8021821,-96.7999207,17z",
+    "places": [
+      {
+        "position": 1,
+        "title": "San Martin Bakery and Restaurant",
+        "address": "3120 McKinney Ave, Dallas, TX 75204",
+        "latitude": 32.802182099999996,
+        "longitude": -96.7999207,
+        "rating": 4.5,
+        "ratingCount": 4431,
+        "type": "Restaurant",
+        "types": [
+          "Restaurant",
+          "Bakery",
+          "Breakfast restaurant",
+          "Brunch restaurant",
+          "Cafe",
+          "Cake shop",
+          "Diner",
+          "Family restaurant",
+          "Lunch restaurant",
+          "Pastry shop"
+        ],
+        "website": "http://sanmartinbakery.us/",
+        "phoneNumber": "(469) 802-6652",
+        "description": "Bright, airy, plant-filled Guatemalan import for casual coffee or meal, plus large take-out bakery.",
+        "openingHours": {
+          "Friday": "7 AM–9:30 PM",
+          "Saturday": "7 AM–9:30 PM",
+          "Sunday": "7 AM–9 PM",
+          "Monday": "7 AM–9 PM",
+          "Tuesday": "7 AM–9 PM",
+          "Wednesday": "7 AM–9 PM",
+          "Thursday": "7 AM–9 PM"
+        },
+        "bookingLinks": [
+          "https://www.opentable.com/restaurant/profile/1085668?ref=1068",
+          "https://www.google.com/maps/reserve/v/dine/c/na9yDtJxuX0?source=pa&opi=79508299"
+        ],
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOIcrt6YKqQ7k8lg5ENBQfICm8XkGwUNHcTIXcAH7pZKOGIAfeX4jpgOmgEv3iERPTGiXWkb3twy5q0aQd7KUeUKQSj3jxoJ81VIohebvKWojkrj1iSdAC8PnKvMKPRoF8wspui0pB0MftJ",
+        "cid": "13612974738015358054",
+        "fid": "0x864e999bca6ef10f:0xbceb00664bc58c66",
+        "placeId": "ChIJD_FuypuZToYRZozFS2YA67w"
+      }
+    ],
+    "credits": 3
+  }
+}

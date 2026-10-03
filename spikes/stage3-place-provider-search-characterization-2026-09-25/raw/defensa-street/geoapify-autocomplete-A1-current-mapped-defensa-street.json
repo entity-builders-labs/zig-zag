@@ -1,0 +1,5 @@
+{
+  "note": "PlaceData[] exactly as GeoapifyPlacesApiService.searchText returns it (production path)",
+  "mapped": [],
+  "failure": null
+}

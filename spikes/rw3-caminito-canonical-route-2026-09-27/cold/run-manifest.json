@@ -1,0 +1,25 @@
+{
+  "runLabel": "rw3-cold",
+  "tourId": "3ebf172f-ef0f-46d8-91b7-4d75744cb031",
+  "email": "rw3-spike-rw3-cold-1790535623357@example.com",
+  "baseUrl": "http://localhost:4033",
+  "requestFile": "request.json",
+  "createHttpMs": 37,
+  "generationStatus": "failed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 6057,
+  "startedAt": "2026-09-27T19:00:23.511Z",
+  "finishedAt": "2026-09-27T19:00:29.570Z",
+  "experimentalControls": {
+    "mobility": {
+      "maxWalkingDistancePerDayMeters": 50000,
+      "maxContinuousWalkingDistanceMeters": 20000,
+      "note": "walking caps intentionally non-binding (existing DTO upper bounds); purpose: isolate RW3 route/geography semantics. EXPERIMENTAL CONTROL ONLY -- not a product default, recommendation, or walking-policy change.",
+      "reachedPlanning": false
+    },
+    "coldPrecondition": "zigzag_spike_rw3 dropped/created/migrated; db-before.json proves 0 geo_entity / identity / experience / component rows",
+    "providersPinned": "serpapi grounded search; cloudflare @cf/qwen/qwen3.8-27b extractor (temperature 0, 900 tokens, enable_thinking=false, 60s); geoapify places; classification per repo .env (gemini); local Overpass :12345 + Nominatim :8088"
+  }
+}

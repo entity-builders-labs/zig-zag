@@ -1,0 +1,15 @@
+{
+  "runLabel": "santelmo-cold",
+  "tourId": "35d69f67-64b4-4510-9874-c64ddb6fa97f",
+  "email": "stage3-spike-santelmo-cold-1790194321491@example.com",
+  "baseUrl": "http://localhost:4010",
+  "requestFile": "request.json",
+  "createHttpMs": 34,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 163319,
+  "startedAt": "2026-09-23T20:12:01.660Z",
+  "finishedAt": "2026-09-23T20:14:44.990Z"
+}

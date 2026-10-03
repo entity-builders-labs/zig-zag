@@ -1,0 +1,60 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "El Zanjón de Granados",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:38.110Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 1269
+  },
+  "data": {
+    "searchParameters": {
+      "q": "El Zanjón de Granados",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.6166056,-58.3746424,18.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "El Zanjón de Granados",
+        "address": "Defensa 755, C1065 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6166056,
+        "longitude": -58.3720675,
+        "rating": 4.8,
+        "ratingCount": 5590,
+        "type": "Museum",
+        "types": [
+          "Museum",
+          "Archaeological museum",
+          "Historical place museum"
+        ],
+        "website": "http://www.elzanjon.com.ar/",
+        "phoneNumber": "+54 11 7078-1542",
+        "description": "Restored labyrinths & urban archaeology on the site of the first Buenos Aires settlement in 1536.",
+        "openingHours": {
+          "Friday": "11 AM–5 PM",
+          "Saturday": "11 AM–5 PM",
+          "Sunday": "11 AM–5 PM",
+          "Monday": "11 AM–5 PM",
+          "Tuesday": "11 AM–5 PM",
+          "Wednesday": "11 AM–5 PM",
+          "Thursday": "11 AM–5 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPO_0EbDHWGljsJkk1nnyPTKJoJ4OQf8nrhGLElA5jHk12gxUFmqNp-pglswdrkkSaOc0zq8Hru2rJGaoPRbiok7kBoArDPB4ytbzaICmo7caIoOeq1evlTN7KNKIzhQQIN4w",
+        "cid": "16388011771404495123",
+        "fid": "0x95bccb2ad35266c5:0xe36de9e0f17c2913",
+        "placeId": "ChIJxWZS0yrLvJUREyl88eDpbeM"
+      }
+    ],
+    "credits": 3
+  }
+}

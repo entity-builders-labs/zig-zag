@@ -1,0 +1,14 @@
+{
+  "mode": "request",
+  "verdict": "PASS",
+  "observed": {
+    "interests": [
+      "wine"
+    ],
+    "intents": [
+      "route_like",
+      "visit"
+    ]
+  },
+  "failures": []
+}

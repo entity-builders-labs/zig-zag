@@ -1,0 +1,16 @@
+{
+  "database": "zigzag_spike_stage5_rw1_cold4",
+  "capturedAt": "2026-09-25T22:35:45Z",
+  "geoEntity": 0,
+  "geoEntityByKind": {},
+  "geoEntityIdentity": 0,
+  "verifiedHintMemoryEntries": 0,
+  "duplicateIdentityRows": 0,
+  "duplicateVerifiedHintKeysWithinKind": [],
+  "experience": 0,
+  "experienceByStatus": {},
+  "experienceComponent": 0,
+  "duplicateExperienceNames": 0,
+  "experiences": [],
+  "geoEntities": []
+}

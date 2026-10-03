@@ -1,0 +1,118 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "Recoleta Cemetery",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "lang": "en",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 758,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Recoleta Cemetry",
+        "other_names": {
+          "name": "Cementerio de la Recoleta",
+          "name:es": "Cementerio de la Recoleta",
+          "name:pt": "Cemitério da Recoleta"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.3935953,
+        "lat": -34.5876575,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2094.6722419212447,
+        "formatted": "Recoleta Cemetry, Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "address_line1": "Recoleta Cemetry",
+        "address_line2": "Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ64+WH",
+        "plus_code_short": "CJ64+WH Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.5007324917980888,
+          "popularity": 7.65622506139933,
+          "confidence": 0.7875,
+          "match_type": "full_match"
+        },
+        "place_id": "51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+        "bbox": {
+          "lon1": -58.3951354,
+          "lat1": -34.5890966,
+          "lon2": -58.3918692,
+          "lat2": -34.5862094
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Cementerio Parque Recoleta",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido del Pilar",
+        "city": "Del Viso",
+        "iso3166_2": "AR-B",
+        "lon": -58.807163,
+        "lat": -34.4343569,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 43298.081112343636,
+        "formatted": "Cementerio Parque Recoleta, Del Viso, Partido del Pilar, Argentina",
+        "address_line1": "Cementerio Parque Recoleta",
+        "address_line2": "Del Viso, Partido del Pilar, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3H58V+74",
+        "rank": {
+          "importance": 0.08003523537041272,
+          "popularity": 5.175486296511731,
+          "confidence": 0.7,
+          "match_type": "full_match"
+        },
+        "place_id": "5148c5ff1d51674dc0595e25c401993741c0f00102f901d390c40f00000000c0020192031a43656d656e746572696f20506172717565205265636f6c657461",
+        "bbox": {
+          "lon1": -58.8095712,
+          "lat1": -34.4366224,
+          "lon2": -58.8048055,
+          "lat2": -34.4319616
+        }
+      }
+    ],
+    "query": {
+      "text": "Recoleta Cemetery"
+    }
+  }
+}

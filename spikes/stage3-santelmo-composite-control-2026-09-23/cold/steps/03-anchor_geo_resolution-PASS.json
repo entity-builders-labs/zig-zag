@@ -1,0 +1,51 @@
+{
+  "label": "Resolución geográfica de anchors",
+  "stage": "anchor_geo_resolution",
+  "inputs": {
+    "anchors": [
+      {
+        "usage": "geographic_scope",
+        "rawName": "San Telmo",
+        "priority": "soft"
+      }
+    ]
+  },
+  "status": "PASS",
+  "outputs": {
+    "anchors": [
+      {
+        "kind": "area",
+        "usage": "geographic_scope",
+        "status": "resolved",
+        "rawName": "San Telmo",
+        "geometry": {
+          "type": "Polygon"
+        },
+        "priority": "soft",
+        "provider": "openstreetmap",
+        "externalId": "osm:relation:2223069",
+        "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+        "osmBoundary": {
+          "id": "osm:relation:2223069",
+          "name": "San Telmo",
+          "tags": {
+            "name": "San Telmo",
+            "type": "boundary",
+            "boundary": "administrative",
+            "wikidata": "Q1026688",
+            "wikipedia": "es:San Telmo (Buenos Aires)",
+            "admin_level": "9"
+          },
+          "osmId": 2223069,
+          "osmType": "relation",
+          "geometry": {
+            "type": "Polygon"
+          }
+        },
+        "canonicalName": "San Telmo"
+      }
+    ]
+  },
+  "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+  "component": "AreaRouteAnchorResolverService"
+}

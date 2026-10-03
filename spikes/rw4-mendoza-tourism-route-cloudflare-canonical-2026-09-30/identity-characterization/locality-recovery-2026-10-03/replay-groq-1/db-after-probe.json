@@ -1,0 +1,16 @@
+{
+  "database": "zigzag_rw4_contextual_probe",
+  "capturedAt": "2026-10-03T15:54:55Z",
+  "geoEntity": 0,
+  "geoEntityByKind": {},
+  "geoEntityIdentity": 0,
+  "verifiedHintMemoryEntries": 0,
+  "duplicateIdentityRows": 0,
+  "duplicateVerifiedHintKeysWithinKind": [],
+  "experience": 0,
+  "experienceByStatus": {},
+  "experienceComponent": 0,
+  "duplicateExperienceNames": 0,
+  "experiences": [],
+  "geoEntities": []
+}

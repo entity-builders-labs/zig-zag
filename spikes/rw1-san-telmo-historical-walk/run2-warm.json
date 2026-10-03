@@ -1,0 +1,177 @@
+{
+  "run": "RUN 2 - WARM",
+  "preferenceInterpretation": {
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "userPrompt": "caminata histórica por San Telmo",
+    "anchoredPlaces": [
+      {
+        "kind": "area",
+        "rawName": "San Telmo",
+        "priority": "must"
+      }
+    ],
+    "preferredFacets": [
+      {
+        "key": "history",
+        "source": "wizard",
+        "dimension": "theme",
+        "confidence": 1,
+        "importance": 1
+      },
+      {
+        "key": "walk",
+        "source": "wizard",
+        "dimension": "intent",
+        "confidence": 1,
+        "importance": 1
+      }
+    ],
+    "positiveSemanticQuery": "historic walk in San Telmo"
+  },
+  "destinationResolution": {
+    "attemptedQueries": [
+      "forward:San Telmo, Buenos Aires, Argentina",
+      "reverse-country:-34.621401,-58.373750"
+    ],
+    "scale": "point",
+    "boundaryName": null,
+    "degradedReason": "no_area_candidate",
+    "summary": "\"San Telmo, Buenos Aires, Argentina\" no resolvió a un límite de ciudad/pueblo real — se usa el punto+radio de siempre. Nominatim no devolvió una ciudad/pueblo con límite utilizable. Intentos: forward:San Telmo, Buenos Aires, Argentina → reverse-country:-34.621401,-58.373750."
+  },
+  "initialCatalogLookup": {
+    "radiusKm": 25,
+    "candidateCount": 65,
+    "outcome": "CATALOG_POOL_AVAILABLE"
+  },
+  "coveragePasses": [
+    {
+      "offeredCandidateCount": 15,
+      "analyzedCandidateCount": 65,
+      "eligibleCandidateCount": 65,
+      "blockingDeficits": [
+        "missing_requested_intent"
+      ],
+      "acquisitionAction": "needs_additional_discovery"
+    },
+    {
+      "offeredCandidateCount": 15,
+      "analyzedCandidateCount": 66,
+      "eligibleCandidateCount": 66,
+      "blockingDeficits": [],
+      "acquisitionAction": "none"
+    }
+  ],
+  "discoveryPasses": [
+    {
+      "routedProviders": [
+        "wikivoyage",
+        "osm",
+        "google_places",
+        "web"
+      ],
+      "structuredProviders": [
+        {
+          "status": "success",
+          "provider": "wikivoyage"
+        },
+        {
+          "status": "success",
+          "provider": "osm"
+        },
+        {
+          "status": "success",
+          "provider": "google_places"
+        }
+      ],
+      "structuredCandidateCount": 493,
+      "webCandidateCount": 1,
+      "webResults": [
+        {
+          "query": "San Telmo, Buenos Aires, Argentina historic sites history walking tours walks historic walk in San Telmo",
+          "status": "success",
+          "evidenceCount": 5,
+          "groundedModel": "google-ai-mode",
+          "candidateCount": 1,
+          "extractorModel": "gemini-3.5-flash-lite",
+          "groundingStatus": "applied",
+          "groundedProvider": "serpapi",
+          "validationErrors": [],
+          "extractorProvider": "gemini"
+        }
+      ],
+      "candidateCount": 494,
+      "observationCount": 527
+    }
+  ],
+  "entityResolutionPasses": [
+    {
+      "resolvedCount": 225
+    }
+  ],
+  "geographicValidationPasses": [
+    {
+      "totalResults": 219,
+      "byStrategyOrStatus": {
+        "venue_centric": 44,
+        "REJECTED": 133,
+        "canonical_geometry": 42
+      }
+    }
+  ],
+  "catalogMaterializationPasses": [
+    {
+      "rejectedCount": 419,
+      "materializedCount": 75,
+      "uniquePersistedIds": 64,
+      "totalPersistedIdOccurrences": 75
+    }
+  ],
+  "finalSelectedExperiences": [
+    {
+      "id": "cddafdfe-e10f-47a4-8c2d-09b6facfae17",
+      "canonicalName": "Museo Etnográfico Juan Bautista Ambrosetti",
+      "componentCount": 1,
+      "themes": null,
+      "intents": null
+    },
+    {
+      "id": "99ea58fe-9c2a-4f48-ac85-78df7c1ee7df",
+      "canonicalName": "Museo Nacional del Cabildo",
+      "componentCount": 1,
+      "themes": null,
+      "intents": null
+    },
+    {
+      "id": "d9128501-a296-44f0-a659-a77b65d9120f",
+      "canonicalName": "75 aniversario de la puesta en marcha del primer subterráneo de buenos aires",
+      "componentCount": 1,
+      "themes": null,
+      "intents": null
+    },
+    {
+      "id": "7d536c37-f3dd-41c5-a877-5f9b5e724e3e",
+      "canonicalName": "Museo Histórico y Numismático del Banco de la Nación Argentina",
+      "componentCount": 1,
+      "themes": null,
+      "intents": null
+    },
+    {
+      "id": "585de429-73ae-45e4-a3bb-b6249ba5485b",
+      "canonicalName": "Museo de la Emigración Gallega en la Argentina",
+      "componentCount": 1,
+      "themes": null,
+      "intents": null
+    }
+  ],
+  "tourCompleteness": {
+    "issues": [
+      {
+        "code": "UNMET_REQUESTED_FORMAT",
+        "message": "You asked for \"walk\" experiences, but none made it into the final itinerary.",
+        "requestedIntent": "walk"
+      }
+    ],
+    "complete": false
+  }
+}

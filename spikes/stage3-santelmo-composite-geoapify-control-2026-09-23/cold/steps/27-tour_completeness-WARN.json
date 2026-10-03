@@ -1,0 +1,52 @@
+{
+  "label": "Completitud del itinerario",
+  "rules": [
+    {
+      "rule": "Cada día debe tener un uso razonable cuando existen candidatos viables",
+      "reason": "Formato pedido sin cubrir: \"walk\".",
+      "result": "WARN",
+      "ruleId": "COMP-DAY-USAGE-001"
+    }
+  ],
+  "stage": "tour_completeness",
+  "inputs": {
+    "retryAttempted": false
+  },
+  "status": "WARN",
+  "outputs": {
+    "issues": [
+      {
+        "code": "UNMET_REQUESTED_FORMAT",
+        "message": "You asked for \"walk\" experiences, but none made it into the final itinerary.",
+        "requestedIntent": "walk"
+      }
+    ],
+    "complete": false
+  },
+  "summary": "Formato pedido sin cubrir: \"walk\".",
+  "decision": {
+    "reason": "Existen días que podrían estar mejor utilizados, o formatos pedidos sin cubrir, según la política actual.",
+    "status": "WARN",
+    "outcome": "TOUR_UNDERFILLED",
+    "reasonCodes": [
+      "UNMET_REQUESTED_FORMAT"
+    ],
+    "triggeredActions": [
+      "RETRY_ONCE"
+    ]
+  },
+  "component": "TourCompletenessValidator",
+  "degradedReason": "underfilled_day",
+  "providerStatus": "failed",
+  "tourCompleteness": {
+    "issues": [
+      {
+        "code": "UNMET_REQUESTED_FORMAT",
+        "message": "You asked for \"walk\" experiences, but none made it into the final itinerary.",
+        "requestedIntent": "walk"
+      }
+    ],
+    "complete": false,
+    "retryAttempted": false
+  }
+}

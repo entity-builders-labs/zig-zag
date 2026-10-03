@@ -1,0 +1,43 @@
+{
+    "name": "San Telmo & Market Tour",
+    "description": "A walking tour through the oldest streets of San Telmo that highlights colonial architecture, Argentine history, and the neighborhood's traditional market.",
+    "themes": [
+      "history",
+      "architecture"
+    ],
+    "traits": [
+      "colonial era",
+      "street market"
+    ],
+    "intents": [
+      "walk"
+    ],
+    "suggestedDurationMinutes": 120,
+    "componentHints": [
+      {
+        "key": "oldest-streets",
+        "name": "oldest streets of Buenos Aires",
+        "role": "route",
+        "expectedKind": "ROUTE",
+        "evidenceKeys": [
+          "ev-2"
+        ],
+        "supportSpan": "walk the oldest streets of Buenos Aires"
+      },
+      {
+        "key": "san-telmo-market",
+        "name": "San Telmo Market",
+        "role": "venue",
+        "expectedKind": "PLACE",
+        "evidenceKeys": [
+          "ev-2"
+        ],
+        "supportSpan": "San Telmo & Market Tour"
+      }
+    ],
+    "evidenceKeys": [
+      "ev-2"
+    ],
+    "shortReason": "Evidence explicitly names a tour that includes the oldest streets and the San Telmo market.",
+    "orderedByEvidence": false
+  }

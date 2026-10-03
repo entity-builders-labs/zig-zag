@@ -1,0 +1,506 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Mafalda",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:21.329Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 953
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Mafalda",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.6034613,-58.3816038,12z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Plaza Mafalda",
+        "address": "Conde 145, C1437 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.5806439,
+        "longitude": -58.4456115,
+        "rating": 4.3,
+        "ratingCount": 11626,
+        "type": "City park",
+        "types": [
+          "City park",
+          "Park",
+          "Tourist attraction"
+        ],
+        "website": "https://www.buenosaires.gob.ar/participacionciudadana/participa-en-obras-de-tu-barrio",
+        "description": "Street art at this kid-friendly park includes a mural of cartoon & comic strip character \"Mafalda\".",
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOdJlf2hqhZuVwjgUX0elJczTR8GWjf7lwyaqiYroeG-VVorbtaD4H6TKrQD2PMEpe3sHNcdvICqVyT5UI4XqA012NMnLVYY0s4wYfS3pxC-e0mHiYTcKcR0US90logXN7Z4DBb1A",
+        "cid": "11831447559535372241",
+        "fid": "0x95bcb5ebf9363d9f:0xa431bedea4c4a7d1",
+        "placeId": "ChIJnz02-eu1vJUR0afEpN6-MaQ"
+      },
+      {
+        "position": 2,
+        "title": "Estatua de Mafalda",
+        "address": "9JMH+J8W, Defensa 700, C1064 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.615832,
+        "longitude": -58.3716461,
+        "rating": 4.6,
+        "ratingCount": 8296,
+        "type": "Sculpture",
+        "types": [
+          "Sculpture",
+          "Tourist attraction"
+        ],
+        "phoneNumber": "+54 11 7125-4793",
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPG4ZBis1CIT3aN3mHR2OjOQgJT4fk1nxoe9eA8B6AOYqwPaE-NemiabqZnCkg8T8-9DNto_t4p-hcjmTN_lelB3DP4H6moxIDRAs-yggisiljQkj8pjNhDiKaL5sGNgzXe18DlOQ",
+        "cid": "10819767908987080422",
+        "fid": "0x95a3354dd6271479:0x962789966f588ee6",
+        "placeId": "ChIJeRQn1k01o5UR5o5Yb5aJJ5Y"
+      },
+      {
+        "position": 3,
+        "title": "Paseo Mafalda",
+        "address": "Av. Rivadavia 4879, C1424 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.616349899999996,
+        "longitude": -58.4338796,
+        "rating": 4.5,
+        "ratingCount": 2,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction"
+        ],
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPyrfKllHzt9AoWEnRFmEbJhAjpN95RSuUYDNXsFPX7HhUlUvLm6jYmy0Lw95QMaTtcy5PISY5GUrphxlDSfNCnf9ErgXukoPuVDp8zJUdFxjuAY3v98JM5AI-ul9glFJAqJL-XZjexODk",
+        "cid": "11128225495024475029",
+        "fid": "0x95bccb003bca5521:0x9a6f6620bb611b95",
+        "placeId": "ChIJIVXKOwDLvJURlRthuyBmb5o"
+      },
+      {
+        "position": 4,
+        "title": "Jardin Mafalda",
+        "address": "EIF, Santos Dumont 3602, C1427 autonoma de buenos aires, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.584429199999995,
+        "longitude": -58.448036599999995,
+        "rating": 4.4,
+        "ratingCount": 72,
+        "type": "Association / Organization",
+        "types": [
+          "Association / Organization"
+        ],
+        "website": "http://www.jardinmafalda.com/",
+        "phoneNumber": "+54 11 2540-0619",
+        "openingHours": {
+          "Friday": "7:30 AM–6:30 PM",
+          "Saturday": "Closed",
+          "Sunday": "Closed",
+          "Monday": "7:30 AM–6:30 PM",
+          "Tuesday": "7:30 AM–6:30 PM",
+          "Wednesday": "7:30 AM–6:30 PM",
+          "Thursday": "7:30 AM–6:30 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMis2C4bO_UEZhceifV_sRtXRuSwV7HMTaJTaoT5QeboGyy_8ZzYJ_G5vWbldkb6fe7h0VOADa4DBtUcdxA2HB9bSDHK0UTm75T1M5ACRE6tHKxG6xFl6oDotaPXP9mmummxz3P7Q",
+        "cid": "11843244466397327179",
+        "fid": "0x95bcb5ee579d5fff:0xa45ba8180fb92f4b",
+        "placeId": "ChIJ_1-dV-61vJURSy-5DxioW6Q"
+      },
+      {
+        "position": 5,
+        "title": "Mafalda",
+        "address": "Dr. Ignacio Arieta 4087, B1754AQU San Justo, Provincia de Buenos Aires, Argentina",
+        "latitude": -34.6872705,
+        "longitude": -58.5492741,
+        "rating": 3.6,
+        "ratingCount": 220,
+        "type": "Store",
+        "types": [
+          "Store"
+        ],
+        "phoneNumber": "+54 9 11 2424-6666",
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=4K5wEZ-UaMws2m9ry5DSpw&cb_client=search.gws-prod.grass&w=80&h=92&yaw=244.78036&pitch=0&thumbfov=100",
+        "cid": "15854619871952403931",
+        "fid": "0x95bcc8a18f9680e7:0xdc06ecc5ac927ddb",
+        "placeId": "ChIJ54CWj6HIvJUR232SrMXsBtw"
+      },
+      {
+        "position": 6,
+        "title": "Mafalda",
+        "address": "Mafalda, C1437 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6461124,
+        "longitude": -58.3992576,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction"
+        ],
+        "cid": "6953691880408617461",
+        "fid": "0x95bccb00189c967d:0x608079ec494611f5",
+        "placeId": "ChIJfZacGADLvJUR9RFGSex5gGA"
+      },
+      {
+        "position": 7,
+        "title": "Studio en Palermo Hollywood con balcón y vista a plaza Mafalda - One-Bedroom Apartment",
+        "address": "C1414 Buenos Aires, Argentina",
+        "latitude": -34.5820007,
+        "longitude": -58.442729899999996,
+        "type": "Lodging",
+        "types": [
+          "Lodging",
+          "Vacation rental"
+        ],
+        "website": "https://br.bluepillow.com/search/67a234b95a2dfa15b1837931?dest=bkng&cat=House&lat=-34.582&lng=-58.44273&language=pt",
+        "cid": "1445735381983551720",
+        "fid": "0x95bcb5ecf75eb4c3:0x141048ab8a57e0e8",
+        "placeId": "ChIJw7Re9-y1vJUR6OBXiqtIEBQ"
+      },
+      {
+        "position": 8,
+        "title": "El Rinconcito de Mafalda",
+        "address": "Moreno 319, C1091AAG Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6111937,
+        "longitude": -58.3708424,
+        "rating": 4.2,
+        "ratingCount": 34,
+        "type": "Clothing store",
+        "types": [
+          "Clothing store"
+        ],
+        "openingHours": {
+          "Friday": "10 AM–7 PM",
+          "Saturday": "Closed",
+          "Sunday": "Closed",
+          "Monday": "10 AM–7 PM",
+          "Tuesday": "10 AM–7 PM",
+          "Wednesday": "10 AM–7 PM",
+          "Thursday": "10 AM–7 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOD6FCPHaJxyP0tGgsIPgTS-TyL50hwldLhcJvlTUwiMcUhS7zs6Y1Zp_YcB5mL41nqNHCdOPBcxYa3VJE0OsotlQ0QacUYpqebBmXg5TDn01GIVtQwcGo0bF0YCTcS_NTGi_o",
+        "cid": "14757241793681793699",
+        "fid": "0x95a3352b252d672d:0xcccc413960f3a2a3",
+        "placeId": "ChIJLWctJSs1o5URo6LzYDlBzMw"
+      },
+      {
+        "position": 9,
+        "title": "Libreria Mafalda (Sucursal OCA)",
+        "address": "Estrada 2380, B1650 Villa Maipú, Provincia de Buenos Aires, Argentina",
+        "latitude": -34.5702305,
+        "longitude": -58.5239878,
+        "rating": 4.5,
+        "ratingCount": 166,
+        "type": "Book store",
+        "types": [
+          "Book store"
+        ],
+        "phoneNumber": "+54 11 3187-5770",
+        "openingHours": {
+          "Friday": "9 AM–7 PM",
+          "Saturday": "9 AM–1 PM",
+          "Sunday": "Closed",
+          "Monday": "9 AM–7 PM",
+          "Tuesday": "9 AM–7 PM",
+          "Wednesday": "9 AM–7 PM",
+          "Thursday": "9 AM–7 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPlQyKoIQ2NbThbRBwDZn-u3dMcl2_wey0fF6z7JfcIyekab9_JgpMVcuYePUr6xFOKZo8Hp2sYee6iQ00wUmJO_88JFVTstZ0PpRhp1JRhl5Q36XXMTcZOxkLe5qV6gGzF5L4ekw",
+        "cid": "14467291927306411214",
+        "fid": "0x95bcb7b56b8c90ff:0xc8c6255b5cf99cce",
+        "placeId": "ChIJ_5CMa7W3vJURzpz5XFslxsg"
+      },
+      {
+        "position": 10,
+        "title": "El mundo segun Mafalda",
+        "address": "C1067 Buenos Aires, Argentina",
+        "latitude": -34.6085585,
+        "longitude": -58.374448699999995,
+        "rating": 4.3,
+        "ratingCount": 9,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction"
+        ],
+        "website": "https://buenosaires.gob.ar/noticias/restauramos-el-mural-de-mafalda-en-la-combinacion-de-las-lineas-y-d",
+        "openingHours": {
+          "Friday": "7 AM–10 PM",
+          "Saturday": "7 AM–10 PM",
+          "Sunday": "7 AM–10 PM",
+          "Monday": "7 AM–10 PM",
+          "Tuesday": "7 AM–10 PM",
+          "Wednesday": "7 AM–10 PM",
+          "Thursday": "7 AM–10 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMpKaefXQvH82NhXIOODFv-XEocPHjCyLHr18H4EurVLbi0mtYiFo4HGORLdfZuvF8KSvJUsGVYKDkO5LwHlKQfvz332I7yzpmr1P_BXUPvQPSIhuMgO72S9cMg46UdCQpNCI1TNHJRRIM",
+        "cid": "15180657303031024680",
+        "fid": "0x95bccb0071afe715:0xd2ac8762f41a8c28",
+        "placeId": "ChIJFeevcQDLvJURKIwa9GKHrNI"
+      },
+      {
+        "position": 11,
+        "title": "Empanadas Mafalda",
+        "address": "Juan Agustín García 2891, C1416ELK Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6101369,
+        "longitude": -58.4818502,
+        "rating": 4.3,
+        "ratingCount": 376,
+        "type": "Fast food restaurant",
+        "types": [
+          "Fast food restaurant",
+          "Takeout Restaurant"
+        ],
+        "phoneNumber": "+54 11 4581-2876",
+        "openingHours": {
+          "Friday": "11 AM–2 PM, 7–11 PM",
+          "Saturday": "11 AM–2 PM, 7–11 PM",
+          "Sunday": "7–11 PM",
+          "Monday": "Closed",
+          "Tuesday": "7–11 PM",
+          "Wednesday": "11 AM–2 PM, 7–11 PM",
+          "Thursday": "11 AM–2 PM, 7–11 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMKRwvP5KGPplFL1IHNJktKcQ-JWu4LnvIwIXnEG-gWJDTsmHII0JeEpAjcr-6gnfXXUPpzYJp1PKYKoZXO6iXKUPmoIA9S3ZKUM8X-hSwwVhMxmOJ7-T_hsKRlMlO8GWBJCpaWvQ",
+        "cid": "15451348919799720538",
+        "fid": "0x95bcc9e13cfa7767:0xd66e37fa51472a5a",
+        "placeId": "ChIJZ3f6POHJvJURWipHUfo3btY"
+      },
+      {
+        "position": 12,
+        "title": "Maxikiosco Mafalda",
+        "address": "Serrano 396, C1414 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.5972838,
+        "longitude": -58.443916099999996,
+        "rating": 4.7,
+        "ratingCount": 19,
+        "type": "Kiosk",
+        "types": [
+          "Kiosk"
+        ],
+        "phoneNumber": "+54 11 2707-0580",
+        "openingHours": {
+          "Friday": "7 AM–2 AM",
+          "Saturday": "8 AM–2 AM",
+          "Sunday": "Closed",
+          "Monday": "7 AM–12 AM",
+          "Tuesday": "7 AM–12 AM",
+          "Wednesday": "7 AM–12 AM",
+          "Thursday": "7 AM–12 AM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOwbAu5Sou3wxUFbdKGcMpCExhBjSOBnYMnahnH7W2yNyYnm0FjNF06Gf1WSwTpANrPRB9TbuymoqFGXeOzJs_1WLk6vHknXawdd46_BLDgJN4Ti9new_0Aa6WY-vchO-BpaFXK",
+        "cid": "17710173587506161204",
+        "fid": "0x95bccbd1585c8951:0xf5c72d0b99cf6634",
+        "placeId": "ChIJUYlcWNHLvJURNGbPmQstx_U"
+      },
+      {
+        "position": 13,
+        "title": "Clemente - Paseo de la Historieta",
+        "address": "#15-07 The Metropolis Tower 2, 138589 wikipedia, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6127755,
+        "longitude": -58.3705551,
+        "rating": 4.5,
+        "ratingCount": 497,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction"
+        ],
+        "website": "https://turismo.buenosaires.gob.ar/es/atractivo/paseo-de-la-historieta-0",
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMhF58hNhb-IOeIqoC9ktRjc3-Zqufq5siI4UzJIee6faV3K4Cn350WXVPEwAHpUM4310c6EoUxT1Kj8ylKUxonpJ7i6O9M7wUkccHrQseALFoVEmc9xkX187KXloZccnXsOJ8c",
+        "cid": "17867140343352663628",
+        "fid": "0x95a3352ac14de673:0xf7f4d57a65961e4c",
+        "placeId": "ChIJc-ZNwSo1o5URTB6WZXrV9Pc"
+      },
+      {
+        "position": 14,
+        "title": "Mafalda - Single Room",
+        "address": "C1427 Buenos Aires, Argentina",
+        "latitude": -34.5845108,
+        "longitude": -58.447879799999995,
+        "type": "House",
+        "types": [
+          "House",
+          "Vacation rental"
+        ],
+        "website": "https://br.bluepillow.com/search/681184016178c7268f2a174e?dest=bkng&cat=House&lat=-34.58451&lng=-58.44788&language=pt",
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW2Iy6S5_sehcYX6-YJvucvO8l_Hv4noJO_L0TABVW-8oXwHzjsGfY4ptOu7bW2XzZE1aqZkzpABXoc0sS5Awiny2Mb_vUQPU98zvMfo1BdxpL1fswMAlhf8pOPp-pGvKXfkSvUhZPPs7wKmRzWktiFLTkBMbodROfdLU5_IezDWsFpXp-VY4hQP",
+        "cid": "7967038535503722428",
+        "fid": "0x95bcb5ee5a480a4b:0x6e909b563c8c37bc",
+        "placeId": "ChIJSwpIWu61vJURvDeMPFabkG4"
+      },
+      {
+        "position": 15,
+        "title": "Feria Mafalda",
+        "address": "Gral. José de San Martín 2301 B1602DFA, B1638 Florida, Provincia de Buenos Aires, Argentina",
+        "latitude": -34.5288465,
+        "longitude": -58.4939937,
+        "rating": 5,
+        "ratingCount": 3,
+        "type": "Handicraft fair",
+        "types": [
+          "Handicraft fair"
+        ],
+        "website": "https://www.instagram.com/feriamafaldaok?igsh=NDFsc2U0bmk1dDRr",
+        "thumbnailUrl": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=Mv1OywAF9GsqSN4NQb3s9g&cb_client=search.gws-prod.grass&w=80&h=92&yaw=310.56607&pitch=0&thumbfov=100",
+        "cid": "10882949802273311415",
+        "fid": "0x95bcb1004f150df3:0x9708012f50e88ab7",
+        "placeId": "ChIJ8w0VTwCxvJURt4roUC8BCJc"
+      },
+      {
+        "position": 16,
+        "title": "Libreria mafalda",
+        "address": "San Lorenzo 1761, B1683CPI Gran Buenos Aires, Provincia de Buenos Aires, Argentina",
+        "latitude": -34.586779,
+        "longitude": -58.5886779,
+        "rating": 4.5,
+        "ratingCount": 139,
+        "type": "Book store",
+        "types": [
+          "Book store",
+          "Gift shop"
+        ],
+        "website": "https://instagram.com/mafaldacoronado?igshid=1qtjmwwedrhx9",
+        "phoneNumber": "+54 11 4970-5533",
+        "openingHours": {
+          "Friday": "9 AM–12:30 PM, 5–7:30 PM",
+          "Saturday": "10 AM–12:30 PM, 6:30–7:30 PM",
+          "Sunday": "Closed",
+          "Monday": "9 AM–12:30 PM, 5–7:30 PM",
+          "Tuesday": "9 AM–12:30 PM, 5–7:30 PM",
+          "Wednesday": "9 AM–12:30 PM, 5–7:30 PM",
+          "Thursday": "9 AM–12:30 PM, 5–7:30 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmO3EUVKmKgZBRRoTY0ISsm1wMQvO6GNiTXZQ7f4_tF-7X_LCvwH4Z8v_VsAlATy_eQQNRu7pbvGFK-hLpePfFC--GK4EBOP0xA4MJHUxwd4294iSrmUbtoCbG1Gd51RMaBuUqnq",
+        "cid": "8758714550886814275",
+        "fid": "0x95bcb9baab51e2cd:0x798d347a76a75243",
+        "placeId": "ChIJzeJRq7q5vJURQ1Kndno0jXk"
+      },
+      {
+        "position": 17,
+        "title": "Paseo de las Historietas",
+        "address": "C1064 Buenos Aires, Argentina",
+        "latitude": -34.615918,
+        "longitude": -58.3716072,
+        "rating": 4.5,
+        "ratingCount": 82,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction"
+        ],
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmN7UZ25aLy47l0ffnk5oQlLm9u_8O-nzGrnXMRPtb_42VDpU5YpBWMX8UAQLj7rgm8sbaTmjDa-fEwh6zl6y2cOAhSbwu8B2UR6F0_HU06oNdVJa8jLWsGphnApMkCFUNK_sVnZ2RTrW5O1",
+        "cid": "4505949313012928325",
+        "fid": "0x95a33500677e2df3:0x3e885906d20d0f45",
+        "placeId": "ChIJ8y1-ZwA1o5URRQ8N0gZZiD4"
+      },
+      {
+        "position": 18,
+        "title": "Esquina Mafalda",
+        "address": "Av. Juan Bautista Alberdi 2998, C1406 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.633828,
+        "longitude": -58.469992999999995,
+        "type": "Historical landmark",
+        "types": [
+          "Historical landmark"
+        ],
+        "thumbnailUrl": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=IICJFh6FFG57RVKJMMmX1g&cb_client=search.gws-prod.grass&w=80&h=92&yaw=147.79323&pitch=0&thumbfov=100",
+        "cid": "17427712550474967764",
+        "fid": "0x95bcc900439a518d:0xf1dbac3a8aad6ad4",
+        "placeId": "ChIJjVGaQwDJvJUR1Gqtijqs2_E"
+      },
+      {
+        "position": 19,
+        "title": "Camino de la historieta",
+        "address": "Balcarce 678, C1064AAN C1064AAN, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6154692,
+        "longitude": -58.3707005,
+        "rating": 4.4,
+        "ratingCount": 45,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction"
+        ],
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPNJ9RlkiqmuccX3sKKM6rdSJS2PLzhI5Rs2hkU9S0Mm2PPG2x5aBzoPhn0iDIg2qz72pCHLqwsYRQPT4pmovNB1rymvn3BzzpjYtO-8mKgQthYDzA6oaShpt1bF2CjJQvYoQUY-fNwFus",
+        "cid": "4529232000318682457",
+        "fid": "0x95a335000902768d:0x3edb1081e453b559",
+        "placeId": "ChIJjXYCCQA1o5URWbVT5IEQ2z4"
+      },
+      {
+        "position": 20,
+        "title": "ESCULTURA DE MAFALDA",
+        "address": "Juramento 4849, C1431CKG C1431CKG, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.5757298,
+        "longitude": -58.4801061,
+        "type": "Historical landmark",
+        "types": [
+          "Historical landmark"
+        ],
+        "thumbnailUrl": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=FPb9tGG6l4foX9kdmXN9rA&cb_client=search.gws-prod.grass&w=80&h=92&yaw=290.81433&pitch=0&thumbfov=100",
+        "cid": "3582957597563944742",
+        "fid": "0x95bcb7003187d599:0x31b938f3a015ff26",
+        "placeId": "ChIJmdWHMQC3vJURJv8VoPM4uTE"
+      }
+    ],
+    "credits": 3
+  }
+}

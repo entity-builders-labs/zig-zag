@@ -1,0 +1,58 @@
+{
+  "legend": [
+    "NO_CANDIDATE",
+    "ONE_PLAUSIBLE_CANDIDATE",
+    "MULTIPLE_PLAUSIBLE_CANDIDATES",
+    "ONLY_STRUCTURALLY_WRONG_CANDIDATES",
+    "OUTSIDE_AUTHORIZED_DOMAIN"
+  ],
+  "authorizedDomain": "COLD #11 route-scale: center -32.88309217907325,-68.86223810433484 (destination boundary centroid), radius 80 000 m",
+  "evidence": {
+    "existingProviders": "../alfa-crux.json, ../superuco.json, ../bodega-la-azul.json, ../a16.json, ../resolver-replay.json, ../provider-probes.json, ../osm-wikidata-site-probe.json (not re-probed)",
+    "overture": "raw-results.json, gers-registry.json (release 2026-09-23.1)"
+  },
+  "acquisition": {
+    "Alfa Crux": {
+      "osmLocal": "NO_CANDIDATE (province-wide)",
+      "nominatim": "NO_CANDIDATE",
+      "geoapify": "NO_CANDIDATE (also 0 at 150 km in prior probe)",
+      "wikidata": "NO_CANDIDATE",
+      "overture": "OUTSIDE_AUTHORIZED_DOMAIN: 'Alfa Crux' 79eb9ee4-0591-49f3-a077-51a7926a3ada at 105.2 km"
+    },
+    "SuperUco": {
+      "osmLocal": "NO_CANDIDATE",
+      "nominatim": "NO_CANDIDATE",
+      "geoapify": "NO_CANDIDATE (also 0 at 150 km in prior probe)",
+      "wikidata": "NO_CANDIDATE",
+      "overture": "OUTSIDE_AUTHORIZED_DOMAIN: 'SuperUco' 753ed444-8e83-4178-8ad3-a05e9a28b7c5 at 87.1 km"
+    },
+    "Bodega Azul": {
+      "osmLocal": "ONE_PLAUSIBLE_CANDIDATE under a different name: node/4851595199 'Bodega La Azul' (no website/alias)",
+      "nominatim": "ONLY_STRUCTURALLY_WRONG_CANDIDATES ('La Bodega de Azul', ~929 km)",
+      "geoapify": "ONE_PLAUSIBLE_CANDIDATE 'Bodega La Azul' = osm:node:4851595199, 73.2 km, REJECTED by verifier",
+      "wikidata": "NO_CANDIDATE",
+      "overture": "source name: NO_CANDIDATE; PROBE_QUERY 'Bodega La Azul': MULTIPLE_PLAUSIBLE_CANDIDATES (best d97a65d2-7613-41eb-ab26-fc577699f26d, 73.2 km, website bodegalaazul.com)"
+    },
+    "A16": {
+      "osmLocal": "NO_CANDIDATE",
+      "nominatim": "NO_CANDIDATE (house numbers/streets elsewhere)",
+      "geoapify": "ONLY_STRUCTURALLY_WRONG_CANDIDATES ('FC Belgrano', correctly REJECTED)",
+      "wikidata": "NO_CANDIDATE",
+      "overture": "source name exact: NO_CANDIDATE; discovery: MULTIPLE_PLAUSIBLE_CANDIDATES (2 unconflated 'Bodega A16' + 3 other A16-branded objects); best 8a73108f-cdd4-4b19-8a24-7cc78f14fbd2, 23.5 km"
+    }
+  },
+  "providerProperties": {
+    "osmLocal": { "stableIdentity": "osm type+id (version-stable, editable)", "coordinates": "yes", "address": "sparse tags", "website": "sparse tag", "declaredAliases": "alt_name/old_name/name:xx when mapped", "provenance": "OSM", "persistenceLicensing": "ODbL (share-alike on derived DB)" },
+    "nominatim": { "stableIdentity": "osm type+id", "coordinates": "yes", "address": "structured", "website": "no", "declaredAliases": "OSM names", "provenance": "OSM", "persistenceLicensing": "ODbL" },
+    "geoapify": { "stableIdentity": "opaque place id + declared OSM id", "coordinates": "yes", "address": "structured", "website": "when OSM has it", "declaredAliases": "no", "provenance": "OSM-derived", "persistenceLicensing": "OSM-derived (ODbL) under Geoapify terms; not re-assessed in this task" },
+    "wikidata": { "stableIdentity": "QID", "coordinates": "when present", "address": "rare", "website": "P856 when present", "declaredAliases": "labels/aliases", "provenance": "Wikidata", "persistenceLicensing": "CC0" },
+    "overture": { "stableIdentity": "GERS UUID (registry-backed; new id on rebrand/large move/split/merge, no old->new mapping)", "coordinates": "yes (Point); some records city-fallback misplaced", "address": "freeform/locality/postcode (often locality-level)", "website": "41.8% of in-domain rows", "declaredAliases": "names.common 0%; names.rules only on AllThePlaces chain rows (1.0%)", "provenance": "per-row sources[] with dataset, record_id, license, update_time", "persistenceLicensing": "CDLA-Permissive-2.0 (Meta/Microsoft), Apache-2.0 (Foursquare, NOTICE), CC0 (AllThePlaces); row-level" }
+  },
+  "persistenceLicensingPerOvertureCandidate": {
+    "79eb9ee4 Alfa Crux": "CDLA-Permissive-2.0 (meta 113197860037852)",
+    "753ed444 SuperUco": "CDLA-Permissive-2.0 (meta 276131252581993)",
+    "d97a65d2 Bodega La Azul": "CDLA-Permissive-2.0 (meta 1893816807339177)",
+    "8a73108f Bodega A16": "CDLA-Permissive-2.0 (meta 1396967760585038)",
+    "7eaf553c Bodega A16": "CDLA-Permissive-2.0 (Microsoft 1407374888439853)"
+  }
+}

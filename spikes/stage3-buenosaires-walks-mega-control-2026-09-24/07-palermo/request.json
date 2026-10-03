@@ -1,0 +1,31 @@
+{
+  "destination": {
+    "label": "Buenos Aires, Argentina",
+    "latitude": -34.6037,
+    "longitude": -58.3816,
+    "scaleHint": "settlement"
+  },
+  "days": 1,
+  "budgetLevel": "medium",
+  "groupType": "solo",
+  "intent": {
+    "interests": [
+      "culture",
+      "nature"
+    ],
+    "intents": [
+      "walk"
+    ],
+    "explorationStyle": "balanced",
+    "additionalPreferences": "caminata por Palermo: parques, plazas y barrios"
+  },
+  "mobility": {
+    "allowedTransportationModes": [
+      "walking"
+    ],
+    "maxWalkingDistancePerDayMeters": 6000,
+    "maxContinuousWalkingDistanceMeters": 3000,
+    "travelPace": "moderate"
+  },
+  "skipImageGeneration": true
+}

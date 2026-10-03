@@ -30,7 +30,6 @@
 # Logs
 **/logs
 **/*.log
-**/chroma.log
 
 # Runtime data
 **/pids
@@ -87,10 +86,6 @@
 # Prisma migrations ARE needed for production deployments
 # **/prisma/migrations  # Commented out - migrations are required for production
 
-# Chroma data (local database, not needed)
-**/chroma-db
-**/chroma_data
-
 # MongoDB data (local database, not needed)
 **/mongodb_data
 
@@ -110,9 +105,8 @@
 # Fly.io specific
 **/fly/
 
-# Scripts (not needed in production image)
-# But be/scripts/ IS needed (contains setup-db.sh for production)
+# fe/scripts/ is dev-only tooling for the frontend, not needed in either
+# image. Deliberately NOT excluding **/*.sh here — that would also catch
+# be/scripts/setup-db.sh, which the backend image needs at container startup
+# to run migrations (see be/Dockerfile's start.sh).
 fe/scripts/
-# Note: be/src/commands/scripts/ contains TypeScript source code and IS needed for build
-# Note: be/scripts/ contains setup-db.sh and IS needed for production
-**/*.sh 

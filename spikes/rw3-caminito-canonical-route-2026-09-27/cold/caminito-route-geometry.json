@@ -1,0 +1,64 @@
+{
+  "source": "AreaRouteAnchorResolverService.discoverRoute (production code, read-only repro) over local Overpass; NOT used by the COLD run because the anchor stayed unresolved",
+  "osm": "way:144844726",
+  "tags": {
+    "highway": "pedestrian",
+    "name": "Caminito",
+    "tourism": "attraction",
+    "wikidata": "Q1029566",
+    "wikipedia": "es:Caminito"
+  },
+  "geometryType": "MultiLineString",
+  "lineCount": 1,
+  "coordinateCount": 9,
+  "bounds": [
+    -58.3632988,
+    -34.639397,
+    -58.3617988,
+    -34.6391307
+  ],
+  "lengthMetersHaversine": 143.0,
+  "geometry": {
+    "type": "MultiLineString",
+    "coordinates": [
+      [
+        [
+          -58.3632988,
+          -34.6391307
+        ],
+        [
+          -58.3632393,
+          -34.6391711
+        ],
+        [
+          -58.3630755,
+          -34.6392431
+        ],
+        [
+          -58.3629034,
+          -34.639299
+        ],
+        [
+          -58.3626552,
+          -34.6393481
+        ],
+        [
+          -58.3623762,
+          -34.6393831
+        ],
+        [
+          -58.3622584,
+          -34.6393874
+        ],
+        [
+          -58.3618064,
+          -34.6393968
+        ],
+        [
+          -58.3617988,
+          -34.639397
+        ]
+      ]
+    ]
+  }
+}

@@ -1,16 +1,18 @@
 # Testing & Mocking Guide
 
-This project supports mocking external services (Google Maps API and AI Providers) to enable cost-free, deterministic, and offline testing/development.
+This project supports cached external-service responses to enable deterministic
+and offline testing/development. The Places cache wraps whichever backend
+provider `PLACES_PROVIDER` explicitly selects.
 
 ## Environment Variables
 
 Add these to your `.env` file:
 
 ```env
-# Google Maps Mocking
-USE_MOCK_MAPS=true          # Enable mocking layer
-MOCK_MAPS_MODE=read         # Modes: 'read' (use cache), 'write' (call API & save), 'strict' (error on miss)
-ALLOW_API_FALLBACK=true     # If true, 'read' mode will call API on cache miss (like 'write' but without saving?) - Actually handled by logic
+# Places provider and response cache
+PLACES_PROVIDER=google      # google | geoapify
+USE_MOCK_MAPS=true          # Enable the legacy-named cache wrapper
+MOCK_MAPS_MODE=strict       # read | write | strict
 
 # AI Service Mocking
 AI_CACHE_MODE=read          # Modes: 'read' (use cache), 'write' (call API & save), 'off' (disable cache)
@@ -18,20 +20,25 @@ AI_CACHE_MODE=read          # Modes: 'read' (use cache), 'write' (call API & sav
 
 ## Modes Explained
 
-### `read` (Default recommended for tests)
+### `read`
 
-- **Google Maps**: Checks `storage/maps-cache/*.json`. If found, returns data. If missing, behavior depends on implementation (currently warns and may return empty or fail depending on config).
+- **Places**: Returns a cache hit when present. On a miss it calls the selected
+  live provider and does not write the response.
 - **AI**: Checks `storage/ai-cache/*.json`. If found, returns response.
 
 ### `write` (Recording mode)
 
-- **Google Maps**: Calls real Google API. Saves response to `storage/maps-cache/`.
+- **Places**: Returns a cache hit when present. On a miss it calls the selected
+  live provider and saves the response to `storage/maps-cache/`.
 - **AI**: Calls real AI provider. Saves response to `storage/ai-cache/`.
 - Use this mode when implementing new features to generate the initial cache.
 
 ### `strict` (Strict Offline)
 
-- **Google Maps**: Throws error if cache is missing. Ensures no accidental API calls.
+- **Places**: Throws on a cache miss and never calls an external provider.
+
+Places cache keys include provider, cache schema version, method, and normalized
+parameters. A Google entry can never satisfy a Geoapify request.
 
 ## How to Record New Mocks
 
@@ -43,7 +50,8 @@ AI_CACHE_MODE=read          # Modes: 'read' (use cache), 'write' (call API & sav
 
 ## Running Tests
 
-Ensure your environment is set to `read` or `strict` before running tests to guarantee determinism.
+Use `strict` for deterministic tests. `read` is not offline: it intentionally
+calls the live provider on a miss.
 
 ```bash
 # Example for CI

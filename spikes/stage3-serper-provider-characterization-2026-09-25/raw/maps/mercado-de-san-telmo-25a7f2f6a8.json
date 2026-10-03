@@ -1,0 +1,569 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Mercado de San Telmo",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:32.015Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 1425
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Mercado de San Telmo",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.6034613,-58.3816038,12z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Mercado San Telmo",
+        "address": "Bolívar 970, C1066AAT, C1066AAT Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6193062,
+        "longitude": -58.37282,
+        "rating": 4.5,
+        "ratingCount": 28980,
+        "type": "Market",
+        "types": [
+          "Market"
+        ],
+        "website": "https://www.mercadosantelmo.com.ar/",
+        "phoneNumber": "+54 11 4314-0133",
+        "description": "Lively, bustling outdoor street market with vendors selling food, antiques, crafts & goods.",
+        "openingHours": {
+          "Friday": "9 AM–8 PM",
+          "Saturday": "9 AM–8 PM",
+          "Sunday": "9 AM–8 PM",
+          "Monday": "9 AM–8 PM",
+          "Tuesday": "9 AM–8 PM",
+          "Wednesday": "9 AM–8 PM",
+          "Thursday": "9 AM–8 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOHn1chYninTpfrW2j8yQ3-x7U7_xIqy5fPchB_3MdHwtcZGrOdFYf0DIgBqFFyWpjE920HXBrju4FuNBJbSljeWm9PwFLFCldkqRvXt9PFYG2zFqncupTwIa730ZrqoDnW41i2sg",
+        "cid": "8192213105842434178",
+        "fid": "0x95bccb2b5a5058d3:0x71b0966a6209b082",
+        "placeId": "ChIJ01hQWivLvJURgrAJYmqWsHE"
+      },
+      {
+        "position": 2,
+        "title": "Mercado de San Telmo",
+        "address": "Defensa 963, C1066AAQ, C1066AAQ C1066AAQ, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6187981,
+        "longitude": -58.3725423,
+        "rating": 4.5,
+        "ratingCount": 12211,
+        "type": "Market",
+        "types": [
+          "Market"
+        ],
+        "website": "https://mercadosantelmo.com.ar/",
+        "phoneNumber": "+54 11 4314-0133",
+        "openingHours": {
+          "Friday": "9 AM–8 PM",
+          "Saturday": "9 AM–8 PM",
+          "Sunday": "9 AM–8 PM",
+          "Monday": "12–7 PM",
+          "Tuesday": "12 AM–7 PM",
+          "Wednesday": "12–7 PM",
+          "Thursday": "12 AM–8 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPaEKAEJXMXZa2NNgjNcQBywcSJ1uLFqpns6Py4NtqDE75YxTdNqAw5zDBujLlI6oRzXcTElWLq5-oArYInju1JI4Ua8fIywA6uzKgfRe01Pps_o5gopcxDoN9Y_7Tbz_jq5CoqT6w1UPWO",
+        "cid": "9185647501561373425",
+        "fid": "0x95bccb2a8c8653db:0x7f79f9bc2a8522f1",
+        "placeId": "ChIJ21OGjCrLvJUR8SKFKrz5eX8"
+      },
+      {
+        "position": 3,
+        "title": "MERCI Mercado de San Telmo",
+        "address": "Carlos Calvo 455, C1102AAI Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6194202,
+        "longitude": -58.3724918,
+        "rating": 4.5,
+        "ratingCount": 3665,
+        "priceLevel": "ARS 10–40K",
+        "type": "Bakery",
+        "types": [
+          "Bakery",
+          "Modern French restaurant",
+          "Restaurant"
+        ],
+        "website": "https://merci.ar/",
+        "phoneNumber": "+54 9 11 2665-2462",
+        "openingHours": {
+          "Friday": "9 AM–8 PM",
+          "Saturday": "9 AM–8 PM",
+          "Sunday": "9 AM–8 PM",
+          "Monday": "9 AM–8 PM",
+          "Tuesday": "9 AM–8 PM",
+          "Wednesday": "9 AM–8 PM",
+          "Thursday": "9 AM–8 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMxAFGEIztUHL2MjlWTyHP41kYApA2cBUptYhv-rl98CYj6aeF5CCGjLnMAvmiETDiM4akWSedj7ZvvO3GIbOA0UPX6fe4a4qJRxqz6HjhcTMTn3yt136RsCVh4iOtaL8QdkBIoPaUgOcE",
+        "cid": "6682215339484553825",
+        "fid": "0x95bccb2b576f9c6b:0x5cbbff7286a4a261",
+        "placeId": "ChIJa5xvVyvLvJURYaKkhnL_u1w"
+      },
+      {
+        "position": 4,
+        "title": "San Telmo Fair",
+        "address": "Defensa 320, C1065AAT C1065AAT, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6114448,
+        "longitude": -58.371905,
+        "rating": 4.5,
+        "ratingCount": 5448,
+        "type": "Market",
+        "types": [
+          "Market",
+          "Fairground"
+        ],
+        "website": "http://www.feriadesantelmo.com/",
+        "phoneNumber": "+54 9 11 6201-1871",
+        "description": "Handicrafts, vintage finds, clothing & knick-knacks pack outdoor stalls at a lively Sunday market.",
+        "openingHours": {
+          "Friday": "Closed",
+          "Saturday": "Closed",
+          "Sunday": "9 AM–6:30 PM",
+          "Monday": "Closed",
+          "Tuesday": "Closed",
+          "Wednesday": "Closed",
+          "Thursday": "Closed"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPdghH0mdOPTc9eATBKkkr7dKGg3x5VgrAJQuSbrJ3hk9wCRhTExKl1kPuqMsyj3qsAhPDMw-oYMRe1F7_b3DEQ8ZgUm4hyoKxDKTOhkWtc2J1CIjbTiDjI_pde4zkbeoB4H0Xz",
+        "cid": "1965224047085179733",
+        "fid": "0x95bccad4a9945bcd:0x1b45e0dbce915355",
+        "placeId": "ChIJzVuUqdTKvJURVVORztvgRRs"
+      },
+      {
+        "position": 5,
+        "title": "San Telmo Antiques Fair",
+        "address": "Humberto 1º 401, C1103 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.620642499999995,
+        "longitude": -58.3722206,
+        "rating": 4.5,
+        "ratingCount": 2679,
+        "type": "Flea market",
+        "types": [
+          "Flea market"
+        ],
+        "phoneNumber": "+54 11 3181-5188",
+        "openingHours": {
+          "Friday": "Closed",
+          "Saturday": "Closed",
+          "Sunday": "10 AM–5 PM",
+          "Monday": "Closed",
+          "Tuesday": "Closed",
+          "Wednesday": "Closed",
+          "Thursday": "Closed"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOYn3p0_rd04sv3YwdjMAK4STg57oCbgw9yBCYkKnB9BF2gANRGNonxb7Kr6pLQmhEba55Im618__PiOamebZ9MeBh5JTkL8YamlXk4GKOVri2aa5HCZZYKusKcY516umnFKpg",
+        "cid": "13481442954037015123",
+        "fid": "0x95a334cd5053daa1:0xbb17b4f05f11b253",
+        "placeId": "ChIJodpTUM00o5URU7IRX_C0F7s"
+      },
+      {
+        "position": 6,
+        "title": "Mercado San Telmo entrada por calle Defensa",
+        "address": "Defensa 961, C1065 AAQ, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.619120599999995,
+        "longitude": -58.371612199999994,
+        "rating": 4.1,
+        "ratingCount": 18,
+        "type": "Shopping mall",
+        "types": [
+          "Shopping mall"
+        ],
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOWkbuFYq7yh9ypV3pZCELcctPAhJlj9jJfTgt3ozGbF2x1NE2EX7ihe-bpd9SJqEkIRyVgrbWnziah-LklqlaRqH1WNpDFxdiOGYYcEhAzKA3LdCgQSGPmhVGipuT-jxsqdyExY-R4OD3-",
+        "cid": "715794616937375860",
+        "fid": "0x95a335001c3f04db:0x9ef036962b06874",
+        "placeId": "ChIJ2wQ_HAA1o5URdGiwYmkD7wk"
+      },
+      {
+        "position": 7,
+        "title": "Don Alberro Fonda",
+        "address": "Carlos Calvo 475, C1102AAI Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6194821,
+        "longitude": -58.3725428,
+        "rating": 4.8,
+        "ratingCount": 5353,
+        "priceLevel": "ARS 20–70K",
+        "type": "Argentinian restaurant",
+        "types": [
+          "Argentinian restaurant"
+        ],
+        "phoneNumber": "+54 11 6753-8762",
+        "openingHours": {
+          "Friday": "12–7 PM",
+          "Saturday": "12–7 PM",
+          "Sunday": "12–7 PM",
+          "Monday": "12–7 PM",
+          "Tuesday": "12–7 PM",
+          "Wednesday": "12–7 PM",
+          "Thursday": "12–7 PM"
+        },
+        "bookingLinks": [
+          "https://www.google.com/maps/reserve/v/dine/c/viNejcMvsYY?source=pa&opi=79508299"
+        ],
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNoubvm5f1cOdGM7ttm91HsY0Vx1eOrNfpI1EAi98YhEn4MUft5bKMeKfz6t0vo36zYVMQCT4c_uhSfQAh6jB9sRJzzgsG1IFUlUU1lEkkmBq3qn_-Dkmwo2cJERlZupGpUKgxLdyH79KhA",
+        "cid": "6498879514702891209",
+        "fid": "0x95bccbe93d3f318d:0x5a30a87c6fedc8c9",
+        "placeId": "ChIJjTE_PenLvJURycjtb3yoMFo"
+      },
+      {
+        "position": 8,
+        "title": "Mercado comida san Telmo",
+        "address": "Bolívar 976, C1066AAI C1066AAI, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6193046,
+        "longitude": -58.372505999999994,
+        "rating": 4.7,
+        "ratingCount": 19,
+        "type": "Bakery",
+        "types": [
+          "Bakery"
+        ],
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNT2LhDpBFB0gIxeHpWaCLNCwxi-tzL9eAe5SYngkZCPPm_TXzdwKl-mVvwo1sDzJ3Tw_fIxIB-RVWX9E-cR5XSOKISpcqaZNiQG6q8k6fQ96lYfpVmyXXqRPUTtt25F-G4cOIu",
+        "cid": "10750896036832355643",
+        "fid": "0x95bccbef315a31b5:0x9532dafc1c8c253b",
+        "placeId": "ChIJtTFaMe_LvJUROyWMHPzaMpU"
+      },
+      {
+        "position": 9,
+        "title": "San Telmo",
+        "address": "Buenos Aires, Argentina",
+        "latitude": -34.6218351,
+        "longitude": -58.3713942,
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNGc0SJw40ayKT5mXKDqplaCQSYNRMnvrprmG2GWNBpIETIweQtTCnsQvd9l-mzznzo2wH9Jqrl7RpABroLUnr_yfJ2DRueQsGENA901X6tdeQbOPZS0kw18NYX9O756zsfk_oyzw",
+        "cid": "12455116019450017195",
+        "fid": "0x95bccb2d125e1c01:0xacd97607979875ab",
+        "placeId": "ChIJARxeEi3LvJURq3WYlwd22aw"
+      },
+      {
+        "position": 10,
+        "title": "La Nueva Fortaleza de San Telmo",
+        "address": "Bolívar 1500, C1141 AAH, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6253628,
+        "longitude": -58.3725208,
+        "rating": 2.9,
+        "ratingCount": 28,
+        "type": "Market",
+        "types": [
+          "Market",
+          "Grocery store"
+        ],
+        "openingHours": {
+          "Friday": "8:30 AM–9 PM",
+          "Saturday": "9 AM–9 PM",
+          "Sunday": "10 AM–9 PM",
+          "Monday": "8:30 AM–9 PM",
+          "Tuesday": "8:30 AM–9 PM",
+          "Wednesday": "8:30 AM–9 PM",
+          "Thursday": "8:30 AM–9 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmObzl_MLA0TMXOwOXhzEQhd7CHxAI7GmwjIxDq58uFaGp5LmSTDP-vEI29yQvLopQsmfyg6FwhWkPoEVMIFrYR5hok3Trnn-BuczvR7yVjMRSSwseqmPttmOc2qFfuh-4x9DQh7",
+        "cid": "14470607315781979012",
+        "fid": "0x95bccb32bac3f27f:0xc8d1ecaf655a8b84",
+        "placeId": "ChIJf_LDujLLvJURhItaZa_s0cg"
+      },
+      {
+        "position": 11,
+        "title": "Mercado de San Nicolás",
+        "address": "Av. Córdoba 1750, C1055 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.5998034,
+        "longitude": -58.3920787,
+        "rating": 4,
+        "ratingCount": 317,
+        "type": "Market",
+        "types": [
+          "Market",
+          "Convenience store",
+          "Fresh food market"
+        ],
+        "phoneNumber": "+54 11 4816-6832",
+        "openingHours": {
+          "Friday": "8 AM–12 AM",
+          "Saturday": "8 AM–12 AM",
+          "Sunday": "Closed",
+          "Monday": "Closed",
+          "Tuesday": "8 AM–12 AM",
+          "Wednesday": "8 AM–12 AM",
+          "Thursday": "8 AM–12 AM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOPEOqsmayIb38QgDZOWTb-cIGaOMVZkOz0csOxQk9PfJsZGFNi8xIiqlze4XJmUlhpQIPoxUI2v0NLPA_5tMeRB0chp93aLKrfzKZOAddsQgDgfDXudLket-hCxPgCCFXBHBKGwQ",
+        "cid": "7188157942409131150",
+        "fid": "0x95bccabf9a2584df:0x63c177906ab2f48e",
+        "placeId": "ChIJ34Qlmr_KvJURjvSyapB3wWM"
+      },
+      {
+        "position": 12,
+        "title": "Dulce de Leche & Co. Mercado de San Telmo",
+        "address": "Defensa 961 Loc 91, C1066 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.619155,
+        "longitude": -58.3716097,
+        "rating": 4.9,
+        "ratingCount": 392,
+        "type": "Gourmet grocery store",
+        "types": [
+          "Gourmet grocery store"
+        ],
+        "website": "https://www.dulcedelecheco.com/",
+        "phoneNumber": "+54 9 11 3399-8326",
+        "openingHours": {
+          "Friday": "10 AM–8 PM",
+          "Saturday": "10 AM–8 PM",
+          "Sunday": "10 AM–8 PM",
+          "Monday": "10 AM–7 PM",
+          "Tuesday": "10 AM–7 PM",
+          "Wednesday": "10 AM–7 PM",
+          "Thursday": "10 AM–7 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNO-CPMvJPB2QPflfXvqvQjhmIoy-9LenECjeywCYpqjYYJR7Lk8P8f9zZZQp-hM_V4csvU-XnKuM3C_xq_tREUnsrFepltnND5rs32OubxFkY850aO6ZKv7V_cSPYrDBLtgS0L",
+        "cid": "13372290294392342505",
+        "fid": "0x95a3357e271550cf:0xb993eb2c5ea8c7e9",
+        "placeId": "ChIJz1AVJ341o5UR6ceoXizrk7k"
+      },
+      {
+        "position": 13,
+        "title": "Mercado San Cristobal",
+        "address": "Av. Entre Ríos 754, C1834 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6176575,
+        "longitude": -58.391361399999994,
+        "rating": 3.8,
+        "ratingCount": 1754,
+        "type": "Market",
+        "types": [
+          "Market"
+        ],
+        "openingHours": {
+          "Friday": "9 AM–7 PM",
+          "Saturday": "9 AM–5 PM",
+          "Sunday": "Closed",
+          "Monday": "9 AM–7 PM",
+          "Tuesday": "9 AM–7 PM",
+          "Wednesday": "9 AM–7 PM",
+          "Thursday": "9 AM–7 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPoBljWpeV84tQnHg3K0rzZtFqDET1paB14O3cIMhLuAi7AyLcU5kEOsNnG3YjPXbK_5lV5Bqg2wck1GWzTEqeSyK3bqbsmmd3cpmoxc8JkagqAXLuk_mK89OCd3B_-pFGk1Qlz",
+        "cid": "9888706466129342512",
+        "fid": "0x95bccadf009d1265:0x893bbe2369bf7030",
+        "placeId": "ChIJZRKdAN_KvJURMHC_aSO-O4k"
+      },
+      {
+        "position": 14,
+        "title": "La Casa del Dulce de Leche - Mercado de San Telmo",
+        "address": "Mercado de San Telmo, Defensa 961 Loc 101-102, C1065 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.619155,
+        "longitude": -58.3716097,
+        "rating": 4.9,
+        "ratingCount": 775,
+        "type": "Candy store",
+        "types": [
+          "Candy store",
+          "Chocolate cafe",
+          "Ice cream shop",
+          "Wine store"
+        ],
+        "website": "https://www.lacasadeldulcedeleche.com.ar/",
+        "phoneNumber": "+54 11 3587-2023",
+        "openingHours": {
+          "Friday": "9 AM–8 PM",
+          "Saturday": "9 AM–8 PM",
+          "Sunday": "9 AM–8 PM",
+          "Monday": "9 AM–8 PM",
+          "Tuesday": "9 AM–8 PM",
+          "Wednesday": "9 AM–8 PM",
+          "Thursday": "9 AM–8 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMWLY8V4U7rxpb1tgzPBlTfIjvRHgqW_909MRVFb1NihLdymTAPFVYZONK5SnvyZmNA9-yWg31sQZB1LR2pYb38pTYj6pqTy2e_B17t8vCuLQ7QNsY_aasSNRrYPmSR3DkDQkk09TnGHoyO",
+        "cid": "18105958480731404689",
+        "fid": "0x95a334d33355a137:0xfb45494f09f77991",
+        "placeId": "ChIJN6FVM9M0o5URkXn3CU9JRfs"
+      },
+      {
+        "position": 15,
+        "title": "El Mercado",
+        "address": "Martha Salotti 445 Faena, C1107 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6141102,
+        "longitude": -58.3617968,
+        "rating": 4.7,
+        "ratingCount": 2066,
+        "priceLevel": "ARS 100,000+",
+        "type": "Grill",
+        "types": [
+          "Grill",
+          "Argentinian restaurant",
+          "Carvery",
+          "Restaurant"
+        ],
+        "website": "https://www.faena.com/buenos-aires/dining/el-mercado",
+        "phoneNumber": "+54 11 5039-1147",
+        "openingHours": {
+          "Friday": "12:30–3:30 PM, 7–11:30 PM",
+          "Saturday": "12:30–3:30 PM, 7–11:30 PM",
+          "Sunday": "12:30–3:30 PM, 7–11:30 PM",
+          "Monday": "12:30–3:30 PM, 7–11:30 PM",
+          "Tuesday": "12:30–3:30 PM, 7–11:30 PM",
+          "Wednesday": "12:30–3:30 PM, 7–11:30 PM",
+          "Thursday": "12:30–3:30 PM, 7–11:30 PM"
+        },
+        "bookingLinks": [
+          "https://www.wokiapp.com/restaurante/el-mercado",
+          "https://wa.me/5491150391147",
+          "https://www.google.com/maps/reserve/v/dine/c/S-lhp4jdi9A?source=pa&opi=79508299"
+        ],
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNOdUV17D2X9YnOMolvfB3E1RiuwzJHh9BhO6VJtqVmCS5c2g0CR5KOfTJ70wV7M1Ypnyvy9Kq5Caux7Ik0aoN5WKGWl4dIkg0GBvfNvt07MxE0Vo4pduGf-GAsN8BaX7fGJs-_eqa5YwKV",
+        "cid": "15684139124807143853",
+        "fid": "0x95a33543046d0527:0xd9a9416f95ef91ad",
+        "placeId": "ChIJJwVtBEM1o5URrZHvlW9Bqdk"
+      },
+      {
+        "position": 16,
+        "title": "Mercado de las Pulgas",
+        "address": "Av. Dorrego 1650, 1414 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.582201,
+        "longitude": -58.444201,
+        "rating": 4.1,
+        "ratingCount": 14593,
+        "type": "Flea market",
+        "types": [
+          "Flea market",
+          "Antique furniture store",
+          "Market"
+        ],
+        "website": "http://www.buenosaires.gob.ar/ambienteyespaciopublico/mantenimiento/feriasymercados/mercados/mercado-de-las-pulgas",
+        "description": "Covered flea market with multiple vendors specializing in antiques, decor & furniture.",
+        "openingHours": {
+          "Friday": "11 AM–6:30 PM",
+          "Saturday": "11 AM–6:30 PM",
+          "Sunday": "11 AM–6:30 PM",
+          "Monday": "Closed",
+          "Tuesday": "11 AM–6:30 PM",
+          "Wednesday": "11 AM–6:30 PM",
+          "Thursday": "11 AM–6:30 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmM3aMtZbvZFGLp0dsbymLNPfKwCCBRUSfxxPgeVvHzLbwcomFxfTRnt5NQsreY_HeBTNyXmjm2YgzVudkUs7iNtwU-umSYYBnRjhlo73b7O3np96GPtFSZpC3ehV1Q6f8DIv4thjg",
+        "cid": "650691482888486982",
+        "fid": "0x95bcb5ec3948a62b:0x907b874c7f0c046",
+        "placeId": "ChIJK6ZIOey1vJURRsDwx3S4Bwk"
+      },
+      {
+        "position": 17,
+        "title": "Feria de San Telmo-Puesto 176",
+        "address": "Don Anselmo Aieta 1083, C1165ABP Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.620408399999995,
+        "longitude": -58.3722138,
+        "rating": 5,
+        "ratingCount": 2,
+        "type": "Market",
+        "types": [
+          "Market"
+        ],
+        "website": "http://mercadolibre.com.ar/pagina/jjlminerales",
+        "phoneNumber": "+54 9 11 6260-0881",
+        "openingHours": {
+          "Friday": "Closed",
+          "Saturday": "Closed",
+          "Sunday": "10 AM–5 PM",
+          "Monday": "Closed",
+          "Tuesday": "Closed",
+          "Wednesday": "Closed",
+          "Thursday": "Closed"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOUidTsbnrn9xvd4kUEHLJgEbfGek10zPHyX_Be0WtN7tH6XNVeXL_G5yurlpJ4Hf402kQkiy2j8lZp1nhS-ZYsfM2gd_F8vdvk015SAmOUrOGCwil33w_YFFHPZt8ZZ5PEr92YlSvtLalB",
+        "cid": "13400588152649208817",
+        "fid": "0x95bccb002ff562e7:0xb9f873ecebf6d3f1",
+        "placeId": "ChIJ52L1LwDLvJUR8dP26-xz-Lk"
+      },
+      {
+        "position": 18,
+        "title": "La Cafeteria del Mercado de San Telmo",
+        "address": "Bolívar 970, C1066 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6192448,
+        "longitude": -58.3725691,
+        "rating": 3.9,
+        "ratingCount": 53,
+        "priceLevel": "ARS 1–10,000",
+        "type": "Espresso bar",
+        "types": [
+          "Espresso bar"
+        ],
+        "phoneNumber": "+54 11 4314-0133",
+        "openingHours": {
+          "Friday": "9 AM–8 PM",
+          "Saturday": "9 AM–8 PM",
+          "Sunday": "9 AM–8 PM",
+          "Monday": "9 AM–8 PM",
+          "Tuesday": "Closed",
+          "Wednesday": "9 AM–8 PM",
+          "Thursday": "9 AM–8 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMXNl5FGEEREwLpnn6MAGrIIMMTrzudVlm6ZHk8TdgjXtJofjllHq0igAKYRYt9IO1_ls4W7v4fTZy8oZ2jzIekC_qqD_DIKWkocyxWtOcPCAJLg9Ii3BgC5AawUip2t7VX7KGyUQK4c-o",
+        "cid": "16573962559730456495",
+        "fid": "0x95bccbfbaf2a7709:0xe6028b22ad5b97af",
+        "placeId": "ChIJCXcqr_vLvJURr5dbrSKLAuY"
+      },
+      {
+        "position": 19,
+        "title": "Mercado Argentino Vintage",
+        "address": "Humberto 1° 499, C1103 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6206236,
+        "longitude": -58.3727302,
+        "rating": 4.2,
+        "ratingCount": 41,
+        "type": "Vintage clothing store",
+        "types": [
+          "Vintage clothing store"
+        ],
+        "website": "https://www.instagram.com/mercado.argentino.vintage/",
+        "phoneNumber": "+54 9 11 2897-7634",
+        "openingHours": {
+          "Friday": "11 AM–7 PM",
+          "Saturday": "11 AM–7 PM",
+          "Sunday": "11 AM–7 PM",
+          "Monday": "11 AM–7 PM",
+          "Tuesday": "11 AM–7 PM",
+          "Wednesday": "11 AM–7 PM",
+          "Thursday": "11 AM–7 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMQLaipJOq152IpbJsvl2btz4ODL3tVCI7j_iJ2bLjq8e79tK0GXGr-R_ZnInCY5aMvpXQAuMWMxhBP8_6yHBw4H5QV8V9McBKN6n0kGMyePoWRRr9oqk4_nzZdLAzFeAikLd0TvQ",
+        "cid": "17043709889758528058",
+        "fid": "0x95bccbd06878f519:0xec876bd7e1de823a",
+        "placeId": "ChIJGfV4aNDLvJUROoLe4ddrh-w"
+      },
+      {
+        "position": 20,
+        "title": "Feria San Telmo calle defensa y chile",
+        "address": "Chile 371, C1098AAH, C1098 C1098AAH, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6158485,
+        "longitude": -58.371452,
+        "rating": 4.7,
+        "ratingCount": 784,
+        "type": "Shopping mall",
+        "types": [
+          "Shopping mall"
+        ],
+        "phoneNumber": "+54 11 5942-6204",
+        "openingHours": {
+          "Friday": "Closed",
+          "Saturday": "Closed",
+          "Sunday": "9 AM–6 PM",
+          "Monday": "Closed",
+          "Tuesday": "Closed",
+          "Wednesday": "Closed",
+          "Thursday": "Closed"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPmAT5F2uu2X2r56Bf8sbsdR-PgJN0GxpQJRwtvKugjgUPH2OrqgmE3xxG2Tu07YQI2XmC7qa2BwI8bGbi5UsdSqACp3bl-AfBvHil_ugnmoIZ2Z6PSbAginaFw6AoLwHoNGjl0l8lWBbi7",
+        "cid": "12290163641982845701",
+        "fid": "0x95a335cda287be0f:0xaa8f6eb75fcf0305",
+        "placeId": "ChIJD76Hos01o5URBQPPX7duj6o"
+      }
+    ],
+    "credits": 3
+  }
+}

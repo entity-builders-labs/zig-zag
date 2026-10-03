@@ -1,0 +1,236 @@
+{
+  "runLabel": "rw2-warm",
+  "tourId": "58970e6c-8ee6-4f87-8957-4584742a3116",
+  "generationStatus": "completed",
+  "pollElapsedMs": 34336,
+  "steps": [
+    "preference_interpretation",
+    "tour_intent",
+    "destination_resolution",
+    "anchor_geo_resolution",
+    "coverage_analysis",
+    "db_search",
+    "candidate_pool",
+    "embeddings",
+    "daily_planning",
+    "tour_completeness"
+  ],
+  "providers": {
+    "commons.wikimedia.org": 1,
+    "geoapify/v1/routing": 55,
+    "groq": 1,
+    "localhost:11434": 1,
+    "nominatim.local/search": 5,
+    "overpass.local": 5,
+    "wikidata": 2,
+    "wikipedia(en.wikipedia.org)": 2,
+    "wikipedia(es.wikipedia.org)": 1
+  },
+  "preferenceInterpretation": {
+    "model": "qwen/qwen3.8-27b",
+    "anchoredPlaces": [
+      {
+        "usage": "geographic_scope",
+        "rawName": "San Telmo",
+        "priority": "soft"
+      },
+      {
+        "usage": "geographic_scope",
+        "rawName": "La Boca",
+        "priority": "soft"
+      }
+    ],
+    "preferredFacets": [
+      {
+        "key": "history",
+        "source": "free_text",
+        "evidence": [
+          {
+            "text": "especialmente su historia",
+            "source": "user_free_text"
+          }
+        ],
+        "dimension": "theme",
+        "confidence": 0.95,
+        "importance": 1
+      },
+      {
+        "key": "architecture",
+        "source": "free_text",
+        "evidence": [
+          {
+            "text": "especialmente su historia, arquitectura",
+            "source": "user_free_text"
+          }
+        ],
+        "dimension": "theme",
+        "confidence": 0.95,
+        "importance": 1
+      }
+    ],
+    "positiveSemanticQuery": "history architecture landmarks San Telmo La Boca",
+    "preferenceSpec_facets": [
+      {
+        "key": "history",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "theme"
+      },
+      {
+        "key": "architecture",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "theme"
+      },
+      {
+        "key": "walk",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "intent"
+      }
+    ],
+    "preferenceSpec_semanticQuery": "history architecture landmarks San Telmo La Boca"
+  },
+  "resolvedAnchors": [
+    {
+      "rawName": "San Telmo",
+      "usage": "geographic_scope",
+      "priority": "soft",
+      "status": "resolved",
+      "kind": "area",
+      "canonicalName": "San Telmo",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069"
+    },
+    {
+      "rawName": "La Boca",
+      "usage": "geographic_scope",
+      "priority": "soft",
+      "status": "resolved",
+      "kind": "area",
+      "canonicalName": "La Boca",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223879"
+    }
+  ],
+  "entity_resolution": {
+    "summary": null,
+    "status": null
+  },
+  "geographic_validation": {
+    "summary": null,
+    "status": null
+  },
+  "catalog_materialization": {
+    "summary": null,
+    "status": null
+  },
+  "materializedTour": [
+    {
+      "order": 1,
+      "name": "Museo Casa Taller 'Celia Chevalier'",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 2,
+      "name": "Museo Histórico de Cera",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 3,
+      "name": "Museo de Artistas Argentinos Benito Quinquela Martín",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 4,
+      "name": "La flor de la vida",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 5,
+      "name": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf",
+      "componentCount": 1,
+      "durationMinutes": 120
+    }
+  ],
+  "dbAfter": {
+    "experience": 15,
+    "experienceByStatus": {
+      "VERIFIED": 15
+    },
+    "geoEntity": 23,
+    "geoEntityByKind": {
+      "PLACE": 19,
+      "ROUTE": 2,
+      "AREA": 2
+    },
+    "experienceComponent": 21,
+    "duplicateExperienceNames": 0,
+    "duplicateIdentityRows": 0
+  },
+  "composites": [
+    {
+      "id": "b353fc85-2a41-4b23-af24-6814100f8d31",
+      "name": "San Telmo to La Boca History Walk",
+      "components": 7,
+      "componentSet": [
+        {
+          "geoEntityId": "c74f19ba-5062-4dad-82b5-c5c9ba94b3c8",
+          "geoEntity": "Plaza de Mayo",
+          "kind": "PLACE",
+          "order": 1,
+          "role": "waypoint"
+        },
+        {
+          "geoEntityId": "e0a3b437-ca00-493b-b819-e73c80f907b9",
+          "geoEntity": "Defensa",
+          "kind": "ROUTE",
+          "order": 2,
+          "role": "route"
+        },
+        {
+          "geoEntityId": "18c038ac-fdc3-4e32-a35a-ee66fbf87569",
+          "geoEntity": "Plaza Dorrego",
+          "kind": "PLACE",
+          "order": 3,
+          "role": "waypoint"
+        },
+        {
+          "geoEntityId": "9d82d370-60bd-4527-91ac-1a4938954c9e",
+          "geoEntity": "Mercado de San Telmo",
+          "kind": "PLACE",
+          "order": 4,
+          "role": "venue"
+        },
+        {
+          "geoEntityId": "20067059-1025-48ce-8c45-be2be7ff4516",
+          "geoEntity": "Avenida Almirante Brown",
+          "kind": "ROUTE",
+          "order": 5,
+          "role": "route"
+        },
+        {
+          "geoEntityId": "cce1c905-413f-4ae5-89a5-c5d698bd2b98",
+          "geoEntity": "Caminito",
+          "kind": "PLACE",
+          "order": 6,
+          "role": "waypoint"
+        },
+        {
+          "geoEntityId": "cab24102-a362-4029-b1f0-45638303dd95",
+          "geoEntity": "Plaza Paseo del Riachuelo",
+          "kind": "PLACE",
+          "order": 7,
+          "role": "waypoint"
+        }
+      ]
+    }
+  ]
+}

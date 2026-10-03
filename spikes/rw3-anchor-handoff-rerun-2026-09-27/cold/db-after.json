@@ -1,0 +1,16 @@
+{
+  "database": "zigzag_spike_rw3_anchor_handoff",
+  "capturedAt": "2026-09-27T22:18:53Z",
+  "geoEntity": 3,
+  "geoEntityByKind": { "ROUTE" : 1, "PLACE" : 2 },
+  "geoEntityIdentity": 3,
+  "verifiedHintMemoryEntries": 2,
+  "duplicateIdentityRows": 0,
+  "duplicateVerifiedHintKeysWithinKind": [],
+  "experience": 0,
+  "experienceByStatus": {},
+  "experienceComponent": 0,
+  "duplicateExperienceNames": 0,
+  "experiences": [],
+  "geoEntities": [{"id":"e05e3d4d-18c1-4565-a370-6de93c0fbc77","name":"Caminito","kind":"ROUTE","geometrytype":"MultiLineString","hints":[],"identities":["openstreetmap:osm:way:144844726"]}, {"id":"ee7857e5-1c13-43da-a768-babad2022067","name":"Caminito","kind":"PLACE","geometrytype":"Point","hints":["Caminito"],"identities":["openstreetmap:osm:node:10303343309"]}, {"id":"91426ed4-7a71-45e2-9e68-5b8c87ed5b99","name":"Museo de Artistas Argentinos Benito Quinquela Martín","kind":"PLACE","geometrytype":"Point","hints":["Benito Quinquela Martin Museum"],"identities":["openstreetmap:osm:node:5721009562"]}]
+}

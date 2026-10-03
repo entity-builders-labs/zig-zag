@@ -1,0 +1,44 @@
+{
+  "legend": [
+    "NO_CANDIDATE",
+    "CANDIDATE_ACQUIRED_BUT_INCOMPATIBLE",
+    "CANDIDATE_ACQUIRED_BUT_UNVERIFIED",
+    "VERIFIED",
+    "PROVIDER_UNAVAILABLE",
+    "NOT_PROBED"
+  ],
+  "evidence": "../resolver-replay.json, ../provider-probes.json, ../osm-wikidata-site-probe.json (COLD #11 policy ROUTE_LIKE; DEFAULT contrast)",
+  "fixtures": {
+    "Alfa Crux": {
+      "osmLocal": "NO_CANDIDATE",
+      "nominatim": "NO_CANDIDATE",
+      "geoapify": "NO_CANDIDATE",
+      "wikidata": "NO_CANDIDATE",
+      "google": "NOT_PROBED (legal gate)",
+      "sourceLinkedPage": "declares 'Calle Los Indios s/n, M5567 Valle de Uco' (level 2 evidence, group host)"
+    },
+    "SuperUco": {
+      "osmLocal": "NO_CANDIDATE",
+      "nominatim": "NO_CANDIDATE",
+      "geoapify": "NO_CANDIDATE",
+      "wikidata": "NO_CANDIDATE",
+      "google": "NOT_PROBED (legal gate)",
+      "sourceLinkedPage": "PROVIDER_UNAVAILABLE-like: HTTP 403 bot challenge"
+    },
+    "Bodega Azul": {
+      "osmLocal": "candidate node/4851595199 'Bodega La Azul' exists (found by name 'Bodega La Azul', not by 'Bodega Azul')",
+      "nominatim": "'Bodega Azul' -> CANDIDATE_ACQUIRED_BUT_INCOMPATIBLE (unrelated object ~929 km)",
+      "geoapify": "ROUTE_LIKE: CANDIDATE_ACQUIRED_BUT_UNVERIFIED (REJECTED on non-matching Wikidata NEARBY); DEFAULT: CANDIDATE_ACQUIRED_BUT_INCOMPATIBLE (OUTSIDE_DESTINATION_BOUNDARY)",
+      "wikidata": "NO_CANDIDATE",
+      "google": "NOT_PROBED (legal gate)"
+    },
+    "A16": {
+      "osmLocal": "NO_CANDIDATE",
+      "nominatim": "NO_CANDIDATE selected (house numbers/streets elsewhere)",
+      "geoapify": "CANDIDATE_ACQUIRED_BUT_UNVERIFIED: wrong object 'FC Belgrano' (correctly REJECTED); DEFAULT: incompatible",
+      "wikidata": "NO_CANDIDATE",
+      "google": "NOT_PROBED (legal gate)",
+      "sourceLinkedPage": "declares 'Ruta 7 y Calle Cobos 5890, Perdriel, Luján de Cuyo'"
+    }
+  }
+}

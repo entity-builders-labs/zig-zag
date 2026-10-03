@@ -1,0 +1,58 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Recoleta Cemetery",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:49.673Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 916
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Recoleta Cemetery",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.5873639,-58.3955304,18.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Recoleta Cemetery",
+        "address": "Junín 1760, C1113 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.5873639,
+        "longitude": -58.3929555,
+        "rating": 4.3,
+        "ratingCount": 7230,
+        "type": "Cemetery",
+        "types": [
+          "Cemetery"
+        ],
+        "website": "https://turismo.buenosaires.gob.ar/es/otros-establecimientos/cementerio-de-la-recoleta",
+        "phoneNumber": "+54 11 4803-1594",
+        "description": "Built in 1822, this statue-rich cemetery features mausoleums of many notables, including Eva Perón.",
+        "openingHours": {
+          "Friday": "9 AM–5 PM",
+          "Saturday": "9 AM–5 PM",
+          "Sunday": "9 AM–5 PM",
+          "Monday": "9 AM–5 PM",
+          "Tuesday": "9 AM–5 PM",
+          "Wednesday": "9 AM–5 PM",
+          "Thursday": "9 AM–5 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmP3rC-y08iOG6vs-WioVnwp0VT_PQmz89236YudOO838K3Zs__C2joupb14TXJXCd9am2bVSgB0cqdqejPfOSX6gvwUX8ZojKby8p1NTnI2bjbniiFpq-19w-Prd8d5lkZERstO",
+        "cid": "11608039888759793091",
+        "fid": "0x95bccaa2f10791b3:0xa1180ac6dc17a5c3",
+        "placeId": "ChIJs5EH8aLKvJURw6UX3MYKGKE"
+      }
+    ],
+    "credits": 3
+  }
+}

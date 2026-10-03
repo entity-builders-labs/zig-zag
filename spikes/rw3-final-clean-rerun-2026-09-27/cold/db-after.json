@@ -1,0 +1,16 @@
+{
+  "database": "zigzag_spike_rw3_clean",
+  "capturedAt": "2026-09-28T01:19:45Z",
+  "geoEntity": 1,
+  "geoEntityByKind": { "ROUTE" : 1 },
+  "geoEntityIdentity": 1,
+  "verifiedHintMemoryEntries": 0,
+  "duplicateIdentityRows": 0,
+  "duplicateVerifiedHintKeysWithinKind": [],
+  "experience": 0,
+  "experienceByStatus": {},
+  "experienceComponent": 0,
+  "duplicateExperienceNames": 0,
+  "experiences": [],
+  "geoEntities": [{"id":"a8b156c3-2bd1-43d5-af63-9f09322973aa","name":"Caminito","kind":"ROUTE","geometrytype":"MultiLineString","hints":[],"identities":["openstreetmap:osm:way:144844726"]}]
+}

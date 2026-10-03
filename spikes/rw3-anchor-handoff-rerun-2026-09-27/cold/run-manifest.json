@@ -1,0 +1,15 @@
+{
+  "runLabel": "rw3-handoff-cold",
+  "tourId": "6b6ba0f2-ddb4-4c99-af50-f7f0e3b7d130",
+  "email": "rw3-spike-rw3-handoff-cold-1790547487347@example.com",
+  "baseUrl": "http://localhost:4051",
+  "requestFile": "request.json",
+  "createHttpMs": 38,
+  "generationStatus": "failed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 40475,
+  "startedAt": "2026-09-27T22:18:07.513Z",
+  "finishedAt": "2026-09-27T22:18:47.996Z"
+}

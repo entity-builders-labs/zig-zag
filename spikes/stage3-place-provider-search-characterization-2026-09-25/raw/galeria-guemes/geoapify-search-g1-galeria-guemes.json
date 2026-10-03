@@ -1,0 +1,69 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "Galería Güemes",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 647,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galería Güemes",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "Ramos Mejía",
+        "postcode": "B1704ETD",
+        "suburb": "Ramos Mejía Norte",
+        "street": "Martín Miguel de Güemes",
+        "iso3166_2": "AR-B",
+        "lon": -58.5657864,
+        "lat": -34.6397571,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 17324.260842992764,
+        "formatted": "Galería Güemes, Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "address_line1": "Galería Güemes",
+        "address_line2": "Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C6M+3M",
+        "rank": {
+          "importance": 0.000046261539635263866,
+          "popularity": 7.363571814268174,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51c34252b06b484dc05920f1868fe35141c0f00102f901d46af42200000000c0020192031047616c6572c3ad612047c3bc656d6573",
+        "bbox": {
+          "lon1": -58.5660541,
+          "lat1": -34.6398031,
+          "lon2": -58.5655187,
+          "lat2": -34.6397112
+        }
+      }
+    ],
+    "query": {
+      "text": "Galería Güemes"
+    }
+  }
+}

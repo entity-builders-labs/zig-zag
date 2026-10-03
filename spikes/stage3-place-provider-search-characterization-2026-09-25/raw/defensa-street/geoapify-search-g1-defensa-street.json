@@ -1,0 +1,436 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "Defensa Street",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1285,
+  "response": {
+    "results": [
+      {
+        "country_code": "ar",
+        "name": "Defensa",
+        "street": "Defensa",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "iso3166_2": "AR-C",
+        "lon": -58.371755,
+        "lat": -34.615393,
+        "result_type": "street",
+        "distance": 1581.8740505860446,
+        "postcode": "1871",
+        "formatted": "Defensa, Monserrat, 1871 Buenos Aires, Argentina",
+        "address_line1": "Defensa",
+        "address_line2": "Monserrat, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JMH+R7",
+        "plus_code_short": "MH+R7 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51ef8ff7aa952f4dc059fa97a432c54e41c0c00204920307446566656e7361e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363030313838",
+        "bbox": {
+          "lon1": -58.372134,
+          "lat1": -34.62184,
+          "lon2": -58.371329,
+          "lat2": -34.608943
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Defensa",
+        "street": "Defensa",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "iso3166_2": "AR-C",
+        "lon": -58.371273,
+        "lat": -34.623034,
+        "result_type": "street",
+        "distance": 2348.4003210375095,
+        "postcode": "1871",
+        "formatted": "Defensa, San Telmo, 1871 Buenos Aires, Argentina",
+        "address_line1": "Defensa",
+        "address_line2": "San Telmo, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JGH+QF",
+        "plus_code_short": "GH+QF Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.896537017513978,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51a471a8df852f4dc059e525ff93bf4f41c0c00204920307446566656e7361e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3334313431313639",
+        "bbox": {
+          "lon1": -58.371329,
+          "lat1": -34.624227,
+          "lon2": -58.371193,
+          "lat2": -34.62184
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Defensa",
+        "street": "Defensa",
+        "country": "Argentina",
+        "county": "Avellaneda",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "AV",
+        "iso3166_2": "AR-B",
+        "lon": -58.350153,
+        "lat": -34.645879,
+        "result_type": "street",
+        "distance": 5502.426401856402,
+        "postcode": "1871",
+        "formatted": "Defensa, 1871 BA, Argentina",
+        "address_line1": "Defensa",
+        "address_line2": "1871 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39J3X+JW",
+        "rank": {
+          "popularity": 6.893537222677505,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5153cc41d0d12c4dc0592b16bf29ac5241c0c00204920307446566656e7361e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363031373730",
+        "bbox": {
+          "lon1": -58.350552,
+          "lat1": -34.64822,
+          "lon2": -58.349911,
+          "lat2": -34.643559
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Defensa",
+        "street": "Defensa",
+        "country": "Argentina",
+        "county": "Lomas de Zamora",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "LZ",
+        "iso3166_2": "AR-B",
+        "lon": -58.445631,
+        "lat": -34.694879,
+        "result_type": "street",
+        "distance": 11708.930918604514,
+        "postcode": "1822",
+        "formatted": "Defensa, 1822 BA, Argentina",
+        "address_line1": "Defensa",
+        "address_line2": "1822 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q38H43+2P",
+        "rank": {
+          "popularity": 5.803713782656763,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51b98ac56f0a394dc059aed689cbf15841c0c00204920307446566656e7361e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363032373934",
+        "bbox": {
+          "lon1": -58.447152,
+          "lat1": -34.695669,
+          "lon2": -58.444101,
+          "lat2": -34.694098
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Defensa",
+        "street": "Defensa",
+        "country": "Argentina",
+        "county": "La Matanza",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "LM",
+        "suburb": "Comandante L. Piedrabuena",
+        "iso3166_2": "AR-B",
+        "lon": -58.520302,
+        "lat": -34.700727,
+        "result_type": "street",
+        "distance": 16654.3260730818,
+        "postcode": "1770",
+        "formatted": "Defensa, Comandante L. Piedrabuena, 1770 BA, Argentina",
+        "address_line1": "Defensa",
+        "address_line2": "Comandante L. Piedrabuena, 1770 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q37FXH+PV",
+        "rank": {
+          "popularity": 5.866069807402846,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "518e05854199424dc0594c361e6cb15941c0c00204920307446566656e7361e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363130343933",
+        "bbox": {
+          "lon1": -58.526784,
+          "lat1": -34.707618,
+          "lon2": -58.517842,
+          "lat2": -34.695929
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Defensa",
+        "street": "Defensa",
+        "country": "Argentina",
+        "county": "Moron",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "MN",
+        "iso3166_2": "AR-B",
+        "lon": -58.58842,
+        "lat": -34.640149,
+        "result_type": "street",
+        "distance": 19354.088599889594,
+        "postcode": "1706",
+        "formatted": "Defensa, 1706 BA, Argentina",
+        "address_line1": "Defensa",
+        "address_line2": "1706 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C56+WJ",
+        "rank": {
+          "popularity": 6.372767145822759,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51fa27b858514b4dc05997c80567f05141c0c00204920307446566656e7361e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363039363836",
+        "bbox": {
+          "lon1": -58.595636,
+          "lat1": -34.641016,
+          "lon2": -58.581913,
+          "lat2": -34.638068
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Defensa",
+        "street": "Defensa",
+        "country": "Argentina",
+        "county": "Tigre",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "TI",
+        "iso3166_2": "AR-B",
+        "lon": -58.596706,
+        "lat": -34.436579,
+        "result_type": "street",
+        "distance": 27086.998540254393,
+        "postcode": "1646",
+        "formatted": "Defensa, 1646 BA, Argentina",
+        "address_line1": "Defensa",
+        "address_line2": "1646 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3HC73+98",
+        "rank": {
+          "popularity": 5.408673418901709,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51daa9b9dc604c4dc059698f17d2e13741c0c00204920307446566656e7361e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238353730353533",
+        "bbox": {
+          "lon1": -58.598689,
+          "lat1": -34.437192,
+          "lon2": -58.594724,
+          "lat2": -34.435966
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Defensa",
+        "street": "Defensa",
+        "country": "Argentina",
+        "county": "Malvinas Argentinas",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "MV",
+        "iso3166_2": "AR-B",
+        "lon": -58.650496,
+        "lat": -34.496057,
+        "result_type": "street",
+        "distance": 27381.233701596688,
+        "postcode": "1611",
+        "formatted": "Defensa, 1611 BA, Argentina",
+        "address_line1": "Defensa",
+        "address_line2": "1611 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3G83X+HR",
+        "rank": {
+          "popularity": 5.566093918541172,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51e316f37343534dc059d7f9b7cb7e3f41c0c00204920307446566656e7361e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238353638373935",
+        "bbox": {
+          "lon1": -58.651455,
+          "lat1": -34.496838,
+          "lon2": -58.649531,
+          "lat2": -34.49528
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Defensa",
+        "street": "Defensa",
+        "country": "Argentina",
+        "county": "Merlo",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "ME",
+        "iso3166_2": "AR-B",
+        "lon": -58.689455,
+        "lat": -34.671132,
+        "result_type": "street",
+        "distance": 29145.85402902689,
+        "postcode": "1713",
+        "formatted": "Defensa, 1713 BA, Argentina",
+        "address_line1": "Defensa",
+        "address_line2": "1713 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q388H6+G6",
+        "rank": {
+          "popularity": 5.733155090351753,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "512788ba0f40584dc05948a643a7e75541c0c00204920307446566656e7361e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363135303838",
+        "bbox": {
+          "lon1": -58.691604,
+          "lat1": -34.672908,
+          "lon2": -58.687296,
+          "lat2": -34.669364
+        }
+      }
+    ],
+    "query": {
+      "text": "Defensa Street",
+      "parsed": {
+        "street": "defensa street",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

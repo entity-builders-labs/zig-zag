@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Keyboard } from 'react-native';
 import {
   Box,
   Input,
@@ -10,254 +11,224 @@ import {
   Text,
   ScrollView,
   Icon,
+  Spinner,
 } from '@gluestack-ui/themed';
 import { Search, MapPin, X } from 'lucide-react-native';
-import * as ExpoLocation from 'expo-location';
+import {
+  PlaceSuggestion,
+  searchPlaces,
+  resolvePlace,
+} from '@/features/places-autocomplete';
+import { DestinationScaleHint } from '@/features/tours/tour-generation-contract';
 
 interface DestinationInputProps {
   value?: string;
   onDestinationChange: (
     destination: string,
-    coordinates?: { lat: number; lng: number }
+    coordinates?: { lat: number; lng: number },
+    radiusMeters?: number,
+    scaleHint?: DestinationScaleHint
   ) => void;
-}
-
-// NEW Places API calls via proxy
-async function placesAutocomplete(input: string) {
-  const resp = await fetch(
-    `${process.env.EXPO_PUBLIC_CORS_PROXY_URL || 'http://localhost:8080'}/gplaces/v1/places:autocomplete`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!,
-        'X-Goog-FieldMask':
-          'suggestions.placePrediction.placeId,suggestions.placePrediction.text',
-      },
-      body: JSON.stringify({ input }),
-    }
-  );
-  if (!resp.ok) throw new Error(`Autocomplete failed: ${resp.status}`);
-  return resp.json();
-}
-
-async function placeDetails(placeId: string) {
-  const resp = await fetch(
-    `${process.env.EXPO_PUBLIC_CORS_PROXY_URL || 'http://localhost:8080'}/gplaces/v1/places/${placeId}?fields=id,displayName,formattedAddress,location`,
-    {
-      headers: {
-        'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!,
-      },
-    }
-  );
-  if (!resp.ok) throw new Error(`Place details failed: ${resp.status}`);
-  return resp.json();
+  onDirtyChange?: (isDirty: boolean) => void;
 }
 
 export const DestinationInput: React.FC<DestinationInputProps> = ({
   value,
   onDestinationChange,
+  onDirtyChange,
 }) => {
   const [term, setTerm] = useState(value || '');
-  const [locationResults, setLocationResults] = useState<
-    { place_id: string; structured_formatting: { main_text: string } }[]
-  >([]);
-  const [isFocused, setIsFocused] = useState(false);
+  const [locationResults, setLocationResults] = useState<PlaceSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [confirmedValue, setConfirmedValue] = useState(value || '');
 
   useEffect(() => {
-    if (value) {
+    if (value !== undefined && value !== confirmedValue) {
+      setConfirmedValue(value);
       setTerm(value);
+      setLocationResults([]);
     }
   }, [value]);
 
   useEffect(() => {
+    // If term matches what was already selected/confirmed, don't trigger search
+    if (term === confirmedValue) {
+      setLocationResults([]);
+      setIsLoading(false);
+      return;
+    }
+
+    if (!term || term.trim().length < 3) {
+      setLocationResults([]);
+      setIsLoading(false);
+      return;
+    }
+
     const handler = setTimeout(async () => {
-      if (!term || term.length < 3) {
-        setLocationResults([]);
-        setIsLoading(false);
-        return;
-      }
       setIsLoading(true);
       try {
-        const data = await placesAutocomplete(term);
-        const items = (data.suggestions || [])
-          .map((s: any) => s.placePrediction)
-          .filter(Boolean)
-          .map((p: any) => ({
-            place_id: p.placeId,
-            structured_formatting: { main_text: p.text?.text || '' },
-          }));
-        setLocationResults(items);
+        const results = await searchPlaces(term.trim());
+        setLocationResults(results);
       } catch (e) {
         console.error('Autocomplete error', e);
         setLocationResults([]);
       } finally {
         setIsLoading(false);
       }
-    }, 300);
+    }, 200);
+
     return () => clearTimeout(handler);
-  }, [term]);
+  }, [term, confirmedValue]);
 
-  const handleSelectItem = async (item: {
-    place_id: string;
-    structured_formatting: { main_text: string };
-  }) => {
+  const handleSelectItem = async (item: PlaceSuggestion) => {
+    Keyboard.dismiss();
+    setLocationResults([]);
+
     try {
-      const details = await placeDetails(item.place_id);
-      const destinationName =
-        details.formattedAddress ||
-        details.displayName?.text ||
-        item.structured_formatting.main_text;
+      const details = await resolvePlace(item);
+      const placeName = details?.name || item.label;
+      const coords = details ? { lat: details.lat, lng: details.lng } : undefined;
+      const radius = details?.radiusMeters;
+      const scale = details?.scaleHint;
 
-      onDestinationChange(destinationName, {
-        lat: details.location.latitude,
-        lng: details.location.longitude,
-      });
-      setTerm(destinationName);
-      setLocationResults([]);
-      setIsFocused(false);
+      setConfirmedValue(placeName);
+      setTerm(placeName);
+      onDestinationChange(placeName, coords, radius, scale);
+      onDirtyChange?.(false);
     } catch (error) {
-      console.error('Failed to fetch place details:', error);
-      onDestinationChange(item.structured_formatting.main_text);
-      setTerm(item.structured_formatting.main_text);
-      setLocationResults([]);
-      setIsFocused(false);
+      console.error('Failed to resolve place:', error);
+      setConfirmedValue(item.label);
+      setTerm(item.label);
+      onDestinationChange(item.label);
+      onDirtyChange?.(true);
     }
   };
 
   const handleClear = () => {
+    setConfirmedValue('');
     setTerm('');
     setLocationResults([]);
     onDestinationChange('');
-    setIsFocused(false);
+    onDirtyChange?.(false);
   };
 
-  const showResults =
-    isFocused && locationResults.length > 0 && term.length >= 3;
+  const showDropdown = locationResults.length > 0 && term !== confirmedValue && term.length >= 3;
 
   return (
-    <Box position='relative' w='$full' zIndex={showResults ? 1000 : 1}>
+    <Box position='relative' w='$full' zIndex={showDropdown ? 1000 : 1}>
       <Input
         variant='outline'
         size='lg'
-        isFocused={isFocused}
-        isInvalid={false}
+        borderRadius='$xl'
+        borderColor='$borderLight300'
+        bg='$white'
+        h={50}
       >
-        <InputSlot pl='$3'>
-          <InputIcon as={Search} size='md' color='$textLight600' />
+        <InputSlot pl='$3.5'>
+          <InputIcon as={Search} size='md' color='$textLight500' />
         </InputSlot>
         <InputField
-          placeholder='Buscar destino'
+          placeholder='Ej: Roma, Italia o Barcelona...'
           value={term}
           onChangeText={(text) => {
             setTerm(text);
             if (!text) {
-              onDestinationChange('');
+              setConfirmedValue('');
               setLocationResults([]);
+              onDestinationChange('');
+              onDirtyChange?.(false);
+            } else {
+              onDirtyChange?.(true);
             }
           }}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => {
-            // Delay to allow item selection
-            setTimeout(() => setIsFocused(false), 200);
-          }}
+          color='$textLight900'
+          fontSize='$sm'
         />
-        {term.length > 0 && (
+        {isLoading ? (
           <InputSlot pr='$3'>
-            <Pressable onPress={handleClear}>
-              <InputIcon as={X} size='sm' color='$textLight600' />
+            <Spinner size='small' color='$primary500' />
+          </InputSlot>
+        ) : term.length > 0 ? (
+          <InputSlot pr='$3'>
+            <Pressable onPress={handleClear} hitSlop={10}>
+              <InputIcon as={X} size='sm' color='$textLight400' />
             </Pressable>
           </InputSlot>
-        )}
+        ) : null}
       </Input>
 
       {/* Results Dropdown */}
-      {showResults && (
+      {showDropdown && (
         <Box
           position='absolute'
-          top='$12'
-          left='$0'
-          right='$0'
-          zIndex={1001}
-          borderRadius='$md'
-          borderWidth='$1'
-          borderColor='$backgroundLight300'
+          top={56}
+          left={0}
+          right={0}
+          zIndex={9999}
+          borderRadius='$2xl'
+          borderWidth={1}
+          borderColor='$borderLight200'
+          bg='$white'
           shadowColor='$black'
-          shadowOffset={{ width: 0, height: 2 }}
-          shadowOpacity={0.1}
-          shadowRadius={8}
-          elevation={10}
-          maxHeight='$64'
+          shadowOffset={{ width: 0, height: 6 }}
+          shadowOpacity={0.12}
+          shadowRadius={16}
+          elevation={12}
+          maxHeight={260}
           overflow='hidden'
-          style={{
-            backgroundColor: '#FFFFFF',
-            opacity: 1,
-          }}
-          pointerEvents='box-none'
         >
-          <Box
-            style={{
-              backgroundColor: '#FFFFFF',
-              width: '100%',
-              height: '100%',
-            }}
-            pointerEvents='auto'
+          <ScrollView
+            nestedScrollEnabled={true}
+            keyboardShouldPersistTaps='always'
+            style={{ maxHeight: 260, backgroundColor: '#FFFFFF' }}
+            contentContainerStyle={{ padding: 6, backgroundColor: '#FFFFFF' }}
           >
-            <ScrollView
-              nestedScrollEnabled
-              style={{
-                backgroundColor: '#FFFFFF',
-                width: '100%',
-              }}
-              contentContainerStyle={{
-                backgroundColor: '#FFFFFF',
-              }}
-            >
-              <VStack
-                p='$2'
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  width: '100%',
-                }}
-              >
-                {locationResults.map((item) => (
-                  <Pressable
-                    key={item.place_id}
-                    onPress={() => handleSelectItem(item)}
-                  >
-                    {({ pressed }) => (
+            <VStack space='xs'>
+              {locationResults.map((item) => (
+                <Pressable
+                  key={item.id}
+                  onPress={() => handleSelectItem(item)}
+                  borderRadius='$xl'
+                  p='$2'
+                  $hover-bg='$backgroundLight100'
+                  $active-bg='$backgroundLight100'
+                >
+                  {({ pressed }) => (
+                    <Box
+                      flexDirection='row'
+                      alignItems='center'
+                      style={{
+                        backgroundColor: pressed ? '#F6F3EA' : 'transparent',
+                        borderRadius: 12,
+                        padding: 6,
+                      }}
+                    >
                       <Box
-                        flexDirection='row'
+                        w={34}
+                        h={34}
+                        borderRadius='$full'
+                        bg='$primary50'
                         alignItems='center'
-                        p='$3'
-                        borderRadius='$sm'
-                        style={{
-                          backgroundColor: pressed ? '#F3F4F6' : '#FFFFFF',
-                          width: '100%',
-                        }}
+                        justifyContent='center'
+                        mr='$3'
                       >
-                        <Box
-                          w='$8'
-                          h='$8'
-                          borderRadius='$full'
-                          bg='$primary50'
-                          alignItems='center'
-                          justifyContent='center'
-                          mr='$3'
-                        >
-                          <Icon as={MapPin} size='sm' color='$primary500' />
-                        </Box>
-                        <Text flex={1} size='md' color='$textLight900'>
-                          {item.structured_formatting.main_text}
-                        </Text>
+                        <Icon as={MapPin} size='sm' color='$primary500' />
                       </Box>
-                    )}
-                  </Pressable>
-                ))}
-              </VStack>
-            </ScrollView>
-          </Box>
+                      <Text
+                        flex={1}
+                        size='sm'
+                        color='$textLight900'
+                        fontWeight='$semibold'
+                        numberOfLines={2}
+                      >
+                        {item.label}
+                      </Text>
+                    </Box>
+                  )}
+                </Pressable>
+              ))}
+            </VStack>
+          </ScrollView>
         </Box>
       )}
     </Box>

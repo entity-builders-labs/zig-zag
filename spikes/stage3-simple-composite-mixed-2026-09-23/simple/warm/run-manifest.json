@@ -1,0 +1,15 @@
+{
+  "runLabel": "simple-warm",
+  "tourId": "4fa8c422-18b5-42cc-9c0e-430d44feee0e",
+  "email": "stage3-spike-simple-warm-1790189268201@example.com",
+  "baseUrl": "http://localhost:3000",
+  "requestFile": "request.json",
+  "createHttpMs": 29,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 128954,
+  "startedAt": "2026-09-23T18:47:48.324Z",
+  "finishedAt": "2026-09-23T18:49:57.282Z"
+}

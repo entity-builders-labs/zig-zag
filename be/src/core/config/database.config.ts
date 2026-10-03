@@ -1,6 +1,6 @@
 export const databaseConfig = () => ({
-    database: {
-      url: process.env.DATABASE_URL,
-      directUrl: process.env.DIRECT_URL,
-    },
-  });
+  database: {
+    url: process.env.DATABASE_URL,
+    directUrl: process.env.DIRECT_URL,
+  },
+});

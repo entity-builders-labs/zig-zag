@@ -1,0 +1,53 @@
+{
+  "label": "Ranking semántico",
+  "rules": [
+    {
+      "rule": "Usar similitud semántica solo cuando fue solicitada y está disponible",
+      "actual": "applied",
+      "reason": "La similitud se incorporó al ranking.",
+      "result": "PASS",
+      "ruleId": "RANK-SEMANTIC-001"
+    },
+    {
+      "rule": "Un candidato sin embedding no equivale a score semántico cero",
+      "reason": "La ausencia de embedding se conserva como señal no medida; otras señales pueden mantener el candidato.",
+      "result": "PASS",
+      "ruleId": "RANK-UNKNOWN-001"
+    }
+  ],
+  "stage": "embeddings",
+  "inputs": {
+    "model": "nomic-embed-text",
+    "provider": "ollama",
+    "eligibleCandidateCount": 6
+  },
+  "status": "PASS",
+  "outputs": {
+    "measuredRatio": 1,
+    "indexedCandidateCount": 6,
+    "offeredCandidateCount": 6
+  },
+  "summary": "Ranking semántico solicitado y aplicado sobre 6 candidato(s) elegible(s) del destino: 6 tenían un vector compatible con el índice activo y se ofrecieron 6 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+  "decision": {
+    "reason": "Índice semántico compatible disponible.",
+    "status": "PASS",
+    "outcome": "SEMANTIC_SIGNAL_APPLIED",
+    "reasonCodes": [
+      "APPLIED"
+    ],
+    "triggeredActions": [
+      "BUILD_RANKED_WINDOW"
+    ]
+  },
+  "component": "VectorStoreService + pgvector",
+  "semanticRanking": {
+    "model": "nomic-embed-text",
+    "status": "applied",
+    "provider": "ollama",
+    "dimensions": 256,
+    "documentVersion": 3,
+    "indexedCandidateCount": 6,
+    "offeredCandidateCount": 6,
+    "eligibleCandidateCount": 6
+  }
+}

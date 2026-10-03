@@ -1,0 +1,60 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Basílica de San Francisco",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:39.684Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 702
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Basílica de San Francisco",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.6103538,-58.3744953,18.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Iglesia y Convento de San Francisco - Capilla San Roque",
+        "address": "Basilica de San Francisco, Adolfo Alsina 380, C1087AAD Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6103538,
+        "longitude": -58.3719204,
+        "rating": 4.6,
+        "ratingCount": 563,
+        "type": "Basilica",
+        "types": [
+          "Basilica",
+          "Church",
+          "Tourist attraction"
+        ],
+        "website": "https://ofm.org.ar/2021/02/08/basilica-san-francisco-de-asis-caba/",
+        "phoneNumber": "+54 11 4331-0625",
+        "description": "Grand, 18th-century Catholic church, remodeled in the early 20th century in Bavarian Baroque style.",
+        "openingHours": {
+          "Friday": "8 AM–3 PM",
+          "Saturday": "7–8 PM",
+          "Sunday": "1–8 PM",
+          "Monday": "Closed",
+          "Tuesday": "8 AM–3 PM",
+          "Wednesday": "8 AM–3 PM",
+          "Thursday": "8 AM–3 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkMMr41-_NA3mOw2PcXUncjSpE5q_IaPrVCSgsU_7g-ajRtDE-Q_unKNnmo23l3oV3XsvugwJ5BD1TUzN9_fPLAnUkudcsAxDM844HIaqjkwgy8Zmtijb1vHDieAYBWBinghremVA",
+        "cid": "8314188183980868175",
+        "fid": "0x95bccad4b5a6481b:0x7361ee1a55ee024f",
+        "placeId": "ChIJG0imtdTKvJURTwLuVRruYXM"
+      }
+    ],
+    "credits": 3
+  }
+}

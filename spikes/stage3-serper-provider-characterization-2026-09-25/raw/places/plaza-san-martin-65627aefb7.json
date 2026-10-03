@@ -1,0 +1,135 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Plaza San Martín",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:53.313Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 1886
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Plaza San Martín",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Plaza General San Martín",
+        "latitude": -34.594677,
+        "longitude": -58.375874,
+        "rating": 4.5,
+        "ratingCount": 25000,
+        "category": "Park",
+        "cid": "13103633412445345616"
+      },
+      {
+        "position": 2,
+        "title": "Plaza San Martin",
+        "latitude": -34.59515,
+        "longitude": -58.376156,
+        "rating": 4.7,
+        "ratingCount": 560,
+        "category": "Tourist attraction",
+        "cid": "10814055882416053366"
+      },
+      {
+        "position": 3,
+        "title": "Plaza San Martín",
+        "address": "Buenos Aires, Buenos Aires Province",
+        "latitude": -34.577473,
+        "longitude": -58.539017,
+        "rating": 4.3,
+        "ratingCount": 17000,
+        "category": "Park",
+        "cid": "8924117587853532807"
+      },
+      {
+        "position": 4,
+        "title": "Edificio Plaza San Martín",
+        "address": "Maipú 1210",
+        "latitude": -34.59403,
+        "longitude": -58.376896,
+        "rating": 4.6,
+        "ratingCount": 542,
+        "category": "Corporate office",
+        "cid": "1497346225929352896"
+      },
+      {
+        "position": 5,
+        "title": "Plaza San Martín de Tours",
+        "address": "Av. Alvear 2136",
+        "latitude": -34.586815,
+        "longitude": -58.389854,
+        "rating": 4.5,
+        "ratingCount": 2500,
+        "category": "Park",
+        "cid": "15423799081379696082"
+      },
+      {
+        "position": 6,
+        "title": "Plaza San Martin",
+        "address": "Crucecita, Buenos Aires Province",
+        "latitude": -34.66605,
+        "longitude": -58.349823,
+        "rating": 4.5,
+        "ratingCount": 1500,
+        "category": "Park",
+        "cid": "6889066282327908376"
+      },
+      {
+        "position": 7,
+        "title": "Monument to the Liberator Don Jose de San Martin",
+        "latitude": -34.595024,
+        "longitude": -58.377205,
+        "rating": 4.6,
+        "ratingCount": 609,
+        "category": "Monument",
+        "cid": "9717875342637575127"
+      },
+      {
+        "position": 8,
+        "title": "Plaza San Martin.",
+        "address": "FEU, Buenos Aires Province",
+        "latitude": -34.689857,
+        "longitude": -58.407066,
+        "rating": 4.4,
+        "ratingCount": 2600,
+        "category": "Park",
+        "cid": "11043364126334747923"
+      },
+      {
+        "position": 9,
+        "title": "Plaza San Martín",
+        "latitude": -34.59476,
+        "longitude": -58.375748,
+        "rating": 4.4,
+        "ratingCount": 10,
+        "category": "Dog park",
+        "cid": "15205965242612037362"
+      },
+      {
+        "position": 10,
+        "title": "Plaza San Martin",
+        "address": "Avenida del Libertador, San Martín &",
+        "latitude": -34.593433,
+        "longitude": -58.374794,
+        "rating": 4.6,
+        "ratingCount": 8,
+        "category": "College",
+        "cid": "6618842420652201865"
+      }
+    ],
+    "credits": 1
+  }
+}

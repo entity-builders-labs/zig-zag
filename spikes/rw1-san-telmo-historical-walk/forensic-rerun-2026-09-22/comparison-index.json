@@ -1,0 +1,258 @@
+{
+  "mechanicallyDerived": true,
+  "runs": [
+    {
+      "runId": "cold-1",
+      "runType": "COLD",
+      "runNumber": 1,
+      "tourId": "2c5ab857-aef6-45f8-9752-200e1eebb15d",
+      "terminalStatus": "completed",
+      "generationTraceByteSize": 272494,
+      "acquisitionPassCount": 3,
+      "webExtractionInvocationCount": 2,
+      "webExtractedCandidates": [
+        {
+          "name": "San Telmo Historical Walking Route",
+          "componentCount": 4
+        },
+        {
+          "name": "San Telmo Step-by-Step Historical Walking Route",
+          "componentCount": 8
+        }
+      ],
+      "candidateTraceKeys": [],
+      "entityResolutionAcceptedCount": 11,
+      "entityResolutionRejectedCount": 12,
+      "finalSelectedExperienceIds": [
+        "ff06ef66-1bf0-49fa-b3ba-e975b90f6858",
+        "81555b29-1eee-4615-bef4-bd644ba92575",
+        "17124349-ea1c-4406-bae9-bd428aff9fdd",
+        "b2739632-7674-4519-887c-5c42e771b6bf",
+        "32e04b95-07b1-4911-bc9d-7e492e453e4d"
+      ],
+      "finalSelectedExperienceNames": [
+        "Museo Histórico Nacional",
+        "Mercado San Telmo",
+        "El Zanjón de Granados (historic ruins)",
+        "Casa Mínima",
+        "Monumento Canto al Trabajo"
+      ],
+      "finalComponentCounts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "finalCompletenessWalkSatisfied": false,
+      "catalogCountsBefore": {
+        "geoEntity": 0,
+        "experience": 0,
+        "geoEntityIdentity": 0,
+        "experienceEvidence": 0,
+        "experienceComponent": 0,
+        "embeddingCatalogState": 0,
+        "classificationPersistence": 0
+      },
+      "catalogCountsAfter": {
+        "experience": "11",
+        "experienceComponent": "11",
+        "experienceEvidence": "12",
+        "classificationPersistence": "11",
+        "geoEntity": "14",
+        "geoEntityIdentity": "15",
+        "embeddingCatalogState": "11"
+      }
+    },
+    {
+      "runId": "cold-2",
+      "runType": "COLD",
+      "runNumber": 2,
+      "tourId": "8d87c421-421e-4cf0-a629-5e798fd0e1b3",
+      "terminalStatus": "completed",
+      "generationTraceByteSize": 274170,
+      "acquisitionPassCount": 3,
+      "webExtractionInvocationCount": 2,
+      "webExtractedCandidates": [
+        {
+          "name": "San Telmo Historic Self-Guided Route",
+          "componentCount": 7
+        },
+        {
+          "name": "San Telmo Historic Walk",
+          "componentCount": 7
+        }
+      ],
+      "candidateTraceKeys": [],
+      "entityResolutionAcceptedCount": 11,
+      "entityResolutionRejectedCount": 12,
+      "finalSelectedExperienceIds": [
+        "c8d852fe-1971-491b-b015-80a5d28d668d",
+        "9da87831-87ed-47e8-a62a-92ea66422ee1",
+        "f355f392-50dd-440b-bd5c-5e7f2fdb22c6",
+        "7f394820-13fd-4c72-9fbe-52aa2e928a3f",
+        "ddb4785d-7cb2-4d6b-9f63-21b5d3442934"
+      ],
+      "finalSelectedExperienceNames": [
+        "Museo Histórico Nacional",
+        "Mercado San Telmo",
+        "El Zanjón de Granados (historic ruins)",
+        "Casa Mínima",
+        "Monumento Canto al Trabajo"
+      ],
+      "finalComponentCounts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "finalCompletenessWalkSatisfied": false,
+      "catalogCountsBefore": {
+        "geoEntity": 0,
+        "experience": 0,
+        "geoEntityIdentity": 0,
+        "experienceEvidence": 0,
+        "experienceComponent": 0,
+        "embeddingCatalogState": 0,
+        "classificationPersistence": 0
+      },
+      "catalogCountsAfter": {
+        "experience": "11",
+        "experienceComponent": "11",
+        "experienceEvidence": "12",
+        "classificationPersistence": "11",
+        "geoEntity": "14",
+        "geoEntityIdentity": "15",
+        "embeddingCatalogState": "11"
+      }
+    },
+    {
+      "runId": "cold-3",
+      "runType": "COLD",
+      "runNumber": 3,
+      "tourId": "af7bc1eb-e078-4603-8537-505ee1f44f4e",
+      "terminalStatus": "completed",
+      "generationTraceByteSize": 185093,
+      "acquisitionPassCount": 2,
+      "webExtractionInvocationCount": 1,
+      "webExtractedCandidates": [],
+      "candidateTraceKeys": [],
+      "entityResolutionAcceptedCount": 11,
+      "entityResolutionRejectedCount": 10,
+      "finalSelectedExperienceIds": [
+        "8fe947a9-b743-4aa5-aed8-edd1d69a0d95",
+        "6aa69044-e4b6-4b63-8b15-854ad48f35bd",
+        "30412e1f-555e-474a-b7b5-611c3a3f9729",
+        "713dd0ad-c941-4e89-9412-b68989815b3a",
+        "05ff6d2a-f50e-4963-ba8a-200de0b2e002"
+      ],
+      "finalSelectedExperienceNames": [
+        "Plaza Dorrego",
+        "Mercado San Telmo",
+        "El Zanjón de Granados (historic ruins)",
+        "Monumento Canto al Trabajo",
+        "Museo Histórico Nacional"
+      ],
+      "finalComponentCounts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "finalCompletenessWalkSatisfied": false,
+      "catalogCountsBefore": {
+        "geoEntity": 0,
+        "experience": 0,
+        "geoEntityIdentity": 0,
+        "experienceEvidence": 0,
+        "experienceComponent": 0,
+        "embeddingCatalogState": 0,
+        "classificationPersistence": 0
+      },
+      "catalogCountsAfter": {
+        "experience": "11",
+        "experienceComponent": "11",
+        "experienceEvidence": "12",
+        "classificationPersistence": "11",
+        "geoEntity": "14",
+        "geoEntityIdentity": "15",
+        "embeddingCatalogState": "11"
+      }
+    },
+    {
+      "runId": "warm",
+      "runType": "WARM",
+      "runNumber": null,
+      "tourId": "e43bda9f-b122-471c-bdc5-033e317f9188",
+      "terminalStatus": "completed",
+      "generationTraceByteSize": 130219,
+      "acquisitionPassCount": 2,
+      "webExtractionInvocationCount": 1,
+      "webExtractedCandidates": [
+        {
+          "name": "San Telmo Self-Guided Historic Walk",
+          "componentCount": 7
+        },
+        {
+          "name": "San Telmo City Tour Route",
+          "componentCount": 6
+        }
+      ],
+      "candidateTraceKeys": [],
+      "entityResolutionAcceptedCount": 0,
+      "entityResolutionRejectedCount": 2,
+      "finalSelectedExperienceIds": [
+        "8fe947a9-b743-4aa5-aed8-edd1d69a0d95",
+        "6aa69044-e4b6-4b63-8b15-854ad48f35bd",
+        "30412e1f-555e-474a-b7b5-611c3a3f9729",
+        "67cc4699-5998-40f4-8022-8a5a496ef0d2",
+        "713dd0ad-c941-4e89-9412-b68989815b3a"
+      ],
+      "finalSelectedExperienceNames": [
+        "Plaza Dorrego",
+        "Mercado San Telmo",
+        "El Zanjón de Granados (historic ruins)",
+        "Casa Mínima",
+        "Monumento Canto al Trabajo"
+      ],
+      "finalComponentCounts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "finalCompletenessWalkSatisfied": false,
+      "catalogCountsBefore": {
+        "experience": "11",
+        "experienceComponent": "11",
+        "experienceEvidence": "12",
+        "classificationPersistence": "11",
+        "geoEntity": "14",
+        "geoEntityIdentity": "15",
+        "embeddingCatalogState": "11"
+      },
+      "catalogCountsAfter": {
+        "experience": "11",
+        "experienceComponent": "11",
+        "experienceEvidence": "12",
+        "classificationPersistence": "11",
+        "geoEntity": "14",
+        "geoEntityIdentity": "15",
+        "embeddingCatalogState": "11"
+      },
+      "warmParentCold": 3,
+      "serpApiOrWebAcquisitionInvoked": true,
+      "extractionLlmInvoked": true,
+      "entityResolutionInvokedForSameWalkingExperience": true,
+      "canonicalExperienceIdsOverlappingParentCold": [
+        "8fe947a9-b743-4aa5-aed8-edd1d69a0d95",
+        "6aa69044-e4b6-4b63-8b15-854ad48f35bd",
+        "30412e1f-555e-474a-b7b5-611c3a3f9729",
+        "713dd0ad-c941-4e89-9412-b68989815b3a"
+      ]
+    }
+  ]
+}

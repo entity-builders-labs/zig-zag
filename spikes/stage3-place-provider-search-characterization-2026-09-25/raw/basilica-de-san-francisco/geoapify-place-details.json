@@ -1,0 +1,225 @@
+{
+  "request": {
+    "id": "51e8e0f489972f4dc05992bc299b284e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f"
+  },
+  "status": 200,
+  "durationMs": 595,
+  "response": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "feature_type": "details",
+          "name": "Basílica de San Francisco",
+          "wiki_and_media": {
+            "wikidata": "Q4579815"
+          },
+          "place_of_worship": {
+            "religion": "christian",
+            "denomination": "catholic"
+          },
+          "categories": [
+            "religion",
+            "religion.place_of_worship",
+            "religion.place_of_worship.christianity",
+            "tourism",
+            "tourism.attraction",
+            "tourism.sights.place_of_worship"
+          ],
+          "datasource": {
+            "sourcename": "openstreetmap",
+            "attribution": "© OpenStreetMap contributors",
+            "license": "Open Database License",
+            "url": "https://www.openstreetmap.org/copyright",
+            "raw": {
+              "name": "Basílica de San Francisco",
+              "osm_id": 2354152,
+              "amenity": "place_of_worship",
+              "tourism": "attraction",
+              "basilica": "minor",
+              "osm_type": "r",
+              "religion": "christian",
+              "wikidata": "Q4579815",
+              "denomination": "catholic"
+            }
+          },
+          "street": "Moreno",
+          "city": "Buenos Aires",
+          "state": "Buenos Aires",
+          "state_code": "B",
+          "postcode": "C1091AAH",
+          "country": "Argentina",
+          "country_code": "ar",
+          "district": "Comuna 1",
+          "suburb": "Monserrat",
+          "formatted": "Basílica de San Francisco, Moreno, Monserrat, C1091 AAH Buenos Aires, Argentina",
+          "address_line1": "Basílica de San Francisco",
+          "address_line2": "Moreno, Monserrat, C1091 AAH Buenos Aires, Argentina",
+          "lat": -34.6106142,
+          "lon": -58.3718121,
+          "iso3166_2": "AR-C",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          },
+          "place_id": "51da070a8a972f4dc059c6b2949b284e41c0f00101f901e8eb23000000000092031a426173c3ad6c6963612064652053616e204672616e636973636f"
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -58.3719542,
+                -34.6102473
+              ],
+              [
+                -58.3719341,
+                -34.6112405
+              ],
+              [
+                -58.3716376,
+                -34.6112337
+              ],
+              [
+                -58.3716387,
+                -34.6111784
+              ],
+              [
+                -58.3716422,
+                -34.6110028
+              ],
+              [
+                -58.3716435,
+                -34.6109373
+              ],
+              [
+                -58.3716455,
+                -34.610834
+              ],
+              [
+                -58.371568,
+                -34.610833
+              ],
+              [
+                -58.371566,
+                -34.6109362
+              ],
+              [
+                -58.3714682,
+                -34.6109349
+              ],
+              [
+                -58.3714703,
+                -34.6108319
+              ],
+              [
+                -58.3713515,
+                -34.6108303
+              ],
+              [
+                -58.3713495,
+                -34.6109333
+              ],
+              [
+                -58.371271,
+                -34.6109323
+              ],
+              [
+                -58.3712725,
+                -34.6108577
+              ],
+              [
+                -58.3710989,
+                -34.6108554
+              ],
+              [
+                -58.371098,
+                -34.6109019
+              ],
+              [
+                -58.3708282,
+                -34.6108983
+              ],
+              [
+                -58.3708313,
+                -34.6107426
+              ],
+              [
+                -58.3712221,
+                -34.6107479
+              ],
+              [
+                -58.3712268,
+                -34.6105108
+              ],
+              [
+                -58.3708524,
+                -34.6105058
+              ],
+              [
+                -58.3708544,
+                -34.6104076
+              ],
+              [
+                -58.3712035,
+                -34.6104122
+              ],
+              [
+                -58.3712052,
+                -34.6103444
+              ],
+              [
+                -58.3712078,
+                -34.6101922
+              ],
+              [
+                -58.3719041,
+                -34.6102016
+              ],
+              [
+                -58.3719398,
+                -34.6102161
+              ],
+              [
+                -58.3719542,
+                -34.6102473
+              ]
+            ],
+            [
+              [
+                -58.3716826,
+                -34.6104724
+              ],
+              [
+                -58.3713611,
+                -34.6104645
+              ],
+              [
+                -58.3713519,
+                -34.6107177
+              ],
+              [
+                -58.3716734,
+                -34.6107256
+              ],
+              [
+                -58.3716826,
+                -34.6104724
+              ]
+            ]
+          ]
+        },
+        "bbox": [
+          -58.3719542,
+          -34.6112405,
+          -58.3708282,
+          -34.6101922
+        ]
+      }
+    ]
+  }
+}

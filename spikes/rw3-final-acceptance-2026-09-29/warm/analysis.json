@@ -1,0 +1,72 @@
+{
+  "tourId": "1280f947-ec24-4899-a1f5-8f9a5adeb13b",
+  "generationStatus": "completed",
+  "pollElapsedMs": 101025,
+  "traceVersion": 5,
+  "totalSteps": 20,
+  "dbBefore": {
+    "geoEntities": 18,
+    "experiences": 15,
+    "identities": 30,
+    "components": 18
+  },
+  "dbAfter": {
+    "geoEntities": 18,
+    "experiences": 15,
+    "identities": 30,
+    "components": 18,
+    "duplicateExperienceNames": 0,
+    "duplicateIdentities": 0
+  },
+  "providerRequests": {
+    "groq": 3,
+    "nominatim.local/search": 4,
+    "overpass.local": 3,
+    "wikipedia(es.wikipedia.org)": 1,
+    "localhost:11434": 2,
+    "geoapify/v1/routing": 190,
+    "es.wikivoyage.org": 2,
+    "serper": 1,
+    "wikidata": 3,
+    "wikipedia(en.wikipedia.org)": 1,
+    "geoapify.geocode-search": 1,
+    "geoapify.place-details": 1,
+    "commons.wikimedia.org": 3
+  },
+  "initialCoverage": {
+    "sufficient": true,
+    "outcome": "SUFFICIENT",
+    "deficits": []
+  },
+  "finalCoverage": {
+    "sufficient": true,
+    "outcome": "SUFFICIENT",
+    "deficits": []
+  },
+  "scheduledExperiences": [
+    {
+      "name": "La Boca Walking Tour: Caminito, Museum, and Bridge",
+      "id": "f5dee6f9-6070-437e-bdf1-e8262af6d27d",
+      "order": 1,
+      "day": 1
+    },
+    {
+      "name": "Museo Casa Taller 'Celia Chevalier'",
+      "id": "e2b6fed7-5cc2-41cc-b143-f7e43c04677e",
+      "order": 2,
+      "day": 1
+    },
+    {
+      "name": "La flor de la vida",
+      "id": "7726ca27-909b-4d6f-b40f-9d46ed3f1035",
+      "order": 3,
+      "day": 1
+    },
+    {
+      "name": "Benito Quinquela Martín",
+      "id": "9f1c68ed-28d8-452e-9fb2-1e83032971e7",
+      "order": 4,
+      "day": 1
+    }
+  ]
+}

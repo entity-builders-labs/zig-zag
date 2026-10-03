@@ -1,0 +1,96 @@
+#!/bin/bash
+set -euo pipefail
+
+# awscli2 deliberately not listed here: it's not a resolvable dnf package
+# name on Amazon Linux 2023 (dnf aborts the whole transaction when any one
+# package can't be found, which silently took docker/jq down with it too),
+# and the AL2023 AMI already ships the AWS CLI v2 preinstalled anyway.
+dnf install -y docker jq
+systemctl enable --now docker
+
+cat >/usr/local/bin/deploy-zigzag <<'SCRIPT'
+#!/bin/bash
+set -euo pipefail
+
+image_tag="$${1:?Usage: deploy-zigzag <immutable-image-tag>}"
+region='${aws_region}'
+repository='${ecr_repository_url}'
+
+config=$(aws ssm get-parameter --region "$region" --name '${app_parameter}' --with-decryption --query 'Parameter.Value' --output text)
+db_secret=$(aws secretsmanager get-secret-value --region "$region" --secret-id '${db_secret_arn}' --query SecretString --output text)
+db_user=$(jq -r '.username' <<<"$db_secret")
+db_password=$(jq -r '.password | @uri' <<<"$db_secret")
+# rds.force_ssl=1 on this instance rejects plaintext connections outright.
+# sslmode=require would be nicer, but recent pg/pg-connection-string versions
+# treat it as an alias for verify-full, which fails here since RDS's cert
+# chains to Amazon's CA, not something Node trusts by default — no-verify
+# keeps the connection encrypted without needing to bundle that CA bundle.
+database_url="postgresql://$db_user:$db_password@${db_host}:${db_port}/${db_name}?sslmode=no-verify"
+
+jq -r --arg database_url "$database_url" --arg cors_origin '${cors_origin}' --arg region "$region" '
+  . + {
+    NODE_ENV: "production",
+    PORT: "3000",
+    DATABASE_URL: $database_url,
+    DIRECT_URL: $database_url,
+    ENABLE_AI: "true",
+    AI_PROVIDER: "groq",
+    GROQ_MODEL: "llama-3.1-8b-instant",
+    EMBEDDING_PROVIDER: "bedrock",
+    EMBEDDINGS_MODEL: "amazon.titan-embed-text-v2:0",
+    EMBEDDING_DIMENSIONS: "256",
+    AWS_REGION: $region,
+    CORS_ENABLED: "true",
+    CORS_ORIGIN: $cors_origin,
+    SWAGGER_ENABLED: "false",
+    AI_CACHE_MODE: "off",
+    PLACES_PROVIDER: "google",
+    USE_MOCK_MAPS: "false"
+  } | to_entries[] | "\(.key)=\(.value | tostring)"
+' <<<"$config" >/opt/zigzag.env
+chmod 0600 /opt/zigzag.env
+
+registry="$${repository%%/*}"
+aws ecr get-login-password --region "$region" | docker login --username AWS --password-stdin "$registry"
+docker pull "$repository:$image_tag"
+previous=$(docker inspect --format '{{.Config.Image}}' zigzag-backend 2>/dev/null || true)
+docker rm -f zigzag-backend >/dev/null 2>&1 || true
+
+docker run -d --name zigzag-backend --restart unless-stopped \
+  --env-file /opt/zigzag.env \
+  --log-driver awslogs \
+  --log-opt awslogs-region="$region" \
+  --log-opt awslogs-group='${backend_log_group}' \
+  --log-opt awslogs-create-group=false \
+  -p 3000:3000 \
+  "$repository:$image_tag"
+
+for attempt in $(seq 1 30); do
+  if curl --fail --silent http://127.0.0.1:3000/health >/dev/null; then
+    docker image prune -f >/dev/null
+    exit 0
+  fi
+  sleep 5
+done
+
+docker logs --tail 100 zigzag-backend >&2 || true
+docker rm -f zigzag-backend >/dev/null 2>&1 || true
+if [ -n "$previous" ]; then
+  docker run -d --name zigzag-backend --restart unless-stopped --env-file /opt/zigzag.env -p 3000:3000 "$previous" || true
+fi
+exit 1
+SCRIPT
+chmod 0755 /usr/local/bin/deploy-zigzag
+
+# Blue/green via ASG: launching this instance (desired_capacity 0 -> 1 on
+# whichever slot is being deployed to) *is* the deploy trigger, so unlike a
+# manually-started dev box there's nothing to wait for — deploy immediately
+# using whichever image tag CD most recently wrote to SSM, then stay up and
+# serve traffic. The ALB target group health check is what tells the CD
+# workflow this instance is ready to receive canary traffic.
+for attempt in $(seq 1 30); do
+  image_tag=$(aws ssm get-parameter --region '${aws_region}' --name '${image_tag_parameter}' --query 'Parameter.Value' --output text 2>/dev/null || true)
+  [ -n "$image_tag" ] && [ "$image_tag" != "None" ] && break
+  sleep 5
+done
+/usr/local/bin/deploy-zigzag "$image_tag"

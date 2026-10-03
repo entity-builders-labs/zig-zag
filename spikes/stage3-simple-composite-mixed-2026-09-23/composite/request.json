@@ -1,0 +1,24 @@
+{
+  "destination": {
+    "label": "Luján de Cuyo, Mendoza, Argentina",
+    "latitude": -33.0391,
+    "longitude": -68.8796,
+    "scaleHint": "settlement"
+  },
+  "days": 1,
+  "budgetLevel": "medium",
+  "groupType": "solo",
+  "intent": {
+    "interests": ["wine"],
+    "intents": ["route_like"],
+    "explorationStyle": "balanced",
+    "additionalPreferences": "quiero hacer una ruta del vino por bodegas de Luján de Cuyo"
+  },
+  "mobility": {
+    "allowedTransportationModes": ["driving"],
+    "maxWalkingDistancePerDayMeters": 6000,
+    "maxContinuousWalkingDistanceMeters": 3000,
+    "travelPace": "moderate"
+  },
+  "skipImageGeneration": true
+}

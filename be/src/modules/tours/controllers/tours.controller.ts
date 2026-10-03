@@ -7,23 +7,30 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
   ValidationPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import { ToursService } from '../services/tours.service';
 import { TourGenerationService } from '../services/tour-generation.service';
-import { TourActivityGenerationService } from '../services/tour-activity-generation.service';
 import { TourLocationService } from '../services/tour-location.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
-import { CreateTourFromPromptDto } from '../dto/create-tour-from-prompt.dto';
+import { CreateTourFromWizardDto } from '../dto/create-tour-from-wizard.dto';
+import { buildTourGenerationRequest } from '../utils/tour-generation-request.util';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBody,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { appConfig } from 'src/core/config/app.config';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { RequestUser } from '../../auth/interfaces/jwt-payload.interface';
+import { ExperienceCatalogService } from '../services/experience-catalog.service';
 
 @ApiTags('tours')
 @Controller('tours')
@@ -31,92 +38,83 @@ export class ToursController {
   constructor(
     private readonly toursService: ToursService,
     private readonly tourGenerationService: TourGenerationService,
-    private readonly tourActivityGenerationService: TourActivityGenerationService,
     private readonly tourLocationService: TourLocationService,
+    private readonly experienceCatalog: ExperienceCatalogService,
   ) {}
 
+  @Get('experiences/nearby')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get verified Experiences near a coordinate' })
+  @ApiQuery({ name: 'lat', required: true, type: Number })
+  @ApiQuery({ name: 'lng', required: true, type: Number })
+  @ApiQuery({ name: 'radius', required: false, type: Number })
+  async getNearbyExperiences(
+    @Query('lat') lat: number,
+    @Query('lng') lng: number,
+    @Query('radius') radius = 5000,
+  ) {
+    return this.experienceCatalog.findVerifiedWithin(+lat, +lng, +radius, 100);
+  }
+
+  @Get('experiences/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get a single verified Experience by id' })
+  @ApiResponse({
+    status: 404,
+    description: 'Experience not found or not verified.',
+  })
+  async getExperienceById(@Param('id') id: string) {
+    const experience = await this.experienceCatalog.findById(id);
+    if (!experience) {
+      throw new NotFoundException(`Experience with ID ${id} not found`);
+    }
+    return experience;
+  }
+
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new tour' })
   @ApiResponse({
     status: 201,
     description: 'The tour has been successfully created.',
   })
   @ApiBody({ type: CreateTourDto })
-  create(@Body(ValidationPipe) createTourDto: CreateTourDto) {
-    return this.toursService.create(createTourDto);
+  create(
+    @Body(ValidationPipe) createTourDto: CreateTourDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.toursService.create({ ...createTourDto, ownerId: user.id });
   }
 
   @Post('generate-tour')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Create a tour from wizard preferences',
     description:
-      'Creates a basic tour structure from wizard preferences and automatically starts generating activities in the background.',
+      'Creates a basic tour structure from wizard preferences and automatically starts generating Experiences in the background.',
   })
   @ApiResponse({
     status: 201,
     description:
-      'The tour has been successfully created. Activities are being generated in the background.',
+      'The tour has been successfully created. Experiences are being generated in the background.',
   })
   @ApiResponse({
     status: 400,
     description: 'Invalid input data.',
   })
-  @ApiBody({ type: CreateTourFromPromptDto })
+  @ApiBody({ type: CreateTourFromWizardDto })
   generateTour(
-    @Body(ValidationPipe) createTourFromPromptDto: CreateTourFromPromptDto,
+    @Body(ValidationPipe) createTourFromWizardDto: CreateTourFromWizardDto,
+    @CurrentUser() user: RequestUser,
   ) {
-    return this.tourGenerationService.createTourFromWizard({
-      latitude: createTourFromPromptDto.latitude,
-      longitude: createTourFromPromptDto.longitude,
-      radius: createTourFromPromptDto.radius,
-      includeExistingActivities:
-        createTourFromPromptDto.includeExistingActivities !== false, // default true
-      days: createTourFromPromptDto.days,
-      budgetLevel: createTourFromPromptDto.budgetLevel,
-      interests: createTourFromPromptDto.interests,
-      transportationMode: createTourFromPromptDto.transportationMode,
-      groupType: createTourFromPromptDto.groupType,
-      travelPace: createTourFromPromptDto.travelPace,
-      dietaryRestrictions: createTourFromPromptDto.dietaryRestrictions,
-      destination: createTourFromPromptDto.destination,
-      destinationLatitude: createTourFromPromptDto.destinationLatitude,
-      destinationLongitude: createTourFromPromptDto.destinationLongitude,
-      skipImageGeneration:
-        createTourFromPromptDto.skipImageGeneration !== false, // default true
-      // New fields for auto-prompt generation
-      name: createTourFromPromptDto.name,
-      description: createTourFromPromptDto.description,
-      totalDistance: createTourFromPromptDto.totalDistance,
-      price: createTourFromPromptDto.price,
-      estimatedBudget: createTourFromPromptDto.estimatedBudget,
-      maxGroupSize: createTourFromPromptDto.maxGroupSize,
-      recommendedGroupSize: createTourFromPromptDto.recommendedGroupSize,
-      startDates: createTourFromPromptDto.startDates,
-      categories: createTourFromPromptDto.categories,
-      excludeTours: createTourFromPromptDto.excludeTours,
-    });
-  }
-
-  @Post(':id/generate-activities')
-  @ApiOperation({
-    summary: 'Generate activities for an existing tour',
-    description:
-      'Generates activities in the background for a tour that was created with skipActivities=true',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Activities have been successfully generated.',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid request or activities already generated.',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Tour not found.',
-  })
-  generateActivities(@Param('id') id: string) {
-    return this.tourActivityGenerationService.generateTourActivities(id);
+    return this.tourGenerationService.createTourFromWizard(
+      buildTourGenerationRequest(createTourFromWizardDto),
+      user.id,
+    );
   }
 
   @Get('nearby')
@@ -167,7 +165,13 @@ export class ToursController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all tours' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Get the current user's tours",
+    description:
+      "Tours are private per owner — this always returns only the authenticated user's own tours.",
+  })
   @ApiResponse({
     status: 200,
     description: 'The tours have been successfully retrieved.',
@@ -197,6 +201,7 @@ export class ToursController {
     description: 'Search radius in meters',
   })
   findAll(
+    @CurrentUser() user: RequestUser,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
     @Query('category') category?: string,
@@ -205,6 +210,7 @@ export class ToursController {
     @Query('radius') radius?: number,
   ) {
     return this.toursService.findAll(
+      user.id,
       +page,
       +limit,
       category,
@@ -215,32 +221,42 @@ export class ToursController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a tour by ID' })
   @ApiResponse({
     status: 200,
     description: 'The tour has been successfully retrieved.',
   })
-  findOne(@Param('id') id: string) {
-    return this.toursService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    return this.toursService.findOne(id, user.id);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a tour' })
   @ApiResponse({
     status: 200,
     description: 'The tour has been successfully updated.',
   })
-  update(@Param('id') id: string, @Body() updateTourDto: UpdateTourDto) {
-    return this.toursService.update(id, updateTourDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateTourDto: UpdateTourDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.toursService.update(id, updateTourDto, user.id);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a tour' })
   @ApiResponse({
     status: 200,
     description: 'The tour has been successfully deleted.',
   })
-  remove(@Param('id') id: string) {
-    return this.toursService.remove(id);
+  remove(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    return this.toursService.remove(id, user.id);
   }
 }

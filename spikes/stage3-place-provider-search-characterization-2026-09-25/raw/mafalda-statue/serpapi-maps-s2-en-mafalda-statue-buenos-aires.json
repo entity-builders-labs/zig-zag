@@ -1,0 +1,1517 @@
+{
+  "request": {
+    "url": "https://serpapi.com/search.json",
+    "params": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Mafalda Statue Buenos Aires",
+      "hl": "en",
+      "gl": "ar",
+      "api_key": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1209,
+  "response": {
+    "search_metadata": {
+      "id": "6ab664637dcfbe02a38ed6c1",
+      "status": "Success",
+      "json_endpoint": "https://serpapi.com/searches/f8jt3sAt59sjlE_Lt2dxoF8FjNf6L1V0tSVkCRoFzBg/6ab664637dcfbe02a38ed6c1.json",
+      "markdown_endpoint": "https://serpapi.com/searches/f8jt3sAt59sjlE_Lt2dxoF8FjNf6L1V0tSVkCRoFzBg/6ab664637dcfbe02a38ed6c1.md",
+      "created_at": "2026-09-25 12:09:07 UTC",
+      "processed_at": "2026-09-25 12:09:07 UTC",
+      "google_maps_url": "https://www.google.com/maps/search/Mafalda+Statue+Buenos+Aires//data=!3m1!4b1!4m2!2m1!6e5?hl=en&gl=ar",
+      "raw_html_file": "https://serpapi.com/searches/f8jt3sAt59sjlE_Lt2dxoF8FjNf6L1V0tSVkCRoFzBg/6ab664637dcfbe02a38ed6c1.html",
+      "prettify_html_file": "https://serpapi.com/searches/f8jt3sAt59sjlE_Lt2dxoF8FjNf6L1V0tSVkCRoFzBg/6ab664637dcfbe02a38ed6c1.prettify",
+      "total_time_taken": 1
+    },
+    "search_parameters": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Mafalda Statue Buenos Aires",
+      "google_domain": "google.com",
+      "hl": "en",
+      "gl": "ar"
+    },
+    "search_information": {
+      "local_results_state": "Showing results for type: \"place\" instead of type: \"search\"",
+      "query_displayed": "Mafalda Statue Buenos Aires"
+    },
+    "place_results": {
+      "title": "Estatua de Mafalda",
+      "place_id": "ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+      "data_id": "0x95a3354dd6271479:0x962789966f588ee6",
+      "data_cid": "10819767908987080422",
+      "reviews_link": "https://serpapi.com/search.json?data_id=0x95a3354dd6271479%3A0x962789966f588ee6&engine=google_maps_reviews&hl=en",
+      "photos_link": "https://serpapi.com/search.json?data_id=0x95a3354dd6271479%3A0x962789966f588ee6&engine=google_maps_photos&hl=en",
+      "gps_coordinates": {
+        "latitude": -34.615832,
+        "longitude": -58.3716461
+      },
+      "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+      "provider_id": "/g/11t_kp4q5b",
+      "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNM0y_m6YHUynFR0u7Eo-tv9OVg5yT0IOd7ThVR-vSrBTUKJcTtKMnHZhdNI-JUll_kUEyKXsDQc8g6YIpEL9dCtvUpYMtQ8nNazVuUaCP-yH6dpM-Fuv5-j--lpf4c1P4mGDI6=w1000-h1000-c-n",
+      "serpapi_thumbnail": "https://serpapi.com/images/url/TW-iIHicHcTdboIwGADQJ_qkRgU18WJDEGTgHyXDG0MKa7OVtqGlpr7gnsG3MfFcnOc_M0bptedxNptQKSnvRt0NRArTCTMhsvfo0GgNRHsfoVW8L3Lkbr1fJ9iJ-IzGIJJg7OpQ0YUrUXpog5JVZ7CX4bPE2Z6UJstFcmVtkcIec377w5HLvvX2RJbUr1MVfa3a0Fis6tyclqJoHtWIm_AILvFblUM82gX8AnD1MyfT47zfbVN_c58ihIC9JyBeh2REPw",
+      "rating_summary": [
+        {
+          "stars": 1,
+          "amount": 65
+        },
+        {
+          "stars": 2,
+          "amount": 110
+        },
+        {
+          "stars": 3,
+          "amount": 593
+        },
+        {
+          "stars": 4,
+          "amount": 1386
+        },
+        {
+          "stars": 5,
+          "amount": 6141
+        }
+      ],
+      "rating": 4.6,
+      "reviews": 8295,
+      "type": [
+        "Sculpture",
+        "Tourist attraction"
+      ],
+      "type_ids": [
+        "sculpture",
+        "tourist_attraction"
+      ],
+      "extensions": [
+        {
+          "service_options": [
+            "On-site services"
+          ]
+        },
+        {
+          "accessibility": [
+            "Wheelchair-accessible entrance"
+          ]
+        },
+        {
+          "crowd": [
+            "LGBTQ+ friendly",
+            "Transgender safe space"
+          ]
+        }
+      ],
+      "service_options": {
+        "on_site_services": true
+      },
+      "address": "9JMH+J8W, Defensa 700, C1064 Cdad. Autónoma de Buenos Aires",
+      "country": "Argentina",
+      "located_in": "Feria San Telmo calle defensa y chile",
+      "phone": "011 7125-4793",
+      "open_state": "Open 24 hours",
+      "experiences": [
+        {
+          "title": "Buenos Aires City Private Tour with Local Guide",
+          "link": "https://evendo.com/product/private-city-tour-of-the-city-of-buenos-aires-with-a-local-guide/7499057?utm_source=google&utm_medium=gttd&utm_campaign=nav&language=en-AR&currency=ARS&surface=maps&funnel=nav",
+          "price": "ARS 184,819",
+          "extracted_price": 184819,
+          "rating": 4.9,
+          "reviews": 3974,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlz05OxMEEc2wVXJXiuLsqlrxSpGVK6Mxr0w&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/wDVXkXicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw7MqTIw9a_wdXVNNioPi_CKyCz1KS7MKaoILnAP8zbzrSgyKFcrtjUGAM3QIqQ",
+          "source": "Evendo",
+          "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://evendo.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "4h"
+        },
+        {
+          "title": "San Telmo Free Tour: The Cradle of the City",
+          "link": "https://www.freetour.com/buenos-aires/san-telmo-the-cradle-of-the-city?source=",
+          "price": "Free",
+          "rating": 4.3,
+          "reviews": 6,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7zlHgBrMI4CU5FhpjcGsJ-g9oMRYevYT9bw&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/ibbJ8XicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4yr8rxSHcq8vU0cQ41dcsoyEp2L_bSTbfM9w2KTC2LDLFMKlcrtjUGAMFEIhE",
+          "source": "Freetour.com",
+          "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://www.freetour.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h 30m"
+        },
+        {
+          "title": "Walking Tour San Telmo Neighborhood Small Group",
+          "link": "https://evendo.com/product/walking-tour-san-telmo-neighborhood-small-group/24906662?utm_source=google&utm_medium=gttd&utm_campaign=nav&language=en-AR&currency=ARS&surface=maps&funnel=nav",
+          "price": "ARS 114,068",
+          "extracted_price": 114068,
+          "rating": 5,
+          "reviews": 2,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4aG0fooYMu-a553-H1K7syexRQW8KX7D_Bw&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/Jgg-nHicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4ySXQ3SMvPj_Qt1U00NTXW9TD0Ni-uTK0ICgy38I4wd4l3KlcrtjUGAK8UISw",
+          "source": "Evendo",
+          "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://evendo.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h 10m"
+        },
+        {
+          "title": "Experience The Essence of Buenos Aires in San Telmo",
+          "link": "https://evendo.com/product/experience-the-essence-of-buenos-aires-in-san-telmo/7406381?utm_source=google&utm_medium=gttd&utm_campaign=nav&language=en-AR&currency=ARS&surface=maps&funnel=nav",
+          "price": "ARS 77,971",
+          "extracted_price": 77971,
+          "rating": 4.8,
+          "reviews": 52,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUKviINyDgskPDImsiPaBGu7xVSRwHhURORg&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/dcVLknicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4M9S7L9PSrdEkvzg5w8cwtzgxIdHIvNa8ICw4q98gIDfIPSlcrtjUGANQTIqk",
+          "source": "Evendo",
+          "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://evendo.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h"
+        },
+        {
+          "title": "Private Tour: Buenos Aires and Delta del Tigre with Local Guide",
+          "link": "https://evendo.com/product/city-tour-through-the-city-delta-del-tigre-with-local-guide-in-private-full-day/7315384?utm_source=google&utm_medium=gttd&utm_campaign=nav&language=en-AR&currency=ARS&surface=maps&funnel=nav",
+          "price": "ARS 369,638",
+          "extracted_price": 369638,
+          "rating": 4.8,
+          "reviews": 357,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdrh_3DNkwkefTaIMQ3YaclW4FrpAt47Zb0w&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/UEPuQnicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw5KKcqIN3bxyy7PTk0LSfT0DTSOTEzOCTdxKypwLDExj0oyKFcrtjUGAM7sIkU",
+          "source": "Evendo",
+          "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://evendo.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "9h"
+        },
+        {
+          "title": "Women in Argentine History Free Tour",
+          "link": "https://www.freetour.com/buenos-aires/mujeres-en-la-historia-de-argentina?source=",
+          "price": "Free",
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9PMGWlTuOYVWD674TE5sDFrJTPQCO6FUjCg&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/q7_kPHicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw60DPB1D88JKfWPDAt3MTM3CXE1LXZxK_IKCQh09jdzC81yTlcrtjUGAK7bIRI",
+          "source": "Freetour.com",
+          "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://www.freetour.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h 30m"
+        },
+        {
+          "title": "Private Artisans and Makers Tour in Buenos Aires",
+          "link": "https://evendo.com/product/private-artisans-and-makers-tour-in-buenos-aires/7642122?utm_source=google&utm_medium=gttd&utm_campaign=nav&language=en-AR&currency=ARS&surface=maps&funnel=nav",
+          "price": "ARS 404,292",
+          "extracted_price": 404292,
+          "rating": 4.5,
+          "reviews": 2,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUwiy_po-m2jGurktMSJFqS2f2bED11x4cHw&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/6WaNW3icuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4JLc-sjC_I1801ynIvLcou8Q32cisMNkozSnJ1MTSsMEn2KFcrtjUGANTtIkc",
+          "source": "Evendo",
+          "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://evendo.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "3h"
+        },
+        {
+          "title": "San Telmo Craft Beer Walking Tour & Urban Art, Buenos Aires",
+          "link": "https://evendo.com/product/best-craft-beer-tour-in-san-telmo-buenos-aires/7686900?utm_source=google&utm_medium=gttd&utm_campaign=nav&language=en-AR&currency=ARS&surface=maps&funnel=nav",
+          "price": "ARS 433,170",
+          "extracted_price": 433170,
+          "rating": 5,
+          "reviews": 2,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYyjyICVvE7K_UDuoZFm4JFd0XpNWdZXiFaQ&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/BrNsgHicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw6OrMyq9HQOK3M1944PdSnNj3LLNfFySzGIKPALT4mKyHRLDFQrtjUGAMtsIjc",
+          "source": "Evendo",
+          "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://evendo.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "3h"
+        },
+        {
+          "title": "Buenos Aires Private Journey Through Culture and History",
+          "link": "https://evendo.com/product/private-buenos-aires-journey-through-culture-and-history/18913458?utm_source=google&utm_medium=gttd&utm_campaign=nav&language=en-AR&currency=ARS&surface=maps&funnel=nav",
+          "price": "ARS 1,047,308",
+          "extracted_price": 1047308,
+          "rating": 5,
+          "reviews": 2,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTV9CSGM47LbCAHIuVDhY4mX36ULxhjlxDyyQ&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/Zoq1u3icuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4Js3QOdvc1MfdJcnb08CwNc8mINMmNMDYL9anIyMqpcKmsDFQrtjUGAK3kIa4",
+          "source": "Evendo",
+          "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://evendo.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "5h"
+        },
+        {
+          "title": "Premium Walking Tour San Telmo Neighborhood",
+          "link": "https://evendo.com/product/premium-walking-tour-san-telmo-neighborhood/23638645?utm_source=google&utm_medium=gttd&utm_campaign=nav&language=en-AR&currency=ARS&surface=maps&funnel=nav",
+          "price": "ARS 108,293",
+          "extracted_price": 108293,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYYr9oiNeoExqzh7i6sw8ahQRGxo5knxge3g&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/wZ7JUHicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw6JjCyyzM_0S813rSisyjDPNCsut0jMCAxyr8g3zc6rSE81TlcrtjUGAN1mIyQ",
+          "source": "Evendo",
+          "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://evendo.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h 10m"
+        },
+        {
+          "title": "Religion, Food, Society: Ultimate Culture Tour Buenos Aires",
+          "link": "https://www.getyourguide.com/buenos-aires-l1/religion-food-society-ultimate-culture-tour-buenos-aires-t1399499/?locale=en-AR&currency=ARS&surface=maps&funnel=nav&google_ads_click_source=&product_id=1399499&option_id=2136848&partner_id=CD951",
+          "price": "ARS 223,606",
+          "extracted_price": 223606,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWQUwwhp-hqK-45BZC3ZJkq8p7ekhpR1C5zw&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/HxVrjnicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4ODwwtL88o0M0o9NY1MXWKcjaO8soutCgwT83OKAgydDatKlcrtjUGAMIpIe0",
+          "source": "GetYourGuide",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.getyourguide.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "3h"
+        },
+        {
+          "title": "Half Day Private Tour with Local Guide of Buenos Aires City",
+          "link": "https://evendo.com/product/half-day-private-tour-with-local-guide-of-buenos-aires-city/21821529?utm_source=google&utm_medium=gttd&utm_campaign=nav&language=en-AR&currency=ARS&surface=maps&funnel=nav",
+          "price": "ARS 1,778,448",
+          "extracted_price": 1778448,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJ0ZxycdoOGLjCRvGX4Fz77LQMttRbLrJijA&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/InvP7XicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw7yMoiqqExOyfd398lyDipzjzBxqzI39wn0LSkJSvIp8srMclQrtjUGAMexIjI",
+          "source": "Evendo",
+          "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://evendo.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "4h 20m"
+        },
+        {
+          "title": "Private Artisans and Makers Tour in Buenos Aires",
+          "link": "https://evendo.com/product/private-artisans-and-makers-tour-in-buenos-aires/7304862?utm_source=google&utm_medium=gttd&utm_campaign=nav&language=en-AR&currency=ARS&surface=maps&funnel=nav",
+          "price": "ARS 404,292",
+          "extracted_price": 404292,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3evWSTNRq4CrGKWX1IpmdjfAAanT8_ULA5A&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/Qsz1dnicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4xTi0LDw7xCyo0cS5y9w6PMPQsyE3JSnN0TMwLsYgP9XE0dVQrtjUGAMA5IaU",
+          "source": "Evendo",
+          "icon": "https://encrypted-tbn1.gstatic.com/faviconV2?url=https://evendo.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "3h"
+        }
+      ],
+      "hours": [
+        {
+          "friday": "Open 24 hours"
+        },
+        {
+          "saturday": "Open 24 hours"
+        },
+        {
+          "sunday": "Open 24 hours"
+        },
+        {
+          "monday": "Open 24 hours"
+        },
+        {
+          "tuesday": "Open 24 hours"
+        },
+        {
+          "wednesday": "Open 24 hours"
+        },
+        {
+          "thursday": "Open 24 hours"
+        }
+      ],
+      "images": [
+        {
+          "title": "All",
+          "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkr-QixZM6HXZ8UfJtN1vLFfRCVYmUiB53uWYHlYikB7VQ6TUQGRZFZNaaSRV2J4yF6B0xPRC5zY5VLbyKJgiZKjD7otT5WcYzkZuFM_RjUgVKA-irDfpDwpe1bjOokT28qVbxS=w1000-h1000-c-n",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/v1c6dXicHcRdDoIgAADgE5Faaa2th8yZ0_4kxeClJVNETUywrAt2hm7T1vfwfT-FUq1caFpdTEZMCFZnvcw6KhqVNWpExU1jrQRUAqmtPHiMkqoDIR_IzvLOZB7nvtobj62bwzXCt5jb5qRPsFdjXtkzFFpRHG4gccn-ej1BNPanL9ey9eEI1-Ybm2ibvgKfcRKUzkyoyEwoflekd3cXWMYMBSvAOydvnWebGWl5EFU0nt9ROpyWT0PXdVD8p6D5AQ5hREA"
+        },
+        {
+          "title": "Latest",
+          "last_updated": "2 days ago",
+          "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWk1IVO1mwk5b4PdNLXfKaGNquiualBPKTTIt-u5ocXBz4IuMUxANOZUlq9sf7xJD5-bmHEgrATl_oVypsxR8un1pczXiMhx24y-oSA8S8pBpF0kaCplMbacDnjXwZDxawKtXQnsJyKA_LVQ=w1000-h1000-c-n",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/wr_EHnicHcTNboIwAADgJ6qAg4yZ7FDEH0QQEbHxYkqH4ChttW0ovqTnvc0Sv8P392qVEnJmWbT9mDScN7TWsn4QzlTN1ITw3mqEBEQCacF1nhWnzonKndMPnVe52U-6RdcYr9K7vmlMgywuikgB7XGCgqcb6eRoYLo7H-n9S14_zSb0QNWvF80DFvTCy1FIk_uaOYI80S1pzdQdAT9A_-CLQCztDs8FTSpMQvaLhnNo8BArtGdyM8bwsi3334Nj2zZo3xPA_gH1W0jP"
+        },
+        {
+          "title": "Videos",
+          "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWmLz2n8ZbLNa1zaXcnGCiVE-lxKcZKDPJh9opaK0QfDHSrWyX-XYeAxjisAVWkWstjTjGnZLtjGnNYq7Vyty-YFdK7JKW2YxIq558lAlor95aVpxD0gzTNjRfzEBVi6IxFRkndh5QtIm_9U=w1000-h1000-c-n",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/aC_bVnicHcTBboIwAADQL6pUDVNMdkBBxRKiiC1wMawiBUuLtMsKP-nZv9myd3jvF9O6UyvL4mw-qaSsePmtyp5KoUuhJ1S2VtUpQBVQlruPjwlpw3EmlvlXGBXTsUip2G1q7ANuEM2RdzwwR3YFgqe7tz_3ZEhBmpWuaWrlYvIgSjdJsxN5qP-OsucCD3oA2faGFgdEZpkJnra95C6XvWMXuDMerMYkauL76K9x_RGYbfwQN2afdNBencvnzxRCCNj_FIhf-ZlIXw"
+        },
+        {
+          "title": "Street View & 360°",
+          "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkO1ZSIicLmNjcS1v4cOzLLh7_vW7NGl4l_qcln3Dgr4WdpzR0945SEQA3ZdeJzPgQ56L-iFJH7GJ0Q0WRnodR2mEUB8NjlBeBgvMV_TZUw2wA47Qjlz_Fj0Dur1atXhDfLpwOWTpzK7IV-=w1000-h1000-c-n",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/b3eo0HicHcTbboMgAADQL6JitWVbsgeNvTmm9dKy-GIaZFCHwIRq4k_ueX-zZOfh_P4I54x98TwpghXXmkv2sGykWjmm3IrqwePGAmqB9aJjea7JV-431elO8ZD1tPKnkOYLxgK1E0HZQYay_aZSBQkfQ9KZpYTP4abaFVHQdCxdzrzYbDG479MjOqSwgKRUuivXw-4SP2W9jFnMp_drWzeXeT1HISp6ubT7HiaP0b-5D5F8YjPnpDbLGzpdwevsQwiB-J8C9Qc5SUZI"
+        }
+      ],
+      "user_reviews": {
+        "topics": [
+          {
+            "keyword": "line for photos",
+            "mentions": 248,
+            "id": "YhHPZe0vwA4"
+          },
+          {
+            "keyword": "mafalda",
+            "mentions": 27,
+            "id": "gFE0rhkWGPs"
+          },
+          {
+            "keyword": "literary character",
+            "mentions": 87,
+            "id": "BFLQbi5N3ew"
+          },
+          {
+            "keyword": "comic strip walk",
+            "mentions": 65,
+            "id": "gHs09uxfFE8"
+          },
+          {
+            "keyword": "bairro",
+            "mentions": 58,
+            "id": "AFuitlRO--Q"
+          },
+          {
+            "keyword": "emblematic place",
+            "mentions": 21,
+            "id": "qEGvBldq_OQ"
+          },
+          {
+            "keyword": "free entry",
+            "mentions": 12,
+            "id": "e0E73LJm0Jc"
+          },
+          {
+            "keyword": "souvenirs",
+            "mentions": 64,
+            "id": "CXGTqN1TUtc"
+          },
+          {
+            "keyword": "historic place",
+            "mentions": 6,
+            "id": "KEmnBk92-uQ"
+          },
+          {
+            "keyword": "crowded place",
+            "mentions": 26,
+            "id": "DGlsltFOuOw"
+          }
+        ],
+        "most_relevant": [
+          {
+            "username": "Max Itkin",
+            "rating": 5,
+            "contributor_id": "110740860924484425044",
+            "user_review_count": 274,
+            "user_photo_count": 414,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjUkAU37cS1nA9VZ96wRYv2p3O2rnCJpEAQ1GKc6BHAhTFRkZe0=s120-c-rp-mo-ba12-br100",
+            "description": "Very nice as part of comix statues path. Crowded at Saturday, but the plus is that you can visit the artisan and antiques market that is just there.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2xCellsUTJWM2xWVFU5emJVRlFVak5WTUZkRWMzYxAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOlBzYlQ2V3lVTU9zbUFQUjNVMFdEc3c%7C%7C?hl=en-GB",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPKsoerZ2meQVob3kANLMGIKd6UT0SXWz9I8aXGd6V2ZZE9EwmOwBNXISmwBCNEHGJ0_MSWWU3jTZRboUbZYGQMGOYIMZ7EEag5yg5d9hT0UI30khDIWeR7U9HKw2Bz-78PMVnA0DUuieQ=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPdSUh7SUkHFqsuxsxv9RC1PK5vXmFWCKtNgdSPhzmFwxRaBEsxfdVpmfIQc7b7gl-BvtKR5_604xAr7LnAfInVr6dq6WE_d71HPCnyxeiURZlDKDF9EHICrw7Pd_Isncezm1DIeRQzCII=k-no"
+              }
+            ],
+            "date": "2 months ago",
+            "date_iso8601": "2026-06-29T23:02:21+00:00"
+          },
+          {
+            "username": "Julio Morales",
+            "rating": 3,
+            "contributor_id": "115005364670253812341",
+            "user_review_count": 125,
+            "user_photo_count": 288,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjXMZL3K1eVH88yhSuNzwAB8NegFTGshJgc5XwEA0hWW3yS9j92n=s120-c-rp-mo-ba12-br100",
+            "description": "Interesting to see because of the history behind the piece. Smaller than most iconic figures,  but cute to see if you happen to be nearby.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2xoWE9WSTVNMnB2YTBKVExYaHBlSE5DT0Y5UmNXYxAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOlhXOVI5M2pva0JTLXhpeHNCOF9RcWc%7C%7C?hl=en-GB",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOWCvTb-Gwtr4Um6ePJsamc2jZH99x4tljxQr2KZuAr0b_VbkAaMLQ5ojwtoh538CY_bDOWnVvmXTgBnnYiZ_pLk4uIQAO6E0r0CC-jRRpIVJuWgpGt-Gx-2qLe967T1LEqg9fwmlR4z2iH=k-no"
+              }
+            ],
+            "date": "3 months ago",
+            "date_iso8601": "2026-05-28T13:09:28+00:00"
+          },
+          {
+            "username": "ade hughes",
+            "rating": 1,
+            "contributor_id": "118226327831305618747",
+            "user_review_count": 1019,
+            "user_photo_count": 104,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjXvveufzF2KXkr83RDzpOS7pxevHUfcwByaHy5cyf2VuARw2ySC=s120-c-rp-mo-ba12-br100",
+            "description": "The busiest place in BA - lines at all hours - a seriously popular thing. Observing the line and culture here is interesting if you can catch a glimpse into the reasoning and the passion for this spot with locals and visitors it’s worth it. One of the few things safely to talk about I guess.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT201TWVFNXdSMUZIUW1kaGMycEJRM1oyYVdsNU5sRRAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOm5MeE5wR1FHQmdhc2pBQ3Z2aWl5NlE%7C%7C?hl=en-GB",
+            "date": "5 months ago",
+            "date_iso8601": "2026-04-09T00:44:34+00:00"
+          },
+          {
+            "username": "André Marques",
+            "rating": 5,
+            "contributor_id": "110461428025207326603",
+            "user_review_count": 0,
+            "user_photo_count": 0,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjWXJEdsf102HENwsFGUlmU1OpoxIJfqFRDGlWbmBtaIfApmDOU_NA=s120-c-rp-mo-br100",
+            "description": "Such a nice touch to the city. Love Mafalda and couldn’t miss coming visit her ❤️\nThere’s obviously a shop nearby that sells lots of things with Mafalda on them (but you’ll find other stores throughout the city as well). The prices are reasonable and they do 10% discount if you pay in cash.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2xGVVVrUm1jMGxOU1Zwc2R6aHpXSGxpWmsxWFltYxAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOlFUUkRmc0lNSVpsdzhzWHliZk1XYmc%7C%7C?hl=en-GB",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMCOoDAXX5p_0KAxH_1Yxj62m9x_xoteES0s9pdR7VcjO7DsSYshGLLSVsFK9KTDGoPDGnuUzWIVHP2th4GIgBa3DFpK8AsjFsvoaxUQWALAuLViX0y7vb7aLYIFnHxdSngFaq9GtfSV8p6=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPZDSdCEzW_6QxPbnyMlx2YuL3hZeegMCBx6KqZa8KZHjcDEMawg-XucR0g2Tz2t65MF-nX9_jmJCisNf3hQAUcWukUgoU-08x5Hsjnrkz_-q2_B3t2TSSGDgHQcdMWR-GhOxR-5oaLlkiA=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOwSYqumKatSDEv1jpxhOKOx1rPr851Uy_u6EfDnZKQYrmsRllNoxzSxcSp2tYMLoTKltt-55r4s_swO1oBfcw0CXwVy3tEZp7Pds10cyw6d1IetyYGibmJMOKnlZsg-XEPXs_sFpkROaOE=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOzW_qk0SboF4vRI1RgA3XL1ryTWc0x2N3IEH-2kyWCuQIPbohuzjBbEYM-nGl4izUfdfeyrWOzdz70IZHYt4C60UIWKYQ4aEdA1-3LLiILQxwXslKa-pmIy7iUNPVZhF61VzO3gSJxUOyA=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNFFQUCOvORR-_N8M5A0AetodH6Jvo_RZ7saAzi8OUgLwfAO6valLgidvPTsOS7Q5xfv_v63NOENq205ZKAynAelEA3JQ7Fa0IEbUx8BocPPirbMZF_Ua4aSDfZch1HHxSZPFMWS_j6FnIR=k-no"
+              }
+            ],
+            "date": "6 months ago",
+            "date_iso8601": "2026-02-26T03:41:20+00:00"
+          },
+          {
+            "username": "rose sherwood",
+            "rating": 5,
+            "contributor_id": "104479482284323191458",
+            "user_review_count": 12,
+            "user_photo_count": 19,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a/ACg8ocLAxsArrX3SKVnGKrFVXxevNAPcfp4K7cUJhbMhbDZLRixSTQ=s120-c-rp-mo-ba12-br100",
+            "description": "It is fun to take pictures with the statue.  Every Sunday this place has a big street market, it is really worthwhile to visit.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT21aQ1ExOWpjekZ5VlRRNWNWTTRXRlJDZGpSUGVHYxAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOmZCQ19jczFyVTQ5cVM4WFRCdjRPeGc%7C%7C?hl=en-GB",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOgqrE9ejsHPRPy4FiJJFGqex7o1tESwwAUkLXss2-DsIvZLsFllOK93uS5fSCAPl3XqR97cq0omkaAEMYqjzk2uP5dOI0cndljbgw7Rc1pdIRF8Or03ej8bKutYJT0dKxXGfDaQyrGY3xl=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPYOv26Bgvw6Tmxyas4NPcFihqV_cBXqNBpgoNzYDwBr_6GtY_i9S8tTkpRgqew6OPiOg2PQ7K43GX0DBKbN5V4twghHFAAUv39XkxaHJEz9TacMbomS30dCO29PQzHYCIo4GYxGskQrL8=k-no"
+              }
+            ],
+            "date": "6 months ago",
+            "date_iso8601": "2026-03-09T14:12:00+00:00"
+          },
+          {
+            "username": "Kitty",
+            "rating": 5,
+            "contributor_id": "104019267180397544736",
+            "user_review_count": 109,
+            "user_photo_count": 452,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjX24nq8aE0Z6iDbF2_A12DtddQtrxdk89fTxob9J5Ris0TwGzJpsw=s120-c-rp-mo-ba12-br100",
+            "description": "Cool place to take a photo. I did the walking comic trail after, which was fun and a great way to see more of the city.\nPlease note, that some of the sculptures have been moved, so the map is not up to date.\nI did make the mistake of going on Saturday and had to queue for a while (only for Mafalda). Try and go during the week instead.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sChZDSUhNMG9nS0VJQ0FnSUNKaV9laERBEAE!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CIHM0ogKEICAgICJi_ehDA%7C%7C?hl=en-GB",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMMt6fRI3fpkP4PAbjVj-LPXQnUNQlPX9aTnkg5f-Nj9zdC1MxjkKoenTOJNDyg9akJJ27i-RpbDnQysdinv2OGuqh7f0Kb5ZEcqZ6IKBUv0ukrpkUUzZvWsbBQm8dF1zo0Mvy5tA=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMMDxIA2RFy-QJrGZX0Z3i0uB1wkZMmumgWZit1jyktYVrX6H1EdijRMuDH_3QQ46EAoy38rvGHamu8iTTkPIKd-NBYlDPEeU2y7HYXBwNGgAhf3kItOwo_dAJJENoX0h7_4WQY=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmODdqTKpyh9I9UbThnd1BoOgAYaS5cYAAmUQkN-xLTlr2rAsCQKo5fScYeV9fOf9DD-00AX_pJmMGnzH6JvVin3FlQK6QYHx05Ww8RCv7M7lURD0qeVN2Bmn4l5z9QeH9xcvNnXdw=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMZQLFHZhsmn_uWIr9pdZBYa2q6O_N57_o0PvicK3mukYJ9vmlCIt_wmhXRs_4ImFWNv3oUqme06Bbb0ivbN9Xoy_V3VTBrRwhnwllyluVq7T2kLcNkTVyNMi3pXctq4GU7JdO4=k-no"
+              }
+            ],
+            "date": "3 years ago",
+            "date_iso8601": "2023-07-04T21:42:52+00:00"
+          },
+          {
+            "username": "Bruna Moreira",
+            "rating": 5,
+            "contributor_id": "108243969038389505319",
+            "user_review_count": 79,
+            "user_photo_count": 275,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjXRIN_mNHjHQiqzzVpTOzmg6_-MMWl9js84BZAhWkh3IWcaMLr-=s120-c-rp-mo-ba12-br100",
+            "description": "My name is Bruna Moreira, founder of @verenacafe, a speciality coffee brand in Brazil. I absolutely love Mafalda! If you’re also a fan of this iconic little girl created by the Argentine cartoonist Quino, then visiting her statue in Buenos Aires is an unforgettable experience. Mafalda is not just a comic strip character; she represents an entire generation that questioned the world with humour, irony, and a lot of intelligence.\n\nYou’ll find her sitting quietly on a bench in the neighbourhood of San Telmo, one of the most charming and historic districts of the city. The statue is actually quite small, only about 80cm tall, but it’s full of meaning. She’s not alone either — her friends Susanita and Manolito are also there to keep her company. The exact spot is at the corner of Chile Street and Defensa Street (Defensa 700, if you want to type it directly into Google Maps). If you’re visiting the famous San Telmo Sunday Market, you can easily walk there in less than ten minutes.\n\nA lovely curiosity: Quino, Mafalda’s creator, once lived in this very neighbourhood, so placing the statue in San Telmo is more than symbolic — it’s a tribute to the history and roots of Mafalda herself. And trust me, when you finally see her, you’ll instantly feel like you’re reconnecting with a childhood memory or a page from a comic book.\n\nAs for souvenirs, San Telmo is also a great place to find Mafalda-themed items. Around the square and along Defensa Street, you’ll see small shops and stands selling mugs, magnets, notebooks, T-shirts, and even miniature statues of Mafalda. Some official stores also sell high-quality products, so if you’re a true collector, it’s worth looking for licensed merchandise.\n\nMy tip? Go early or during the market day, take your time wandering around San Telmo, snap a picture with Mafalda on her bench, and then bring home a souvenir to keep this adorable character close to you. It’s a little piece of Buenos Aires and a lot of heart from Quino’s timeless creation.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT210WFRXNXhhMjQxT0VwTkxXMDRWbmxUWDBGUGRtYxAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOmtXTW5xa241OEpNLW04VnlTX0FPdmc%7C%7C?hl=en-GB",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmM_PpUeRk2UrBaDZgHKAc7CzVRcKzs277sgUaGoDFx2xObx1E6_Pc6-816f64xykxwjLd-0baKZrcb0nrHylQS2DaJwBHkwwYtX1mEYn_AepLi1tRsnNn_Oq5L83xb_c-pYfJZtXvS_uCA=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNxcCns-84UkzzYvLE4lCOvlpd2lha-nMDBz5UTEeSfmgkUEJUBPI8dP5A_InGaAJRxjcw7lymNs33V1OkOuo5URoyH57hJNQmUb19SYnOml32780mcK9kXEe-pUzmTQdc5XXybnNfEfX1s=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmM34KRV8kcYlqOtsaj3YoixIgL7SozwBReud_4vNnyij0DG5cToSBjbWiN-FKVY2dVAFXQsgL9pIPDVxqObR_uAORGDhVOA1r8MRj3dAkWW-NKzM9JFbMqKOy91PhfaRQovNm6GryM2RzTR=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmN-WCqj0JaCK5TweJQQNjFV24iGc-2Oh_JkkIJAAARm3UqvS5BqH5ozPsvVoeT0SUc0qmzrqEwotBEQ1iw28aVjayKUvgO79T93h1ntgdPLlySAp8JKGMVW4UQblOF8TCOyHtgG0tJN5_Wd=k-no"
+              }
+            ],
+            "date": "a year ago",
+            "date_iso8601": "2025-08-23T01:43:41+00:00"
+          },
+          {
+            "username": "Javier Perez Dector",
+            "rating": 5,
+            "contributor_id": "113293801312627995031",
+            "user_review_count": 15,
+            "user_photo_count": 31,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a/ACg8ocJtDV9Y1IS1Ff-EJ1TbCSJxaMMpJFWkeqY8ITo1BqK--vU3RA=s120-c-rp-mo-ba12-br100",
+            "description": "Visiting the Mafalda statue is a delightful experience and a must for anyone who loves Quino's iconic character. The statue is located in a charming and historic area, which adds a special touch to the visit.\n\nThat said, be prepared to wait in line for a little while, especially during busy times, as many people want to take the classic photo with Mafalda. However, the wait is absolutely worth it: the moment by her side is perfect for reminiscing about the wit and charm of her comics.\n\nIf you're in the city, don't miss it. Just bring some patience and a camera ready to capture the moment. A unique experience!",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sChZDSUhNMG9nS0VJQ0FnSURmbGNxVkhnEAE!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CIHM0ogKEICAgIDflcqVHg%7C%7C?hl=en-GB",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPG73O6tRzssKLGT2Z2Ez6dt-xjBuqBd5h9CgicqVgajH5P1x3R7SmwgrfnWxKAtqNTksWIUkaT5_aiiNBU5hGVRiht5o1wLaEAyRyFxeYbsZ7hpG3nrv1dOaMOW_Pz_zZPaGosDw=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOedZ6960acqpGvRoSnCgzNYDYmB5MVEiVcbxqUKJAOnuIq0oWXBWSVo34m28hLxPj9J-rki7U5yeP2VAVG25FnBVbm8dPwmzZDifwr4Nj4jcCL5K_SNulX7rqUfry3b_VxjA=k-no"
+              }
+            ],
+            "date": "a year ago",
+            "date_iso8601": "2025-01-08T18:48:47+00:00"
+          }
+        ]
+      },
+      "people_also_search_for": [
+        {
+          "search_term": "People also search for",
+          "local_results": [
+            {
+              "position": 1,
+              "title": "El mundo segun Mafalda",
+              "data_id": "0x0:0xd2ac8762f41a8c28",
+              "data_cid": "15180657303031024680",
+              "reviews_link": "https://serpapi.com/search.json?data_id=0x0%3A0xd2ac8762f41a8c28&engine=google_maps_reviews&hl=en",
+              "photos_link": "https://serpapi.com/search.json?data_id=0x0%3A0xd2ac8762f41a8c28&engine=google_maps_photos&hl=en",
+              "gps_coordinates": {
+                "latitude": -34.6085585,
+                "longitude": -58.374448699999995
+              },
+              "place_id_search": "https://serpapi.com/search.json?data=%214m5%213m4%211s0x0%3A0xd2ac8762f41a8c28%218m2%213d-34.6085585%214d-58.374448699999995&engine=google_maps&gl=ar&google_domain=google.com&hl=en&type=place",
+              "rating": 4.3,
+              "reviews": 9,
+              "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMpKaefXQvH82NhXIOODFv-XEocPHjCyLHr18H4EurVLbi0mtYiFo4HGORLdfZuvF8KSvJUsGVYKDkO5LwHlKQfvz332I7yzpmr1P_BXUPvQPSIhuMgO72S9cMg46UdCQpNCI1TNHJRRIM=w156-h156-n-k-no",
+              "type": [
+                "Tourist attraction"
+              ]
+            },
+            {
+              "position": 2,
+              "title": "Plaza Mafalda",
+              "data_id": "0x0:0xa431bedea4c4a7d1",
+              "data_cid": "11831447559535372241",
+              "reviews_link": "https://serpapi.com/search.json?data_id=0x0%3A0xa431bedea4c4a7d1&engine=google_maps_reviews&hl=en",
+              "photos_link": "https://serpapi.com/search.json?data_id=0x0%3A0xa431bedea4c4a7d1&engine=google_maps_photos&hl=en",
+              "gps_coordinates": {
+                "latitude": -34.5806439,
+                "longitude": -58.445611500000005
+              },
+              "place_id_search": "https://serpapi.com/search.json?data=%214m5%213m4%211s0x0%3A0xa431bedea4c4a7d1%218m2%213d-34.5806439%214d-58.445611500000005&engine=google_maps&gl=ar&google_domain=google.com&hl=en&type=place",
+              "rating": 4.3,
+              "reviews": 11622,
+              "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOdJlf2hqhZuVwjgUX0elJczTR8GWjf7lwyaqiYroeG-VVorbtaD4H6TKrQD2PMEpe3sHNcdvICqVyT5UI4XqA012NMnLVYY0s4wYfS3pxC-e0mHiYTcKcR0US90logXN7Z4DBb1A=w156-h156-n-k-no",
+              "type": [
+                "City park",
+                "Park",
+                "Tourist attraction"
+              ]
+            },
+            {
+              "position": 3,
+              "title": "Clemente - Paseo de la Historieta",
+              "data_id": "0x0:0xf7f4d57a65961e4c",
+              "data_cid": "17867140343352663628",
+              "reviews_link": "https://serpapi.com/search.json?data_id=0x0%3A0xf7f4d57a65961e4c&engine=google_maps_reviews&hl=en",
+              "photos_link": "https://serpapi.com/search.json?data_id=0x0%3A0xf7f4d57a65961e4c&engine=google_maps_photos&hl=en",
+              "gps_coordinates": {
+                "latitude": -34.6127755,
+                "longitude": -58.3705551
+              },
+              "place_id_search": "https://serpapi.com/search.json?data=%214m5%213m4%211s0x0%3A0xf7f4d57a65961e4c%218m2%213d-34.6127755%214d-58.3705551&engine=google_maps&gl=ar&google_domain=google.com&hl=en&type=place",
+              "rating": 4.5,
+              "reviews": 496,
+              "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMhF58hNhb-IOeIqoC9ktRjc3-Zqufq5siI4UzJIee6faV3K4Cn350WXVPEwAHpUM4310c6EoUxT1Kj8ylKUxonpJ7i6O9M7wUkccHrQseALFoVEmc9xkX187KXloZccnXsOJ8c=w156-h156-n-k-no",
+              "type": [
+                "Tourist attraction"
+              ]
+            },
+            {
+              "position": 4,
+              "title": "El Rinconcito de Mafalda",
+              "data_id": "0x0:0xcccc413960f3a2a3",
+              "data_cid": "14757241793681793699",
+              "reviews_link": "https://serpapi.com/search.json?data_id=0x0%3A0xcccc413960f3a2a3&engine=google_maps_reviews&hl=en",
+              "photos_link": "https://serpapi.com/search.json?data_id=0x0%3A0xcccc413960f3a2a3&engine=google_maps_photos&hl=en",
+              "gps_coordinates": {
+                "latitude": -34.61119370000001,
+                "longitude": -58.37084240000001
+              },
+              "place_id_search": "https://serpapi.com/search.json?data=%214m5%213m4%211s0x0%3A0xcccc413960f3a2a3%218m2%213d-34.61119370000001%214d-58.37084240000001&engine=google_maps&gl=ar&google_domain=google.com&hl=en&type=place",
+              "rating": 4.2,
+              "reviews": 34,
+              "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOD6FCPHaJxyP0tGgsIPgTS-TyL50hwldLhcJvlTUwiMcUhS7zs6Y1Zp_YcB5mL41nqNHCdOPBcxYa3VJE0OsotlQ0QacUYpqebBmXg5TDn01GIVtQwcGo0bF0YCTcS_NTGi_o=w156-h156-n-k-no",
+              "type": [
+                "Clothing store"
+              ]
+            },
+            {
+              "position": 5,
+              "title": "ESCULTURA DE MAFALDA",
+              "data_id": "0x0:0x31b938f3a015ff26",
+              "data_cid": "3582957597563944742",
+              "reviews_link": "https://serpapi.com/search.json?data_id=0x0%3A0x31b938f3a015ff26&engine=google_maps_reviews&hl=en",
+              "photos_link": "https://serpapi.com/search.json?data_id=0x0%3A0x31b938f3a015ff26&engine=google_maps_photos&hl=en",
+              "gps_coordinates": {
+                "latitude": -34.5757298,
+                "longitude": -58.4801061
+              },
+              "place_id_search": "https://serpapi.com/search.json?data=%214m5%213m4%211s0x0%3A0x31b938f3a015ff26%218m2%213d-34.5757298%214d-58.4801061&engine=google_maps&gl=ar&google_domain=google.com&hl=en&type=place",
+              "rating": 0,
+              "reviews": 0,
+              "thumbnail": "https://www.google.com/maps/vt/data=m5zEvrewJFLLjI2BbbqSRaa58FF34shEwxwihcIoiZtCczGo6_rE6zWSxs_WmjMLjZMVUj8PSMhPIzlIu5amAzFkLQ_KzVifIOqCfUQy4vXMfmq8sR5lXZc7_HdT6_HEsFAdb_P69-ifLg5jlSGKh3KSvqC4rZyf",
+              "type": [
+                "Historical landmark"
+              ]
+            }
+          ]
+        }
+      ],
+      "popular_times": {
+        "current_day": "friday",
+        "live_hash": {
+          "info": "Not too busy",
+          "time_spent": "People typically spend 10 min to 1 hr here"
+        },
+        "graph_results": {
+          "sunday": [
+            {
+              "time": "4 AM",
+              "info": "Usually not busy",
+              "busyness_score": 5
+            },
+            {
+              "time": "5 AM",
+              "info": "Usually not busy",
+              "busyness_score": 6
+            },
+            {
+              "time": "6 AM",
+              "info": "Usually not busy",
+              "busyness_score": 6
+            },
+            {
+              "time": "7 AM",
+              "info": "Usually not busy",
+              "busyness_score": 8
+            },
+            {
+              "time": "8 AM",
+              "info": "Usually not busy",
+              "busyness_score": 12
+            },
+            {
+              "time": "9 AM",
+              "info": "Usually not too busy",
+              "busyness_score": 23
+            },
+            {
+              "time": "10 AM",
+              "info": "Usually not too busy",
+              "busyness_score": 41
+            },
+            {
+              "time": "11 AM",
+              "info": "Usually a little busy",
+              "busyness_score": 61
+            },
+            {
+              "time": "12 PM",
+              "info": "Usually a little busy",
+              "busyness_score": 78
+            },
+            {
+              "time": "1 PM",
+              "info": "Usually as busy as it gets",
+              "busyness_score": 88
+            },
+            {
+              "time": "2 PM",
+              "info": "Usually as busy as it gets",
+              "busyness_score": 94
+            },
+            {
+              "time": "3 PM",
+              "info": "Usually as busy as it gets",
+              "busyness_score": 98
+            },
+            {
+              "time": "4 PM",
+              "info": "Usually as busy as it gets",
+              "busyness_score": 100
+            },
+            {
+              "time": "5 PM",
+              "info": "Usually as busy as it gets",
+              "busyness_score": 93
+            },
+            {
+              "time": "6 PM",
+              "info": "Usually a little busy",
+              "busyness_score": 76
+            },
+            {
+              "time": "7 PM",
+              "info": "Usually a little busy",
+              "busyness_score": 52
+            },
+            {
+              "time": "8 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 31
+            },
+            {
+              "time": "9 PM",
+              "info": "Usually not busy",
+              "busyness_score": 19
+            },
+            {
+              "time": "10 PM",
+              "info": "Usually not busy",
+              "busyness_score": 14
+            },
+            {
+              "time": "11 PM",
+              "info": "Usually not busy",
+              "busyness_score": 12
+            },
+            {
+              "time": "12 AM",
+              "info": "Usually not busy",
+              "busyness_score": 7
+            },
+            {
+              "time": "1 AM",
+              "info": "Usually not busy",
+              "busyness_score": 5
+            },
+            {
+              "time": "2 AM",
+              "info": "Usually not busy",
+              "busyness_score": 4
+            },
+            {
+              "time": "3 AM",
+              "info": "Usually not busy",
+              "busyness_score": 4
+            }
+          ],
+          "monday": [
+            {
+              "time": "4 AM",
+              "info": "Usually not busy",
+              "busyness_score": 3
+            },
+            {
+              "time": "5 AM",
+              "info": "Usually not busy",
+              "busyness_score": 4
+            },
+            {
+              "time": "6 AM",
+              "info": "Usually not busy",
+              "busyness_score": 4
+            },
+            {
+              "time": "7 AM",
+              "info": "Usually not busy",
+              "busyness_score": 6
+            },
+            {
+              "time": "8 AM",
+              "info": "Usually not busy",
+              "busyness_score": 7
+            },
+            {
+              "time": "9 AM",
+              "info": "Usually not busy",
+              "busyness_score": 10
+            },
+            {
+              "time": "10 AM",
+              "info": "Usually not busy",
+              "busyness_score": 13
+            },
+            {
+              "time": "11 AM",
+              "info": "Usually not busy",
+              "busyness_score": 16
+            },
+            {
+              "time": "12 PM",
+              "info": "Usually not busy",
+              "busyness_score": 19
+            },
+            {
+              "time": "1 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 20
+            },
+            {
+              "time": "2 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 20
+            },
+            {
+              "time": "3 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 20
+            },
+            {
+              "time": "4 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 20
+            },
+            {
+              "time": "5 PM",
+              "info": "Usually not busy",
+              "busyness_score": 19
+            },
+            {
+              "time": "6 PM",
+              "info": "Usually not busy",
+              "busyness_score": 16
+            },
+            {
+              "time": "7 PM",
+              "info": "Usually not busy",
+              "busyness_score": 14
+            },
+            {
+              "time": "8 PM",
+              "info": "Usually not busy",
+              "busyness_score": 11
+            },
+            {
+              "time": "9 PM",
+              "info": "Usually not busy",
+              "busyness_score": 10
+            },
+            {
+              "time": "10 PM",
+              "info": "Usually not busy",
+              "busyness_score": 9
+            },
+            {
+              "time": "11 PM",
+              "info": "Usually not busy",
+              "busyness_score": 8
+            },
+            {
+              "time": "12 AM",
+              "info": "Usually not busy",
+              "busyness_score": 5
+            },
+            {
+              "time": "1 AM",
+              "info": "Usually not busy",
+              "busyness_score": 3
+            },
+            {
+              "time": "2 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            },
+            {
+              "time": "3 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            }
+          ],
+          "tuesday": [
+            {
+              "time": "4 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            },
+            {
+              "time": "5 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            },
+            {
+              "time": "6 AM",
+              "info": "Usually not busy",
+              "busyness_score": 3
+            },
+            {
+              "time": "7 AM",
+              "info": "Usually not busy",
+              "busyness_score": 6
+            },
+            {
+              "time": "8 AM",
+              "info": "Usually not busy",
+              "busyness_score": 8
+            },
+            {
+              "time": "9 AM",
+              "info": "Usually not busy",
+              "busyness_score": 11
+            },
+            {
+              "time": "10 AM",
+              "info": "Usually not busy",
+              "busyness_score": 14
+            },
+            {
+              "time": "11 AM",
+              "info": "Usually not busy",
+              "busyness_score": 18
+            },
+            {
+              "time": "12 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 21
+            },
+            {
+              "time": "1 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 22
+            },
+            {
+              "time": "2 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 23
+            },
+            {
+              "time": "3 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 23
+            },
+            {
+              "time": "4 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 25
+            },
+            {
+              "time": "5 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 25
+            },
+            {
+              "time": "6 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 23
+            },
+            {
+              "time": "7 PM",
+              "info": "Usually not busy",
+              "busyness_score": 17
+            },
+            {
+              "time": "8 PM",
+              "info": "Usually not busy",
+              "busyness_score": 13
+            },
+            {
+              "time": "9 PM",
+              "info": "Usually not busy",
+              "busyness_score": 10
+            },
+            {
+              "time": "10 PM",
+              "info": "Usually not busy",
+              "busyness_score": 9
+            },
+            {
+              "time": "11 PM",
+              "info": "Usually not busy",
+              "busyness_score": 8
+            },
+            {
+              "time": "12 AM",
+              "info": "Usually not busy",
+              "busyness_score": 5
+            },
+            {
+              "time": "1 AM",
+              "info": "Usually not busy",
+              "busyness_score": 3
+            },
+            {
+              "time": "2 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            },
+            {
+              "time": "3 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            }
+          ],
+          "wednesday": [
+            {
+              "time": "4 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            },
+            {
+              "time": "5 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            },
+            {
+              "time": "6 AM",
+              "info": "Usually not busy",
+              "busyness_score": 3
+            },
+            {
+              "time": "7 AM",
+              "info": "Usually not busy",
+              "busyness_score": 5
+            },
+            {
+              "time": "8 AM",
+              "info": "Usually not busy",
+              "busyness_score": 7
+            },
+            {
+              "time": "9 AM",
+              "info": "Usually not busy",
+              "busyness_score": 10
+            },
+            {
+              "time": "10 AM",
+              "info": "Usually not busy",
+              "busyness_score": 14
+            },
+            {
+              "time": "11 AM",
+              "info": "Usually not busy",
+              "busyness_score": 18
+            },
+            {
+              "time": "12 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 20
+            },
+            {
+              "time": "1 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 20
+            },
+            {
+              "time": "2 PM",
+              "info": "Usually not busy",
+              "busyness_score": 19
+            },
+            {
+              "time": "3 PM",
+              "info": "Usually not busy",
+              "busyness_score": 19
+            },
+            {
+              "time": "4 PM",
+              "info": "Usually not busy",
+              "busyness_score": 19
+            },
+            {
+              "time": "5 PM",
+              "info": "Usually not busy",
+              "busyness_score": 19
+            },
+            {
+              "time": "6 PM",
+              "info": "Usually not busy",
+              "busyness_score": 18
+            },
+            {
+              "time": "7 PM",
+              "info": "Usually not busy",
+              "busyness_score": 15
+            },
+            {
+              "time": "8 PM",
+              "info": "Usually not busy",
+              "busyness_score": 12
+            },
+            {
+              "time": "9 PM",
+              "info": "Usually not busy",
+              "busyness_score": 11
+            },
+            {
+              "time": "10 PM",
+              "info": "Usually not busy",
+              "busyness_score": 10
+            },
+            {
+              "time": "11 PM",
+              "info": "Usually not busy",
+              "busyness_score": 9
+            },
+            {
+              "time": "12 AM",
+              "info": "Usually not busy",
+              "busyness_score": 5
+            },
+            {
+              "time": "1 AM",
+              "info": "Usually not busy",
+              "busyness_score": 3
+            },
+            {
+              "time": "2 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            },
+            {
+              "time": "3 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            }
+          ],
+          "thursday": [
+            {
+              "time": "4 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            },
+            {
+              "time": "5 AM",
+              "info": "Usually not busy",
+              "busyness_score": 2
+            },
+            {
+              "time": "6 AM",
+              "info": "Usually not busy",
+              "busyness_score": 3
+            },
+            {
+              "time": "7 AM",
+              "info": "Usually not busy",
+              "busyness_score": 5
+            },
+            {
+              "time": "8 AM",
+              "info": "Usually not busy",
+              "busyness_score": 7
+            },
+            {
+              "time": "9 AM",
+              "info": "Usually not busy",
+              "busyness_score": 11
+            },
+            {
+              "time": "10 AM",
+              "info": "Usually not busy",
+              "busyness_score": 15
+            },
+            {
+              "time": "11 AM",
+              "info": "Usually not busy",
+              "busyness_score": 19
+            },
+            {
+              "time": "12 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 22
+            },
+            {
+              "time": "1 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 23
+            },
+            {
+              "time": "2 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 22
+            },
+            {
+              "time": "3 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 22
+            },
+            {
+              "time": "4 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 22
+            },
+            {
+              "time": "5 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 21
+            },
+            {
+              "time": "6 PM",
+              "info": "Usually not busy",
+              "busyness_score": 19
+            },
+            {
+              "time": "7 PM",
+              "info": "Usually not busy",
+              "busyness_score": 15
+            },
+            {
+              "time": "8 PM",
+              "info": "Usually not busy",
+              "busyness_score": 13
+            },
+            {
+              "time": "9 PM",
+              "info": "Usually not busy",
+              "busyness_score": 12
+            },
+            {
+              "time": "10 PM",
+              "info": "Usually not busy",
+              "busyness_score": 12
+            },
+            {
+              "time": "11 PM",
+              "info": "Usually not busy",
+              "busyness_score": 12
+            },
+            {
+              "time": "12 AM",
+              "info": "Usually not busy",
+              "busyness_score": 8
+            },
+            {
+              "time": "1 AM",
+              "info": "Usually not busy",
+              "busyness_score": 5
+            },
+            {
+              "time": "2 AM",
+              "info": "Usually not busy",
+              "busyness_score": 4
+            },
+            {
+              "time": "3 AM",
+              "info": "Usually not busy",
+              "busyness_score": 3
+            }
+          ],
+          "friday": [
+            {
+              "time": "4 AM",
+              "info": "Usually not busy",
+              "busyness_score": 3
+            },
+            {
+              "time": "5 AM",
+              "info": "Usually not busy",
+              "busyness_score": 3
+            },
+            {
+              "time": "6 AM",
+              "info": "Usually not busy",
+              "busyness_score": 4
+            },
+            {
+              "time": "7 AM",
+              "info": "Usually not busy",
+              "busyness_score": 6
+            },
+            {
+              "time": "8 AM",
+              "info": "Usually not busy",
+              "busyness_score": 8
+            },
+            {
+              "time": "9 AM",
+              "info": "Usually not busy",
+              "busyness_score": 11,
+              "live_busyness_score": 22,
+              "current": true
+            },
+            {
+              "time": "10 AM",
+              "info": "Usually not busy",
+              "busyness_score": 15
+            },
+            {
+              "time": "11 AM",
+              "info": "Usually not too busy",
+              "busyness_score": 20
+            },
+            {
+              "time": "12 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 22
+            },
+            {
+              "time": "1 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 24
+            },
+            {
+              "time": "2 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 24
+            },
+            {
+              "time": "3 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 24
+            },
+            {
+              "time": "4 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 25
+            },
+            {
+              "time": "5 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 24
+            },
+            {
+              "time": "6 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 22
+            },
+            {
+              "time": "7 PM",
+              "info": "Usually not busy",
+              "busyness_score": 19
+            },
+            {
+              "time": "8 PM",
+              "info": "Usually not busy",
+              "busyness_score": 17
+            },
+            {
+              "time": "9 PM",
+              "info": "Usually not busy",
+              "busyness_score": 17
+            },
+            {
+              "time": "10 PM",
+              "info": "Usually not busy",
+              "busyness_score": 17
+            },
+            {
+              "time": "11 PM",
+              "info": "Usually not busy",
+              "busyness_score": 17
+            },
+            {
+              "time": "12 AM",
+              "info": "Usually not busy",
+              "busyness_score": 13
+            },
+            {
+              "time": "1 AM",
+              "info": "Usually not busy",
+              "busyness_score": 9
+            },
+            {
+              "time": "2 AM",
+              "info": "Usually not busy",
+              "busyness_score": 7
+            },
+            {
+              "time": "3 AM",
+              "info": "Usually not busy",
+              "busyness_score": 5
+            }
+          ],
+          "saturday": [
+            {
+              "time": "4 AM",
+              "info": "Usually not busy",
+              "busyness_score": 5
+            },
+            {
+              "time": "5 AM",
+              "info": "Usually not busy",
+              "busyness_score": 4
+            },
+            {
+              "time": "6 AM",
+              "info": "Usually not busy",
+              "busyness_score": 4
+            },
+            {
+              "time": "7 AM",
+              "info": "Usually not busy",
+              "busyness_score": 6
+            },
+            {
+              "time": "8 AM",
+              "info": "Usually not busy",
+              "busyness_score": 10
+            },
+            {
+              "time": "9 AM",
+              "info": "Usually not busy",
+              "busyness_score": 17
+            },
+            {
+              "time": "10 AM",
+              "info": "Usually not too busy",
+              "busyness_score": 26
+            },
+            {
+              "time": "11 AM",
+              "info": "Usually not too busy",
+              "busyness_score": 33
+            },
+            {
+              "time": "12 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 36
+            },
+            {
+              "time": "1 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 34
+            },
+            {
+              "time": "2 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 31
+            },
+            {
+              "time": "3 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 30
+            },
+            {
+              "time": "4 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 31
+            },
+            {
+              "time": "5 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 31
+            },
+            {
+              "time": "6 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 28
+            },
+            {
+              "time": "7 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 25
+            },
+            {
+              "time": "8 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 22
+            },
+            {
+              "time": "9 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 22
+            },
+            {
+              "time": "10 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 23
+            },
+            {
+              "time": "11 PM",
+              "info": "Usually not too busy",
+              "busyness_score": 24
+            },
+            {
+              "time": "12 AM",
+              "info": "Usually not busy",
+              "busyness_score": 19
+            },
+            {
+              "time": "1 AM",
+              "info": "Usually not busy",
+              "busyness_score": 15
+            },
+            {
+              "time": "2 AM",
+              "info": "Usually not busy",
+              "busyness_score": 10
+            },
+            {
+              "time": "3 AM",
+              "info": "Usually not busy",
+              "busyness_score": 8
+            }
+          ]
+        }
+      },
+      "web_results_link": "https://www.google.com/search?q=local+guide+program&ibp=gwp;0,26,OiUKIyIfRXN0YXR1YSBkZSBNYWZhbGRhIEJ1ZW5vcyBBaXJlcygC&pcl=lp",
+      "serpapi_web_results_link": "https://serpapi.com/search.json?device=desktop&engine=google&google_domain=google.com&ibp=gwp%3B0%2C26%2COiUKIyIfRXN0YXR1YSBkZSBNYWZhbGRhIEJ1ZW5vcyBBaXJlcygC&q=local+guide+program"
+    }
+  }
+}

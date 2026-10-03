@@ -1,0 +1,706 @@
+{
+  "generatedAt": "2026-10-03T15:48:10.154Z",
+  "extractor": {
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "validationErrors": [],
+    "extractionFailures": [],
+    "rawOutput": "{\n  \"candidates\": [\n    {\n      \"name\": \"Uco Valley Winery Itinerary\",\n      \"description\": \"A tried and tested day of wine tasting in the Uco Valley starting early at Alfa Crux, continuing to SuperUco, and finishing with a leisurely lunch and afternoon at Bodega Azul.\",\n      \"themes\": [\n        \"wine\",\n        \"gastronomy\"\n      ],\n      \"traits\": [\n        \"wineries\",\n        \"tasting\",\n        \"lunch\"\n      ],\n      \"intents\": [\n        \"route_like\",\n        \"visit\",\n        \"food\"\n      ],\n      \"componentHints\": [\n        {\n          \"key\": \"valle-de-uco\",\n          \"name\": \"Valle de Uco\",\n          \"role\": \"area\",\n          \"expectedKind\": \"AREA\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"If I were to plan a wine tasting in Valle de Uco Itinerary for a friend, this is the day I’d schedule for them.\"\n        },\n        {\n          \"key\": \"alfa-crux\",\n          \"name\": \"Alfa Crux\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"Alfa Crux – 10 am – This winery is the furthest, so start here and work your way back up.\"\n        },\n        {\n          \"key\": \"superuco\",\n          \"name\": \"SuperUco\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"SuperUco – 12 pm – It will take you 40 minutes to drive here from Alfa Crux so you’ll need to schedule SuperUco for no earlier than noon.\"\n        },\n        {\n          \"key\": \"bodega-azul\",\n          \"name\": \"Bodega Azul\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"Bodega Azul – 2:30 pm for lunch – You’ll spend the remaining hours of your afternoon hours here, so sit back and enjoy the meal.\"\n        }\n      ],\n      \"suggestedDurationMinutes\": 390,\n      \"shortReason\": \"A comprehensive, sequence-ordered wine tasting itinerary through the Uco Valley featuring multiple top-tier wineries and lunch.\",\n      \"evidenceKeys\": [\n        \"ev-1\"\n      ],\n      \"orderedByEvidence\": true\n    }\n  ]\n}"
+  },
+  "extractedHints": [
+    {
+      "candidate": "Uco Valley Winery Itinerary",
+      "hints": [
+        {
+          "key": "valle-de-uco",
+          "name": "Valle de Uco",
+          "sourceName": "Valle de Uco",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ]
+        },
+        {
+          "key": "alfa-crux",
+          "name": "Alfa Crux",
+          "sourceName": "Alfa Crux",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "sourceLink": {
+            "url": "https://www.agostinowinegroup.com/alfa-crux-wines",
+            "evidenceKey": "ev-1",
+            "linkText": "Alfa Crux"
+          }
+        },
+        {
+          "key": "superuco",
+          "name": "SuperUco",
+          "sourceName": "SuperUco",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "sourceLink": {
+            "url": "https://superuco.com/",
+            "evidenceKey": "ev-1",
+            "linkText": "SuperUco"
+          }
+        },
+        {
+          "key": "bodega-azul",
+          "name": "Bodega Azul",
+          "sourceName": "Bodega Azul",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "sourceLink": {
+            "url": "https://bodegalaazul.com/",
+            "evidenceKey": "ev-1",
+            "linkText": "Bodega Azul"
+          }
+        }
+      ]
+    }
+  ],
+  "sourceSupportAudits": [
+    {
+      "candidateName": "Uco Valley Winery Itinerary",
+      "status": "SUPPORTED",
+      "emittedComponentCount": 4,
+      "supportedComponentCount": 4,
+      "unsupportedComponentCount": 0,
+      "declaredEvidenceKeys": [
+        "ev-1"
+      ],
+      "verifiedEvidenceKeys": [
+        "ev-1"
+      ],
+      "components": [
+        {
+          "index": 0,
+          "key": "valle-de-uco",
+          "name": "Valle de Uco",
+          "sourceName": "Valle de Uco",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "verifiedEvidenceKeys": [
+            "ev-1"
+          ],
+          "attributionStatus": "DECLARED_KEY_VERIFIED",
+          "status": "SUPPORTED",
+          "verifiedSupportSpan": "If I were to plan a wine tasting in Valle de Uco Itinerary for a friend, this is the day I’d schedule for them."
+        },
+        {
+          "index": 1,
+          "key": "alfa-crux",
+          "name": "Alfa Crux",
+          "sourceName": "Alfa Crux",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "verifiedEvidenceKeys": [
+            "ev-1"
+          ],
+          "attributionStatus": "DECLARED_KEY_VERIFIED",
+          "status": "SUPPORTED",
+          "verifiedSupportSpan": "[Alfa Crux](https://www.agostinowinegroup.com/alfa-crux-wines) – 10 am – This winery is the furthest, so start here and work your way back up.",
+          "assertionAudits": [
+            {
+              "assertion": "SOURCE_LINK",
+              "status": "ACCEPTED"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "key": "superuco",
+          "name": "SuperUco",
+          "sourceName": "SuperUco",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "verifiedEvidenceKeys": [
+            "ev-1"
+          ],
+          "attributionStatus": "DECLARED_KEY_VERIFIED",
+          "status": "SUPPORTED",
+          "verifiedSupportSpan": "[SuperUco](https://superuco.com/) – 12 pm – It will take you 40 minutes to drive here from Alfa Crux so you’ll need to schedule SuperUco for no earlier than noon.",
+          "assertionAudits": [
+            {
+              "assertion": "SOURCE_LINK",
+              "status": "ACCEPTED"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "key": "bodega-azul",
+          "name": "Bodega Azul",
+          "sourceName": "Bodega Azul",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "verifiedEvidenceKeys": [
+            "ev-1"
+          ],
+          "attributionStatus": "DECLARED_KEY_VERIFIED",
+          "status": "SUPPORTED",
+          "verifiedSupportSpan": "[Bodega Azul](https://bodegalaazul.com/) – 2:30 pm for lunch – You’ll spend the remaining hours of your afternoon hours here, so sit back and enjoy the meal.",
+          "assertionAudits": [
+            {
+              "assertion": "SOURCE_LINK",
+              "status": "ACCEPTED"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "localityRecovery": {
+    "status": "COMPLETED",
+    "examinedComponentCount": 3,
+    "reports": [
+      {
+        "candidateName": "Uco Valley Winery Itinerary",
+        "componentKey": "superuco",
+        "statement": "s3",
+        "place": "Alfa Crux",
+        "relation": "NEAR"
+      }
+    ],
+    "rawOutput": "{\n  \"reports\": [\n    {\n      \"component\": \"c2\",\n      \"statement\": \"s3\",\n      \"place\": \"Alfa Crux\",\n      \"relation\": \"NEAR\"\n    }\n  ]\n}"
+  },
+  "componentTrace": [
+    {
+      "candidate": "Uco Valley Winery Itinerary",
+      "component": "Valle de Uco",
+      "proposedLocalityReports": [],
+      "localityAdmission": null,
+      "identityContext": null,
+      "selectedCandidate": null,
+      "selectedCandidateName": null,
+      "verificationDecision": null,
+      "strategy": null
+    },
+    {
+      "candidate": "Uco Valley Winery Itinerary",
+      "component": "Alfa Crux",
+      "proposedLocalityReports": [],
+      "localityAdmission": null,
+      "identityContext": {
+        "sourceLink": {
+          "url": "https://www.agostinowinegroup.com/alfa-crux-wines",
+          "evidenceKey": "ev-1",
+          "linkText": "Alfa Crux"
+        }
+      },
+      "selectedCandidate": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+      "selectedCandidateName": null,
+      "verificationDecision": "INSUFFICIENT_EVIDENCE",
+      "strategy": "OVERTURE_IDENTITY"
+    },
+    {
+      "candidate": "Uco Valley Winery Itinerary",
+      "component": "SuperUco",
+      "proposedLocalityReports": [
+        {
+          "candidateName": "Uco Valley Winery Itinerary",
+          "componentKey": "superuco",
+          "statement": "s3",
+          "place": "Alfa Crux",
+          "relation": "NEAR"
+        }
+      ],
+      "localityAdmission": null,
+      "identityContext": {
+        "sourceLink": {
+          "url": "https://superuco.com/",
+          "evidenceKey": "ev-1",
+          "linkText": "SuperUco"
+        }
+      },
+      "selectedCandidate": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+      "selectedCandidateName": null,
+      "verificationDecision": "INSUFFICIENT_EVIDENCE",
+      "strategy": "OVERTURE_IDENTITY"
+    },
+    {
+      "candidate": "Uco Valley Winery Itinerary",
+      "component": "Bodega Azul",
+      "proposedLocalityReports": [],
+      "localityAdmission": null,
+      "identityContext": {
+        "sourceLink": {
+          "url": "https://bodegalaazul.com/",
+          "evidenceKey": "ev-1",
+          "linkText": "Bodega Azul"
+        }
+      },
+      "selectedCandidate": "osm:node:4082354791",
+      "selectedCandidateName": null,
+      "verificationDecision": "INSUFFICIENT_EVIDENCE",
+      "strategy": "NOMINATIM"
+    }
+  ],
+  "groundingProbe": {
+    "note": "Diagnostic only; never passed to the resolver.",
+    "status": "GROUNDED",
+    "boundaryId": "osm:relation:2989830",
+    "boundaryName": "Departamento Luján de Cuyo",
+    "containment": {
+      "osm:node:4797394430": "INSIDE",
+      "osm:node:198407364": "OUTSIDE"
+    }
+  },
+  "catalog": "STUB (empty; no reads of canonical state, no writes)",
+  "wouldPersistCalls": [],
+  "candidates": [
+    {
+      "name": "Uco Valley Winery Itinerary",
+      "status": "rejected",
+      "rejectionReasons": [
+        "DESTINATION_INCOMPATIBLE",
+        "UNCONFIRMED_MATCH"
+      ]
+    }
+  ],
+  "forensicAudit": [
+    {
+      "candidateName": "Uco Valley Winery Itinerary",
+      "components": [
+        {
+          "hintKey": "valle-de-uco",
+          "hintName": "Valle de Uco",
+          "sourceName": "Valle de Uco",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "Valle de Uco",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Valle de Uco",
+              "poolCandidateCount": 1,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "destinationCompatibility": {
+                "verdict": "INCOMPATIBLE",
+                "reason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "Valle de Uco",
+              "providerResultCount": 2,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "AREA_TO_PLACE_CORRECTION",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Valle de Uco",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "DESTINATION_INCOMPATIBLE"
+        },
+        {
+          "hintKey": "alfa-crux",
+          "hintName": "Alfa Crux",
+          "sourceName": "Alfa Crux",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "identityContext": {
+            "sourceLink": {
+              "url": "https://www.agostinowinegroup.com/alfa-crux-wines",
+              "evidenceKey": "ev-1",
+              "linkText": "Alfa Crux"
+            }
+          },
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "Alfa Crux",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "Alfa Crux",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Alfa Crux",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "Alfa Crux",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "placeSearch": {
+                "resultCount": 0,
+                "rejected": [],
+                "viableCount": 0,
+                "searchWindow": {
+                  "provenance": "DESTINATION_AREA",
+                  "radiusMeters": 12964
+                }
+              },
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "provider": "geoapify",
+              "query": "Alfa Crux",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "Alfa Crux",
+              "providerResultCount": 1,
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "canonicalName": "Alfa Crux",
+                "externalId": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+                "kind": "PLACE",
+                "identities": [
+                  {
+                    "provider": "overture",
+                    "externalId": "79eb9ee4-0591-49f3-a077-51a7926a3ada"
+                  }
+                ],
+                "latitude": -33.8040574593,
+                "longitude": -69.119154850671
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "COMPETITOR_EXAMINATION",
+                  "outcome": "NO_COMPETITOR_OBSERVED",
+                  "examinedStrategies": [
+                    "LOCAL_OSM_POOL",
+                    "NOMINATIM",
+                    "PLACES",
+                    "OVERTURE_IDENTITY"
+                  ],
+                  "competitorCount": 0
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH"
+        },
+        {
+          "hintKey": "superuco",
+          "hintName": "SuperUco",
+          "sourceName": "SuperUco",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "identityContext": {
+            "sourceLink": {
+              "url": "https://superuco.com/",
+              "evidenceKey": "ev-1",
+              "linkText": "SuperUco"
+            }
+          },
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "SuperUco",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "SuperUco",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "SuperUco",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "SuperUco",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "placeSearch": {
+                "resultCount": 0,
+                "rejected": [],
+                "viableCount": 0,
+                "searchWindow": {
+                  "provenance": "DESTINATION_AREA",
+                  "radiusMeters": 12964
+                }
+              },
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "provider": "geoapify",
+              "query": "SuperUco",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "SuperUco",
+              "providerResultCount": 1,
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "canonicalName": "SuperUco",
+                "externalId": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+                "kind": "PLACE",
+                "identities": [
+                  {
+                    "provider": "overture",
+                    "externalId": "753ed444-8e83-4178-8ad3-a05e9a28b7c5"
+                  }
+                ],
+                "latitude": -33.60353978,
+                "longitude": -69.22870399
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "COMPETITOR_EXAMINATION",
+                  "outcome": "NO_COMPETITOR_OBSERVED",
+                  "examinedStrategies": [
+                    "LOCAL_OSM_POOL",
+                    "NOMINATIM",
+                    "PLACES",
+                    "OVERTURE_IDENTITY"
+                  ],
+                  "competitorCount": 0
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH"
+        },
+        {
+          "hintKey": "bodega-azul",
+          "hintName": "Bodega Azul",
+          "sourceName": "Bodega Azul",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "identityContext": {
+            "sourceLink": {
+              "url": "https://bodegalaazul.com/",
+              "evidenceKey": "ev-1",
+              "linkText": "Bodega Azul"
+            }
+          },
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "Bodega Azul",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "Bodega Azul",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Bodega Azul",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "Bodega Azul",
+              "providerResultCount": 1,
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "canonicalName": "Supermercado del Vino \"La Bodega de Azul\"",
+                "externalId": "osm:node:4082354791",
+                "kind": "PLACE",
+                "identities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4082354791"
+                  }
+                ],
+                "latitude": -36.7868206,
+                "longitude": -59.8591456
+              },
+              "identityEvidence": [
+                {
+                  "type": "COMPETITOR_EXAMINATION",
+                  "outcome": "NO_MATERIAL_COMPETITOR",
+                  "examinedStrategies": [
+                    "LOCAL_OSM_POOL",
+                    "NOMINATIM"
+                  ],
+                  "competitorCount": 0
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            },
+            {
+              "strategy": "PLACES",
+              "executionStatus": "failed",
+              "provider": "geoapify",
+              "query": "Bodega Azul",
+              "candidateAcquired": false,
+              "failureReason": "Geoapify text search failed: timeout of 5000ms exceeded",
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "Bodega Azul",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH"
+        }
+      ]
+    }
+  ]
+}

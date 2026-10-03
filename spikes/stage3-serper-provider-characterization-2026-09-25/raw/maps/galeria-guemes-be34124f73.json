@@ -1,0 +1,102 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Galería Güemes",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:43.544Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 903
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Galería Güemes",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.6229295,-58.5112093,14.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Mirador Guemes Gallery",
+        "address": "Florida 165, San Martín 170, 1005 Buenos Aires, Argentina",
+        "latitude": -34.6060778,
+        "longitude": -58.3750133,
+        "rating": 4.5,
+        "ratingCount": 13319,
+        "type": "Shopping mall",
+        "types": [
+          "Shopping mall"
+        ],
+        "website": "http://www.galeriaguemes.com.ar/",
+        "phoneNumber": "+54 11 4331-5731",
+        "description": "Specialty shops & eateries featured on the ground floor of an elegant art nouveau building.",
+        "openingHours": {
+          "Friday": "8 AM–8 PM",
+          "Saturday": "9 AM–3 PM",
+          "Sunday": "Closed",
+          "Monday": "8 AM–8 PM",
+          "Tuesday": "8 AM–8 PM",
+          "Wednesday": "8 AM–8 PM",
+          "Thursday": "8 AM–8 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNLc6AUo9hgkk0cs7bkZ3qQkYxiOZ9WOqdK66hyCT5BWCaMvfJc6blkImAE3IafMGvFZZL6LOxdh_q8TJ2hnM6KjWl2cnT5Vr6n1Itb3c_kM7-1WKkTHTWA4s5Gyk3HgjTt7X6OOnulaT3t",
+        "cid": "16796121189498305479",
+        "fid": "0x95bccad27ad63ce5:0xe917cf3b70753bc7",
+        "placeId": "ChIJ5TzWetLKvJURxzt1cDvPF-k"
+      },
+      {
+        "position": 2,
+        "title": "Galería Güemes . Arbol De Navidad",
+        "address": "San Nicolas, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6063335,
+        "longitude": -58.3740507,
+        "rating": 4.9,
+        "ratingCount": 10,
+        "type": "Scenic spot",
+        "types": [
+          "Scenic spot"
+        ],
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPk2yPm3p32cKAMSSxj_sqOFHvEzGIKcafafi3u480m_PU8h94ude3TrThyMettI5oi4mqTTRGYfetNAhKzg7DBkPWy3EXLqDDkDsd40UfVjkI0BMpzMgvsECBOdjIZlMzvcCYP",
+        "cid": "1865344032706130523",
+        "fid": "0x95bccad28c57538d:0x19e30883c557f25b",
+        "placeId": "ChIJjVNXjNLKvJURW_JXxYMI4xk"
+      },
+      {
+        "position": 3,
+        "title": "Galeria Güemes",
+        "address": "Güemes 55, B1704EDC Ramos Mejía, Provincia de Buenos Aires, Argentina",
+        "latitude": -34.6397951,
+        "longitude": -58.5659663,
+        "rating": 4.5,
+        "ratingCount": 2,
+        "type": "Art gallery",
+        "types": [
+          "Art gallery",
+          "Shopping mall"
+        ],
+        "openingHours": {
+          "Friday": "9 AM–7:30 PM",
+          "Saturday": "9 AM–7:30 PM",
+          "Sunday": "Closed",
+          "Monday": "9 AM–7:30 PM",
+          "Tuesday": "9 AM–7:30 PM",
+          "Wednesday": "9 AM–7:30 PM",
+          "Thursday": "9 AM–7:30 PM"
+        },
+        "thumbnailUrl": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=-ykC4GM5obcFk9cNFv_wCA&cb_client=search.gws-prod.grass&w=80&h=92&yaw=80.34012&pitch=-1.9420465&thumbfov=100",
+        "cid": "3432168965705810577",
+        "fid": "0x95bcc7f007cde207:0x2fa1837d6a03c291",
+        "placeId": "ChIJB-LNB_DHvJURkcIDan2DoS8"
+      }
+    ],
+    "credits": 3
+  }
+}

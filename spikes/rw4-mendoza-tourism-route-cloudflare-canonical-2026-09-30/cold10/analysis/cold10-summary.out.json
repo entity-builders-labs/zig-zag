@@ -1,0 +1,494 @@
+{
+  "buildCommit": "1769b5b55321221e417be8bf77232d2418c42412",
+  "passes": {
+    "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza": {
+      "windows": [
+        {
+          "sourceUrl": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+          "ordinal": 1,
+          "windowCount": 4,
+          "strategy": "RELEVANCE_WINDOWS",
+          "retainedChars": 5988,
+          "excerpts": [
+            "0-2738",
+            "3558-4322",
+            "6011-6829",
+            "8177-8580",
+            "13499-14736"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+          "ucoNamesInWindow": [
+            "SuperUco"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+          "ordinal": 2,
+          "windowCount": 4,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5812,
+          "excerpts": [
+            "0-3556",
+            "4324-6009",
+            "6831-7388"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+          "ucoNamesInWindow": []
+        },
+        {
+          "sourceUrl": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+          "ordinal": 3,
+          "windowCount": 4,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4570,
+          "excerpts": [
+            "7390-8175",
+            "8582-12360"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+          "ucoNamesInWindow": []
+        },
+        {
+          "sourceUrl": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+          "ordinal": 4,
+          "windowCount": 4,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 3292,
+          "excerpts": [
+            "12362-15654"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [
+            "Failed to parse JSON response"
+          ],
+          "scanDecision": "STOP_EXTRACTION_FAILED",
+          "ucoNamesInWindow": []
+        }
+      ],
+      "trigger": "MULTI_COMPONENT_EXPERIENCE required but initial extraction produced no admissible multi-component candidate",
+      "retrievedUrls": [
+        "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html"
+      ],
+      "failedUrls": [
+        {
+          "url": "https://www.argentina.travel/en/activities/mendoza-wines",
+          "reason": "rate_limited"
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+          "contentChars": 15654,
+          "chunkCount": 39,
+          "windowCount": 4
+        }
+      ],
+      "scan": {
+        "outcome": "EXTRACTION_FAILED",
+        "windowCount": 4,
+        "attemptCount": 4
+      },
+      "resolutionSubjects": [],
+      "resolutionFactsTruncated": false,
+      "validationIntent": "route_like",
+      "uco": []
+    },
+    "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza-2": {
+      "windows": [
+        {
+          "sourceUrl": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+          "ordinal": 1,
+          "windowCount": 4,
+          "strategy": "RELEVANCE_WINDOWS",
+          "retainedChars": 5988,
+          "excerpts": [
+            "0-2738",
+            "3558-4322",
+            "6011-6829",
+            "8177-8580",
+            "13499-14736"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+          "ucoNamesInWindow": [
+            "SuperUco"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+          "ordinal": 2,
+          "windowCount": 4,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5812,
+          "excerpts": [
+            "0-3556",
+            "4324-6009",
+            "6831-7388"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+          "ucoNamesInWindow": []
+        },
+        {
+          "sourceUrl": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+          "ordinal": 3,
+          "windowCount": 4,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 4570,
+          "excerpts": [
+            "7390-8175",
+            "8582-12360"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+          "ucoNamesInWindow": []
+        },
+        {
+          "sourceUrl": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+          "ordinal": 4,
+          "windowCount": 4,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 3292,
+          "excerpts": [
+            "12362-15654"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "STOP_SOURCES_EXHAUSTED",
+          "ucoNamesInWindow": []
+        }
+      ],
+      "trigger": "MULTI_COMPONENT_EXPERIENCE required but initial extraction produced no admissible multi-component candidate",
+      "retrievedUrls": [
+        "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html"
+      ],
+      "failedUrls": [
+        {
+          "url": "https://blog.winesofargentina.com/destacadas/wineries-in-mendoza-city/",
+          "reason": "rate_limited"
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+          "contentChars": 15654,
+          "chunkCount": 39,
+          "windowCount": 4
+        }
+      ],
+      "scan": {
+        "outcome": "SOURCES_EXHAUSTED",
+        "windowCount": 4,
+        "attemptCount": 4
+      },
+      "resolutionSubjects": [],
+      "resolutionFactsTruncated": false,
+      "validationIntent": "walk",
+      "uco": []
+    },
+    "acquisition-pass-1-generic": {
+      "windows": [
+        {
+          "sourceUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+          "ordinal": 1,
+          "windowCount": 17,
+          "strategy": "RELEVANCE_WINDOWS",
+          "retainedChars": 5953,
+          "excerpts": [
+            "0-647",
+            "35229-36327",
+            "41153-43907",
+            "55703-55737",
+            "72395-73787"
+          ],
+          "extracted": 2,
+          "admitted": 2,
+          "validationErrors": [],
+          "scanDecision": "STOP_REQUIREMENT_SATISFIED",
+          "ucoNamesInWindow": [
+            "Alfa Crux",
+            "SuperUco",
+            "Bodega Azul",
+            "Corazon del Sol",
+            "Solo Contigo"
+          ]
+        }
+      ],
+      "trigger": "MULTI_COMPONENT_EXPERIENCE required but initial extraction produced no admissible multi-component candidate",
+      "retrievedUrls": [
+        "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+        "https://blog.winesofargentina.com/destacadas/wineries-in-mendoza-city/"
+      ],
+      "failedUrls": [],
+      "sources": [
+        {
+          "url": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+          "contentChars": 88401,
+          "chunkCount": 87,
+          "windowCount": 17
+        },
+        {
+          "url": "https://blog.winesofargentina.com/destacadas/wineries-in-mendoza-city/",
+          "contentChars": 11410,
+          "chunkCount": 14,
+          "windowCount": 3
+        }
+      ],
+      "scan": {
+        "outcome": "REQUIREMENT_SATISFIED",
+        "satisfiedBy": {
+          "sourceUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+          "windowOrdinal": 1
+        },
+        "windowCount": 20,
+        "attemptCount": 1
+      },
+      "resolutionSubjects": [
+        {
+          "label": "Luján de Cuyo Wine Tasting Itinerary",
+          "decision": {
+            "reason": "NO_OSM_MATCH, DESTINATION_INCOMPATIBLE [resueltos 0/2: A16=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), Ojo de Agua=UNRESOLVED/DESTINATION_INCOMPATIBLE(PENDING_CLASSIFICATION)]",
+            "status": "FAIL",
+            "outcome": "REJECTED",
+            "reasonCodes": [
+              "NO_OSM_MATCH",
+              "DESTINATION_INCOMPATIBLE"
+            ]
+          }
+        },
+        {
+          "label": "Uco Valley Wine Tasting Itinerary",
+          "decision": {
+            "reason": "NO_OSM_MATCH, DESTINATION_INCOMPATIBLE [resueltos 0/3: Alfa Crux=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), SuperUco=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), Bodega Azul=UNRESOLVED/DESTINATION_INCOMPATIBLE(PENDING_CLASSIFICATION)]",
+            "status": "FAIL",
+            "outcome": "REJECTED",
+            "reasonCodes": [
+              "NO_OSM_MATCH",
+              "DESTINATION_INCOMPATIBLE"
+            ]
+          }
+        }
+      ],
+      "resolutionFactsTruncated": true,
+      "validationIntent": "undefined",
+      "uco": [
+        {
+          "accepted": false,
+          "experienceId": "undefined",
+          "candidateName": "Luján de Cuyo Wine Tasting Itinerary",
+          "canonicalName": "undefined",
+          "compositeOutcome": {
+            "coverage": {
+              "resolutionRatio": 0,
+              "totalComponents": 2,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 2,
+              "sourceCompositionComplete": false,
+              "identityResolvedComponents": 0,
+              "geographicallyAcceptedComponents": 0
+            },
+            "persistence": {
+              "status": "NOT_PERSISTED",
+              "reasons": [
+                "NO_OSM_MATCH",
+                "DESTINATION_INCOMPATIBLE"
+              ]
+            },
+            "plannerEligible": false,
+            "geographicDecision": {
+              "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+              "status": "NOT_EVALUATED"
+            }
+          },
+          "rejectionReasons": [
+            "NO_OSM_MATCH",
+            "DESTINATION_INCOMPATIBLE"
+          ],
+          "candidateTraceKey": "luján de cuyo wine tasting itinerary:ev-1:a16:A16|ojo-de-agua:Ojo de Agua",
+          "persistedComponentCount": "undefined"
+        },
+        {
+          "accepted": false,
+          "experienceId": "undefined",
+          "candidateName": "Uco Valley Wine Tasting Itinerary",
+          "canonicalName": "undefined",
+          "compositeOutcome": {
+            "coverage": {
+              "resolutionRatio": 0,
+              "totalComponents": 3,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 3,
+              "sourceCompositionComplete": false,
+              "identityResolvedComponents": 0,
+              "geographicallyAcceptedComponents": 0
+            },
+            "persistence": {
+              "status": "NOT_PERSISTED",
+              "reasons": [
+                "NO_OSM_MATCH",
+                "DESTINATION_INCOMPATIBLE"
+              ]
+            },
+            "plannerEligible": false,
+            "geographicDecision": {
+              "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+              "status": "NOT_EVALUATED"
+            }
+          },
+          "rejectionReasons": [
+            "NO_OSM_MATCH",
+            "DESTINATION_INCOMPATIBLE"
+          ],
+          "candidateTraceKey": "uco valley wine tasting itinerary:ev-1:alfa-crux:Alfa Crux|superuco:SuperUco|bodega-azul:Bodega Azul",
+          "persistedComponentCount": "undefined"
+        }
+      ]
+    },
+    "acquisition-pass-2-area_route_walk-ruta-del-vino-de-mendoza": {
+      "windows": [],
+      "resolutionSubjects": [],
+      "resolutionFactsTruncated": false,
+      "validationIntent": "route_like",
+      "uco": []
+    },
+    "acquisition-pass-2-area_route_walk-ruta-del-vino-de-mendoza-2": {
+      "windows": [],
+      "resolutionSubjects": [],
+      "resolutionFactsTruncated": false,
+      "validationIntent": "walk",
+      "uco": []
+    },
+    "acquisition-pass-1-planner_capacity": {
+      "windows": [
+        {
+          "sourceUrl": "https://www.puentesabroad.com/mendoza",
+          "ordinal": 1,
+          "windowCount": 5,
+          "strategy": "RELEVANCE_WINDOWS",
+          "retainedChars": 5973,
+          "excerpts": [
+            "5343-7937",
+            "10342-11336",
+            "11382-11418",
+            "17561-19239",
+            "21117-21760"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+          "ucoNamesInWindow": []
+        },
+        {
+          "sourceUrl": "https://www.puentesabroad.com/mendoza",
+          "ordinal": 2,
+          "windowCount": 5,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5558,
+          "excerpts": [
+            "0-5341",
+            "7939-8149"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+          "ucoNamesInWindow": []
+        },
+        {
+          "sourceUrl": "https://www.puentesabroad.com/mendoza",
+          "ordinal": 3,
+          "windowCount": 5,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5051,
+          "excerpts": [
+            "8151-10340",
+            "11338-11380",
+            "11423-14229"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+          "ucoNamesInWindow": []
+        },
+        {
+          "sourceUrl": "https://www.puentesabroad.com/mendoza",
+          "ordinal": 4,
+          "windowCount": 5,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 5478,
+          "excerpts": [
+            "14231-17559",
+            "19241-21115",
+            "21762-22024"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+          "ucoNamesInWindow": []
+        },
+        {
+          "sourceUrl": "https://www.puentesabroad.com/mendoza",
+          "ordinal": 5,
+          "windowCount": 5,
+          "strategy": "DOCUMENT_ORDER_CONTINUATION",
+          "retainedChars": 2459,
+          "excerpts": [
+            "22026-24485"
+          ],
+          "extracted": 0,
+          "admitted": 0,
+          "validationErrors": [],
+          "scanDecision": "STOP_SOURCES_EXHAUSTED",
+          "ucoNamesInWindow": []
+        }
+      ],
+      "trigger": "MULTI_COMPONENT_EXPERIENCE required but initial extraction produced no admissible multi-component candidate",
+      "retrievedUrls": [
+        "https://www.puentesabroad.com/mendoza"
+      ],
+      "failedUrls": [
+        {
+          "url": "https://solsalute.com/blog/things-to-do-in-mendoza-argentina/",
+          "reason": "rate_limited"
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://www.puentesabroad.com/mendoza",
+          "contentChars": 24485,
+          "chunkCount": 36,
+          "windowCount": 5
+        }
+      ],
+      "scan": {
+        "outcome": "SOURCES_EXHAUSTED",
+        "windowCount": 5,
+        "attemptCount": 5
+      }
+    }
+  }
+}

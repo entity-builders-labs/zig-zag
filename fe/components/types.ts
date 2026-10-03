@@ -1,33 +1,11 @@
-import { Activity } from '../features/activities/types';
+import type { Tour as ApiTour, PaginatedTours } from '../api/tours';
+export type Tour = ApiTour;
 
-export interface TourActivity {
-  activity: Activity;
-  order: number;
-}
-
-export interface Tour {
-  id: string;
-  name: string;
-  description?: string;
-  activities: TourActivity[];
-}
 
 export interface PaginatedResponseTour {
   tours: Tour[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  meta: PaginatedTours['meta'];
 }
-
-export type PaginatedResponseActivity = {
-  activities: Activity[];
-  fromCache: boolean;
-  crawlingTriggered: boolean;
-  message: string;
-};
 
 export interface TourCardProps {
   tour: Tour;

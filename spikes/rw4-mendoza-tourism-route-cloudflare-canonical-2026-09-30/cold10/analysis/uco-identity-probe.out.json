@@ -1,0 +1,98 @@
+{
+  "Alfa Crux@50km": [],
+  "Alfa Crux@150km": [],
+  "SuperUco@50km": [],
+  "SuperUco@150km": [],
+  "Bodega Azul@50km": [
+    [
+      "Bodega Centenario",
+      "amenity",
+      -32.9051,
+      -68.8118,
+      4,
+      "Departamento Guaymallén"
+    ],
+    [
+      "Bodega Baudron",
+      "amenity",
+      -32.9855,
+      -68.7808,
+      12,
+      "Distrito Ciudad de Maipú"
+    ],
+    [
+      "Bodega Alandes",
+      "amenity",
+      -32.9656,
+      -68.7416,
+      13,
+      "Departamento Maipú"
+    ],
+    [
+      "Bodega Trapiche",
+      "amenity",
+      -32.9721,
+      -68.7476,
+      13,
+      "Departamento Maipú"
+    ],
+    [
+      "Bodega Lagarde",
+      "amenity",
+      -33.0232,
+      -68.8733,
+      15,
+      "Distrito Mayor Drummond"
+    ],
+    [
+      "Bodega Gieco",
+      "amenity",
+      -33.017,
+      -68.9061,
+      15,
+      "Vistalba"
+    ],
+    [
+      null,
+      "amenity",
+      -33.019,
+      -68.774,
+      16,
+      "Mendoza"
+    ],
+    [
+      "Bodega",
+      "amenity",
+      -33.036,
+      -68.9499,
+      19,
+      "Distrito Las Compuertas"
+    ],
+    [
+      "Bodega Trivento",
+      "amenity",
+      -33.0194,
+      -68.7739,
+      16,
+      "Departamento Maipú"
+    ],
+    [
+      null,
+      "amenity",
+      -33.0365,
+      -68.9495,
+      19,
+      "Luján de Cuyo"
+    ]
+  ],
+  "Bodega Azul@150km": [
+    [
+      "Bodega La Azul",
+      "amenity",
+      -33.4693,
+      -69.2208,
+      73,
+      "Distrito Cordón del Plata"
+    ]
+  ]
+}

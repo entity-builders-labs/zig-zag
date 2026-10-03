@@ -1,0 +1,8 @@
+{
+  "runLabel": "recoleta",
+  "tourId": "a50fd9c2-8f09-4206-b272-52a78e7f5124",
+  "email": "stage3-nominatim-bias-recoleta-1790278336762754000@example.com",
+  "baseUrl": "http://localhost:4017",
+  "requestFile": "spikes/stage3-buenosaires-walks-component-survey-2026-09-24/request-recoleta.json",
+  "generationStatus": "completed"
+}

@@ -1,0 +1,1062 @@
+{
+  "request": {
+    "url": "https://serpapi.com/search.json",
+    "params": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Mafalda",
+      "ll": "@-34.6037,-58.3816,12z",
+      "hl": "en",
+      "gl": "ar",
+      "api_key": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 2090,
+  "response": {
+    "search_metadata": {
+      "id": "6ab6645f86e9faf55fc96893",
+      "status": "Success",
+      "json_endpoint": "https://serpapi.com/searches/Vnbv92ZmEqSkyMPct2zOh0bsRQfnavEcLGFkKjE5dss/6ab6645f86e9faf55fc96893.json",
+      "markdown_endpoint": "https://serpapi.com/searches/Vnbv92ZmEqSkyMPct2zOh0bsRQfnavEcLGFkKjE5dss/6ab6645f86e9faf55fc96893.md",
+      "created_at": "2026-09-25 12:09:03 UTC",
+      "processed_at": "2026-09-25 12:09:03 UTC",
+      "google_maps_url": "https://www.google.com/maps/search/Mafalda/@-34.6037,-58.3816,12z/data=!3m1!4b1!4m2!2m1!6e5?hl=en&gl=ar",
+      "raw_html_file": "https://serpapi.com/searches/Vnbv92ZmEqSkyMPct2zOh0bsRQfnavEcLGFkKjE5dss/6ab6645f86e9faf55fc96893.html",
+      "prettify_html_file": "https://serpapi.com/searches/Vnbv92ZmEqSkyMPct2zOh0bsRQfnavEcLGFkKjE5dss/6ab6645f86e9faf55fc96893.prettify",
+      "total_time_taken": 1.85
+    },
+    "search_parameters": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Mafalda",
+      "ll": "@-34.6037,-58.3816,12z",
+      "google_domain": "google.com",
+      "hl": "en",
+      "gl": "ar"
+    },
+    "search_information": {
+      "local_results_state": "Results for exact spelling",
+      "query_displayed": "Mafalda"
+    },
+    "local_results": [
+      {
+        "position": 1,
+        "title": "Plaza Mafalda",
+        "place_id": "ChIJnz02-eu1vJUR0afEpN6-MaQ",
+        "data_id": "0x95bcb5ebf9363d9f:0xa431bedea4c4a7d1",
+        "data_cid": "11831447559535372241",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcb5ebf9363d9f%3A0xa431bedea4c4a7d1&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcb5ebf9363d9f%3A0xa431bedea4c4a7d1&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.5806439,
+          "longitude": -58.4456115
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJnz02-eu1vJUR0afEpN6-MaQ",
+        "provider_id": "/g/1q6m1zg15",
+        "rating": 4.3,
+        "reviews": 11626,
+        "type": "City park",
+        "types": [
+          "City park",
+          "Park",
+          "Tourist attraction"
+        ],
+        "type_id": "city_park",
+        "type_ids": [
+          "city_park",
+          "park",
+          "tourist_attraction"
+        ],
+        "address": "Conde 145, C1437 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open 24 hours",
+        "hours": "Open 24 hours",
+        "operating_hours": {
+          "friday": "Open 24 hours",
+          "saturday": "Open 24 hours",
+          "sunday": "Open 24 hours",
+          "monday": "Open 24 hours",
+          "tuesday": "Open 24 hours",
+          "wednesday": "Open 24 hours",
+          "thursday": "Open 24 hours"
+        },
+        "website": "https://www.buenosaires.gob.ar/participacionciudadana/participa-en-obras-de-tu-barrio",
+        "description": "Park honoring a popular cartoon & comic. Street art at this kid-friendly park includes a mural of cartoon & comic strip character \"Mafalda\".",
+        "extensions": [
+          {
+            "highlights": [
+              "Picnics"
+            ]
+          },
+          {
+            "accessibility": [
+              "Wheelchair-accessible car park",
+              "Wheelchair-accessible entrance"
+            ]
+          },
+          {
+            "amenities": [
+              "Picnic tables",
+              "Slides",
+              "Swings"
+            ]
+          },
+          {
+            "children": [
+              "Good for kids",
+              "Playground"
+            ]
+          },
+          {
+            "pets": [
+              "Dog park",
+              "Dogs allowed"
+            ]
+          }
+        ],
+        "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWlgrpNLXNYkIGK7qC8mRVbAHfDB44DOfoLPlTFVJfHH6fOV0Alos9rkn5cBb1ST6te3Z3klbbrsdB1CyrBDqnZEgVw7gxlqysriwt1Akdn86KKyWfCPEh3fa_NuKSt4diNzOSJuyQ=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/ZeIoNHicHcRdEkJAAADgEwlDUjM9-CulQTGUlybLLmPbZXeNdMOO0G2a6Xv4vp9GiJ5vZBk32gJRinA98poBSkRNxALQp4x6LgEucdnyL3GaY8T68HQNb91hH6wGx3xestLyoWvruhtBeopxusuO0PcNGGWKhSlfs44sgV2qSWqIWiu0Dpcl45WtOjOz3YEUHsqmFXrhYeasnYRqdRUxjSCYc-jEXqPBxz0cg0ToVRu-o-Q4zuftpCqKIjX_gUR-7z9GHQ"
+      },
+      {
+        "position": 2,
+        "title": "Estatua de Mafalda",
+        "place_id": "ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+        "data_id": "0x95a3354dd6271479:0x962789966f588ee6",
+        "data_cid": "10819767908987080422",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95a3354dd6271479%3A0x962789966f588ee6&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95a3354dd6271479%3A0x962789966f588ee6&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.615832,
+          "longitude": -58.3716461
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+        "provider_id": "/g/11t_kp4q5b",
+        "rating": 4.6,
+        "reviews": 8295,
+        "type": "Sculpture",
+        "types": [
+          "Sculpture",
+          "Tourist attraction"
+        ],
+        "type_id": "sculpture",
+        "type_ids": [
+          "sculpture",
+          "tourist_attraction"
+        ],
+        "address": "9JMH+J8W, Defensa 700, C1064 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open 24 hours",
+        "hours": "Open 24 hours",
+        "operating_hours": {
+          "friday": "Open 24 hours",
+          "saturday": "Open 24 hours",
+          "sunday": "Open 24 hours",
+          "monday": "Open 24 hours",
+          "tuesday": "Open 24 hours",
+          "wednesday": "Open 24 hours",
+          "thursday": "Open 24 hours"
+        },
+        "phone": "011 7125-4793",
+        "extensions": [
+          {
+            "service_options": [
+              "On-site services"
+            ]
+          },
+          {
+            "accessibility": [
+              "Wheelchair-accessible entrance"
+            ]
+          },
+          {
+            "crowd": [
+              "LGBTQ+ friendly",
+              "Transgender safe space"
+            ]
+          }
+        ],
+        "service_options": {
+          "on_site_services": true
+        },
+        "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWlh29H5QLgfElM1BU5SfA0r0G98-ajdwZ6f6gZkC6Wt0YYChy74TBiVVdiHUXpmn8ko-9-6X_R57ha-OVrxmklfS3jneJT7PqDRHOzDWR9R_xh5Y3ccvYvaki-JlxfvXpTLeu8IqQ=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/wd6xmXicHcRJbsIwFADQE31immaqxIJJBAQCTMjABkXGQ4hjh9iE0Bv2CL1Npb7F-_0R1rbmy3GkcEdcay7p09COaGWpsiOiG4e3BogB40xjfEgyKT6i2DtuOVvK3Xh29k5sijq0ikIo77fXxWc-v9RzP7OoKObiHXwmsypNb1V8zttGhbWGCPz8ir1AlLBPu6GpJTu5d0U3SXB4LHC8_15kOMLXQXiFS0hf9GVdwUYOrM_bZEuf4fpxnLzGCCEQ_xNQf0dwRI4"
+      },
+      {
+        "position": 3,
+        "title": "Paseo Mafalda",
+        "place_id": "ChIJIVXKOwDLvJURlRthuyBmb5o",
+        "data_id": "0x95bccb003bca5521:0x9a6f6620bb611b95",
+        "data_cid": "11128225495024475029",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bccb003bca5521%3A0x9a6f6620bb611b95&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bccb003bca5521%3A0x9a6f6620bb611b95&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.616349899999996,
+          "longitude": -58.4338796
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJIVXKOwDLvJURlRthuyBmb5o",
+        "provider_id": "/g/11zh5zv6xj",
+        "rating": 4.5,
+        "reviews": 2,
+        "unclaimed_listing": true,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction"
+        ],
+        "type_id": "tourist_attraction",
+        "type_ids": [
+          "tourist_attraction"
+        ],
+        "address": "Av. Rivadavia 4879, C1424 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open 24 hours",
+        "hours": "Open 24 hours",
+        "operating_hours": {
+          "friday": "Open 24 hours",
+          "saturday": "Open 24 hours",
+          "sunday": "Open 24 hours",
+          "monday": "Open 24 hours",
+          "tuesday": "Open 24 hours",
+          "wednesday": "Open 24 hours",
+          "thursday": "Open 24 hours"
+        },
+        "extensions": [
+          {
+            "children": [
+              "Good for kids"
+            ]
+          }
+        ],
+        "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWnqYTz3kRF2N4JqgPjiWDlj7CR0DSm1k3VPkUSDv3_wsXGg2p8Y4LDF5eDODGEP9Fre9DBnCzlUPbnLY1Mij1Km0E2My1MYqkAtszVLrVxhOH6Y4mx4-e5jnrGVwwI3r9WlfdathOAIE84=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/U3zNYXicHcTBToMwAADQL-poodNh4gFXYFOQhm1gT0axtoNSoK2y8ZHe_RsT3-H9_kjnRnvneUoGKzEMQvEvy00zaMe1WzVD74nRgsYC60W7kh5rPbHjEnRl4j_jx0nQ9lwT1d5uS0gOPeqCinanA_kOXmf7kgp_3DCckWTNSUHSmIaJ4SF50NtFnei7zhjKzy166mHs51eUs6mLnF2qzFQXWexuGO4vGPB1q01azfM-MGGtPj_enCyifbzB9zOCEAL5fwP0H-VyRe0"
+      },
+      {
+        "position": 4,
+        "title": "Mafalda",
+        "place_id": "ChIJfZacGADLvJUR9RFGSex5gGA",
+        "data_id": "0x95bccb00189c967d:0x608079ec494611f5",
+        "data_cid": "6953691880408617461",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bccb00189c967d%3A0x608079ec494611f5&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bccb00189c967d%3A0x608079ec494611f5&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.6461124,
+          "longitude": -58.3992576
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJfZacGADLvJUR9RFGSex5gGA",
+        "provider_id": "/g/11zxjd0l1v",
+        "unclaimed_listing": true,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction"
+        ],
+        "type_id": "tourist_attraction",
+        "type_ids": [
+          "tourist_attraction"
+        ],
+        "address": "C1437 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina"
+      },
+      {
+        "position": 5,
+        "title": "El mundo segun Mafalda",
+        "place_id": "ChIJFeevcQDLvJURKIwa9GKHrNI",
+        "data_id": "0x95bccb0071afe715:0xd2ac8762f41a8c28",
+        "data_cid": "15180657303031024680",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bccb0071afe715%3A0xd2ac8762f41a8c28&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bccb0071afe715%3A0xd2ac8762f41a8c28&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.6085585,
+          "longitude": -58.374448699999995
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJFeevcQDLvJURKIwa9GKHrNI",
+        "provider_id": "/g/11x19khby5",
+        "rating": 4.3,
+        "reviews": 9,
+        "unclaimed_listing": true,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction"
+        ],
+        "type_id": "tourist_attraction",
+        "type_ids": [
+          "tourist_attraction"
+        ],
+        "address": "C1067 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open · Closes 10 PM",
+        "hours": "Open · Closes 10 PM",
+        "operating_hours": {
+          "friday": "7 AM–10 PM",
+          "saturday": "7 AM–10 PM",
+          "sunday": "7 AM–10 PM",
+          "monday": "7 AM–10 PM",
+          "tuesday": "7 AM–10 PM",
+          "wednesday": "7 AM–10 PM",
+          "thursday": "7 AM–10 PM"
+        },
+        "website": "https://buenosaires.gob.ar/noticias/restauramos-el-mural-de-mafalda-en-la-combinacion-de-las-lineas-y-d",
+        "extensions": [
+          {
+            "accessibility": [
+              "Wheelchair-accessible entrance"
+            ]
+          },
+          {
+            "children": [
+              "Good for kids"
+            ]
+          }
+        ],
+        "unsupported_extensions": [
+          {
+            "amenities": [
+              "Restaurant"
+            ]
+          }
+        ],
+        "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWmm3CB4py47RcYuE43Stzr5I6cOF66mgXvOEQ8Squgc1ml1GpyL2MuHnC6GpAC7twP-YDojWCzpK62kUmeNJ1bXQLaIAxEsfM1rombX4kYGzr6n3vGXXbelW99znZIwFUjMzkY6rG1sjHM=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/ngocwXicHcRLcoIwAADQE0WI0Kid6YJSDFipvzqE7komDQPk0yRIzSHdextn-hbvfmud0_Y5CIY2mnGl-MBGywxV0jHpZlSJgGsLqAU2SPLj_rMSIkpfY32NF0daj1kcnZw3TwWiuzVCgpPLLjssT78jp1AMEOvrdl6OuUwR1km6cNMe1G-qq1Kv39G8Pwv2sYENOWy_i-Qvsz8lNEo0JO5r7A2S0QUT0rChWq28_Cqm9bkrfV8jg6Ht8vJlgmEYgvZ_CuQDFi5G4g"
+      },
+      {
+        "position": 6,
+        "title": "Jardin Mafalda",
+        "place_id": "ChIJ_1-dV-61vJURSy-5DxioW6Q",
+        "data_id": "0x95bcb5ee579d5fff:0xa45ba8180fb92f4b",
+        "data_cid": "11843244466397327179",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcb5ee579d5fff%3A0xa45ba8180fb92f4b&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcb5ee579d5fff%3A0xa45ba8180fb92f4b&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.584429199999995,
+          "longitude": -58.448036599999995
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJ_1-dV-61vJURSy-5DxioW6Q",
+        "provider_id": "/g/11byx7y984",
+        "rating": 4.4,
+        "reviews": 72,
+        "unclaimed_listing": true,
+        "type": "Association / Organization",
+        "types": [
+          "Association / Organization"
+        ],
+        "type_id": "association_or_organization",
+        "type_ids": [
+          "association_or_organization"
+        ],
+        "address": "EIF, Santos Dumont 3602, C1427 autonoma de buenos aires, Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open · Closes 6:30 PM",
+        "hours": "Open · Closes 6:30 PM",
+        "operating_hours": {
+          "friday": "7:30 AM–6:30 PM",
+          "saturday": "Closed",
+          "sunday": "Closed",
+          "monday": "7:30 AM–6:30 PM",
+          "tuesday": "7:30 AM–6:30 PM",
+          "wednesday": "7:30 AM–6:30 PM",
+          "thursday": "7:30 AM–6:30 PM"
+        },
+        "phone": "011 2540-0619",
+        "website": "http://www.jardinmafalda.com/",
+        "extensions": [
+          {
+            "accessibility": [
+              "Wheelchair-accessible entrance"
+            ]
+          }
+        ],
+        "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWlFCUSD2Yv2KeXujvRBUqn9ukpf92CwgEjVTLewzAGQgMHpS8jcPemTjVE0HnwWe6IV2wOnwH9odQpPH8oIKbivOMnHqKgeCR2qJWYVEMjf175Psv224zQe1rTE2E2uVnVy_HnqgA=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/KeN9G3icHcTdToMwFADgJ2LA8W-YeIGs2olkwFjZrkysZ8XKTssKNO4NfQTfxsTv4vv96cbRuvsw7LurhTJG9Tg5PEtDI9K4kOYUKusC6QIXprwum7Z_ynbbFRxmyHE_6bl-3A2UTF_2mEDmFdOieUV_SZ8rVXC7XWpZ4qnRgkWcfIu3awF-Q54n5qOyJV-adf7-OW8K4kOuMKtheGkPghX6GN_dlG4GuL5UGJ8bBgwmQeL7jdOg0gcfR1EUdP_LgP4AHGBFlg"
+      },
+      {
+        "position": 7,
+        "title": "Esquina Mafalda",
+        "place_id": "ChIJjVGaQwDJvJUR1Gqtijqs2_E",
+        "data_id": "0x95bcc900439a518d:0xf1dbac3a8aad6ad4",
+        "data_cid": "17427712550474967764",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcc900439a518d%3A0xf1dbac3a8aad6ad4&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcc900439a518d%3A0xf1dbac3a8aad6ad4&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.633828,
+          "longitude": -58.469992999999995
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJjVGaQwDJvJUR1Gqtijqs2_E",
+        "provider_id": "/g/11nbm49ph0",
+        "unclaimed_listing": true,
+        "type": "Historical landmark",
+        "types": [
+          "Historical landmark"
+        ],
+        "type_id": "historical_landmark",
+        "type_ids": [
+          "historical_landmark"
+        ],
+        "address": "Av. Juan Bautista Alberdi 2998, C1406 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "thumbnail": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=IICJFh6FFG57RVKJMMmX1g&cb_client=search.gws-prod.gps&w=80&h=92&yaw=147.82489&pitch=0&thumbfov=100",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/Rufpb3icHc3NDYIwGADQbXqzPwQFTBoPJhgwXDwYb6aU0n5JoQ2tVLdxLbfRuMB7n7eJ0Yc9ISEuSsUVVPLwVDZsvMDaOW2V8BCwdBNZGYnmMfWzAHvwYnYw8KY5trXZ1fVpW1yu57brphvTSPZ3aUHNkQclFmmwTj9xcQPWPqDES4oMrzL0EomzvMBllpcV8hCl4RT9l9GtnFH6BR57OIk"
+      },
+      {
+        "position": 8,
+        "title": "Mafalda",
+        "place_id": "ChIJ54CWj6HIvJUR232SrMXsBtw",
+        "data_id": "0x95bcc8a18f9680e7:0xdc06ecc5ac927ddb",
+        "data_cid": "15854619871952403931",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcc8a18f9680e7%3A0xdc06ecc5ac927ddb&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcc8a18f9680e7%3A0xdc06ecc5ac927ddb&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.6872705,
+          "longitude": -58.5492741
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJ54CWj6HIvJUR232SrMXsBtw",
+        "provider_id": "/g/11c6_m1_19",
+        "rating": 3.6,
+        "reviews": 220,
+        "unclaimed_listing": true,
+        "type": "Store",
+        "types": [
+          "Store"
+        ],
+        "type_id": "store",
+        "type_ids": [
+          "store"
+        ],
+        "address": "Dr. Ignacio Arieta 4087, B1754AQU San Justo, Provincia de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open 24 hours",
+        "hours": "Open 24 hours",
+        "operating_hours": {
+          "friday": "Open 24 hours",
+          "saturday": "Open 24 hours",
+          "sunday": "Open 24 hours",
+          "monday": "Open 24 hours",
+          "tuesday": "Open 24 hours",
+          "wednesday": "Open 24 hours",
+          "thursday": "Open 24 hours"
+        },
+        "phone": "011 15-2424-6666",
+        "extensions": [
+          {
+            "planning": [
+              "Quick visit"
+            ]
+          },
+          {
+            "payments": [
+              "Debit cards"
+            ]
+          }
+        ],
+        "unsupported_extensions": [
+          {
+            "service_options": [
+              "Delivery"
+            ]
+          },
+          {
+            "accessibility": [
+              "Wheelchair-accessible car park"
+            ]
+          }
+        ],
+        "service_options": {
+          "delivery": false
+        },
+        "thumbnail": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=4K5wEZ-UaMws2m9ry5DSpw&cb_client=search.gws-prod.gps&w=80&h=92&yaw=244.79411&pitch=0&thumbfov=100",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/KuBt63icHc09DsIgGADQ27CVn4ZGa0JcdDJOxsXFUIrwJbR8ASz2Nl7L22i8wHufty8F846xXJK1ZQFbEV425AY1dTG6YDVCpiZObBGs-Oc0zBrCHvUcYVTy1NXjrbnqc83t1Ke1O1ywEjPcTQA7F5WtTsZTV39iiiN1mElVW0686luy6qpaKemml0IQhGK84uS_POKiBOdfaDc5Yg"
+      },
+      {
+        "position": 9,
+        "title": "Maxikiosco Mafalda",
+        "place_id": "ChIJUYlcWNHLvJURNGbPmQstx_U",
+        "data_id": "0x95bccbd1585c8951:0xf5c72d0b99cf6634",
+        "data_cid": "17710173587506161204",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bccbd1585c8951%3A0xf5c72d0b99cf6634&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bccbd1585c8951%3A0xf5c72d0b99cf6634&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.5972838,
+          "longitude": -58.443916099999996
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJUYlcWNHLvJURNGbPmQstx_U",
+        "provider_id": "/g/11nn53tqjz",
+        "rating": 4.7,
+        "reviews": 19,
+        "type": "Kiosk",
+        "types": [
+          "Kiosk"
+        ],
+        "type_id": "kiosk",
+        "type_ids": [
+          "kiosk"
+        ],
+        "address": "Serrano 396, C1414 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open · Closes 2 AM",
+        "hours": "Open · Closes 2 AM",
+        "operating_hours": {
+          "friday": "7 AM–2 AM",
+          "saturday": "8 AM–2 AM",
+          "sunday": "Closed",
+          "monday": "7 AM–12 AM",
+          "tuesday": "7 AM–12 AM",
+          "wednesday": "7 AM–12 AM",
+          "thursday": "7 AM–12 AM"
+        },
+        "phone": "011 2707-0580",
+        "extensions": [
+          {
+            "service_options": [
+              "Delivery",
+              "In-store shopping"
+            ]
+          },
+          {
+            "planning": [
+              "Quick visit"
+            ]
+          }
+        ],
+        "service_options": {
+          "in_store_shopping": true,
+          "delivery": true
+        },
+        "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWljqctEXaxPf3bo3pjXAprD6LEcwQco3425lvi9XwdESk3a-5PEwsdzfVDWGfsn0knAy6OnE3wcS75LqxNjFOr6pwAjMfaw140BkWyxwKt9iYl9XvSy5nL3tfhbx5Dn2kZ8dflx=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/NT2d8HicHcRRboIwAADQE1WqpUyW-MFC1URUHGagf1goCF1babXFC3qG3WaJ7-P9vVpjlP70PN6iSSNlw-u7rgcqhamFmVD56zVKA6qB9qL1d3rMeXejhhSlSxm6SKS6IlJDHCSE2gOVyJ9h_riGha1I1qMS4JRYXT3ZT5yvmBawF9EY7AVBlmYfOLm5XbfcD4GyUbdlpZ368KvPR2c3JryeeFg8shGLBBnWXhyOxaw_zyvG3cJOIYSgfU-B-AfLEEYE"
+      },
+      {
+        "position": 10,
+        "title": "Studio en Palermo Hollywood con balcón y vista a plaza Mafalda - One-Bedroom Apartment",
+        "place_id": "ChIJw7Re9-y1vJUR6OBXiqtIEBQ",
+        "data_id": "0x95bcb5ecf75eb4c3:0x141048ab8a57e0e8",
+        "data_cid": "1445735381983551720",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcb5ecf75eb4c3%3A0x141048ab8a57e0e8&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcb5ecf75eb4c3%3A0x141048ab8a57e0e8&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.5820007,
+          "longitude": -58.442729899999996
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJw7Re9-y1vJUR6OBXiqtIEBQ",
+        "provider_id": "/g/11nw1v4lhj",
+        "type": "Lodging",
+        "types": [
+          "Lodging",
+          "Vacation rental"
+        ],
+        "type_id": null,
+        "type_ids": [
+          null,
+          "vacation_rental"
+        ],
+        "address": "C1414 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "website": "https://br.bluepillow.com/search/67a234b95a2dfa15b1837931?dest=bkng&cat=House&lat=-34.582&lng=-58.44273&language=pt"
+      },
+      {
+        "position": 11,
+        "title": "Almacén Mafalda",
+        "place_id": "ChIJ-YqXv3-jvJURY2N6SV_7mfw",
+        "data_id": "0x95bca37fbf978af9:0xfc99fb5f497a6363",
+        "data_cid": "18201855755667792739",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bca37fbf978af9%3A0xfc99fb5f497a6363&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bca37fbf978af9%3A0xfc99fb5f497a6363&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.4552218,
+          "longitude": -58.647339099999996
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJ-YqXv3-jvJURY2N6SV_7mfw",
+        "provider_id": "/g/11fsmnk4dz",
+        "rating": 5,
+        "reviews": 5,
+        "unclaimed_listing": true,
+        "type": "Warehouse",
+        "types": [
+          "Warehouse"
+        ],
+        "type_id": "warehouse",
+        "type_ids": [
+          "warehouse"
+        ],
+        "address": "B1617 Gral. Pacheco, Provincia de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open now",
+        "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWk9A1bzNOK3zeVyOcSjME3gLN-QFrpeNnmDfImYl7CVi1RF4cydcUNkisAEGWWKKYRDZASwJdTTxTHc7Qg2DJERR4H_Oy1rlaUCDOtvwQkFhbYgAfh0f7Ja5qogr6P2F5fufjdnLhFIOT9q=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/oLBbPnicHcTbboIwAADQL6qA6IhL9tAIHYKjUquEvSxaelEuRVrH8Cd93t8s2Xk4v09lbW9eHadR_kxqLRt-N3xgurO8szOmW0f2BjADjANjsqNFvYLe-ZHh1H_w44TZ_voR-XKbgRwNPc-6NhSbtmyC9fHiEbRgU8UOWX0xMHovijQtSfgJ92NSUfpDYxbkch4mESGL-AtP3tCcDusQ2-8xr5E6lxIK5YogOS1vWg4vuzlairu4Vt1WoQ2mq9vb6LmuC9T_DHR_fA1HGg"
+      },
+      {
+        "position": 12,
+        "title": "El Rinconcito de Mafalda",
+        "place_id": "ChIJLWctJSs1o5URo6LzYDlBzMw",
+        "data_id": "0x95a3352b252d672d:0xcccc413960f3a2a3",
+        "data_cid": "14757241793681793699",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95a3352b252d672d%3A0xcccc413960f3a2a3&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95a3352b252d672d%3A0xcccc413960f3a2a3&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.6111937,
+          "longitude": -58.3708424
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJLWctJSs1o5URo6LzYDlBzMw",
+        "provider_id": "/g/11cryf8d49",
+        "rating": 4.2,
+        "reviews": 34,
+        "unclaimed_listing": true,
+        "type": "Clothing store",
+        "types": [
+          "Clothing store"
+        ],
+        "type_id": "clothing_store",
+        "type_ids": [
+          "clothing_store"
+        ],
+        "address": "Moreno 319, C1091AAG Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Closed · Opens 10 AM",
+        "hours": "Closed · Opens 10 AM",
+        "operating_hours": {
+          "friday": "10 AM–7 PM",
+          "saturday": "Closed",
+          "sunday": "Closed",
+          "monday": "10 AM–7 PM",
+          "tuesday": "10 AM–7 PM",
+          "wednesday": "10 AM–7 PM",
+          "thursday": "10 AM–7 PM"
+        },
+        "extensions": [
+          {
+            "planning": [
+              "Quick visit"
+            ]
+          },
+          {
+            "payments": [
+              "Debit cards"
+            ]
+          }
+        ],
+        "unsupported_extensions": [
+          {
+            "accessibility": [
+              "Wheelchair-accessible car park"
+            ]
+          }
+        ],
+        "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWm9komHtb472iHjSBZA7wn4j7dwA2XG-tv2xd7y7bJkculNI2qPFjA6mtNJHY4OfbQC1EPslCRoy0dXPPTcaVvAN8idBaqDIjJ_w-n5qwIXMO8LaYddj5ZOr2NKftct29xBXOQ=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/gmkevnicHcRBcoIwFADQE0UwRaOd6SJoLVALQR1FNx1IEIyQiPkavaB38DbO-Bbv-agBTubTcZr6o1dpXTXlxZRnrhWUCnpct051MogbZBwaLNhq046Pug2g8Ag-BHLp7yixypNEWIqzHwRXfBPkToroyC9NHOKOzSQdthBHwdZL9kU66X8z00wW-u6KjLEVz9dXGo8Ows-7aSijf4vUoLNh9peM5vlWCDnYJWcc_-6BAx7f_CxJv2zfdV1Uv-dIvQDtI0Pc"
+      },
+      {
+        "position": 13,
+        "title": "Autoservicio Mafalda",
+        "place_id": "ChIJ3Vj8an7GvJUR2aFOm1BaM7Y",
+        "data_id": "0x95bcc67e6afc58dd:0xb6335a509b4ea1d9",
+        "data_cid": "13128936640964633049",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcc67e6afc58dd%3A0xb6335a509b4ea1d9&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcc67e6afc58dd%3A0xb6335a509b4ea1d9&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.7156139,
+          "longitude": -58.5984991
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJ3Vj8an7GvJUR2aFOm1BaM7Y",
+        "provider_id": "/g/11cs391c3s",
+        "rating": 4.8,
+        "reviews": 71,
+        "unclaimed_listing": true,
+        "type": "Grocery store",
+        "types": [
+          "Grocery store"
+        ],
+        "type_id": "grocery_store",
+        "type_ids": [
+          "grocery_store"
+        ],
+        "address": "Felipe Lavallol 1332, B1765FTA Isidro Casanova, Provincia de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open · Closes 2 PM · Reopens 4:30 PM",
+        "hours": "Open · Closes 2 PM · Reopens 4:30 PM",
+        "operating_hours": {
+          "friday": "9 AM–2 PM, 4:30–8:30 PM",
+          "saturday": "9 AM–2 PM, 4:30–8:30 PM",
+          "sunday": "9:30 AM–1:30 PM",
+          "monday": "9 AM–2 PM, 4:30–8:30 PM",
+          "tuesday": "9 AM–2 PM, 4:30–8:30 PM",
+          "wednesday": "9 AM–2 PM, 4:30–8:30 PM",
+          "thursday": "9 AM–2 PM, 4:30–8:30 PM"
+        },
+        "extensions": [
+          {
+            "highlights": [
+              "Great produce"
+            ]
+          },
+          {
+            "planning": [
+              "Quick visit"
+            ]
+          },
+          {
+            "payments": [
+              "Credit cards",
+              "Debit cards",
+              "NFC mobile payments"
+            ]
+          }
+        ],
+        "unsupported_extensions": [
+          {
+            "amenities": [
+              "Toilet"
+            ]
+          }
+        ],
+        "thumbnail": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=noKAjTsdL_Y3PhxZK8VUYg&cb_client=search.gws-prod.gps&w=80&h=92&yaw=165.84584&pitch=0&thumbfov=100",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/LYCge3icHc3BDcIgFADQbbgJVFuDJj_Gcz14UJN6aSilgKFACpa6jWu5jcYF3vu8dUoh7gmJaZIyzUbmYBZp4ypwrLxXVvJgIhZ-JHNBkn6OnePGHgJ33vTgfH18XGJ_apvNWS_3mt2ujUKia4U10iWIkk9CY5V_4uR7rEJEGRhFGnZr9OIZim2FWVmxEgWThAaK_svgZygo_QKLaTm-"
+      },
+      {
+        "position": 14,
+        "title": "Libreria Mafalda (Sucursal OCA)",
+        "place_id": "ChIJ_5CMa7W3vJURzpz5XFslxsg",
+        "data_id": "0x95bcb7b56b8c90ff:0xc8c6255b5cf99cce",
+        "data_cid": "14467291927306411214",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcb7b56b8c90ff%3A0xc8c6255b5cf99cce&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcb7b56b8c90ff%3A0xc8c6255b5cf99cce&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.5702305,
+          "longitude": -58.5239878
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJ_5CMa7W3vJURzpz5XFslxsg",
+        "provider_id": "/g/11h056_vqt",
+        "rating": 4.5,
+        "reviews": 166,
+        "type": "Book store",
+        "types": [
+          "Book store"
+        ],
+        "type_id": "book_store",
+        "type_ids": [
+          "book_store"
+        ],
+        "address": "Estrada 2380, B1650 Villa Maipú, Provincia de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open · Closes 7 PM",
+        "hours": "Open · Closes 7 PM",
+        "operating_hours": {
+          "friday": "9 AM–7 PM",
+          "saturday": "9 AM–1 PM",
+          "sunday": "Closed",
+          "monday": "9 AM–7 PM",
+          "tuesday": "9 AM–7 PM",
+          "wednesday": "9 AM–7 PM",
+          "thursday": "9 AM–7 PM"
+        },
+        "phone": "011 3187-5770",
+        "extensions": [
+          {
+            "service_options": [
+              "Delivery"
+            ]
+          },
+          {
+            "planning": [
+              "Quick visit"
+            ]
+          },
+          {
+            "payments": [
+              "Credit cards",
+              "Debit cards",
+              "NFC mobile payments"
+            ]
+          }
+        ],
+        "unsupported_extensions": [
+          {
+            "accessibility": [
+              "Wheelchair-accessible car park"
+            ]
+          }
+        ],
+        "service_options": {
+          "delivery": true
+        },
+        "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWk_EsSJIdoobnjoH13tbQ8u-dZwfygQcc_uvnZexhZCc7y9ClxtK7fPdxs0yDBynkOhvnbY2s9MG8QVfHaIIwMnjRRell8HtaaM1q0dSP-OXEgrsfg1hwaxqFMR54MCnWrt4e0rgQ=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/2yq8inicHcTbboIwGADgJ6qUqRGWeDHxAC4NB5ep3BgopY10f5W_nB5xj-DbLNl38b1-lbUPfHccreYzaYzUokPRcgNWgJ1x8-PIBxKOBJ2PMEu-zs1th6djVBlTwt2E7tyWqdeRKh_qSaac37oecjGqPOCryQ_0aD9XdVKNSKftZoImVj2U1zf02cFLv-uwiKKBwT3LhNZeaIuCuU9anRISX3ayxVq6aijG555lywUL4NzahaCtTNeDSykl6n9O4A_YyEd8"
+      },
+      {
+        "position": 15,
+        "title": "Autoservicio Mafalda",
+        "place_id": "ChIJu-3TnprGvJURvGS-X2wgR90",
+        "data_id": "0x95bcc69a9ed3edbb:0xdd47206c5fbe64bc",
+        "data_cid": "15944748655563400380",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcc69a9ed3edbb%3A0xdd47206c5fbe64bc&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcc69a9ed3edbb%3A0xdd47206c5fbe64bc&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.714081199999995,
+          "longitude": -58.612988599999994
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJu-3TnprGvJURvGS-X2wgR90",
+        "provider_id": "/g/11j0q8q5gx",
+        "rating": 4.8,
+        "reviews": 47,
+        "unclaimed_listing": true,
+        "type": "Supermarket",
+        "types": [
+          "Supermarket"
+        ],
+        "type_id": "supermarket",
+        "type_ids": [
+          "supermarket"
+        ],
+        "address": "Hualfin 2134, B1755FJL Rafael Castillo, Provincia de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open · Closes 1:30 PM · Reopens 5 PM",
+        "hours": "Open · Closes 1:30 PM · Reopens 5 PM",
+        "operating_hours": {
+          "friday": "8:30 AM–1:30 PM, 5–9 PM",
+          "saturday": "8:30 AM–1:30 PM, 5–9 PM",
+          "sunday": "8:30 AM–1:30 PM",
+          "monday": "8:30 AM–1:30 PM, 5–9 PM",
+          "tuesday": "8:30 AM–1:30 PM, 5–9 PM",
+          "wednesday": "8:30 AM–1:30 PM, 5–9 PM",
+          "thursday": "8:30 AM–1:30 PM, 5–9 PM"
+        },
+        "extensions": [
+          {
+            "highlights": [
+              "Great produce"
+            ]
+          },
+          {
+            "planning": [
+              "Quick visit"
+            ]
+          },
+          {
+            "payments": [
+              "Credit cards",
+              "Debit cards",
+              "NFC mobile payments"
+            ]
+          }
+        ],
+        "unsupported_extensions": [
+          {
+            "amenities": [
+              "Toilet"
+            ]
+          }
+        ],
+        "thumbnail": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=NcriYNAt6zOEBOAhipVJkQ&cb_client=search.gws-prod.gps&w=80&h=92&yaw=108.23957&pitch=0&thumbfov=100",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/KKTy_3icHc0xCsIwFIDh22QzSStqKwSp4OLQ4iI4SZrG5GHaPJLYqqfxWt7G4vzD938_NiWMW8ZiClqnEfSE8NQuLlBS471xWiJEqnzPxowl--jbQYLboRw8dKJWAS51ldbv5rBvKgt4Pt5PRLVX5UAPSUQtg7LUTLMYfEcNRjKJghMrypy85CQyXtB8Wa42BCEpKzj5X25-nBP_AYNgOaY"
+      },
+      {
+        "position": 16,
+        "title": "ESCULTURA DE MAFALDA",
+        "place_id": "ChIJmdWHMQC3vJURJv8VoPM4uTE",
+        "data_id": "0x95bcb7003187d599:0x31b938f3a015ff26",
+        "data_cid": "3582957597563944742",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcb7003187d599%3A0x31b938f3a015ff26&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcb7003187d599%3A0x31b938f3a015ff26&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.5757298,
+          "longitude": -58.4801061
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJmdWHMQC3vJURJv8VoPM4uTE",
+        "provider_id": "/g/11ywdg8_js",
+        "unclaimed_listing": true,
+        "type": "Historical landmark",
+        "types": [
+          "Historical landmark"
+        ],
+        "type_id": "historical_landmark",
+        "type_ids": [
+          "historical_landmark"
+        ],
+        "address": "Juramento 4849, C1431CKG C1431CKG, Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "thumbnail": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=FPb9tGG6l4foX9kdmXN9rA&cb_client=search.gws-prod.gps&w=80&h=92&yaw=290.8208&pitch=0&thumbfov=100",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/9UUN53icHc1BDsIgEADA33ATaGNMMSHGi70Zj70ZSlcg0i6BtehrfJe_0fiBmc_bE6WyF6JQBqA1QE3hCbFskuEO0UUwKRRucRZrI8g_5nExIR6SWTBM-nQZFfX9Lm5vOKj7NA9nlY_MjlcbAyykC5hsPXf1J2acuEuFVd1J5rVq2ctU3SrJu1Z2LAWyXkv2T2646kbKLyqiORE"
+      },
+      {
+        "position": 17,
+        "title": "Mafalda - Single Room",
+        "place_id": "ChIJSwpIWu61vJURvDeMPFabkG4",
+        "data_id": "0x95bcb5ee5a480a4b:0x6e909b563c8c37bc",
+        "data_cid": "7967038535503722428",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcb5ee5a480a4b%3A0x6e909b563c8c37bc&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcb5ee5a480a4b%3A0x6e909b563c8c37bc&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.5845108,
+          "longitude": -58.447879799999995
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJSwpIWu61vJURvDeMPFabkG4",
+        "provider_id": "/g/11nw1v3zvr",
+        "type": "House",
+        "types": [
+          "House",
+          "Vacation rental"
+        ],
+        "type_id": null,
+        "type_ids": [
+          null,
+          "vacation_rental"
+        ],
+        "address": "C1427 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "website": "https://br.bluepillow.com/search/681184016178c7268f2a174e?dest=bkng&cat=House&lat=-34.58451&lng=-58.44788&language=pt",
+        "description": "Sleeps 1 • 1 bedroom • 1 bathroom",
+        "amenities": [
+          "Air-conditioned",
+          "Kitchen"
+        ],
+        "thumbnail": "https://lh3.googleusercontent.com/gps-proxy/ALd4DhHRk8SqG4WSVNsEjPeQBo2tJzRVzO-Fdx0fkaLPyk6LuQ6c8h3EQVtPTJJzumED4Ydi4O7Dy0SbCQSSf6ebYA2_mGuffJotMxKleX9rWnHnWCKfFznVFHWamFf3Z7Oj0ckZki21U0ozvgjQSVnXXJkdNh3Haxvv1c47Mn-Wx-Zmsk5Wf9D3Hvly=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/Y6YwN3icHcTNckNAAADgJ9pYPyXpTA9pECMSRIu4dGTtEsuusgRv2jfpsTP9Dt_PbyVEN7xKUlOpm5LzssHjgHvEmcBMbBBvpbIbQNfzeZH2XqGZlXOl2-j7qCVRfBmsOsDhO1eEu17j1Qd2MUNCcy9YqO6NoY62lWqFsQg-XHcdW8vUbsVD8w1zgdH9EEYR0fH9tle-2uNIiMvFeT41ON31CXNYcjgRe2Wx7SR5axM1M_waIprRhyJ_Qr5OZR1GMUtTlxaXSnXyeZpkpBlnBpIZZO1AXxKyM1Vnapa3pwwhBNX_CLA_64RWFg"
+      },
+      {
+        "position": 18,
+        "title": "Feria Mafalda",
+        "place_id": "ChIJ8w0VTwCxvJURt4roUC8BCJc",
+        "data_id": "0x95bcb1004f150df3:0x9708012f50e88ab7",
+        "data_cid": "10882949802273311415",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcb1004f150df3%3A0x9708012f50e88ab7&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcb1004f150df3%3A0x9708012f50e88ab7&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.5288465,
+          "longitude": -58.4939937
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJ8w0VTwCxvJURt4roUC8BCJc",
+        "provider_id": "/g/11xgbs00yk",
+        "rating": 5,
+        "reviews": 3,
+        "unclaimed_listing": true,
+        "type": "Handicraft fair",
+        "types": [
+          "Handicraft fair"
+        ],
+        "type_id": "handicraft_fair",
+        "type_ids": [
+          "handicraft_fair"
+        ],
+        "address": "Gral. José de San Martín 2301 B1602DFA, B1638 Florida, Provincia de Buenos Aires",
+        "country": "Argentina",
+        "website": "https://www.instagram.com/feriamafaldaok?igsh=NDFsc2U0bmk1dDRr",
+        "extensions": [
+          {
+            "accessibility": [
+              "Wheelchair-accessible entrance"
+            ]
+          },
+          {
+            "children": [
+              "Good for kids"
+            ]
+          }
+        ],
+        "thumbnail": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=Mv1OywAF9GsqSN4NQb3s9g&cb_client=search.gws-prod.gps&w=80&h=92&yaw=310.5915&pitch=0&thumbfov=100",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/FAoQLHicHc3bDcIgFADQbfiTh7WJmBDjj35ZYxzAUEQgoQV7r2CncS630bjAOZ-3R8ywYQxwshZLsDWHl42wyJq6lFy0OgegJg2sCIb-OfSjDnGb9ZjCTR2LOM11t5cHeFy6VXfuG5COmP5qYrAjKrB6Mp66-hOndKMuA6lqzYlXcklmXVUjOG2laEkOaLzi5J_cU1GC8y8razkJ"
+      },
+      {
+        "position": 19,
+        "title": "Casa de mafalda",
+        "place_id": "ChIJ2U5SYAA1o5URI7sRoXD1bkc",
+        "data_id": "0x95a3350060524ed9:0x476ef570a111bb23",
+        "data_cid": "5147321288218491683",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95a3350060524ed9%3A0x476ef570a111bb23&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95a3350060524ed9%3A0x476ef570a111bb23&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.6218351,
+          "longitude": -58.3713942
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJ2U5SYAA1o5URI7sRoXD1bkc",
+        "provider_id": "/g/11xzyh2048",
+        "rating": 4.6,
+        "reviews": 11,
+        "unclaimed_listing": true,
+        "type": "Apartment complex",
+        "types": [
+          "Apartment complex"
+        ],
+        "type_id": "apartment_complex",
+        "type_ids": [
+          "apartment_complex"
+        ],
+        "address": "C1141 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWlMb7zjhGoTePrFhK1m82EP9iUkCT7oR2Zj9vRw2drG4PDiTDbjSkbtJrgk9d4N1suUxzBS_dLLzdWq4SlimgUn3bHrZKnSw_OeZyp_4lyMQz2J_HlBhBxbFRmuIePyChIKoOnQPs63qF8e=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/SM50nHicHcRJDoIwAADAFyFrVEw8iIooLpUlJlxICk0LlBbbIsInPfsbE-cw3w9RqpMrXafEnmHOMUW9RKLgTCGmZgVvddxJrZCa1DdBBJIHvcDFVJMDTxAQPgnNdmntgVulzTZZ8MjKavcVDVYpDg7YVckO1nED1Ungxi2dqyn79D15cV6ez1P5eDoxrVqcMhsGIgtZPOQ3lI1d7tDxcp-sUx5Qj3hv6Edtf0Rg3JJjyG_sDuTcfvpLtB5MwzA08r_Q2A8GfEjK"
+      },
+      {
+        "position": 20,
+        "title": "Libreria mafalda",
+        "place_id": "ChIJzeJRq7q5vJURQ1Kndno0jXk",
+        "data_id": "0x95bcb9baab51e2cd:0x798d347a76a75243",
+        "data_cid": "8758714550886814275",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcb9baab51e2cd%3A0x798d347a76a75243&engine=google_maps_reviews&hl=en",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcb9baab51e2cd%3A0x798d347a76a75243&engine=google_maps_photos&hl=en",
+        "gps_coordinates": {
+          "latitude": -34.586779,
+          "longitude": -58.5886779
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJzeJRq7q5vJURQ1Kndno0jXk",
+        "provider_id": "/g/11b7c68rp8",
+        "rating": 4.5,
+        "reviews": 139,
+        "type": "Book store",
+        "types": [
+          "Book store",
+          "Gift shop"
+        ],
+        "type_id": "book_store",
+        "type_ids": [
+          "book_store",
+          "gift_shop"
+        ],
+        "address": "San Lorenzo 1761, B1683CPI Gran Buenos Aires, Provincia de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Open · Closes 12:30 PM · Reopens 5 PM",
+        "hours": "Open · Closes 12:30 PM · Reopens 5 PM",
+        "operating_hours": {
+          "friday": "9 AM–12:30 PM, 5–7:30 PM",
+          "saturday": "10 AM–12:30 PM, 6:30–7:30 PM",
+          "sunday": "Closed",
+          "monday": "9 AM–12:30 PM, 5–7:30 PM",
+          "tuesday": "9 AM–12:30 PM, 5–7:30 PM",
+          "wednesday": "9 AM–12:30 PM, 5–7:30 PM",
+          "thursday": "9 AM–12:30 PM, 5–7:30 PM"
+        },
+        "phone": "011 4970-5533",
+        "website": "https://instagram.com/mafaldacoronado?igshid=1qtjmwwedrhx9",
+        "extensions": [
+          {
+            "service_options": [
+              "Delivery"
+            ]
+          },
+          {
+            "planning": [
+              "Quick visit"
+            ]
+          },
+          {
+            "payments": [
+              "Credit cards",
+              "Debit cards",
+              "NFC mobile payments"
+            ]
+          }
+        ],
+        "unsupported_extensions": [
+          {
+            "accessibility": [
+              "Wheelchair-accessible car park"
+            ]
+          }
+        ],
+        "service_options": {
+          "delivery": true
+        },
+        "thumbnail": "https://lh3.googleusercontent.com/gps-proxy/ALd4DhFEXcHbweWU1evywSKiV7obj3TKtxH40QtoCoNcTW8BnjyySWZpRLL7y9jvshHTIfopG7az2pkRL0Uu-mjkKz6kJISV4NrrIrPASEV4mafBHZ4DAU8cHT7-KlfZBjH9Pjy7sCvazcnJspNbfD7vlZOqa-RPyJMY8cyvcE8i1PXQbvWZ9IICxcJkPYaStE1G91vxW_4=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/_AUS4nicHcTJToNAAADQePJrKGCJgEkPbJZNpKwtFwMjS9lmZKYDw6f6NSa-w_t9eu4IQfiN58fueGghbMf6gesFwJnUMzkAOPEtwhxa4MZ4zf-WzO7dugK7Wus8FWvK1ti7ZzKs-mPikc2WhAuBBgxAkiv63DMW5wWKfF9mak9xZydOA9FZLvcXNES-kD64qR-8_XVwnTiTgmVxllCLrUyayka3C8nUUgXYicx5Y1Pova2GPZOxQcsdzC5GQdWYMh2Lz5-Si0LmftwUwCiwlLsYXi8VzQvVcYwNuEN4K2NiiWdVpFv-JZ1WURAErvsfcPMfzZ9alQ"
+      }
+    ],
+    "serpapi_pagination": {
+      "next": "https://serpapi.com/search.json?engine=google_maps&gl=ar&google_domain=google.com&hl=en&ll=%40-34.6037%2C-58.3816%2C12z&q=Mafalda&start=20&type=search"
+    }
+  }
+}

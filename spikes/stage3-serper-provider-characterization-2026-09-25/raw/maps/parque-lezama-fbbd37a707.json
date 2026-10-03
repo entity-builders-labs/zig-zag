@@ -1,0 +1,169 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Parque Lezama",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:41.758Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 840
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Parque Lezama",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.6282018,-58.3730074,17.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Parque Lezama",
+        "address": "Brasil, C1143 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.627144699999995,
+        "longitude": -58.3701618,
+        "rating": 4.5,
+        "ratingCount": 62126,
+        "type": "City park",
+        "types": [
+          "City park",
+          "Park",
+          "Tourist attraction"
+        ],
+        "website": "http://www.turismo.buenosaires.gob.ar/es/atractivo/parque-lezama",
+        "description": "Landscaped city park with monuments & statues, tree-lined walkways & a playground.",
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMutEcuMtbsxJMZwScxP12lExGWeIfPD2hTm0olHs2ubjBcp6vq0e1oS_rwwzWf2WNKXk_8Z6Vu_4MUd3PQRLVrLFj_daDOpRJuelWBXwha55ZVBro_4RxyY-rGJa4yxgMID7Q43Q",
+        "cid": "3377395607686333536",
+        "fid": "0x95a334ccee26fc95:0x2edeeb69361bc460",
+        "placeId": "ChIJlfwm7sw0o5URYMQbNmnr3i4"
+      },
+      {
+        "position": 2,
+        "title": "Anfiteatro parque Lezama",
+        "address": "C1143 Buenos Aires, Argentina",
+        "latitude": -34.6254275,
+        "longitude": -58.369427599999995,
+        "rating": 4.4,
+        "ratingCount": 161,
+        "type": "Amphitheater",
+        "types": [
+          "Amphitheater"
+        ],
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPwr-dmY1yQCYdZGUK1REWKRwjoqLlEF8WcF6Zth7XwDvIzglrFnCUKNy06doG8JF6xeGykvWe8MYHPZvr1fvLG6-lyuboZsYh7QeEQKnLiQnPDUe-ADkq6Kuh3nflykQKZ5oNZ",
+        "cid": "11103921473794087428",
+        "fid": "0x95a33593456da479:0x9a190dbfd3541a04",
+        "placeId": "ChIJeaRtRZM1o5URBBpU078NGZo"
+      },
+      {
+        "position": 3,
+        "title": "Palacio Lezama",
+        "address": "Av. Martín García 344, C1165ABP Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6290772,
+        "longitude": -58.369910399999995,
+        "rating": 4.6,
+        "ratingCount": 1410,
+        "type": "City government office",
+        "types": [
+          "City government office",
+          "Tourist attraction"
+        ],
+        "website": "http://www.buenosaires.gob.ar/",
+        "phoneNumber": "+54 11 5030-9100",
+        "description": "Biscuit factory built in 1910, with ornate domes & brickwork, now housing government offices.",
+        "openingHours": {
+          "Friday": "9 AM–5 PM",
+          "Saturday": "Closed",
+          "Sunday": "Closed",
+          "Monday": "9 AM–5 PM",
+          "Tuesday": "9 AM–5 PM",
+          "Wednesday": "9 AM–5 PM",
+          "Thursday": "9 AM–5 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNqiJsndx2fzFOyZ9hfkSfe91Dr_3t6rUH-cb5fQJBU6eX270pa6HBefxeCgdWvuDzpdMg6vtLDT2z2_PR2n4X9VqEjA6mZsu8YiriemnHLxbBX3uRh6a1ufqHk0AX2fJBKF4n8Ix0Fx3M",
+        "cid": "7562702013277540840",
+        "fid": "0x95a334cb6189effb:0x68f41d69838a11e8",
+        "placeId": "ChIJ---JYcs0o5UR6BGKg2kd9Gg"
+      },
+      {
+        "position": 4,
+        "title": "Feria de Parque Lezama",
+        "address": "Av. Martín García 341-365, C1165ABC Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6287614,
+        "longitude": -58.3701917,
+        "rating": 4.4,
+        "ratingCount": 3630,
+        "type": "Park",
+        "types": [
+          "Park",
+          "Tourist attraction"
+        ],
+        "website": "https://feriadeparquelezama.com.ar/",
+        "phoneNumber": "+54 11 6787-3379",
+        "openingHours": {
+          "Friday": "Closed",
+          "Saturday": "12–8 PM",
+          "Sunday": "12–8 PM",
+          "Monday": "Closed",
+          "Tuesday": "Closed",
+          "Wednesday": "Closed",
+          "Thursday": "Closed"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMnP97Y9qRUd4YV3nqIzSNBuV18PPbkGshd6PET9WHHqSiDcRKGxDZMXEHGlxIjikaoegr7v8UQtlDVzzmo903DLiSNjB3ybUyplHZ_rM40L6Ju1_XWnWVH25b5e_pOTR6xirGo",
+        "cid": "3346203658740816287",
+        "fid": "0x95a334cc9f4b9561:0x2e701a7fa95bd99f",
+        "placeId": "ChIJYZVLn8w0o5URn9lbqX8acC4"
+      },
+      {
+        "position": 5,
+        "title": "Parque Lezama",
+        "address": "C1165 Buenos Aires, Argentina",
+        "latitude": -34.62822,
+        "longitude": -58.369049999999994,
+        "rating": 4,
+        "ratingCount": 2,
+        "type": "Bus stop",
+        "types": [
+          "Bus stop"
+        ],
+        "thumbnailUrl": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=qbzHUSdXpvsO1Egg298vfQ&cb_client=search.gws-prod.grass&w=80&h=92&yaw=143.41217&pitch=0&thumbfov=100",
+        "cid": "2833281331343726349",
+        "fid": "0x95a334cc864fcb67:0x2751d65c077d170d",
+        "placeId": "ChIJZ8tPhsw0o5URDRd9B1zWUSc"
+      },
+      {
+        "position": 6,
+        "title": "Parque Lezama",
+        "address": "Arzobispo Espinosa 550, C1161 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6309764,
+        "longitude": -58.3655234,
+        "rating": 4.7,
+        "ratingCount": 14,
+        "type": "Bar",
+        "types": [
+          "Bar"
+        ],
+        "thumbnailUrl": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=IM7SW-CgA44Gnjf5R95SmA&cb_client=search.gws-prod.grass&w=80&h=92&yaw=301.43774&pitch=0&thumbfov=100",
+        "cid": "5818292901436161821",
+        "fid": "0x95a335765a9d1179:0x50beba9135477f1d",
+        "placeId": "ChIJeRGdWnY1o5URHX9HNZG6vlA"
+      }
+    ],
+    "credits": 3
+  }
+}

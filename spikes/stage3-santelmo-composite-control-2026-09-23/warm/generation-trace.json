@@ -1,0 +1,3580 @@
+{
+  "steps": [
+    {
+      "label": "Interpretación de preferencias",
+      "stage": "preference_interpretation",
+      "inputs": {
+        "intents": [
+          "walk"
+        ],
+        "groupType": "solo",
+        "budgetLevel": "medium",
+        "accessibilityNeeds": [],
+        "dietaryRestrictions": [],
+        "hasAdditionalPreferences": true
+      },
+      "status": "PASS",
+      "timing": {
+        "durationMs": 1047
+      },
+      "outputs": {
+        "intent": {
+          "notes": [],
+          "ambiguities": [],
+          "anchoredPlaces": [
+            {
+              "usage": "geographic_scope",
+              "rawName": "San Telmo",
+              "priority": "soft"
+            }
+          ],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "walk",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "caminata",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "intent",
+              "confidence": 0.95,
+              "importance": 1
+            },
+            {
+              "key": "history",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "histórica",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.95,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "historical walk in San Telmo",
+          "accessibilityPreferences": []
+        },
+        "preferenceSpec": {
+          "trip": {
+            "days": 1,
+            "pace": "moderate",
+            "startDates": []
+          },
+          "facets": [
+            {
+              "key": "history",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "theme"
+            },
+            {
+              "key": "walk",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "intent"
+            }
+          ],
+          "anchors": [
+            {
+              "usage": "geographic_scope",
+              "rawName": "San Telmo",
+              "priority": "soft"
+            }
+          ],
+          "exclusions": {
+            "hard": [],
+            "themes": [],
+            "traits": []
+          },
+          "semanticQuery": "historical walk in San Telmo",
+          "resolvedAnchors": [
+            {
+              "kind": "area",
+              "usage": "geographic_scope",
+              "status": "resolved",
+              "rawName": "San Telmo",
+              "geometry": {
+                "type": "Polygon"
+              },
+              "priority": "soft",
+              "provider": "openstreetmap",
+              "externalId": "osm:relation:2223069",
+              "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+              "osmBoundary": {
+                "id": "osm:relation:2223069",
+                "name": "San Telmo",
+                "tags": {
+                  "name": "San Telmo",
+                  "type": "boundary",
+                  "boundary": "administrative",
+                  "wikidata": "Q1026688",
+                  "wikipedia": "es:San Telmo (Buenos Aires)",
+                  "admin_level": "9"
+                },
+                "osmId": 2223069,
+                "osmType": "relation",
+                "geometry": {
+                  "type": "Polygon"
+                }
+              },
+              "canonicalName": "San Telmo"
+            }
+          ],
+          "softConstraints": {
+            "group": [],
+            "budget": [],
+            "dietary": [],
+            "accessibility": []
+          },
+          "explorationStyle": "balanced"
+        }
+      },
+      "summary": "Preferencias libres normalizadas y combinadas con filtros.",
+      "component": "PreferenceInterpreterService",
+      "preferenceInterpretation": {
+        "model": "qwen/qwen3.8-27b",
+        "stage": "preference_interpretation",
+        "status": "applied",
+        "provider": "groq",
+        "durationMs": 1047,
+        "userPrompt": "caminata histórica por San Telmo",
+        "rawResponse": "{\n  \"preferredFacets\": [\n    {\n      \"dimension\": \"intent\",\n      \"key\": \"walk\",\n      \"confidence\": 0.95,\n      \"strength\": \"strong\",\n      \"evidence\": [\n        \"caminata\"\n      ]\n    },\n    {\n      \"dimension\": \"theme\",\n      \"key\": \"history\",\n      \"confidence\": 0.95,\n      \"strength\": \"strong\",\n      \"evidence\": [\n        \"histórica\"\n      ]\n    }\n  ],\n  \"anchoredPlaces\": [\n    {\n      \"rawName\": \"San Telmo\",\n      \"usage\": \"geographic_scope\",\n      \"priority\": \"soft\"\n    }\n  ],\n  \"excludedThemes\": [],\n  \"excludedTraits\": [],\n  \"hardExclusions\": [],\n  \"softConstraints\": [],\n  \"ambiguities\": [],\n  \"dietaryPreferences\": [],\n  \"accessibilityPreferences\": [],\n  \"budgetPreferences\": [],\n  \"groupPreferences\": [],\n  \"positiveSemanticQuery\": \"historical walk in San Telmo\",\n  \"notes\": \"The user explicitly requested a historical walk, with San Telmo mentioned as the specific area for this activity.\"\n}",
+        "systemPrompt": "Interpret the user's supplemental tourism preferences into normalized intent.\nReturn JSON only. You interpret language; deterministic code enforces the result.\nNever invent geographic entities, provider IDs, coordinates, or evidence.\nDo not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.\nFor positive preferences, output preferredFacets as a list of objects with:\n- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.\n- key: CANONICAL domain key in English (e.g. \"architecture\" not \"arquitectura\", \"food\" not \"comida\", \"walk\" not \"caminata\", \"history\" not \"historia\").\n- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.\n- confidence: float between 0 and 1 indicating certainty.\n- strength: \"strong\" | \"medium\" | \"weak\" indicating user emphasis.\n- evidence: one or more short excerpts copied from the user's text that support\n  this facet. Never invent evidence; facets without supporting excerpts are rejected.\nDo not invent arbitrary importance numbers; code derives importance deterministically from strength.\nAlso output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by\nname (never a generic theme). For each, output:\n- rawName: the name as mentioned by the user.\n- usage: \"geographic_scope\" | \"specific_destination\" | \"named_path\" | \"unknown\". This describes how the phrase uses the name, not what geographic entity it is.\n- priority: \"must\" ONLY for explicit, unambiguous named-place intent, for example\n  \"quiero visitar X\", \"incluí X\", \"sí o sí quiero ir a X\", \"no me quiero perder X\".\n  Anything weaker or ambiguous -- including a place mentioned only in passing while\n  describing a theme, e.g. \"me interesa la arquitectura de X\" -- is priority \"soft\".\nExtract anchors conservatively: when in doubt about the name or the intent, omit the anchor\nrather than guessing. Do not invent named places that were not mentioned.\nOther fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,\ndietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,\npositiveSemanticQuery, notes. Use short lowercase phrases.",
+        "parsedResponse": {
+          "notes": [],
+          "ambiguities": [],
+          "anchoredPlaces": [
+            {
+              "usage": "geographic_scope",
+              "rawName": "San Telmo",
+              "priority": "soft"
+            }
+          ],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "walk",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "caminata",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "intent",
+              "confidence": 0.95,
+              "importance": 1
+            },
+            {
+              "key": "history",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "histórica",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.95,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "historical walk in San Telmo",
+          "accessibilityPreferences": []
+        },
+        "responseSchema": {
+          "type": "object",
+          "required": [
+            "preferredFacets",
+            "anchoredPlaces",
+            "excludedThemes",
+            "excludedTraits",
+            "hardExclusions",
+            "softConstraints",
+            "ambiguities",
+            "dietaryPreferences",
+            "accessibilityPreferences",
+            "budgetPreferences",
+            "groupPreferences",
+            "positiveSemanticQuery",
+            "notes"
+          ],
+          "properties": {
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ambiguities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "anchoredPlaces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rawName",
+                  "usage",
+                  "priority"
+                ],
+                "properties": {
+                  "usage": {
+                    "enum": [
+                      "geographic_scope",
+                      "specific_destination",
+                      "named_path",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "rawName": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "enum": [
+                      "soft",
+                      "must"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "excludedThemes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "excludedTraits": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hardExclusions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "preferredFacets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "dimension",
+                  "key",
+                  "confidence"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "strength": {
+                    "enum": [
+                      "strong",
+                      "medium",
+                      "weak"
+                    ],
+                    "type": "string"
+                  },
+                  "dimension": {
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "softConstraints": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "groupPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "budgetPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dietaryPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSemanticQuery": {
+              "type": "string"
+            },
+            "accessibilityPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "validationErrors": [],
+        "facetNormalizationDecisions": [
+          {
+            "rawKey": "walk",
+            "reason": "VALID_AS_EMITTED",
+            "accepted": true,
+            "rawDimension": "intent",
+            "normalizedKey": "walk",
+            "normalizedDimension": "intent"
+          },
+          {
+            "rawKey": "history",
+            "reason": "VALID_AS_EMITTED",
+            "accepted": true,
+            "rawDimension": "theme",
+            "normalizedKey": "history",
+            "normalizedDimension": "theme"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Intención y movilidad solicitadas",
+      "rules": [
+        {
+          "rule": "Usar el wizard canónico como fuente de restricciones explícitas",
+          "actual": 1,
+          "reason": "La generación parte de TourGenerationRequest contractVersion=1.",
+          "result": "PASS",
+          "ruleId": "INTENT-CANONICAL-001",
+          "expected": 1
+        },
+        {
+          "rule": "Conservar preferencias adicionales como intención suplementaria",
+          "actual": "caminata histórica por San Telmo",
+          "reason": "Hay texto adicional disponible para búsqueda/ranking semántico.",
+          "result": "PASS",
+          "ruleId": "INTENT-FREETEXT-001"
+        }
+      ],
+      "stage": "tour_intent",
+      "inputs": {
+        "days": 1,
+        "themes": [
+          "history"
+        ],
+        "travelPace": "moderate",
+        "destination": "San Telmo, Buenos Aires, Argentina",
+        "explorationStyle": "balanced",
+        "accessibilityNeeds": [],
+        "additionalPreferences": "caminata histórica por San Telmo",
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 5000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "outputs": {
+        "requestedDays": 1,
+        "requestedThemes": [
+          "history"
+        ]
+      },
+      "summary": "Temas: history. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"caminata histórica por San Telmo\".",
+      "decision": {
+        "reason": "La solicitud contiene el contrato canónico requerido por el motor.",
+        "status": "INFO",
+        "outcome": "INTENT_ACCEPTED",
+        "reasonCodes": [
+          "CANONICAL_REQUEST_AVAILABLE"
+        ],
+        "triggeredActions": [
+          "RESOLVE_DESTINATION"
+        ]
+      },
+      "component": "TourGenerationRequest"
+    },
+    {
+      "label": "Resolución del destino",
+      "rules": [
+        {
+          "rule": "Determinar si el destino puede usar boundary real o debe degradar a punto",
+          "actual": "area",
+          "reason": "Se obtuvo boundary administrativo utilizable.",
+          "result": "PASS",
+          "ruleId": "DEST-SCALE-001"
+        }
+      ],
+      "stage": "destination_resolution",
+      "inputs": {
+        "destinationText": "San Telmo, Buenos Aires, Argentina",
+        "attemptedQueries": [
+          "forward:San Telmo, Buenos Aires, Argentina"
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "scale": "area",
+        "boundaryName": "San Telmo"
+      },
+      "summary": "\"San Telmo, Buenos Aires, Argentina\" resolvió a un límite real de ciudad: San Telmo. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:San Telmo, Buenos Aires, Argentina.",
+      "decision": {
+        "reason": "El boundary real es más preciso que un radio artificial para recuperación local.",
+        "status": "PASS",
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "reasonCodes": [
+          "AREA_BOUNDARY_RESOLVED"
+        ],
+        "triggeredActions": [
+          "RETRIEVE_CATALOG"
+        ]
+      },
+      "component": "DestinationResolutionService"
+    },
+    {
+      "label": "Resolución geográfica de anchors",
+      "stage": "anchor_geo_resolution",
+      "inputs": {
+        "anchors": [
+          {
+            "usage": "geographic_scope",
+            "rawName": "San Telmo",
+            "priority": "soft"
+          }
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "anchors": [
+          {
+            "kind": "area",
+            "usage": "geographic_scope",
+            "status": "resolved",
+            "rawName": "San Telmo",
+            "geometry": {
+              "type": "Polygon"
+            },
+            "priority": "soft",
+            "provider": "openstreetmap",
+            "externalId": "osm:relation:2223069",
+            "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+            "osmBoundary": {
+              "id": "osm:relation:2223069",
+              "name": "San Telmo",
+              "tags": {
+                "name": "San Telmo",
+                "type": "boundary",
+                "boundary": "administrative",
+                "wikidata": "Q1026688",
+                "wikipedia": "es:San Telmo (Buenos Aires)",
+                "admin_level": "9"
+              },
+              "osmId": 2223069,
+              "osmType": "relation",
+              "geometry": {
+                "type": "Polygon"
+              }
+            },
+            "canonicalName": "San Telmo"
+          }
+        ]
+      },
+      "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+      "component": "AreaRouteAnchorResolverService"
+    },
+    {
+      "label": "Cobertura de preferencias (facet-first)",
+      "rules": [
+        {
+          "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "actual": 6,
+          "reason": "6 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "result": "PASS",
+          "ruleId": "PCOV-QUANTITY-001",
+          "expected": 4
+        },
+        {
+          "rule": "Cobertura del facet solicitado: theme:history",
+          "actual": 2,
+          "reason": "2 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-THEME-HISTORY",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:walk",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-INTENT-WALK",
+          "expected": ">= 1"
+        }
+      ],
+      "stage": "coverage_analysis",
+      "inputs": {
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "requestedFacetCount": 2,
+        "offeredCandidateCount": 4
+      },
+      "status": "FAIL",
+      "outputs": {
+        "sufficient": false,
+        "facetResults": [
+          {
+            "key": "history",
+            "dimension": "theme",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 2
+          },
+          {
+            "key": "walk",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "portfolioTarget": 4,
+        "allFacetsSatisfied": false,
+        "acquisitionDeficits": [
+          {
+            "key": "walk",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "globalCapacityDeficit": null,
+        "totalDistinctEligibleExperiences": 6
+      },
+      "summary": "Facets sin cobertura fuerte: intent:walk.",
+      "decision": {
+        "reason": "Facets sin cobertura fuerte: intent:walk.",
+        "status": "FAIL",
+        "outcome": "needs_additional_discovery",
+        "reasonCodes": [
+          "preference_facet"
+        ],
+        "triggeredActions": [
+          "RUN_ACQUISITION"
+        ]
+      },
+      "component": "FacetRetrievalService",
+      "semanticRanking": {
+        "status": "applied",
+        "indexedCandidateCount": 6,
+        "offeredCandidateCount": 4,
+        "eligibleCandidateCount": 6
+      }
+    },
+    {
+      "label": "Recuperación inicial del catálogo",
+      "rules": [
+        {
+          "rule": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+          "actual": 6,
+          "reason": "El catálogo aportó 6 candidato(s).",
+          "result": "PASS",
+          "ruleId": "CATALOG-RETRIEVAL-001"
+        }
+      ],
+      "stage": "db_search",
+      "inputs": {
+        "radiusKm": 1.012179374902135
+      },
+      "status": "PASS",
+      "outputs": {
+        "candidateCount": 6
+      },
+      "summary": "6 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+      "decision": {
+        "reason": "Hay candidatos persistidos para evaluar.",
+        "status": "PASS",
+        "outcome": "CATALOG_POOL_AVAILABLE",
+        "triggeredActions": [
+          "ANALYZE_COVERAGE"
+        ]
+      },
+      "component": "ExperienceCatalog.findVerifiedWithin",
+      "candidates": [
+        {
+          "id": "95638579-90f5-467e-941d-ec638cde0bf8",
+          "name": "Museo Moderno",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "5f317b57-4065-4b20-870c-34c23d7f2e2a",
+          "name": "Galeria Del Asombro",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+          "name": "Plaza Dorrego",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "a539265a-936a-49e0-850f-9be3d3429738",
+          "name": "Feria De las Artes San Telmo",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+          "name": "Mercado San Telmo",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "cc0092c3-2a27-4647-80a4-71d81d223402",
+          "name": "Museo Histórico Nacional",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        }
+      ],
+      "candidateDecisions": [
+        {
+          "id": "95638579-90f5-467e-941d-ec638cde0bf8",
+          "name": "Museo Moderno",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "5f317b57-4065-4b20-870c-34c23d7f2e2a",
+          "name": "Galeria Del Asombro",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+          "name": "Plaza Dorrego",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "a539265a-936a-49e0-850f-9be3d3429738",
+          "name": "Feria De las Artes San Telmo",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+          "name": "Mercado San Telmo",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "cc0092c3-2a27-4647-80a4-71d81d223402",
+          "name": "Museo Histórico Nacional",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Enrutamiento de déficits de adquisición",
+      "stage": "coverage_analysis",
+      "inputs": {
+        "anchors": [
+          {
+            "kind": "area",
+            "usage": "geographic_scope",
+            "status": "resolved",
+            "rawName": "San Telmo",
+            "geometry": {
+              "type": "Polygon"
+            },
+            "priority": "soft",
+            "provider": "openstreetmap",
+            "externalId": "osm:relation:2223069",
+            "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+            "osmBoundary": {
+              "id": "osm:relation:2223069",
+              "name": "San Telmo",
+              "tags": {
+                "name": "San Telmo",
+                "type": "boundary",
+                "boundary": "administrative",
+                "wikidata": "Q1026688",
+                "wikipedia": "es:San Telmo (Buenos Aires)",
+                "admin_level": "9"
+              },
+              "osmId": 2223069,
+              "osmType": "relation",
+              "geometry": {
+                "type": "Polygon"
+              }
+            },
+            "canonicalName": "San Telmo"
+          }
+        ],
+        "acquisitionDeficits": [
+          {
+            "key": "walk",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ]
+      },
+      "status": "INFO",
+      "outputs": {
+        "generic": [],
+        "areaRouteWalk": [
+          {
+            "anchor": {
+              "kind": "area",
+              "usage": "geographic_scope",
+              "status": "resolved",
+              "rawName": "San Telmo",
+              "geometry": {
+                "type": "Polygon"
+              },
+              "priority": "soft",
+              "provider": "openstreetmap",
+              "externalId": "osm:relation:2223069",
+              "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+              "osmBoundary": {
+                "id": "osm:relation:2223069",
+                "name": "San Telmo",
+                "tags": {
+                  "name": "San Telmo",
+                  "type": "boundary",
+                  "boundary": "administrative",
+                  "wikidata": "Q1026688",
+                  "wikipedia": "es:San Telmo (Buenos Aires)",
+                  "admin_level": "9"
+                },
+                "osmId": 2223069,
+                "osmType": "relation",
+                "geometry": {
+                  "type": "Polygon"
+                }
+              },
+              "canonicalName": "San Telmo"
+            },
+            "deficit": {
+              "key": "walk",
+              "origin": "preference_facet",
+              "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+              "dimension": "intent"
+            },
+            "intentKey": "walk"
+          }
+        ]
+      },
+      "summary": "AREA_ROUTE_WALK=1; GENERIC=0.",
+      "component": "partitionDeficitsByStrategy"
+    },
+    {
+      "label": "Adquisición o reutilización de walk/ruta",
+      "stage": "area_route_walk_acquisition",
+      "inputs": {
+        "anchor": {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        },
+        "deficit": {
+          "key": "walk",
+          "origin": "preference_facet",
+          "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+          "dimension": "intent"
+        },
+        "intentKey": "walk"
+      },
+      "status": "WARN",
+      "outputs": {
+        "reason": "no_accepted_results",
+        "outcome": "no_result",
+        "diagnostics": {
+          "execution": {
+            "webResults": [
+              {
+                "status": "success",
+                "evidenceCount": 14,
+                "candidateCount": 0,
+                "extractorModel": "qwen/qwen3.8-27b",
+                "groundingStatus": "applied",
+                "validationErrors": [
+                  "extractor_envelope_repaired: response was a single bare candidate object instead of {\"candidates\":[...]}; wrapped automatically",
+                  "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 6 (Solar de French) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE"
+                ],
+                "extractorProvider": "groq"
+              }
+            ],
+            "candidateCount": 0,
+            "webCandidateCount": 0,
+            "structuredCandidateCount": 0
+          },
+          "anchorResolved": true,
+          "materialization": {
+            "acceptedCount": 0,
+            "rejectedCount": 0,
+            "resolvedCount": 0,
+            "rejectionReasons": {},
+            "semanticallyEligibleCount": 0
+          },
+          "sourcePlanProviders": [
+            "wikivoyage",
+            "web"
+          ]
+        }
+      },
+      "summary": "Resultado AREA_ROUTE_WALK: no_result.",
+      "component": "AreaRouteWalkAcquisitionService"
+    },
+    {
+      "label": "Adquisición multi-fuente (pase 1)",
+      "rules": [
+        {
+          "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+          "reason": "Fuentes enrutadas: wikivoyage, web.",
+          "result": "PASS",
+          "ruleId": "ACQ-ROUTING-001"
+        },
+        {
+          "rule": "Una fuente que falla no aborta la adquisición",
+          "reason": "Todas las fuentes atendidas respondieron.",
+          "result": "PASS",
+          "ruleId": "ACQ-ISOLATION-001"
+        },
+        {
+          "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+          "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+          "result": "PASS",
+          "ruleId": "ACQ-CANDIDATE-001"
+        }
+      ],
+      "stage": "discovery",
+      "inputs": {
+        "deficits": [
+          {
+            "key": "walk",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "passNumber": 1,
+        "routedProviders": [
+          "wikivoyage",
+          "web"
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "webResults": [
+          {
+            "query": "San Telmo San Telmo walking tours walks historical walk in San Telmo",
+            "status": "success",
+            "evidenceCount": 14,
+            "groundedModel": "google-ai-mode",
+            "candidateCount": 0,
+            "extractorModel": "qwen/qwen3.8-27b",
+            "groundingStatus": "applied",
+            "groundedProvider": "serpapi",
+            "validationErrors": [
+              "extractor_envelope_repaired: response was a single bare candidate object instead of {\"candidates\":[...]}; wrapped automatically",
+              "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 6 (Solar de French) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE"
+            ],
+            "extractorProvider": "groq"
+          }
+        ],
+        "candidateCount": 0,
+        "observationCount": 2,
+        "webCandidateCount": 0,
+        "structuredProviders": [
+          {
+            "status": "success",
+            "provider": "wikivoyage"
+          }
+        ],
+        "structuredCandidateCount": 0
+      },
+      "summary": "Pase 1: fuentes [wikivoyage, web] → 2 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+      "component": "ExperienceAcquisitionService",
+      "acquisition": {
+        "deficits": [
+          {
+            "key": "walk",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "evidence": [
+          {
+            "title": "Aprende el arte de Fileteado",
+            "source": "wikivoyage",
+            "snippet": ". O '''bailar Tango''' en La Independencia, Avenida Independencia Nº 572, San Telmo",
+            "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+          },
+          {
+            "title": "Tomar clases de tango",
+            "source": "wikivoyage",
+            "snippet": ". Cada día en el Centro Cultural Torquato Tasso - Defensa 1575, San Telmo",
+            "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 1,
+            "source": "google_ai_mode",
+            "snippet": "San Telmo is Buenos Aires' oldest and most atmospheric neighborhood, famous for its cobblestone streets, 19th-century colonial architecture, tango culture, and vibrant weekend markets.",
+            "evidenceKey": "ev-1"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 2,
+            "source": "google_ai_mode",
+            "snippet": "A historical walking tour of San Telmo typically hits several iconic landmarks and hidden gems that tell the story of the city's evolution from a muddy colonial outpost to a cultural hub:",
+            "evidenceKey": "ev-2"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 3,
+            "title": "Highlights of a San Telmo Historical Walk",
+            "source": "Highlights of a San Telmo Historical Walk",
+            "snippet": "DirectionsWebsiteThe historic heart of the neighborhood, surrounded by colonial buildings, outdoor cafes, and famous for its Sunday antiques market (Feria de San Telmo) and impromptu tango dancers.",
+            "evidenceKey": "ev-3",
+            "contextHeading": "Highlights of a San Telmo Historical Walk"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 4,
+            "title": "Highlights of a San Telmo Historical Walk",
+            "source": "Highlights of a San Telmo Historical Walk",
+            "snippet": "DirectionsThe main artery stretching through the district, lined with historic townhouses, old pharmacies, and artisan shops.",
+            "evidenceKey": "ev-4",
+            "contextHeading": "Highlights of a San Telmo Historical Walk"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 5,
+            "title": "Highlights of a San Telmo Historical Walk",
+            "source": "Highlights of a San Telmo Historical Walk",
+            "snippet": "CallDirectionsWebsiteLocated at San Lorenzo 380, this is famously Buenos Aires' narrowest house (just 2.3 meters wide), carrying rich neighborhood folklore tied to the era of slavery and early urban living.",
+            "evidenceKey": "ev-5",
+            "contextHeading": "Highlights of a San Telmo Historical Walk"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 6,
+            "title": "Highlights of a San Telmo Historical Walk",
+            "source": "Highlights of a San Telmo Historical Walk",
+            "snippet": "CallDirectionsWebsiteA bustling 1897 indoor market blending old-school butcher and produce stalls with modern food vendors, cafes, and antique stalls.",
+            "evidenceKey": "ev-6",
+            "contextHeading": "Highlights of a San Telmo Historical Walk"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 7,
+            "title": "Highlights of a San Telmo Historical Walk",
+            "source": "Highlights of a San Telmo Historical Walk",
+            "snippet": "DirectionsWebsiteSituated at the southern edge of San Telmo, this historic park is traditionally believed by many to be the site of Pedro de Mendoza’s first (failed) founding of Buenos Aires in 1536.",
+            "evidenceKey": "ev-7",
+            "contextHeading": "Highlights of a San Telmo Historical Walk"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 8,
+            "title": "Highlights of a San Telmo Historical Walk",
+            "source": "Highlights of a San Telmo Historical Walk",
+            "snippet": "CallDirectionsWebsiteHistoric colonial locations offering a glimpse into the architectural and religious roots of the district, named after patron saint Pedro González Telmo.",
+            "evidenceKey": "ev-8",
+            "contextHeading": "Highlights of a San Telmo Historical Walk"
+          },
+          {
+            "url": "https://www.freetour.com/buenos-aires/city-tour-through-san-telmo?source={src}",
+            "kind": "list_item",
+            "order": 9,
+            "title": "Ways to Explore",
+            "source": "Ways to Explore",
+            "snippet": "Guided Free Walking Tours: Platforms like Freetour.com and GuruWalk offer tip-based historical walking tours covering San Telmo's architecture, tango origins, and deep-rooted legends.",
+            "evidenceKey": "ev-9",
+            "contextHeading": "Ways to Explore"
+          },
+          {
+            "url": "https://tourscanner.com/p/slug-a7mxfq7k?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+            "kind": "list_item",
+            "order": 10,
+            "title": "Ways to Explore",
+            "source": "Ways to Explore",
+            "snippet": "Self-Guided Tours: Audio or map-based walks (such as those via Tourscanner) let you trace the history of immigrants, yellow fever eras, and British invasions at your own pace.",
+            "evidenceKey": "ev-10",
+            "contextHeading": "Ways to Explore"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 11,
+            "title": "Ways to Explore",
+            "source": "Ways to Explore",
+            "snippet": "Are you looking for a guided tour recommendation, planning a self-guided itinerary, or trying to find out about specific days/times to visit San Telmo (like the Sunday market)? Let me know how you'd like to proceed!",
+            "evidenceKey": "ev-11",
+            "contextHeading": "Ways to Explore"
+          },
+          {
+            "url": "https://tourscanner.com/p/slug-a7mxfq7k?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+            "kind": "reference",
+            "order": 12,
+            "title": "Two to Tango: A San Telmo Self Guided Walking Tour",
+            "source": "tourscanner.com",
+            "snippet": "San Telmo is the oldest neighbourhood in Buenos Aires, and its cobblestone streets hold enough history to fill several lifetimes. On this self-guided walking tour, you'll trace how sailors, slaves, immigrants, and tango singers turned a muddy colonial outpost into the soul of the city. You'll also discover how a yellow fever epidemic, two British invasions, and millions of Italian immigrants each left their mark on this single neighbourhood. The tour starts at Basílica de San Francisco, where a …",
+            "evidenceKey": "ev-12"
+          },
+          {
+            "url": "https://www.freetour.com/buenos-aires/city-tour-through-san-telmo?source={src}",
+            "kind": "reference",
+            "order": 13,
+            "title": "City Tour Through San Telmo",
+            "source": "www.freetour.com",
+            "snippet": "City tour through San Telmo (in German) Discover with me San Telmo, the historic heart of Buenos Aires. We will visit the Parque Lezama, talk about the former Palacio Lezama, and the Museo Histórico Nacional. We also see the monument to Argentine-Uruguayan friendship and the monument to Pedro de Mendoza, the founder of the city. We then walk along Calle Defensa to Plaza Dorrego, known for its antiques and tango. We visit the colonial house \\\"Solar de French\\\" and the church Nuestra Señora de Bel…",
+            "evidenceKey": "ev-13"
+          },
+          {
+            "url": "https://www.guruwalk.com/pois/18650?product_id=89134&hub_id=76&s={surface}&f={funnel}&language={lang}&currency={currency}&ttd=true&vertical=activities&captacion__product_type=pp",
+            "kind": "reference",
+            "order": 14,
+            "title": "Buenos Aires: Casa Mínima Guided Tour in San Telmo",
+            "source": "www.guruwalk.com",
+            "snippet": "Begin your journey through Buenos Aires’ history with a guided visit to Casa Mínima, the city’s narrowest house, tucked away behin...",
+            "evidenceKey": "ev-14"
+          }
+        ],
+        "candidates": [],
+        "passNumber": 1,
+        "sourcePlans": [
+          {
+            "status": "success",
+            "provider": "wikivoyage",
+            "observations": [
+              {
+                "title": "Aprende el arte de Fileteado",
+                "provider": "wikivoyage",
+                "description": ". O '''bailar Tango''' en La Independencia, Avenida Independencia Nº 572, San Telmo",
+                "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1",
+                "evidenceType": "tourism_activity",
+                "originationCapabilities": []
+              },
+              {
+                "title": "Tomar clases de tango",
+                "provider": "wikivoyage",
+                "description": ". Cada día en el Centro Cultural Torquato Tasso - Defensa 1575, San Telmo",
+                "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1",
+                "evidenceType": "tourism_activity",
+                "originationCapabilities": []
+              }
+            ],
+            "configuration": {
+              "sections": [
+                "DO"
+              ]
+            },
+            "observationCount": 2
+          },
+          {
+            "web": {
+              "query": "San Telmo San Telmo walking tours walks historical walk in San Telmo",
+              "evidence": [
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 1,
+                  "source": "google_ai_mode",
+                  "snippet": "San Telmo is Buenos Aires' oldest and most atmospheric neighborhood, famous for its cobblestone streets, 19th-century colonial architecture, tango culture, and vibrant weekend markets.",
+                  "evidenceKey": "ev-1"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 2,
+                  "source": "google_ai_mode",
+                  "snippet": "A historical walking tour of San Telmo typically hits several iconic landmarks and hidden gems that tell the story of the city's evolution from a muddy colonial outpost to a cultural hub:",
+                  "evidenceKey": "ev-2"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 3,
+                  "title": "Highlights of a San Telmo Historical Walk",
+                  "source": "Highlights of a San Telmo Historical Walk",
+                  "snippet": "DirectionsWebsiteThe historic heart of the neighborhood, surrounded by colonial buildings, outdoor cafes, and famous for its Sunday antiques market (Feria de San Telmo) and impromptu tango dancers.",
+                  "evidenceKey": "ev-3",
+                  "contextHeading": "Highlights of a San Telmo Historical Walk"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 4,
+                  "title": "Highlights of a San Telmo Historical Walk",
+                  "source": "Highlights of a San Telmo Historical Walk",
+                  "snippet": "DirectionsThe main artery stretching through the district, lined with historic townhouses, old pharmacies, and artisan shops.",
+                  "evidenceKey": "ev-4",
+                  "contextHeading": "Highlights of a San Telmo Historical Walk"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 5,
+                  "title": "Highlights of a San Telmo Historical Walk",
+                  "source": "Highlights of a San Telmo Historical Walk",
+                  "snippet": "CallDirectionsWebsiteLocated at San Lorenzo 380, this is famously Buenos Aires' narrowest house (just 2.3 meters wide), carrying rich neighborhood folklore tied to the era of slavery and early urban living.",
+                  "evidenceKey": "ev-5",
+                  "contextHeading": "Highlights of a San Telmo Historical Walk"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 6,
+                  "title": "Highlights of a San Telmo Historical Walk",
+                  "source": "Highlights of a San Telmo Historical Walk",
+                  "snippet": "CallDirectionsWebsiteA bustling 1897 indoor market blending old-school butcher and produce stalls with modern food vendors, cafes, and antique stalls.",
+                  "evidenceKey": "ev-6",
+                  "contextHeading": "Highlights of a San Telmo Historical Walk"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 7,
+                  "title": "Highlights of a San Telmo Historical Walk",
+                  "source": "Highlights of a San Telmo Historical Walk",
+                  "snippet": "DirectionsWebsiteSituated at the southern edge of San Telmo, this historic park is traditionally believed by many to be the site of Pedro de Mendoza’s first (failed) founding of Buenos Aires in 1536.",
+                  "evidenceKey": "ev-7",
+                  "contextHeading": "Highlights of a San Telmo Historical Walk"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 8,
+                  "title": "Highlights of a San Telmo Historical Walk",
+                  "source": "Highlights of a San Telmo Historical Walk",
+                  "snippet": "CallDirectionsWebsiteHistoric colonial locations offering a glimpse into the architectural and religious roots of the district, named after patron saint Pedro González Telmo.",
+                  "evidenceKey": "ev-8",
+                  "contextHeading": "Highlights of a San Telmo Historical Walk"
+                },
+                {
+                  "url": "https://www.freetour.com/buenos-aires/city-tour-through-san-telmo?source={src}",
+                  "kind": "list_item",
+                  "order": 9,
+                  "title": "Ways to Explore",
+                  "source": "Ways to Explore",
+                  "snippet": "Guided Free Walking Tours: Platforms like Freetour.com and GuruWalk offer tip-based historical walking tours covering San Telmo's architecture, tango origins, and deep-rooted legends.",
+                  "evidenceKey": "ev-9",
+                  "contextHeading": "Ways to Explore"
+                },
+                {
+                  "url": "https://tourscanner.com/p/slug-a7mxfq7k?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+                  "kind": "list_item",
+                  "order": 10,
+                  "title": "Ways to Explore",
+                  "source": "Ways to Explore",
+                  "snippet": "Self-Guided Tours: Audio or map-based walks (such as those via Tourscanner) let you trace the history of immigrants, yellow fever eras, and British invasions at your own pace.",
+                  "evidenceKey": "ev-10",
+                  "contextHeading": "Ways to Explore"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 11,
+                  "title": "Ways to Explore",
+                  "source": "Ways to Explore",
+                  "snippet": "Are you looking for a guided tour recommendation, planning a self-guided itinerary, or trying to find out about specific days/times to visit San Telmo (like the Sunday market)? Let me know how you'd like to proceed!",
+                  "evidenceKey": "ev-11",
+                  "contextHeading": "Ways to Explore"
+                },
+                {
+                  "url": "https://tourscanner.com/p/slug-a7mxfq7k?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+                  "kind": "reference",
+                  "order": 12,
+                  "title": "Two to Tango: A San Telmo Self Guided Walking Tour",
+                  "source": "tourscanner.com",
+                  "snippet": "San Telmo is the oldest neighbourhood in Buenos Aires, and its cobblestone streets hold enough history to fill several lifetimes. On this self-guided walking tour, you'll trace how sailors, slaves, immigrants, and tango singers turned a muddy colonial outpost into the soul of the city. You'll also discover how a yellow fever epidemic, two British invasions, and millions of Italian immigrants each left their mark on this single neighbourhood. The tour starts at Basílica de San Francisco, where a …",
+                  "evidenceKey": "ev-12"
+                },
+                {
+                  "url": "https://www.freetour.com/buenos-aires/city-tour-through-san-telmo?source={src}",
+                  "kind": "reference",
+                  "order": 13,
+                  "title": "City Tour Through San Telmo",
+                  "source": "www.freetour.com",
+                  "snippet": "City tour through San Telmo (in German) Discover with me San Telmo, the historic heart of Buenos Aires. We will visit the Parque Lezama, talk about the former Palacio Lezama, and the Museo Histórico Nacional. We also see the monument to Argentine-Uruguayan friendship and the monument to Pedro de Mendoza, the founder of the city. We then walk along Calle Defensa to Plaza Dorrego, known for its antiques and tango. We visit the colonial house \\\"Solar de French\\\" and the church Nuestra Señora de Bel…",
+                  "evidenceKey": "ev-13"
+                },
+                {
+                  "url": "https://www.guruwalk.com/pois/18650?product_id=89134&hub_id=76&s={surface}&f={funnel}&language={lang}&currency={currency}&ttd=true&vertical=activities&captacion__product_type=pp",
+                  "kind": "reference",
+                  "order": 14,
+                  "title": "Buenos Aires: Casa Mínima Guided Tour in San Telmo",
+                  "source": "www.guruwalk.com",
+                  "snippet": "Begin your journey through Buenos Aires’ history with a guided visit to Casa Mínima, the city’s narrowest house, tucked away behin...",
+                  "evidenceKey": "ev-14"
+                }
+              ],
+              "extractor": {
+                "model": "qwen/qwen3.8-27b",
+                "provider": "groq",
+                "validationErrors": [
+                  "extractor_envelope_repaired: response was a single bare candidate object instead of {\"candidates\":[...]}; wrapped automatically",
+                  "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 6 (Solar de French) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE"
+                ],
+                "inputEvidenceKeys": [
+                  "ev-1",
+                  "ev-2",
+                  "ev-3",
+                  "ev-4",
+                  "ev-5",
+                  "ev-6",
+                  "ev-7",
+                  "ev-8",
+                  "ev-9",
+                  "ev-10",
+                  "ev-11",
+                  "ev-12",
+                  "ev-13",
+                  "ev-14"
+                ],
+                "candidateDecisions": [],
+                "sourceSupportAudits": [
+                  {
+                    "status": "SOURCE_CONTRACT_VIOLATION",
+                    "components": [
+                      {
+                        "key": "basilica-de-san-francisco",
+                        "name": "Basílica de San Francisco",
+                        "role": "venue",
+                        "index": 0,
+                        "status": "SUPPORTED",
+                        "evidenceKeys": [
+                          "ev-13"
+                        ],
+                        "expectedKind": "PLACE"
+                      },
+                      {
+                        "key": "parque-lezama",
+                        "name": "Parque Lezama",
+                        "role": "venue",
+                        "index": 1,
+                        "status": "SUPPORTED",
+                        "evidenceKeys": [
+                          "ev-13"
+                        ],
+                        "expectedKind": "PLACE"
+                      },
+                      {
+                        "key": "museo-historico-nacional",
+                        "name": "Museo Histórico Nacional",
+                        "role": "venue",
+                        "index": 2,
+                        "status": "SUPPORTED",
+                        "evidenceKeys": [
+                          "ev-13"
+                        ],
+                        "expectedKind": "PLACE"
+                      },
+                      {
+                        "key": "calle-defensa",
+                        "name": "Calle Defensa",
+                        "role": "route",
+                        "index": 3,
+                        "status": "SUPPORTED",
+                        "evidenceKeys": [
+                          "ev-13"
+                        ],
+                        "expectedKind": "ROUTE"
+                      },
+                      {
+                        "key": "plaza-dorrego",
+                        "name": "Plaza Dorrego",
+                        "role": "venue",
+                        "index": 4,
+                        "status": "SUPPORTED",
+                        "evidenceKeys": [
+                          "ev-13"
+                        ],
+                        "expectedKind": "PLACE"
+                      },
+                      {
+                        "key": "solar-de-french",
+                        "name": "Solar de French",
+                        "role": "venue",
+                        "index": 5,
+                        "reason": "SPAN_NOT_FOUND_IN_CITED_EVIDENCE",
+                        "status": "UNSUPPORTED",
+                        "evidenceKeys": [
+                          "ev-13"
+                        ],
+                        "expectedKind": "PLACE"
+                      },
+                      {
+                        "key": "nuestra-senora-de-belen",
+                        "name": "Nuestra Señora de Belén",
+                        "role": "venue",
+                        "index": 6,
+                        "status": "SUPPORTED",
+                        "evidenceKeys": [
+                          "ev-13"
+                        ],
+                        "expectedKind": "PLACE"
+                      },
+                      {
+                        "key": "mercado-de-san-telmo",
+                        "name": "Mercado de San Telmo",
+                        "role": "venue",
+                        "index": 7,
+                        "status": "SUPPORTED",
+                        "evidenceKeys": [
+                          "ev-13"
+                        ],
+                        "expectedKind": "PLACE"
+                      }
+                    ],
+                    "candidateName": "San Telmo Historical Self-Guided Walk",
+                    "emittedComponentCount": 8,
+                    "supportedComponentCount": 7,
+                    "unsupportedComponentCount": 1
+                  }
+                ],
+                "admittedCandidateCount": 0,
+                "rejectedCandidateCount": 0,
+                "extractedCandidateCount": 0
+              },
+              "anchorNames": [
+                "San Telmo"
+              ],
+              "groundedModel": "google-ai-mode",
+              "semanticQuery": "historical walk in San Telmo",
+              "groundingStatus": "applied",
+              "groundedProvider": "serpapi",
+              "requestedIntents": [
+                "walk"
+              ]
+            },
+            "status": "success",
+            "provider": "web",
+            "observations": [],
+            "configuration": {
+              "query": "San Telmo San Telmo walking tours walks historical walk in San Telmo",
+              "anchorNames": [
+                "San Telmo"
+              ],
+              "semanticQuery": "historical walk in San Telmo",
+              "requestedIntents": [
+                "walk"
+              ]
+            },
+            "observationCount": 0
+          }
+        ],
+        "acquisitionContext": {
+          "anchor": {
+            "kind": "area",
+            "usage": "geographic_scope",
+            "status": "resolved",
+            "rawName": "San Telmo",
+            "geometry": {
+              "type": "Polygon"
+            },
+            "priority": "soft",
+            "provider": "openstreetmap",
+            "externalId": "osm:relation:2223069",
+            "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+            "osmBoundary": {
+              "id": "osm:relation:2223069",
+              "name": "San Telmo",
+              "tags": {
+                "name": "San Telmo",
+                "type": "boundary",
+                "boundary": "administrative",
+                "wikidata": "Q1026688",
+                "wikipedia": "es:San Telmo (Buenos Aires)",
+                "admin_level": "9"
+              },
+              "osmId": 2223069,
+              "osmType": "relation",
+              "geometry": {
+                "type": "Polygon"
+              }
+            },
+            "canonicalName": "San Telmo"
+          },
+          "strategy": "area_route_walk",
+          "passNumber": 1
+        },
+        "structuredCorroboration": {
+          "groups": [
+            {
+              "reason": "NO_MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_1",
+              "accepted": false,
+              "proposalIds": [
+                "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+              ],
+              "candidateName": "Aprende el arte de Fileteado",
+              "mergedEvidenceKeys": [
+                "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+              ],
+              "candidateShapeMatches": [],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [],
+              "matchedOriginationRequirements": []
+            },
+            {
+              "reason": "NO_MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_2",
+              "accepted": false,
+              "proposalIds": [
+                "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+              ],
+              "candidateName": "Tomar clases de tango",
+              "mergedEvidenceKeys": [
+                "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+              ],
+              "candidateShapeMatches": [],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [],
+              "matchedOriginationRequirements": []
+            }
+          ],
+          "groupCount": 2,
+          "proposalCount": 2,
+          "acceptedGroupCount": 0,
+          "rejectedGroupCount": 2,
+          "pairDecisionSummary": {
+            "total": 1,
+            "byReason": {
+              "incompatible_evidence_type": 1
+            },
+            "byDecision": {
+              "NEW": 1,
+              "SAME": 0,
+              "AMBIGUOUS": 0
+            }
+          }
+        }
+      },
+      "providerStatus": "success",
+      "acquisitionContext": {
+        "anchor": {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        },
+        "strategy": "area_route_walk",
+        "passNumber": 1
+      }
+    },
+    {
+      "label": "Resolución de entidades reales",
+      "rules": [
+        {
+          "rule": "Resolver hints contra identidades geográficas independientes del LLM",
+          "actual": 0,
+          "reason": "0 entidad(es) reales resueltas; 0 con coordenadas.",
+          "result": "WARN",
+          "ruleId": "RES-IDENTITY-001"
+        },
+        {
+          "rule": "No decidir coherencia geográfica ni persistencia durante entity resolution",
+          "reason": "La salida queda pendiente del GeographicValidationService.",
+          "result": "PASS",
+          "ruleId": "RES-SEPARATION-001"
+        },
+        {
+          "rule": "Toda propuesta no resoluble debe conservar razones explícitas",
+          "reason": "No hubo rechazos de resolución.",
+          "result": "PASS",
+          "ruleId": "RES-REJECTION-001"
+        }
+      ],
+      "stage": "entity_resolution",
+      "inputs": {
+        "totalCandidates": 0
+      },
+      "status": "INFO",
+      "outputs": {
+        "rejectedCount": 0,
+        "candidateCount": 0,
+        "resolvedEntityCount": 0,
+        "resolutionReadyCount": 0,
+        "entitiesWithCoordinates": 0
+      },
+      "summary": "Entity resolution procesó 0 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 0 no pudieron resolverse. Se obtuvieron 0 entidad(es) provider-backed, 0 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite.",
+      "decision": {
+        "reason": "Ninguna propuesta produjo suficientes entidades reales para continuar.",
+        "status": "WARN",
+        "outcome": "NO_PROPOSALS_RESOLVED",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "CONTINUE_WITH_EXISTING_POOL"
+        ]
+      },
+      "component": "ExperienceProposalResolverService",
+      "degradedReason": "no_proposals_resolved",
+      "providerStatus": "failed",
+      "acquisitionContext": {
+        "anchor": {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        },
+        "strategy": "area_route_walk",
+        "passNumber": 1
+      },
+      "candidateDecisions": [],
+      "entityResolutionAudit": []
+    },
+    {
+      "label": "Validación geográfica independiente",
+      "rules": [
+        {
+          "rule": "Grounded text por sí solo no prueba existencia geográfica",
+          "reason": "La aceptación requiere entidades resueltas independientemente del LLM.",
+          "result": "PASS",
+          "ruleId": "GEO-INDEPENDENT-001"
+        },
+        {
+          "rule": "Las composites pueden validarse por componentes reales sin exact-name global",
+          "reason": "ROUTE/EXPERIENCE/WALK pueden usar anchors/componentes según su estrategia.",
+          "result": "PASS",
+          "ruleId": "GEO-COMPONENTS-001"
+        },
+        {
+          "rule": "Conservar razones machine-readable para cada rechazo",
+          "reason": "No hubo rechazos geográficos.",
+          "result": "PASS",
+          "ruleId": "GEO-RESULT-001"
+        }
+      ],
+      "stage": "geographic_validation",
+      "inputs": {
+        "proposalCount": 0,
+        "validatorVersions": []
+      },
+      "status": "WARN",
+      "outputs": {
+        "results": [],
+        "rejectedCount": 0,
+        "geoVerifiedCount": 0,
+        "maxComputedRadiusMeters": null
+      },
+      "summary": "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+      "decision": {
+        "reason": "Ninguna propuesta alcanzó verificación geográfica.",
+        "status": "WARN",
+        "outcome": "NO_GEO_VERIFIED_PROPOSALS",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "CONTINUE_WITH_EXISTING_POOL"
+        ]
+      },
+      "component": "CompositeGeographicValidationService",
+      "degradedReason": "no_geo_verified_proposals",
+      "providerStatus": "failed",
+      "acquisitionContext": {
+        "anchor": {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        },
+        "strategy": "area_route_walk",
+        "passNumber": 1
+      },
+      "candidateDecisions": [],
+      "geographicValidationAudit": []
+    },
+    {
+      "label": "Materialización en catálogo",
+      "rules": [
+        {
+          "rule": "Persistir composites solo después de GEO_VERIFIED",
+          "reason": "ExperienceCatalogService consume el resultado del validador geográfico.",
+          "result": "PASS",
+          "ruleId": "MAT-GEO-GATE-001"
+        },
+        {
+          "rule": "Exponer solo IDs canónicos persistidos al re-query/ranking",
+          "actual": 0,
+          "reason": "0 Experience id(s) quedaron disponibles para re-query.",
+          "result": "WARN",
+          "ruleId": "MAT-CANONICAL-001"
+        }
+      ],
+      "stage": "catalog_materialization",
+      "inputs": {
+        "geoVerifiedCount": 0
+      },
+      "status": "WARN",
+      "outputs": {
+        "rejectedCount": 0,
+        "materializedCount": 0,
+        "persistedExperienceIds": []
+      },
+      "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+      "decision": {
+        "reason": "No hubo propuesta verificada que pudiera materializarse.",
+        "status": "WARN",
+        "outcome": "NO_EXPERIENCES_MATERIALIZED",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "CONTINUE_WITH_EXISTING_POOL"
+        ]
+      },
+      "component": "ExperienceCatalogService",
+      "degradedReason": "no_experiences_materialized",
+      "providerStatus": "failed",
+      "acquisitionContext": {
+        "anchor": {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        },
+        "strategy": "area_route_walk",
+        "passNumber": 1
+      },
+      "candidateDecisions": [],
+      "classificationAudit": [],
+      "materializationAudit": []
+    },
+    {
+      "label": "Cobertura de preferencias (facet-first)",
+      "rules": [
+        {
+          "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "actual": 6,
+          "reason": "6 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "result": "PASS",
+          "ruleId": "PCOV-QUANTITY-001",
+          "expected": 4
+        },
+        {
+          "rule": "Cobertura del facet solicitado: theme:history",
+          "actual": 2,
+          "reason": "2 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-THEME-HISTORY",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:walk",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-INTENT-WALK",
+          "expected": ">= 1"
+        }
+      ],
+      "stage": "coverage_analysis",
+      "inputs": {
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "requestedFacetCount": 2,
+        "offeredCandidateCount": 4
+      },
+      "status": "FAIL",
+      "outputs": {
+        "sufficient": false,
+        "facetResults": [
+          {
+            "key": "history",
+            "dimension": "theme",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 2
+          },
+          {
+            "key": "walk",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "portfolioTarget": 4,
+        "allFacetsSatisfied": false,
+        "acquisitionDeficits": [
+          {
+            "key": "walk",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "globalCapacityDeficit": null,
+        "totalDistinctEligibleExperiences": 6
+      },
+      "summary": "Facets sin cobertura fuerte: intent:walk.",
+      "decision": {
+        "reason": "Facets sin cobertura fuerte: intent:walk.",
+        "status": "FAIL",
+        "outcome": "needs_additional_discovery",
+        "reasonCodes": [
+          "preference_facet"
+        ],
+        "triggeredActions": [
+          "RUN_ACQUISITION"
+        ]
+      },
+      "component": "FacetRetrievalService",
+      "semanticRanking": {
+        "status": "applied",
+        "indexedCandidateCount": 6,
+        "offeredCandidateCount": 4,
+        "eligibleCandidateCount": 6
+      }
+    },
+    {
+      "label": "Enrutamiento de déficits de adquisición",
+      "stage": "coverage_analysis",
+      "inputs": {
+        "anchors": [
+          {
+            "kind": "area",
+            "usage": "geographic_scope",
+            "status": "resolved",
+            "rawName": "San Telmo",
+            "geometry": {
+              "type": "Polygon"
+            },
+            "priority": "soft",
+            "provider": "openstreetmap",
+            "externalId": "osm:relation:2223069",
+            "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+            "osmBoundary": {
+              "id": "osm:relation:2223069",
+              "name": "San Telmo",
+              "tags": {
+                "name": "San Telmo",
+                "type": "boundary",
+                "boundary": "administrative",
+                "wikidata": "Q1026688",
+                "wikipedia": "es:San Telmo (Buenos Aires)",
+                "admin_level": "9"
+              },
+              "osmId": 2223069,
+              "osmType": "relation",
+              "geometry": {
+                "type": "Polygon"
+              }
+            },
+            "canonicalName": "San Telmo"
+          }
+        ],
+        "acquisitionDeficits": [
+          {
+            "key": "walk",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ]
+      },
+      "status": "INFO",
+      "outputs": {
+        "generic": [],
+        "areaRouteWalk": [
+          {
+            "anchor": {
+              "kind": "area",
+              "usage": "geographic_scope",
+              "status": "resolved",
+              "rawName": "San Telmo",
+              "geometry": {
+                "type": "Polygon"
+              },
+              "priority": "soft",
+              "provider": "openstreetmap",
+              "externalId": "osm:relation:2223069",
+              "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+              "osmBoundary": {
+                "id": "osm:relation:2223069",
+                "name": "San Telmo",
+                "tags": {
+                  "name": "San Telmo",
+                  "type": "boundary",
+                  "boundary": "administrative",
+                  "wikidata": "Q1026688",
+                  "wikipedia": "es:San Telmo (Buenos Aires)",
+                  "admin_level": "9"
+                },
+                "osmId": 2223069,
+                "osmType": "relation",
+                "geometry": {
+                  "type": "Polygon"
+                }
+              },
+              "canonicalName": "San Telmo"
+            },
+            "deficit": {
+              "key": "walk",
+              "origin": "preference_facet",
+              "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+              "dimension": "intent"
+            },
+            "intentKey": "walk"
+          }
+        ]
+      },
+      "summary": "AREA_ROUTE_WALK=1; GENERIC=0.",
+      "component": "partitionDeficitsByStrategy"
+    },
+    {
+      "label": "Adquisición o reutilización de walk/ruta",
+      "stage": "area_route_walk_acquisition",
+      "inputs": {
+        "anchor": {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        },
+        "deficit": {
+          "key": "walk",
+          "origin": "preference_facet",
+          "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+          "dimension": "intent"
+        },
+        "intentKey": "walk"
+      },
+      "status": "WARN",
+      "outputs": {
+        "reason": "no_accepted_results",
+        "outcome": "no_result",
+        "diagnostics": {
+          "execution": {
+            "webResults": [],
+            "candidateCount": 0
+          },
+          "anchorResolved": true,
+          "materialization": {
+            "acceptedCount": 0,
+            "rejectedCount": 0,
+            "resolvedCount": 0,
+            "rejectionReasons": {},
+            "semanticallyEligibleCount": 0
+          },
+          "sourcePlanProviders": [
+            "wikivoyage",
+            "web"
+          ]
+        }
+      },
+      "summary": "Resultado AREA_ROUTE_WALK: no_result.",
+      "component": "AreaRouteWalkAcquisitionService"
+    },
+    {
+      "label": "Adquisición multi-fuente (pase 2)",
+      "rules": [
+        {
+          "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+          "reason": "Fuentes enrutadas: wikivoyage, web.",
+          "result": "PASS",
+          "ruleId": "ACQ-ROUTING-001"
+        },
+        {
+          "rule": "Una fuente que falla no aborta la adquisición",
+          "reason": "Todas las fuentes atendidas respondieron.",
+          "result": "PASS",
+          "ruleId": "ACQ-ISOLATION-001"
+        },
+        {
+          "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+          "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+          "result": "PASS",
+          "ruleId": "ACQ-CANDIDATE-001"
+        }
+      ],
+      "stage": "discovery",
+      "inputs": {
+        "deficits": [
+          {
+            "key": "walk",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "passNumber": 2,
+        "routedProviders": [
+          "wikivoyage",
+          "web"
+        ]
+      },
+      "status": "INFO",
+      "outputs": {
+        "webResults": [],
+        "candidateCount": 0,
+        "executionSkipped": {
+          "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+          "fingerprint": "{\"destination\":{\"destinationName\":\"San Telmo\",\"latitude\":-34.62252195,\"longitude\":-58.3702182,\"radiusMeters\":1012.1793749021351},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"sections\":[\"DO\"]}}}"
+        },
+        "observationCount": 0,
+        "webCandidateCount": 0,
+        "structuredProviders": [],
+        "structuredCandidateCount": 0,
+        "executionSkippedSourcePlans": [
+          {
+            "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+            "provider": "wikivoyage",
+            "fingerprint": "{\"destination\":{\"destinationName\":\"San Telmo\",\"latitude\":-34.62252195,\"longitude\":-58.3702182,\"radiusMeters\":1012.1793749021351},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"sections\":[\"DO\"]}}}"
+          },
+          {
+            "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+            "provider": "web",
+            "fingerprint": "{\"destination\":{\"destinationName\":\"San Telmo\",\"latitude\":-34.62252195,\"longitude\":-58.3702182,\"radiusMeters\":1012.1793749021351},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"web\",\"relevantAnchors\":[{\"canonicalName\":\"San Telmo\",\"externalId\":\"osm:relation:2223069\",\"geoEntityId\":\"79effa94-ba26-4b63-b29a-c27314aaedeb\",\"geometry\":{\"coordinates\":[[[-34.6156225,-58.3667938],[-34.6156888,-58.3675674],[-34.6157048,-58.3667851],[-34.6157785,-58.3688548],[-34.6157995,-58.3690485],[-34.6158027,-58.3691164],[-34.6158062,-58.3691935],[-34.6158184,-58.3694603],[-34.6158634,-58.3702474],[-34.6158885,-58.3705677],[-34.6160069,-58.3717268],[-34.6160311,-58.3731377],[-34.6160478,-58.366749],[-34.6160814,-58.3745367],[-34.6160878,-58.3740885],[-34.616111,-58.3750064],[-34.6161333,-58.3753315],[-34.6162127,-58.3759098],[-34.6162156,-58.3759823],[-34.6162888,-58.3774335],[-34.6162987,-58.3667195],[-34.6164006,-58.3774266],[-34.6164246,-58.3667057],[-34.6167442,-58.3666711],[-34.6168739,-58.3666583],[-34.6174446,-58.3773666],[-34.6181268,-58.3665118],[-34.618546,-58.3773066],[-34.6191365,-58.3663886],[-34.6192488,-58.366373],[-34.6193177,-58.36638],[-34.6195409,-58.3663514],[-34.619717,-58.3772768],[-34.6197886,-58.3663228],[-34.6198396,-58.3772729],[-34.6201077,-58.3662843],[-34.620301,-58.3662577],[-34.6204429,-58.3662382],[-34.6204998,-58.3662255],[-34.6207707,-58.3661651],[-34.6208824,-58.3772375],[-34.6214019,-58.366089],[-34.6215021,-58.3660799],[-34.6219084,-58.3660331],[-34.6220596,-58.3772005],[-34.6221809,-58.3771933],[-34.6224005,-58.3659755],[-34.6225022,-58.3659636],[-34.6225865,-58.3659517],[-34.6226661,-58.3659425],[-34.6226908,-58.3771727],[-34.6227132,-58.3771701],[-34.6230464,-58.3771441],[-34.6232299,-58.365877],[-34.6233366,-58.3658646],[-34.623467,-58.3658794],[-34.6234817,-58.3770952],[-34.6238273,-58.3658706],[-34.6238768,-58.3658771],[-34.62392,-58.3658961],[-34.6239585,-58.3654409],[-34.6239587,-58.3659283],[-34.6239964,-58.3659761],[-34.6242217,-58.3649986],[-34.6248534,-58.3638891],[-34.6248894,-58.3638107],[-34.6249241,-58.3637351],[-34.6249524,-58.3636554],[-34.6249759,-58.3767882],[-34.6249791,-58.3635847],[-34.6250198,-58.3634281],[-34.6250573,-58.3632681],[-34.6250994,-58.3630029],[-34.6251021,-58.3631097],[-34.6251044,-58.3767568],[-34.625112,-58.3635197],[-34.6251135,-58.3635706],[-34.6251159,-58.3636558],[-34.6251211,-58.3638436],[-34.6251223,-58.3638848],[-34.6251389,-58.3646377],[-34.6251618,-58.3655159],[-34.6251655,-58.365658],[-34.6251695,-58.3658115],[-34.6251721,-58.3659101],[-34.6251793,-58.3661862],[-34.6251874,-58.3664974],[-34.6252099,-58.3678562],[-34.6252108,-58.36788],[-34.6252119,-58.3677232],[-34.6252139,-58.3676114],[-34.6252276,-58.3767266],[-34.6262681,-58.3762387],[-34.626596,-58.3710905],[-34.6266288,-58.3709597],[-34.6266731,-58.3723633],[-34.6266778,-58.3724413],[-34.6266861,-58.3725549],[-34.6267307,-58.3737178],[-34.6267378,-58.3738806],[-34.6267694,-58.3744902],[-34.6267763,-58.3745854],[-34.6267844,-58.3746446],[-34.6268039,-58.3747056],[-34.6269394,-58.3749748],[-34.6270379,-58.3678881],[-34.6270415,-58.3678948],[-34.6271086,-58.3680514],[-34.6271458,-58.375385],[-34.6271861,-58.3754696],[-34.6272649,-58.3756217],[-34.6274158,-58.3685189],[-34.6274659,-58.3685771],[-34.6275262,-58.3708568],[-34.6275484,-58.3686753],[-34.6281218,-58.3707885],[-34.628189,-58.3693762],[-34.6282165,-58.3694064],[-34.6282973,-58.3694924],[-34.6283777,-58.3695759],[-34.6284699,-58.3707486],[-34.6285768,-58.3697892],[-34.6287186,-58.3699411],[-34.6288327,-58.370707],[-34.6288327,-58.370707],[-34.6288985,-58.3701257],[-34.6289948,-58.3702272],[-34.629015,-58.3702541],[-34.6290726,-58.3706927],[-34.6291523,-58.3706876],[-34.6292123,-58.3706828],[-34.6293171,-58.3705669],[-34.6294214,-58.3706686]]],\"type\":\"Polygon\"},\"kind\":\"area\",\"osmBoundary\":{\"geometry\":{\"coordinates\":[[[-34.6156225,-58.3667938],[-34.6156888,-58.3675674],[-34.6157048,-58.3667851],[-34.6157785,-58.3688548],[-34.6157995,-58.3690485],[-34.6158027,-58.3691164],[-34.6158062,-58.3691935],[-34.6158184,-58.3694603],[-34.6158634,-58.3702474],[-34.6158885,-58.3705677],[-34.6160069,-58.3717268],[-34.6160311,-58.3731377],[-34.6160478,-58.366749],[-34.6160814,-58.3745367],[-34.6160878,-58.3740885],[-34.616111,-58.3750064],[-34.6161333,-58.3753315],[-34.6162127,-58.3759098],[-34.6162156,-58.3759823],[-34.6162888,-58.3774335],[-34.6162987,-58.3667195],[-34.6164006,-58.3774266],[-34.6164246,-58.3667057],[-34.6167442,-58.3666711],[-34.6168739,-58.3666583],[-34.6174446,-58.3773666],[-34.6181268,-58.3665118],[-34.618546,-58.3773066],[-34.6191365,-58.3663886],[-34.6192488,-58.366373],[-34.6193177,-58.36638],[-34.6195409,-58.3663514],[-34.619717,-58.3772768],[-34.6197886,-58.3663228],[-34.6198396,-58.3772729],[-34.6201077,-58.3662843],[-34.620301,-58.3662577],[-34.6204429,-58.3662382],[-34.6204998,-58.3662255],[-34.6207707,-58.3661651],[-34.6208824,-58.3772375],[-34.6214019,-58.366089],[-34.6215021,-58.3660799],[-34.6219084,-58.3660331],[-34.6220596,-58.3772005],[-34.6221809,-58.3771933],[-34.6224005,-58.3659755],[-34.6225022,-58.3659636],[-34.6225865,-58.3659517],[-34.6226661,-58.3659425],[-34.6226908,-58.3771727],[-34.6227132,-58.3771701],[-34.6230464,-58.3771441],[-34.6232299,-58.365877],[-34.6233366,-58.3658646],[-34.623467,-58.3658794],[-34.6234817,-58.3770952],[-34.6238273,-58.3658706],[-34.6238768,-58.3658771],[-34.62392,-58.3658961],[-34.6239585,-58.3654409],[-34.6239587,-58.3659283],[-34.6239964,-58.3659761],[-34.6242217,-58.3649986],[-34.6248534,-58.3638891],[-34.6248894,-58.3638107],[-34.6249241,-58.3637351],[-34.6249524,-58.3636554],[-34.6249759,-58.3767882],[-34.6249791,-58.3635847],[-34.6250198,-58.3634281],[-34.6250573,-58.3632681],[-34.6250994,-58.3630029],[-34.6251021,-58.3631097],[-34.6251044,-58.3767568],[-34.625112,-58.3635197],[-34.6251135,-58.3635706],[-34.6251159,-58.3636558],[-34.6251211,-58.3638436],[-34.6251223,-58.3638848],[-34.6251389,-58.3646377],[-34.6251618,-58.3655159],[-34.6251655,-58.365658],[-34.6251695,-58.3658115],[-34.6251721,-58.3659101],[-34.6251793,-58.3661862],[-34.6251874,-58.3664974],[-34.6252099,-58.3678562],[-34.6252108,-58.36788],[-34.6252119,-58.3677232],[-34.6252139,-58.3676114],[-34.6252276,-58.3767266],[-34.6262681,-58.3762387],[-34.626596,-58.3710905],[-34.6266288,-58.3709597],[-34.6266731,-58.3723633],[-34.6266778,-58.3724413],[-34.6266861,-58.3725549],[-34.6267307,-58.3737178],[-34.6267378,-58.3738806],[-34.6267694,-58.3744902],[-34.6267763,-58.3745854],[-34.6267844,-58.3746446],[-34.6268039,-58.3747056],[-34.6269394,-58.3749748],[-34.6270379,-58.3678881],[-34.6270415,-58.3678948],[-34.6271086,-58.3680514],[-34.6271458,-58.375385],[-34.6271861,-58.3754696],[-34.6272649,-58.3756217],[-34.6274158,-58.3685189],[-34.6274659,-58.3685771],[-34.6275262,-58.3708568],[-34.6275484,-58.3686753],[-34.6281218,-58.3707885],[-34.628189,-58.3693762],[-34.6282165,-58.3694064],[-34.6282973,-58.3694924],[-34.6283777,-58.3695759],[-34.6284699,-58.3707486],[-34.6285768,-58.3697892],[-34.6287186,-58.3699411],[-34.6288327,-58.370707],[-34.6288327,-58.370707],[-34.6288985,-58.3701257],[-34.6289948,-58.3702272],[-34.629015,-58.3702541],[-34.6290726,-58.3706927],[-34.6291523,-58.3706876],[-34.6292123,-58.3706828],[-34.6293171,-58.3705669],[-34.6294214,-58.3706686]]],\"type\":\"Polygon\"},\"id\":\"osm:relation:2223069\",\"name\":\"San Telmo\",\"osmId\":2223069,\"osmType\":\"relation\",\"tags\":{\"admin_level\":\"9\",\"boundary\":\"administrative\",\"name\":\"San Telmo\",\"type\":\"boundary\",\"wikidata\":\"Q1026688\",\"wikipedia\":\"es:San Telmo (Buenos Aires)\"}},\"priority\":\"soft\",\"provider\":\"openstreetmap\",\"rawName\":\"San Telmo\",\"status\":\"resolved\",\"usage\":\"geographic_scope\"}],\"relevantDeficits\":[{\"dimension\":\"intent\",\"key\":\"walk\",\"origin\":\"preference_facet\",\"reason\":\"Preference facet [intent:walk] has no strong catalog match yet.\"}],\"sourcePlanPayload\":{\"provider\":\"web\",\"web\":{\"anchorNames\":[\"San Telmo\"],\"query\":\"San Telmo San Telmo walking tours walks historical walk in San Telmo\",\"requestedIntents\":[\"walk\"],\"semanticQuery\":\"historical walk in San Telmo\"}}}"
+          }
+        ]
+      },
+      "summary": "Pase 2: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+      "component": "ExperienceAcquisitionService",
+      "acquisition": {
+        "deficits": [
+          {
+            "key": "walk",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "evidence": [],
+        "candidates": [],
+        "passNumber": 2,
+        "sourcePlans": [
+          {
+            "status": "unknown",
+            "provider": "wikivoyage",
+            "observations": [],
+            "configuration": {
+              "sections": [
+                "DO"
+              ]
+            },
+            "observationCount": 0
+          },
+          {
+            "web": {
+              "query": "San Telmo San Telmo walking tours walks historical walk in San Telmo",
+              "evidence": [],
+              "anchorNames": [
+                "San Telmo"
+              ],
+              "semanticQuery": "historical walk in San Telmo",
+              "requestedIntents": [
+                "walk"
+              ]
+            },
+            "status": "unknown",
+            "provider": "web",
+            "observations": [],
+            "configuration": {
+              "query": "San Telmo San Telmo walking tours walks historical walk in San Telmo",
+              "anchorNames": [
+                "San Telmo"
+              ],
+              "semanticQuery": "historical walk in San Telmo",
+              "requestedIntents": [
+                "walk"
+              ]
+            },
+            "observationCount": 0
+          }
+        ],
+        "executionSkipped": {
+          "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+          "fingerprint": "{\"destination\":{\"destinationName\":\"San Telmo\",\"latitude\":-34.62252195,\"longitude\":-58.3702182,\"radiusMeters\":1012.1793749021351},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"sections\":[\"DO\"]}}}"
+        },
+        "acquisitionContext": {
+          "anchor": {
+            "kind": "area",
+            "usage": "geographic_scope",
+            "status": "resolved",
+            "rawName": "San Telmo",
+            "geometry": {
+              "type": "Polygon"
+            },
+            "priority": "soft",
+            "provider": "openstreetmap",
+            "externalId": "osm:relation:2223069",
+            "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+            "osmBoundary": {
+              "id": "osm:relation:2223069",
+              "name": "San Telmo",
+              "tags": {
+                "name": "San Telmo",
+                "type": "boundary",
+                "boundary": "administrative",
+                "wikidata": "Q1026688",
+                "wikipedia": "es:San Telmo (Buenos Aires)",
+                "admin_level": "9"
+              },
+              "osmId": 2223069,
+              "osmType": "relation",
+              "geometry": {
+                "type": "Polygon"
+              }
+            },
+            "canonicalName": "San Telmo"
+          },
+          "strategy": "area_route_walk",
+          "passNumber": 2
+        },
+        "executionSkippedSourcePlans": [
+          {
+            "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+            "provider": "wikivoyage",
+            "fingerprint": "{\"destination\":{\"destinationName\":\"San Telmo\",\"latitude\":-34.62252195,\"longitude\":-58.3702182,\"radiusMeters\":1012.1793749021351},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"sections\":[\"DO\"]}}}"
+          },
+          {
+            "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+            "provider": "web",
+            "fingerprint": "{\"destination\":{\"destinationName\":\"San Telmo\",\"latitude\":-34.62252195,\"longitude\":-58.3702182,\"radiusMeters\":1012.1793749021351},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"web\",\"relevantAnchors\":[{\"canonicalName\":\"San Telmo\",\"externalId\":\"osm:relation:2223069\",\"geoEntityId\":\"79effa94-ba26-4b63-b29a-c27314aaedeb\",\"geometry\":{\"coordinates\":[[[-34.6156225,-58.3667938],[-34.6156888,-58.3675674],[-34.6157048,-58.3667851],[-34.6157785,-58.3688548],[-34.6157995,-58.3690485],[-34.6158027,-58.3691164],[-34.6158062,-58.3691935],[-34.6158184,-58.3694603],[-34.6158634,-58.3702474],[-34.6158885,-58.3705677],[-34.6160069,-58.3717268],[-34.6160311,-58.3731377],[-34.6160478,-58.366749],[-34.6160814,-58.3745367],[-34.6160878,-58.3740885],[-34.616111,-58.3750064],[-34.6161333,-58.3753315],[-34.6162127,-58.3759098],[-34.6162156,-58.3759823],[-34.6162888,-58.3774335],[-34.6162987,-58.3667195],[-34.6164006,-58.3774266],[-34.6164246,-58.3667057],[-34.6167442,-58.3666711],[-34.6168739,-58.3666583],[-34.6174446,-58.3773666],[-34.6181268,-58.3665118],[-34.618546,-58.3773066],[-34.6191365,-58.3663886],[-34.6192488,-58.366373],[-34.6193177,-58.36638],[-34.6195409,-58.3663514],[-34.619717,-58.3772768],[-34.6197886,-58.3663228],[-34.6198396,-58.3772729],[-34.6201077,-58.3662843],[-34.620301,-58.3662577],[-34.6204429,-58.3662382],[-34.6204998,-58.3662255],[-34.6207707,-58.3661651],[-34.6208824,-58.3772375],[-34.6214019,-58.366089],[-34.6215021,-58.3660799],[-34.6219084,-58.3660331],[-34.6220596,-58.3772005],[-34.6221809,-58.3771933],[-34.6224005,-58.3659755],[-34.6225022,-58.3659636],[-34.6225865,-58.3659517],[-34.6226661,-58.3659425],[-34.6226908,-58.3771727],[-34.6227132,-58.3771701],[-34.6230464,-58.3771441],[-34.6232299,-58.365877],[-34.6233366,-58.3658646],[-34.623467,-58.3658794],[-34.6234817,-58.3770952],[-34.6238273,-58.3658706],[-34.6238768,-58.3658771],[-34.62392,-58.3658961],[-34.6239585,-58.3654409],[-34.6239587,-58.3659283],[-34.6239964,-58.3659761],[-34.6242217,-58.3649986],[-34.6248534,-58.3638891],[-34.6248894,-58.3638107],[-34.6249241,-58.3637351],[-34.6249524,-58.3636554],[-34.6249759,-58.3767882],[-34.6249791,-58.3635847],[-34.6250198,-58.3634281],[-34.6250573,-58.3632681],[-34.6250994,-58.3630029],[-34.6251021,-58.3631097],[-34.6251044,-58.3767568],[-34.625112,-58.3635197],[-34.6251135,-58.3635706],[-34.6251159,-58.3636558],[-34.6251211,-58.3638436],[-34.6251223,-58.3638848],[-34.6251389,-58.3646377],[-34.6251618,-58.3655159],[-34.6251655,-58.365658],[-34.6251695,-58.3658115],[-34.6251721,-58.3659101],[-34.6251793,-58.3661862],[-34.6251874,-58.3664974],[-34.6252099,-58.3678562],[-34.6252108,-58.36788],[-34.6252119,-58.3677232],[-34.6252139,-58.3676114],[-34.6252276,-58.3767266],[-34.6262681,-58.3762387],[-34.626596,-58.3710905],[-34.6266288,-58.3709597],[-34.6266731,-58.3723633],[-34.6266778,-58.3724413],[-34.6266861,-58.3725549],[-34.6267307,-58.3737178],[-34.6267378,-58.3738806],[-34.6267694,-58.3744902],[-34.6267763,-58.3745854],[-34.6267844,-58.3746446],[-34.6268039,-58.3747056],[-34.6269394,-58.3749748],[-34.6270379,-58.3678881],[-34.6270415,-58.3678948],[-34.6271086,-58.3680514],[-34.6271458,-58.375385],[-34.6271861,-58.3754696],[-34.6272649,-58.3756217],[-34.6274158,-58.3685189],[-34.6274659,-58.3685771],[-34.6275262,-58.3708568],[-34.6275484,-58.3686753],[-34.6281218,-58.3707885],[-34.628189,-58.3693762],[-34.6282165,-58.3694064],[-34.6282973,-58.3694924],[-34.6283777,-58.3695759],[-34.6284699,-58.3707486],[-34.6285768,-58.3697892],[-34.6287186,-58.3699411],[-34.6288327,-58.370707],[-34.6288327,-58.370707],[-34.6288985,-58.3701257],[-34.6289948,-58.3702272],[-34.629015,-58.3702541],[-34.6290726,-58.3706927],[-34.6291523,-58.3706876],[-34.6292123,-58.3706828],[-34.6293171,-58.3705669],[-34.6294214,-58.3706686]]],\"type\":\"Polygon\"},\"kind\":\"area\",\"osmBoundary\":{\"geometry\":{\"coordinates\":[[[-34.6156225,-58.3667938],[-34.6156888,-58.3675674],[-34.6157048,-58.3667851],[-34.6157785,-58.3688548],[-34.6157995,-58.3690485],[-34.6158027,-58.3691164],[-34.6158062,-58.3691935],[-34.6158184,-58.3694603],[-34.6158634,-58.3702474],[-34.6158885,-58.3705677],[-34.6160069,-58.3717268],[-34.6160311,-58.3731377],[-34.6160478,-58.366749],[-34.6160814,-58.3745367],[-34.6160878,-58.3740885],[-34.616111,-58.3750064],[-34.6161333,-58.3753315],[-34.6162127,-58.3759098],[-34.6162156,-58.3759823],[-34.6162888,-58.3774335],[-34.6162987,-58.3667195],[-34.6164006,-58.3774266],[-34.6164246,-58.3667057],[-34.6167442,-58.3666711],[-34.6168739,-58.3666583],[-34.6174446,-58.3773666],[-34.6181268,-58.3665118],[-34.618546,-58.3773066],[-34.6191365,-58.3663886],[-34.6192488,-58.366373],[-34.6193177,-58.36638],[-34.6195409,-58.3663514],[-34.619717,-58.3772768],[-34.6197886,-58.3663228],[-34.6198396,-58.3772729],[-34.6201077,-58.3662843],[-34.620301,-58.3662577],[-34.6204429,-58.3662382],[-34.6204998,-58.3662255],[-34.6207707,-58.3661651],[-34.6208824,-58.3772375],[-34.6214019,-58.366089],[-34.6215021,-58.3660799],[-34.6219084,-58.3660331],[-34.6220596,-58.3772005],[-34.6221809,-58.3771933],[-34.6224005,-58.3659755],[-34.6225022,-58.3659636],[-34.6225865,-58.3659517],[-34.6226661,-58.3659425],[-34.6226908,-58.3771727],[-34.6227132,-58.3771701],[-34.6230464,-58.3771441],[-34.6232299,-58.365877],[-34.6233366,-58.3658646],[-34.623467,-58.3658794],[-34.6234817,-58.3770952],[-34.6238273,-58.3658706],[-34.6238768,-58.3658771],[-34.62392,-58.3658961],[-34.6239585,-58.3654409],[-34.6239587,-58.3659283],[-34.6239964,-58.3659761],[-34.6242217,-58.3649986],[-34.6248534,-58.3638891],[-34.6248894,-58.3638107],[-34.6249241,-58.3637351],[-34.6249524,-58.3636554],[-34.6249759,-58.3767882],[-34.6249791,-58.3635847],[-34.6250198,-58.3634281],[-34.6250573,-58.3632681],[-34.6250994,-58.3630029],[-34.6251021,-58.3631097],[-34.6251044,-58.3767568],[-34.625112,-58.3635197],[-34.6251135,-58.3635706],[-34.6251159,-58.3636558],[-34.6251211,-58.3638436],[-34.6251223,-58.3638848],[-34.6251389,-58.3646377],[-34.6251618,-58.3655159],[-34.6251655,-58.365658],[-34.6251695,-58.3658115],[-34.6251721,-58.3659101],[-34.6251793,-58.3661862],[-34.6251874,-58.3664974],[-34.6252099,-58.3678562],[-34.6252108,-58.36788],[-34.6252119,-58.3677232],[-34.6252139,-58.3676114],[-34.6252276,-58.3767266],[-34.6262681,-58.3762387],[-34.626596,-58.3710905],[-34.6266288,-58.3709597],[-34.6266731,-58.3723633],[-34.6266778,-58.3724413],[-34.6266861,-58.3725549],[-34.6267307,-58.3737178],[-34.6267378,-58.3738806],[-34.6267694,-58.3744902],[-34.6267763,-58.3745854],[-34.6267844,-58.3746446],[-34.6268039,-58.3747056],[-34.6269394,-58.3749748],[-34.6270379,-58.3678881],[-34.6270415,-58.3678948],[-34.6271086,-58.3680514],[-34.6271458,-58.375385],[-34.6271861,-58.3754696],[-34.6272649,-58.3756217],[-34.6274158,-58.3685189],[-34.6274659,-58.3685771],[-34.6275262,-58.3708568],[-34.6275484,-58.3686753],[-34.6281218,-58.3707885],[-34.628189,-58.3693762],[-34.6282165,-58.3694064],[-34.6282973,-58.3694924],[-34.6283777,-58.3695759],[-34.6284699,-58.3707486],[-34.6285768,-58.3697892],[-34.6287186,-58.3699411],[-34.6288327,-58.370707],[-34.6288327,-58.370707],[-34.6288985,-58.3701257],[-34.6289948,-58.3702272],[-34.629015,-58.3702541],[-34.6290726,-58.3706927],[-34.6291523,-58.3706876],[-34.6292123,-58.3706828],[-34.6293171,-58.3705669],[-34.6294214,-58.3706686]]],\"type\":\"Polygon\"},\"id\":\"osm:relation:2223069\",\"name\":\"San Telmo\",\"osmId\":2223069,\"osmType\":\"relation\",\"tags\":{\"admin_level\":\"9\",\"boundary\":\"administrative\",\"name\":\"San Telmo\",\"type\":\"boundary\",\"wikidata\":\"Q1026688\",\"wikipedia\":\"es:San Telmo (Buenos Aires)\"}},\"priority\":\"soft\",\"provider\":\"openstreetmap\",\"rawName\":\"San Telmo\",\"status\":\"resolved\",\"usage\":\"geographic_scope\"}],\"relevantDeficits\":[{\"dimension\":\"intent\",\"key\":\"walk\",\"origin\":\"preference_facet\",\"reason\":\"Preference facet [intent:walk] has no strong catalog match yet.\"}],\"sourcePlanPayload\":{\"provider\":\"web\",\"web\":{\"anchorNames\":[\"San Telmo\"],\"query\":\"San Telmo San Telmo walking tours walks historical walk in San Telmo\",\"requestedIntents\":[\"walk\"],\"semanticQuery\":\"historical walk in San Telmo\"}}}"
+          }
+        ]
+      },
+      "providerStatus": "success",
+      "acquisitionContext": {
+        "anchor": {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        },
+        "strategy": "area_route_walk",
+        "passNumber": 2
+      }
+    },
+    {
+      "label": "Resolución de entidades reales",
+      "rules": [
+        {
+          "rule": "Resolver hints contra identidades geográficas independientes del LLM",
+          "actual": 0,
+          "reason": "0 entidad(es) reales resueltas; 0 con coordenadas.",
+          "result": "WARN",
+          "ruleId": "RES-IDENTITY-001"
+        },
+        {
+          "rule": "No decidir coherencia geográfica ni persistencia durante entity resolution",
+          "reason": "La salida queda pendiente del GeographicValidationService.",
+          "result": "PASS",
+          "ruleId": "RES-SEPARATION-001"
+        },
+        {
+          "rule": "Toda propuesta no resoluble debe conservar razones explícitas",
+          "reason": "No hubo rechazos de resolución.",
+          "result": "PASS",
+          "ruleId": "RES-REJECTION-001"
+        }
+      ],
+      "stage": "entity_resolution",
+      "inputs": {
+        "totalCandidates": 0
+      },
+      "status": "INFO",
+      "outputs": {
+        "rejectedCount": 0,
+        "candidateCount": 0,
+        "resolvedEntityCount": 0,
+        "resolutionReadyCount": 0,
+        "entitiesWithCoordinates": 0
+      },
+      "summary": "Entity resolution procesó 0 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 0 no pudieron resolverse. Se obtuvieron 0 entidad(es) provider-backed, 0 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite.",
+      "decision": {
+        "reason": "Ninguna propuesta produjo suficientes entidades reales para continuar.",
+        "status": "WARN",
+        "outcome": "NO_PROPOSALS_RESOLVED",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "CONTINUE_WITH_EXISTING_POOL"
+        ]
+      },
+      "component": "ExperienceProposalResolverService",
+      "degradedReason": "no_proposals_resolved",
+      "providerStatus": "failed",
+      "acquisitionContext": {
+        "anchor": {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        },
+        "strategy": "area_route_walk",
+        "passNumber": 2
+      },
+      "candidateDecisions": [],
+      "entityResolutionAudit": []
+    },
+    {
+      "label": "Validación geográfica independiente",
+      "rules": [
+        {
+          "rule": "Grounded text por sí solo no prueba existencia geográfica",
+          "reason": "La aceptación requiere entidades resueltas independientemente del LLM.",
+          "result": "PASS",
+          "ruleId": "GEO-INDEPENDENT-001"
+        },
+        {
+          "rule": "Las composites pueden validarse por componentes reales sin exact-name global",
+          "reason": "ROUTE/EXPERIENCE/WALK pueden usar anchors/componentes según su estrategia.",
+          "result": "PASS",
+          "ruleId": "GEO-COMPONENTS-001"
+        },
+        {
+          "rule": "Conservar razones machine-readable para cada rechazo",
+          "reason": "No hubo rechazos geográficos.",
+          "result": "PASS",
+          "ruleId": "GEO-RESULT-001"
+        }
+      ],
+      "stage": "geographic_validation",
+      "inputs": {
+        "proposalCount": 0,
+        "validatorVersions": []
+      },
+      "status": "WARN",
+      "outputs": {
+        "results": [],
+        "rejectedCount": 0,
+        "geoVerifiedCount": 0,
+        "maxComputedRadiusMeters": null
+      },
+      "summary": "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+      "decision": {
+        "reason": "Ninguna propuesta alcanzó verificación geográfica.",
+        "status": "WARN",
+        "outcome": "NO_GEO_VERIFIED_PROPOSALS",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "CONTINUE_WITH_EXISTING_POOL"
+        ]
+      },
+      "component": "CompositeGeographicValidationService",
+      "degradedReason": "no_geo_verified_proposals",
+      "providerStatus": "failed",
+      "acquisitionContext": {
+        "anchor": {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        },
+        "strategy": "area_route_walk",
+        "passNumber": 2
+      },
+      "candidateDecisions": [],
+      "geographicValidationAudit": []
+    },
+    {
+      "label": "Materialización en catálogo",
+      "rules": [
+        {
+          "rule": "Persistir composites solo después de GEO_VERIFIED",
+          "reason": "ExperienceCatalogService consume el resultado del validador geográfico.",
+          "result": "PASS",
+          "ruleId": "MAT-GEO-GATE-001"
+        },
+        {
+          "rule": "Exponer solo IDs canónicos persistidos al re-query/ranking",
+          "actual": 0,
+          "reason": "0 Experience id(s) quedaron disponibles para re-query.",
+          "result": "WARN",
+          "ruleId": "MAT-CANONICAL-001"
+        }
+      ],
+      "stage": "catalog_materialization",
+      "inputs": {
+        "geoVerifiedCount": 0
+      },
+      "status": "WARN",
+      "outputs": {
+        "rejectedCount": 0,
+        "materializedCount": 0,
+        "persistedExperienceIds": []
+      },
+      "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+      "decision": {
+        "reason": "No hubo propuesta verificada que pudiera materializarse.",
+        "status": "WARN",
+        "outcome": "NO_EXPERIENCES_MATERIALIZED",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "CONTINUE_WITH_EXISTING_POOL"
+        ]
+      },
+      "component": "ExperienceCatalogService",
+      "degradedReason": "no_experiences_materialized",
+      "providerStatus": "failed",
+      "acquisitionContext": {
+        "anchor": {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        },
+        "strategy": "area_route_walk",
+        "passNumber": 2
+      },
+      "candidateDecisions": [],
+      "classificationAudit": [],
+      "materializationAudit": []
+    },
+    {
+      "label": "Cobertura de preferencias (facet-first)",
+      "rules": [
+        {
+          "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "actual": 6,
+          "reason": "6 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "result": "PASS",
+          "ruleId": "PCOV-QUANTITY-001",
+          "expected": 4
+        },
+        {
+          "rule": "Cobertura del facet solicitado: theme:history",
+          "actual": 2,
+          "reason": "2 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-THEME-HISTORY",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:walk",
+          "actual": 0,
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "FAIL",
+          "ruleId": "PCOV-FACET-INTENT-WALK",
+          "expected": ">= 1"
+        }
+      ],
+      "stage": "coverage_analysis",
+      "inputs": {
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "requestedFacetCount": 2,
+        "offeredCandidateCount": 4
+      },
+      "status": "FAIL",
+      "outputs": {
+        "sufficient": false,
+        "facetResults": [
+          {
+            "key": "history",
+            "dimension": "theme",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 2
+          },
+          {
+            "key": "walk",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "portfolioTarget": 4,
+        "allFacetsSatisfied": false,
+        "acquisitionDeficits": [
+          {
+            "key": "walk",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "globalCapacityDeficit": null,
+        "totalDistinctEligibleExperiences": 6
+      },
+      "summary": "Facets sin cobertura fuerte: intent:walk.",
+      "decision": {
+        "reason": "Facets sin cobertura fuerte: intent:walk.",
+        "status": "FAIL",
+        "outcome": "needs_additional_discovery",
+        "reasonCodes": [
+          "preference_facet"
+        ],
+        "triggeredActions": [
+          "RUN_ACQUISITION"
+        ]
+      },
+      "component": "FacetRetrievalService",
+      "semanticRanking": {
+        "status": "applied",
+        "indexedCandidateCount": 6,
+        "offeredCandidateCount": 4,
+        "eligibleCandidateCount": 6
+      }
+    },
+    {
+      "label": "Ranking de Experiences",
+      "rules": [
+        {
+          "rule": "Ordenar Experiences por relevancia semántica y calidad",
+          "actual": 6,
+          "reason": "El ranking determinístico consume únicamente Experiences verificadas.",
+          "result": "PASS",
+          "ruleId": "EXPERIENCE-RANK-001"
+        }
+      ],
+      "stage": "candidate_pool",
+      "inputs": {
+        "eligibleCount": 6,
+        "requestedThemes": [
+          "history"
+        ],
+        "initialCatalogCount": 6,
+        "postAcquisitionCatalogCount": 6
+      },
+      "status": "PASS",
+      "outputs": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 6,
+          "discovery": 0
+        },
+        "offeredCandidateCount": 6
+      },
+      "summary": "Se evaluaron 6 experiencias elegibles y se ofrecieron 6 candidatas (6 catálogo, 0 adquisición, 0 discovery).",
+      "decision": {
+        "reason": "El pool quedó limitado por capacidad, sin imponer formatos legacy.",
+        "status": "PASS",
+        "outcome": "EXPERIENCE_POOL_RANKED",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "RUN_DAILY_PLANNING"
+        ]
+      },
+      "component": "ExperienceRankingEngine",
+      "candidates": [
+        {
+          "id": "cc0092c3-2a27-4647-80a4-71d81d223402",
+          "name": "Museo Histórico Nacional",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.5180612802505493
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+          "name": "Plaza Dorrego",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.4334167371218426
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "a539265a-936a-49e0-850f-9be3d3429738",
+          "name": "Feria De las Artes San Telmo",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 3.781819083538972,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5979386924468703
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+          "name": "Mercado San Telmo",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5459716320037842
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "95638579-90f5-467e-941d-ec638cde0bf8",
+          "name": "Museo Moderno",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.4889394640922546
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "5f317b57-4065-4b20-870c-34c23d7f2e2a",
+          "name": "Galeria Del Asombro",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.4601526856422424
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        }
+      ],
+      "candidatePool": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 6,
+          "discovery": 0
+        },
+        "eligibleCount": 6,
+        "llmWindowCount": 6,
+        "initialCatalogCount": 6,
+        "postAcquisitionCatalogCount": 6
+      },
+      "candidateDecisions": [
+        {
+          "id": "cc0092c3-2a27-4647-80a4-71d81d223402",
+          "name": "Museo Histórico Nacional",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.5180612802505493
+          }
+        },
+        {
+          "id": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+          "name": "Plaza Dorrego",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.4334167371218426
+          }
+        },
+        {
+          "id": "a539265a-936a-49e0-850f-9be3d3429738",
+          "name": "Feria De las Artes San Telmo",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 3.781819083538972,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5979386924468703
+          }
+        },
+        {
+          "id": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+          "name": "Mercado San Telmo",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5459716320037842
+          }
+        },
+        {
+          "id": "95638579-90f5-467e-941d-ec638cde0bf8",
+          "name": "Museo Moderno",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.4889394640922546
+          }
+        },
+        {
+          "id": "5f317b57-4065-4b20-870c-34c23d7f2e2a",
+          "name": "Galeria Del Asombro",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.4601526856422424
+          }
+        }
+      ]
+    },
+    {
+      "label": "Ranking semántico",
+      "rules": [
+        {
+          "rule": "Usar similitud semántica solo cuando fue solicitada y está disponible",
+          "actual": "applied",
+          "reason": "La similitud se incorporó al ranking.",
+          "result": "PASS",
+          "ruleId": "RANK-SEMANTIC-001"
+        },
+        {
+          "rule": "Un candidato sin embedding no equivale a score semántico cero",
+          "reason": "La ausencia de embedding se conserva como señal no medida; otras señales pueden mantener el candidato.",
+          "result": "PASS",
+          "ruleId": "RANK-UNKNOWN-001"
+        }
+      ],
+      "stage": "embeddings",
+      "inputs": {
+        "model": "nomic-embed-text",
+        "provider": "ollama",
+        "eligibleCandidateCount": 6
+      },
+      "status": "PASS",
+      "outputs": {
+        "measuredRatio": 1,
+        "indexedCandidateCount": 6,
+        "offeredCandidateCount": 6
+      },
+      "summary": "Ranking semántico solicitado y aplicado sobre 6 candidato(s) elegible(s) del destino: 6 tenían un vector compatible con el índice activo y se ofrecieron 6 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+      "decision": {
+        "reason": "Índice semántico compatible disponible.",
+        "status": "PASS",
+        "outcome": "SEMANTIC_SIGNAL_APPLIED",
+        "reasonCodes": [
+          "APPLIED"
+        ],
+        "triggeredActions": [
+          "BUILD_RANKED_WINDOW"
+        ]
+      },
+      "component": "VectorStoreService + pgvector",
+      "semanticRanking": {
+        "model": "nomic-embed-text",
+        "status": "applied",
+        "provider": "ollama",
+        "dimensions": 256,
+        "documentVersion": 3,
+        "indexedCandidateCount": 6,
+        "offeredCandidateCount": 6,
+        "eligibleCandidateCount": 6
+      }
+    },
+    {
+      "label": "Planificación diaria determinística",
+      "rules": [
+        {
+          "rule": "Mantener exactamente los buckets de días solicitados por el planner",
+          "actual": 1,
+          "reason": "El solver devolvió 1 bucket(s) de día.",
+          "result": "PASS",
+          "ruleId": "PLAN-DAYS-001"
+        },
+        {
+          "rule": "No seleccionar candidatos que el solver haya marcado como no factibles",
+          "reason": "0 candidato(s) quedaron fuera con reason codes explícitos.",
+          "result": "PASS",
+          "ruleId": "PLAN-FEASIBILITY-001"
+        },
+        {
+          "rule": "Declarar si las estimaciones de traslado son aproximadas",
+          "actual": false,
+          "reason": "El solver informa estimaciones de traslado no aproximadas.",
+          "result": "PASS",
+          "ruleId": "PLAN-TRAVEL-001"
+        }
+      ],
+      "stage": "daily_planning",
+      "inputs": {
+        "solver": "GreedyDailyPlanningSolver",
+        "iterations": 1,
+        "approximateTravel": false
+      },
+      "status": "PASS",
+      "outputs": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 5,
+            "totalTravelMinutes": 19.33086666666667,
+            "utilizationMinutes": 619.3308666666667,
+            "totalWalkingMinutes": 19.33086666666667,
+            "totalExperienceMinutes": 600
+          }
+        ],
+        "score": 5,
+        "selectedCount": 5,
+        "unselectedCount": 0,
+        "residualCapacity": [
+          {
+            "dayNumber": 1,
+            "meaningful": false,
+            "availableMinutes": 40.66913333333332
+          }
+        ]
+      },
+      "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 5 Experience(s) seleccionada(s), 0 sin seleccionar (score total 5). Las estimaciones de traslado usadas son reales.",
+      "decision": {
+        "reason": "El solver produjo una asignación determinística y físicamente evaluable.",
+        "status": "PASS",
+        "outcome": "DAILY_PLAN_BUILT",
+        "reasonCodes": [
+          "PLANNING_COMPLETED"
+        ],
+        "triggeredActions": [
+          "VALIDATE_COMPLETENESS",
+          "VALIDATE_FORMAT_COVERAGE"
+        ]
+      },
+      "component": "GreedyDailyPlanningSolver",
+      "dailyPlanning": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 5,
+            "totalTravelMinutes": 19.33086666666667,
+            "utilizationMinutes": 619.3308666666667,
+            "totalWalkingMinutes": 19.33086666666667,
+            "totalExperienceMinutes": 600
+          }
+        ],
+        "score": 5,
+        "solver": "GreedyDailyPlanningSolver",
+        "routing": {
+          "fallbackCount": 0,
+          "providerCounts": {
+            "geoapify": 4
+          },
+          "externalEstimateCount": 4,
+          "internalEstimateCount": 0,
+          "approximateEstimateCount": 0
+        },
+        "dayCount": 1,
+        "iterations": 1,
+        "selectedCount": 5,
+        "unselectedCount": 0,
+        "residualCapacity": [
+          {
+            "dayNumber": 1,
+            "meaningful": false,
+            "availableMinutes": 40.66913333333332
+          }
+        ],
+        "approximateTravel": false
+      },
+      "candidateDecisions": [
+        {
+          "id": "cc0092c3-2a27-4647-80a4-71d81d223402",
+          "name": "cc0092c3-2a27-4647-80a4-71d81d223402",
+          "order": 1,
+          "reason": "Asignada al día 1 en posición 1; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "95638579-90f5-467e-941d-ec638cde0bf8",
+          "name": "95638579-90f5-467e-941d-ec638cde0bf8",
+          "order": 2,
+          "reason": "Asignada al día 1 en posición 2; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+          "name": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+          "order": 3,
+          "reason": "Asignada al día 1 en posición 3; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "a539265a-936a-49e0-850f-9be3d3429738",
+          "name": "a539265a-936a-49e0-850f-9be3d3429738",
+          "order": 4,
+          "reason": "Asignada al día 1 en posición 4; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+          "name": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+          "order": 5,
+          "reason": "Asignada al día 1 en posición 5; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Completitud del itinerario",
+      "rules": [
+        {
+          "rule": "Cada día debe tener un uso razonable cuando existen candidatos viables",
+          "reason": "Formato pedido sin cubrir: \"walk\".",
+          "result": "WARN",
+          "ruleId": "COMP-DAY-USAGE-001"
+        }
+      ],
+      "stage": "tour_completeness",
+      "inputs": {
+        "retryAttempted": false
+      },
+      "status": "WARN",
+      "outputs": {
+        "issues": [
+          {
+            "code": "UNMET_REQUESTED_FORMAT",
+            "message": "You asked for \"walk\" experiences, but none made it into the final itinerary.",
+            "requestedIntent": "walk"
+          }
+        ],
+        "complete": false
+      },
+      "summary": "Formato pedido sin cubrir: \"walk\".",
+      "decision": {
+        "reason": "Existen días que podrían estar mejor utilizados, o formatos pedidos sin cubrir, según la política actual.",
+        "status": "WARN",
+        "outcome": "TOUR_UNDERFILLED",
+        "reasonCodes": [
+          "UNMET_REQUESTED_FORMAT"
+        ],
+        "triggeredActions": [
+          "RETRY_ONCE"
+        ]
+      },
+      "component": "TourCompletenessValidator",
+      "degradedReason": "underfilled_day",
+      "providerStatus": "failed",
+      "tourCompleteness": {
+        "issues": [
+          {
+            "code": "UNMET_REQUESTED_FORMAT",
+            "message": "You asked for \"walk\" experiences, but none made it into the final itinerary.",
+            "requestedIntent": "walk"
+          }
+        ],
+        "complete": false,
+        "retryAttempted": false
+      }
+    }
+  ],
+  "runtime": {
+    "buildCommit": "unknown",
+    "buildTimestamp": "unknown"
+  },
+  "version": 4,
+  "canonicalRequest": {
+    "days": 1,
+    "intent": {
+      "intents": [
+        "walk"
+      ],
+      "interests": [
+        "history"
+      ],
+      "explorationStyle": "balanced",
+      "additionalPreferences": "caminata histórica por San Telmo"
+    },
+    "mobility": {
+      "travelPace": "moderate",
+      "accessibilityNeeds": [],
+      "allowedTransportationModes": [
+        "walking"
+      ],
+      "maxWalkingDistancePerDayMeters": 5000,
+      "maxContinuousWalkingDistanceMeters": 3000
+    },
+    "groupType": "solo",
+    "categories": [],
+    "startDates": [],
+    "budgetLevel": "medium",
+    "destination": {
+      "label": "San Telmo, Buenos Aires, Argentina",
+      "latitude": -34.6214013,
+      "longitude": -58.37375,
+      "scaleHint": "settlement"
+    },
+    "excludeTours": [],
+    "contractVersion": 1,
+    "dietaryRestrictions": [],
+    "skipImageGeneration": true,
+    "includeExistingExperiences": true
+  },
+  "executionSummary": {
+    "status": "completed",
+    "acquisition": {
+      "passes": 2,
+      "providersFailed": [],
+      "observationCount": 2,
+      "webCandidateCount": 0,
+      "approximateRouting": false,
+      "providersAttempted": [
+        "web",
+        "wikivoyage"
+      ],
+      "structuredCandidateCount": 0
+    },
+    "orderedStages": [
+      {
+        "stage": "preference_interpretation",
+        "status": "PASS",
+        "ordinal": 1,
+        "summary": "Preferencias libres normalizadas y combinadas con filtros.",
+        "component": "PreferenceInterpreterService"
+      },
+      {
+        "stage": "tour_intent",
+        "counts": {
+          "requestedDays": 1
+        },
+        "status": "INFO",
+        "ordinal": 2,
+        "outcome": "INTENT_ACCEPTED",
+        "summary": "Temas: history. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"caminata histórica por San Telmo\".",
+        "component": "TourGenerationRequest"
+      },
+      {
+        "stage": "destination_resolution",
+        "status": "PASS",
+        "ordinal": 3,
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "summary": "\"San Telmo, Buenos Aires, Argentina\" resolvió a un límite real de ciudad: San Telmo. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:San Telmo, Buenos Aires, Argentina.",
+        "component": "DestinationResolutionService"
+      },
+      {
+        "stage": "anchor_geo_resolution",
+        "status": "PASS",
+        "ordinal": 4,
+        "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+        "component": "AreaRouteAnchorResolverService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "counts": {
+          "portfolioTarget": 4,
+          "totalDistinctEligibleExperiences": 6
+        },
+        "status": "FAIL",
+        "ordinal": 5,
+        "outcome": "needs_additional_discovery",
+        "summary": "Facets sin cobertura fuerte: intent:walk.",
+        "component": "FacetRetrievalService"
+      },
+      {
+        "stage": "db_search",
+        "counts": {
+          "candidateCount": 6
+        },
+        "status": "PASS",
+        "ordinal": 6,
+        "outcome": "CATALOG_POOL_AVAILABLE",
+        "summary": "6 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+        "component": "ExperienceCatalog.findVerifiedWithin"
+      },
+      {
+        "stage": "coverage_analysis",
+        "status": "INFO",
+        "ordinal": 7,
+        "summary": "AREA_ROUTE_WALK=1; GENERIC=0.",
+        "component": "partitionDeficitsByStrategy"
+      },
+      {
+        "stage": "area_route_walk_acquisition",
+        "status": "WARN",
+        "ordinal": 8,
+        "summary": "Resultado AREA_ROUTE_WALK: no_result.",
+        "component": "AreaRouteWalkAcquisitionService"
+      },
+      {
+        "stage": "discovery",
+        "counts": {
+          "candidateCount": 0,
+          "observationCount": 2,
+          "webCandidateCount": 0,
+          "structuredCandidateCount": 0
+        },
+        "status": "PASS",
+        "ordinal": 9,
+        "summary": "Pase 1: fuentes [wikivoyage, web] → 2 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+        "component": "ExperienceAcquisitionService"
+      },
+      {
+        "stage": "entity_resolution",
+        "counts": {
+          "rejectedCount": 0,
+          "candidateCount": 0,
+          "resolvedEntityCount": 0,
+          "resolutionReadyCount": 0,
+          "entitiesWithCoordinates": 0
+        },
+        "status": "INFO",
+        "ordinal": 10,
+        "outcome": "NO_PROPOSALS_RESOLVED",
+        "summary": "Entity resolution procesó 0 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 0 no pudieron resolverse. Se obtuvieron 0 entidad(es) provider-backed, 0 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite.",
+        "component": "ExperienceProposalResolverService"
+      },
+      {
+        "stage": "geographic_validation",
+        "counts": {
+          "rejectedCount": 0,
+          "geoVerifiedCount": 0
+        },
+        "status": "WARN",
+        "ordinal": 11,
+        "outcome": "NO_GEO_VERIFIED_PROPOSALS",
+        "summary": "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+        "component": "CompositeGeographicValidationService"
+      },
+      {
+        "stage": "catalog_materialization",
+        "counts": {
+          "rejectedCount": 0,
+          "materializedCount": 0
+        },
+        "status": "WARN",
+        "ordinal": 12,
+        "outcome": "NO_EXPERIENCES_MATERIALIZED",
+        "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+        "component": "ExperienceCatalogService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "counts": {
+          "portfolioTarget": 4,
+          "totalDistinctEligibleExperiences": 6
+        },
+        "status": "FAIL",
+        "ordinal": 13,
+        "outcome": "needs_additional_discovery",
+        "summary": "Facets sin cobertura fuerte: intent:walk.",
+        "component": "FacetRetrievalService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "status": "INFO",
+        "ordinal": 14,
+        "summary": "AREA_ROUTE_WALK=1; GENERIC=0.",
+        "component": "partitionDeficitsByStrategy"
+      },
+      {
+        "stage": "area_route_walk_acquisition",
+        "status": "WARN",
+        "ordinal": 15,
+        "summary": "Resultado AREA_ROUTE_WALK: no_result.",
+        "component": "AreaRouteWalkAcquisitionService"
+      },
+      {
+        "stage": "discovery",
+        "counts": {
+          "candidateCount": 0,
+          "observationCount": 0,
+          "webCandidateCount": 0,
+          "structuredCandidateCount": 0
+        },
+        "status": "INFO",
+        "ordinal": 16,
+        "summary": "Pase 2: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+        "component": "ExperienceAcquisitionService"
+      },
+      {
+        "stage": "entity_resolution",
+        "counts": {
+          "rejectedCount": 0,
+          "candidateCount": 0,
+          "resolvedEntityCount": 0,
+          "resolutionReadyCount": 0,
+          "entitiesWithCoordinates": 0
+        },
+        "status": "INFO",
+        "ordinal": 17,
+        "outcome": "NO_PROPOSALS_RESOLVED",
+        "summary": "Entity resolution procesó 0 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 0 no pudieron resolverse. Se obtuvieron 0 entidad(es) provider-backed, 0 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite.",
+        "component": "ExperienceProposalResolverService"
+      },
+      {
+        "stage": "geographic_validation",
+        "counts": {
+          "rejectedCount": 0,
+          "geoVerifiedCount": 0
+        },
+        "status": "WARN",
+        "ordinal": 18,
+        "outcome": "NO_GEO_VERIFIED_PROPOSALS",
+        "summary": "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+        "component": "CompositeGeographicValidationService"
+      },
+      {
+        "stage": "catalog_materialization",
+        "counts": {
+          "rejectedCount": 0,
+          "materializedCount": 0
+        },
+        "status": "WARN",
+        "ordinal": 19,
+        "outcome": "NO_EXPERIENCES_MATERIALIZED",
+        "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+        "component": "ExperienceCatalogService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "counts": {
+          "portfolioTarget": 4,
+          "totalDistinctEligibleExperiences": 6
+        },
+        "status": "FAIL",
+        "ordinal": 20,
+        "outcome": "needs_additional_discovery",
+        "summary": "Facets sin cobertura fuerte: intent:walk.",
+        "component": "FacetRetrievalService"
+      },
+      {
+        "stage": "candidate_pool",
+        "counts": {
+          "offeredCandidateCount": 6
+        },
+        "status": "PASS",
+        "ordinal": 21,
+        "outcome": "EXPERIENCE_POOL_RANKED",
+        "summary": "Se evaluaron 6 experiencias elegibles y se ofrecieron 6 candidatas (6 catálogo, 0 adquisición, 0 discovery).",
+        "component": "ExperienceRankingEngine"
+      },
+      {
+        "stage": "embeddings",
+        "counts": {
+          "measuredRatio": 1,
+          "indexedCandidateCount": 6,
+          "offeredCandidateCount": 6
+        },
+        "status": "PASS",
+        "ordinal": 22,
+        "outcome": "SEMANTIC_SIGNAL_APPLIED",
+        "summary": "Ranking semántico solicitado y aplicado sobre 6 candidato(s) elegible(s) del destino: 6 tenían un vector compatible con el índice activo y se ofrecieron 6 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+        "component": "VectorStoreService + pgvector"
+      },
+      {
+        "stage": "daily_planning",
+        "counts": {
+          "score": 5,
+          "selectedCount": 5,
+          "unselectedCount": 0
+        },
+        "status": "PASS",
+        "ordinal": 23,
+        "outcome": "DAILY_PLAN_BUILT",
+        "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 5 Experience(s) seleccionada(s), 0 sin seleccionar (score total 5). Las estimaciones de traslado usadas son reales.",
+        "component": "GreedyDailyPlanningSolver"
+      },
+      {
+        "stage": "tour_completeness",
+        "status": "WARN",
+        "ordinal": 24,
+        "outcome": "TOUR_UNDERFILLED",
+        "summary": "Formato pedido sin cubrir: \"walk\".",
+        "component": "TourCompletenessValidator"
+      },
+      {
+        "stage": "tour_experience_materialization",
+        "counts": {
+          "componentSnapshots": 5,
+          "selectedExperiences": 5
+        },
+        "status": "PASS",
+        "ordinal": 25,
+        "outcome": "TOUR_EXPERIENCES_PERSISTED",
+        "summary": "5 TourExperience snapshot(s) persistidos desde Experience verificadas.",
+        "component": "Prisma.TourExperience"
+      }
+    ],
+    "rejectedProposals": 0,
+    "acceptedExperiences": 5,
+    "selectedExperiences": 5
+  },
+  "tourCompleteness": {
+    "issues": [
+      {
+        "code": "UNMET_REQUESTED_FORMAT",
+        "message": "You asked for \"walk\" experiences, but none made it into the final itinerary.",
+        "requestedIntent": "walk"
+      }
+    ],
+    "complete": false,
+    "retryAttempted": false
+  },
+  "materializedTourExperiences": [
+    {
+      "order": 1,
+      "dayNumber": 1,
+      "experienceId": "cc0092c3-2a27-4647-80a4-71d81d223402",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 2,
+      "dayNumber": 1,
+      "experienceId": "95638579-90f5-467e-941d-ec638cde0bf8",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 3,
+      "dayNumber": 1,
+      "experienceId": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 4,
+      "dayNumber": 1,
+      "experienceId": "a539265a-936a-49e0-850f-9be3d3429738",
+      "durationHours": 2.000000000000002,
+      "componentCount": 1
+    },
+    {
+      "order": 5,
+      "dayNumber": 1,
+      "experienceId": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+      "durationHours": 2,
+      "componentCount": 1
+    }
+  ]
+}

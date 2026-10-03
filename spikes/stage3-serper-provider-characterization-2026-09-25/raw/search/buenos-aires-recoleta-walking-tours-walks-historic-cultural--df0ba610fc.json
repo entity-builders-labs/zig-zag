@@ -1,0 +1,134 @@
+{
+  "endpoint": "search",
+  "request": {
+    "q": "Buenos Aires Recoleta walking tours walks historic cultural walking tour in Recoleta",
+    "num": 10
+  },
+  "capturedAt": "2026-09-25T12:54:15.836Z",
+  "meta": {
+    "endpoint": "search",
+    "httpStatus": 200,
+    "durationMs": 1187
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Buenos Aires Recoleta walking tours walks historic cultural walking tour in Recoleta",
+      "type": "search",
+      "num": 10,
+      "engine": "google"
+    },
+    "organic": [
+      {
+        "title": "Recoleta Neighborhood Walking Tour, Buenos Aires ...",
+        "link": "https://www.gpsmycity.com/tours/recoleta-neighborhood-walking-tour-2655.html",
+        "snippet": "Self-guided walking tour: Recoleta Neighborhood Walking Tour in Buenos Aires, Argentina. The detailed walk route map can be downloaded to your mobile device ...",
+        "position": 1
+      },
+      {
+        "title": "Self guided Walking tour Retiro & Recoleta | Agus Yornet Blog",
+        "link": "http://www.agusyornet.com/2024/10/self-guided-walking-tour-retiro-recoleta.html",
+        "snippet": "This self-guided tour includes a bit of everything, architecture, museum, visit it everyday 11 to 18hs ・ a National Historic Monument. Stop 7: Centro Cultural ...",
+        "position": 2
+      },
+      {
+        "title": "The best Recoleta Walking tours - 2026 (Verified Reviews)",
+        "link": "https://www.getyourguide.com/recoleta-l90858/walking-tours-tc3/",
+        "snippet": "Enjoy a walk through the beautiful parks, monuments, and palaces of one of the most luxurious areas in Buenos Aires on this tip-based tour of Recoleta and ...",
+        "rating": 4.8,
+        "ratingCount": 5611,
+        "position": 3
+      },
+      {
+        "title": "Recoleta: A Buenos Aires Neighborhood Guide",
+        "link": "https://solsalute.com/blog/neighborhood-guide-recoleta/",
+        "snippet": "A complete guide to Recoleta in Buenos Aires: find a bit of interesting history and a map. Use it to plan a Recoleta walking tour! A 6. Explore ...",
+        "date": "Dec 27, 2023",
+        "position": 4
+      },
+      {
+        "title": "Walking Tour Retiro and Recoleta: History and Stories",
+        "link": "https://www.guruwalk.com/walks/35557-walking-tour-retiro-and-recoleta-history-and-stories",
+        "snippet": "Free walking tours in. The tour lasts 1 hour and 45 minutes Available in English … contact our guide directly on whatsapp (+5491168526656) Recoleta Cultural ...",
+        "rating": 4.9,
+        "ratingCount": 377,
+        "position": 5
+      },
+      {
+        "title": "Recoleta Cemetery Walking Tour (with Reviews)",
+        "link": "https://www.tripadvisor.com/AttractionProductReview-g312741-d25147118-Recoleta_Cemetery_Walking_Tour-Buenos_Aires_Capital_Federal_District.html",
+        "snippet": "Tours from $57.29 per adult Private … brilliant walking tour of the Boca area. With great insights into history, art and culture. The tour lasted around 3 ...",
+        "rating": 4.9,
+        "ratingCount": 607,
+        "position": 6
+      },
+      {
+        "title": "Buenos Aires Free Walks: Home",
+        "link": "https://buenosairesfreewalks.com/",
+        "snippet": "Free Walking Tours in Buenos Aires. Price: $14,000 ARS / $10 USD or EUR per person Schedule: Monday to Saturday Start: 11 am in English",
+        "position": 7
+      },
+      {
+        "title": "Recoleta, Tres de Febrero, Argentina Tour @ 4K/60fps",
+        "link": "https://www.youtube.com/watch?v=a_PaSxIyKfw",
+        "snippet": "Immerse yourself in this stunning 4K, 60fps Buenos Aires walking tour, featuring the elegant Recoleta neighborhood and the beautiful green ...",
+        "date": "6 months ago",
+        "position": 8
+      },
+      {
+        "title": "Recoleta Cemetery Tour in English 2026 - Buenos Aires",
+        "link": "https://www.viator.com/tours/Buenos-Aires/Recoleta-Cemetery-Tour-Buenos-Aires/d901-106570P5",
+        "snippet": "Guided walking tour: it's easy to get lost in the gigantic cemetery · See the famous gravesite of Evita (Eva Peron) · Learn about Argentine history, politics, ...",
+        "rating": 5,
+        "ratingCount": 532,
+        "position": 9
+      },
+      {
+        "title": "9am | Recoleta | Official English Website for the City of ...",
+        "link": "https://turismo.buenosaires.gob.ar/en/atractivo/9am-recoleta",
+        "snippet": "Guided tours: The free guided walking tour “Recoleta, the Paris of the South” runs every Thursday at 11am in English and 3pm in Spanish. The landscaped ...",
+        "position": 10
+      }
+    ],
+    "peopleAlsoAsk": [
+      {
+        "question": "Is Recoleta in Buenos Aires safe?"
+      },
+      {
+        "question": "Is Recoleta worth visiting?"
+      },
+      {
+        "question": "What not to miss in Buenos Aires, Argentina?"
+      },
+      {
+        "question": "What is the best walking tour company?"
+      }
+    ],
+    "relatedSearches": [
+      {
+        "query": "Self-guided walking tour Recoleta"
+      },
+      {
+        "query": "Recoleta Cemetery self-guided tour pdf"
+      },
+      {
+        "query": "Best buenos aires recoleta walking tours walks historic cultural walking tour in recoleta"
+      },
+      {
+        "query": "Free walking tour Buenos Aires"
+      },
+      {
+        "query": "What to do in Recoleta, Buenos Aires"
+      },
+      {
+        "query": "Recoleta cemetery self guided audio tour"
+      },
+      {
+        "query": "Self-guided walking tour Buenos Aires"
+      },
+      {
+        "query": "Map of Recoleta Cemetery"
+      }
+    ],
+    "credits": 1
+  }
+}

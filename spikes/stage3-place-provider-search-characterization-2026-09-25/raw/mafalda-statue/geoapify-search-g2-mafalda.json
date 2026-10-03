@@ -1,0 +1,220 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "Mafalda",
+      "type": "amenity",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 547,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda, Susanita and Manolito",
+        "other_names": {
+          "name": "Mafalda, Susanita y Manolito",
+          "name:es": "Mafalda, Susanita y Manolito",
+          "name:pt": "Mafalda, Manolito e Susanita",
+          "alt_name": "Mafalda"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1065AAJ",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Defensa",
+        "iso3166_2": "AR-C",
+        "lon": -58.3716913,
+        "lat": -34.6159617,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1637.4672246989269,
+        "formatted": "Mafalda, Susanita and Manolito, Defensa, Monserrat, C1065 AAJ Buenos Aires, Argentina",
+        "address_line1": "Mafalda, Susanita and Manolito",
+        "address_line2": "Defensa, Monserrat, C1065 AAJ Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JMH+J8",
+        "plus_code_short": "MH+J8 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5197da9c94932f4dc059568b3ed5d74e41c0f00103f901a7ac669300000000c0020192031e4d6166616c64612c20537573616e69746120616e64204d616e6f6c69746f",
+        "bbox": {
+          "lon1": -58.3717413,
+          "lat1": -34.6160117,
+          "lon2": -58.3716413,
+          "lat2": -34.6159117
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Tres de Febrero",
+        "city": "Martín Coronado",
+        "postcode": "B1683AEV",
+        "street": "821 - San Lorenzo",
+        "iso3166_2": "AR-B",
+        "lon": -58.588698,
+        "lat": -34.5867727,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 19049.71367961229,
+        "formatted": "Mafalda, 821 - San Lorenzo, B1683 AEV Martín Coronado, Argentina",
+        "address_line1": "Mafalda",
+        "address_line2": "821 - San Lorenzo, B1683 AEV Martín Coronado, Argentina",
+        "category": "commercial",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CC76+7G",
+        "rank": {
+          "importance": 0.0000462096589608151,
+          "popularity": 6.155196084057832,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "513d9cc0745a4b4dc059c2572a5e1b4b41c0f00103f901b302bc1301000000c002019203074d6166616c6461",
+        "bbox": {
+          "lon1": -58.588748,
+          "lat1": -34.5868227,
+          "lon2": -58.588648,
+          "lat2": -34.5867227
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de San Isidro",
+        "city": "San Isidro",
+        "postcode": "1642",
+        "suburb": "Lomas de San Isidro",
+        "street": "Avenida Bernabé Márquez",
+        "housenumber": "2938",
+        "iso3166_2": "AR-B",
+        "lon": -58.547888,
+        "lat": -34.4927531,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 19599.391044697786,
+        "formatted": "Mafalda, Avenida Bernabé Márquez 2938, Lomas de San Isidro, 1642 San Isidro, Argentina",
+        "address_line1": "Mafalda",
+        "address_line2": "Avenida Bernabé Márquez 2938, Lomas de San Isidro, 1642 San Isidro, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3GF42+VR",
+        "plus_code_short": "GF42+VR, 1642 San Isidro, Argentina",
+        "rank": {
+          "importance": 0.000055487144274006525,
+          "popularity": 6.223496585100058,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5178efa83121464dc05956c09888123f41c0f00102f90136b0511c00000000c002019203074d6166616c6461",
+        "bbox": {
+          "lon1": -58.5479385,
+          "lat1": -34.4927911,
+          "lon2": -58.5478375,
+          "lat2": -34.4927151
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Plata",
+        "city": "Manuel B. Gonnet",
+        "postcode": "B1897",
+        "street": "Camino General Belgrano",
+        "iso3166_2": "AR-B",
+        "lon": -58.0235786,
+        "lat": -34.8867951,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 45397.91681855728,
+        "formatted": "Mafalda, Camino General Belgrano, B1897 Manuel B. Gonnet, Argentina",
+        "address_line1": "Mafalda",
+        "address_line2": "Camino General Belgrano, B1897 Manuel B. Gonnet, Argentina",
+        "category": "tourism.attraction.artwork",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q34X7G+7H",
+        "rank": {
+          "importance": 0.000049548332951812273,
+          "popularity": 5.61379535374171,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5157f1a19f04034dc05964607880827141c0f00103f901bd5ddada01000000c002019203074d6166616c6461",
+        "bbox": {
+          "lon1": -58.0236286,
+          "lat1": -34.8868451,
+          "lon2": -58.0235286,
+          "lat2": -34.8867451
+        }
+      }
+    ],
+    "query": {
+      "text": "Mafalda"
+    }
+  }
+}

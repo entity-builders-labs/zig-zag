@@ -1,0 +1,54 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Mafalda Statue"
+  },
+  "capturedAt": "2026-09-25T12:54:25.702Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 1157
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Mafalda Statue",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "engine": "google"
+    },
+    "ll": "@43.3623745,-5.8503907,17z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Estatua de Mafalda",
+        "address": "C. Uría, s/n, 33004 Oviedo, Asturias, Spain",
+        "latitude": 43.3623745,
+        "longitude": -5.8503907,
+        "rating": 4.6,
+        "ratingCount": 11743,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction",
+          "Park",
+          "Sculpture"
+        ],
+        "description": "Colorful statue of Argentinian cartoon character Mafalda, a 6-year-old girl, sitting on a bench.",
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNabsQw35tCrSJRD_HfIRtH_1u3g8R6TsXP4cLBGQxaZaXTXKyCEgw_WcbPY-w60tyyZ-Ec2D56QZ3xEGet2ATUFwLGZdSypsGFJQE3O0XnkXP5ZT5vT3djno6-dmdIqxlPQHZa",
+        "cid": "17096444111895391042",
+        "fid": "0xd368ce4bb75bb21:0xed42c556c3d7eb42",
+        "placeId": "ChIJIbt1u-SMNg0RQuvXw1bFQu0"
+      }
+    ],
+    "credits": 3
+  }
+}

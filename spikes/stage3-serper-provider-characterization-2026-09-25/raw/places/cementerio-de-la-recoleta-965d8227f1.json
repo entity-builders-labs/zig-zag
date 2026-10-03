@@ -1,0 +1,42 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Cementerio de la Recoleta",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:48.754Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 892
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Cementerio de la Recoleta",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Recoleta Cemetery",
+        "address": "Junín 1760, C1113 Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.587364,
+        "longitude": -58.392956,
+        "rating": 4.3,
+        "ratingCount": 7200,
+        "category": "Cemetery",
+        "phoneNumber": "011 4803-1594",
+        "website": "https://turismo.buenosaires.gob.ar/es/otros-establecimientos/cementerio-de-la-recoleta",
+        "cid": "11608039888759793091"
+      }
+    ],
+    "credits": 1
+  }
+}

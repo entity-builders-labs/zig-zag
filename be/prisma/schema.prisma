@@ -1,84 +1,293 @@
 generator client {
-  provider    = "prisma-client-js"
-  seedCommand = "npm run seed"
+  provider        = "prisma-client-js"
+  seedCommand     = "npm run seed"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [vector, postgis]
 }
 
-model Activity {
-  id          String  @id @default(uuid())
-  name        String
-  description String?
+// V2 physical geography primitive. This is deliberately independent from
+// Experience identity: a provider identity belongs to a GeoEntity, while an
+// Experience describes what a traveller can do with one or more entities.
+model GeoEntity {
+  id                   String                @id @default(uuid())
+  name                 String
+  kind                 GeoEntityKind
+  latitude             Float?
+  longitude            Float?
+  geometry             Json?
+  address              String?
+  metadata             Json?
+  /// Verified hint memory (NOT an alias engine): the exact component-hint
+  /// texts that previously resolved VERIFIED to THIS GeoEntity through
+  /// external acquisition, stored verbatim. Never inferred from string
+  /// similarity, never globally unique (the same text may be remembered on
+  /// several GeoEntities; lookups keep that multiplicity). `name` stays the
+  /// canonical, provider-backed display name.
+  verifiedHintNames    String[]              @default([])
+  /// `normalizeGeoName(verifiedHintNames[i])` -- positionally aligned with
+  /// `verifiedHintNames` (a DB CHECK enforces equal cardinality) and
+  /// deduplicated by key. The GIN index serves the `@>` lookup in
+  /// `ExperienceCatalogService.findGeoEntityCandidatesForHint`.
+  verifiedHintNameKeys String[]              @default([])
+  identities           GeoEntityIdentity[]
+  components           ExperienceComponent[]
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
-  // Core fields - all optional for flexibility
-  type         String?
-  difficulty   Difficulty?
-  duration     Float?
-  price        Float?
-  maxGroupSize Int?
+  @@index([kind])
+  @@index([latitude, longitude])
+  @@index([verifiedHintNameKeys], type: Gin)
+  @@map("geo_entity")
+}
 
-  // Geolocation - optional but recommended
-  latitude  Float?
-  longitude Float?
-  location  Json? // Flexible location data
-  address   String? // Simple address string
+model GeoEntityIdentity {
+  id          String    @id @default(uuid())
+  geoEntityId String
+  provider    String
+  externalId  String
+  geoEntity   GeoEntity @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  // Source relationship - optional (AI-generated might not have source)
-  sourceId   String?
-  source     Source? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
-  externalId String? // Optional for AI-generated activities
+  @@unique([provider, externalId])
+  @@index([geoEntityId])
+  @@map("geo_entity_identity")
+}
 
-  // Google Places additional fields
-  rating           Float?
-  ratingCount      Int?
-  formattedAddress String?
-  phoneNumber      String?
-  website          String?
-  businessStatus   String?
-  priceLevel       Int?
-  photos           Json?
-  openingHours     Json?
+/// Provider-owned Overture Places runtime index. It is acquisition evidence,
+/// never canonical GeoEntity state, and import never creates GeoEntities.
+model OverturePlaceIndex {
+  id                String    @id @default(uuid())
+  importSessionId   String
+  featureId         String
+  countryCode       String
+  partitionKey      String
+  name              String
+  normalizedName    String
+  alternateNames    String[]  @default([])
+  latitude          Float
+  longitude         Float
+  address           String?
+  upstreamDataset   String?
+  upstreamRecordId  String?
+  upstreamUpdatedAt DateTime?
+  license           String?
+  lastSeenAt        DateTime
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  importSession     OverturePlacesImportSession @relation(fields: [importSessionId], references: [id], onDelete: Cascade)
 
-  // Flexible metadata - store anything from AI prompts
-  metadata Json? // Store AI-generated data, tags, recommendations, etc.
+  @@unique([importSessionId, featureId])
+  @@index([importSessionId, countryCode, normalizedName])
+  @@map("overture_place_index")
+}
 
-  // Timestamps
+/// Provider-owned import lifecycle and published snapshot authority. A session
+/// becomes visible to runtime lookup only after every expected page succeeds.
+model OverturePlacesImportSession {
+  id             String   @id
+  countryCode    String
+  partitionKey   String
+  release        String
+  completeness   String
+  expectedSourceCoverage String
+  sourceUri      String
+  licenseNotice  String?
+  expectedPageKeys String[] @default([])
+  completedPageKeys String[] @default([])
+  failedPartitionKeys String[] @default([])
+  status         String
+  manifest       Json?
+  startedAt      DateTime @default(now())
+  finalizedAt    DateTime?
+  publishedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  places         OverturePlaceIndex[]
+
+  @@index([countryCode, status, publishedAt])
+  @@map("overture_places_import_session")
+}
+
+model Experience {
+  id                       String                      @id @default(uuid())
+  canonicalName            String
+  description              String?
+  durationMinutes          Int?
+  price                    Float?
+  status                   ExperienceStatus            @default(PENDING)
+  qualityScore             Float?
+  latitude                 Float?
+  longitude                Float?
+  openingHours             Json?
+  metadata                 Json?
+  components               ExperienceComponent[]
+  evidence                 ExperienceEvidence[]
+  traits                   ExperienceTrait[]
+  media                    ExperienceMedia[]
+  tourExperiences          TourExperience[]
+  mediaStatus              MediaStatus                 @default(PENDING)
+  mediaUpdatedAt           DateTime?
+  mediaError               String?
+  embedding                Unsupported("vector(256)")?
+  embeddingProvider        String?
+  embeddingModel           String?
+  embeddingDimensions      Int?
+  embeddingDocumentVersion Int?
+  embeddedAt               DateTime?
+  createdAt                DateTime                    @default(now())
+  updatedAt                DateTime                    @updatedAt
+
+  @@index([status])
+  @@index([latitude, longitude])
+  @@index([embeddingProvider, embeddingModel, embeddingDimensions, embeddingDocumentVersion])
+  @@map("experience")
+}
+
+model ExperienceComponent {
+  id           String     @id @default(uuid())
+  experienceId String
+  geoEntityId  String
+  order        Int?
+  role         String?
+  required     Boolean    @default(true)
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  geoEntity    GeoEntity  @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
+
+  @@unique([experienceId, geoEntityId])
+  @@index([geoEntityId])
+  @@map("experience_component")
+}
+
+model ExperienceEvidence {
+  id           String     @id @default(uuid())
+  experienceId String
+  source       String
+  url          String?
+  title        String?
+  snippet      String?
+  discoveredAt DateTime   @default(now())
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+
+  @@index([experienceId])
+  @@map("experience_evidence")
+}
+
+model ExperienceMedia {
+  id           String     @id @default(uuid())
+  experienceId String
+  provider     String
+  url          String
+  width        Int?
+  height       Int?
+  caption      String?
+  author       String?
+  authorUrl    String?
+  license      String?
+  licenseUrl   String?
+  sourceUrl    String?
+  position     Int        @default(0)
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([experienceId, url])
+  @@index([experienceId, position])
+  @@index([provider])
+  @@map("experience_media")
+}
+
+model TraitDefinition {
+  id          String            @id @default(uuid())
+  dimension   String
+  key         String
+  label       String?
+  experiences ExperienceTrait[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([dimension, key])
+  @@map("trait_definition")
+}
+
+model ExperienceTrait {
+  experienceId      String
+  traitDefinitionId String
+  experience        Experience      @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  traitDefinition   TraitDefinition @relation(fields: [traitDefinitionId], references: [id], onDelete: Restrict)
+
+  @@id([experienceId, traitDefinitionId])
+  @@index([traitDefinitionId])
+  @@map("experience_trait")
+}
+
+enum GeoEntityKind {
+  PLACE
+  AREA
+  ROUTE
+}
+
+enum ExperienceStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  ARCHIVED
+}
+
+model User {
+  id               String       @id @default(uuid())
+  email            String       @unique
+  name             String?
+  avatarUrl        String?
+  provider         AuthProvider
+  providerId       String
+  refreshTokenHash String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Optional relationships
-  knownActivityTypeName String?
-  KnownActivityType     KnownActivityType? @relation(fields: [knownActivityTypeName], references: [name], onDelete: SetNull)
-  TourActivity          TourActivity[]
+  tours                Tour[]
+  devices              UserDevice[]
+  webPushSubscriptions WebPushSubscription[]
 
-  sourceRelations ActivityRelationship[] @relation("SourceActivities")
-  targetRelations ActivityRelationship[] @relation("TargetActivities")
-
-  @@unique([sourceId, externalId])
-  @@index([latitude, longitude]) // For location queries
-  @@index([sourceId])
-  @@map("activity")
+  @@unique([provider, providerId])
+  @@map("user")
 }
 
-model KnownActivityType {
-  id          String     @id @default(uuid())
-  name        String     @unique
-  description String?
-  icon        String?
-  category    String?
-  activities  Activity[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+enum AuthProvider {
+  GOOGLE
+  APPLE
+  EMAIL
+}
 
-  @@map("known_activity_types")
+model EmailLoginCode {
+  id         String    @id @default(uuid())
+  email      String
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@map("email_login_code")
 }
 
 model Tour {
   id          String  @id @default(uuid())
   name        String
   description String?
+
+  // Nullable rather than required: tours created before auth existed (and
+  // any generated without a logged-in user) have no owner. New tours always
+  // get one — enforced by the auth guard on tour creation, not the schema.
+  ownerId String?
+  owner   User?   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   // Core fields - all optional for flexibility
   price        Float?
@@ -109,40 +318,52 @@ model Tour {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  activities TourActivity[]
+  experiences TourExperience[]
 
   @@index([categories]) // Index for category filtering
+  @@index([ownerId])
   @@map("tour")
 }
 
-model TourActivity {
-  id               String    @id @default(uuid())
-  tourId           String
-  activityId       String? // Optional - might be creating activity inline
-  startTime        DateTime?
-  duration         Float? // Duration for this activity in the tour context
-  notes            String? // Detailed notes from AI
-  dayNumber        Int? // Which day of the tour
-  travelTimeToNext Float? // Travel time to next activity
-  distanceToNext   Float? // Distance to next activity
-  order            Int       @default(1)
+// V2 tour snapshot. The shared Experience may be enriched later; this row and
+// its component snapshots preserve what the traveller was actually given.
+model TourExperience {
+  id                 String                    @id @default(uuid())
+  tourId             String
+  experienceId       String
+  dayNumber          Int?
+  order              Int                       @default(1)
+  startTime          DateTime?
+  duration           Float?
+  notes              String?
+  travelFromPrevious Json?
+  tour               Tour                      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  experience         Experience                @relation(fields: [experienceId], references: [id], onDelete: Restrict)
+  components         TourExperienceComponent[]
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
 
-  // Inline activity data - for when activity doesn't exist yet
-  activityName      String?
-  activityType      String?
-  activityLatitude  Float?
-  activityLongitude Float?
-  activityData      Json? // Store full activity data if creating inline
-
-  tour     Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  activity Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  @@unique([tourId, experienceId, dayNumber, order])
   @@index([tourId])
-  @@index([activityId])
-  @@map("tour_activity")
+  @@index([experienceId])
+  @@map("tour_experience")
+}
+
+model TourExperienceComponent {
+  id               String         @id @default(uuid())
+  tourExperienceId String
+  geoEntityId      String
+  order            Int?
+  role             String?
+  required         Boolean        @default(true)
+  name             String
+  latitude         Float?
+  longitude        Float?
+  geometry         Json?
+  tourExperience   TourExperience @relation(fields: [tourExperienceId], references: [id], onDelete: Cascade)
+
+  @@index([tourExperienceId])
+  @@map("tour_experience_component")
 }
 
 enum Difficulty {
@@ -164,42 +385,96 @@ model CrawlerSearch {
 }
 
 model Source {
-  id         String     @id @default(uuid())
-  name       String     @unique
-  type       String     @default("external") // "external", "ai", "manual"
-  baseUrl    String?
-  activities Activity[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id        String   @id @default(uuid())
+  name      String   @unique
+  type      String   @default("external") // "external", "ai", "manual"
+  baseUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("source")
 }
 
-enum RelationType {
-  SEQUENTIAL
-  SIMILAR
-  COMPLEMENTARY
+enum MediaStatus {
+  PENDING
+  ENRICHED
+  FAILED
 }
 
-model ActivityRelationship {
-  id                     String       @id @default(uuid())
-  sourceActivityId       String
-  targetActivityId       String
-  relationType           RelationType
-  compatibilityScore     Int
-  timeCompatibilityScore Int
-  distanceScore          Int
-  varietyScore           Int
-  timeGapRecommended     Int?
-  reasoning              String?
-  metadata               Json?
-  createdAt              DateTime     @default(now())
-  updatedAt              DateTime     @updatedAt
-  sourceActivity         Activity     @relation("SourceActivities", fields: [sourceActivityId], references: [id], onDelete: Cascade)
-  targetActivity         Activity     @relation("TargetActivities", fields: [targetActivityId], references: [id], onDelete: Cascade)
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  PUBLISHED
+  FAILED
+}
 
-  @@index([sourceActivityId])
-  @@index([targetActivityId])
-  @@index([compatibilityScore, timeCompatibilityScore, distanceScore, varietyScore])
-  @@map("activity_relationship")
+model OutboxEvent {
+  id            String       @id @default(uuid())
+  eventType     String
+  payload       Json
+  status        OutboxStatus @default(PENDING)
+  attemptCount  Int          @default(0)
+  maxAttempts   Int          @default(5)
+  nextAttemptAt DateTime?
+  lastError     String?
+  claimedAt     DateTime?
+  leaseUntil    DateTime?
+  publishedAt   DateTime?
+  failedAt      DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([status, nextAttemptAt, createdAt])
+  @@index([status, leaseUntil])
+  @@index([status, publishedAt])
+  @@index([status, failedAt])
+  @@map("outbox_event")
+}
+
+model NegativeMediaLookup {
+  id             String   @id @default(uuid())
+  provider       String
+  lookupStrategy String
+  lookupKey      String
+  negativeUntil  DateTime
+  createdAt      DateTime @default(now())
+
+  @@unique([provider, lookupStrategy, lookupKey])
+  @@index([provider, lookupStrategy, lookupKey, negativeUntil])
+  @@map("negative_media_lookup")
+}
+
+model UserDevice {
+  id            String   @id @default(uuid())
+  userId        String
+  expoPushToken String   @unique
+  platform      String // "ios" | "android" | "web"
+  enabled       Boolean  @default(true)
+  lastSeenAt    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([enabled])
+  @@map("user_device")
+}
+
+model WebPushSubscription {
+  id         String   @id @default(uuid())
+  userId     String
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  enabled    Boolean  @default(true)
+  lastSeenAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([enabled])
+  @@map("web_push_subscription")
 }

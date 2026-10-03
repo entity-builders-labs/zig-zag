@@ -1,0 +1,15 @@
+{
+  "runLabel": "rw3-warm",
+  "tourId": "a1040faf-8b02-4f95-b218-c9b3ba816e27",
+  "email": "rw2-rerun-rw3-warm-1790541858671@example.com",
+  "baseUrl": "http://localhost:4042",
+  "requestFile": "request.json",
+  "createHttpMs": 38,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 46386,
+  "startedAt": "2026-09-27T20:44:18.807Z",
+  "finishedAt": "2026-09-27T20:45:05.201Z"
+}

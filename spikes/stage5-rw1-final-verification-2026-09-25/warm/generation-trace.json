@@ -1,0 +1,3854 @@
+{
+  "steps": [
+    {
+      "label": "Interpretación de preferencias",
+      "stage": "preference_interpretation",
+      "inputs": {
+        "intents": [
+          "walk"
+        ],
+        "groupType": "solo",
+        "budgetLevel": "medium",
+        "accessibilityNeeds": [],
+        "dietaryRestrictions": [],
+        "hasAdditionalPreferences": true
+      },
+      "status": "WARN",
+      "timing": {
+        "durationMs": 5017
+      },
+      "outputs": {
+        "intent": {
+          "notes": [
+            "deterministic_fallback"
+          ],
+          "ambiguities": [],
+          "anchoredPlaces": [],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "walk",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "caminata",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "intent",
+              "confidence": 0.9,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "unresolvedFreeText": "caminata histórica por San Telmo",
+          "interpretationStatus": "failed",
+          "positiveSemanticQuery": "caminata histórica por San Telmo",
+          "accessibilityPreferences": []
+        },
+        "preferenceSpec": {
+          "trip": {
+            "days": 1,
+            "pace": "moderate",
+            "startDates": []
+          },
+          "facets": [
+            {
+              "key": "history",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "theme"
+            },
+            {
+              "key": "walk",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "intent"
+            }
+          ],
+          "anchors": [],
+          "exclusions": {
+            "hard": [],
+            "themes": [],
+            "traits": []
+          },
+          "semanticQuery": "caminata histórica por San Telmo",
+          "resolvedAnchors": [],
+          "softConstraints": {
+            "group": [],
+            "budget": [],
+            "dietary": [],
+            "accessibility": []
+          },
+          "explorationStyle": "balanced"
+        }
+      },
+      "summary": "Preferencias estructuradas aplicadas con respaldo determinístico.",
+      "component": "PreferenceInterpreterService",
+      "preferenceInterpretation": {
+        "model": "qwen/qwen3.8-27b",
+        "stage": "preference_interpretation",
+        "status": "fallback",
+        "provider": "groq",
+        "durationMs": 5017,
+        "userPrompt": "caminata histórica por San Telmo",
+        "systemPrompt": "Interpret the user's supplemental tourism preferences into normalized intent.\nReturn JSON only. You interpret language; deterministic code enforces the result.\nNever invent geographic entities, provider IDs, coordinates, or evidence.\nDo not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.\nFor positive preferences, output preferredFacets as a list of objects with:\n- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.\n- key: CANONICAL domain key in English (e.g. \"architecture\" not \"arquitectura\", \"food\" not \"comida\", \"walk\" not \"caminata\", \"history\" not \"historia\").\n- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.\n- confidence: float between 0 and 1 indicating certainty.\n- strength: \"strong\" | \"medium\" | \"weak\" indicating user emphasis.\n- evidence: one or more short excerpts copied from the user's text that support\n  this facet. Never invent evidence; facets without supporting excerpts are rejected.\nDo not invent arbitrary importance numbers; code derives importance deterministically from strength.\nAlso output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by\nname (never a generic theme). For each, output:\n- rawName: the name as mentioned by the user.\n- usage: \"geographic_scope\" | \"specific_destination\" | \"named_path\" | \"unknown\". This describes how the phrase uses the name, not what geographic entity it is.\n- priority: \"must\" ONLY for explicit, unambiguous named-place intent, for example\n  \"quiero visitar X\", \"incluí X\", \"sí o sí quiero ir a X\", \"no me quiero perder X\".\n  Anything weaker or ambiguous -- including a place mentioned only in passing while\n  describing a theme, e.g. \"me interesa la arquitectura de X\" -- is priority \"soft\".\nExtract anchors conservatively: when in doubt about the name or the intent, omit the anchor\nrather than guessing. Do not invent named places that were not mentioned.\nOther fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,\ndietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,\npositiveSemanticQuery, notes. Use short lowercase phrases.",
+        "parsedResponse": {
+          "notes": [
+            "deterministic_fallback"
+          ],
+          "ambiguities": [],
+          "anchoredPlaces": [],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "walk",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "caminata",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "intent",
+              "confidence": 0.9,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "unresolvedFreeText": "caminata histórica por San Telmo",
+          "interpretationStatus": "failed",
+          "positiveSemanticQuery": "caminata histórica por San Telmo",
+          "accessibilityPreferences": []
+        },
+        "responseSchema": {
+          "type": "object",
+          "required": [
+            "preferredFacets",
+            "anchoredPlaces",
+            "excludedThemes",
+            "excludedTraits",
+            "hardExclusions",
+            "softConstraints",
+            "ambiguities",
+            "dietaryPreferences",
+            "accessibilityPreferences",
+            "budgetPreferences",
+            "groupPreferences",
+            "positiveSemanticQuery",
+            "notes"
+          ],
+          "properties": {
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ambiguities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "anchoredPlaces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rawName",
+                  "usage",
+                  "priority"
+                ],
+                "properties": {
+                  "usage": {
+                    "enum": [
+                      "geographic_scope",
+                      "specific_destination",
+                      "named_path",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "rawName": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "enum": [
+                      "soft",
+                      "must"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "excludedThemes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "excludedTraits": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hardExclusions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "preferredFacets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "dimension",
+                  "key",
+                  "confidence"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "strength": {
+                    "enum": [
+                      "strong",
+                      "medium",
+                      "weak"
+                    ],
+                    "type": "string"
+                  },
+                  "dimension": {
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "softConstraints": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "groupPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "budgetPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dietaryPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSemanticQuery": {
+              "type": "string"
+            },
+            "accessibilityPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "validationErrors": [
+          "Groq error 429: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.8-27b` in organization `org_<redacted>` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1197. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n"
+        ],
+        "unresolvedFreeText": "caminata histórica por San Telmo",
+        "facetNormalizationDecisions": [
+          {
+            "rawKey": "walk",
+            "reason": "VALID_AS_EMITTED",
+            "accepted": true,
+            "rawDimension": "intent",
+            "normalizedKey": "walk",
+            "normalizedDimension": "intent"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Intención y movilidad solicitadas",
+      "rules": [
+        {
+          "rule": "Usar el wizard canónico como fuente de restricciones explícitas",
+          "actual": 1,
+          "reason": "La generación parte de TourGenerationRequest contractVersion=1.",
+          "result": "PASS",
+          "ruleId": "INTENT-CANONICAL-001",
+          "expected": 1
+        },
+        {
+          "rule": "Conservar preferencias adicionales como intención suplementaria",
+          "actual": "caminata histórica por San Telmo",
+          "reason": "Hay texto adicional disponible para búsqueda/ranking semántico.",
+          "result": "PASS",
+          "ruleId": "INTENT-FREETEXT-001"
+        }
+      ],
+      "stage": "tour_intent",
+      "inputs": {
+        "days": 1,
+        "themes": [
+          "history"
+        ],
+        "travelPace": "moderate",
+        "destination": "San Telmo, Buenos Aires, Argentina",
+        "explorationStyle": "balanced",
+        "accessibilityNeeds": [],
+        "additionalPreferences": "caminata histórica por San Telmo",
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 5000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "outputs": {
+        "requestedDays": 1,
+        "requestedThemes": [
+          "history"
+        ]
+      },
+      "summary": "Temas: history. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"caminata histórica por San Telmo\".",
+      "decision": {
+        "reason": "La solicitud contiene el contrato canónico requerido por el motor.",
+        "status": "INFO",
+        "outcome": "INTENT_ACCEPTED",
+        "reasonCodes": [
+          "CANONICAL_REQUEST_AVAILABLE"
+        ],
+        "triggeredActions": [
+          "RESOLVE_DESTINATION"
+        ]
+      },
+      "component": "TourGenerationRequest"
+    },
+    {
+      "label": "Resolución del destino",
+      "rules": [
+        {
+          "rule": "Determinar si el destino puede usar boundary real o debe degradar a punto",
+          "actual": "area",
+          "reason": "Se obtuvo boundary administrativo utilizable.",
+          "result": "PASS",
+          "ruleId": "DEST-SCALE-001"
+        }
+      ],
+      "stage": "destination_resolution",
+      "inputs": {
+        "destinationText": "San Telmo, Buenos Aires, Argentina",
+        "attemptedQueries": [
+          "forward:San Telmo, Buenos Aires, Argentina"
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "scale": "area",
+        "boundaryName": "San Telmo"
+      },
+      "summary": "\"San Telmo, Buenos Aires, Argentina\" resolvió a un límite real de ciudad: San Telmo. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:San Telmo, Buenos Aires, Argentina.",
+      "decision": {
+        "reason": "El boundary real es más preciso que un radio artificial para recuperación local.",
+        "status": "PASS",
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "reasonCodes": [
+          "AREA_BOUNDARY_RESOLVED"
+        ],
+        "triggeredActions": [
+          "RETRIEVE_CATALOG"
+        ]
+      },
+      "component": "DestinationResolutionService"
+    },
+    {
+      "label": "Resolución geográfica de anchors",
+      "stage": "anchor_geo_resolution",
+      "inputs": {
+        "anchors": []
+      },
+      "status": "PASS",
+      "outputs": {
+        "anchors": []
+      },
+      "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+      "component": "AreaRouteAnchorResolverService"
+    },
+    {
+      "label": "Cobertura de preferencias (facet-first)",
+      "rules": [
+        {
+          "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "actual": 11,
+          "reason": "11 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "result": "PASS",
+          "ruleId": "PCOV-QUANTITY-001",
+          "expected": 4
+        },
+        {
+          "rule": "Cobertura del facet solicitado: theme:history",
+          "actual": 2,
+          "reason": "2 coincidencia(s) fuerte(s), 2 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-THEME-HISTORY",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:walk",
+          "actual": 1,
+          "reason": "1 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-INTENT-WALK",
+          "expected": ">= 1"
+        }
+      ],
+      "stage": "coverage_analysis",
+      "inputs": {
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "requestedFacetCount": 2,
+        "offeredCandidateCount": 4
+      },
+      "status": "PASS",
+      "outputs": {
+        "sufficient": true,
+        "facetResults": [
+          {
+            "key": "history",
+            "dimension": "theme",
+            "satisfied": true,
+            "weakMatchCount": 2,
+            "strongMatchCount": 2
+          },
+          {
+            "key": "walk",
+            "dimension": "intent",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 1
+          }
+        ],
+        "portfolioTarget": 4,
+        "allFacetsSatisfied": true,
+        "acquisitionDeficits": [],
+        "globalCapacityDeficit": null,
+        "totalDistinctEligibleExperiences": 11
+      },
+      "summary": "Portafolio suficiente: 11 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets solicitados satisfechos.",
+      "decision": {
+        "reason": "Todos los facets solicitados tienen cobertura fuerte y el portafolio elegible alcanza el objetivo.",
+        "status": "PASS",
+        "outcome": "none",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "BUILD_CANDIDATE_POOL"
+        ]
+      },
+      "component": "FacetRetrievalService",
+      "semanticRanking": {
+        "status": "applied",
+        "indexedCandidateCount": 11,
+        "offeredCandidateCount": 4,
+        "eligibleCandidateCount": 11
+      }
+    },
+    {
+      "label": "Recuperación inicial del catálogo",
+      "rules": [
+        {
+          "rule": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+          "actual": 4,
+          "reason": "El catálogo aportó 4 candidato(s).",
+          "result": "PASS",
+          "ruleId": "CATALOG-RETRIEVAL-001"
+        }
+      ],
+      "stage": "db_search",
+      "inputs": {
+        "radiusKm": 1.012179374902135
+      },
+      "status": "PASS",
+      "outputs": {
+        "candidateCount": 4
+      },
+      "summary": "4 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+      "decision": {
+        "reason": "Hay candidatos persistidos para evaluar.",
+        "status": "PASS",
+        "outcome": "CATALOG_POOL_AVAILABLE",
+        "triggeredActions": [
+          "ANALYZE_COVERAGE"
+        ]
+      },
+      "component": "ExperienceCatalog.findVerifiedWithin",
+      "candidates": [
+        {
+          "id": "46554d95-891c-48b7-9b10-39e5667f369f",
+          "name": "San Telmo Walking Tour",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+          "name": "Museo Histórico Nacional",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+          "name": "El Zanjón de Granados (historic ruins)",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+          "name": "Monumento Canto al Trabajo",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        }
+      ],
+      "candidateDecisions": [
+        {
+          "id": "46554d95-891c-48b7-9b10-39e5667f369f",
+          "name": "San Telmo Walking Tour",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+          "name": "Museo Histórico Nacional",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+          "name": "El Zanjón de Granados (historic ruins)",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+          "name": "Monumento Canto al Trabajo",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Ranking de Experiences",
+      "rules": [
+        {
+          "rule": "Ordenar Experiences por relevancia semántica y calidad",
+          "actual": 11,
+          "reason": "El ranking determinístico consume únicamente Experiences verificadas.",
+          "result": "PASS",
+          "ruleId": "EXPERIENCE-RANK-001"
+        }
+      ],
+      "stage": "candidate_pool",
+      "inputs": {
+        "eligibleCount": 11,
+        "requestedThemes": [
+          "history"
+        ],
+        "initialCatalogCount": 11,
+        "postAcquisitionCatalogCount": 11
+      },
+      "status": "PASS",
+      "outputs": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 11,
+          "discovery": 0
+        },
+        "offeredCandidateCount": 11
+      },
+      "summary": "Se evaluaron 11 experiencias elegibles y se ofrecieron 11 candidatas (11 catálogo, 0 adquisición, 0 discovery).",
+      "decision": {
+        "reason": "El pool quedó limitado por capacidad, sin imponer formatos legacy.",
+        "status": "PASS",
+        "outcome": "EXPERIENCE_POOL_RANKED",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "RUN_DAILY_PLANNING"
+        ]
+      },
+      "component": "ExperienceRankingEngine",
+      "candidates": [
+        {
+          "id": "46554d95-891c-48b7-9b10-39e5667f369f",
+          "name": "San Telmo Walking Tour",
+          "chosen": false,
+          "detail": "score total 2.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 3.267818813969718,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.690342089245978
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+          "name": "Museo Histórico Nacional",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6331499218940735
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+          "name": "El Zanjón de Granados (historic ruins)",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6520565152168274
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+          "name": "Monumento Canto al Trabajo",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6437505483627319
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+          "name": "Mercado San Telmo",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6406817436218262
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "c62ea33a-5769-4ea8-abaa-b1b3746ad19d",
+          "name": "Museo de las Escuelas",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6290815064037298
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "f7f3d091-ede4-4473-ac81-262700af8526",
+          "name": "Carnavales de la Calle Defensa",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6276365518569946
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "607ad17e-10c1-4e02-a463-f6a368a74652",
+          "name": "Casa Mínima",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6227277702906066
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "3e5305d9-4a45-470e-9f99-eb074ab52765",
+          "name": "Monumento a Pedro de Mendoza",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6145670413970947
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "c009a80a-07fb-49d5-9b87-46cd236444ef",
+          "name": "Solar French",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5670286585995158
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "78c7c2d8-ad3a-4962-a5ed-a41c7edd14e9",
+          "name": "Plaza 30'000 compañeros",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5651294589042664
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        }
+      ],
+      "candidatePool": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 11,
+          "discovery": 0
+        },
+        "eligibleCount": 11,
+        "llmWindowCount": 11,
+        "initialCatalogCount": 11,
+        "postAcquisitionCatalogCount": 11
+      },
+      "candidateDecisions": [
+        {
+          "id": "46554d95-891c-48b7-9b10-39e5667f369f",
+          "name": "San Telmo Walking Tour",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 3.267818813969718,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.690342089245978
+          }
+        },
+        {
+          "id": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+          "name": "Museo Histórico Nacional",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6331499218940735
+          }
+        },
+        {
+          "id": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+          "name": "El Zanjón de Granados (historic ruins)",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6520565152168274
+          }
+        },
+        {
+          "id": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+          "name": "Monumento Canto al Trabajo",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6437505483627319
+          }
+        },
+        {
+          "id": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+          "name": "Mercado San Telmo",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6406817436218262
+          }
+        },
+        {
+          "id": "c62ea33a-5769-4ea8-abaa-b1b3746ad19d",
+          "name": "Museo de las Escuelas",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6290815064037298
+          }
+        },
+        {
+          "id": "f7f3d091-ede4-4473-ac81-262700af8526",
+          "name": "Carnavales de la Calle Defensa",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6276365518569946
+          }
+        },
+        {
+          "id": "607ad17e-10c1-4e02-a463-f6a368a74652",
+          "name": "Casa Mínima",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6227277702906066
+          }
+        },
+        {
+          "id": "3e5305d9-4a45-470e-9f99-eb074ab52765",
+          "name": "Monumento a Pedro de Mendoza",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6145670413970947
+          }
+        },
+        {
+          "id": "c009a80a-07fb-49d5-9b87-46cd236444ef",
+          "name": "Solar French",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5670286585995158
+          }
+        },
+        {
+          "id": "78c7c2d8-ad3a-4962-a5ed-a41c7edd14e9",
+          "name": "Plaza 30'000 compañeros",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5651294589042664
+          }
+        }
+      ]
+    },
+    {
+      "label": "Ranking semántico",
+      "rules": [
+        {
+          "rule": "Usar similitud semántica solo cuando fue solicitada y está disponible",
+          "actual": "applied",
+          "reason": "La similitud se incorporó al ranking.",
+          "result": "PASS",
+          "ruleId": "RANK-SEMANTIC-001"
+        },
+        {
+          "rule": "Un candidato sin embedding no equivale a score semántico cero",
+          "reason": "La ausencia de embedding se conserva como señal no medida; otras señales pueden mantener el candidato.",
+          "result": "PASS",
+          "ruleId": "RANK-UNKNOWN-001"
+        }
+      ],
+      "stage": "embeddings",
+      "inputs": {
+        "model": "nomic-embed-text",
+        "provider": "ollama",
+        "eligibleCandidateCount": 11
+      },
+      "status": "PASS",
+      "outputs": {
+        "measuredRatio": 1,
+        "indexedCandidateCount": 11,
+        "offeredCandidateCount": 11
+      },
+      "summary": "Ranking semántico solicitado y aplicado sobre 11 candidato(s) elegible(s) del destino: 11 tenían un vector compatible con el índice activo y se ofrecieron 11 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+      "decision": {
+        "reason": "Índice semántico compatible disponible.",
+        "status": "PASS",
+        "outcome": "SEMANTIC_SIGNAL_APPLIED",
+        "reasonCodes": [
+          "APPLIED"
+        ],
+        "triggeredActions": [
+          "BUILD_RANKED_WINDOW"
+        ]
+      },
+      "component": "VectorStoreService + pgvector",
+      "semanticRanking": {
+        "model": "nomic-embed-text",
+        "status": "applied",
+        "provider": "ollama",
+        "dimensions": 256,
+        "documentVersion": 3,
+        "indexedCandidateCount": 11,
+        "offeredCandidateCount": 11,
+        "eligibleCandidateCount": 11
+      }
+    },
+    {
+      "label": "Adquisición multi-fuente (pase 1)",
+      "rules": [
+        {
+          "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+          "reason": "Fuentes enrutadas: wikivoyage, web.",
+          "result": "PASS",
+          "ruleId": "ACQ-ROUTING-001"
+        },
+        {
+          "rule": "Una fuente que falla no aborta la adquisición",
+          "reason": "Todas las fuentes atendidas respondieron.",
+          "result": "PASS",
+          "ruleId": "ACQ-ISOLATION-001"
+        },
+        {
+          "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+          "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+          "result": "PASS",
+          "ruleId": "ACQ-CANDIDATE-001"
+        }
+      ],
+      "stage": "discovery",
+      "inputs": {
+        "deficits": [
+          {
+            "origin": "global_capacity",
+            "reason": "Planner has 74.35646666666662 minutes of residual capacity on day 1"
+          }
+        ],
+        "passNumber": 1,
+        "routedProviders": [
+          "wikivoyage",
+          "web"
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "webResults": [
+          {
+            "query": "San Telmo things to do top attractions caminata histórica por San Telmo",
+            "status": "success",
+            "evidenceCount": 10,
+            "groundedModel": "google-search",
+            "candidateCount": 0,
+            "extractorModel": "qwen/qwen3.8-27b",
+            "groundingStatus": "applied",
+            "groundedProvider": "serper",
+            "validationErrors": [],
+            "extractorProvider": "groq",
+            "destinationCountryCode": "AR",
+            "groundedProviderLocale": {
+              "gl": "ar"
+            }
+          }
+        ],
+        "candidateCount": 7,
+        "observationCount": 9,
+        "webCandidateCount": 0,
+        "structuredProviders": [
+          {
+            "status": "success",
+            "provider": "wikivoyage"
+          }
+        ],
+        "structuredCandidateCount": 7
+      },
+      "summary": "Pase 1: fuentes [wikivoyage, web] → 9 observación(es) estructurada(s) + 7 candidate(s) (web: 0).",
+      "component": "ExperienceAcquisitionService",
+      "acquisition": {
+        "deficits": [
+          {
+            "origin": "global_capacity",
+            "reason": "Planner has 74.35646666666662 minutes of residual capacity on day 1"
+          }
+        ],
+        "evidence": [
+          {
+            "title": "Manzana de las Luces",
+            "source": "wikivoyage",
+            "snippet": "Este bloque, rodeado de las calles Alsina, Moreno, Perú y Bolívar, es el hogar de muchos de los más importantes y tradicionales de educación, instituciones religiosas y culturales de Buenos Aires, que datan del siglo 17 y 18. El nombre de este bloque proviene del número de instituciones intelectuales que estaban presentes en los viejos tiempos. Una de las atracciones más interesantes es una red subterránea de túneles misteriosos que comunica cada edificio.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+          },
+          {
+            "title": "Mercado San Telmo",
+            "source": "wikivoyage",
+            "snippet": "mercado alojado en una sala enorme Wrough-hierro. Todo, desde la albahaca fresca para zapatos y monedas antiguas se encuentra en exhibición en este mercado permanente. Venir durante la semana para ver el mercado de productos y la carne local. El domingo, cuando la acción está fuera, es prácticamente vacío.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          },
+          {
+            "title": "Plaza Dorrego",
+            "source": "wikivoyage",
+            "snippet": "La segunda plaza más antigua de Buenos Aires, seis días a la semana, la plaza es un espacio relativamente tranquilo, con sombra junto a restaurantes y cafés. Los domingos un mercado de antigüedades se hace cargo y casi no se puede ver la plaza del pueblo y puestos de mercado. Los puestos de ser anulado distancia de aproximadamente 17:00, y de 20:00 Hay baile público, incluyendo el tango.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          },
+          {
+            "title": "Museo Histórico Nacional",
+            "source": "wikivoyage",
+            "snippet": "Historia de la Argentina, pero todos los subtítulos están en español y exhaustiva ni bien organizada. Entrada por donación",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+          },
+          {
+            "title": "Pasaje San Lorenzo",
+            "source": "wikivoyage",
+            "snippet": "Caminando por la calle Balcarce, antes de llegar a la Av. Independencia, verá la calle \"San Lorenzo\". Una de las cosas interesantes que ver, es la casa más estrecha de la zona, entre la propia calle, que es muy agradable. Además, entre San Lorenzo y Av. Independencia, en la calle Balcarce, se puede encontrar el Almacén Don Manolo. Para aquellos que conocen Mafalda, almacén Don Manolo es donde Mafalda utiliza para ir de compras. La tienda en la calle Balcarce Nº 774 es en realidad la una de la qu…",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+          },
+          {
+            "title": "El Zanjón de Granados",
+            "source": "wikivoyage",
+            "snippet": "El edificio arquitectónico más importante de San Telmo y uno de los más importantes de la ciudad. Cuenta con casi 500 años de historia. Consulte el sitio web para obtener más información.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+          },
+          {
+            "title": "Aprende el arte de Fileteado",
+            "source": "wikivoyage",
+            "snippet": ". O '''bailar Tango''' en La Independencia, Avenida Independencia Nº 572, San Telmo",
+            "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+          },
+          {
+            "title": "Tomar clases de tango",
+            "source": "wikivoyage",
+            "snippet": ". Cada día en el Centro Cultural Torquato Tasso - Defensa 1575, San Telmo",
+            "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+          },
+          {
+            "title": "Bar El Federal",
+            "source": "wikivoyage",
+            "snippet": "tortilla a la española.",
+            "evidenceKey": "wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1"
+          },
+          {
+            "url": "https://kittiaroundtheworld.com/a-short-guide-to-san-telmo-in-buenos-aires/",
+            "kind": "organic_result",
+            "order": 1,
+            "title": "A Short Guide to San Telmo in Buenos Aires",
+            "source": "A Short Guide to San Telmo in Buenos Aires",
+            "snippet": "Today, San Telmo is an area where you can spend a day learning about its history, watch tango shows, browse handicraft markets and shop for ...",
+            "evidenceKey": "ev-1"
+          },
+          {
+            "url": "https://careergappers.com/san-telmo-buenos-aires/",
+            "kind": "organic_result",
+            "order": 2,
+            "title": "San Telmo, Buenos Aires: a complete neighbourhood guide",
+            "source": "San Telmo, Buenos Aires: a complete neighbourhood guide",
+            "snippet": "Things to do in San Telmo · The Sunday open-air market · More shopping in San Telmo · Sightseeing and tours · Museums · Evening entertainment.",
+            "evidenceKey": "ev-2"
+          },
+          {
+            "url": "https://solsalute.com/blog/san-telmo-market/",
+            "kind": "organic_result",
+            "order": 3,
+            "title": "The San Telmo Market - Buenos Aires' Sunday Street Fair",
+            "source": "The San Telmo Market - Buenos Aires' Sunday Street Fair",
+            "snippet": "It spans more than 10 blocks every Sunday afternoon, selling knick-knacks, handicrafts and antiques. There are street performers, street food ...",
+            "evidenceKey": "ev-3"
+          },
+          {
+            "url": "https://www.tripadvisor.com/Attractions-g312741-Activities-zfn7816473-Buenos_Aires_Capital_Federal_District.html",
+            "kind": "organic_result",
+            "order": 4,
+            "title": "THE 10 BEST Things to Do in San Telmo (2026)",
+            "source": "THE 10 BEST Things to Do in San Telmo (2026)",
+            "snippet": "1. Calle Defensa · (14,644). Historic Walking Areas ; 2. Feira de San Telmo · (1,784). Flea & Street Markets ; 3. El Zanjón De Granados · (764).",
+            "evidenceKey": "ev-4"
+          },
+          {
+            "url": "https://turismo.buenosaires.gob.ar/en/atractivo/san-telmo",
+            "kind": "organic_result",
+            "order": 5,
+            "title": "San Telmo | Official English Website for the City of Buenos ...",
+            "source": "San Telmo | Official English Website for the City of Buenos ...",
+            "snippet": "You can explore several converted mansions such as the Pasaje Defensa, browse for unique items at the many antique shops, catch a tango show, or drink a coffee ...",
+            "evidenceKey": "ev-5"
+          },
+          {
+            "url": "https://www.trailblazingadventures.com/san-telmo-buenos-aires/",
+            "kind": "organic_result",
+            "order": 6,
+            "title": "10 Essential Things to Do in San Telmo Buenos Aires",
+            "source": "10 Essential Things to Do in San Telmo Buenos Aires",
+            "snippet": "Visit San Telmo: taste empanadas and Malbec in the market, watch tango in Plaza Dorrego, and explore Buenos Aires most emblematic barrio.",
+            "evidenceKey": "ev-6"
+          },
+          {
+            "url": "https://www.cassalepage.com/post/love-at-first-sight-san-telmo-attractions-1",
+            "kind": "organic_result",
+            "order": 7,
+            "title": "Love at first sight. San Telmo attractions",
+            "source": "Love at first sight. San Telmo attractions",
+            "snippet": "Plaza Dorrego is the historic square in the heart of the San Telmo neighborhood, surrounded by bars and cafes. Every Sunday, the square is the focal point for a ...",
+            "evidenceKey": "ev-7"
+          },
+          {
+            "url": "https://www.getyourguide.com/buenos-aires-l1/buenos-aires-san-telmo-and-market-guided-tour-in-english-t409439/",
+            "kind": "organic_result",
+            "order": 8,
+            "title": "Buenos Aires: San Telmo and Market Guided Walking Tour",
+            "source": "Buenos Aires: San Telmo and Market Guided Walking Tour",
+            "snippet": "Explore San Telmo, the oldest neighborhood in Buenos Aires. Experience its vibrant atmosphere, discover its indoor food market, and stroll its cobblestone ...",
+            "evidenceKey": "ev-8"
+          },
+          {
+            "url": "https://www.skyetravels.com/san-telmo/",
+            "kind": "organic_result",
+            "order": 9,
+            "title": "Fun Things To Do In San Telmo: El Zanjón, Central Market, ...",
+            "source": "Fun Things To Do In San Telmo: El Zanjón, Central Market, ...",
+            "snippet": "There's a large park in the south, a famous square in the center, and several museums and churches. By far the most interesting feature of San ...",
+            "evidenceKey": "ev-9"
+          },
+          {
+            "url": "https://buenosairesfreewalks.com/barrios/san-telmo/full-day-in-san-telmo-downtown-2/",
+            "kind": "organic_result",
+            "order": 10,
+            "title": "Full Day in San Telmo & Downtown",
+            "source": "Full Day in San Telmo & Downtown",
+            "snippet": "It starts every day at 3pm. You will discover Barolo Palace, Cathedral, Pink House, Cabildo, as well as significant spaces for the history and ...",
+            "evidenceKey": "ev-10"
+          }
+        ],
+        "candidates": [
+          {
+            "name": "Bar El Federal",
+            "origin": "structured",
+            "themes": [],
+            "intents": [],
+            "traceKey": "bar el federal:wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1:wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1:component:Bar El Federal",
+            "providers": [
+              "wikivoyage"
+            ],
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1"
+            ],
+            "componentHints": [
+              {
+                "key": "wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1:component",
+                "name": "Bar El Federal",
+                "role": "venue",
+                "evidenceKeys": [
+                  "wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1"
+                ]
+              }
+            ],
+            "orderedByEvidence": false
+          },
+          {
+            "name": "Manzana de las Luces",
+            "origin": "structured",
+            "themes": [],
+            "intents": [],
+            "traceKey": "manzana de las luces:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component:Manzana de las Luces",
+            "providers": [
+              "wikivoyage"
+            ],
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+            ],
+            "componentHints": [
+              {
+                "key": "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component",
+                "name": "Manzana de las Luces",
+                "role": "venue",
+                "evidenceKeys": [
+                  "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+                ]
+              }
+            ],
+            "orderedByEvidence": false
+          },
+          {
+            "name": "Mercado San Telmo",
+            "origin": "structured",
+            "themes": [],
+            "intents": [],
+            "traceKey": "mercado san telmo:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component:Mercado San Telmo",
+            "providers": [
+              "wikivoyage"
+            ],
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+            ],
+            "componentHints": [
+              {
+                "key": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component",
+                "name": "Mercado San Telmo",
+                "role": "venue",
+                "evidenceKeys": [
+                  "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+                ]
+              }
+            ],
+            "orderedByEvidence": false
+          },
+          {
+            "name": "Museo Histórico Nacional",
+            "origin": "structured",
+            "themes": [],
+            "intents": [],
+            "traceKey": "museo histórico nacional:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component:Museo Histórico Nacional",
+            "providers": [
+              "wikivoyage"
+            ],
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+            ],
+            "componentHints": [
+              {
+                "key": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component",
+                "name": "Museo Histórico Nacional",
+                "role": "venue",
+                "evidenceKeys": [
+                  "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+                ]
+              }
+            ],
+            "orderedByEvidence": false
+          },
+          {
+            "name": "Pasaje San Lorenzo",
+            "origin": "structured",
+            "themes": [],
+            "intents": [],
+            "traceKey": "pasaje san lorenzo:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component:Pasaje San Lorenzo",
+            "providers": [
+              "wikivoyage"
+            ],
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+            ],
+            "componentHints": [
+              {
+                "key": "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component",
+                "name": "Pasaje San Lorenzo",
+                "role": "venue",
+                "evidenceKeys": [
+                  "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+                ]
+              }
+            ],
+            "orderedByEvidence": false
+          },
+          {
+            "name": "Plaza Dorrego",
+            "origin": "structured",
+            "themes": [],
+            "intents": [],
+            "traceKey": "plaza dorrego:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component:Plaza Dorrego",
+            "providers": [
+              "wikivoyage"
+            ],
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+            ],
+            "componentHints": [
+              {
+                "key": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component",
+                "name": "Plaza Dorrego",
+                "role": "venue",
+                "evidenceKeys": [
+                  "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+                ]
+              }
+            ],
+            "orderedByEvidence": false
+          },
+          {
+            "name": "El Zanjón de Granados",
+            "origin": "structured",
+            "themes": [],
+            "intents": [],
+            "traceKey": "el zanjón de granados:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component:El Zanjón de Granados",
+            "providers": [
+              "wikivoyage"
+            ],
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+            ],
+            "componentHints": [
+              {
+                "key": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component",
+                "name": "El Zanjón de Granados",
+                "role": "venue",
+                "evidenceKeys": [
+                  "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+                ]
+              }
+            ],
+            "orderedByEvidence": false
+          }
+        ],
+        "passNumber": 1,
+        "sourcePlans": [
+          {
+            "status": "success",
+            "provider": "wikivoyage",
+            "observations": [
+              {
+                "geo": {
+                  "latitude": -34.610556,
+                  "longitude": -58.374444
+                },
+                "title": "Manzana de las Luces",
+                "provider": "wikivoyage",
+                "externalId": "Q263127",
+                "description": "Este bloque, rodeado de las calles Alsina, Moreno, Perú y Bolívar, es el hogar de muchos de los más importantes y tradicionales de educación, instituciones religiosas y culturales de Buenos Aires, que datan del siglo 17 y 18. El nombre de este bloque proviene del número de instituciones intelectuales que estaban presentes en los viejos tiempos. Una de las atracciones más interesantes es una red subterránea de túneles misteriosos que comunica cada edificio.",
+                "evidenceKey": "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1",
+                "evidenceType": "place",
+                "originationCapabilities": [
+                  "SINGLE_PLACE"
+                ]
+              },
+              {
+                "geo": {
+                  "latitude": -34.619528,
+                  "longitude": -58.372832
+                },
+                "title": "Mercado San Telmo",
+                "provider": "wikivoyage",
+                "externalId": "Q6010497",
+                "description": "mercado alojado en una sala enorme Wrough-hierro. Todo, desde la albahaca fresca para zapatos y monedas antiguas se encuentra en exhibición en este mercado permanente. Venir durante la semana para ver el mercado de productos y la carne local. El domingo, cuando la acción está fuera, es prácticamente vacío.",
+                "evidenceKey": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1",
+                "evidenceType": "place",
+                "originationCapabilities": [
+                  "SINGLE_PLACE"
+                ]
+              },
+              {
+                "geo": {
+                  "latitude": -34.620556,
+                  "longitude": -58.371667
+                },
+                "title": "Plaza Dorrego",
+                "provider": "wikivoyage",
+                "externalId": "Q3392154",
+                "description": "La segunda plaza más antigua de Buenos Aires, seis días a la semana, la plaza es un espacio relativamente tranquilo, con sombra junto a restaurantes y cafés. Los domingos un mercado de antigüedades se hace cargo y casi no se puede ver la plaza del pueblo y puestos de mercado. Los puestos de ser anulado distancia de aproximadamente 17:00, y de 20:00 Hay baile público, incluyendo el tango.",
+                "evidenceKey": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1",
+                "evidenceType": "place",
+                "originationCapabilities": [
+                  "SINGLE_PLACE"
+                ]
+              },
+              {
+                "geo": {
+                  "latitude": -34.626944,
+                  "longitude": -58.370556
+                },
+                "title": "Museo Histórico Nacional",
+                "provider": "wikivoyage",
+                "externalId": "Q57785",
+                "description": "Historia de la Argentina, pero todos los subtítulos están en español y exhaustiva ni bien organizada. Entrada por donación",
+                "evidenceKey": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1",
+                "evidenceType": "place",
+                "originationCapabilities": [
+                  "SINGLE_PLACE"
+                ]
+              },
+              {
+                "title": "Pasaje San Lorenzo",
+                "provider": "wikivoyage",
+                "description": "Caminando por la calle Balcarce, antes de llegar a la Av. Independencia, verá la calle \"San Lorenzo\". Una de las cosas interesantes que ver, es la casa más estrecha de la zona, entre la propia calle, que es muy agradable. Además, entre San Lorenzo y Av. Independencia, en la calle Balcarce, se puede encontrar el Almacén Don Manolo. Para aquellos que conocen Mafalda, almacén Don Manolo es donde Mafalda utiliza para ir de compras. La tienda en la calle Balcarce Nº 774 es en realidad la una de la qu…",
+                "evidenceKey": "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1",
+                "evidenceType": "place",
+                "originationCapabilities": [
+                  "SINGLE_PLACE"
+                ]
+              },
+              {
+                "title": "El Zanjón de Granados",
+                "provider": "wikivoyage",
+                "description": "El edificio arquitectónico más importante de San Telmo y uno de los más importantes de la ciudad. Cuenta con casi 500 años de historia. Consulte el sitio web para obtener más información.",
+                "evidenceKey": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1",
+                "evidenceType": "place",
+                "originationCapabilities": [
+                  "SINGLE_PLACE"
+                ]
+              },
+              {
+                "title": "Aprende el arte de Fileteado",
+                "provider": "wikivoyage",
+                "description": ". O '''bailar Tango''' en La Independencia, Avenida Independencia Nº 572, San Telmo",
+                "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1",
+                "evidenceType": "tourism_activity",
+                "originationCapabilities": []
+              },
+              {
+                "title": "Tomar clases de tango",
+                "provider": "wikivoyage",
+                "description": ". Cada día en el Centro Cultural Torquato Tasso - Defensa 1575, San Telmo",
+                "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1",
+                "evidenceType": "tourism_activity",
+                "originationCapabilities": []
+              },
+              {
+                "title": "Bar El Federal",
+                "provider": "wikivoyage",
+                "description": "tortilla a la española.",
+                "evidenceKey": "wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1",
+                "evidenceType": "place",
+                "originationCapabilities": [
+                  "SINGLE_PLACE"
+                ]
+              }
+            ],
+            "configuration": {
+              "sections": [
+                "SEE",
+                "DO",
+                "EAT"
+              ]
+            },
+            "observationCount": 9,
+            "runtimeProviders": [
+              "wikivoyage"
+            ]
+          },
+          {
+            "web": {
+              "query": "San Telmo things to do top attractions caminata histórica por San Telmo",
+              "evidence": [
+                {
+                  "url": "https://kittiaroundtheworld.com/a-short-guide-to-san-telmo-in-buenos-aires/",
+                  "kind": "organic_result",
+                  "order": 1,
+                  "title": "A Short Guide to San Telmo in Buenos Aires",
+                  "source": "A Short Guide to San Telmo in Buenos Aires",
+                  "snippet": "Today, San Telmo is an area where you can spend a day learning about its history, watch tango shows, browse handicraft markets and shop for ...",
+                  "evidenceKey": "ev-1"
+                },
+                {
+                  "url": "https://careergappers.com/san-telmo-buenos-aires/",
+                  "kind": "organic_result",
+                  "order": 2,
+                  "title": "San Telmo, Buenos Aires: a complete neighbourhood guide",
+                  "source": "San Telmo, Buenos Aires: a complete neighbourhood guide",
+                  "snippet": "Things to do in San Telmo · The Sunday open-air market · More shopping in San Telmo · Sightseeing and tours · Museums · Evening entertainment.",
+                  "evidenceKey": "ev-2"
+                },
+                {
+                  "url": "https://solsalute.com/blog/san-telmo-market/",
+                  "kind": "organic_result",
+                  "order": 3,
+                  "title": "The San Telmo Market - Buenos Aires' Sunday Street Fair",
+                  "source": "The San Telmo Market - Buenos Aires' Sunday Street Fair",
+                  "snippet": "It spans more than 10 blocks every Sunday afternoon, selling knick-knacks, handicrafts and antiques. There are street performers, street food ...",
+                  "evidenceKey": "ev-3"
+                },
+                {
+                  "url": "https://www.tripadvisor.com/Attractions-g312741-Activities-zfn7816473-Buenos_Aires_Capital_Federal_District.html",
+                  "kind": "organic_result",
+                  "order": 4,
+                  "title": "THE 10 BEST Things to Do in San Telmo (2026)",
+                  "source": "THE 10 BEST Things to Do in San Telmo (2026)",
+                  "snippet": "1. Calle Defensa · (14,644). Historic Walking Areas ; 2. Feira de San Telmo · (1,784). Flea & Street Markets ; 3. El Zanjón De Granados · (764).",
+                  "evidenceKey": "ev-4"
+                },
+                {
+                  "url": "https://turismo.buenosaires.gob.ar/en/atractivo/san-telmo",
+                  "kind": "organic_result",
+                  "order": 5,
+                  "title": "San Telmo | Official English Website for the City of Buenos ...",
+                  "source": "San Telmo | Official English Website for the City of Buenos ...",
+                  "snippet": "You can explore several converted mansions such as the Pasaje Defensa, browse for unique items at the many antique shops, catch a tango show, or drink a coffee ...",
+                  "evidenceKey": "ev-5"
+                },
+                {
+                  "url": "https://www.trailblazingadventures.com/san-telmo-buenos-aires/",
+                  "kind": "organic_result",
+                  "order": 6,
+                  "title": "10 Essential Things to Do in San Telmo Buenos Aires",
+                  "source": "10 Essential Things to Do in San Telmo Buenos Aires",
+                  "snippet": "Visit San Telmo: taste empanadas and Malbec in the market, watch tango in Plaza Dorrego, and explore Buenos Aires most emblematic barrio.",
+                  "evidenceKey": "ev-6"
+                },
+                {
+                  "url": "https://www.cassalepage.com/post/love-at-first-sight-san-telmo-attractions-1",
+                  "kind": "organic_result",
+                  "order": 7,
+                  "title": "Love at first sight. San Telmo attractions",
+                  "source": "Love at first sight. San Telmo attractions",
+                  "snippet": "Plaza Dorrego is the historic square in the heart of the San Telmo neighborhood, surrounded by bars and cafes. Every Sunday, the square is the focal point for a ...",
+                  "evidenceKey": "ev-7"
+                },
+                {
+                  "url": "https://www.getyourguide.com/buenos-aires-l1/buenos-aires-san-telmo-and-market-guided-tour-in-english-t409439/",
+                  "kind": "organic_result",
+                  "order": 8,
+                  "title": "Buenos Aires: San Telmo and Market Guided Walking Tour",
+                  "source": "Buenos Aires: San Telmo and Market Guided Walking Tour",
+                  "snippet": "Explore San Telmo, the oldest neighborhood in Buenos Aires. Experience its vibrant atmosphere, discover its indoor food market, and stroll its cobblestone ...",
+                  "evidenceKey": "ev-8"
+                },
+                {
+                  "url": "https://www.skyetravels.com/san-telmo/",
+                  "kind": "organic_result",
+                  "order": 9,
+                  "title": "Fun Things To Do In San Telmo: El Zanjón, Central Market, ...",
+                  "source": "Fun Things To Do In San Telmo: El Zanjón, Central Market, ...",
+                  "snippet": "There's a large park in the south, a famous square in the center, and several museums and churches. By far the most interesting feature of San ...",
+                  "evidenceKey": "ev-9"
+                },
+                {
+                  "url": "https://buenosairesfreewalks.com/barrios/san-telmo/full-day-in-san-telmo-downtown-2/",
+                  "kind": "organic_result",
+                  "order": 10,
+                  "title": "Full Day in San Telmo & Downtown",
+                  "source": "Full Day in San Telmo & Downtown",
+                  "snippet": "It starts every day at 3pm. You will discover Barolo Palace, Cathedral, Pink House, Cabildo, as well as significant spaces for the history and ...",
+                  "evidenceKey": "ev-10"
+                }
+              ],
+              "extractor": {
+                "model": "qwen/qwen3.8-27b",
+                "provider": "groq",
+                "validationErrors": [],
+                "inputEvidenceKeys": [
+                  "ev-1",
+                  "ev-2",
+                  "ev-3",
+                  "ev-4",
+                  "ev-5",
+                  "ev-6",
+                  "ev-7",
+                  "ev-8",
+                  "ev-9",
+                  "ev-10"
+                ],
+                "candidateDecisions": [],
+                "sourceSupportAudits": [],
+                "admittedCandidateCount": 0,
+                "rejectedCandidateCount": 0,
+                "extractedCandidateCount": 0
+              },
+              "groundedModel": "google-search",
+              "semanticQuery": "caminata histórica por San Telmo",
+              "groundingStatus": "applied",
+              "groundedProvider": "serper",
+              "destinationCountryCode": "AR",
+              "groundedProviderLocale": {
+                "gl": "ar"
+              }
+            },
+            "status": "success",
+            "provider": "web",
+            "observations": [],
+            "configuration": {
+              "query": "San Telmo things to do top attractions caminata histórica por San Telmo",
+              "semanticQuery": "caminata histórica por San Telmo"
+            },
+            "observationCount": 0,
+            "runtimeProviders": []
+          }
+        ],
+        "acquisitionContext": {
+          "strategy": "generic",
+          "passNumber": 1
+        },
+        "structuredCorroboration": {
+          "groups": [
+            {
+              "reason": "NO_MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_1",
+              "accepted": false,
+              "proposalIds": [
+                "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+              ],
+              "candidateName": "Aprende el arte de Fileteado",
+              "mergedEvidenceKeys": [
+                "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+              ],
+              "candidateShapeMatches": [],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [],
+              "matchedOriginationRequirements": []
+            },
+            {
+              "reason": "NO_MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_2",
+              "accepted": false,
+              "proposalIds": [
+                "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+              ],
+              "candidateName": "Tomar clases de tango",
+              "mergedEvidenceKeys": [
+                "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+              ],
+              "candidateShapeMatches": [],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [],
+              "matchedOriginationRequirements": []
+            },
+            {
+              "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_3",
+              "accepted": true,
+              "proposalIds": [
+                "wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1"
+              ],
+              "candidateName": "Bar El Federal",
+              "mergedEvidenceKeys": [
+                "wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1"
+              ],
+              "candidateShapeMatches": [
+                "SINGLE_PLACE"
+              ],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [
+                "SINGLE_PLACE"
+              ],
+              "matchedOriginationRequirements": [
+                "SINGLE_PLACE"
+              ]
+            },
+            {
+              "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_4",
+              "accepted": true,
+              "proposalIds": [
+                "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+              ],
+              "candidateName": "Manzana de las Luces",
+              "mergedEvidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+              ],
+              "candidateShapeMatches": [
+                "SINGLE_PLACE"
+              ],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [
+                "SINGLE_PLACE"
+              ],
+              "matchedOriginationRequirements": [
+                "SINGLE_PLACE"
+              ]
+            },
+            {
+              "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_5",
+              "accepted": true,
+              "proposalIds": [
+                "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+              ],
+              "candidateName": "Mercado San Telmo",
+              "mergedEvidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+              ],
+              "candidateShapeMatches": [
+                "SINGLE_PLACE"
+              ],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [
+                "SINGLE_PLACE"
+              ],
+              "matchedOriginationRequirements": [
+                "SINGLE_PLACE"
+              ]
+            },
+            {
+              "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_6",
+              "accepted": true,
+              "proposalIds": [
+                "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+              ],
+              "candidateName": "Museo Histórico Nacional",
+              "mergedEvidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+              ],
+              "candidateShapeMatches": [
+                "SINGLE_PLACE"
+              ],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [
+                "SINGLE_PLACE"
+              ],
+              "matchedOriginationRequirements": [
+                "SINGLE_PLACE"
+              ]
+            },
+            {
+              "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_7",
+              "accepted": true,
+              "proposalIds": [
+                "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+              ],
+              "candidateName": "Pasaje San Lorenzo",
+              "mergedEvidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+              ],
+              "candidateShapeMatches": [
+                "SINGLE_PLACE"
+              ],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [
+                "SINGLE_PLACE"
+              ],
+              "matchedOriginationRequirements": [
+                "SINGLE_PLACE"
+              ]
+            },
+            {
+              "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_8",
+              "accepted": true,
+              "proposalIds": [
+                "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+              ],
+              "candidateName": "Plaza Dorrego",
+              "mergedEvidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+              ],
+              "candidateShapeMatches": [
+                "SINGLE_PLACE"
+              ],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [
+                "SINGLE_PLACE"
+              ],
+              "matchedOriginationRequirements": [
+                "SINGLE_PLACE"
+              ]
+            },
+            {
+              "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_9",
+              "accepted": true,
+              "proposalIds": [
+                "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+              ],
+              "candidateName": "El Zanjón de Granados",
+              "mergedEvidenceKeys": [
+                "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+              ],
+              "candidateShapeMatches": [
+                "SINGLE_PLACE"
+              ],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [
+                "SINGLE_PLACE"
+              ],
+              "matchedOriginationRequirements": [
+                "SINGLE_PLACE"
+              ]
+            }
+          ],
+          "groupCount": 9,
+          "proposalCount": 9,
+          "acceptedGroupCount": 7,
+          "rejectedGroupCount": 2,
+          "pairDecisionSummary": {
+            "total": 36,
+            "byReason": {
+              "no_shared_identity_signal": 21,
+              "incompatible_evidence_type": 15
+            },
+            "byDecision": {
+              "NEW": 36,
+              "SAME": 0,
+              "AMBIGUOUS": 0
+            }
+          }
+        }
+      },
+      "providerStatus": "success",
+      "acquisitionContext": {
+        "strategy": "generic",
+        "passNumber": 1
+      }
+    },
+    {
+      "label": "Resolución de entidades reales",
+      "rules": [
+        {
+          "rule": "Resolver hints contra identidades geográficas independientes del LLM",
+          "actual": 4,
+          "reason": "4 entidad(es) reales resueltas; 4 con coordenadas.",
+          "result": "PASS",
+          "ruleId": "RES-IDENTITY-001"
+        },
+        {
+          "rule": "No decidir coherencia geográfica ni persistencia durante entity resolution",
+          "reason": "La salida queda pendiente del GeographicValidationService.",
+          "result": "PASS",
+          "ruleId": "RES-SEPARATION-001"
+        },
+        {
+          "rule": "Toda propuesta no resoluble debe conservar razones explícitas",
+          "reason": "Bar El Federal: NO_OSM_MATCH; Manzana de las Luces: NO_OSM_MATCH; Pasaje San Lorenzo: NO_OSM_MATCH",
+          "result": "PASS",
+          "ruleId": "RES-REJECTION-001"
+        }
+      ],
+      "stage": "entity_resolution",
+      "inputs": {
+        "totalCandidates": 7
+      },
+      "status": "PASS",
+      "outputs": {
+        "rejectedCount": 3,
+        "candidateCount": 7,
+        "resolvedEntityCount": 4,
+        "resolutionReadyCount": 4,
+        "entitiesWithCoordinates": 4
+      },
+      "summary": "Entity resolution procesó 7 candidato(s): 4 quedaron con entidades concretas suficientes para continuar y 3 no pudieron resolverse. Se obtuvieron 4 entidad(es) provider-backed, 4 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite. Rechazadas: Bar El Federal: NO_OSM_MATCH [resueltos 0/1: Bar El Federal=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)]; Manzana de las Luces: NO_OSM_MATCH [resueltos 0/1: Manzana de las Luces=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)]; Pasaje San Lorenzo: NO_OSM_MATCH [resueltos 0/1: Pasaje San Lorenzo=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)].",
+      "decision": {
+        "reason": "Hay entidades reales resueltas; todavía falta validar existencia/coherencia de la actividad compuesta.",
+        "status": "PASS",
+        "outcome": "ENTITIES_READY_FOR_GEOGRAPHIC_VALIDATION",
+        "reasonCodes": [
+          "NO_OSM_MATCH",
+          "NO_OSM_MATCH",
+          "NO_OSM_MATCH"
+        ],
+        "triggeredActions": [
+          "VALIDATE_GEOGRAPHIC_COHERENCE"
+        ]
+      },
+      "component": "ExperienceProposalResolverService",
+      "providerStatus": "success",
+      "acquisitionContext": {
+        "strategy": "generic",
+        "passNumber": 1
+      },
+      "candidateDecisions": [
+        {
+          "id": "Bar El Federal",
+          "name": "Bar El Federal",
+          "reason": "NO_OSM_MATCH [resueltos 0/1: Bar El Federal=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)]",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        {
+          "id": "Manzana de las Luces",
+          "name": "Manzana de las Luces",
+          "reason": "NO_OSM_MATCH [resueltos 0/1: Manzana de las Luces=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)]",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        {
+          "id": "Mercado San Telmo",
+          "name": "Mercado San Telmo",
+          "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica. [resueltos 1/1: Mercado San Telmo=RESOLVED/INSIDE]",
+          "source": "discovery",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "ENTITY_RESOLUTION_READY"
+          ]
+        },
+        {
+          "id": "Museo Histórico Nacional",
+          "name": "Museo Histórico Nacional",
+          "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica. [resueltos 1/1: Museo Histórico Nacional=RESOLVED/INSIDE]",
+          "source": "discovery",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "ENTITY_RESOLUTION_READY"
+          ]
+        },
+        {
+          "id": "Pasaje San Lorenzo",
+          "name": "Pasaje San Lorenzo",
+          "reason": "NO_OSM_MATCH [resueltos 0/1: Pasaje San Lorenzo=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)]",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        {
+          "id": "Plaza Dorrego",
+          "name": "Plaza Dorrego",
+          "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica. [resueltos 1/1: Plaza Dorrego=RESOLVED/INSIDE]",
+          "source": "discovery",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "ENTITY_RESOLUTION_READY"
+          ]
+        },
+        {
+          "id": "El Zanjón de Granados",
+          "name": "El Zanjón de Granados",
+          "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica. [resueltos 1/1: El Zanjón de Granados=RESOLVED/INSIDE]",
+          "source": "discovery",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "ENTITY_RESOLUTION_READY"
+          ]
+        }
+      ],
+      "entityResolutionAudit": [
+        {
+          "hints": [
+            {
+              "key": "wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1:component",
+              "name": "Bar El Federal",
+              "role": "venue",
+              "reason": "NO_OSM_MATCH",
+              "status": "unresolved",
+              "deficit": {
+                "reason": "NO_CANDIDATE_ACQUIRED",
+                "classification": "PENDING_CLASSIFICATION"
+              },
+              "attempts": [
+                {
+                  "query": "Bar El Federal",
+                  "provider": "catalog",
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Bar El Federal",
+                  "provider": "trusted_observation",
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Bar El Federal",
+                  "provider": "openstreetmap",
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false,
+                  "poolCandidateCount": 39
+                }
+              ],
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1"
+              ],
+              "expectedKind": "PLACE",
+              "identityStatus": "UNRESOLVED"
+            }
+          ],
+          "accepted": false,
+          "coverage": {
+            "resolutionRatio": 0,
+            "totalComponents": 1,
+            "ambiguousComponents": 0,
+            "conflictedComponents": 0,
+            "openResearchDeficits": [],
+            "unresolvedComponents": 1,
+            "sourceCompositionComplete": false,
+            "identityResolvedComponents": 0,
+            "geographicallyAcceptedComponents": 0
+          },
+          "candidateName": "Bar El Federal",
+          "componentScope": {
+            "kind": "DESTINATION_AREA",
+            "name": "San Telmo"
+          },
+          "rejectionReasons": [
+            "NO_OSM_MATCH"
+          ],
+          "candidateTraceKey": "bar el federal:wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1:wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1:component:Bar El Federal"
+        },
+        {
+          "hints": [
+            {
+              "key": "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component",
+              "name": "Manzana de las Luces",
+              "role": "venue",
+              "reason": "NO_OSM_MATCH",
+              "status": "unresolved",
+              "deficit": {
+                "reason": "NO_CANDIDATE_ACQUIRED",
+                "classification": "PENDING_CLASSIFICATION"
+              },
+              "attempts": [
+                {
+                  "query": "Manzana de las Luces",
+                  "provider": "catalog",
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Manzana de las Luces",
+                  "provider": "trusted_observation",
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Manzana de las Luces",
+                  "provider": "openstreetmap",
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false,
+                  "poolCandidateCount": 39
+                }
+              ],
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+              ],
+              "expectedKind": "PLACE",
+              "identityStatus": "UNRESOLVED"
+            }
+          ],
+          "accepted": false,
+          "coverage": {
+            "resolutionRatio": 0,
+            "totalComponents": 1,
+            "ambiguousComponents": 0,
+            "conflictedComponents": 0,
+            "openResearchDeficits": [],
+            "unresolvedComponents": 1,
+            "sourceCompositionComplete": false,
+            "identityResolvedComponents": 0,
+            "geographicallyAcceptedComponents": 0
+          },
+          "candidateName": "Manzana de las Luces",
+          "componentScope": {
+            "kind": "DESTINATION_AREA",
+            "name": "San Telmo"
+          },
+          "rejectionReasons": [
+            "NO_OSM_MATCH"
+          ],
+          "candidateTraceKey": "manzana de las luces:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component:Manzana de las Luces"
+        },
+        {
+          "hints": [
+            {
+              "key": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component",
+              "name": "Mercado San Telmo",
+              "role": "venue",
+              "status": "resolved",
+              "attempts": [
+                {
+                  "query": "Mercado San Telmo",
+                  "provider": "catalog",
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [
+                    {
+                      "type": "CATALOG_VERIFIED_HINT_MATCH",
+                      "verifiedHintKey": "mercado san telmo",
+                      "identityMultiplicity": "SINGLE"
+                    }
+                  ],
+                  "candidateAcquired": true,
+                  "selectedCandidate": {
+                    "kind": "PLACE",
+                    "externalId": "osm:way:158893271",
+                    "identities": [
+                      {
+                        "provider": "openstreetmap",
+                        "externalId": "osm:way:158893271"
+                      }
+                    ],
+                    "canonicalName": "Mercado de San Telmo"
+                  },
+                  "verificationDecision": "VERIFIED"
+                }
+              ],
+              "geography": {
+                "geoEntityId": "8552e758-239f-4b2c-89e6-b56cd349ea02",
+                "geoEntityKind": "PLACE",
+                "canonicalGeometry": "POINT",
+                "geographicRelation": "INSIDE"
+              },
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+              ],
+              "expectedKind": "PLACE",
+              "identityStatus": "RESOLVED",
+              "resolvedGeoEntity": {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:158893271",
+                "geoEntityId": "8552e758-239f-4b2c-89e6-b56cd349ea02",
+                "canonicalName": "Mercado de San Telmo"
+              }
+            }
+          ],
+          "accepted": true,
+          "coverage": {
+            "resolutionRatio": 1,
+            "totalComponents": 1,
+            "ambiguousComponents": 0,
+            "conflictedComponents": 0,
+            "openResearchDeficits": [],
+            "unresolvedComponents": 0,
+            "sourceCompositionComplete": true,
+            "identityResolvedComponents": 1,
+            "geographicallyAcceptedComponents": 1
+          },
+          "candidateName": "Mercado San Telmo",
+          "componentScope": {
+            "kind": "DESTINATION_AREA",
+            "name": "San Telmo"
+          },
+          "rejectionReasons": [],
+          "candidateTraceKey": "mercado san telmo:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component:Mercado San Telmo"
+        },
+        {
+          "hints": [
+            {
+              "key": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component",
+              "name": "Museo Histórico Nacional",
+              "role": "venue",
+              "status": "resolved",
+              "attempts": [
+                {
+                  "query": "Museo Histórico Nacional",
+                  "provider": "catalog",
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [
+                    {
+                      "type": "EXACT_NAME",
+                      "identityMultiplicity": "SINGLE"
+                    }
+                  ],
+                  "candidateAcquired": true,
+                  "selectedCandidate": {
+                    "kind": "PLACE",
+                    "externalId": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+                    "identities": [
+                      {
+                        "provider": "geoapify",
+                        "externalId": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c"
+                      },
+                      {
+                        "provider": "openstreetmap",
+                        "externalId": "osm:way:122969767"
+                      },
+                      {
+                        "provider": "wikidata",
+                        "externalId": "Q57785"
+                      }
+                    ],
+                    "canonicalName": "Museo Histórico Nacional"
+                  },
+                  "verificationDecision": "VERIFIED"
+                }
+              ],
+              "geography": {
+                "geoEntityId": "0ba03a2c-354f-4b3d-b24f-68fd3676b752",
+                "geoEntityKind": "PLACE",
+                "canonicalGeometry": "POINT",
+                "geographicRelation": "INSIDE"
+              },
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+              ],
+              "expectedKind": "PLACE",
+              "identityStatus": "RESOLVED",
+              "resolvedGeoEntity": {
+                "provider": "geoapify",
+                "externalId": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+                "geoEntityId": "0ba03a2c-354f-4b3d-b24f-68fd3676b752",
+                "canonicalName": "Museo Histórico Nacional"
+              }
+            }
+          ],
+          "accepted": true,
+          "coverage": {
+            "resolutionRatio": 1,
+            "totalComponents": 1,
+            "ambiguousComponents": 0,
+            "conflictedComponents": 0,
+            "openResearchDeficits": [],
+            "unresolvedComponents": 0,
+            "sourceCompositionComplete": true,
+            "identityResolvedComponents": 1,
+            "geographicallyAcceptedComponents": 1
+          },
+          "candidateName": "Museo Histórico Nacional",
+          "componentScope": {
+            "kind": "DESTINATION_AREA",
+            "name": "San Telmo"
+          },
+          "rejectionReasons": [],
+          "candidateTraceKey": "museo histórico nacional:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component:Museo Histórico Nacional"
+        },
+        {
+          "hints": [
+            {
+              "key": "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component",
+              "name": "Pasaje San Lorenzo",
+              "role": "venue",
+              "reason": "NO_OSM_MATCH",
+              "status": "unresolved",
+              "deficit": {
+                "reason": "NO_CANDIDATE_ACQUIRED",
+                "classification": "PENDING_CLASSIFICATION"
+              },
+              "attempts": [
+                {
+                  "query": "Pasaje San Lorenzo",
+                  "provider": "catalog",
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Pasaje San Lorenzo",
+                  "provider": "trusted_observation",
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Pasaje San Lorenzo",
+                  "provider": "openstreetmap",
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false,
+                  "poolCandidateCount": 39
+                }
+              ],
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+              ],
+              "expectedKind": "PLACE",
+              "identityStatus": "UNRESOLVED"
+            }
+          ],
+          "accepted": false,
+          "coverage": {
+            "resolutionRatio": 0,
+            "totalComponents": 1,
+            "ambiguousComponents": 0,
+            "conflictedComponents": 0,
+            "openResearchDeficits": [],
+            "unresolvedComponents": 1,
+            "sourceCompositionComplete": false,
+            "identityResolvedComponents": 0,
+            "geographicallyAcceptedComponents": 0
+          },
+          "candidateName": "Pasaje San Lorenzo",
+          "componentScope": {
+            "kind": "DESTINATION_AREA",
+            "name": "San Telmo"
+          },
+          "rejectionReasons": [
+            "NO_OSM_MATCH"
+          ],
+          "candidateTraceKey": "pasaje san lorenzo:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component:Pasaje San Lorenzo"
+        },
+        {
+          "hints": [
+            {
+              "key": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component",
+              "name": "Plaza Dorrego",
+              "role": "venue",
+              "status": "resolved",
+              "attempts": [
+                {
+                  "query": "Plaza Dorrego",
+                  "provider": "catalog",
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [
+                    {
+                      "type": "EXACT_NAME",
+                      "identityMultiplicity": "SINGLE"
+                    }
+                  ],
+                  "candidateAcquired": true,
+                  "selectedCandidate": {
+                    "kind": "PLACE",
+                    "externalId": "osm:way:31364659",
+                    "identities": [
+                      {
+                        "provider": "openstreetmap",
+                        "externalId": "osm:way:31364659"
+                      }
+                    ],
+                    "canonicalName": "Plaza Dorrego"
+                  },
+                  "verificationDecision": "VERIFIED"
+                }
+              ],
+              "geography": {
+                "geoEntityId": "57677762-3787-406f-9bee-739b03bd3897",
+                "geoEntityKind": "PLACE",
+                "canonicalGeometry": "POINT",
+                "geographicRelation": "INSIDE"
+              },
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+              ],
+              "expectedKind": "PLACE",
+              "identityStatus": "RESOLVED",
+              "resolvedGeoEntity": {
+                "provider": "openstreetmap",
+                "externalId": "osm:way:31364659",
+                "geoEntityId": "57677762-3787-406f-9bee-739b03bd3897",
+                "canonicalName": "Plaza Dorrego"
+              }
+            }
+          ],
+          "accepted": true,
+          "coverage": {
+            "resolutionRatio": 1,
+            "totalComponents": 1,
+            "ambiguousComponents": 0,
+            "conflictedComponents": 0,
+            "openResearchDeficits": [],
+            "unresolvedComponents": 0,
+            "sourceCompositionComplete": true,
+            "identityResolvedComponents": 1,
+            "geographicallyAcceptedComponents": 1
+          },
+          "candidateName": "Plaza Dorrego",
+          "componentScope": {
+            "kind": "DESTINATION_AREA",
+            "name": "San Telmo"
+          },
+          "rejectionReasons": [],
+          "candidateTraceKey": "plaza dorrego:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component:Plaza Dorrego"
+        },
+        {
+          "hints": [
+            {
+              "key": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component",
+              "name": "El Zanjón de Granados",
+              "role": "venue",
+              "status": "resolved",
+              "attempts": [
+                {
+                  "query": "El Zanjón de Granados",
+                  "provider": "catalog",
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [
+                    {
+                      "type": "CATALOG_VERIFIED_HINT_MATCH",
+                      "verifiedHintKey": "el zanjon de granados",
+                      "identityMultiplicity": "SINGLE"
+                    }
+                  ],
+                  "candidateAcquired": true,
+                  "selectedCandidate": {
+                    "kind": "PLACE",
+                    "externalId": "osm:node:9953027884",
+                    "identities": [
+                      {
+                        "provider": "openstreetmap",
+                        "externalId": "osm:node:9953027884"
+                      }
+                    ],
+                    "canonicalName": "El Zanjón de Granados (historic ruins)"
+                  },
+                  "verificationDecision": "VERIFIED"
+                }
+              ],
+              "geography": {
+                "geoEntityId": "fa1cd059-7f6d-4301-b65c-dec303b41486",
+                "geoEntityKind": "PLACE",
+                "canonicalGeometry": "POINT",
+                "geographicRelation": "INSIDE"
+              },
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+              ],
+              "expectedKind": "PLACE",
+              "identityStatus": "RESOLVED",
+              "resolvedGeoEntity": {
+                "provider": "openstreetmap",
+                "externalId": "osm:node:9953027884",
+                "geoEntityId": "fa1cd059-7f6d-4301-b65c-dec303b41486",
+                "canonicalName": "El Zanjón de Granados (historic ruins)"
+              }
+            }
+          ],
+          "accepted": true,
+          "coverage": {
+            "resolutionRatio": 1,
+            "totalComponents": 1,
+            "ambiguousComponents": 0,
+            "conflictedComponents": 0,
+            "openResearchDeficits": [],
+            "unresolvedComponents": 0,
+            "sourceCompositionComplete": true,
+            "identityResolvedComponents": 1,
+            "geographicallyAcceptedComponents": 1
+          },
+          "candidateName": "El Zanjón de Granados",
+          "componentScope": {
+            "kind": "DESTINATION_AREA",
+            "name": "San Telmo"
+          },
+          "rejectionReasons": [],
+          "candidateTraceKey": "el zanjón de granados:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component:El Zanjón de Granados"
+        }
+      ]
+    },
+    {
+      "label": "Validación geográfica independiente",
+      "rules": [
+        {
+          "rule": "Grounded text por sí solo no prueba existencia geográfica",
+          "reason": "La aceptación requiere entidades resueltas independientemente del LLM.",
+          "result": "PASS",
+          "ruleId": "GEO-INDEPENDENT-001"
+        },
+        {
+          "rule": "Las composites pueden validarse por componentes reales sin exact-name global",
+          "reason": "ROUTE/EXPERIENCE/WALK pueden usar anchors/componentes según su estrategia.",
+          "result": "PASS",
+          "ruleId": "GEO-COMPONENTS-001"
+        },
+        {
+          "rule": "Conservar razones machine-readable para cada rechazo",
+          "reason": "No hubo rechazos geográficos.",
+          "result": "PASS",
+          "ruleId": "GEO-RESULT-001"
+        }
+      ],
+      "stage": "geographic_validation",
+      "inputs": {
+        "proposalCount": 4,
+        "validatorVersions": [
+          1
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "results": [
+          {
+            "kind": "EXPERIENCE",
+            "status": "GEO_VERIFIED",
+            "strategy": "venue_centric",
+            "coherence": null,
+            "anchorCount": 1,
+            "proposalName": "Mercado San Telmo",
+            "canonicalEntity": {
+              "name": "Mercado de San Telmo",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:158893271"
+            },
+            "rejectionReasons": [],
+            "areaScopeMembership": null
+          },
+          {
+            "kind": "EXPERIENCE",
+            "status": "GEO_VERIFIED",
+            "strategy": "venue_centric",
+            "coherence": null,
+            "anchorCount": 1,
+            "proposalName": "Museo Histórico Nacional",
+            "canonicalEntity": {
+              "name": "Museo Histórico Nacional",
+              "provider": "geoapify",
+              "externalId": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c"
+            },
+            "rejectionReasons": [],
+            "areaScopeMembership": null
+          },
+          {
+            "kind": "EXPERIENCE",
+            "status": "GEO_VERIFIED",
+            "strategy": "venue_centric",
+            "coherence": null,
+            "anchorCount": 1,
+            "proposalName": "Plaza Dorrego",
+            "canonicalEntity": {
+              "name": "Plaza Dorrego",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:31364659"
+            },
+            "rejectionReasons": [],
+            "areaScopeMembership": null
+          },
+          {
+            "kind": "EXPERIENCE",
+            "status": "GEO_VERIFIED",
+            "strategy": "venue_centric",
+            "coherence": null,
+            "anchorCount": 1,
+            "proposalName": "El Zanjón de Granados",
+            "canonicalEntity": {
+              "name": "El Zanjón de Granados (historic ruins)",
+              "provider": "openstreetmap",
+              "externalId": "osm:node:9953027884"
+            },
+            "rejectionReasons": [],
+            "areaScopeMembership": null
+          }
+        ],
+        "rejectedCount": 0,
+        "geoVerifiedCount": 4,
+        "maxComputedRadiusMeters": null
+      },
+      "summary": "Validación geográfica: 4 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+      "decision": {
+        "reason": "Solo las propuestas GEO_VERIFIED pueden avanzar a materialización.",
+        "status": "PASS",
+        "outcome": "GEO_VERIFIED_PROPOSALS_READY",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "MATERIALIZE_VERIFIED_EXPERIENCES"
+        ]
+      },
+      "component": "CompositeGeographicValidationService",
+      "providerStatus": "success",
+      "acquisitionContext": {
+        "strategy": "generic",
+        "passNumber": 1
+      },
+      "candidateDecisions": [
+        {
+          "id": "Mercado San Telmo",
+          "name": "Mercado San Telmo",
+          "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+          "source": "discovery",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "GEO_VERIFIED"
+          ]
+        },
+        {
+          "id": "Museo Histórico Nacional",
+          "name": "Museo Histórico Nacional",
+          "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+          "source": "discovery",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "GEO_VERIFIED"
+          ]
+        },
+        {
+          "id": "Plaza Dorrego",
+          "name": "Plaza Dorrego",
+          "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+          "source": "discovery",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "GEO_VERIFIED"
+          ]
+        },
+        {
+          "id": "El Zanjón de Granados",
+          "name": "El Zanjón de Granados",
+          "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+          "source": "discovery",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "GEO_VERIFIED"
+          ]
+        }
+      ],
+      "geographicValidationAudit": [
+        {
+          "status": "GEO_VERIFIED",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "components": [
+            {
+              "role": "venue",
+              "hintKey": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component",
+              "hintName": "Mercado San Telmo",
+              "relation": "evaluated",
+              "resolvedGeoEntityId": "8552e758-239f-4b2c-89e6-b56cd349ea02"
+            }
+          ],
+          "candidateName": "Mercado San Telmo",
+          "rejectionReasons": [],
+          "candidateTraceKey": "mercado san telmo:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component:Mercado San Telmo",
+          "destinationBoundary": {
+            "name": "San Telmo",
+            "externalId": "osm:relation:2223069"
+          },
+          "groundedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          ]
+        },
+        {
+          "status": "GEO_VERIFIED",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "components": [
+            {
+              "role": "venue",
+              "hintKey": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component",
+              "hintName": "Museo Histórico Nacional",
+              "relation": "evaluated",
+              "resolvedGeoEntityId": "0ba03a2c-354f-4b3d-b24f-68fd3676b752"
+            }
+          ],
+          "candidateName": "Museo Histórico Nacional",
+          "rejectionReasons": [],
+          "candidateTraceKey": "museo histórico nacional:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component:Museo Histórico Nacional",
+          "destinationBoundary": {
+            "name": "San Telmo",
+            "externalId": "osm:relation:2223069"
+          },
+          "groundedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+          ]
+        },
+        {
+          "status": "GEO_VERIFIED",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "components": [
+            {
+              "role": "venue",
+              "hintKey": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component",
+              "hintName": "Plaza Dorrego",
+              "relation": "evaluated",
+              "resolvedGeoEntityId": "57677762-3787-406f-9bee-739b03bd3897"
+            }
+          ],
+          "candidateName": "Plaza Dorrego",
+          "rejectionReasons": [],
+          "candidateTraceKey": "plaza dorrego:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component:Plaza Dorrego",
+          "destinationBoundary": {
+            "name": "San Telmo",
+            "externalId": "osm:relation:2223069"
+          },
+          "groundedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ]
+        },
+        {
+          "status": "GEO_VERIFIED",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "components": [
+            {
+              "role": "venue",
+              "hintKey": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component",
+              "hintName": "El Zanjón de Granados",
+              "relation": "evaluated",
+              "resolvedGeoEntityId": "fa1cd059-7f6d-4301-b65c-dec303b41486"
+            }
+          ],
+          "candidateName": "El Zanjón de Granados",
+          "rejectionReasons": [],
+          "candidateTraceKey": "el zanjón de granados:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component:El Zanjón de Granados",
+          "destinationBoundary": {
+            "name": "San Telmo",
+            "externalId": "osm:relation:2223069"
+          },
+          "groundedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Materialización en catálogo",
+      "rules": [
+        {
+          "rule": "Persistir composites solo después de GEO_VERIFIED",
+          "reason": "ExperienceCatalogService consume el resultado del validador geográfico.",
+          "result": "PASS",
+          "ruleId": "MAT-GEO-GATE-001"
+        },
+        {
+          "rule": "Exponer solo IDs canónicos persistidos al re-query/ranking",
+          "actual": 2,
+          "reason": "2 Experience id(s) quedaron disponibles para re-query.",
+          "result": "PASS",
+          "ruleId": "MAT-CANONICAL-001"
+        }
+      ],
+      "stage": "catalog_materialization",
+      "inputs": {
+        "geoVerifiedCount": 4
+      },
+      "status": "WARN",
+      "outputs": {
+        "rejectedCount": 5,
+        "materializedCount": 2,
+        "persistedExperienceIds": [
+          "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+          "68ee2c3b-8ff8-472d-9226-6f374a9f48f1"
+        ]
+      },
+      "summary": "2 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 5 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution. Bar El Federal: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Manzana de las Luces: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Mercado San Telmo: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Museo Histórico Nacional: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Pasaje San Lorenzo: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Plaza Dorrego: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, no persistida, no elegible para planner; El Zanjón de Granados: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, no persistida, no elegible para planner.",
+      "decision": {
+        "reason": "Las Experiences persistidas pueden reingresar al pool canónico del mismo pedido.",
+        "status": "WARN",
+        "outcome": "VERIFIED_EXPERIENCES_MATERIALIZED",
+        "reasonCodes": [
+          "NO_OSM_MATCH",
+          "NO_OSM_MATCH",
+          "NO_OSM_MATCH",
+          "AMBIGUOUS_DEDUPE",
+          "AMBIGUOUS_DEDUPE"
+        ],
+        "triggeredActions": [
+          "REQUERY_CANONICAL_CATALOG"
+        ]
+      },
+      "component": "ExperienceCatalogService",
+      "providerStatus": "success",
+      "acquisitionContext": {
+        "strategy": "generic",
+        "passNumber": 1
+      },
+      "candidateDecisions": [
+        {
+          "id": "Bar El Federal",
+          "name": "Bar El Federal",
+          "reason": "NO_OSM_MATCH",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        {
+          "id": "Manzana de las Luces",
+          "name": "Manzana de las Luces",
+          "reason": "NO_OSM_MATCH",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        {
+          "id": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+          "name": "Mercado San Telmo",
+          "reason": "Experience verificada materializada y lista para re-query.",
+          "source": "discovery",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "EXPERIENCE_MATERIALIZED"
+          ]
+        },
+        {
+          "id": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+          "name": "Museo Histórico Nacional",
+          "reason": "Experience verificada materializada y lista para re-query.",
+          "source": "discovery",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "EXPERIENCE_MATERIALIZED"
+          ]
+        },
+        {
+          "id": "Pasaje San Lorenzo",
+          "name": "Pasaje San Lorenzo",
+          "reason": "NO_OSM_MATCH",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        {
+          "id": "Plaza Dorrego",
+          "name": "Plaza Dorrego",
+          "reason": "AMBIGUOUS_DEDUPE",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "AMBIGUOUS_DEDUPE"
+          ]
+        },
+        {
+          "id": "El Zanjón de Granados",
+          "name": "El Zanjón de Granados",
+          "reason": "AMBIGUOUS_DEDUPE",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "AMBIGUOUS_DEDUPE"
+          ]
+        }
+      ],
+      "classificationAudit": [
+        {
+          "model": "qwen/qwen3.8-27b",
+          "state": "reused",
+          "themes": [
+            "shopping"
+          ],
+          "traits": [
+            "antiques",
+            "local produce",
+            "iron architecture"
+          ],
+          "intents": [
+            "shopping"
+          ],
+          "experienceId": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+          "promptVersion": 1,
+          "reasoningEvidence": [
+            {
+              "facet": "theme:shopping",
+              "reason": "The evidence describes it as a 'mercado' (market) where items like shoes, coins, and produce are on display, which is a shopping activity.",
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+              ]
+            },
+            {
+              "facet": "intent:shopping",
+              "reason": "The primary purpose of visiting a market to see items 'en exhibición' (on display) aligns with the shopping intent.",
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+              ]
+            },
+            {
+              "facet": "trait:antiques",
+              "reason": "The evidence explicitly mentions 'monedas antiguas' (ancient coins) being on display.",
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+              ]
+            },
+            {
+              "facet": "trait:local produce",
+              "reason": "The evidence mentions 'albahaca fresca' (fresh basil) and 'productos y la carne local' (local products and meat).",
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+              ]
+            },
+            {
+              "facet": "trait:iron architecture",
+              "reason": "The evidence describes the market as being housed in a 'sala enorme Wrough-hierro' (huge wrought-iron hall).",
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+              ]
+            }
+          ]
+        },
+        {
+          "model": "qwen/qwen3.8-27b",
+          "state": "reused",
+          "themes": [
+            "history"
+          ],
+          "traits": [
+            "donation entry",
+            "national museum"
+          ],
+          "intents": [
+            "visit"
+          ],
+          "experienceId": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+          "promptVersion": 1,
+          "reasoningEvidence": [
+            {
+              "facet": "theme:history",
+              "reason": "The name 'Museo Histórico Nacional' and the description 'Historia de la Argentina' directly indicate a focus on history.",
+              "evidenceKeys": [
+                "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+                "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+              ]
+            },
+            {
+              "facet": "intent:visit",
+              "reason": "The evidence describes a physical location with an address and entry conditions, supporting the intent to visit the site.",
+              "evidenceKeys": [
+                "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+                "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+              ]
+            },
+            {
+              "facet": "trait:donation entry",
+              "reason": "The evidence explicitly states 'Entrada por donación' (Entry by donation).",
+              "evidenceKeys": [
+                "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+              ]
+            },
+            {
+              "facet": "trait:national museum",
+              "reason": "The name 'Museo Histórico Nacional' and the English translation 'National Historical Museum' support this trait.",
+              "evidenceKeys": [
+                "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c"
+              ]
+            }
+          ]
+        }
+      ],
+      "materializationAudit": [
+        {
+          "accepted": false,
+          "candidateName": "Bar El Federal",
+          "compositeOutcome": {
+            "coverage": {
+              "resolutionRatio": 0,
+              "totalComponents": 1,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 1,
+              "sourceCompositionComplete": false,
+              "identityResolvedComponents": 0,
+              "geographicallyAcceptedComponents": 0
+            },
+            "persistence": {
+              "status": "NOT_PERSISTED",
+              "reasons": [
+                "NO_OSM_MATCH"
+              ]
+            },
+            "plannerEligible": false,
+            "geographicDecision": {
+              "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+              "status": "NOT_EVALUATED"
+            }
+          },
+          "rejectionReasons": [
+            "NO_OSM_MATCH"
+          ],
+          "candidateTraceKey": "bar el federal:wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1:wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1:component:Bar El Federal"
+        },
+        {
+          "accepted": false,
+          "candidateName": "Manzana de las Luces",
+          "compositeOutcome": {
+            "coverage": {
+              "resolutionRatio": 0,
+              "totalComponents": 1,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 1,
+              "sourceCompositionComplete": false,
+              "identityResolvedComponents": 0,
+              "geographicallyAcceptedComponents": 0
+            },
+            "persistence": {
+              "status": "NOT_PERSISTED",
+              "reasons": [
+                "NO_OSM_MATCH"
+              ]
+            },
+            "plannerEligible": false,
+            "geographicDecision": {
+              "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+              "status": "NOT_EVALUATED"
+            }
+          },
+          "rejectionReasons": [
+            "NO_OSM_MATCH"
+          ],
+          "candidateTraceKey": "manzana de las luces:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component:Manzana de las Luces"
+        },
+        {
+          "accepted": true,
+          "experienceId": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+          "candidateName": "Mercado San Telmo",
+          "canonicalName": "Mercado San Telmo",
+          "compositeOutcome": {
+            "coverage": {
+              "resolutionRatio": 1,
+              "totalComponents": 1,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 0,
+              "sourceCompositionComplete": true,
+              "identityResolvedComponents": 1,
+              "geographicallyAcceptedComponents": 1
+            },
+            "persistence": {
+              "status": "PERSISTED",
+              "experienceId": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+              "dedupeDecision": "SAME"
+            },
+            "plannerEligible": true,
+            "geographicDecision": {
+              "status": "ACCEPTED",
+              "strategy": "venue_centric"
+            }
+          },
+          "rejectionReasons": [],
+          "candidateTraceKey": "mercado san telmo:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component:Mercado San Telmo",
+          "persistedComponentCount": 1
+        },
+        {
+          "accepted": true,
+          "experienceId": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+          "candidateName": "Museo Histórico Nacional",
+          "canonicalName": "Museo Histórico Nacional",
+          "compositeOutcome": {
+            "coverage": {
+              "resolutionRatio": 1,
+              "totalComponents": 1,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 0,
+              "sourceCompositionComplete": true,
+              "identityResolvedComponents": 1,
+              "geographicallyAcceptedComponents": 1
+            },
+            "persistence": {
+              "status": "PERSISTED",
+              "experienceId": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+              "dedupeDecision": "SAME"
+            },
+            "plannerEligible": true,
+            "geographicDecision": {
+              "status": "ACCEPTED",
+              "strategy": "venue_centric"
+            }
+          },
+          "rejectionReasons": [],
+          "candidateTraceKey": "museo histórico nacional:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component:Museo Histórico Nacional",
+          "persistedComponentCount": 1
+        },
+        {
+          "accepted": false,
+          "candidateName": "Pasaje San Lorenzo",
+          "compositeOutcome": {
+            "coverage": {
+              "resolutionRatio": 0,
+              "totalComponents": 1,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 1,
+              "sourceCompositionComplete": false,
+              "identityResolvedComponents": 0,
+              "geographicallyAcceptedComponents": 0
+            },
+            "persistence": {
+              "status": "NOT_PERSISTED",
+              "reasons": [
+                "NO_OSM_MATCH"
+              ]
+            },
+            "plannerEligible": false,
+            "geographicDecision": {
+              "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+              "status": "NOT_EVALUATED"
+            }
+          },
+          "rejectionReasons": [
+            "NO_OSM_MATCH"
+          ],
+          "candidateTraceKey": "pasaje san lorenzo:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component:Pasaje San Lorenzo"
+        },
+        {
+          "accepted": false,
+          "candidateName": "Plaza Dorrego",
+          "compositeOutcome": {
+            "coverage": {
+              "resolutionRatio": 1,
+              "totalComponents": 1,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 0,
+              "sourceCompositionComplete": true,
+              "identityResolvedComponents": 1,
+              "geographicallyAcceptedComponents": 1
+            },
+            "persistence": {
+              "status": "NOT_PERSISTED",
+              "reasons": [
+                "AMBIGUOUS_DEDUPE"
+              ]
+            },
+            "plannerEligible": false,
+            "geographicDecision": {
+              "status": "ACCEPTED",
+              "strategy": "venue_centric"
+            }
+          },
+          "rejectionReasons": [
+            "AMBIGUOUS_DEDUPE"
+          ],
+          "candidateTraceKey": "plaza dorrego:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component:Plaza Dorrego"
+        },
+        {
+          "accepted": false,
+          "candidateName": "El Zanjón de Granados",
+          "compositeOutcome": {
+            "coverage": {
+              "resolutionRatio": 1,
+              "totalComponents": 1,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 0,
+              "sourceCompositionComplete": true,
+              "identityResolvedComponents": 1,
+              "geographicallyAcceptedComponents": 1
+            },
+            "persistence": {
+              "status": "NOT_PERSISTED",
+              "reasons": [
+                "AMBIGUOUS_DEDUPE"
+              ]
+            },
+            "plannerEligible": false,
+            "geographicDecision": {
+              "status": "ACCEPTED",
+              "strategy": "venue_centric"
+            }
+          },
+          "rejectionReasons": [
+            "AMBIGUOUS_DEDUPE"
+          ],
+          "candidateTraceKey": "el zanjón de granados:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component:El Zanjón de Granados"
+        }
+      ]
+    },
+    {
+      "label": "Planificación diaria determinística",
+      "rules": [
+        {
+          "rule": "Mantener exactamente los buckets de días solicitados por el planner",
+          "actual": 1,
+          "reason": "El solver devolvió 1 bucket(s) de día.",
+          "result": "PASS",
+          "ruleId": "PLAN-DAYS-001"
+        },
+        {
+          "rule": "No seleccionar candidatos que el solver haya marcado como no factibles",
+          "reason": "0 candidato(s) quedaron fuera con reason codes explícitos.",
+          "result": "PASS",
+          "ruleId": "PLAN-FEASIBILITY-001"
+        },
+        {
+          "rule": "Declarar si las estimaciones de traslado son aproximadas",
+          "actual": false,
+          "reason": "El solver informa estimaciones de traslado no aproximadas.",
+          "result": "PASS",
+          "ruleId": "PLAN-TRAVEL-001"
+        }
+      ],
+      "stage": "daily_planning",
+      "inputs": {
+        "solver": "GreedyDailyPlanningSolver",
+        "iterations": 1,
+        "approximateTravel": false
+      },
+      "status": "PASS",
+      "outputs": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 4,
+            "totalTravelMinutes": 32.12506666666667,
+            "utilizationMinutes": 585.6435333333334,
+            "totalWalkingMinutes": 45.64353333333334,
+            "totalExperienceMinutes": 553.5184666666667
+          }
+        ],
+        "score": 4,
+        "selectedCount": 4,
+        "unselectedCount": 0,
+        "residualCapacity": [
+          {
+            "dayNumber": 1,
+            "meaningful": true,
+            "availableMinutes": 74.35646666666662
+          }
+        ]
+      },
+      "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 4 Experience(s) seleccionada(s), 0 sin seleccionar (score total 4). Las estimaciones de traslado usadas son reales.",
+      "decision": {
+        "reason": "El solver produjo una asignación determinística y físicamente evaluable.",
+        "status": "PASS",
+        "outcome": "DAILY_PLAN_BUILT",
+        "reasonCodes": [
+          "PLANNING_COMPLETED"
+        ],
+        "triggeredActions": [
+          "VALIDATE_COMPLETENESS",
+          "VALIDATE_FORMAT_COVERAGE"
+        ]
+      },
+      "component": "GreedyDailyPlanningSolver",
+      "dailyPlanning": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 4,
+            "totalTravelMinutes": 32.12506666666667,
+            "utilizationMinutes": 585.6435333333334,
+            "totalWalkingMinutes": 45.64353333333334,
+            "totalExperienceMinutes": 553.5184666666667
+          }
+        ],
+        "score": 4,
+        "solver": "GreedyDailyPlanningSolver",
+        "routing": {
+          "fallbackCount": 0,
+          "providerCounts": {
+            "geoapify": 4
+          },
+          "externalEstimateCount": 3,
+          "internalEstimateCount": 1,
+          "approximateEstimateCount": 0
+        },
+        "dayCount": 1,
+        "iterations": 1,
+        "selectedCount": 4,
+        "unselectedCount": 0,
+        "residualCapacity": [
+          {
+            "dayNumber": 1,
+            "meaningful": true,
+            "availableMinutes": 74.35646666666662
+          }
+        ],
+        "approximateTravel": false
+      },
+      "candidateDecisions": [
+        {
+          "id": "46554d95-891c-48b7-9b10-39e5667f369f",
+          "name": "46554d95-891c-48b7-9b10-39e5667f369f",
+          "order": 1,
+          "reason": "Asignada al día 1 en posición 1; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+          "name": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+          "order": 2,
+          "reason": "Asignada al día 1 en posición 2; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+          "name": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+          "order": 3,
+          "reason": "Asignada al día 1 en posición 3; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+          "name": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+          "order": 4,
+          "reason": "Asignada al día 1 en posición 4; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Completitud del itinerario",
+      "rules": [
+        {
+          "rule": "Cada día debe tener un uso razonable cuando existen candidatos viables",
+          "reason": "No se detectaron días subutilizados con alternativas viables.",
+          "result": "PASS",
+          "ruleId": "COMP-DAY-USAGE-001"
+        }
+      ],
+      "stage": "tour_completeness",
+      "inputs": {
+        "retryAttempted": false
+      },
+      "status": "PASS",
+      "outputs": {
+        "issues": [],
+        "complete": true
+      },
+      "summary": "El itinerario generado hace un uso razonable de los días solicitados.",
+      "decision": {
+        "reason": "La política de completitud no detectó déficit accionable.",
+        "status": "PASS",
+        "outcome": "TOUR_COMPLETE",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "CONTINUE"
+        ]
+      },
+      "component": "TourCompletenessValidator",
+      "providerStatus": "success",
+      "tourCompleteness": {
+        "issues": [],
+        "complete": true,
+        "retryAttempted": false
+      }
+    }
+  ],
+  "runtime": {
+    "buildCommit": "unknown",
+    "buildTimestamp": "unknown"
+  },
+  "version": 4,
+  "canonicalRequest": {
+    "days": 1,
+    "intent": {
+      "intents": [
+        "walk"
+      ],
+      "interests": [
+        "history"
+      ],
+      "explorationStyle": "balanced",
+      "additionalPreferences": "caminata histórica por San Telmo"
+    },
+    "mobility": {
+      "travelPace": "moderate",
+      "accessibilityNeeds": [],
+      "allowedTransportationModes": [
+        "walking"
+      ],
+      "maxWalkingDistancePerDayMeters": 5000,
+      "maxContinuousWalkingDistanceMeters": 3000
+    },
+    "groupType": "solo",
+    "categories": [],
+    "startDates": [],
+    "budgetLevel": "medium",
+    "destination": {
+      "label": "San Telmo, Buenos Aires, Argentina",
+      "latitude": -34.6214013,
+      "longitude": -58.37375,
+      "scaleHint": "settlement"
+    },
+    "excludeTours": [],
+    "contractVersion": 1,
+    "dietaryRestrictions": [],
+    "skipImageGeneration": true,
+    "includeExistingExperiences": true
+  },
+  "executionSummary": {
+    "status": "completed",
+    "acquisition": {
+      "passes": 1,
+      "providersFailed": [],
+      "observationCount": 9,
+      "webCandidateCount": 0,
+      "approximateRouting": false,
+      "providersAttempted": [
+        "web",
+        "wikivoyage"
+      ],
+      "structuredCandidateCount": 7
+    },
+    "orderedStages": [
+      {
+        "stage": "preference_interpretation",
+        "status": "WARN",
+        "ordinal": 1,
+        "summary": "Preferencias estructuradas aplicadas con respaldo determinístico.",
+        "component": "PreferenceInterpreterService"
+      },
+      {
+        "stage": "tour_intent",
+        "counts": {
+          "requestedDays": 1
+        },
+        "status": "INFO",
+        "ordinal": 2,
+        "outcome": "INTENT_ACCEPTED",
+        "summary": "Temas: history. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"caminata histórica por San Telmo\".",
+        "component": "TourGenerationRequest"
+      },
+      {
+        "stage": "destination_resolution",
+        "status": "PASS",
+        "ordinal": 3,
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "summary": "\"San Telmo, Buenos Aires, Argentina\" resolvió a un límite real de ciudad: San Telmo. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:San Telmo, Buenos Aires, Argentina.",
+        "component": "DestinationResolutionService"
+      },
+      {
+        "stage": "anchor_geo_resolution",
+        "status": "PASS",
+        "ordinal": 4,
+        "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+        "component": "AreaRouteAnchorResolverService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "counts": {
+          "portfolioTarget": 4,
+          "totalDistinctEligibleExperiences": 11
+        },
+        "status": "PASS",
+        "ordinal": 5,
+        "outcome": "none",
+        "summary": "Portafolio suficiente: 11 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets solicitados satisfechos.",
+        "component": "FacetRetrievalService"
+      },
+      {
+        "stage": "db_search",
+        "counts": {
+          "candidateCount": 4
+        },
+        "status": "PASS",
+        "ordinal": 6,
+        "outcome": "CATALOG_POOL_AVAILABLE",
+        "summary": "4 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+        "component": "ExperienceCatalog.findVerifiedWithin"
+      },
+      {
+        "stage": "candidate_pool",
+        "counts": {
+          "offeredCandidateCount": 11
+        },
+        "status": "PASS",
+        "ordinal": 7,
+        "outcome": "EXPERIENCE_POOL_RANKED",
+        "summary": "Se evaluaron 11 experiencias elegibles y se ofrecieron 11 candidatas (11 catálogo, 0 adquisición, 0 discovery).",
+        "component": "ExperienceRankingEngine"
+      },
+      {
+        "stage": "embeddings",
+        "counts": {
+          "measuredRatio": 1,
+          "indexedCandidateCount": 11,
+          "offeredCandidateCount": 11
+        },
+        "status": "PASS",
+        "ordinal": 8,
+        "outcome": "SEMANTIC_SIGNAL_APPLIED",
+        "summary": "Ranking semántico solicitado y aplicado sobre 11 candidato(s) elegible(s) del destino: 11 tenían un vector compatible con el índice activo y se ofrecieron 11 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+        "component": "VectorStoreService + pgvector"
+      },
+      {
+        "stage": "discovery",
+        "counts": {
+          "candidateCount": 7,
+          "observationCount": 9,
+          "webCandidateCount": 0,
+          "structuredCandidateCount": 7
+        },
+        "status": "PASS",
+        "ordinal": 9,
+        "summary": "Pase 1: fuentes [wikivoyage, web] → 9 observación(es) estructurada(s) + 7 candidate(s) (web: 0).",
+        "component": "ExperienceAcquisitionService"
+      },
+      {
+        "stage": "entity_resolution",
+        "counts": {
+          "rejectedCount": 3,
+          "candidateCount": 7,
+          "resolvedEntityCount": 4,
+          "resolutionReadyCount": 4,
+          "entitiesWithCoordinates": 4
+        },
+        "status": "PASS",
+        "ordinal": 10,
+        "outcome": "ENTITIES_READY_FOR_GEOGRAPHIC_VALIDATION",
+        "summary": "Entity resolution procesó 7 candidato(s): 4 quedaron con entidades concretas suficientes para continuar y 3 no pudieron resolverse. Se obtuvieron 4 entidad(es) provider-backed, 4 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite. Rechazadas: Bar El Federal: NO_OSM_MATCH [resueltos 0/1: Bar El Federal=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)]; Manzana de las Luces: NO_OSM_MATCH [resueltos 0/1: Manzana de las Luces=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)]; Pasaje San Lorenzo: NO_OSM_MATCH [resueltos 0/1: Pasaje San Lorenzo=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)].",
+        "component": "ExperienceProposalResolverService"
+      },
+      {
+        "stage": "geographic_validation",
+        "counts": {
+          "rejectedCount": 0,
+          "geoVerifiedCount": 4
+        },
+        "status": "PASS",
+        "ordinal": 11,
+        "outcome": "GEO_VERIFIED_PROPOSALS_READY",
+        "summary": "Validación geográfica: 4 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+        "component": "CompositeGeographicValidationService"
+      },
+      {
+        "stage": "catalog_materialization",
+        "counts": {
+          "rejectedCount": 5,
+          "materializedCount": 2
+        },
+        "status": "WARN",
+        "ordinal": 12,
+        "outcome": "VERIFIED_EXPERIENCES_MATERIALIZED",
+        "summary": "2 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 5 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution. Bar El Federal: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Manzana de las Luces: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Mercado San Telmo: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Museo Histórico Nacional: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Pasaje San Lorenzo: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Plaza Dorrego: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, no persistida, no elegible para planner; El Zanjón de Granados: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, no persistida, no elegible para planner.",
+        "component": "ExperienceCatalogService"
+      },
+      {
+        "stage": "daily_planning",
+        "counts": {
+          "score": 4,
+          "selectedCount": 4,
+          "unselectedCount": 0
+        },
+        "status": "PASS",
+        "ordinal": 13,
+        "outcome": "DAILY_PLAN_BUILT",
+        "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 4 Experience(s) seleccionada(s), 0 sin seleccionar (score total 4). Las estimaciones de traslado usadas son reales.",
+        "component": "GreedyDailyPlanningSolver"
+      },
+      {
+        "stage": "tour_completeness",
+        "status": "PASS",
+        "ordinal": 14,
+        "outcome": "TOUR_COMPLETE",
+        "summary": "El itinerario generado hace un uso razonable de los días solicitados.",
+        "component": "TourCompletenessValidator"
+      },
+      {
+        "stage": "tour_experience_materialization",
+        "counts": {
+          "componentSnapshots": 5,
+          "selectedExperiences": 4
+        },
+        "status": "PASS",
+        "ordinal": 15,
+        "outcome": "TOUR_EXPERIENCES_PERSISTED",
+        "summary": "4 TourExperience snapshot(s) persistidos desde Experience verificadas.",
+        "component": "Prisma.TourExperience"
+      }
+    ],
+    "rejectedProposals": 3,
+    "acceptedExperiences": 4,
+    "selectedExperiences": 4
+  },
+  "tourCompleteness": {
+    "issues": [],
+    "complete": true,
+    "retryAttempted": false
+  },
+  "materializedTourExperiences": [
+    {
+      "order": 1,
+      "dayNumber": 1,
+      "experienceId": "46554d95-891c-48b7-9b10-39e5667f369f",
+      "durationHours": 3.225307777777778,
+      "componentCount": 2
+    },
+    {
+      "order": 2,
+      "dayNumber": 1,
+      "experienceId": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 3,
+      "dayNumber": 1,
+      "experienceId": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 4,
+      "dayNumber": 1,
+      "experienceId": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+      "durationHours": 2,
+      "componentCount": 1
+    }
+  ]
+}

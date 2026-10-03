@@ -1,0 +1,95 @@
+{
+  "endpoint": "search",
+  "request": {
+    "q": "San Telmo San Telmo walking tours walks caminata histórica por San Telmo",
+    "gl": "ar",
+    "hl": "es",
+    "location": "Buenos Aires, Argentina",
+    "num": 10
+  },
+  "capturedAt": "2026-09-25T12:54:20.137Z",
+  "meta": {
+    "endpoint": "search",
+    "httpStatus": 200,
+    "durationMs": 1648
+  },
+  "data": {
+    "searchParameters": {
+      "q": "San Telmo San Telmo walking tours walks caminata histórica por San Telmo",
+      "gl": "ar",
+      "hl": "es",
+      "type": "search",
+      "num": 10,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "organic": [
+      {
+        "title": "Free Tour San Telmo Buenos Aires",
+        "link": "https://www.guruwalk.com/es/buenos-aires/tag/san-telmo",
+        "snippet": "Excelente recorrido. Destacamos las visitas a lugares históricos y emblemáticos con suficiente tiempo y clara explicación. Destacamos las visitas a la Pulpería ...",
+        "rating": 4.8,
+        "ratingCount": 997,
+        "position": 1
+      },
+      {
+        "title": "Free Tour San Telmo - Buenos Aires ...",
+        "link": "https://buenosairesfreewalks.com/spanish/free-tour-san-telmo/",
+        "snippet": "Precio: A Propina. · Programación: Sábados y Domingos · Comienzo: 11 am en Español · Punto de Encuentro: Iglesia de San Ignacio. · Duración: 2 horas · ¡Incluso ...",
+        "position": 2
+      },
+      {
+        "title": "Visita Guiada | San Telmo, bohemio, histórico y cultural",
+        "link": "https://turismo.buenosaires.gob.ar/es/article/visita-guiada-san-telmo-bohemio-hist%C3%B3rico-y-cultural",
+        "snippet": "Te invitamos a una recorrida guiada por San Telmo en la que en una hora y media conocerás más sobre este barrio que forma parte del Casco Histórico ...",
+        "position": 3
+      },
+      {
+        "title": "Free walking tour por San Telmo: qué ver y dónde comer",
+        "link": "https://www.tangol.com/blog/esp/free-walking-tour-por-san-telmo-que-ver-y-donde-comer_nota_19453",
+        "snippet": "La forma más lógica de recorrer el casco histórico hacia San Telmo es trazar una ruta lineal. El recorrido es directo hacia el sur por la calle ...",
+        "date": "14 may 2026",
+        "position": 4
+      },
+      {
+        "title": "Free Walking Tours en San Telmo (@walkingsantelmo)",
+        "link": "https://www.instagram.com/walkingsantelmo/",
+        "snippet": "✨ ¡Gracias a este grupo hermoso por compartir la caminata de hoy por San Telmo! Siempre es una alegría recorrer el barrio, descubrir sus historias y reírnos ...",
+        "position": 5
+      },
+      {
+        "title": "Free tour por el barrio de San Telmo, Buenos Aires",
+        "link": "https://www.civitatis.com/ar/buenos-aires/free-tour-san-telmo/?srsltid=AU7gw4XjE32aPGisZA3I71Uh0KECR4nbj4MSaq7Idj7725RX1s_AE6Ep",
+        "snippet": "Acompañadnos a explorar lo más icónico del barrio porteño de San Telmo en este free tour, donde recorreremos sus principales templos y casas tradicionales.",
+        "position": 6
+      },
+      {
+        "title": "#FreeWalkingTour por #SanTelmo 🇦🇷",
+        "link": "https://www.facebook.com/TurismoArgentina/posts/freewalkingtour-por-santelmo-/608746147959758/",
+        "snippet": "\"Caminata con mirada viajera\" Sera un paseo de unos 4-5 km, recorriendo y disfrutando del Barrio de San Telmo y algunos de sus atractivos. El ...",
+        "position": 7
+      },
+      {
+        "title": "San Telmo Walking Tour: History, Food & Hidden Gems",
+        "link": "https://experiencebaires.com/es/products/san-telmo-walking-tour?srsltid=AU7gw4Xvz4ehCLGMiphfqqcFzMJF_vi7xepDLkJ7R__dLFccOAp4OoUY",
+        "snippet": "Join our San Telmo walking tour: explore nearly 500 years of history, hidden gems, and the authentic flavors of Buenos Aires' oldest district. Book now.",
+        "position": 8
+      },
+      {
+        "title": "BUENOS AIRES FREE WALKS (ACTUALIZADO 2026)",
+        "link": "https://www.tripadvisor.com.ar/Attraction_Review-g312741-d4541686-Reviews-Buenos_Aires_Free_Walks-Buenos_Aires_Capital_Federal_District.html",
+        "snippet": "Recorrido a pie por el cementerio de la Recoleta · (606) · $ 18.643 ; 2 horas. Recorrido a pie en San Telmo y mercado · (293) · $ 20.197 ; Recorrido a pie por La Boca.",
+        "rating": 4.9,
+        "ratingCount": 9986,
+        "position": 9
+      },
+      {
+        "title": "San Telmo Walking Tour",
+        "link": "https://www.argentina4u.com/es/buenos-aires/san-telmo-walking-tour",
+        "snippet": "Lo que incluye: Walking tour guiado por San Telmo. Guía profesional de habla inglesa. Recorrido por los principales sitios históricos y culturales del barrio.",
+        "position": 10
+      }
+    ],
+    "credits": 1
+  }
+}

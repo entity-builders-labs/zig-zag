@@ -1,0 +1,11 @@
+{
+  "classification": "PROVIDER_FAILURE",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.7,
+  "maxCompletionTokens": 900,
+  "responseFormat": "json_object",
+  "elapsedMs": 180808,
+  "providerError": "Groq error 429: {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[REDACTED]` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197570, Requested 3019. Please try again in 4m14.448s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n",
+  "providerErrorKind": "rate_limit_429"
+}

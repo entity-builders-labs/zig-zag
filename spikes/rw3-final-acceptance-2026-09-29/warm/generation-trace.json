@@ -1,0 +1,3069 @@
+{
+  "steps": [
+    {
+      "id": "trace-step-1",
+      "name": "preference.interpretation",
+      "facts": {
+        "model": "qwen/qwen3.8-27b",
+        "stage": "preference_interpretation",
+        "status": "applied",
+        "provider": "groq",
+        "durationMs": 1077,
+        "userPrompt": "Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido.",
+        "rawResponse": "{\n  \"preferredFacets\": [\n    {\n      \"dimension\": \"intent\",\n      \"key\": \"walk\",\n      \"confidence\": 0.95,\n      \"strength\": \"strong\",\n      \"evidence\": [\n        \"recorrer Caminito caminando\"\n      ]\n    },\n    {\n      \"dimension\": \"theme\",\n      \"key\": \"culture\",\n      \"confidence\": 0.7,\n      \"strength\": \"medium\",\n      \"evidence\": [\n        \"conocer los lugares más representativos\"\n      ]\n    }\n  ],\n  \"anchoredPlaces\": [\n    {\n      \"rawName\": \"Caminito\",\n      \"usage\": \"named_path\",\n      \"priority\": \"must\"\n    }\n  ],\n  \"excludedThemes\": [],\n  \"excludedTraits\": [],\n  \"hardExclusions\": [],\n  \"softConstraints\": [],\n  \"ambiguities\": [],\n  \"dietaryPreferences\": [],\n  \"accessibilityPreferences\": [],\n  \"budgetPreferences\": [],\n  \"groupPreferences\": [],\n  \"positiveSemanticQuery\": \"walk caminito path see representative places\",\n  \"notes\": \"User explicitly requested walking the Caminito path and wants to see its most representative spots.\"\n}",
+        "systemPrompt": "Interpret the user's supplemental tourism preferences into normalized intent.\nReturn JSON only. You interpret language; deterministic code enforces the result.\nNever invent geographic entities, provider IDs, coordinates, or evidence.\nDo not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.\nFor positive preferences, output preferredFacets as a list of objects with:\n- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.\n- key: CANONICAL domain key in English (e.g. \"architecture\" not \"arquitectura\", \"food\" not \"comida\", \"walk\" not \"caminata\", \"history\" not \"historia\").\n- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.\n- confidence: float between 0 and 1 indicating certainty.\n- strength: \"strong\" | \"medium\" | \"weak\" indicating user emphasis.\n- evidence: one or more short excerpts copied from the user's text that support\n  this facet. Never invent evidence; facets without supporting excerpts are rejected.\nDo not invent arbitrary importance numbers; code derives importance deterministically from strength.\nAlso output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by\nname (never a generic theme). For each, output:\n- rawName: the name as mentioned by the user.\n- usage: \"geographic_scope\" | \"specific_destination\" | \"named_path\" | \"unknown\". This describes how the phrase uses the name, not what geographic entity it is.\n- priority: \"must\" ONLY for explicit, unambiguous named-place intent, for example\n  \"quiero visitar X\", \"incluí X\", \"sí o sí quiero ir a X\", \"no me quiero perder X\".\n  Anything weaker or ambiguous -- including a place mentioned only in passing while\n  describing a theme, e.g. \"me interesa la arquitectura de X\" -- is priority \"soft\".\nExtract anchors conservatively: when in doubt about the name or the intent, omit the anchor\nrather than guessing. Do not invent named places that were not mentioned.\nOther fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,\ndietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,\npositiveSemanticQuery, notes. Use short lowercase phrases.",
+        "parsedResponse": {
+          "notes": [],
+          "ambiguities": [],
+          "anchoredPlaces": [
+            {
+              "usage": "named_path",
+              "rawName": "Caminito",
+              "priority": "must"
+            }
+          ],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "walk",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "recorrer Caminito caminando",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "intent",
+              "confidence": 0.95,
+              "importance": 1
+            },
+            {
+              "key": "culture",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "conocer los lugares más representativos",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.7,
+              "importance": 0.7
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "walk caminito path see representative places",
+          "accessibilityPreferences": []
+        },
+        "responseSchema": {
+          "type": "object",
+          "required": [
+            "preferredFacets",
+            "anchoredPlaces",
+            "excludedThemes",
+            "excludedTraits",
+            "hardExclusions",
+            "softConstraints",
+            "ambiguities",
+            "dietaryPreferences",
+            "accessibilityPreferences",
+            "budgetPreferences",
+            "groupPreferences",
+            "positiveSemanticQuery",
+            "notes"
+          ],
+          "properties": {
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ambiguities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "anchoredPlaces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rawName",
+                  "usage",
+                  "priority"
+                ],
+                "properties": {
+                  "usage": {
+                    "enum": [
+                      "geographic_scope",
+                      "specific_destination",
+                      "named_path",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "rawName": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "enum": [
+                      "soft",
+                      "must"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "excludedThemes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "excludedTraits": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hardExclusions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "preferredFacets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "dimension",
+                  "key",
+                  "confidence"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "strength": {
+                    "enum": [
+                      "strong",
+                      "medium",
+                      "weak"
+                    ],
+                    "type": "string"
+                  },
+                  "dimension": {
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "softConstraints": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "groupPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "budgetPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dietaryPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSemanticQuery": {
+              "type": "string"
+            },
+            "accessibilityPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "validationErrors": [],
+        "facetNormalizationDecisions": [
+          {
+            "rawKey": "walk",
+            "reason": "VALID_AS_EMITTED",
+            "accepted": true,
+            "rawDimension": "intent",
+            "normalizedKey": "walk",
+            "normalizedDimension": "intent"
+          },
+          {
+            "rawKey": "culture",
+            "reason": "VALID_AS_EMITTED",
+            "accepted": true,
+            "rawDimension": "theme",
+            "normalizedKey": "culture",
+            "normalizedDimension": "theme"
+          }
+        ]
+      },
+      "input": {
+        "intents": [
+          "walk"
+        ],
+        "groupType": "solo",
+        "budgetLevel": "medium",
+        "accessibilityNeeds": [],
+        "dietaryRestrictions": [],
+        "hasAdditionalPreferences": true
+      },
+      "output": {
+        "intent": {
+          "notes": [],
+          "ambiguities": [],
+          "anchoredPlaces": [
+            {
+              "usage": "named_path",
+              "rawName": "Caminito",
+              "priority": "must"
+            }
+          ],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "walk",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "recorrer Caminito caminando",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "intent",
+              "confidence": 0.95,
+              "importance": 1
+            },
+            {
+              "key": "culture",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "conocer los lugares más representativos",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.7,
+              "importance": 0.7
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "walk caminito path see representative places",
+          "accessibilityPreferences": []
+        },
+        "preferenceSpec": {
+          "trip": {
+            "days": 1,
+            "pace": "moderate",
+            "startDates": []
+          },
+          "facets": [
+            {
+              "key": "walk",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "intent"
+            },
+            {
+              "key": "culture",
+              "source": "free_text",
+              "weight": 0.4899999999999999,
+              "required": false,
+              "dimension": "theme"
+            }
+          ],
+          "anchors": [
+            {
+              "usage": "named_path",
+              "rawName": "Caminito",
+              "priority": "must"
+            }
+          ],
+          "exclusions": {
+            "hard": [],
+            "themes": [],
+            "traits": []
+          },
+          "semanticQuery": "walk caminito path see representative places",
+          "resolvedAnchors": [],
+          "softConstraints": {
+            "group": [],
+            "budget": [],
+            "dietary": [],
+            "accessibility": []
+          },
+          "explorationStyle": "balanced"
+        }
+      },
+      "timing": {
+        "durationMs": 1077
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "APPLIED"
+      },
+      "sequence": 1,
+      "component": "PreferenceInterpreterService",
+      "description": "Preferencias libres normalizadas y combinadas con filtros."
+    },
+    {
+      "id": "trace-step-2",
+      "name": "request.intent",
+      "facts": {
+        "days": 1,
+        "facets": [
+          {
+            "key": "walk",
+            "source": "wizard",
+            "weight": 1,
+            "required": false,
+            "dimension": "intent"
+          },
+          {
+            "key": "culture",
+            "source": "free_text",
+            "weight": 0.4899999999999999,
+            "required": false,
+            "dimension": "theme"
+          }
+        ],
+        "themes": [],
+        "travelPace": "moderate",
+        "destination": "Buenos Aires, Argentina",
+        "explorationStyle": "balanced",
+        "accessibilityNeeds": [],
+        "additionalPreferences": "Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido.",
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 50000,
+        "maxContinuousWalkingDistanceMeters": 20000
+      },
+      "rules": [
+        {
+          "id": "INTENT-CANONICAL-001",
+          "name": "Usar el wizard canónico como fuente de restricciones explícitas",
+          "facts": {
+            "contractVersion": 1
+          },
+          "reason": "La generación parte de TourGenerationRequest contractVersion=1.",
+          "status": "PASS"
+        },
+        {
+          "id": "INTENT-FREETEXT-001",
+          "name": "Conservar preferencias adicionales como intención suplementaria",
+          "reason": "Hay texto adicional disponible para búsqueda/ranking semántico.",
+          "status": "PASS"
+        }
+      ],
+      "decision": {
+        "status": "PASS",
+        "outcome": "ACCEPTED"
+      },
+      "sequence": 2,
+      "component": "TourGenerationRequest",
+      "description": "Intención y movilidad solicitadas"
+    },
+    {
+      "id": "trace-step-3",
+      "name": "destination.resolution",
+      "input": {
+        "destinationText": "Buenos Aires, Argentina",
+        "attemptedQueries": [
+          "forward:Buenos Aires, Argentina"
+        ]
+      },
+      "rules": [
+        {
+          "id": "DEST-SCALE-001",
+          "name": "Determinar si el destino puede usar boundary real o debe degradar a punto",
+          "facts": {
+            "scale": "area"
+          },
+          "reason": "Se obtuvo boundary administrativo utilizable.",
+          "status": "PASS"
+        }
+      ],
+      "output": {
+        "scale": "area",
+        "boundaryId": "osm:relation:1224652",
+        "countryCode": "AR",
+        "boundaryName": "Buenos Aires",
+        "canonicalName": "Buenos Aires"
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "reasonCodes": [
+          "AREA_BOUNDARY_RESOLVED"
+        ]
+      },
+      "sequence": 3,
+      "component": "DestinationResolutionService",
+      "description": "\"Buenos Aires, Argentina\" resolvió a un límite real de ciudad: Buenos Aires. Se usa ese límite real en vez de un único punto+radio."
+    },
+    {
+      "id": "trace-step-4",
+      "name": "anchor.geo_resolution",
+      "facts": {
+        "resolvedCount": 1,
+        "totalRequested": 1,
+        "unresolvedCount": 0
+      },
+      "input": {
+        "anchors": [
+          {
+            "usage": "named_path",
+            "rawName": "Caminito",
+            "priority": "must"
+          }
+        ]
+      },
+      "output": {
+        "anchors": [
+          {
+            "kind": "route",
+            "usage": "named_path",
+            "status": "resolved",
+            "rawName": "Caminito",
+            "geometry": {
+              "type": "MultiLineString",
+              "coordinates": [
+                [
+                  [
+                    -58.3632988,
+                    -34.6391307
+                  ],
+                  [
+                    -58.3632393,
+                    -34.6391711
+                  ],
+                  [
+                    -58.3630755,
+                    -34.6392431
+                  ],
+                  [
+                    -58.3629034,
+                    -34.639299
+                  ],
+                  [
+                    -58.3626552,
+                    -34.6393481
+                  ],
+                  [
+                    -58.3623762,
+                    -34.6393831
+                  ],
+                  [
+                    -58.3622584,
+                    -34.6393874
+                  ],
+                  [
+                    -58.3618064,
+                    -34.6393968
+                  ],
+                  [
+                    -58.3617988,
+                    -34.639397
+                  ]
+                ]
+              ]
+            },
+            "priority": "must",
+            "provider": "openstreetmap",
+            "externalId": "osm:way:144844726",
+            "geoEntityId": "98e63c7d-35ea-44be-a8a9-389c993f8856",
+            "osmBoundary": "undefined",
+            "canonicalName": "Caminito",
+            "candidateFacts": [
+              {
+                "branch": "area",
+                "eligibility": "NO_CANDIDATE",
+                "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                "discoveryStatus": "no_match"
+              },
+              {
+                "kind": "route",
+                "branch": "route",
+                "decision": "SELECTED",
+                "provider": "openstreetmap",
+                "externalId": "osm:way:144844726",
+                "eligibility": "ELIGIBLE",
+                "canonicalName": "Caminito",
+                "compatibility": {
+                  "reason": "WITHIN_DESTINATION_BOUNDARY",
+                  "verdict": "COMPATIBLE"
+                },
+                "discoveryStatus": "match"
+              },
+              {
+                "kind": "venue",
+                "branch": "place",
+                "provider": "nominatim",
+                "externalId": "osm:way:269972048",
+                "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                "canonicalName": "Caminito",
+                "compatibility": {
+                  "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                  "verdict": "INCOMPATIBLE"
+                },
+                "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                "discoveryStatus": "rejected"
+              },
+              {
+                "kind": "venue",
+                "branch": "place",
+                "provider": "nominatim",
+                "externalId": "osm:way:190947717",
+                "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                "canonicalName": "Caminito",
+                "compatibility": {
+                  "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                  "verdict": "INCOMPATIBLE"
+                },
+                "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                "discoveryStatus": "rejected"
+              },
+              {
+                "kind": "venue",
+                "branch": "place",
+                "provider": "nominatim",
+                "externalId": "osm:way:46859224",
+                "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                "canonicalName": "Caminito",
+                "compatibility": {
+                  "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                  "verdict": "INCOMPATIBLE"
+                },
+                "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                "discoveryStatus": "rejected"
+              },
+              {
+                "kind": "venue",
+                "branch": "place",
+                "provider": "nominatim",
+                "externalId": "osm:way:205650907",
+                "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                "canonicalName": "Caminito",
+                "compatibility": {
+                  "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                  "verdict": "INCOMPATIBLE"
+                },
+                "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                "discoveryStatus": "rejected"
+              },
+              {
+                "kind": "venue",
+                "branch": "place",
+                "provider": "nominatim",
+                "externalId": "osm:way:191914894",
+                "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                "canonicalName": "Caminito",
+                "compatibility": {
+                  "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                  "verdict": "INCOMPATIBLE"
+                },
+                "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                "discoveryStatus": "rejected"
+              }
+            ]
+          }
+        ]
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "ALL_RESOLVED"
+      },
+      "sequence": 4,
+      "component": "AreaRouteAnchorResolverService",
+      "description": "Resolución geográfica de anchors solicitados"
+    },
+    {
+      "id": "trace-step-5",
+      "name": "coverage.analysis",
+      "facts": {
+        "facetSummaries": [
+          {
+            "key": "walk",
+            "dimension": "intent",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 1
+          },
+          {
+            "key": "culture",
+            "dimension": "theme",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 1
+          }
+        ],
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "semanticRanking": {
+          "reason": "undefined",
+          "status": "applied",
+          "identity": {
+            "model": "nomic-embed-text",
+            "provider": "ollama",
+            "dimensions": 256,
+            "documentVersion": 3
+          },
+          "indexedCandidateCount": 15,
+          "eligibleCandidateCount": 15
+        },
+        "offeredCandidateCount": 4
+      },
+      "input": {
+        "facets": [
+          "intent:walk",
+          "theme:culture"
+        ],
+        "portfolioTarget": 4
+      },
+      "rules": [
+        {
+          "id": "PCOV-QUANTITY-001",
+          "name": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "facts": {
+            "actual": 15,
+            "target": 4
+          },
+          "reason": "15 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "status": "PASS"
+        },
+        {
+          "id": "PCOV-FACET-INTENT-WALK",
+          "name": "Cobertura del facet solicitado: intent:walk",
+          "facts": {
+            "weakMatches": 0,
+            "strongMatches": 1
+          },
+          "reason": "1 coincidencia(s) fuerte(s), 0 débil(es).",
+          "status": "PASS"
+        },
+        {
+          "id": "PCOV-FACET-THEME-CULTURE",
+          "name": "Cobertura del facet solicitado: theme:culture",
+          "facts": {
+            "weakMatches": 0,
+            "strongMatches": 1
+          },
+          "reason": "1 coincidencia(s) fuerte(s), 0 débil(es).",
+          "status": "PASS"
+        }
+      ],
+      "output": {
+        "deficits": [],
+        "sufficient": true,
+        "deficitCount": 0,
+        "facetResults": [
+          {
+            "key": "walk",
+            "dimension": "intent",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 1
+          },
+          {
+            "key": "culture",
+            "dimension": "theme",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 1
+          }
+        ],
+        "totalDistinctEligibleExperiences": 15
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "SUFFICIENT",
+        "reasonCodes": []
+      },
+      "sequence": 5,
+      "component": "FacetRetrievalService",
+      "description": "Portafolio suficiente: 15 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets satisfechos."
+    },
+    {
+      "id": "trace-step-6",
+      "name": "catalog.search",
+      "input": {
+        "radiusKm": 13.42013407658705
+      },
+      "rules": [
+        {
+          "id": "CATALOG-RETRIEVAL-001",
+          "name": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+          "facts": {
+            "candidateCount": 4
+          },
+          "reason": "El catálogo aportó 4 candidato(s).",
+          "status": "PASS"
+        }
+      ],
+      "output": {
+        "candidateCount": 4
+      },
+      "decision": {
+        "reason": "Hay candidatos persistidos para evaluar.",
+        "status": "PASS",
+        "outcome": "CATALOG_POOL_AVAILABLE"
+      },
+      "sequence": 6,
+      "subjects": [
+        {
+          "subject": {
+            "id": "f5dee6f9-6070-437e-bdf1-e8262af6d27d",
+            "kind": "experience",
+            "label": "La Boca Walking Tour: Caminito, Museum, and Bridge"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "ELIGIBLE"
+          }
+        },
+        {
+          "subject": {
+            "id": "f2658e37-1d2e-4ee9-9898-b5c0f731af49",
+            "kind": "experience",
+            "label": "Museo de Artistas Argentinos Benito Quinquela Martín"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "ELIGIBLE"
+          }
+        },
+        {
+          "subject": {
+            "id": "9f1c68ed-28d8-452e-9fb2-1e83032971e7",
+            "kind": "experience",
+            "label": "Benito Quinquela Martín"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "ELIGIBLE"
+          }
+        },
+        {
+          "subject": {
+            "id": "e2b6fed7-5cc2-41cc-b143-f7e43c04677e",
+            "kind": "experience",
+            "label": "Museo Casa Taller 'Celia Chevalier'"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "ELIGIBLE"
+          }
+        }
+      ],
+      "component": "ExperienceCatalog.findVerifiedWithin",
+      "description": "4 Experiences recuperadas del catálogo dentro del alcance (13.420134076587049km)."
+    },
+    {
+      "id": "trace-step-7",
+      "name": "candidate_pool.selection",
+      "facts": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 15,
+          "discovery": 0
+        },
+        "eligibleCount": 15,
+        "portfolioTarget": 4,
+        "initialCatalogCount": 15,
+        "postAcquisitionCatalogCount": 15
+      },
+      "input": {
+        "eligibleCount": 15,
+        "portfolioTarget": 4,
+        "requestedThemes": [],
+        "initialCatalogCount": 15,
+        "postAcquisitionCatalogCount": 15
+      },
+      "rules": [
+        {
+          "id": "EXPERIENCE-RANK-001",
+          "name": "Ordenar Experiences por relevancia semántica y calidad",
+          "facts": {
+            "candidateCount": 15
+          },
+          "reason": "El ranking determinístico consume únicamente Experiences verificadas.",
+          "status": "PASS"
+        }
+      ],
+      "output": {
+        "offeredCount": 15,
+        "selectedCount": 4,
+        "reservoirCount": 11
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "EXPERIENCE_POOL_RANKED"
+      },
+      "sequence": 7,
+      "subjects": [
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 1.49,
+              "qualityBonus": 3.289027930207125,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 1.49,
+              "preferenceScore": 1.49,
+              "semanticSimilarity": 0.7015718430749134
+            }
+          },
+          "subject": {
+            "id": "f5dee6f9-6070-437e-bdf1-e8262af6d27d",
+            "kind": "experience",
+            "label": "La Boca Walking Tour: Caminito, Museum, and Bridge"
+          },
+          "decision": {
+            "reason": "Score total 1.490",
+            "status": "PASS",
+            "outcome": "SELECTED"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.6089316969473181
+            }
+          },
+          "subject": {
+            "id": "f2658e37-1d2e-4ee9-9898-b5c0f731af49",
+            "kind": "experience",
+            "label": "Museo de Artistas Argentinos Benito Quinquela Martín"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "PASS",
+            "outcome": "SELECTED"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.6056123556379188
+            }
+          },
+          "subject": {
+            "id": "9f1c68ed-28d8-452e-9fb2-1e83032971e7",
+            "kind": "experience",
+            "label": "Benito Quinquela Martín"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "PASS",
+            "outcome": "SELECTED"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.6046835003887588
+            }
+          },
+          "subject": {
+            "id": "e2b6fed7-5cc2-41cc-b143-f7e43c04677e",
+            "kind": "experience",
+            "label": "Museo Casa Taller 'Celia Chevalier'"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "PASS",
+            "outcome": "SELECTED"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.6025991619407883
+            }
+          },
+          "subject": {
+            "id": "5187a8e8-8919-44f0-ac40-d99a6a75fb7b",
+            "kind": "experience",
+            "label": "Estatua Hugo del Carril"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "INFO",
+            "outcome": "RESERVOIR"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.6023254933052209
+            }
+          },
+          "subject": {
+            "id": "7726ca27-909b-4d6f-b40f-9d46ed3f1035",
+            "kind": "experience",
+            "label": "La flor de la vida"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "INFO",
+            "outcome": "RESERVOIR"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.5875504788026359
+            }
+          },
+          "subject": {
+            "id": "9d3a1042-f877-4f50-87e1-fd12766e6b89",
+            "kind": "experience",
+            "label": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "INFO",
+            "outcome": "RESERVOIR"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.5873368207413929
+            }
+          },
+          "subject": {
+            "id": "47da38d6-8d9b-491f-9a48-9a2f970a50c6",
+            "kind": "experience",
+            "label": "Museo Histórico de Cera"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "INFO",
+            "outcome": "RESERVOIR"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.5822409564924528
+            }
+          },
+          "subject": {
+            "id": "5f80d4ef-5a0a-4287-a66f-7c9be0deccc4",
+            "kind": "experience",
+            "label": "Colón Fábrica"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "INFO",
+            "outcome": "RESERVOIR"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.5807732516757625
+            }
+          },
+          "subject": {
+            "id": "1e6fe6f2-3274-4184-b5c2-02875c64c203",
+            "kind": "experience",
+            "label": "Guillermo Brown"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "INFO",
+            "outcome": "RESERVOIR"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.5791287767367826
+            }
+          },
+          "subject": {
+            "id": "33dfb4dc-7e71-4871-94b7-c9dee93cd1d2",
+            "kind": "experience",
+            "label": "Museo del Cine Pablo Ducrós Hicken"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "INFO",
+            "outcome": "RESERVOIR"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.5706656489371346
+            }
+          },
+          "subject": {
+            "id": "e1ca23f0-f9e8-4012-a1c4-4cbac5136f50",
+            "kind": "experience",
+            "label": "Juventud"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "INFO",
+            "outcome": "RESERVOIR"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.5562997030109081
+            }
+          },
+          "subject": {
+            "id": "17ced6b5-7daf-4133-a295-ef99da61646f",
+            "kind": "experience",
+            "label": "Roca granitica"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "INFO",
+            "outcome": "RESERVOIR"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.5542681382378384
+            }
+          },
+          "subject": {
+            "id": "0ecbe5c6-fec9-403d-9ec4-8d5a578686a1",
+            "kind": "experience",
+            "label": "Hidrovértigo"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "INFO",
+            "outcome": "RESERVOIR"
+          }
+        },
+        {
+          "facts": {
+            "source": "db",
+            "scoreBreakdown": {
+              "totalScore": 0,
+              "qualityBonus": 0,
+              "diversityBonus": 0,
+              "proximityBonus": 0,
+              "preferenceBonus": 0,
+              "preferenceScore": 0,
+              "semanticSimilarity": 0.5411367142878004
+            }
+          },
+          "subject": {
+            "id": "919e24a6-822d-4359-9ee0-58ca391e195c",
+            "kind": "experience",
+            "label": "La Madre"
+          },
+          "decision": {
+            "reason": "Score total 0.000",
+            "status": "INFO",
+            "outcome": "RESERVOIR"
+          }
+        }
+      ],
+      "component": "CandidateSelectionService",
+      "description": "Ranking y selección de experiencias (15 ofrecidas: 15 catálogo, 0 adquisición, 0 discovery)."
+    },
+    {
+      "id": "trace-step-8",
+      "name": "ranking.semantic",
+      "facts": {
+        "model": "undefined",
+        "status": "applied",
+        "identity": {
+          "model": "nomic-embed-text",
+          "provider": "ollama",
+          "dimensions": 256,
+          "documentVersion": 3
+        },
+        "candidateCount": 15,
+        "indexedCandidateCount": 15,
+        "eligibleCandidateCount": 15
+      },
+      "rules": [
+        {
+          "id": "RANK-SEMANTIC-001",
+          "name": "Usar similitud semántica solo cuando fue solicitada y está disponible",
+          "reason": "Similitud semántica calculada y agregada al score.",
+          "status": "PASS"
+        }
+      ],
+      "decision": {
+        "status": "PASS",
+        "outcome": "APPLIED"
+      },
+      "sequence": 8,
+      "component": "VectorStoreService + pgvector",
+      "description": "Ranking semántico aplicado sobre 15 candidato(s) elegible(s)."
+    },
+    {
+      "id": "acquisition-pass-1-planner_capacity",
+      "name": "acquisition.pass",
+      "facts": {
+        "strategy": "planner_capacity",
+        "passNumber": 1,
+        "candidateCount": 4,
+        "observationCount": 3
+      },
+      "input": {
+        "deficits": [
+          {
+            "origin": "global_capacity",
+            "reason": "Planner has 107.89656666666679 minutes of residual capacity on day 1",
+            "currentEligibleCount": 15,
+            "requiredEligibleCount": 16
+          }
+        ],
+        "destination": {
+          "latitude": -34.6037,
+          "longitude": -58.3816,
+          "radiusMeters": 25000,
+          "destinationName": "Buenos Aires",
+          "destinationCountryCode": "AR"
+        }
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "PASS_1_EXECUTED"
+      },
+      "sequence": 9,
+      "component": "ExperienceAcquisitionService",
+      "description": "Pase de adquisición #1 (planner_capacity)"
+    },
+    {
+      "id": "trace-step-10",
+      "name": "acquisition.plan",
+      "facts": {
+        "providers": [
+          "wikivoyage",
+          "web"
+        ],
+        "sourceCount": 2
+      },
+      "input": {
+        "deficits": [
+          {
+            "origin": "global_capacity",
+            "reason": "Planner has 107.89656666666679 minutes of residual capacity on day 1",
+            "currentEligibleCount": 15,
+            "requiredEligibleCount": 16
+          }
+        ],
+        "destination": {
+          "latitude": -34.6037,
+          "longitude": -58.3816,
+          "radiusMeters": 25000,
+          "destinationName": "Buenos Aires",
+          "destinationCountryCode": "AR"
+        }
+      },
+      "output": {
+        "sourcePlans": [
+          {
+            "provider": "wikivoyage",
+            "wikivoyage": {
+              "sections": [
+                "SEE",
+                "DO",
+                "EAT"
+              ],
+              "articleTargets": [
+                "Buenos Aires",
+                "Caminito"
+              ]
+            }
+          },
+          {
+            "web": {
+              "query": "Buenos Aires things to do top attractions walk caminito path see representative places",
+              "semanticQuery": "walk caminito path see representative places"
+            },
+            "provider": "web"
+          }
+        ]
+      },
+      "parentId": "acquisition-pass-1-planner_capacity",
+      "sequence": 10,
+      "component": "ExperienceAcquisitionPlannerService",
+      "description": "Plan de adquisición (2 fuentes configuradas)"
+    },
+    {
+      "id": "trace-step-11",
+      "name": "acquisition.structured_source",
+      "facts": {
+        "status": "success",
+        "provider": "wikivoyage",
+        "provenance": {
+          "targets": [
+            {
+              "parser": {
+                "tocSections": [
+                  {
+                    "line": "Introducción",
+                    "index": "1",
+                    "level": 1,
+                    "anchor": "Introducción"
+                  },
+                  {
+                    "line": "Comprender",
+                    "index": "1",
+                    "level": 1,
+                    "anchor": "Comprender"
+                  },
+                  {
+                    "line": "Historia",
+                    "index": "2",
+                    "level": 2,
+                    "anchor": "Historia"
+                  },
+                  {
+                    "line": "Vida porteña",
+                    "index": "3",
+                    "level": 2,
+                    "anchor": "Vida_porteña"
+                  },
+                  {
+                    "line": "Clima",
+                    "index": "4",
+                    "level": 2,
+                    "anchor": "Clima"
+                  },
+                  {
+                    "line": "Distritos",
+                    "index": "5",
+                    "level": 1,
+                    "anchor": "Distritos"
+                  },
+                  {
+                    "line": "Llegar",
+                    "index": "6",
+                    "level": 1,
+                    "anchor": "Llegar"
+                  },
+                  {
+                    "line": "En avión",
+                    "index": "7",
+                    "level": 2,
+                    "anchor": "En_avión"
+                  },
+                  {
+                    "line": "Aeropuerto Internacional Ministro Pistarini",
+                    "index": "8",
+                    "level": 3,
+                    "anchor": "Aeropuerto_Internacional_Ministro_Pistarini"
+                  },
+                  {
+                    "line": "Aeroparque Jorge Newbery",
+                    "index": "9",
+                    "level": 3,
+                    "anchor": "Aeroparque_Jorge_Newbery"
+                  },
+                  {
+                    "line": "En barco",
+                    "index": "10",
+                    "level": 2,
+                    "anchor": "En_barco"
+                  },
+                  {
+                    "line": "Desplazarse",
+                    "index": "11",
+                    "level": 1,
+                    "anchor": "Desplazarse"
+                  },
+                  {
+                    "line": "Colectivo (bus)",
+                    "index": "12",
+                    "level": 2,
+                    "anchor": "Colectivo_(bus)"
+                  },
+                  {
+                    "line": "Subterráneo (metro)",
+                    "index": "13",
+                    "level": 2,
+                    "anchor": "Subterráneo_(metro)"
+                  },
+                  {
+                    "line": "Taxis, remises o apps de transporte",
+                    "index": "14",
+                    "level": 2,
+                    "anchor": "Taxis,_remises_o_apps_de_transporte"
+                  },
+                  {
+                    "line": "Alquiler de vehículos",
+                    "index": "15",
+                    "level": 2,
+                    "anchor": "Alquiler_de_vehículos"
+                  },
+                  {
+                    "line": "Transporte Privado",
+                    "index": "16",
+                    "level": 2,
+                    "anchor": "Transporte_Privado"
+                  },
+                  {
+                    "line": "En tren",
+                    "index": "17",
+                    "level": 2,
+                    "anchor": "En_tren"
+                  },
+                  {
+                    "line": "Ver",
+                    "index": "18",
+                    "level": 1,
+                    "anchor": "Ver"
+                  },
+                  {
+                    "line": "Barrios",
+                    "index": "19",
+                    "level": 2,
+                    "anchor": "Barrios"
+                  },
+                  {
+                    "line": "Museos",
+                    "index": "20",
+                    "level": 2,
+                    "anchor": "Museos"
+                  },
+                  {
+                    "line": "Otros lugares",
+                    "index": "21",
+                    "level": 3,
+                    "anchor": "Otros_lugares"
+                  },
+                  {
+                    "line": "Comprar",
+                    "index": "22",
+                    "level": 1,
+                    "anchor": "Comprar"
+                  },
+                  {
+                    "line": "Dinero y formas de pago",
+                    "index": "23",
+                    "level": 2,
+                    "anchor": "Dinero_y_formas_de_pago"
+                  },
+                  {
+                    "line": "Librerías",
+                    "index": "24",
+                    "level": 2,
+                    "anchor": "Librerías"
+                  },
+                  {
+                    "line": "Comer",
+                    "index": "25",
+                    "level": 1,
+                    "anchor": "Comer"
+                  },
+                  {
+                    "line": "Comidas Típicas",
+                    "index": "26",
+                    "level": 2,
+                    "anchor": "Comidas_Típicas"
+                  },
+                  {
+                    "line": "Restaurantes",
+                    "index": "27",
+                    "level": 3,
+                    "anchor": "Restaurantes"
+                  },
+                  {
+                    "line": "Qué hacer",
+                    "index": "28",
+                    "level": 1,
+                    "anchor": "Qué_hacer"
+                  },
+                  {
+                    "line": "Dormir",
+                    "index": "29",
+                    "level": 1,
+                    "anchor": "Dormir"
+                  },
+                  {
+                    "line": "El tango",
+                    "index": "30",
+                    "level": 2,
+                    "anchor": "El_tango"
+                  },
+                  {
+                    "line": "El Polo",
+                    "index": "31",
+                    "level": 2,
+                    "anchor": "El_Polo"
+                  },
+                  {
+                    "line": "Ciudad <i>gay-friendly</i>",
+                    "index": "32",
+                    "level": 2,
+                    "anchor": "Ciudad_gay-friendly"
+                  },
+                  {
+                    "line": "Seguridad",
+                    "index": "33",
+                    "level": 1,
+                    "anchor": "Seguridad"
+                  },
+                  {
+                    "line": "Salud",
+                    "index": "34",
+                    "level": 2,
+                    "anchor": "Salud"
+                  },
+                  {
+                    "line": "Enlaces externos",
+                    "index": "35",
+                    "level": 1,
+                    "anchor": "Enlaces_externos"
+                  }
+                ],
+                "droppedEntries": [],
+                "wikitextSha256": "efd339dd242a75638816fddf0a5a51fc444da7140217a7b4509dab6e4624f9f6",
+                "parsedEntryCount": 4,
+                "wikitextCharCount": 57999,
+                "entryCountBySection": {
+                  "DO": 0,
+                  "EAT": 0,
+                  "SEE": 3,
+                  "OTHER": 1
+                },
+                "recognizedTemplateCount": 4,
+                "targetTemplateCountByName": {
+                  "ver": 3,
+                  "listado": 1
+                },
+                "unsupportedTemplateCountByName": {
+                  "ap": 1,
+                  "ars": 4,
+                  "geo": 1,
+                  "top": 1,
+                  "apwp": 3,
+                  "clima": 1,
+                  "lista": 1,
+                  "dormir": 7,
+                  "estado": 1,
+                  "estáen": 1
+                }
+              },
+              "article": {
+                "pageid": 63,
+                "status": "found",
+                "resolvedTitle": "Buenos Aires"
+              },
+              "requestedTitle": "Buenos Aires",
+              "requestedSections": [
+                "SEE",
+                "DO",
+                "EAT"
+              ],
+              "preFilterEntryCount": 4,
+              "postSectionFilterEntryCount": 3
+            },
+            {
+              "parser": "undefined",
+              "article": {
+                "pageid": "undefined",
+                "status": "not_found",
+                "resolvedTitle": "undefined"
+              },
+              "requestedTitle": "Caminito",
+              "requestedSections": [
+                "SEE",
+                "DO",
+                "EAT"
+              ],
+              "preFilterEntryCount": 0,
+              "postSectionFilterEntryCount": 0
+            }
+          ],
+          "requestedTitle": "Buenos Aires",
+          "requestedSections": [
+            "SEE",
+            "DO",
+            "EAT"
+          ]
+        },
+        "observations": [
+          {
+            "key": "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1",
+            "url": "undefined",
+            "title": "Centro Científico Tecnológicos."
+          },
+          {
+            "key": "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1",
+            "url": "undefined",
+            "title": "Iglesia San Ignacio de Loyola"
+          },
+          {
+            "key": "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1",
+            "url": "undefined",
+            "title": "Galería Güemes"
+          }
+        ],
+        "candidateCount": 3
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "SUCCESS"
+      },
+      "parentId": "acquisition-pass-1-planner_capacity",
+      "sequence": 11,
+      "component": "ExperienceAcquisitionService",
+      "description": "Ejecución de fuente estructurada: wikivoyage"
+    },
+    {
+      "id": "trace-step-12",
+      "name": "acquisition.structured_corroboration",
+      "facts": {
+        "groups": [
+          {
+            "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+            "groupId": "group_1",
+            "accepted": true,
+            "proposalIds": [
+              "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1"
+            ],
+            "candidateName": "Centro Científico Tecnológicos.",
+            "mergedEvidenceKeys": [
+              "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1"
+            ],
+            "candidateShapeMatches": [
+              "SINGLE_PLACE"
+            ],
+            "contributingProviders": [
+              "wikivoyage"
+            ],
+            "requestedRequirements": [
+              "SINGLE_PLACE",
+              "MULTI_COMPONENT_EXPERIENCE"
+            ],
+            "observationCapabilities": [
+              "SINGLE_PLACE"
+            ],
+            "matchedOriginationRequirements": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+            "groupId": "group_2",
+            "accepted": true,
+            "proposalIds": [
+              "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1"
+            ],
+            "candidateName": "Galería Güemes",
+            "mergedEvidenceKeys": [
+              "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1"
+            ],
+            "candidateShapeMatches": [
+              "SINGLE_PLACE"
+            ],
+            "contributingProviders": [
+              "wikivoyage"
+            ],
+            "requestedRequirements": [
+              "SINGLE_PLACE",
+              "MULTI_COMPONENT_EXPERIENCE"
+            ],
+            "observationCapabilities": [
+              "SINGLE_PLACE"
+            ],
+            "matchedOriginationRequirements": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+            "groupId": "group_3",
+            "accepted": true,
+            "proposalIds": [
+              "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1"
+            ],
+            "candidateName": "Iglesia San Ignacio de Loyola",
+            "mergedEvidenceKeys": [
+              "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1"
+            ],
+            "candidateShapeMatches": [
+              "SINGLE_PLACE"
+            ],
+            "contributingProviders": [
+              "wikivoyage"
+            ],
+            "requestedRequirements": [
+              "SINGLE_PLACE",
+              "MULTI_COMPONENT_EXPERIENCE"
+            ],
+            "observationCapabilities": [
+              "SINGLE_PLACE"
+            ],
+            "matchedOriginationRequirements": [
+              "SINGLE_PLACE"
+            ]
+          }
+        ],
+        "proposalCount": 3,
+        "pairDecisionSummary": {
+          "total": 3,
+          "byReason": {
+            "no_shared_identity_signal": 3
+          },
+          "byDecision": {
+            "NEW": 3,
+            "SAME": 0,
+            "AMBIGUOUS": 0
+          }
+        },
+        "rejectedOriginations": []
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "3_PROPOSALS_CORROBORATED"
+      },
+      "parentId": "acquisition-pass-1-planner_capacity",
+      "sequence": 12,
+      "component": "StructuredCandidateCorroborationService",
+      "description": "Corroboración de candidatos estructurados (3 propuestas)"
+    },
+    {
+      "id": "trace-step-13",
+      "name": "acquisition.web_search",
+      "facts": {
+        "query": "Buenos Aires things to do top attractions walk caminito path see representative places",
+        "evidenceKeys": [
+          "ev-1",
+          "ev-2",
+          "ev-3",
+          "ev-4",
+          "ev-5",
+          "ev-6",
+          "ev-7",
+          "ev-8",
+          "ev-9",
+          "ev-10"
+        ],
+        "evidenceCount": 10,
+        "groundedModel": "google-search",
+        "groundingStatus": "applied",
+        "groundedProvider": "serper",
+        "destinationCountryCode": "AR",
+        "groundedProviderLocale": {
+          "gl": "ar"
+        }
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "SUCCESS"
+      },
+      "parentId": "acquisition-pass-1-planner_capacity",
+      "sequence": 13,
+      "component": "ExperienceAcquisitionService",
+      "description": "Búsqueda web con grounding: \"Buenos Aires things to do top attractions walk caminito path see representative places\""
+    },
+    {
+      "id": "trace-step-14",
+      "name": "acquisition.semantic_extraction",
+      "facts": {
+        "rawOutput": "{\n    \"name\": \"Caminito to La Bombonera Walk\",\n    \"description\": \"A walking route starting at the colorful streets of Caminito and continuing to the La Bombonera stadium.\",\n    \"themes\": [\n      \"culture\",\n      \"architecture\"\n    ],\n    \"traits\": [\n      \"street art\",\n      \"colorful buildings\"\n    ],\n    \"intents\": [\n      \"walk\",\n      \"route_like\"\n    ],\n    \"suggestedDurationMinutes\": 60,\n    \"componentHints\": [\n      {\n        \"key\": \"caminito\",\n        \"name\": \"Caminito\",\n        \"role\": \"waypoint\",\n        \"expectedKind\": \"PLACE\",\n        \"evidenceKeys\": [\n          \"ev-8\"\n        ],\n        \"supportSpan\": \"Behind the Caminito\"\n      },\n      {\n        \"key\": \"la-bombonera\",\n        \"name\": \"La Bombonera\",\n        \"role\": \"waypoint\",\n        \"expectedKind\": \"PLACE\",\n        \"evidenceKeys\": [\n          \"ev-8\"\n        ],\n        \"supportSpan\": \"down to La Bombonera\"\n      }\n    ],\n    \"evidenceKeys\": [\n      \"ev-8\"\n    ],\n    \"shortReason\": \"Evidence explicitly describes a walking sequence from Caminito to La Bombonera.\",\n    \"orderedByEvidence\": true\n  }",
+        "candidateCount": 1,
+        "extractorModel": "qwen/qwen3.8-27b",
+        "validationErrors": [
+          "extractor_envelope_repaired: response was a single bare candidate object instead of {\"candidates\":[...]}; wrapped automatically"
+        ],
+        "extractorProvider": "groq",
+        "sourceSupportAudits": [
+          {
+            "status": "SUPPORTED",
+            "components": [
+              {
+                "key": "caminito",
+                "name": "Caminito",
+                "role": "waypoint",
+                "index": 0,
+                "status": "SUPPORTED",
+                "sourceName": "Caminito",
+                "evidenceKeys": [
+                  "ev-8"
+                ],
+                "expectedKind": "PLACE",
+                "verifiedSupportSpan": "Behind the Caminito"
+              },
+              {
+                "key": "la-bombonera",
+                "name": "La Bombonera",
+                "role": "waypoint",
+                "index": 1,
+                "status": "SUPPORTED",
+                "sourceName": "La Bombonera",
+                "evidenceKeys": [
+                  "ev-8"
+                ],
+                "expectedKind": "PLACE",
+                "verifiedSupportSpan": "down to La Bombonera"
+              }
+            ],
+            "candidateName": "Caminito to La Bombonera Walk",
+            "emittedComponentCount": 2,
+            "supportedComponentCount": 2,
+            "unsupportedComponentCount": 0
+          }
+        ],
+        "extractedCandidateCount": 1
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "CANDIDATES_EXTRACTED"
+      },
+      "parentId": "acquisition-pass-1-planner_capacity",
+      "sequence": 14,
+      "subjects": [
+        {
+          "subject": {
+            "id": "caminito to la bombonera walk:ev-8:caminito:Caminito|la-bombonera:La Bombonera",
+            "kind": "candidate",
+            "label": "Caminito to La Bombonera Walk"
+          },
+          "decision": {
+            "reason": "MATCHING_EVIDENCE_REQUIREMENT",
+            "status": "PASS",
+            "outcome": "ACCEPTED"
+          }
+        }
+      ],
+      "component": "ExperienceDiscoveryExtractor",
+      "description": "Extracción semántica de candidatos (1 admitidos de 1 extraídos)"
+    },
+    {
+      "id": "trace-step-15",
+      "name": "resolution.entity",
+      "facts": {
+        "acceptedCount": 0,
+        "rejectedCount": 4,
+        "totalCandidates": 4,
+        "acquisitionContext": {
+          "strategy": "planner_capacity",
+          "passNumber": 1
+        },
+        "entityResolutionAudit": [
+          {
+            "hints": [
+              {
+                "key": "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:component",
+                "name": "Centro Científico Tecnológicos.",
+                "reason": "NO_OSM_MATCH",
+                "status": "unresolved",
+                "deficit": {
+                  "reason": "NO_CANDIDATE_ACQUIRED",
+                  "classification": "PENDING_CLASSIFICATION"
+                },
+                "attempts": [
+                  {
+                    "query": "Centro Científico Tecnológicos.",
+                    "provider": "catalog",
+                    "strategy": "CATALOG_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Centro Científico Tecnológicos.",
+                    "provider": "trusted_observation",
+                    "strategy": "TRUSTED_OBSERVATION_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Centro Científico Tecnológicos.",
+                    "provider": "openstreetmap",
+                    "strategy": "LOCAL_OSM_POOL",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": 2711,
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  }
+                ],
+                "identityStatus": "UNRESOLVED",
+                "resolvedGeoEntity": "undefined"
+              }
+            ],
+            "coverage": {
+              "resolutionRatio": 0,
+              "totalComponents": 1,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 1,
+              "sourceCompositionComplete": false,
+              "identityResolvedComponents": 0,
+              "geographicallyAcceptedComponents": 0
+            },
+            "candidateName": "Centro Científico Tecnológicos.",
+            "componentScope": {
+              "kind": "DESTINATION_AREA",
+              "name": "Buenos Aires"
+            },
+            "candidateTraceKey": "centro científico tecnológicos.:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:component:Centro Científico Tecnológicos."
+          },
+          {
+            "hints": [
+              {
+                "key": "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:component",
+                "name": "Galería Güemes",
+                "reason": "UNCONFIRMED_MATCH",
+                "status": "unresolved",
+                "deficit": {
+                  "reason": "CANDIDATE_REJECTED",
+                  "classification": "PENDING_CLASSIFICATION"
+                },
+                "attempts": [
+                  {
+                    "query": "Galería Güemes",
+                    "provider": "catalog",
+                    "strategy": "CATALOG_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Galería Güemes",
+                    "provider": "trusted_observation",
+                    "strategy": "TRUSTED_OBSERVATION_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Galería Güemes",
+                    "provider": "openstreetmap",
+                    "strategy": "LOCAL_OSM_POOL",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [
+                      {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    ],
+                    "candidateAcquired": true,
+                    "selectedCandidate": {
+                      "kind": "PLACE",
+                      "externalId": "osm:node:2481986716",
+                      "identities": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "canonicalName": "Mirador Galería Güemes"
+                    },
+                    "poolCandidateCount": 2711,
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "REJECTED",
+                    "candidateFoundBeforeFailure": "undefined"
+                  }
+                ],
+                "identityStatus": "UNRESOLVED",
+                "resolvedGeoEntity": "undefined"
+              }
+            ],
+            "coverage": {
+              "resolutionRatio": 0,
+              "totalComponents": 1,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 1,
+              "sourceCompositionComplete": false,
+              "identityResolvedComponents": 0,
+              "geographicallyAcceptedComponents": 0
+            },
+            "candidateName": "Galería Güemes",
+            "componentScope": {
+              "kind": "DESTINATION_AREA",
+              "name": "Buenos Aires"
+            },
+            "candidateTraceKey": "galería güemes:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:component:Galería Güemes"
+          },
+          {
+            "hints": [
+              {
+                "key": "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component",
+                "name": "Iglesia San Ignacio de Loyola",
+                "reason": "UNCONFIRMED_MATCH",
+                "status": "unresolved",
+                "deficit": {
+                  "reason": "CANDIDATE_REJECTED",
+                  "classification": "PENDING_CLASSIFICATION"
+                },
+                "attempts": [
+                  {
+                    "query": "Iglesia San Ignacio de Loyola",
+                    "provider": "catalog",
+                    "strategy": "CATALOG_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Iglesia San Ignacio de Loyola",
+                    "provider": "trusted_observation",
+                    "strategy": "TRUSTED_OBSERVATION_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Iglesia San Ignacio de Loyola",
+                    "provider": "openstreetmap",
+                    "strategy": "LOCAL_OSM_POOL",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [
+                      {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    ],
+                    "candidateAcquired": true,
+                    "selectedCandidate": {
+                      "kind": "PLACE",
+                      "externalId": "osm:way:239347480",
+                      "identities": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "canonicalName": "Parroquia San Ignacio de Loyola"
+                    },
+                    "poolCandidateCount": 2711,
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "REJECTED",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Iglesia San Ignacio de Loyola",
+                    "provider": "nominatim",
+                    "strategy": "NOMINATIM",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": 1,
+                    "verificationDecision": "undefined",
+                    "destinationCompatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Iglesia San Ignacio de Loyola",
+                    "provider": "geoapify",
+                    "strategy": "PLACES",
+                    "placeSearch": {
+                      "rejected": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "resultCount": 10,
+                      "viableCount": 4,
+                      "identityEnrichment": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    },
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [
+                      {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    ],
+                    "candidateAcquired": true,
+                    "selectedCandidate": {
+                      "kind": "PLACE",
+                      "externalId": "geoapify:51cd51ec0d63304dc059aae4ad049c4d41c0f00103f90118d1f21100000000c0020192031549676c657369612043656e74726f20284945525029e203226f70656e7374726565746d61703a76656e75653a6e6f64652f333031313235393132",
+                      "identities": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "canonicalName": "Iglesia Centro (IERP)"
+                    },
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": 10,
+                    "verificationDecision": "REJECTED",
+                    "candidateFoundBeforeFailure": "undefined"
+                  }
+                ],
+                "identityStatus": "UNRESOLVED",
+                "resolvedGeoEntity": "undefined"
+              }
+            ],
+            "coverage": {
+              "resolutionRatio": 0,
+              "totalComponents": 1,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 1,
+              "sourceCompositionComplete": false,
+              "identityResolvedComponents": 0,
+              "geographicallyAcceptedComponents": 0
+            },
+            "candidateName": "Iglesia San Ignacio de Loyola",
+            "componentScope": {
+              "kind": "DESTINATION_AREA",
+              "name": "Buenos Aires"
+            },
+            "candidateTraceKey": "iglesia san ignacio de loyola:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component:Iglesia San Ignacio de Loyola"
+          },
+          {
+            "hints": [
+              {
+                "key": "caminito",
+                "name": "Caminito",
+                "reason": "undefined",
+                "status": "resolved",
+                "attempts": [
+                  {
+                    "query": "Caminito",
+                    "provider": "catalog",
+                    "strategy": "CATALOG_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [
+                      {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    ],
+                    "candidateAcquired": true,
+                    "selectedCandidate": {
+                      "kind": "PLACE",
+                      "externalId": "osm:node:10303343309",
+                      "identities": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "canonicalName": "Caminito"
+                    },
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "VERIFIED",
+                    "candidateFoundBeforeFailure": "undefined"
+                  }
+                ],
+                "geography": {
+                  "geoEntityId": "abf08bf1-d567-4c53-82a6-1ebe566d132d",
+                  "geoEntityKind": "PLACE",
+                  "canonicalGeometry": "POINT",
+                  "geographicRelation": "INSIDE"
+                },
+                "sourceName": "Caminito",
+                "identityStatus": "RESOLVED",
+                "resolvedGeoEntity": {
+                  "provider": "openstreetmap",
+                  "externalId": "osm:node:10303343309",
+                  "geoEntityId": "abf08bf1-d567-4c53-82a6-1ebe566d132d",
+                  "canonicalName": "Caminito"
+                }
+              },
+              {
+                "key": "la-bombonera",
+                "name": "La Bombonera",
+                "reason": "undefined",
+                "status": "resolved",
+                "attempts": [
+                  {
+                    "query": "La Bombonera",
+                    "provider": "catalog",
+                    "strategy": "CATALOG_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [
+                      {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    ],
+                    "candidateAcquired": true,
+                    "selectedCandidate": {
+                      "kind": "PLACE",
+                      "externalId": "geoapify:517f23cb93b52e4dc0593e46d49f585141c0f00102f9016551d10e00000000c0020192030c4c6120426f6d626f6e657261",
+                      "identities": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "canonicalName": "La Bombonera"
+                    },
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "VERIFIED",
+                    "candidateFoundBeforeFailure": "undefined"
+                  }
+                ],
+                "geography": {
+                  "geoEntityId": "813b1b76-b3e7-4143-99b7-5b8e1938d695",
+                  "geoEntityKind": "PLACE",
+                  "canonicalGeometry": "POINT",
+                  "geographicRelation": "INSIDE"
+                },
+                "sourceName": "La Bombonera",
+                "identityStatus": "RESOLVED",
+                "resolvedGeoEntity": {
+                  "provider": "geoapify",
+                  "externalId": "geoapify:517f23cb93b52e4dc0593e46d49f585141c0f00102f9016551d10e00000000c0020192030c4c6120426f6d626f6e657261",
+                  "geoEntityId": "813b1b76-b3e7-4143-99b7-5b8e1938d695",
+                  "canonicalName": "La Bombonera"
+                }
+              }
+            ],
+            "coverage": {
+              "resolutionRatio": 1,
+              "totalComponents": 2,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 0,
+              "sourceCompositionComplete": true,
+              "identityResolvedComponents": 2,
+              "geographicallyAcceptedComponents": 2
+            },
+            "candidateName": "Caminito to La Bombonera Walk",
+            "componentScope": {
+              "kind": "DESTINATION_AREA",
+              "name": "Buenos Aires"
+            },
+            "candidateTraceKey": "caminito to la bombonera walk:ev-8:caminito:Caminito|la-bombonera:La Bombonera"
+          }
+        ]
+      },
+      "decision": {
+        "status": "WARN",
+        "outcome": "NO_ENTITIES_RESOLVED",
+        "reasonCodes": [
+          "NO_OSM_MATCH",
+          "UNCONFIRMED_MATCH",
+          "UNCONFIRMED_MATCH",
+          "AMBIGUOUS_DEDUPE"
+        ]
+      },
+      "parentId": "acquisition-pass-1-planner_capacity",
+      "sequence": 15,
+      "subjects": [
+        {
+          "subject": {
+            "id": "centro científico tecnológicos.:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:component:Centro Científico Tecnológicos.",
+            "kind": "candidate",
+            "label": "Centro Científico Tecnológicos."
+          },
+          "decision": {
+            "reason": "NO_OSM_MATCH [resueltos 0/1: Centro Científico Tecnológicos.=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)]",
+            "status": "FAIL",
+            "outcome": "REJECTED",
+            "reasonCodes": [
+              "NO_OSM_MATCH"
+            ]
+          }
+        },
+        {
+          "subject": {
+            "id": "galería güemes:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:component:Galería Güemes",
+            "kind": "candidate",
+            "label": "Galería Güemes"
+          },
+          "decision": {
+            "reason": "UNCONFIRMED_MATCH [resueltos 0/1: Galería Güemes=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)]",
+            "status": "FAIL",
+            "outcome": "REJECTED",
+            "reasonCodes": [
+              "UNCONFIRMED_MATCH"
+            ]
+          }
+        },
+        {
+          "subject": {
+            "id": "iglesia san ignacio de loyola:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component:Iglesia San Ignacio de Loyola",
+            "kind": "candidate",
+            "label": "Iglesia San Ignacio de Loyola"
+          },
+          "decision": {
+            "reason": "UNCONFIRMED_MATCH [resueltos 0/1: Iglesia San Ignacio de Loyola=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)]",
+            "status": "FAIL",
+            "outcome": "REJECTED",
+            "reasonCodes": [
+              "UNCONFIRMED_MATCH"
+            ]
+          }
+        },
+        {
+          "subject": {
+            "id": "caminito to la bombonera walk:ev-8:caminito:Caminito|la-bombonera:La Bombonera",
+            "kind": "candidate",
+            "label": "Caminito to La Bombonera Walk"
+          },
+          "decision": {
+            "reason": "AMBIGUOUS_DEDUPE [resueltos 2/2: Caminito=RESOLVED/INSIDE, La Bombonera=RESOLVED/INSIDE]",
+            "status": "FAIL",
+            "outcome": "REJECTED",
+            "reasonCodes": [
+              "AMBIGUOUS_DEDUPE"
+            ]
+          }
+        }
+      ],
+      "component": "ExperienceProposalResolverService",
+      "description": "Resolución de identidades reales: 0 aceptadas, 4 rechazadas [resueltos 0/1: Centro Científico Tecnológicos.=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)] [resueltos 0/1: Galería Güemes=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)] [resueltos 0/1: Iglesia San Ignacio de Loyola=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)] [resueltos 2/2: Caminito=RESOLVED/INSIDE, La Bombonera=RESOLVED/INSIDE]"
+    },
+    {
+      "id": "trace-step-16",
+      "name": "geography.validation",
+      "facts": {
+        "acceptedCount": 1,
+        "rejectedCount": 0,
+        "validationScope": "undefined",
+        "validationIntent": "undefined",
+        "destinationBoundary": {
+          "name": "Buenos Aires",
+          "externalId": "osm:relation:1224652"
+        },
+        "geographicValidationAudit": [
+          {
+            "status": "GEO_VERIFIED",
+            "accepted": true,
+            "strategy": "component_defined",
+            "coherence": {
+              "centroid": {
+                "latitude": -34.63746195,
+                "longitude": -58.3634583
+              },
+              "radiusMeters": 254.0869629303748,
+              "maxPairwiseDistanceMeters": 508.1722837823588
+            },
+            "components": [
+              {
+                "role": "waypoint",
+                "hintKey": "caminito",
+                "hintName": "Caminito",
+                "relation": "evaluated",
+                "decisionReason": "undefined",
+                "resolvedGeoEntityId": "abf08bf1-d567-4c53-82a6-1ebe566d132d",
+                "distanceFromRouteMeters": "undefined",
+                "distanceToBoundaryMeters": "undefined"
+              },
+              {
+                "role": "waypoint",
+                "hintKey": "la-bombonera",
+                "hintName": "La Bombonera",
+                "relation": "evaluated",
+                "decisionReason": "undefined",
+                "resolvedGeoEntityId": "813b1b76-b3e7-4143-99b7-5b8e1938d695",
+                "distanceFromRouteMeters": "undefined",
+                "distanceToBoundaryMeters": "undefined"
+              }
+            ],
+            "candidateName": "Caminito to La Bombonera Walk",
+            "rejectionReasons": [],
+            "validationIntent": "undefined",
+            "candidateTraceKey": "caminito to la bombonera walk:ev-8:caminito:Caminito|la-bombonera:La Bombonera",
+            "destinationBoundary": {
+              "name": "Buenos Aires",
+              "externalId": "osm:relation:1224652"
+            }
+          }
+        ]
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "ALL_ACCEPTED",
+        "reasonCodes": []
+      },
+      "parentId": "acquisition-pass-1-planner_capacity",
+      "sequence": 16,
+      "component": "CompositeGeographicValidationService",
+      "description": "Validación geográfica: 1 aceptadas, 0 rechazadas"
+    },
+    {
+      "id": "trace-step-17",
+      "name": "catalog.materialization",
+      "facts": {
+        "rejectedCount": 4,
+        "materializedCount": 0,
+        "materializationAudit": [
+          {
+            "accepted": false,
+            "experienceId": "undefined",
+            "candidateName": "Centro Científico Tecnológicos.",
+            "canonicalName": "undefined",
+            "compositeOutcome": {
+              "coverage": {
+                "resolutionRatio": 0,
+                "totalComponents": 1,
+                "ambiguousComponents": 0,
+                "conflictedComponents": 0,
+                "openResearchDeficits": [],
+                "unresolvedComponents": 1,
+                "sourceCompositionComplete": false,
+                "identityResolvedComponents": 0,
+                "geographicallyAcceptedComponents": 0
+              },
+              "persistence": {
+                "status": "NOT_PERSISTED",
+                "reasons": [
+                  "NO_OSM_MATCH"
+                ]
+              },
+              "plannerEligible": false,
+              "geographicDecision": {
+                "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+                "status": "NOT_EVALUATED"
+              }
+            },
+            "rejectionReasons": [
+              "NO_OSM_MATCH"
+            ],
+            "candidateTraceKey": "centro científico tecnológicos.:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:component:Centro Científico Tecnológicos.",
+            "persistedComponentCount": "undefined"
+          },
+          {
+            "accepted": false,
+            "experienceId": "undefined",
+            "candidateName": "Galería Güemes",
+            "canonicalName": "undefined",
+            "compositeOutcome": {
+              "coverage": {
+                "resolutionRatio": 0,
+                "totalComponents": 1,
+                "ambiguousComponents": 0,
+                "conflictedComponents": 0,
+                "openResearchDeficits": [],
+                "unresolvedComponents": 1,
+                "sourceCompositionComplete": false,
+                "identityResolvedComponents": 0,
+                "geographicallyAcceptedComponents": 0
+              },
+              "persistence": {
+                "status": "NOT_PERSISTED",
+                "reasons": [
+                  "UNCONFIRMED_MATCH"
+                ]
+              },
+              "plannerEligible": false,
+              "geographicDecision": {
+                "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+                "status": "NOT_EVALUATED"
+              }
+            },
+            "rejectionReasons": [
+              "UNCONFIRMED_MATCH"
+            ],
+            "candidateTraceKey": "galería güemes:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:component:Galería Güemes",
+            "persistedComponentCount": "undefined"
+          },
+          {
+            "accepted": false,
+            "experienceId": "undefined",
+            "candidateName": "Iglesia San Ignacio de Loyola",
+            "canonicalName": "undefined",
+            "compositeOutcome": {
+              "coverage": {
+                "resolutionRatio": 0,
+                "totalComponents": 1,
+                "ambiguousComponents": 0,
+                "conflictedComponents": 0,
+                "openResearchDeficits": [],
+                "unresolvedComponents": 1,
+                "sourceCompositionComplete": false,
+                "identityResolvedComponents": 0,
+                "geographicallyAcceptedComponents": 0
+              },
+              "persistence": {
+                "status": "NOT_PERSISTED",
+                "reasons": [
+                  "UNCONFIRMED_MATCH"
+                ]
+              },
+              "plannerEligible": false,
+              "geographicDecision": {
+                "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+                "status": "NOT_EVALUATED"
+              }
+            },
+            "rejectionReasons": [
+              "UNCONFIRMED_MATCH"
+            ],
+            "candidateTraceKey": "iglesia san ignacio de loyola:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component:Iglesia San Ignacio de Loyola",
+            "persistedComponentCount": "undefined"
+          },
+          {
+            "accepted": false,
+            "experienceId": "undefined",
+            "candidateName": "Caminito to La Bombonera Walk",
+            "canonicalName": "undefined",
+            "compositeOutcome": {
+              "coverage": {
+                "resolutionRatio": 1,
+                "totalComponents": 2,
+                "ambiguousComponents": 0,
+                "conflictedComponents": 0,
+                "openResearchDeficits": [],
+                "unresolvedComponents": 0,
+                "sourceCompositionComplete": true,
+                "identityResolvedComponents": 2,
+                "geographicallyAcceptedComponents": 2
+              },
+              "persistence": {
+                "dedupe": {
+                  "evidence": {
+                    "reasons": [
+                      "shared_geo_entities",
+                      "shared_concept_evidence",
+                      "identity_signals_conflict_or_are_incomplete"
+                    ],
+                    "nameSimilarity": 0.1818181818181818,
+                    "componentOverlap": 0.5,
+                    "semanticSimilarity": 0.3111111111111111,
+                    "roleAwareComponentOverlap": 0
+                  },
+                  "conflictingExperienceIds": [
+                    "f5dee6f9-6070-437e-bdf1-e8262af6d27d"
+                  ]
+                },
+                "status": "NOT_PERSISTED",
+                "reasons": [
+                  "AMBIGUOUS_DEDUPE"
+                ]
+              },
+              "plannerEligible": false,
+              "geographicDecision": {
+                "status": "ACCEPTED",
+                "strategy": "component_defined"
+              }
+            },
+            "rejectionReasons": [
+              "AMBIGUOUS_DEDUPE"
+            ],
+            "candidateTraceKey": "caminito to la bombonera walk:ev-8:caminito:Caminito|la-bombonera:La Bombonera",
+            "persistedComponentCount": "undefined"
+          }
+        ],
+        "persistedExperienceIds": []
+      },
+      "decision": {
+        "status": "WARN",
+        "outcome": "NO_MATERIALIZED_EXPERIENCES"
+      },
+      "parentId": "acquisition-pass-1-planner_capacity",
+      "sequence": 17,
+      "component": "ExperienceCatalogService",
+      "references": [],
+      "description": "Materialización en catálogo (0 creadas/actualizadas, 4 no materializadas) — Centro Científico Tecnológicos.: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Galería Güemes: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Iglesia San Ignacio de Loyola: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Caminito to La Bombonera Walk: 2/2 componentes resueltos, composición completa → geografía ACCEPTED, no persistida, no elegible para planner"
+    },
+    {
+      "id": "trace-step-18",
+      "name": "planning.daily",
+      "facts": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 4,
+            "totalTravelMinutes": 39.90626666666667,
+            "utilizationMinutes": 552.1034333333332,
+            "totalWalkingMinutes": 72.10343333333333,
+            "totalExperienceMinutes": 512.1971666666667
+          }
+        ],
+        "score": 4,
+        "solver": "GreedyDailyPlanningSolver",
+        "routing": {
+          "fallbackCount": 0,
+          "providerCounts": {
+            "geoapify": 6
+          },
+          "externalEstimateCount": 3,
+          "internalEstimateCount": 3,
+          "approximateEstimateCount": 0
+        },
+        "iterations": 1,
+        "unselectedCount": 0,
+        "approximateTravel": false
+      },
+      "input": {
+        "solver": "GreedyDailyPlanningSolver",
+        "iterations": 1,
+        "approximateTravel": false
+      },
+      "rules": [
+        {
+          "id": "PLAN-DAYS-001",
+          "name": "Mantener exactamente los buckets de días solicitados por el planner",
+          "facts": {
+            "dayCount": 1
+          },
+          "reason": "El solver devolvió 1 bucket(s) de día.",
+          "status": "PASS"
+        },
+        {
+          "id": "PLAN-FEASIBILITY-001",
+          "name": "No seleccionar candidatos que el solver haya marcado como no factibles",
+          "facts": {
+            "unselectedCount": 0
+          },
+          "reason": "0 candidato(s) quedaron fuera con reason codes explícitos.",
+          "status": "PASS"
+        },
+        {
+          "id": "PLAN-TRAVEL-001",
+          "name": "Declarar si las estimaciones de traslado son aproximadas",
+          "facts": {
+            "approximateTravel": false
+          },
+          "reason": "El solver informa estimaciones de traslado no aproximadas.",
+          "status": "PASS"
+        }
+      ],
+      "output": {
+        "score": 4,
+        "dayCount": 1,
+        "selectedCount": 4,
+        "unselectedCount": 0
+      },
+      "decision": {
+        "reason": "Itinerario factible construido con las restricciones de tiempo y ritmo.",
+        "status": "PASS",
+        "outcome": "DAILY_PLAN_BUILT"
+      },
+      "sequence": 18,
+      "subjects": [
+        {
+          "facts": {
+            "order": 1,
+            "dayNumber": 1,
+            "endMinutes": 692.1971666666667,
+            "startMinutes": 540
+          },
+          "subject": {
+            "id": "f5dee6f9-6070-437e-bdf1-e8262af6d27d",
+            "kind": "experience"
+          },
+          "decision": {
+            "reason": "Asignada al día 1 en posición 1; pasó la factibilidad del solver.",
+            "status": "PASS",
+            "outcome": "SELECTED",
+            "reasonCodes": [
+              "FEASIBLE_AND_SELECTED"
+            ]
+          }
+        },
+        {
+          "facts": {
+            "order": 2,
+            "dayNumber": 1,
+            "endMinutes": 821.9308333333333,
+            "startMinutes": 701.9308333333333
+          },
+          "subject": {
+            "id": "e2b6fed7-5cc2-41cc-b143-f7e43c04677e",
+            "kind": "experience"
+          },
+          "decision": {
+            "reason": "Asignada al día 1 en posición 2; pasó la factibilidad del solver.",
+            "status": "PASS",
+            "outcome": "SELECTED",
+            "reasonCodes": [
+              "FEASIBLE_AND_SELECTED"
+            ]
+          }
+        },
+        {
+          "facts": {
+            "order": 3,
+            "dayNumber": 1,
+            "endMinutes": 950.9749833333333,
+            "startMinutes": 830.9749833333333
+          },
+          "subject": {
+            "id": "7726ca27-909b-4d6f-b40f-9d46ed3f1035",
+            "kind": "experience"
+          },
+          "decision": {
+            "reason": "Asignada al día 1 en posición 3; pasó la factibilidad del solver.",
+            "status": "PASS",
+            "outcome": "SELECTED",
+            "reasonCodes": [
+              "FEASIBLE_AND_SELECTED"
+            ]
+          }
+        },
+        {
+          "facts": {
+            "order": 4,
+            "dayNumber": 1,
+            "endMinutes": 1092.103433333333,
+            "startMinutes": 972.1034333333333
+          },
+          "subject": {
+            "id": "9f1c68ed-28d8-452e-9fb2-1e83032971e7",
+            "kind": "experience"
+          },
+          "decision": {
+            "reason": "Asignada al día 1 en posición 4; pasó la factibilidad del solver.",
+            "status": "PASS",
+            "outcome": "SELECTED",
+            "reasonCodes": [
+              "FEASIBLE_AND_SELECTED"
+            ]
+          }
+        }
+      ],
+      "component": "GreedyDailyPlanningSolver",
+      "description": "Solver GreedyDailyPlanningSolver planificó 1 día(s): 4 Experience(s) seleccionada(s), 0 sin seleccionar."
+    },
+    {
+      "id": "trace-step-19",
+      "name": "tour.completeness",
+      "facts": {
+        "issues": [],
+        "complete": true,
+        "retryAttempted": false
+      },
+      "input": {
+        "retryAttempted": false
+      },
+      "rules": [
+        {
+          "id": "COMP-DAY-USAGE-001",
+          "name": "Cada día debe tener un uso razonable cuando existen candidatos viables",
+          "reason": "No se detectaron días subutilizados con alternativas viables.",
+          "status": "PASS"
+        }
+      ],
+      "output": {
+        "issues": [],
+        "complete": true,
+        "issueCount": 0
+      },
+      "decision": {
+        "reason": "La política de completitud no detectó déficit accionable.",
+        "status": "PASS",
+        "outcome": "TOUR_COMPLETE",
+        "reasonCodes": []
+      },
+      "sequence": 19,
+      "component": "TourCompletenessValidator",
+      "description": "El itinerario generado hace un uso razonable de los días solicitados."
+    },
+    {
+      "id": "trace-step-20",
+      "name": "tour.materialization",
+      "facts": {
+        "tourId": "1280f947-ec24-4899-a1f5-8f9a5adeb13b",
+        "experiences": [
+          {
+            "order": 1,
+            "dayNumber": 1,
+            "startTime": "undefined",
+            "experienceId": "f5dee6f9-6070-437e-bdf1-e8262af6d27d",
+            "durationHours": 2.536619444444445,
+            "componentCount": 4
+          },
+          {
+            "order": 2,
+            "dayNumber": 1,
+            "startTime": "undefined",
+            "experienceId": "e2b6fed7-5cc2-41cc-b143-f7e43c04677e",
+            "durationHours": 2,
+            "componentCount": 1
+          },
+          {
+            "order": 3,
+            "dayNumber": 1,
+            "startTime": "undefined",
+            "experienceId": "7726ca27-909b-4d6f-b40f-9d46ed3f1035",
+            "durationHours": 2,
+            "componentCount": 1
+          },
+          {
+            "order": 4,
+            "dayNumber": 1,
+            "startTime": "undefined",
+            "experienceId": "9f1c68ed-28d8-452e-9fb2-1e83032971e7",
+            "durationHours": 1.999999999999998,
+            "componentCount": 1
+          }
+        ],
+        "materializedCount": 4
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "TOUR_EXPERIENCES_PERSISTED"
+      },
+      "sequence": 20,
+      "subjects": [
+        {
+          "facts": {
+            "order": 1,
+            "dayNumber": 1,
+            "startTime": "undefined",
+            "experienceId": "f5dee6f9-6070-437e-bdf1-e8262af6d27d",
+            "durationHours": 2.536619444444445,
+            "componentCount": 4
+          },
+          "subject": {
+            "id": "f5dee6f9-6070-437e-bdf1-e8262af6d27d",
+            "kind": "experience"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "PERSISTED"
+          }
+        },
+        {
+          "facts": {
+            "order": 2,
+            "dayNumber": 1,
+            "startTime": "undefined",
+            "experienceId": "e2b6fed7-5cc2-41cc-b143-f7e43c04677e",
+            "durationHours": 2,
+            "componentCount": 1
+          },
+          "subject": {
+            "id": "e2b6fed7-5cc2-41cc-b143-f7e43c04677e",
+            "kind": "experience"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "PERSISTED"
+          }
+        },
+        {
+          "facts": {
+            "order": 3,
+            "dayNumber": 1,
+            "startTime": "undefined",
+            "experienceId": "7726ca27-909b-4d6f-b40f-9d46ed3f1035",
+            "durationHours": 2,
+            "componentCount": 1
+          },
+          "subject": {
+            "id": "7726ca27-909b-4d6f-b40f-9d46ed3f1035",
+            "kind": "experience"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "PERSISTED"
+          }
+        },
+        {
+          "facts": {
+            "order": 4,
+            "dayNumber": 1,
+            "startTime": "undefined",
+            "experienceId": "9f1c68ed-28d8-452e-9fb2-1e83032971e7",
+            "durationHours": 1.999999999999998,
+            "componentCount": 1
+          },
+          "subject": {
+            "id": "9f1c68ed-28d8-452e-9fb2-1e83032971e7",
+            "kind": "experience"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "PERSISTED"
+          }
+        }
+      ],
+      "component": "Prisma.TourExperience",
+      "description": "4 TourExperience snapshot(s) persistidos desde Experiences verificadas."
+    }
+  ],
+  "result": {
+    "facts": {
+      "tourCompleteness": {
+        "issues": [],
+        "complete": true,
+        "retryAttempted": false
+      },
+      "degradedAcquisitionReason": null,
+      "acquisitionProvidersFailed": [],
+      "materializedTourExperiences": [
+        {
+          "order": 1,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "f5dee6f9-6070-437e-bdf1-e8262af6d27d",
+          "durationHours": 2.536619444444445,
+          "componentCount": 4
+        },
+        {
+          "order": 2,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "e2b6fed7-5cc2-41cc-b143-f7e43c04677e",
+          "durationHours": 2,
+          "componentCount": 1
+        },
+        {
+          "order": 3,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "7726ca27-909b-4d6f-b40f-9d46ed3f1035",
+          "durationHours": 2,
+          "componentCount": 1
+        },
+        {
+          "order": 4,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "9f1c68ed-28d8-452e-9fb2-1e83032971e7",
+          "durationHours": 1.999999999999998,
+          "componentCount": 1
+        }
+      ],
+      "acquisitionProvidersAttempted": [
+        "wikivoyage",
+        "serper"
+      ]
+    },
+    "status": "COMPLETED",
+    "outcome": "TOUR_EXPERIENCES_MATERIALIZED"
+  },
+  "runtime": {
+    "buildCommit": "unknown",
+    "buildTimestamp": "unknown"
+  },
+  "version": 5,
+  "canonicalRequest": {
+    "days": 1,
+    "intent": {
+      "intents": [
+        "walk"
+      ],
+      "interests": [],
+      "explorationStyle": "balanced",
+      "additionalPreferences": "Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido."
+    },
+    "mobility": {
+      "travelPace": "moderate",
+      "accessibilityNeeds": [],
+      "allowedTransportationModes": [
+        "walking"
+      ],
+      "maxWalkingDistancePerDayMeters": 50000,
+      "maxContinuousWalkingDistanceMeters": 20000
+    },
+    "groupType": "solo",
+    "categories": [],
+    "startDates": [],
+    "budgetLevel": "medium",
+    "destination": {
+      "label": "Buenos Aires, Argentina",
+      "latitude": -34.6037,
+      "longitude": -58.3816,
+      "scaleHint": "settlement"
+    },
+    "excludeTours": [],
+    "contractVersion": 1,
+    "dietaryRestrictions": [],
+    "skipImageGeneration": true,
+    "includeExistingExperiences": true
+  }
+}

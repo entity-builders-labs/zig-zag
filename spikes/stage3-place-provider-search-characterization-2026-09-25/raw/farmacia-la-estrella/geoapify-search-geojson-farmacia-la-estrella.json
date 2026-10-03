@@ -1,0 +1,193 @@
+{
+  "request": {
+    "text": "Farmacia la Estrella",
+    "format": "geojson"
+  },
+  "status": 200,
+  "response": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "datasource": {
+            "sourcename": "openstreetmap",
+            "attribution": "© OpenStreetMap contributors",
+            "license": "Open Database License",
+            "url": "https://www.openstreetmap.org/copyright"
+          },
+          "name": "Farmacia ABC",
+          "country": "Argentina",
+          "country_code": "ar",
+          "city": "Buenos Aires",
+          "postcode": "C1424CEN",
+          "district": "Comuna 5",
+          "suburb": "Almagro",
+          "street": "Avenida La Plata",
+          "iso3166_2": "AR-C",
+          "lon": -58.4288459,
+          "lat": -34.6160618,
+          "state": "Buenos Aires",
+          "state_code": "B",
+          "result_type": "amenity",
+          "distance": 4537.075625636681,
+          "formatted": "Farmacia ABC, Avenida La Plata, Almagro, C1424 CEN Buenos Aires, Argentina",
+          "address_line1": "Farmacia ABC",
+          "address_line2": "Avenida La Plata, Almagro, C1424 CEN Buenos Aires, Argentina",
+          "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          },
+          "plus_code": "48Q39HMC+HF",
+          "plus_code_short": "9HMC+HF Buenos Aires, Argentina",
+          "rank": {
+            "importance": 0.00008279926756690345,
+            "popularity": 7.7664671798809675,
+            "confidence": 0,
+            "match_type": "full_match"
+          },
+          "place_id": "5108c3256ce4364dc0594ea8f11cdb4e41c0f00103f9012a3aa91801000000c0020192030c4661726d6163696120414243e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34373038373130393534"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -58.4288459,
+            -34.6160618
+          ]
+        },
+        "bbox": [
+          -58.4288959,
+          -34.6161118,
+          -58.4287959,
+          -34.6160118
+        ]
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "datasource": {
+            "sourcename": "openstreetmap",
+            "attribution": "© OpenStreetMap contributors",
+            "license": "Open Database License",
+            "url": "https://www.openstreetmap.org/copyright"
+          },
+          "name": "Farmacia La Sante",
+          "country": "Argentina",
+          "country_code": "ar",
+          "city": "Buenos Aires",
+          "postcode": "C1416DNU",
+          "district": "Comuna 11",
+          "suburb": "Villa Santa Rita",
+          "street": "Avenida Nazca",
+          "iso3166_2": "AR-C",
+          "lon": -58.4745185,
+          "lat": -34.6202923,
+          "state": "Buenos Aires",
+          "state_code": "B",
+          "result_type": "amenity",
+          "distance": 8701.331146614242,
+          "formatted": "Farmacia La Sante, Avenida Nazca, Villa Santa Rita, C1416 DNU Buenos Aires, Argentina",
+          "address_line1": "Farmacia La Sante",
+          "address_line2": "Avenida Nazca, Villa Santa Rita, C1416 DNU Buenos Aires, Argentina",
+          "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          },
+          "plus_code": "48Q39GHG+V5",
+          "plus_code_short": "9GHG+V5 Buenos Aires, Argentina",
+          "rank": {
+            "importance": 0.00008279926756690345,
+            "popularity": 6.863379850541865,
+            "confidence": 0,
+            "match_type": "full_match"
+          },
+          "place_id": "516a6caf05bd3c4dc059f63af3bc654f41c0f00103f901ae5c521701000000c002019203114661726d61636961204c612053616e7465e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34363836323430393432"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -58.4745185,
+            -34.6202923
+          ]
+        },
+        "bbox": [
+          -58.4745685,
+          -34.6203423,
+          -58.4744685,
+          -34.6202423
+        ]
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "datasource": {
+            "sourcename": "openstreetmap",
+            "attribution": "© OpenStreetMap contributors",
+            "license": "Open Database License",
+            "url": "https://www.openstreetmap.org/copyright"
+          },
+          "name": "Farmacia La Paz",
+          "country": "Argentina",
+          "country_code": "ar",
+          "state": "Buenos Aires",
+          "county": "Partido de San Isidro",
+          "city": "Martínez",
+          "postcode": "B1640",
+          "district": "Barrio Alemán",
+          "street": "Edison",
+          "housenumber": "1799",
+          "iso3166_2": "AR-B",
+          "lon": -58.5195238,
+          "lat": -34.5021711,
+          "state_code": "B",
+          "county_code": "SI",
+          "result_type": "amenity",
+          "distance": 16941.03414081762,
+          "formatted": "Farmacia La Paz, Edison 1799, Barrio Alemán, B1640 Martínez, Argentina",
+          "address_line1": "Farmacia La Paz",
+          "address_line2": "Edison 1799, Barrio Alemán, B1640 Martínez, Argentina",
+          "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          },
+          "plus_code": "48Q3FFXJ+45",
+          "rank": {
+            "importance": 0.000049012741283238234,
+            "popularity": 6.275242904249018,
+            "confidence": 0,
+            "match_type": "full_match"
+          },
+          "place_id": "51303f81c17f424dc05988bf8124474041c0f00103f901ad8c7c1201000000c0020192030f4661726d61636961204c612050617ae203236f70656e7374726565746d61703a76656e75653a6e6f64652f34363035313139363631"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -58.5195238,
+            -34.5021711
+          ]
+        },
+        "bbox": [
+          -58.5195738,
+          -34.5022211,
+          -58.5194738,
+          -34.5021211
+        ]
+      }
+    ],
+    "query": {
+      "text": "Farmacia la Estrella"
+    }
+  }
+}

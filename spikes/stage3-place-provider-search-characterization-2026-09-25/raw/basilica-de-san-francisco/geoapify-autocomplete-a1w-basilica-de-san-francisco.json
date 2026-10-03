@@ -1,0 +1,70 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Basílica de San Francisco",
+      "type": "amenity",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1216,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica de San Francisco",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1091AAH",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Moreno",
+        "iso3166_2": "AR-C",
+        "lon": -58.3718121,
+        "lat": -34.6106142,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1180.484492948444,
+        "formatted": "Basílica de San Francisco, Moreno, Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "address_line1": "Basílica de San Francisco",
+        "address_line2": "Moreno, Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+Q7",
+        "plus_code_short": "QH+Q7 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51e8e0f489972f4dc05992bc299b284e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f",
+        "bbox": {
+          "lon1": -58.3719542,
+          "lat1": -34.6112405,
+          "lon2": -58.3708282,
+          "lat2": -34.6101922
+        }
+      }
+    ],
+    "query": {
+      "text": "Basílica de San Francisco"
+    }
+  }
+}

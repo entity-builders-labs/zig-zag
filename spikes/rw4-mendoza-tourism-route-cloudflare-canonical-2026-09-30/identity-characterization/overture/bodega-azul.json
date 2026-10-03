@@ -1,0 +1,89 @@
+{
+  "fixture": "Bodega Azul (source) / Bodega La Azul",
+  "genericClass": "plausible physical entity represented under non-identical names",
+  "release": "2026-09-23.1",
+  "source": "span '[Bodega Azul](https://bodegalaazul.com/)' 'for lunch'; official site title 'Bodega La azul', 'Nos encontramos en Tupungato' (../bodega-la-azul.json)",
+  "probeQueries": {
+    "Bodega Azul": "0 records declare this name (source component name) - inside or outside the domain",
+    "Bodega La Azul": "PROBE_QUERY (from the linked site's title, NOT a declared alias): 3 exact-name records, all AUTHORIZED_DOMAIN",
+    "La Azul": "PROBE_QUERY: 1 exact-name record + 4 token-containment records"
+  },
+  "overtureDeclaresMultipleNames": "NO. Every record has only names.primary (names.common null, names.rules null). No record declares both 'Bodega Azul' and 'Bodega La Azul'.",
+  "acquisition": {
+    "sourceNameExact": "NO_CANDIDATE",
+    "probeQueryBodegaLaAzul": "MULTIPLE_PLAUSIBLE_CANDIDATES",
+    "detail": "3 'Bodega (la|La) Azul' records + 1 'La Azul' record, all inside 80 km; same phone on 3 of them; same website on 2"
+  },
+  "records": [
+    {
+      "overtureId": "d97a65d2-7613-41eb-ab26-fc577699f26d",
+      "role": "best physical-site match",
+      "names": { "primary": "Bodega La Azul" },
+      "coordinates": { "lat": -33.46941806, "lon": -69.22094381 },
+      "distanceFromRouteScaleCenterM": 73247,
+      "distanceFromOsmNode4851595199M": 23,
+      "addresses": [{ "freeform": "Caminos del Vino", "locality": "Tupungato", "postcode": "M5561", "country": "AR" }],
+      "websites": ["http://www.bodegalaazul.com"],
+      "phones": ["+542622423593"],
+      "taxonomy_primary": "winery",
+      "confidence": 0.9855,
+      "operating_status": null,
+      "sources": [{ "dataset": "meta", "record_id": "1893816807339177", "license": "CDLA-Permissive-2.0", "update_time": "2026-09-14" }],
+      "gers": { "first_seen": "2025-06-25.0", "live": true }
+    },
+    {
+      "overtureId": "673c6cb8-b314-4650-a5c1-ef10d59be7c0",
+      "role": "same brand, different facility (store)",
+      "names": { "primary": "Bodega la Azul" },
+      "coordinates": { "lat": -33.57818742, "lon": -69.01609022 },
+      "distanceFromRouteScaleCenterM": 78605,
+      "addresses": [{ "freeform": "Avenida Gral San Martin 1131", "locality": "Tunuyán", "postcode": "5560", "country": "AR" }],
+      "websites": ["http://www.bodegalaazul.com"],
+      "phones": ["+542622423593"],
+      "taxonomy_primary": "food_and_beverage_store",
+      "confidence": 0.6825,
+      "sources": [{ "dataset": "meta", "record_id": "323045118358807", "license": "CDLA-Permissive-2.0" }],
+      "gers": { "first_seen": "2025-06-25.0", "live": true }
+    },
+    {
+      "overtureId": "62f80ec2-6c8a-4ba7-91f4-0dd6fff2a47c",
+      "role": "misplaced/unclear (city-area coordinates, address text names the Uco valley)",
+      "names": { "primary": "Bodega la Azul" },
+      "coordinates": { "lat": -32.940898, "lon": -68.872209 },
+      "distanceFromRouteScaleCenterM": 6495,
+      "addresses": [{ "freeform": "Calle Dique Valle De Uco", "locality": "Godoy Cruz", "postcode": "5501", "country": "AR" }],
+      "websites": null,
+      "phones": null,
+      "taxonomy_primary": "winery",
+      "confidence": 0.664,
+      "sources": [{ "dataset": "meta", "record_id": "813428749039923", "license": "CDLA-Permissive-2.0" }]
+    },
+    {
+      "overtureId": "33e0b236-1c1b-4d41-9ef0-dac80959a3b8",
+      "role": "misplaced (address 'RP 89 s/n' = the Tupungato site road, coordinates 1.6 km from the city center)",
+      "names": { "primary": "La Azul" },
+      "coordinates": { "lat": -32.89260231, "lon": -68.84885716 },
+      "distanceFromRouteScaleCenterM": 1637,
+      "addresses": [{ "freeform": "RP 89 s/n", "locality": "Mendoza", "postcode": "M5500AAK", "country": "AR" }],
+      "websites": null,
+      "phones": ["+542622423593"],
+      "taxonomy_primary": "winery",
+      "confidence": 0.404,
+      "sources": [{ "dataset": "meta", "record_id": "308352672648870", "license": "CDLA-Permissive-2.0" }],
+      "gers": { "first_seen": "2026-07-22.0", "live": true }
+    }
+  ],
+  "comparisonWithKnownFacts": {
+    "website": "bodegalaazul.com == source hyperlink domain, but declared by TWO in-domain records (winery site + Tunuyán store) -> domain is a brand fact, not a unique facility identity",
+    "phone": "+542622423593 on 3 records -> brand/business phone, not unique",
+    "coordinates": "d97a65d2 is 23 m from OSM node/4851595199 'Bodega La Azul' (the Geoapify candidate in COLD #11). Overture carries no OSM id, so this is spatial proximity, NOT IDENTITY_CONVERGENCE",
+    "colocatedRestaurant": "OSM has a separate 'La Azul' restaurant node ~20 m from the winery; Overture has no restaurant record at the site. Overture provides no facts about winery/restaurant structure; nothing here justifies collapsing them"
+  },
+  "identityUsefulness": {
+    "existingModel_hintBodegaAzul": "no EXACT_NAME, no DECLARED_ALIAS_MATCH, no ADDRESS_MATCH (hint has no address) -> not verifiable",
+    "existingModel_ifHintWereBodegaLaAzul": "EXACT_NAME multiplicity MULTIPLE (3 in domain) -> AMBIGUOUS (fail-closed)",
+    "hypotheticalOfficialDomain": "narrows 4 -> 2 (winery + store); still MULTIPLE without a category/facility discriminator",
+    "verdict": "Overture ADDS a website fact the OSM/Geoapify candidate lacked, but does NOT establish SAME entity for 'Bodega Azul' under the current verifier"
+  },
+  "licenseStatus": "RESOLVED for all 4 records: CDLA-Permissive-2.0 (Meta upstream)"
+}

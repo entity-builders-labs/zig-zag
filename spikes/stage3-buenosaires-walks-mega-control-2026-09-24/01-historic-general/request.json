@@ -1,0 +1,31 @@
+{
+  "destination": {
+    "label": "Buenos Aires, Argentina",
+    "latitude": -34.6037,
+    "longitude": -58.3816,
+    "scaleHint": "settlement"
+  },
+  "days": 3,
+  "budgetLevel": "medium",
+  "groupType": "solo",
+  "intent": {
+    "interests": [
+      "history",
+      "culture"
+    ],
+    "intents": [
+      "walk"
+    ],
+    "explorationStyle": "balanced",
+    "additionalPreferences": "caminatas históricas y culturales por Buenos Aires"
+  },
+  "mobility": {
+    "allowedTransportationModes": [
+      "walking"
+    ],
+    "maxWalkingDistancePerDayMeters": 6000,
+    "maxContinuousWalkingDistanceMeters": 3000,
+    "travelPace": "moderate"
+  },
+  "skipImageGeneration": true
+}

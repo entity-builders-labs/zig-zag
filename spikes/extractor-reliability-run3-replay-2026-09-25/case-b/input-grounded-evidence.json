@@ -1,0 +1,100 @@
+{
+  "provider": "serper",
+  "model": "google-search",
+  "groundingStatus": "applied",
+  "providerLocale": {
+    "gl": "ar"
+  },
+  "evidence": [
+    {
+      "key": "ev-1",
+      "source": "Free walking tour of San Telmo: what to see and where to eat",
+      "snippet": "The most logical way to explore the historic center towards San Telmo is to follow a linear route. The route heads directly south along Defensa ...",
+      "title": "Free walking tour of San Telmo: what to see and where to eat",
+      "url": "https://www.tangol.com/blog/eng/free-walking-tour-of-san-telmo-what-to-see-and-where-to-eat_post_19453",
+      "kind": "organic_result",
+      "order": 1
+    },
+    {
+      "key": "ev-2",
+      "source": "What to do in San Telmo",
+      "snippet": "The San Telmo Fair takes place every Sunday and originated around the famous Dorrego Square, the second oldest square in the city after Plaza de ...",
+      "title": "What to do in San Telmo",
+      "url": "https://buenosairesfreewalks.com/barrios/san-telmo/what-to-do-in-san-telmo/",
+      "kind": "organic_result",
+      "order": 2
+    },
+    {
+      "key": "ev-3",
+      "source": "San Telmo, Buenos Aires: History, What to See, and Why ...",
+      "snippet": "San Telmo is the oldest neighborhood in Buenos Aires. It was the city's first stable colonial settlement, home to the 19th-century Buenos Aires aristocracy",
+      "title": "San Telmo, Buenos Aires: History, What to See, and Why ...",
+      "url": "https://querandi.com.ar/en/san-telmo-buenos-aires-history-what-to-see-and-why-no-trip-is-complete-without-it/",
+      "kind": "organic_result",
+      "order": 3
+    },
+    {
+      "key": "ev-4",
+      "source": "San Telmo Walking Tour (with Reviews)",
+      "snippet": "You'll admire San Telmo ́s colonial architecture, walk along the Lezama Park, the antique galleries, Plaza Dorrego, El Mercado de San Telmo and other iconic ...",
+      "title": "San Telmo Walking Tour (with Reviews)",
+      "url": "https://www.tripadvisor.com/AttractionProductReview-g312741-d25466746-San_Telmo_Walking_Tour-Buenos_Aires_Capital_Federal_District.html",
+      "kind": "organic_result",
+      "order": 4
+    },
+    {
+      "key": "ev-5",
+      "source": "San Telmo Walking Tour",
+      "snippet": "This 2-hour walk is ideal for understanding the architecture, history, and bohemian spirit of Buenos Aires. 📍 Tour Itinerary Origins and colonial era:",
+      "title": "San Telmo Walking Tour",
+      "url": "https://www.argentina4u.com/en/buenos-aires/san-telmo-walking-tour",
+      "kind": "organic_result",
+      "order": 5
+    },
+    {
+      "key": "ev-6",
+      "source": "San Telmo | Official English Website for the City of Buenos ...",
+      "snippet": "San Telmo is one of the city's oldest and most emblematic neighbourhoods. It still maintains much of its original architecture, with historic mansions, cobbled ...",
+      "title": "San Telmo | Official English Website for the City of Buenos ...",
+      "url": "https://turismo.buenosaires.gob.ar/en/atractivo/san-telmo",
+      "kind": "organic_result",
+      "order": 6
+    },
+    {
+      "key": "ev-7",
+      "source": "Visit San Telmo, living history - CITY TOUR",
+      "snippet": "The San Telmo neighborhood is very special: its squares, its art, its people. One of the city's most historic neighborhoods, everything in ...",
+      "title": "Visit San Telmo, living history - CITY TOUR",
+      "url": "https://www.youtube.com/watch?v=bj-IWUjZwQM",
+      "kind": "organic_result",
+      "order": 7
+    },
+    {
+      "key": "ev-8",
+      "source": "The BEST Free Walking Tours in San Telmo, Buenos Aires!",
+      "snippet": "San Telmo essential free tour: Tango: History and legends, markets and museums San Telmo essential free tour: Duration: 2 hours Reviews",
+      "title": "The BEST Free Walking Tours in San Telmo, Buenos Aires!",
+      "url": "https://www.guruwalk.com/buenos-aires/tag/san-telmo",
+      "kind": "organic_result",
+      "order": 8
+    },
+    {
+      "key": "ev-9",
+      "source": "The Best Way to Discover San Telmo Is on Foot",
+      "snippet": "Our San Telmo Walking Tour takes you through the historic heart of Buenos Aires, combining history, architecture, tango, local culture, and ...",
+      "title": "The Best Way to Discover San Telmo Is on Foot",
+      "url": "https://experiencebaires.com/blogs/blog/the-best-way-to-discover-san-telmo-is-on-foot?srsltid=AU7gw4XwDM7OXUplQxfByss1oLDrb5OWeIlQosEnvnb8bo4RKIgs8u27",
+      "kind": "organic_result",
+      "order": 9
+    },
+    {
+      "key": "ev-10",
+      "source": "San Telmo, Buenos Aires",
+      "snippet": "San Telmo (\"Saint Pedro González Telmo\") is the oldest barrio (neighborhood) of Buenos Aires, Argentina. A well-preserved area of the Argentine metropolis, ...",
+      "title": "San Telmo, Buenos Aires",
+      "url": "https://en.wikipedia.org/wiki/San_Telmo,_Buenos_Aires",
+      "kind": "organic_result",
+      "order": 10
+    }
+  ]
+}

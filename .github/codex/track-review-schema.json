@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["track", "pr_number", "reviewed_head", "base_branch", "code_review_verdict", "architecture_verdict", "findings", "verification_summary"],
+  "properties": {
+    "track": { "type": "string", "minLength": 1 },
+    "pr_number": { "type": "integer", "minimum": 1 },
+    "reviewed_head": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "base_branch": { "type": "string", "minLength": 1 },
+    "code_review_verdict": { "enum": ["PASS", "CHANGES_REQUIRED"] },
+    "architecture_verdict": { "enum": ["ARCHITECTURE_PASS", "ARCHITECTURE_DRIFT_WARNING"] },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "severity", "title", "file", "line", "reason", "required_fix"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "severity": { "enum": ["BLOCKER", "HIGH", "MEDIUM", "LOW"] },
+          "title": { "type": "string", "minLength": 1 },
+          "file": { "type": "string", "minLength": 1 },
+          "line": { "type": "string" },
+          "reason": { "type": "string", "minLength": 1 },
+          "required_fix": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "verification_summary": { "type": "string", "minLength": 1 }
+  }
+}

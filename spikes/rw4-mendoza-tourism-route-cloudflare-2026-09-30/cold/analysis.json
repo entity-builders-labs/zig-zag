@@ -1,0 +1,71 @@
+{
+  "tourId": "ae65cb2f-f325-4146-8e86-2bdef8ebaa83",
+  "generationStatus": "failed",
+  "pollElapsedMs": 54724,
+  "traceVersion": 5,
+  "totalSteps": 37,
+  "dbBefore": {
+    "geoEntities": 0,
+    "experiences": 0,
+    "identities": 0,
+    "components": 0
+  },
+  "dbAfter": {
+    "geoEntities": 2,
+    "experiences": 0,
+    "identities": 2,
+    "components": 0,
+    "duplicateExperienceNames": 0,
+    "duplicateIdentities": 0
+  },
+  "providerRequests": {
+    "groq": 1,
+    "nominatim.local/search": 7,
+    "overpass.local": 4,
+    "wikipedia(es.wikipedia.org)": 1,
+    "es.wikivoyage.org": 2,
+    "serper": 2,
+    "cloudflare.workers-ai": 4,
+    "tavily": 2,
+    "geoapify.geocode-search": 2,
+    "geoapify.place-details": 1,
+    "wikidata": 3
+  },
+  "initialCoverage": {
+    "sufficient": false,
+    "outcome": "NEEDS_ACQUISITION",
+    "deficits": [
+      {
+        "key": "wine",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+        "dimension": "theme"
+      },
+      {
+        "key": "route_like",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ]
+  },
+  "finalCoverage": {
+    "sufficient": false,
+    "outcome": "NEEDS_ACQUISITION",
+    "deficits": [
+      {
+        "key": "wine",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+        "dimension": "theme"
+      },
+      {
+        "key": "route_like",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ]
+  },
+  "scheduledExperiences": []
+}

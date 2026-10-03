@@ -1,0 +1,971 @@
+{
+  "generatedAt": "2026-10-03T07:13:44.038Z",
+  "extractor": {
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "validationErrors": [],
+    "extractionFailures": [],
+    "rawOutput": "{\n  \"candidates\": [\n    {\n      \"name\": \"Uco Valley Wine Tasting Itinerary\",\n      \"description\": \"A tried and tested wine tasting itinerary exploring the stunning Uco Valley, featuring stops at prominent wineries including Alfa Crux, SuperUco, and Bodega Azul for lunch.\",\n      \"themes\": [\n        \"wine\",\n        \"gastronomy\"\n      ],\n      \"traits\": [\n        \"scenic\",\n        \"wineries\",\n        \"tasting\"\n      ],\n      \"intents\": [\n        \"route_like\",\n        \"food\"\n      ],\n      \"componentHints\": [\n        {\n          \"key\": \"uco-valley\",\n          \"name\": \"Valle de Uco\",\n          \"role\": \"area\",\n          \"expectedKind\": \"AREA\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"If I were to plan a wine tasting in Valle de Uco Itinerary for a friend, this is the day I’d schedule for them.\"\n        },\n        {\n          \"key\": \"alfa-crux\",\n          \"name\": \"Alfa Crux\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"Alfa Crux – 10 am – This winery is the furthest, so start here and work your way back up.\"\n        },\n        {\n          \"key\": \"superuco\",\n          \"name\": \"SuperUco\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"SuperUco – 12 pm – It will take you 40 minutes to drive here from Alfa Crux so you’ll need to schedule SuperUco for no earlier than noon.\"\n        },\n        {\n          \"key\": \"bodega-azul\",\n          \"name\": \"Bodega Azul\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"Bodega Azul – 2:30 pm for lunch – You’ll spend the remaining hours of your afternoon hours here, so sit back and enjoy the meal.\"\n        }\n      ],\n      \"suggestedDurationMinutes\": 360,\n      \"shortReason\": \"An evidence-backed sample itinerary for a wine tasting day in the Uco Valley with mandatory stops.\",\n      \"evidenceKeys\": [\n        \"ev-1\"\n      ],\n      \"orderedByEvidence\": true\n    },\n    {\n      \"name\": \"Lujan de Cuyo Wine Tasting Itinerary\",\n      \"description\": \"An ideal day of wine tasting in Lujan de Cuyo featuring a visit to A16 for a tour and tasting followed by a leisurely lunch at Ojo de Agua.\",\n      \"themes\": [\n        \"wine\",\n        \"gastronomy\"\n      ],\n      \"traits\": [\n        \"wineries\",\n        \"tasting\",\n        \"lunch\"\n      ],\n      \"intents\": [\n        \"route_like\",\n        \"food\"\n      ],\n      \"componentHints\": [\n        {\n          \"key\": \"lujan-de-cuyo\",\n          \"name\": \"Lujan de Cuyo\",\n          \"role\": \"area\",\n          \"expectedKind\": \"AREA\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"Here are two sample itineraries for my two favorite Mendoza wine regions: Lujan de Cuyo & The Uco Valley.\"\n        },\n        {\n          \"key\": \"a16\",\n          \"name\": \"A16\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"A16 – 10 am – Start your day with a tasting and a tour at A16.\"\n        },\n        {\n          \"key\": \"ojo-de-agua\",\n          \"name\": \"Ojo de Agua\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"Ojo de Agua – 1:30 pm for a winery lunch – It took us about 15-20 minutes to drive to Ojo de Agua from Melipal\"\n        }\n      ],\n      \"suggestedDurationMinutes\": 360,\n      \"shortReason\": \"An evidence-backed wine tasting route in Lujan de Cuyo.\",\n      \"evidenceKeys\": [\n        \"ev-1\"\n      ],\n      \"orderedByEvidence\": true\n    }\n  ]\n}"
+  },
+  "extractedHints": [
+    {
+      "candidate": "Uco Valley Wine Tasting Itinerary",
+      "hints": [
+        {
+          "key": "uco-valley",
+          "name": "Valle de Uco",
+          "sourceName": "Valle de Uco",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ]
+        },
+        {
+          "key": "alfa-crux",
+          "name": "Alfa Crux",
+          "sourceName": "Alfa Crux",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "sourceLink": {
+            "url": "https://www.agostinowinegroup.com/alfa-crux-wines",
+            "evidenceKey": "ev-1",
+            "linkText": "Alfa Crux"
+          }
+        },
+        {
+          "key": "superuco",
+          "name": "SuperUco",
+          "sourceName": "SuperUco",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "sourceLink": {
+            "url": "https://superuco.com/",
+            "evidenceKey": "ev-1",
+            "linkText": "SuperUco"
+          }
+        },
+        {
+          "key": "bodega-azul",
+          "name": "Bodega Azul",
+          "sourceName": "Bodega Azul",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "sourceLink": {
+            "url": "https://bodegalaazul.com/",
+            "evidenceKey": "ev-1",
+            "linkText": "Bodega Azul"
+          }
+        }
+      ]
+    },
+    {
+      "candidate": "Lujan de Cuyo Wine Tasting Itinerary",
+      "hints": [
+        {
+          "key": "lujan-de-cuyo",
+          "name": "Lujan de Cuyo",
+          "sourceName": "Lujan de Cuyo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ]
+        },
+        {
+          "key": "a16",
+          "name": "A16",
+          "sourceName": "A16",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "sourceLink": {
+            "url": "http://a16sa.com/en/",
+            "evidenceKey": "ev-1",
+            "linkText": "A16"
+          }
+        },
+        {
+          "key": "ojo-de-agua",
+          "name": "Ojo de Agua",
+          "sourceName": "Ojo de Agua",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "sourceLink": {
+            "url": "https://ojodeagua.ch/",
+            "evidenceKey": "ev-1",
+            "linkText": "Ojo de Agua"
+          }
+        }
+      ]
+    }
+  ],
+  "sourceSupportAudits": [
+    {
+      "candidateName": "Uco Valley Wine Tasting Itinerary",
+      "status": "SUPPORTED",
+      "emittedComponentCount": 4,
+      "supportedComponentCount": 4,
+      "unsupportedComponentCount": 0,
+      "declaredEvidenceKeys": [
+        "ev-1"
+      ],
+      "verifiedEvidenceKeys": [
+        "ev-1"
+      ],
+      "components": [
+        {
+          "index": 0,
+          "key": "uco-valley",
+          "name": "Valle de Uco",
+          "sourceName": "Valle de Uco",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "verifiedEvidenceKeys": [
+            "ev-1"
+          ],
+          "attributionStatus": "DECLARED_KEY_VERIFIED",
+          "status": "SUPPORTED",
+          "verifiedSupportSpan": "If I were to plan a wine tasting in Valle de Uco Itinerary for a friend, this is the day I’d schedule for them."
+        },
+        {
+          "index": 1,
+          "key": "alfa-crux",
+          "name": "Alfa Crux",
+          "sourceName": "Alfa Crux",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "verifiedEvidenceKeys": [
+            "ev-1"
+          ],
+          "attributionStatus": "DECLARED_KEY_VERIFIED",
+          "status": "SUPPORTED",
+          "verifiedSupportSpan": "[Alfa Crux](https://www.agostinowinegroup.com/alfa-crux-wines) – 10 am – This winery is the furthest, so start here and work your way back up.",
+          "assertionAudits": [
+            {
+              "assertion": "SOURCE_LINK",
+              "status": "ACCEPTED"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "key": "superuco",
+          "name": "SuperUco",
+          "sourceName": "SuperUco",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "verifiedEvidenceKeys": [
+            "ev-1"
+          ],
+          "attributionStatus": "DECLARED_KEY_VERIFIED",
+          "status": "SUPPORTED",
+          "verifiedSupportSpan": "[SuperUco](https://superuco.com/) – 12 pm – It will take you 40 minutes to drive here from Alfa Crux so you’ll need to schedule SuperUco for no earlier than noon.",
+          "assertionAudits": [
+            {
+              "assertion": "SOURCE_LINK",
+              "status": "ACCEPTED"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "key": "bodega-azul",
+          "name": "Bodega Azul",
+          "sourceName": "Bodega Azul",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "verifiedEvidenceKeys": [
+            "ev-1"
+          ],
+          "attributionStatus": "DECLARED_KEY_VERIFIED",
+          "status": "SUPPORTED",
+          "verifiedSupportSpan": "[Bodega Azul](https://bodegalaazul.com/) – 2:30 pm for lunch – You’ll spend the remaining hours of your afternoon hours here, so sit back and enjoy the meal.",
+          "assertionAudits": [
+            {
+              "assertion": "SOURCE_LINK",
+              "status": "ACCEPTED"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "candidateName": "Lujan de Cuyo Wine Tasting Itinerary",
+      "status": "SUPPORTED",
+      "emittedComponentCount": 3,
+      "supportedComponentCount": 3,
+      "unsupportedComponentCount": 0,
+      "declaredEvidenceKeys": [
+        "ev-1"
+      ],
+      "verifiedEvidenceKeys": [
+        "ev-1"
+      ],
+      "components": [
+        {
+          "index": 0,
+          "key": "lujan-de-cuyo",
+          "name": "Lujan de Cuyo",
+          "sourceName": "Lujan de Cuyo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "verifiedEvidenceKeys": [
+            "ev-1"
+          ],
+          "attributionStatus": "DECLARED_KEY_VERIFIED",
+          "status": "SUPPORTED",
+          "verifiedSupportSpan": "Here are two sample itineraries for my two favorite Mendoza wine regions: Lujan de Cuyo & The Uco Valley."
+        },
+        {
+          "index": 1,
+          "key": "a16",
+          "name": "A16",
+          "sourceName": "A16",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "verifiedEvidenceKeys": [
+            "ev-1"
+          ],
+          "attributionStatus": "DECLARED_KEY_VERIFIED",
+          "status": "SUPPORTED",
+          "verifiedSupportSpan": "[A16](http://a16sa.com/en/) – 10 am – Start your day with a tasting and a tour at A16.",
+          "assertionAudits": [
+            {
+              "assertion": "SOURCE_LINK",
+              "status": "ACCEPTED"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "key": "ojo-de-agua",
+          "name": "Ojo de Agua",
+          "sourceName": "Ojo de Agua",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "declaredEvidenceKeys": [
+            "ev-1"
+          ],
+          "verifiedEvidenceKeys": [
+            "ev-1"
+          ],
+          "attributionStatus": "DECLARED_KEY_VERIFIED",
+          "status": "SUPPORTED",
+          "verifiedSupportSpan": "[Ojo de Agua](https://ojodeagua.ch/) – 1:30 pm for a winery lunch – It took us about 15-20 minutes to drive to Ojo de Agua from Melipal",
+          "assertionAudits": [
+            {
+              "assertion": "SOURCE_LINK",
+              "status": "ACCEPTED"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "catalog": "STUB (empty; no reads of canonical state, no writes)",
+  "wouldPersistCalls": [],
+  "candidates": [
+    {
+      "name": "Uco Valley Wine Tasting Itinerary",
+      "status": "rejected",
+      "rejectionReasons": [
+        "DESTINATION_INCOMPATIBLE",
+        "UNCONFIRMED_MATCH"
+      ]
+    },
+    {
+      "name": "Lujan de Cuyo Wine Tasting Itinerary",
+      "status": "rejected",
+      "rejectionReasons": [
+        "NO_OSM_MATCH",
+        "UNCONFIRMED_MATCH"
+      ]
+    }
+  ],
+  "forensicAudit": [
+    {
+      "candidateName": "Uco Valley Wine Tasting Itinerary",
+      "components": [
+        {
+          "hintKey": "uco-valley",
+          "hintName": "Valle de Uco",
+          "sourceName": "Valle de Uco",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "Valle de Uco",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Valle de Uco",
+              "poolCandidateCount": 1,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "destinationCompatibility": {
+                "verdict": "INCOMPATIBLE",
+                "reason": "OUTSIDE_DESTINATION_BOUNDARY"
+              },
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "Valle de Uco",
+              "providerResultCount": 2,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "AREA_TO_PLACE_CORRECTION",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Valle de Uco",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "DESTINATION_INCOMPATIBLE"
+        },
+        {
+          "hintKey": "alfa-crux",
+          "hintName": "Alfa Crux",
+          "sourceName": "Alfa Crux",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "identityContext": {
+            "sourceLink": {
+              "url": "https://www.agostinowinegroup.com/alfa-crux-wines",
+              "evidenceKey": "ev-1",
+              "linkText": "Alfa Crux"
+            }
+          },
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "Alfa Crux",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "Alfa Crux",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Alfa Crux",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "Alfa Crux",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "placeSearch": {
+                "resultCount": 0,
+                "rejected": [],
+                "viableCount": 0,
+                "searchWindow": {
+                  "provenance": "DESTINATION_AREA",
+                  "radiusMeters": 12964
+                }
+              },
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "provider": "geoapify",
+              "query": "Alfa Crux",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "Alfa Crux",
+              "providerResultCount": 1,
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "canonicalName": "Alfa Crux",
+                "externalId": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+                "kind": "PLACE",
+                "identities": [
+                  {
+                    "provider": "overture",
+                    "externalId": "79eb9ee4-0591-49f3-a077-51a7926a3ada"
+                  }
+                ],
+                "latitude": -33.8040574593,
+                "longitude": -69.119154850671
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH"
+        },
+        {
+          "hintKey": "superuco",
+          "hintName": "SuperUco",
+          "sourceName": "SuperUco",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "identityContext": {
+            "sourceLink": {
+              "url": "https://superuco.com/",
+              "evidenceKey": "ev-1",
+              "linkText": "SuperUco"
+            }
+          },
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "SuperUco",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "SuperUco",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "SuperUco",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "SuperUco",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "placeSearch": {
+                "resultCount": 0,
+                "rejected": [],
+                "viableCount": 0,
+                "searchWindow": {
+                  "provenance": "DESTINATION_AREA",
+                  "radiusMeters": 12964
+                }
+              },
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "provider": "geoapify",
+              "query": "SuperUco",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "SuperUco",
+              "providerResultCount": 1,
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "canonicalName": "SuperUco",
+                "externalId": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+                "kind": "PLACE",
+                "identities": [
+                  {
+                    "provider": "overture",
+                    "externalId": "753ed444-8e83-4178-8ad3-a05e9a28b7c5"
+                  }
+                ],
+                "latitude": -33.60353978,
+                "longitude": -69.22870399
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH"
+        },
+        {
+          "hintKey": "bodega-azul",
+          "hintName": "Bodega Azul",
+          "sourceName": "Bodega Azul",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "identityContext": {
+            "sourceLink": {
+              "url": "https://bodegalaazul.com/",
+              "evidenceKey": "ev-1",
+              "linkText": "Bodega Azul"
+            }
+          },
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "Bodega Azul",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "Bodega Azul",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Bodega Azul",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "Bodega Azul",
+              "providerResultCount": 1,
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "canonicalName": "Supermercado del Vino \"La Bodega de Azul\"",
+                "externalId": "osm:node:4082354791",
+                "kind": "PLACE",
+                "identities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4082354791"
+                  }
+                ],
+                "latitude": -36.7868206,
+                "longitude": -59.8591456
+              },
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            },
+            {
+              "strategy": "PLACES",
+              "executionStatus": "failed",
+              "provider": "geoapify",
+              "query": "Bodega Azul",
+              "candidateAcquired": false,
+              "failureReason": "Geoapify text search failed: timeout of 5000ms exceeded",
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "Bodega Azul",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH"
+        }
+      ]
+    },
+    {
+      "candidateName": "Lujan de Cuyo Wine Tasting Itinerary",
+      "components": [
+        {
+          "hintKey": "lujan-de-cuyo",
+          "hintName": "Lujan de Cuyo",
+          "sourceName": "Lujan de Cuyo",
+          "role": "area",
+          "expectedKind": "AREA",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "Lujan de Cuyo",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Lujan de Cuyo",
+              "poolCandidateCount": 1,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "Lujan de Cuyo",
+              "providerResultCount": 2,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "AREA_TO_PLACE_CORRECTION",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Lujan de Cuyo",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "NO_OSM_MATCH"
+        },
+        {
+          "hintKey": "a16",
+          "hintName": "A16",
+          "sourceName": "A16",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "identityContext": {
+            "sourceLink": {
+              "url": "http://a16sa.com/en/",
+              "evidenceKey": "ev-1",
+              "linkText": "A16"
+            }
+          },
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "A16",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "A16",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "A16",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "A16",
+              "providerResultCount": 6,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "placeSearch": {
+                "resultCount": 0,
+                "rejected": [],
+                "viableCount": 0,
+                "searchWindow": {
+                  "provenance": "DESTINATION_AREA",
+                  "radiusMeters": 12964
+                }
+              },
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "provider": "geoapify",
+              "query": "A16",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "A16",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "NO_OSM_MATCH"
+        },
+        {
+          "hintKey": "ojo-de-agua",
+          "hintName": "Ojo de Agua",
+          "sourceName": "Ojo de Agua",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "identityContext": {
+            "sourceLink": {
+              "url": "https://ojodeagua.ch/",
+              "evidenceKey": "ev-1",
+              "linkText": "Ojo de Agua"
+            }
+          },
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "Ojo de Agua",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "Ojo de Agua",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Ojo de Agua",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "Ojo de Agua",
+              "providerResultCount": 31,
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "canonicalName": "Ojo de Agua",
+                "externalId": "osm:node:4797394430",
+                "kind": "PLACE",
+                "identities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4797394430"
+                  }
+                ],
+                "latitude": -33.1300868,
+                "longitude": -68.9641048
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "MULTIPLE"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "AMBIGUOUS"
+            },
+            {
+              "placeSearch": {
+                "resultCount": 0,
+                "rejected": [],
+                "viableCount": 0,
+                "searchWindow": {
+                  "provenance": "DESTINATION_AREA",
+                  "radiusMeters": 12964
+                }
+              },
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "provider": "geoapify",
+              "query": "Ojo de Agua",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "Ojo de Agua",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH"
+        }
+      ]
+    }
+  ]
+}

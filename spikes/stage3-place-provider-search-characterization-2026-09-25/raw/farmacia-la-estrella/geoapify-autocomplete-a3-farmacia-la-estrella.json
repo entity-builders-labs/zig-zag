@@ -1,0 +1,117 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Farmacia la Estrella",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1500,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia de la Estrella",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1064",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Defensa",
+        "housenumber": "201",
+        "iso3166_2": "AR-C",
+        "lon": -58.3721513,
+        "lat": -34.6102605,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Farmacia de la Estrella, Defensa 201, Monserrat, 1064 Buenos Aires, Argentina",
+        "address_line1": "Farmacia de la Estrella",
+        "address_line2": "Defensa 201, Monserrat, 1064 Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+V4",
+        "plus_code_short": "QH+V4 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 0.9,
+          "match_type": "full_match"
+        },
+        "place_id": "51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738",
+        "bbox": {
+          "lon1": -58.3722013,
+          "lat1": -34.6103105,
+          "lon2": -58.3721013,
+          "lat2": -34.6102105
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia Estrella Argentina",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1407HGF",
+        "district": "Comuna 9",
+        "suburb": "Parque Avellaneda",
+        "street": "Dámaso Larrañaga",
+        "iso3166_2": "AR-C",
+        "lon": -58.4866718,
+        "lat": -34.6468208,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Farmacia Estrella Argentina, Dámaso Larrañaga, Parque Avellaneda, C1407 HGF Buenos Aires, Argentina",
+        "address_line1": "Farmacia Estrella Argentina",
+        "address_line2": "Dámaso Larrañaga, Parque Avellaneda, C1407 HGF Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39G37+78",
+        "plus_code_short": "9G37+78 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "515771f4424b3e4dc059b02f2306cb5241c0f00102f901758f611c00000000c0020192031b4661726d616369612045737472656c6c6120417267656e74696e61",
+        "bbox": {
+          "lon1": -58.4867553,
+          "lat1": -34.6469024,
+          "lon2": -58.4865839,
+          "lat2": -34.6467849
+        }
+      }
+    ],
+    "query": {
+      "text": "Farmacia la Estrella",
+      "categories": []
+    }
+  }
+}

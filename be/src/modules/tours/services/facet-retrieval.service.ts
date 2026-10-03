@@ -1,0 +1,125 @@
+import { GeographicScope } from '../interfaces/experience-resolution.interface';
+import { isTourEligibleForDestinationRequest } from '../utils/tour-destination-eligibility.policy';
+/**
+ * Per-facet catalog retrieval (spec §6, plan Task A6; geography boundary
+ * hardened by Task A6.1 --
+ * docs/superpowers/specs/2026-09-11-postgis-geospatial-catalog-boundary.md).
+ *
+ * Retrieves verified canonical Experiences within a geographic scope and
+ * classifies each as a strong match, a weak match, or unrelated to the
+ * given facet -- reusing `ExperienceCatalogService.findVerifiedWithinForMatching`,
+ * the canonical PostGIS-backed geography/hydration boundary, rather than a
+ * second, arbitrary Prisma bounding-box query.
+ *
+ * A6 originally called `findVerifiedWithin(..., FACET_RETRIEVAL_LIMIT)`
+ * with a generously large constant (2000). That only moved the failure
+ * threshold: `findVerifiedWithin` performs a bounded JS/Prisma scan-then-
+ * filter that can still truncate a relevant row before semantic matching
+ * ever sees it. `findVerifiedWithinForMatching` resolves geographic scope
+ * entirely in PostgreSQL/PostGIS with no correctness-visible result cap, so
+ * there is no longer a limit constant to pass here at all.
+ */
+import { Injectable } from '@nestjs/common';
+import { ExperienceCatalogService } from './experience-catalog.service';
+import {
+  FacetCandidates,
+  RequestedFacet,
+} from '../interfaces/preference-spec.interface';
+import { facetSatisfied } from '../utils/preference-sufficiency.util';
+import {
+  isStrongFacetMatch,
+  requestedFacetToPreferenceFacet,
+  StrongMatchPolicy,
+} from '../utils/preference-strong-match.util';
+import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
+
+export interface FacetRetrievalScope {
+  /** Destination retrieval window (bounding-box circle of the destination). */
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+  /**
+   * The trip destination itself: rows the window returns are tour-eligible
+   * only when WITHIN it (PD1, `isTourEligibleForDestinationRequest`).
+   */
+  destination: GeographicScope;
+}
+
+interface ScoredRow {
+  id: string;
+  qualityScore: number | null;
+}
+
+/**
+ * Ordering-only quality projection. `typeof value === 'number'` alone is
+ * not enough to trust a value for ordering -- `NaN`/`Infinity`/`-Infinity`
+ * all satisfy it, and a corrupt out-of-scale value (negative, or above the
+ * canonical 0..5 ceiling) shouldn't win over a real 4.0 either. This
+ * mirrors A5's own `isStrongFacetMatch` quality-validity contract
+ * (`preference-strong-match.util.ts`, untouched by this fix) so a
+ * corrupt/invalid quality can never gain an ordering advantage -- it sorts
+ * as the worst possible value instead.
+ */
+function qualityForOrdering(value: unknown): number {
+  return typeof value === 'number' &&
+    Number.isFinite(value) &&
+    value >= 0 &&
+    value <= 5
+    ? value
+    : -Infinity;
+}
+
+/** Strongest-first: higher (valid) qualityScore wins; stable id tie-break. */
+function byStrengthThenId(a: ScoredRow, b: ScoredRow): number {
+  const aQuality = qualityForOrdering(a.qualityScore);
+  const bQuality = qualityForOrdering(b.qualityScore);
+  return bQuality - aQuality || a.id.localeCompare(b.id);
+}
+
+@Injectable()
+export class FacetRetrievalService {
+  constructor(private readonly catalog: ExperienceCatalogService) {}
+
+  async retrieveFacetCandidates(
+    facet: RequestedFacet,
+    scope: FacetRetrievalScope,
+    policy: StrongMatchPolicy = {},
+  ): Promise<FacetCandidates> {
+    const rows = await this.catalog.findVerifiedWithinForMatching(
+      scope.latitude,
+      scope.longitude,
+      scope.radiusMeters,
+    );
+
+    const preferenceFacet = requestedFacetToPreferenceFacet(facet);
+    const strong: ScoredRow[] = [];
+    const weak: ScoredRow[] = [];
+
+    for (const row of rows as Array<Record<string, any>>) {
+      if (!isTourEligibleForDestinationRequest(row, scope.destination)) {
+        continue;
+      }
+      const scored: ScoredRow = {
+        id: row.id,
+        qualityScore:
+          typeof row.qualityScore === 'number' ? row.qualityScore : null,
+      };
+      if (isStrongFacetMatch(row, facet, policy)) {
+        strong.push(scored);
+      } else if (candidateMatchesPreferenceFacet(row, preferenceFacet)) {
+        weak.push(scored);
+      }
+      // Neither strong nor a base match -> unrelated to this facet, excluded.
+    }
+
+    strong.sort(byStrengthThenId);
+    weak.sort(byStrengthThenId);
+
+    return {
+      facet,
+      strongMatches: strong.map((row) => row.id),
+      weakMatches: weak.map((row) => row.id),
+      satisfied: facetSatisfied(strong.length),
+    };
+  }
+}

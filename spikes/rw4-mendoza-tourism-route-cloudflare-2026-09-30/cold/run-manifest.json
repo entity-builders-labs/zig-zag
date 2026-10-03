@@ -1,0 +1,15 @@
+{
+  "runLabel": "rw4-mendoza-cold",
+  "tourId": "ae65cb2f-f325-4146-8e86-2bdef8ebaa83",
+  "email": "rw3-spike-rw4-mendoza-cold-1790764258770@example.com",
+  "baseUrl": "http://localhost:3035",
+  "requestFile": "request.json",
+  "createHttpMs": 59,
+  "generationStatus": "failed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 54724,
+  "startedAt": "2026-09-30T10:30:58.996Z",
+  "finishedAt": "2026-09-30T10:31:53.725Z"
+}

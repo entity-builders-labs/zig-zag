@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -7,48 +8,34 @@ import {
 import { PrismaService } from '@core/database/prisma.service';
 import { CreateTourDto } from '../dto/create-tour.dto';
 import { UpdateTourDto } from '../dto/update-tour.dto';
-import { isValidId } from '@shared/utils/id-validator';
-import { prepareActivityDataForCreate } from '../utils/activity-transformer.util';
+import { OutboxService } from '../../outbox/services/outbox.service';
+import { MediaPresentationResolver } from '../../media/services/media-presentation.resolver';
+import { computeDayTotals } from '../utils/day-totals.util';
+import { deriveExperiencePresentation } from '../utils/experience-presentation.util';
 
 @Injectable()
 export class ToursService {
   private readonly logger = new Logger(ToursService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly outboxService: OutboxService,
+    private readonly mediaPresentationResolver: MediaPresentationResolver,
+  ) {}
 
   /**
-   * Create a tour - flexible method that accepts partial data
+   * Create a tour - flexible method that accepts partial data.
+   *
+   * Canonical wizard-generated tours are created atomically with their
+   * TourGenerationRequested event. The database outbox is therefore the durable
+   * source of work; there is no crash window between committing the Tour and
+   * scheduling its generation.
    */
   async create(createTourDto: CreateTourDto) {
-    const { activities, ...tourData } = createTourDto;
+    const tourData = createTourDto;
 
-    // Validate activity IDs if provided
-    if (activities?.length) {
-      // Validate activity IDs (supports both UUID and ObjectId for migration)
-      const activityIds = activities
-        .map((a) => a.activityId)
-        .filter((id): id is string => isValidId(id));
-
-      if (activityIds.length > 0) {
-        try {
-          const existingActivities = await this.prisma.activity.findMany({
-            where: { id: { in: activityIds } },
-          });
-
-          if (existingActivities.length !== activityIds.length) {
-            this.logger.warn(
-              `Some activity IDs are invalid. Expected ${activityIds.length}, found ${existingActivities.length}`,
-            );
-          }
-        } catch (error) {
-          this.logger.error(`Error validating activity IDs: ${error.message}`);
-          // Don't throw, just log the error and continue
-        }
-      }
-    }
-
-    // Prepare tour data - only include defined fields
     const tourDataClean: any = {
+      ownerId: tourData.ownerId,
       name: tourData.name,
       description: tourData.description,
       price: tourData.price,
@@ -65,35 +52,56 @@ export class ToursService {
       categories: tourData.categories,
     };
 
-    // Remove undefined values
     Object.keys(tourDataClean).forEach(
       (key) => tourDataClean[key] === undefined && delete tourDataClean[key],
     );
 
-    return this.prisma.$transaction(async (tx) => {
-      const tour = await tx.tour.create({
+    const tour = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.tour.create({
         data: {
           ...tourDataClean,
-          activities: {
-            create:
-              activities?.map((activityDto, index) =>
-                prepareActivityDataForCreate(activityDto, index),
-              ) || [],
-          },
         },
         include: {
-          activities: {
+          experiences: {
             include: {
-              activity: true,
+              experience: {
+                include: {
+                  components: true,
+                  traits: true,
+                  media: true,
+                },
+              },
+              components: true,
             },
+            orderBy: [{ dayNumber: 'asc' }, { order: 'asc' }],
           },
         },
       });
-      return tour;
+
+      const metadata = tourData.metadata as any;
+      const isCanonicalPendingGeneration =
+        metadata?.generationStatus === 'pending' &&
+        metadata?.generationRequest?.contractVersion === 1;
+      if (isCanonicalPendingGeneration) {
+        await this.outboxService.createInTx(tx, {
+          eventType: 'TourGenerationRequested',
+          payload: {
+            eventKey: `tour-generation:${created.id}`,
+            tourId: created.id,
+            userId: created.ownerId ?? undefined,
+            requestedAt: new Date().toISOString(),
+          },
+        });
+      }
+
+      return created;
     });
+
+    return this.withMediaPresentation(tour);
   }
 
   async findAll(
+    ownerId: string,
     page = 1,
     limit = 100,
     category?: string,
@@ -103,12 +111,7 @@ export class ToursService {
   ) {
     const skip = (page - 1) * limit;
 
-    // If lat/lng/radius provided, use nearby search logic if no category or combined
-    // But if category is provided, we filter by category
-    // The previous implementation of findAll just paginated everything.
-    // We need to support the filters passed from controller.
-
-    const where: any = {};
+    const where: any = { ownerId };
 
     if (category) {
       where.categories = {
@@ -121,25 +124,21 @@ export class ToursService {
       longitude !== undefined &&
       radius !== undefined
     ) {
-      where.activities = {
+      where.experiences = {
         some: {
-          activityLatitude: {
-            gte: latitude - radius,
-            lte: latitude + radius,
-          },
-          activityLongitude: {
-            gte: longitude - radius,
-            lte: longitude + radius,
+          experience: {
+            latitude: {
+              gte: latitude - radius,
+              lte: latitude + radius,
+            },
+            longitude: {
+              gte: longitude - radius,
+              lte: longitude + radius,
+            },
           },
         },
       };
     }
-
-    // Note: Prisma doesn't support geospatial queries directly on standard fields easily without raw queries
-    // or extensions. For now, we'll filter by category and simple pagination.
-    // If latitude/longitude is provided, we might want to use findNearby logic instead?
-    // However, findNearby returns an array, not a paginated result with meta.
-    // Let's stick to basic filtering for now.
 
     const [total, tours] = await this.prisma.$transaction([
       this.prisma.tour.count({
@@ -151,10 +150,18 @@ export class ToursService {
         take: limit,
         skip: skip,
         include: {
-          activities: {
+          experiences: {
             include: {
-              activity: true,
+              experience: {
+                include: {
+                  components: true,
+                  traits: true,
+                  media: true,
+                },
+              },
+              components: true,
             },
+            orderBy: [{ dayNumber: 'asc' }, { order: 'asc' }],
           },
         },
         orderBy: {
@@ -164,7 +171,7 @@ export class ToursService {
     ]);
 
     return {
-      tours,
+      tours: tours.map((tour) => this.withMediaPresentation(tour)),
       meta: {
         total,
         page,
@@ -174,17 +181,28 @@ export class ToursService {
     };
   }
 
-  async findOne(id: string) {
+  /**
+   * `ownerId` is omitted by trusted internal callers (background generation
+   * generation, which runs without an HTTP/user context); the HTTP-facing
+   * controller always passes it to enforce that tours are private per owner.
+   */
+  async findOne(id: string, ownerId?: string) {
     const tour = await this.prisma.tour.findUnique({
       where: { id },
       include: {
-        activities: {
+        experiences: {
           include: {
-            activity: true,
+            experience: {
+              include: {
+                components: true,
+                traits: true,
+                evidence: true,
+                media: true,
+              },
+            },
+            components: true,
           },
-          orderBy: {
-            order: 'asc',
-          },
+          orderBy: [{ dayNumber: 'asc' }, { order: 'asc' }],
         },
       },
     });
@@ -193,68 +211,86 @@ export class ToursService {
       throw new NotFoundException(`Tour with ID ${id} not found`);
     }
 
-    return tour;
+    if (ownerId !== undefined) {
+      this.assertOwnership(tour.ownerId, ownerId);
+    }
+
+    return this.withMediaPresentation(tour);
   }
 
-  async update(id: string, updateTourDto: UpdateTourDto) {
-    const { activities, ...tourData } = updateTourDto;
+  private withMediaPresentation<T extends { experiences?: any[] }>(tour: T): T {
+    if (!Array.isArray(tour.experiences)) return tour;
+    return {
+      ...tour,
+      dayTotals: computeDayTotals(tour.experiences),
+      experiences: tour.experiences.map((tourExperience) => {
+        if (!tourExperience?.experience) return tourExperience;
+        return {
+          ...tourExperience,
+          experiencePresentation: deriveExperiencePresentation(
+            tourExperience.components ?? [],
+          ),
+          experience: {
+            ...tourExperience.experience,
+            mediaPresentation:
+              this.mediaPresentationResolver.resolvePresentation(
+                tourExperience.experience,
+              ),
+          },
+        };
+      }),
+    } as T;
+  }
+
+  private assertOwnership(tourOwnerId: string | null, ownerId: string) {
+    if (tourOwnerId !== ownerId) {
+      throw new ForbiddenException('You do not have access to this tour');
+    }
+  }
+
+  async update(id: string, updateTourDto: UpdateTourDto, ownerId: string) {
+    const tourData = updateTourDto;
 
     try {
-      // Validate activity IDs if provided
-      if (activities?.length) {
-        const activityIds = activities
-          .map((a) => a.activityId)
-          .filter((id): id is string => isValidId(id));
+      const existing = await this.prisma.tour.findUnique({
+        where: { id },
+        select: { ownerId: true },
+      });
 
-        if (activityIds.length > 0) {
-          const existingActivities = await this.prisma.activity.findMany({
-            where: { id: { in: activityIds } },
-          });
-
-          if (existingActivities.length !== activityIds.length) {
-            throw new BadRequestException('Some activity IDs are invalid');
-          }
-        }
+      if (!existing) {
+        throw new NotFoundException(`Tour with ID ${id} not found`);
       }
 
-      return await this.prisma.$transaction(async (tx) => {
-        // First delete existing activities
-        await tx.tourActivity.deleteMany({
-          where: { tourId: id },
-        });
+      this.assertOwnership(existing.ownerId, ownerId);
 
-        // Update tour and create new activities
-        const updatedTour = await tx.tour.update({
+      const updatedTour = await this.prisma.$transaction(async (tx) =>
+        tx.tour.update({
           where: { id },
-          data: {
-            ...tourData,
-            activities: {
-              create:
-                activities?.map((activity, index) =>
-                  prepareActivityDataForCreate(activity, index),
-                ) || [],
-            },
-          },
+          data: { ...tourData },
           include: {
-            activities: {
+            experiences: {
               include: {
-                activity: true,
-              },
-              orderBy: {
-                order: 'asc',
+                experience: { include: { media: true } },
+                components: true,
               },
             },
           },
-        });
+        }),
+      );
 
-        return updatedTour;
-      });
+      return this.withMediaPresentation(updatedTour);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException
+      ) {
+        throw error;
+      }
       if (error.code === 'P2025') {
         throw new NotFoundException(`Tour with ID ${id} not found`);
       }
       if (error.code === 'P2003') {
-        throw new BadRequestException('Invalid activity reference');
+        throw new BadRequestException('Invalid experience reference');
       }
       if (error instanceof BadRequestException) {
         throw error;
@@ -263,25 +299,36 @@ export class ToursService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, ownerId: string) {
     try {
-      return await this.prisma.$transaction(async (tx) => {
-        // First delete all associated activities
-        await tx.tourActivity.deleteMany({
-          where: { tourId: id },
-        });
+      const existing = await this.prisma.tour.findUnique({
+        where: { id },
+        select: { ownerId: true },
+      });
 
-        // Then delete the tour
+      if (!existing) {
+        throw new NotFoundException(`Tour with ID ${id} not found`);
+      }
+
+      this.assertOwnership(existing.ownerId, ownerId);
+
+      return await this.prisma.$transaction(async (tx) => {
         const deletedTour = await tx.tour.delete({
           where: { id },
           include: {
-            activities: true,
+            experiences: true,
           },
         });
 
         return deletedTour;
       });
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException
+      ) {
+        throw error;
+      }
       if (error.code === 'P2025') {
         throw new NotFoundException(`Tour with ID ${id} not found`);
       }

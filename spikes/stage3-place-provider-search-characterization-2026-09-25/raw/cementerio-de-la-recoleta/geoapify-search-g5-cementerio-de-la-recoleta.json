@@ -1,0 +1,495 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Cementerio de la Recoleta",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1604,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Recoleta Cemetry",
+        "other_names": {
+          "name": "Cementerio de la Recoleta",
+          "name:es": "Cementerio de la Recoleta",
+          "name:pt": "Cemitério da Recoleta"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.3935953,
+        "lat": -34.5876575,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2094.6722419212447,
+        "formatted": "Recoleta Cemetry, Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "address_line1": "Recoleta Cemetry",
+        "address_line2": "Recoleta, Buenos Aires, Comuna 2, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ64+WH",
+        "plus_code_short": "CJ64+WH Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.5007324917980888,
+          "popularity": 7.65622506139933,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51feadae5461324dc059e3df675c384b41c0f00102f9015035f50a00000000c002019203105265636f6c6574612043656d65747279",
+        "bbox": {
+          "lon1": -58.3951354,
+          "lat1": -34.5890966,
+          "lon2": -58.3918692,
+          "lat2": -34.5862094
+        }
+      },
+      {
+        "country_code": "ar",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "street": "Recoleta Cemetry",
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.392145,
+        "lat": -34.587581,
+        "result_type": "amenity",
+        "distance": 2035.7265375189115,
+        "formatted": "Recoleta Cemetry, Recoleta, Buenos Aires, Argentina",
+        "address_line1": "Recoleta Cemetry",
+        "address_line2": "Recoleta, Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ65+X4",
+        "plus_code_short": "CJ65+X4 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.57265122517629,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "511c25afce31324dc0592060adda354b41c0f00102f9015035f50a00000000c00201e203216f70656e7374726565746d61703a76656e75653a7761792f313833383432313238",
+        "bbox": {
+          "lon1": -58.3951354,
+          "lat1": -34.5890966,
+          "lon2": -58.3918692,
+          "lat2": -34.5862094
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "De la Cárcova",
+        "street": "De la Cárcova",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.414179,
+        "lat": -34.59459,
+        "result_type": "street",
+        "distance": 3149.30738840073,
+        "formatted": "De la Cárcova, Recoleta, Buenos Aires, Argentina",
+        "address_line1": "De la Cárcova",
+        "address_line2": "Recoleta, Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH4P+58",
+        "plus_code_short": "CH4P+58 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.36436103549111,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "5151d845d103354dc059aa436e861b4c41c0c0020492030e4465206c612043c3a172636f7661e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363031333734",
+        "bbox": {
+          "lon1": -58.414635,
+          "lat1": -34.594597,
+          "lon2": -58.413724,
+          "lat2": -34.594583
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "De la Industria",
+        "street": "De la Industria",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 7",
+        "suburb": "Parque Chacabuco",
+        "iso3166_2": "AR-C",
+        "lon": -58.438297,
+        "lat": -34.631737,
+        "result_type": "street",
+        "distance": 6052.908265034473,
+        "formatted": "De la Industria, Parque Chacabuco, Buenos Aires, Argentina",
+        "address_line1": "De la Industria",
+        "address_line2": "Parque Chacabuco, Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39H96+8M",
+        "plus_code_short": "9H96+8M Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.087405035482226,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "51ab77b81d1a384dc0592a560dc2dc5041c0c0020492030f4465206c6120496e64757374726961e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363030393538",
+        "bbox": {
+          "lon1": -58.43876,
+          "lat1": -34.632344,
+          "lon2": -58.437839,
+          "lat2": -34.631133
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Cementerio de la Chacarita",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1427BPG",
+        "city_district": "Comuna 15",
+        "district": "Distrito Audiovisual",
+        "suburb": "Chacarita",
+        "street": "Avenida Guzmán",
+        "iso3166_2": "AR-C",
+        "lon": -58.4570634,
+        "lat": -34.5871448,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 7148.538150775292,
+        "formatted": "Cementerio de la Chacarita, Avenida Guzmán, Chacarita, C1427 BPG Buenos Aires, Argentina",
+        "address_line1": "Cementerio de la Chacarita",
+        "address_line2": "Avenida Guzmán, Chacarita, C1427 BPG Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CG7V+45",
+        "plus_code_short": "CG7V+45 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 6.729258472579619,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "516b99b10d813a4dc0591b02918f274b41c0f00102f901b5685d4f00000000c0020192031a43656d656e746572696f206465206c6120436861636172697461e203226f70656e7374726565746d61703a76656e75653a7761792f31333331353231373137",
+        "bbox": {
+          "lon1": -58.4572866,
+          "lat1": -34.5873414,
+          "lon2": -58.4568402,
+          "lat2": -34.5869482
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "De la Serna",
+        "street": "De la Serna",
+        "country": "Argentina",
+        "county": "Avellaneda",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "AV",
+        "iso3166_2": "AR-B",
+        "lon": -58.382411,
+        "lat": -34.67751,
+        "result_type": "street",
+        "distance": 8207.644216911298,
+        "postcode": "1870",
+        "formatted": "De la Serna, 1870 BA, Argentina",
+        "address_line1": "De la Serna",
+        "address_line2": "1870 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q38JC9+X2",
+        "rank": {
+          "popularity": 6.416803072470094,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "51b950f9d7f2304dc059425bcea5b85641c0c0020492030b4465206c61205365726e61e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363035333634",
+        "bbox": {
+          "lon1": -58.382448,
+          "lat1": -34.677685,
+          "lon2": -58.382242,
+          "lat2": -34.677316
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "De la Técnica",
+        "street": "De la Técnica",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 12",
+        "suburb": "Villa Urquiza",
+        "iso3166_2": "AR-C",
+        "lon": -58.495099,
+        "lat": -34.568705,
+        "result_type": "street",
+        "distance": 11094.910971762063,
+        "postcode": "1651",
+        "formatted": "De la Técnica, Villa Urquiza, 1651 Buenos Aires, Argentina",
+        "address_line1": "De la Técnica",
+        "address_line2": "Villa Urquiza, 1651 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CGJ3+GX",
+        "plus_code_short": "CGJ3+GX Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 6.483348553719836,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "5123a46e675f3f4dc0592d095053cb4841c0c0020492030e4465206c612054c3a9636e696361e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363033323336",
+        "bbox": {
+          "lon1": -58.496796,
+          "lat1": -34.569623,
+          "lon2": -58.493414,
+          "lat2": -34.567773
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "De La Serna",
+        "street": "De La Serna",
+        "country": "Argentina",
+        "county": "Lanús",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "LS",
+        "suburb": "Lacarra",
+        "iso3166_2": "AR-B",
+        "lon": -58.444557,
+        "lat": -34.692755,
+        "result_type": "street",
+        "distance": 11455.36651343041,
+        "postcode": "1822",
+        "formatted": "De La Serna, Lacarra, 1822 BA, Argentina",
+        "address_line1": "De La Serna",
+        "address_line2": "Lacarra, 1822 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q38H44+V5",
+        "rank": {
+          "popularity": 5.789653571910665,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "519c1a683ee7384dc059fb912232ac5841c0c0020492030b4465204c61205365726e61e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363035333030",
+        "bbox": {
+          "lon1": -58.444971,
+          "lat1": -34.692971,
+          "lon2": -58.444144,
+          "lat2": -34.692539
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "De La Peña",
+        "street": "De La Peña",
+        "country": "Argentina",
+        "county": "Avellaneda",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "AV",
+        "iso3166_2": "AR-B",
+        "lon": -58.336038,
+        "lat": -34.706731,
+        "result_type": "street",
+        "distance": 12190.980342906625,
+        "postcode": "1825",
+        "formatted": "De La Peña, 1825 BA, Argentina",
+        "address_line1": "De La Peña",
+        "address_line2": "1825 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q37MV7+8H",
+        "rank": {
+          "popularity": 6.030246680901841,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "514c1b0e4b032b4dc059e1085229765a41c0c0020492030b4465204c61205065c3b161e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363034343231",
+        "bbox": {
+          "lon1": -58.3466,
+          "lat1": -34.715609,
+          "lon2": -58.325511,
+          "lat2": -34.697827
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Capilla San Jose de la Montaña",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Ituzaingó",
+        "city": "Villa Udaondo",
+        "postcode": "B1715CBC",
+        "suburb": "La Loma",
+        "street": "De La Tradición",
+        "housenumber": "2385",
+        "iso3166_2": "AR-B",
+        "lon": -58.7045277,
+        "lat": -34.6228357,
+        "state_code": "B",
+        "county_code": "MN",
+        "result_type": "amenity",
+        "distance": 29628.9242239689,
+        "formatted": "Capilla San Jose de la Montaña, De La Tradición 2385, La Loma, B1715 CBC Villa Udaondo, Argentina",
+        "address_line1": "Capilla San Jose de la Montaña",
+        "address_line2": "De La Tradición 2385, La Loma, B1715 CBC Villa Udaondo, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q397GW+V5",
+        "rank": {
+          "importance": 0.0000447066453039905,
+          "popularity": 5.676146475990954,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "512450b3f62d5a4dc05901248914b94f41c0f00103f90195eb61d502000000c0020192031f436170696c6c612053616e204a6f7365206465206c61204d6f6e7461c3b161e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3132313639383938393031",
+        "bbox": {
+          "lon1": -58.7045777,
+          "lat1": -34.6228857,
+          "lon2": -58.7044777,
+          "lat2": -34.6227857
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "parsed": {
+        "house": "Cementerio de la Recoleta",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

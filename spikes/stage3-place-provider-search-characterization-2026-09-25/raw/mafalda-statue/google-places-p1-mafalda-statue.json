@@ -1,0 +1,33 @@
+{
+  "request": {
+    "url": "POST https://places.googleapis.com/v1/places:searchText",
+    "fieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.primaryType",
+    "body": "{\"textQuery\":\"Mafalda Statue\",\"maxResultCount\":3,\"locationBias\":{\"circle\":{\"center\":{\"latitude\":-34.6037,\"longitude\":-58.3816},\"radius\":50000}}}"
+  },
+  "status": 200,
+  "durationMs": 1146,
+  "response": {
+    "places": [
+      {
+        "id": "ChIJIbt1u-SMNg0RQuvXw1bFQu0",
+        "types": [
+          "tourist_attraction",
+          "sculpture",
+          "park",
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "C. Uría, s/n, 33004 Oviedo, Asturias, Spain",
+        "location": {
+          "latitude": 43.3623745,
+          "longitude": -5.850390700000001
+        },
+        "displayName": {
+          "text": "Estatua de Mafalda",
+          "languageCode": "en"
+        },
+        "primaryType": "tourist_attraction"
+      }
+    ]
+  }
+}

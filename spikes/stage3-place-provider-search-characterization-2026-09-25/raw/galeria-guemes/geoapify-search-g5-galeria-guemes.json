@@ -1,0 +1,444 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Galería Güemes",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1665,
+  "response": {
+    "results": [
+      {
+        "country_code": "ar",
+        "name": "Galería General Güemes",
+        "street": "Galería General Güemes",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "San Nicolas",
+        "iso3166_2": "AR-C",
+        "lon": -58.374377,
+        "lat": -34.6063,
+        "result_type": "street",
+        "distance": 721.5256773034943,
+        "postcode": "1871",
+        "formatted": "Galería General Güemes, San Nicolas, 1871 Buenos Aires, Argentina",
+        "address_line1": "Galería General Güemes",
+        "address_line2": "San Nicolas, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JVG+F6",
+        "plus_code_short": "VG+F6 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "51f3afe595eb2f4dc0594bc8073d9b4d41c0c0020492031847616c6572c3ad612047656e6572616c2047c3bc656d6573e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363036373836",
+        "bbox": {
+          "lon1": -58.375073,
+          "lat1": -34.606344,
+          "lon2": -58.373682,
+          "lat2": -34.606256
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Güemes",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1425",
+        "district": "Comuna 14",
+        "neighbourhood": "Alto Palermo",
+        "suburb": "Palermo",
+        "street": "Güemes",
+        "housenumber": "3787",
+        "iso3166_2": "AR-C",
+        "lon": -58.4152741,
+        "lat": -34.5874948,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 3570.3809205341554,
+        "formatted": "Güemes 3787, Palermo, C1425 Buenos Aires, Argentina",
+        "address_line1": "Güemes 3787",
+        "address_line2": "Palermo, C1425 Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH7M+2V",
+        "plus_code_short": "CH7M+2V Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.581970253177436,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "511b30a3b327354dc059f8489407334b41c0f00103f901d50d291903000000c0020192030747c3bc656d6573e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3133333037303232383035",
+        "bbox": {
+          "lon1": -58.4153241,
+          "lat1": -34.5875448,
+          "lon2": -58.4152241,
+          "lat2": -34.5874448
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Güemes",
+        "street": "Güemes",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 14",
+        "suburb": "Palermo",
+        "iso3166_2": "AR-C",
+        "lon": -58.417158,
+        "lat": -34.58624,
+        "result_type": "street",
+        "distance": 3789.8352760353273,
+        "postcode": "C1425",
+        "formatted": "Güemes, Palermo, C1425 Buenos Aires, Argentina",
+        "address_line1": "Güemes",
+        "address_line2": "Palermo, C1425 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH7M+G4",
+        "plus_code_short": "CH7M+G4 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.564819276111497,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "51e4a1ef6e65354dc059b3cd8de9094b41c0c0020492030747c3bc656d6573e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238353939393536",
+        "bbox": {
+          "lon1": -58.426182,
+          "lat1": -34.592499,
+          "lon2": -58.407882,
+          "lat2": -34.579731
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Güemes",
+        "street": "Güemes",
+        "country": "Argentina",
+        "county": "Lanús",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "LS",
+        "iso3166_2": "AR-B",
+        "lon": -58.385391,
+        "lat": -34.691127,
+        "result_type": "street",
+        "distance": 9727.635668449675,
+        "postcode": "1824",
+        "formatted": "Güemes, 1824 BA, Argentina",
+        "address_line1": "Güemes",
+        "address_line2": "1824 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q38J57+GR",
+        "rank": {
+          "popularity": 6.479080607815157,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "511c96067e54314dc059f9307bd9765841c0c0020492030747c3bc656d6573e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363032353530",
+        "bbox": {
+          "lon1": -58.386205,
+          "lat1": -34.691825,
+          "lon2": -58.384632,
+          "lat2": -34.690391
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Güemes",
+        "street": "Güemes",
+        "country": "Argentina",
+        "county": "Quilmes",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "QU",
+        "iso3166_2": "AR-B",
+        "lon": -58.283257,
+        "lat": -34.707428,
+        "result_type": "street",
+        "distance": 14626.940862982225,
+        "postcode": "1876",
+        "formatted": "Güemes, 1876 BA, Argentina",
+        "address_line1": "Güemes",
+        "address_line2": "1876 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q37PV8+2M",
+        "rank": {
+          "popularity": 6.207232369608018,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "5179aeefc341244dc05929232e008d5a41c0c0020492030747c3bc656d6573e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363034313536",
+        "bbox": {
+          "lon1": -58.2838,
+          "lat1": -34.707896,
+          "lon2": -58.282709,
+          "lat2": -34.706963
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galería Güemes",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "Ramos Mejía",
+        "postcode": "B1704ETD",
+        "suburb": "Ramos Mejía Norte",
+        "street": "Martín Miguel de Güemes",
+        "iso3166_2": "AR-B",
+        "lon": -58.5657864,
+        "lat": -34.6397571,
+        "state_code": "B",
+        "result_type": "amenity",
+        "county_code": "LM",
+        "distance": 17324.260842992764,
+        "formatted": "Galería Güemes, Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "address_line1": "Galería Güemes",
+        "address_line2": "Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C6M+3M",
+        "rank": {
+          "importance": 0.000046261539635263866,
+          "popularity": 7.363571814268174,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51c34252b06b484dc05920f1868fe35141c0f00102f901d46af42200000000c0020192031047616c6572c3ad612047c3bc656d6573e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363139383836",
+        "bbox": {
+          "lon1": -58.5660541,
+          "lat1": -34.6398031,
+          "lon2": -58.5655187,
+          "lat2": -34.6397112
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Güemes",
+        "street": "Güemes",
+        "country": "Argentina",
+        "county": "Tigre",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "TI",
+        "iso3166_2": "AR-B",
+        "lon": -58.597198,
+        "lat": -34.421424,
+        "result_type": "street",
+        "distance": 28302.395375760272,
+        "postcode": "1646",
+        "formatted": "Güemes, 1646 BA, Argentina",
+        "address_line1": "Güemes",
+        "address_line2": "1646 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3HCH3+C4",
+        "rank": {
+          "popularity": 5.422208768041386,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "51499eebfb704c4dc059f0dfbc38f13541c0c0020492030747c3bc656d6573e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238353638343434",
+        "bbox": {
+          "lon1": -58.603635,
+          "lat1": -34.425319,
+          "lon2": -58.59253,
+          "lat2": -34.420609
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Güemes",
+        "street": "Güemes",
+        "country": "Argentina",
+        "county": "Malvinas Argentinas",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "MV",
+        "iso3166_2": "AR-B",
+        "lon": -58.709441,
+        "lat": -34.52952,
+        "result_type": "street",
+        "distance": 31131.521416123756,
+        "postcode": "1663",
+        "formatted": "Güemes, 1663 BA, Argentina",
+        "address_line1": "Güemes",
+        "address_line2": "1663 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3F7CR+56",
+        "rank": {
+          "popularity": 6.420097951162847,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "5184b872f6ce5a4dc059f949b54fc74341c0c0020492030747c3bc656d6573e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3332383635313131",
+        "bbox": {
+          "lon1": -58.710972,
+          "lat1": -34.530958,
+          "lon2": -58.707914,
+          "lat2": -34.528082
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Güemes",
+        "street": "Güemes",
+        "country": "Argentina",
+        "county": "Merlo",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "ME",
+        "iso3166_2": "AR-B",
+        "lon": -58.724469,
+        "lat": -34.662054,
+        "result_type": "street",
+        "distance": 32033.956334667208,
+        "postcode": "1718",
+        "formatted": "Güemes, 1718 BA, Argentina",
+        "address_line1": "Güemes",
+        "address_line2": "1718 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q387QG+56",
+        "rank": {
+          "popularity": 6.350572536347035,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "51a0fb7266bb5c4dc059ce177b2fbe5441c0c0020492030747c3bc656d6573e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363133353937",
+        "bbox": {
+          "lon1": -58.74783,
+          "lat1": -34.665656,
+          "lon2": -58.701072,
+          "lat2": -34.658459
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "parsed": {
+        "house": "Galería Güemes",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

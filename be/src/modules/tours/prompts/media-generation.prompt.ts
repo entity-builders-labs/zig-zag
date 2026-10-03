@@ -7,4 +7,3 @@ Description: ${description || tourName}.
 Key highlights: ${highlights || 'scenic locations'}.
 Style: Professional travel photography, vibrant, inviting, wide angle, cinematic lighting.
 No text, no watermarks, no collages, no labels.`;
-

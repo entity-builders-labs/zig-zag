@@ -1,0 +1,15 @@
+{
+  "runLabel": "geoapify-cold",
+  "tourId": "1cef2587-b62f-45c9-a91f-d950e57956c1",
+  "email": "stage3-spike-geoapify-cold-1790198780562@example.com",
+  "baseUrl": "http://localhost:4011",
+  "requestFile": "request.json",
+  "createHttpMs": 35,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 419728,
+  "startedAt": "2026-09-23T21:26:20.715Z",
+  "finishedAt": "2026-09-23T21:33:20.451Z"
+}

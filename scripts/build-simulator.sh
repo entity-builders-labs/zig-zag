@@ -15,8 +15,30 @@ if [ ! -d "fe" ]; then
     exit 1
 fi
 
+if [ ! -f ".env" ]; then
+    echo "No .env file found. Creating from .env.example..."
+    cp .env.example .env
+    echo "Created .env — edit it with your API keys if needed."
+fi
+
 echo "Stopping any running containers to free ports..."
 docker-compose down
+
+echo "Starting backend services..."
+docker-compose --profile dev up -d --build
+
+echo "Waiting for backend on port 4000..."
+for i in $(seq 1 60); do
+    if curl -sf http://localhost:4000/health >/dev/null 2>&1; then
+        echo "Backend is ready."
+        break
+    fi
+    if [ "$i" -eq 60 ]; then
+        echo "Warning: Backend did not respond on port 4000 after 2 minutes."
+        echo "The app may show network errors until the backend is healthy."
+    fi
+    sleep 2
+done
 
 
 cd fe
@@ -30,13 +52,30 @@ else
 fi
 
 echo "Checking native projects..."
-# If clean build is desired or directories missing, run prebuild
-if [ ! -d "ios" ] && [ "$TARGET" == "ios" ]; then
-    echo "iOS directory missing. Running prebuild..."
-    npx expo prebuild --platform ios
-elif [ ! -d "android" ] && [ "$TARGET" == "android" ]; then
-    echo "Android directory missing. Running prebuild..."
-    npx expo prebuild --platform android
+CONFIG_NEW_ARCH=$(node -p "require('./app.config.js').newArchEnabled !== false ? 'true' : 'false'")
+
+if [ "$TARGET" == "ios" ]; then
+    if [ ! -d "ios" ]; then
+        echo "iOS directory missing. Running prebuild..."
+        npx expo prebuild --platform ios
+    else
+        NATIVE_NEW_ARCH=$(node -p "try { require('./ios/Podfile.properties.json').newArchEnabled || 'false' } catch { 'false' }")
+        if [ "$CONFIG_NEW_ARCH" != "$NATIVE_NEW_ARCH" ]; then
+            echo "iOS native config out of sync (newArchEnabled: app=$CONFIG_NEW_ARCH, ios=$NATIVE_NEW_ARCH). Running prebuild..."
+            npx expo prebuild --platform ios
+        fi
+    fi
+elif [ "$TARGET" == "android" ]; then
+    if [ ! -d "android" ]; then
+        echo "Android directory missing. Running prebuild..."
+        npx expo prebuild --platform android
+    else
+        NATIVE_NEW_ARCH=$(grep -E '^newArchEnabled=' android/gradle.properties 2>/dev/null | cut -d= -f2 || echo "false")
+        if [ "$CONFIG_NEW_ARCH" != "$NATIVE_NEW_ARCH" ]; then
+            echo "Android native config out of sync (newArchEnabled: app=$CONFIG_NEW_ARCH, android=$NATIVE_NEW_ARCH). Running prebuild..."
+            npx expo prebuild --platform android
+        fi
+    fi
 fi
 
 echo "Building native app for Simulator (this may take a while)..."
@@ -76,8 +115,6 @@ fi
 echo "========================================"
 echo " Build Complete!"
 echo " The app should be installed on your $TARGET simulator."
-echo " Now running docker-compose up to start the server..."
+echo " Backend and other services are running in Docker."
+echo " Press Ctrl+C to stop Metro (Docker services keep running)."
 echo "========================================"
-
-cd ..
-docker-compose --profile dev up --build

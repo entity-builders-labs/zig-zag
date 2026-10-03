@@ -1,0 +1,16 @@
+{
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "variant": "B",
+  "run": "3",
+  "ms": 660,
+  "summary": [
+    {
+      "component": "c5",
+      "statement": "s8",
+      "place": "Lujan de Cuyo",
+      "relation": "LOCATED_IN"
+    }
+  ],
+  "raw": "{\"reports\":[{\"component\":\"c5\",\"statement\":\"s8\",\"place\":\"Lujan de Cuyo\",\"relation\":\"LOCATED_IN\"}]}"
+}

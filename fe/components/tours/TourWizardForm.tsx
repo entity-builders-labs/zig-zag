@@ -1,54 +1,44 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import {
   Box,
-  VStack,
-  HStack,
-  Heading,
-  Text,
   Button,
   ButtonText,
-  Input,
-  InputField,
-  InputIcon,
-  InputSlot,
-  ScrollView,
-  Pressable,
+  Heading,
+  HStack,
   Icon,
-  Slider,
-  SliderTrack,
-  SliderFilledTrack,
-  SliderThumb,
-  Textarea,
-  TextareaInput,
+  Pressable,
+  ScrollView,
   Switch,
+  Text,
+  VStack
 } from '@gluestack-ui/themed';
-import {
-  ArrowLeft,
-  Search,
-  Calendar,
-  MapPin,
-  User,
-  Users,
-  Baby,
-  UserPlus,
-  Footprints,
-  Car,
-  Bike,
-  Bus,
-  Sparkles,
-} from 'lucide-react-native';
-import { Platform } from 'react-native';
+import { ArrowLeft, MapPin, Sparkles } from 'lucide-react-native';
+import { requestAndGetCurrentLocation } from '@/utils/location';
 import { GenerateTourDto } from '@/api/tours';
-import { DestinationInput } from './DestinationInput';
-import { DateRangePicker } from './DateRangePicker';
+import {
+  BudgetLevel,
+  DestinationScaleHint,
+  ExperienceIntent,
+  ExplorationStyle,
+  GroupType,
+  TransportationMode,
+  WALKING_EFFORT_PRESETS,
+  WalkingEffortProfile
+} from '@/features/tours/tour-generation-contract';
 import { Map } from '@/features/map';
-import { useContext, useEffect } from 'react';
 import { AppContext } from '@/context/app';
-import * as ExpoLocation from 'expo-location';
+import { FONT_DISPLAY } from '@/constants/typography';
+import { DateRangePicker } from './DateRangePicker';
+import { DestinationInput } from './DestinationInput';
+import { TourWizardIntentStep } from './TourWizardIntentStep';
+import { TourWizardMobilityStep } from './TourWizardMobilityStep';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface TourWizardFormProps {
   onSubmit: (preferences: GenerateTourDto) => void;
   onCancel: () => void;
+  isLoading?: boolean;
+  initialDestination?: string;
   initialLocation?: { lat: number; lng: number };
 }
 
@@ -62,7 +52,7 @@ const INTEREST_OPTIONS = [
   'Playa',
   'Compras',
   'Vida Nocturna',
-  'Deportes',
+  'Deportes'
 ];
 
 const INTEREST_MAP: Record<string, string> = {
@@ -75,135 +65,174 @@ const INTEREST_MAP: Record<string, string> = {
   Playa: 'beach',
   Compras: 'shopping',
   'Vida Nocturna': 'nightlife',
-  Deportes: 'sports',
+  Deportes: 'sports'
 };
 
 export const TourWizardForm: React.FC<TourWizardFormProps> = ({
   onSubmit,
   onCancel,
-  initialLocation,
+  isLoading,
+  initialDestination,
+  initialLocation
 }) => {
-  const { setCenter } = useContext(AppContext);
+  const insets = useSafeAreaInsets();
+  const { center, setCenter, setAddress, address } = useContext(AppContext);
+  const initialAddressRef = useRef(address);
   const [currentStep, setCurrentStep] = useState(1);
-  const [destination, setDestination] = useState<string>('');
+  const destinationChosenRef = useRef(Boolean(initialDestination && initialDestination.trim().length > 0));
+  const [destination, setDestination] = useState(initialDestination || '');
   const [destinationCoords, setDestinationCoords] = useState<
     { lat: number; lng: number } | undefined
   >(initialLocation);
+  const [destinationRadius, setDestinationRadius] = useState<number>();
+  const [destinationScaleHint, setDestinationScaleHint] =
+    useState<DestinationScaleHint>('specific_point');
+  const [destinationIsDirty, setDestinationIsDirty] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [days, setDays] = useState(3);
+  const [useCurrentLocation, setUseCurrentLocation] = useState(!initialDestination);
+  const [budgetLevel, setBudgetLevel] = useState<BudgetLevel>('low');
+  const [transportationModes, setTransportationModes] = useState<
+    TransportationMode[]
+  >(['walking']);
+  const [travelPace, setTravelPace] = useState(50);
+  const [groupType, setGroupType] = useState<GroupType>('solo');
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [selectedIntents, setSelectedIntents] = useState<ExperienceIntent[]>([]);
+  const [explorationStyle, setExplorationStyle] =
+    useState<ExplorationStyle>('balanced');
+  const [walkingEffortProfile, setWalkingEffortProfile] =
+    useState<WalkingEffortProfile>('moderate');
+  const [maxWalkingDistancePerDayMeters, setMaxWalkingDistancePerDayMeters] =
+    useState(WALKING_EFFORT_PRESETS.moderate.dailyMeters);
+  const [
+    maxContinuousWalkingDistanceMeters,
+    setMaxContinuousWalkingDistanceMeters
+  ] = useState(WALKING_EFFORT_PRESETS.moderate.continuousMeters);
+  const [accessibilityNeeds, setAccessibilityNeeds] = useState<string[]>([]);
+  const [additionalPreferences, setAdditionalPreferences] = useState('');
 
-  // Get current location on mount if useCurrentLocation is enabled
   useEffect(() => {
+    let isMounted = true;
     const getInitialLocation = async () => {
-      // If we have initialLocation, use it
-      if (initialLocation && !destinationCoords) {
+      if (initialLocation && !destinationCoords && !destinationChosenRef.current) {
         setDestinationCoords(initialLocation);
         setCenter(initialLocation);
         return;
       }
 
-      // If useCurrentLocation is enabled and we don't have coordinates yet
-      if (useCurrentLocation && !destinationCoords) {
+      if (useCurrentLocation && !destinationCoords && !destinationChosenRef.current) {
         try {
-          const { status } =
-            await ExpoLocation.requestForegroundPermissionsAsync();
-          if (status === 'granted') {
-            const location = await ExpoLocation.getCurrentPositionAsync({});
-            const coords = {
-              lat: location.coords.latitude,
-              lng: location.coords.longitude,
-            };
-            setDestinationCoords(coords);
+          const coords = await requestAndGetCurrentLocation();
+          if (!isMounted || destinationChosenRef.current) {
+            return;
+          }
+          if (!coords) {
+            // A failed best-effort GPS lookup is not a real destination. Turn
+            // the mode off so submit cannot silently fall back to a product
+            // default and label it as the user's current location.
+            setUseCurrentLocation(false);
+            return;
+          }
+          setDestinationCoords(coords);
+          if (coords.lat !== center.lat || coords.lng !== center.lng) {
             setCenter(coords);
           }
         } catch (error) {
           console.error('Error getting initial location:', error);
+          if (isMounted) setUseCurrentLocation(false);
         }
       }
     };
 
     getInitialLocation();
+    return () => {
+      isMounted = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run on mount
+  }, []);
 
-  // Update map center when destination coordinates change
   useEffect(() => {
-    if (destinationCoords) {
-      setCenter(destinationCoords);
-    } else if (initialLocation) {
-      setCenter(initialLocation);
+    const target = destinationCoords ?? initialLocation;
+    if (target && (target.lat !== center.lat || target.lng !== center.lng)) {
+      setCenter(target);
     }
-  }, [destinationCoords, initialLocation, setCenter]);
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
-  const [days, setDays] = useState<number>(3);
-  const [useCurrentLocation, setUseCurrentLocation] = useState(true);
-  const [budgetLevel, setBudgetLevel] = useState<'low' | 'medium' | 'high'>(
-    'low'
-  );
-  const [transportationMode, setTransportationMode] = useState<string[]>([
-    'walking',
-  ]);
-  const [travelPace, setTravelPace] = useState<number>(50); // 0-100, 0=relaxed, 100=fast
-  const [groupType, setGroupType] = useState<
-    'solo' | 'couple' | 'family' | 'friends'
-  >('solo');
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [specialNotes, setSpecialNotes] = useState<string>('');
+  }, [destinationCoords?.lat, destinationCoords?.lng, initialLocation?.lat, initialLocation?.lng, center?.lat, center?.lng, setCenter]);
 
   const toggleInterest = (interest: string) => {
-    setSelectedInterests((prev) =>
-      prev.includes(interest)
-        ? prev.filter((i) => i !== interest)
-        : [...prev, interest]
+    setSelectedInterests((current) =>
+      current.includes(interest)
+        ? current.filter((value) => value !== interest)
+        : [...current, interest]
     );
   };
 
-  const toggleTransportationMode = (mode: string) => {
-    setTransportationMode((prev) =>
-      prev.includes(mode) ? prev.filter((m) => m !== mode) : [...prev, mode]
+  const toggleIntent = (intent: ExperienceIntent) => {
+    setSelectedIntents((current) =>
+      current.includes(intent)
+        ? current.filter((value) => value !== intent)
+        : [...current, intent]
     );
   };
 
-  const handleNext = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      handleSubmit();
+  const toggleTransportationMode = (mode: TransportationMode) => {
+    setTransportationModes((current) => {
+      if (current.includes(mode)) {
+        return current.length === 1
+          ? current
+          : current.filter((value) => value !== mode);
+      }
+      return [...current, mode];
+    });
+  };
+
+  const toggleAccessibilityNeed = (need: string) => {
+    setAccessibilityNeeds((current) =>
+      current.includes(need)
+        ? current.filter((value) => value !== need)
+        : [...current, need]
+    );
+  };
+
+  const selectWalkingEffortProfile = (profile: WalkingEffortProfile) => {
+    setWalkingEffortProfile(profile);
+    if (profile !== 'custom') {
+      const preset = WALKING_EFFORT_PRESETS[profile];
+      setMaxWalkingDistancePerDayMeters(preset.dailyMeters);
+      setMaxContinuousWalkingDistanceMeters(preset.continuousMeters);
     }
   };
 
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    } else {
-      onCancel();
-    }
+  const handleMaxWalkingDistancePerDayChange = (value: number) => {
+    setMaxWalkingDistancePerDayMeters(value);
+    setMaxContinuousWalkingDistanceMeters((current) =>
+      Math.min(current, value)
+    );
   };
 
   const handleLocationToggle = async (value: boolean) => {
     setUseCurrentLocation(value);
     if (value) {
-      try {
-        const { status } =
-          await ExpoLocation.requestForegroundPermissionsAsync();
-        if (status === 'granted') {
-          const location = await ExpoLocation.getCurrentPositionAsync({});
-          const coords = {
-            lat: location.coords.latitude,
-            lng: location.coords.longitude,
-          };
-          setDestinationCoords(coords);
+      destinationChosenRef.current = false;
+      setDestination('');
+      setDestinationRadius(undefined);
+      setDestinationScaleHint('specific_point');
+      setDestinationIsDirty(false);
+
+      const coords = await requestAndGetCurrentLocation({ showPromptOnDenial: true });
+      if (coords) {
+        setDestinationCoords(coords);
+        if (coords.lat !== center.lat || coords.lng !== center.lng) {
           setCenter(coords);
         }
-      } catch (error) {
-        console.error('Error getting location:', error);
+      } else {
+        setUseCurrentLocation(false);
       }
-    } else {
-      // When toggled off, clear destination coords if they were from current location
-      // But keep them if user had selected a destination
-      if (!destination) {
-        setDestinationCoords(undefined);
-      }
+      return;
     }
+
+    if (!destination) setDestinationCoords(undefined);
   };
 
   const getPaceValue = (): 'relaxed' | 'moderate' | 'fast' => {
@@ -212,74 +241,85 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
     return 'fast';
   };
 
-  const formatDateRange = () => {
-    if (!startDate && !endDate) return '';
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
-
-    if (start && end) {
-      const daysDiff =
-        Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) +
-        1;
-      const startStr = start.toLocaleDateString('es-ES', {
-        day: 'numeric',
-        month: 'short',
-      });
-      const endStr = end.toLocaleDateString('es-ES', {
-        day: 'numeric',
-        month: 'short',
-      });
-      return `${startStr} - ${endStr} (${daysDiff} Días)`;
-    } else if (start) {
-      const startStr = start.toLocaleDateString('es-ES', {
-        day: 'numeric',
-        month: 'short',
-      });
-      return `${startStr} - ${startStr} (1 Día)`;
-    }
-    return '';
-  };
-
   const handleSubmit = () => {
-    // Build startDates array if dates are provided
     const startDates: string[] = [];
-    if (startDate) {
-      const start = new Date(startDate);
-      if (!isNaN(start.getTime())) {
-        startDates.push(start.toISOString());
-      }
-    }
-    if (endDate && endDate !== startDate) {
-      const end = new Date(endDate);
-      if (!isNaN(end.getTime())) {
-        startDates.push(end.toISOString());
-      }
+    for (const value of [startDate, endDate !== startDate ? endDate : '']) {
+      if (!value) continue;
+      const date = new Date(value);
+      if (!Number.isNaN(date.getTime())) startDates.push(date.toISOString());
     }
 
-    const preferences: GenerateTourDto = {
-      destination: destination || undefined,
-      destinationLatitude: destinationCoords?.lat,
-      destinationLongitude: destinationCoords?.lng,
+    let latitude: number;
+    let longitude: number;
+
+    if (useCurrentLocation) {
+      const currentCoords = destinationCoords ?? initialLocation;
+      if (!currentCoords) {
+        alert(
+          'No pudimos obtener tu ubicación actual. Intentá nuevamente o seleccioná un destino.',
+        );
+        return;
+      }
+      latitude = currentCoords.lat;
+      longitude = currentCoords.lng;
+    } else {
+      if (!destination || !destinationCoords) {
+        alert('Por favor selecciona un destino válido de la lista para obtener sus coordenadas.');
+        return;
+      }
+      latitude = destinationCoords.lat;
+      longitude = destinationCoords.lng;
+    }
+
+    onSubmit({
+      destination: {
+        label: destination || undefined,
+        latitude,
+        longitude,
+        radiusMeters: destinationRadius,
+        scaleHint: destinationScaleHint
+      },
       days,
       budgetLevel,
-      transportationMode: transportationMode as any, // Cast to avoid TS error as we updated DTO but FE validation might be strict or I missed something. Actually I updated DTO.
-      travelPace: getPaceValue(),
       groupType,
-      interests:
-        selectedInterests.length > 0
-          ? selectedInterests.map((i) => INTEREST_MAP[i] || i.toLowerCase())
-          : undefined,
+      intent: {
+        interests: selectedInterests.map(
+          (interest) => INTEREST_MAP[interest] || interest.toLowerCase()
+        ),
+        intents: selectedIntents,
+        explorationStyle,
+        additionalPreferences: additionalPreferences.trim() || undefined
+      },
+      mobility: {
+        allowedTransportationModes: transportationModes,
+        maxWalkingDistancePerDayMeters,
+        maxContinuousWalkingDistanceMeters,
+        travelPace: getPaceValue(),
+        accessibilityNeeds
+      },
       startDates: startDates.length > 0 ? startDates : undefined,
-      latitude: destinationCoords?.lat || initialLocation?.lat,
-      longitude: destinationCoords?.lng || initialLocation?.lng,
-      includeExistingActivities: true,
-      skipImageGeneration: true,
-    };
-
-    onSubmit(preferences);
+      skipImageGeneration: true
+    });
   };
 
-  const renderStep1 = () => {
+  const handleNext = () => {
+    if (currentStep === 1 && destinationIsDirty) return;
+    if (currentStep < 3) setCurrentStep((step) => step + 1);
+    else handleSubmit();
+  };
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep((step) => step - 1);
+    } else {
+      if (initialAddressRef.current) {
+        setAddress(initialAddressRef.current);
+      }
+      onCancel();
+    }
+  };
+
+  const renderDestinationStep = () => {
     const mapCoords = destinationCoords || initialLocation;
     const marker = mapCoords
       ? [
@@ -287,21 +327,20 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
             id: 'destination',
             coordinate: {
               latitude: mapCoords.lat,
-              longitude: mapCoords.lng,
+              longitude: mapCoords.lng
             },
             title:
               destination ||
               (useCurrentLocation
                 ? 'Mi ubicación actual'
                 : 'Ubicación seleccionada'),
-            description: '',
-          },
+            description: ''
+          }
         ]
       : [];
 
     return (
       <VStack space='lg' flex={1}>
-        {/* Map */}
         <Box
           h='$48'
           borderRadius='$lg'
@@ -311,7 +350,14 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
         >
           {mapCoords ? (
             <Box h='$full' w='$full'>
-              <Map markers={marker} />
+              <Map
+                markers={marker}
+                focusCoordinate={
+                  mapCoords
+                    ? { latitude: mapCoords.lat, longitude: mapCoords.lng }
+                    : undefined
+                }
+              />
             </Box>
           ) : (
             <Box
@@ -328,20 +374,49 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
           )}
         </Box>
 
-        {/* Search Destination */}
         <Box position='relative' zIndex={1}>
           <DestinationInput
             value={destination}
-            onDestinationChange={(dest, coords) => {
-              setDestination(dest);
-              if (coords) {
-                setDestinationCoords(coords);
+            onDestinationChange={(label, coords, radiusMeters, scaleHint) => {
+              setDestination(label);
+              if (label && label.trim().length > 0) {
+                destinationChosenRef.current = true;
+                setUseCurrentLocation(false);
+                if (coords) {
+                  setDestinationCoords(coords);
+                  setCenter(coords);
+                  const segments = label.split(',').map((s) => s.trim()).filter(Boolean);
+                  const city = segments[0] ?? label;
+                  const country = segments.length > 1 ? segments[segments.length - 1] : '';
+                  setAddress({
+                    street: label,
+                    city,
+                    country,
+                    lat: coords.lat,
+                    lng: coords.lng,
+                  });
+                }
+                setDestinationRadius(radiusMeters);
+                setDestinationScaleHint(scaleHint ?? 'specific_point');
+              } else {
+                destinationChosenRef.current = false;
+                setDestinationCoords(undefined);
+                setDestinationRadius(undefined);
+                setDestinationScaleHint('specific_point');
+                if (initialAddressRef.current) {
+                  setAddress(initialAddressRef.current);
+                }
               }
             }}
+            onDirtyChange={setDestinationIsDirty}
           />
+          {destinationIsDirty && (
+            <Text color='$error600' size='sm' mt='$1'>
+              Elegí una opción de la lista para confirmar el destino
+            </Text>
+          )}
         </Box>
 
-        {/* Date Range */}
         <Box position='relative' zIndex={0}>
           <DateRangePicker
             startDate={startDate}
@@ -353,7 +428,6 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
           />
         </Box>
 
-        {/* Use Current Location Toggle */}
         <HStack justifyContent='space-between' alignItems='center'>
           <Text size='md' color='$textLight900'>
             Usar mi ubicación actual
@@ -361,7 +435,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
           <Switch
             value={useCurrentLocation}
             onToggle={handleLocationToggle}
-            trackColor={{ false: '#E5E7EB', true: '#3B82F6' }}
+            trackColor={{ false: '#E3DDCC', true: '#C89B3C' }}
             thumbColor='#FFFFFF'
           />
         </HStack>
@@ -369,298 +443,162 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
     );
   };
 
-  const renderStep2 = () => (
-    <VStack space='xl' flex={1}>
-      {/* Budget */}
-      <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Presupuesto
-        </Text>
-        <HStack space='md'>
-          {(['low', 'medium', 'high'] as const).map((level) => (
-            <Pressable
-              key={level}
-              flex={1}
-              onPress={() => setBudgetLevel(level)}
-            >
-              <Box
-                bg={budgetLevel === level ? '$primary500' : '$white'}
-                borderWidth='$1'
-                borderColor={
-                  budgetLevel === level ? '$primary500' : '$backgroundLight300'
-                }
-                borderRadius='$md'
-                p='$4'
-                alignItems='center'
-                justifyContent='center'
-                h='$16'
-              >
-                <Text
-                  size='xl'
-                  fontWeight='$bold'
-                  color={budgetLevel === level ? '$white' : '$textLight900'}
-                >
-                  {'$'.repeat(level === 'low' ? 1 : level === 'medium' ? 2 : 3)}
-                </Text>
-              </Box>
-            </Pressable>
-          ))}
-        </HStack>
-      </VStack>
+  const stepName =
+    currentStep === 1
+      ? 'Destino y Fechas'
+      : currentStep === 2
+        ? 'Movilidad y Ritmo'
+        : 'Intereses y Estilo';
 
-      {/* Company */}
-      <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Compañía
-        </Text>
-        <HStack space='md' justifyContent='space-around'>
-          {[
-            { type: 'solo' as const, icon: User, label: 'Solo' },
-            { type: 'couple' as const, icon: Users, label: 'Pareja' },
-            { type: 'family' as const, icon: Baby, label: 'Familia' },
-            { type: 'friends' as const, icon: UserPlus, label: 'Amigos' },
-          ].map(({ type, icon: IconComponent, label }) => (
-            <Pressable
-              key={type}
-              onPress={() => setGroupType(type)}
-              alignItems='center'
-            >
-              <Box
-                w='$16'
-                h='$16'
-                borderRadius='$full'
-                bg={groupType === type ? '$primary500' : '$backgroundLight100'}
-                alignItems='center'
-                justifyContent='center'
-                borderWidth={groupType === type ? '$2' : '$0'}
-                borderColor='$primary500'
-              >
-                <Icon
-                  as={IconComponent}
-                  size='xl'
-                  color={groupType === type ? '$white' : '$textLight600'}
-                />
-              </Box>
-              <Text
-                mt='$2'
-                size='sm'
-                color={groupType === type ? '$primary500' : '$textLight600'}
-              >
-                {label}
-              </Text>
-            </Pressable>
-          ))}
-        </HStack>
-      </VStack>
-
-      {/* Pace */}
-      <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Ritmo
-        </Text>
-        <VStack space='sm'>
-          <Slider
-            value={travelPace}
-            onChange={(value) => setTravelPace(value)}
-            minValue={0}
-            maxValue={100}
-            step={1}
-          >
-            <SliderTrack>
-              <SliderFilledTrack bg='$primary500' />
-            </SliderTrack>
-            <SliderThumb
-              bg='$white'
-              borderWidth='$2'
-              borderColor='$primary500'
-            />
-          </Slider>
-          <HStack justifyContent='space-between' px='$2'>
-            <Text size='sm' color='$textLight600'>
-              Relax
-            </Text>
-            <Text size='sm' color='$textLight600'>
-              Moderado
-            </Text>
-            <Text size='sm' color='$textLight600'>
-              Rápido
-            </Text>
-          </HStack>
-        </VStack>
-      </VStack>
-
-      {/* Transport */}
-      <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Transporte (Selección múltiple)
-        </Text>
-        <HStack space='md' justifyContent='space-around'>
-          {[
-            { mode: 'walking', icon: Footprints, label: 'Pie' },
-            { mode: 'driving', icon: Car, label: 'Auto' },
-            { mode: 'cycling', icon: Bike, label: 'Bici' },
-            { mode: 'public_transport', icon: Bus, label: 'Público' },
-          ].map(({ mode, icon: IconComponent, label }) => (
-            <Pressable
-              key={mode}
-              onPress={() => toggleTransportationMode(mode)}
-              alignItems='center'
-            >
-              <Box
-                w='$16'
-                h='$16'
-                borderRadius='$full'
-                bg={
-                  transportationMode.includes(mode)
-                    ? '$primary500'
-                    : '$backgroundLight100'
-                }
-                alignItems='center'
-                justifyContent='center'
-                borderWidth={transportationMode.includes(mode) ? '$2' : '$0'}
-                borderColor='$primary500'
-              >
-                <Icon
-                  as={IconComponent}
-                  size='xl'
-                  color={
-                    transportationMode.includes(mode)
-                      ? '$white'
-                      : '$textLight600'
-                  }
-                />
-              </Box>
-              <Text
-                mt='$2'
-                size='sm'
-                color={
-                  transportationMode.includes(mode)
-                    ? '$primary500'
-                    : '$textLight600'
-                }
-              >
-                {label}
-              </Text>
-            </Pressable>
-          ))}
-        </HStack>
-      </VStack>
-    </VStack>
-  );
-
-  const renderStep3 = () => (
-    <VStack space='xl' flex={1}>
-      {/* Interests */}
-      <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Intereses
-        </Text>
-        <Box flexDirection='row' flexWrap='wrap' gap='$2'>
-          {INTEREST_OPTIONS.map((interest) => (
-            <Pressable key={interest} onPress={() => toggleInterest(interest)}>
-              <Box
-                bg={
-                  selectedInterests.includes(interest)
-                    ? '$primary500'
-                    : '$white'
-                }
-                borderWidth='$1'
-                borderColor={
-                  selectedInterests.includes(interest)
-                    ? '$primary500'
-                    : '$backgroundLight300'
-                }
-                borderRadius='$full'
-                px='$4'
-                py='$2'
-              >
-                <Text
-                  size='sm'
-                  color={
-                    selectedInterests.includes(interest)
-                      ? '$white'
-                      : '$textLight900'
-                  }
-                >
-                  {interest}
-                </Text>
-              </Box>
-            </Pressable>
-          ))}
-        </Box>
-      </VStack>
-
-      {/* Special Notes */}
-      <VStack space='md'>
-        <Text size='lg' fontWeight='$semibold' color='$textLight900'>
-          Algo especial?
-        </Text>
-        <Textarea size='lg' h='$32'>
-          <TextareaInput
-            placeholder='Escribe aquí... (ej. Soy vegano...)'
-            value={specialNotes}
-            onChangeText={setSpecialNotes}
-          />
-        </Textarea>
-      </VStack>
-    </VStack>
-  );
-
-  const getStepTitle = () => {
-    switch (currentStep) {
-      case 1:
-        return 'Paso 1/3: Destino y Fechas';
-      case 2:
-        return 'Paso 2/3: Define tu estilo';
-      case 3:
-        return 'Paso 3/3: Personalización IA';
-      default:
-        return '';
-    }
+  const getCtaText = () => {
+    if (currentStep === 1) return 'Siguiente: Movilidad & Ritmo →';
+    if (currentStep === 2) return 'Siguiente: Intereses & Estilo →';
+    return 'Generar Zig-Zag ✨';
   };
 
   return (
-    <Box flex={1} bg='$white'>
-      {/* Header */}
-      <Box bg='$primary500' pt='$12' pb='$4' px='$4'>
-        <HStack alignItems='center' space='md' mb='$2'>
-          <Pressable onPress={handleBack}>
-            <Icon as={ArrowLeft} size='lg' color='$white' />
-          </Pressable>
-          <Box w='$6' />
+    <Box flex={1} bg='$backgroundLight50'>
+      <Box
+        bg='$backgroundLight50'
+        pb='$3'
+        px='$4'
+        borderBottomWidth={1}
+        borderBottomColor='$borderLight100'
+        style={{ paddingTop: Math.max(insets.top, 16) }}
+      >
+        <HStack alignItems='center' justifyContent='space-between'>
+          <HStack alignItems='center' space='md'>
+            <Pressable onPress={handleBack}>
+              <Box
+                w='$8'
+                h='$8'
+                borderRadius='$full'
+                bg='$backgroundLight100'
+                alignItems='center'
+                justifyContent='center'
+                borderWidth={1}
+                borderColor='$borderLight200'
+              >
+                <Icon as={ArrowLeft} size='sm' color='$textLight800' />
+              </Box>
+            </Pressable>
+            <VStack>
+              <Text
+                size='2xs'
+                fontWeight='$bold'
+                color='$primary600'
+                textTransform='uppercase'
+                letterSpacing={1}
+              >
+                Paso {currentStep} de 3
+              </Text>
+              <Heading
+                size='md'
+                color='$textLight900'
+                style={{ fontFamily: FONT_DISPLAY }}
+              >
+                {stepName}
+              </Heading>
+            </VStack>
+          </HStack>
+
+          <HStack space='xs' w='$20'>
+            {[1, 2, 3].map((step) => (
+              <Box
+                key={step}
+                flex={1}
+                h='$1.5'
+                borderRadius='$full'
+                bg={step <= currentStep ? '$primary500' : '$backgroundLight200'}
+              />
+            ))}
+          </HStack>
         </HStack>
-        <Text textAlign='center' size='sm' color='$white' opacity={0.9}>
-          {getStepTitle()}
-        </Text>
       </Box>
 
-      {/* Content */}
       <ScrollView flex={1} showsVerticalScrollIndicator={false}>
-        <Box p='$4' pb='$24'>
-          {currentStep === 1 && renderStep1()}
-          {currentStep === 2 && renderStep2()}
-          {currentStep === 3 && renderStep3()}
+        <Box p='$4' pb='$6'>
+          {currentStep === 1 && renderDestinationStep()}
+          {currentStep === 2 && (
+            <TourWizardMobilityStep
+              budgetLevel={budgetLevel}
+              groupType={groupType}
+              travelPace={travelPace}
+              transportationModes={transportationModes}
+              walkingEffortProfile={walkingEffortProfile}
+              maxWalkingDistancePerDayMeters={maxWalkingDistancePerDayMeters}
+              maxContinuousWalkingDistanceMeters={
+                maxContinuousWalkingDistanceMeters
+              }
+              accessibilityNeeds={accessibilityNeeds}
+              onBudgetLevelChange={setBudgetLevel}
+              onGroupTypeChange={setGroupType}
+              onTravelPaceChange={setTravelPace}
+              onTransportationModeToggle={toggleTransportationMode}
+              onWalkingEffortProfileChange={selectWalkingEffortProfile}
+              onMaxWalkingDistancePerDayChange={
+                handleMaxWalkingDistancePerDayChange
+              }
+              onMaxContinuousWalkingDistanceChange={
+                setMaxContinuousWalkingDistanceMeters
+              }
+              onAccessibilityNeedToggle={toggleAccessibilityNeed}
+            />
+          )}
+          {currentStep === 3 && (
+            <TourWizardIntentStep
+              interestOptions={INTEREST_OPTIONS}
+              selectedInterests={selectedInterests}
+              selectedIntents={selectedIntents}
+              explorationStyle={explorationStyle}
+              additionalPreferences={additionalPreferences}
+              onInterestToggle={toggleInterest}
+              onIntentToggle={toggleIntent}
+              onExplorationStyleChange={setExplorationStyle}
+              onAdditionalPreferencesChange={setAdditionalPreferences}
+            />
+          )}
         </Box>
       </ScrollView>
 
-      {/* Bottom Button */}
       <Box
-        position='absolute'
-        bottom='$0'
-        left='$0'
-        right='$0'
-        bg='$white'
+        bg='$backgroundLight50'
         borderTopWidth='$1'
-        borderTopColor='$backgroundLight200'
-        p='$4'
-        pb='$8'
+        borderTopColor='$borderLight100'
+        px='$4'
+        pt='$3'
+        style={{
+          paddingBottom: Math.max(insets.bottom, 16) + 8
+        }}
+        shadowColor='$black'
+        shadowOffset={{ width: 0, height: -2 }}
+        shadowOpacity={0.06}
+        shadowRadius={4}
+        elevation={4}
       >
-        <Button onPress={handleNext} bg='$primary500' borderRadius='$md'>
-          <ButtonText color='$white' fontWeight='$semibold'>
-            {currentStep === 3 ? 'Generar ZigZag ✨' : 'Siguiente →'}
+        <Button
+          testID='wizard-cta-button'
+          onPress={handleNext}
+          bg='$primary500'
+          borderRadius='$xl'
+          h={52}
+          isDisabled={currentStep === 1 && destinationIsDirty}
+          shadowColor='$primary500'
+          shadowOffset={{ width: 0, height: 2 }}
+          shadowOpacity={0.3}
+          shadowRadius={4}
+          elevation={3}
+        >
+          <ButtonText
+            color='$secondary950'
+            fontWeight='$bold'
+            size='md'
+            style={{ fontFamily: FONT_DISPLAY }}
+          >
+            {getCtaText()}
           </ButtonText>
           {currentStep === 3 && (
-            <Icon as={Sparkles} size='md' color='$white' ml='$2' />
+            <Icon as={Sparkles} size='sm' color='$secondary950' ml='$2' />
           )}
         </Button>
       </Box>

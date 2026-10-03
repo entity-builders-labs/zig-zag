@@ -1,0 +1,404 @@
+{
+  "label": "Validación geográfica independiente",
+  "rules": [
+    {
+      "rule": "Grounded text por sí solo no prueba existencia geográfica",
+      "reason": "La aceptación requiere entidades resueltas independientemente del LLM.",
+      "result": "PASS",
+      "ruleId": "GEO-INDEPENDENT-001"
+    },
+    {
+      "rule": "Las composites pueden validarse por componentes reales sin exact-name global",
+      "reason": "ROUTE/EXPERIENCE/WALK pueden usar anchors/componentes según su estrategia.",
+      "result": "PASS",
+      "ruleId": "GEO-COMPONENTS-001"
+    },
+    {
+      "rule": "Conservar razones machine-readable para cada rechazo",
+      "reason": "Paseo de las Historietas: destination_mismatch",
+      "result": "PASS",
+      "ruleId": "GEO-RESULT-001"
+    }
+  ],
+  "stage": "geographic_validation",
+  "inputs": {
+    "proposalCount": 7,
+    "validatorVersions": [
+      1
+    ]
+  },
+  "status": "WARN",
+  "outputs": {
+    "results": [
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Feria De las Artes San Telmo",
+        "canonicalEntity": {
+          "name": "Feria De las Artes San Telmo",
+          "provider": "google_places",
+          "externalId": "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "REJECTED",
+        "strategy": null,
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Paseo de las Historietas",
+        "canonicalEntity": null,
+        "rejectionReasons": [
+          "destination_mismatch"
+        ],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Galeria Del Asombro",
+        "canonicalEntity": {
+          "name": "Galeria del Asombro",
+          "provider": "openstreetmap",
+          "externalId": "osm:node:3227164768"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Museo Moderno",
+        "canonicalEntity": {
+          "name": "Museo de Arte Moderno de Buenos Aires",
+          "provider": "openstreetmap",
+          "externalId": "osm:way:239518532"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Mercado San Telmo",
+        "canonicalEntity": {
+          "name": "Mercado de San Telmo",
+          "provider": "openstreetmap",
+          "externalId": "osm:way:158893271"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Museo Histórico Nacional",
+        "canonicalEntity": {
+          "name": "Museo Histórico Nacional",
+          "provider": "openstreetmap",
+          "externalId": "osm:way:122969767"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      },
+      {
+        "kind": "EXPERIENCE",
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "coherence": null,
+        "anchorCount": 1,
+        "proposalName": "Plaza Dorrego",
+        "canonicalEntity": {
+          "name": "Plaza Dorrego",
+          "provider": "openstreetmap",
+          "externalId": "osm:way:31364659"
+        },
+        "rejectionReasons": [],
+        "areaScopeMembership": null
+      }
+    ],
+    "rejectedCount": 1,
+    "geoVerifiedCount": 6,
+    "maxComputedRadiusMeters": null
+  },
+  "summary": "Validación geográfica: 6 propuesta(s) verificadas y 1 descartadas por coherencia espacial o falta de entidad real.",
+  "decision": {
+    "reason": "Solo las propuestas GEO_VERIFIED pueden avanzar a materialización.",
+    "status": "WARN",
+    "outcome": "GEO_VERIFIED_PROPOSALS_READY",
+    "reasonCodes": [
+      "destination_mismatch"
+    ],
+    "triggeredActions": [
+      "MATERIALIZE_VERIFIED_EXPERIENCES"
+    ]
+  },
+  "component": "CompositeGeographicValidationService",
+  "providerStatus": "success",
+  "acquisitionContext": {
+    "strategy": "generic",
+    "passNumber": 1
+  },
+  "candidateDecisions": [
+    {
+      "id": "Feria De las Artes San Telmo",
+      "name": "Feria De las Artes San Telmo",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Paseo de las Historietas",
+      "name": "Paseo de las Historietas",
+      "reason": "destination_mismatch",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "destination_mismatch"
+      ]
+    },
+    {
+      "id": "Galeria Del Asombro",
+      "name": "Galeria Del Asombro",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Museo Moderno",
+      "name": "Museo Moderno",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Mercado San Telmo",
+      "name": "Mercado San Telmo",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Museo Histórico Nacional",
+      "name": "Museo Histórico Nacional",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    },
+    {
+      "id": "Plaza Dorrego",
+      "name": "Plaza Dorrego",
+      "reason": "GEO_VERIFIED mediante venue_centric con 1 anchor(s).",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "GEO_VERIFIED"
+      ]
+    }
+  ],
+  "geographicValidationAudit": [
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI:component",
+          "hintName": "Feria De las Artes San Telmo",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "9c40cecc-7d3f-43cc-af19-1dcae639ed35"
+        }
+      ],
+      "candidateName": "Feria De las Artes San Telmo",
+      "rejectionReasons": [],
+      "candidateTraceKey": "feria de las artes san telmo:google_places:ChIJ-efrtizLvJURQbEIWsAFdEI:google_places:ChIJ-efrtizLvJURQbEIWsAFdEI:component:Feria De las Artes San Telmo",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "google_places:ChIJ-efrtizLvJURQbEIWsAFdEI"
+      ]
+    },
+    {
+      "status": "REJECTED",
+      "accepted": false,
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4:component",
+          "hintName": "Paseo de las Historietas",
+          "relation": "offending",
+          "decisionReason": "OUTSIDE_DESTINATION_BOUNDARY",
+          "resolvedGeoEntityId": "319b4a5a-a812-40fe-acce-b064b04315f3",
+          "distanceToBoundaryMeters": 8.46183702615267
+        }
+      ],
+      "candidateName": "Paseo de las Historietas",
+      "rejectionReasons": [
+        "destination_mismatch"
+      ],
+      "candidateTraceKey": "paseo de las historietas:google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4:google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4:component:Paseo de las Historietas",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY:component",
+          "hintName": "Galeria Del Asombro",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "e304a54f-1c1b-47e9-bf2e-aacfa9821bb0"
+        }
+      ],
+      "candidateName": "Galeria Del Asombro",
+      "rejectionReasons": [],
+      "candidateTraceKey": "galeria del asombro:google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY:google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY:component:Galeria Del Asombro",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI:component",
+          "hintName": "Museo Moderno",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "51c82b38-ab6e-46a6-a28a-503560a8f85e"
+        }
+      ],
+      "candidateName": "Museo Moderno",
+      "rejectionReasons": [],
+      "candidateTraceKey": "museo moderno:google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI:google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI:component:Museo Moderno",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component",
+          "hintName": "Mercado San Telmo",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "3763ccda-a3c7-4276-8aa6-18af6db58ec0"
+        }
+      ],
+      "candidateName": "Mercado San Telmo",
+      "rejectionReasons": [],
+      "candidateTraceKey": "mercado san telmo:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component:Mercado San Telmo",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component",
+          "hintName": "Museo Histórico Nacional",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "e7004fd8-68d8-4693-873d-96a485681f77"
+        }
+      ],
+      "candidateName": "Museo Histórico Nacional",
+      "rejectionReasons": [],
+      "candidateTraceKey": "museo histórico nacional:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component:Museo Histórico Nacional",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+      ]
+    },
+    {
+      "status": "GEO_VERIFIED",
+      "accepted": true,
+      "strategy": "venue_centric",
+      "components": [
+        {
+          "role": "venue",
+          "hintKey": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component",
+          "hintName": "Plaza Dorrego",
+          "relation": "evaluated",
+          "resolvedGeoEntityId": "e6ed98be-2b85-4cc9-ac42-2d051920c390"
+        }
+      ],
+      "candidateName": "Plaza Dorrego",
+      "rejectionReasons": [],
+      "candidateTraceKey": "plaza dorrego:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component:Plaza Dorrego",
+      "destinationBoundary": {
+        "name": "San Telmo",
+        "externalId": "osm:relation:2223069"
+      },
+      "groundedEvidenceKeys": [
+        "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+      ]
+    }
+  ]
+}

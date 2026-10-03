@@ -1,5 +1,5 @@
 # Use Node.js LTS version
-FROM node:20-alpine AS base
+FROM node:22.23.1-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -12,6 +12,24 @@ COPY be/package.json ./be/
 # Install dependencies with cache mount for faster rebuilds
 RUN --mount=type=cache,target=/root/.yarn \
     yarn install --frozen-lockfile --prefer-offline
+
+# Production-only node_modules for the final image — a plain `COPY --from=builder`
+# would ship devDependencies (typescript, jest, ts-jest, eslint, supertest...) into
+# the runtime image for no reason; this stage installs just `dependencies` instead.
+FROM base AS prod-deps
+WORKDIR /app
+
+COPY package.json yarn.lock ./
+COPY be/package.json ./be/
+
+RUN --mount=type=cache,target=/root/.yarn \
+    yarn install --frozen-lockfile --prefer-offline --production
+
+COPY be/prisma ./be/prisma
+COPY be/prisma.config.ts ./be/prisma.config.ts
+
+WORKDIR /app/be
+RUN yarn prisma:generate
 
 # Build the application
 FROM base AS builder
@@ -59,18 +77,19 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Install system dependencies and Prisma CLI in one layer (cache this)
-RUN apk add --no-cache netcat-openbsd coreutils && \
-    yarn global add prisma
+# Install system dependencies (cache this layer)
+RUN apk add --no-cache netcat-openbsd coreutils
 
-# Copy built application
+# Copy built application — dist from the build stage, node_modules/prisma client
+# from the production-only install (prisma itself ships as a `dependency`, so its
+# CLI is already on node_modules/.bin here; no global install needed).
 COPY --from=builder /app/be/dist ./be/dist
-COPY --from=builder /app/be/node_modules ./be/node_modules
+COPY --from=prod-deps /app/be/node_modules ./be/node_modules
 COPY --from=builder /app/be/package.json ./be/package.json
-COPY --from=builder /app/be/prisma ./be/prisma
+COPY --from=prod-deps /app/be/prisma ./be/prisma
 COPY --from=builder /app/be/prisma.config.ts ./be/prisma.config.ts
 COPY --from=builder /app/be/scripts ./be/scripts
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
 # Expose the port the app runs on
@@ -93,11 +112,7 @@ RUN echo '#!/bin/sh' > /app/be/start.sh && \
     echo '  else' >> /app/be/start.sh && \
     echo '    echo "⚠️  No migrations directory found"' >> /app/be/start.sh && \
     echo '  fi' >> /app/be/start.sh && \
-    echo '  sh scripts/setup-db.sh || {' >> /app/be/start.sh && \
-    echo '    EXIT_CODE=$?' >> /app/be/start.sh && \
-    echo '    echo "❌ Database setup failed with exit code $EXIT_CODE"' >> /app/be/start.sh && \
-    echo '    echo "⚠️  Continuing anyway, but application may not work correctly..."' >> /app/be/start.sh && \
-    echo '  }' >> /app/be/start.sh && \
+    echo '  sh scripts/setup-db.sh' >> /app/be/start.sh && \
     echo 'else' >> /app/be/start.sh && \
     echo '  echo "⚠️  Setup script not found, skipping..."' >> /app/be/start.sh && \
     echo 'fi' >> /app/be/start.sh && \

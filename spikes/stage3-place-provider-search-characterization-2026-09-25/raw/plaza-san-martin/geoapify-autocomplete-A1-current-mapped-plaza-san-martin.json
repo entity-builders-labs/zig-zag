@@ -1,0 +1,54 @@
+{
+  "note": "PlaceData[] exactly as GeoapifyPlacesApiService.searchText returns it (production path)",
+  "mapped": [
+    {
+      "id": "51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+      "name": "Plaza San Martín",
+      "displayName": {
+        "text": "Plaza San Martín"
+      },
+      "formattedAddress": "Plaza San Martín, Retiro, C1059 ABO Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.5946395,
+        "longitude": -58.3759048
+      },
+      "types": [
+        "leisure.park"
+      ],
+      "primaryType": "leisure.park"
+    },
+    {
+      "id": "51d586d4fe18344dc059aec4f29d4e5841c0f00102f901698cea0500000000c00201920311506c617a612053616e204d617274c3ad6e",
+      "name": "Plaza San Martín",
+      "displayName": {
+        "text": "Plaza San Martín"
+      },
+      "formattedAddress": "Plaza San Martín, Villa de los Industriales, Lanús Oeste, B, Argentina",
+      "location": {
+        "latitude": -34.6898992,
+        "longitude": -58.4070128
+      },
+      "types": [
+        "leisure.park"
+      ],
+      "primaryType": "leisure.park"
+    },
+    {
+      "id": "518158dbb9d5444dc059dfae4d19ee4941c0f00102f901f7389e0500000000c00201920311506c617a612053616e204d617274c3ad6e",
+      "name": "Plaza San Martín",
+      "displayName": {
+        "text": "Plaza San Martín"
+      },
+      "formattedAddress": "Plaza San Martín, B1650 Ciudad del Libertador General San Martín, Argentina",
+      "location": {
+        "latitude": -34.5775787,
+        "longitude": -58.5377724
+      },
+      "types": [
+        "leisure.park"
+      ],
+      "primaryType": "leisure.park"
+    }
+  ],
+  "failure": null
+}

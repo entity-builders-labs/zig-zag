@@ -1,0 +1,512 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "San Martín",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1651,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1004AAG",
+        "district": "Comuna 1",
+        "suburb": "San Nicolás",
+        "quarter": "Microcentro",
+        "street": "San Martín",
+        "iso3166_2": "AR-C",
+        "lon": -58.373823,
+        "lat": -34.6038454,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 711.9700739455351,
+        "formatted": "San Martín, San Nicolás, C1004 AAG Buenos Aires, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "San Nicolás, C1004 AAG Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JWG+FF",
+        "plus_code_short": "WG+FF Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "510ebf9b6ed92f4dc059866b5ace4a4d41c0f00102f901ae116e1c00000000c0020192030b53616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.373852,
+          "lat1": -34.6044583,
+          "lon2": -58.3737941,
+          "lat2": -34.6032326
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1043AAE",
+        "district": "Comuna 1",
+        "suburb": "San Nicolás",
+        "quarter": "Microcentro",
+        "street": "San Martín",
+        "iso3166_2": "AR-C",
+        "lon": -58.3738816,
+        "lat": -34.6026763,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 715.5403809976269,
+        "formatted": "San Martín, San Nicolás, C1043 AAE Buenos Aires, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "San Nicolás, C1043 AAE Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JWG+WC",
+        "plus_code_short": "WG+WC Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51bf492e5adb2f4dc05982493b7f244d41c0f00102f9013d23c71f00000000c0020192030b53616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3739113,
+          "lat1": -34.6032326,
+          "lon2": -58.373852,
+          "lat2": -34.6021201
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1004AAC",
+        "district": "Comuna 1",
+        "suburb": "San Nicolás",
+        "quarter": "Microcentro",
+        "street": "San Martín",
+        "iso3166_2": "AR-C",
+        "lon": -58.3736847,
+        "lat": -34.6062173,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 776.63052086131,
+        "formatted": "San Martín, San Nicolás, C1004 AAC Buenos Aires, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "San Nicolás, C1004 AAC Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JVG+GG",
+        "plus_code_short": "VG+GG Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51fec176e6d42f4dc0597ce24a87984d41c0f00102f9014be6945200000000c0020192030b53616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3737941,
+          "lat1": -34.6079734,
+          "lon2": -58.3735387,
+          "lat2": -34.6044583
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1049AAK",
+        "district": "Comuna 1",
+        "suburb": "San Nicolás",
+        "quarter": "Microcentro",
+        "street": "San Martín",
+        "iso3166_2": "AR-C",
+        "lon": -58.3740487,
+        "lat": -34.6003514,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 785.0623171516587,
+        "formatted": "San Martín, San Nicolás, C1049 AAK Buenos Aires, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "San Nicolás, C1049 AAK Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JXG+V9",
+        "plus_code_short": "XG+V9 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "5140ceead3e02f4dc059cd8d8e50d84c41c0f00102f901fb7dca1700000000c0020192030b53616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3742064,
+          "lat1": -34.6021201,
+          "lon2": -58.3739113,
+          "lat2": -34.598585
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1054AAD",
+        "district": "Comuna 1",
+        "neighbourhood": "Catalinas Norte",
+        "suburb": "Retiro",
+        "street": "San Martín",
+        "iso3166_2": "AR-C",
+        "lon": -58.3742317,
+        "lat": -34.5982521,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 906.525543116612,
+        "formatted": "San Martín, Retiro, C1054 AAD Buenos Aires, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "Retiro, C1054 AAD Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ2G+M8",
+        "plus_code_short": "2G+M8 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51315008d3e62f4dc059b5215a86934c41c0f00102f90143fc052200000000c0020192030b53616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3742509,
+          "lat1": -34.598585,
+          "lon2": -58.3742064,
+          "lat2": -34.5979187
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1004AAT",
+        "district": "Comuna 1",
+        "neighbourhood": "Catalinas Norte",
+        "suburb": "Retiro",
+        "street": "San Martín",
+        "iso3166_2": "AR-C",
+        "lon": -58.3742922,
+        "lat": -34.597075,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 995.0208562907185,
+        "formatted": "San Martín, Retiro, C1004 AAT Buenos Aires, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "Retiro, C1004 AAT Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ3G+57",
+        "plus_code_short": "CJ3G+57 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51ee128bcee82f4dc0592d211ff46c4c41c0f00102f90167eaf50400000000c0020192030b53616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3743267,
+          "lat1": -34.5979187,
+          "lon2": -58.3742509,
+          "lat2": -34.5962309
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1001",
+        "district": "Comuna 1",
+        "neighbourhood": "Catalinas Norte",
+        "suburb": "Retiro",
+        "street": "San Martín",
+        "iso3166_2": "AR-C",
+        "lon": -58.3743745,
+        "lat": -34.59564,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1113.825592261705,
+        "formatted": "San Martín, Retiro, 1001 Buenos Aires, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "Retiro, 1001 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ3G+P7",
+        "plus_code_short": "CJ3G+P7 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "516afaec80eb2f4dc059401878ee3d4c41c0f00102f901f51b654900000000c0020192030b53616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3744141,
+          "lat1": -34.5962309,
+          "lon2": -58.3743267,
+          "lat2": -34.5950485
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1004AAW",
+        "district": "Comuna 1",
+        "neighbourhood": "Catalinas Norte",
+        "suburb": "Retiro",
+        "street": "San Martín",
+        "iso3166_2": "AR-C",
+        "lon": -58.3744403,
+        "lat": -34.5947608,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1190.5780105885576,
+        "formatted": "San Martín, Retiro, C1004 AAW Buenos Aires, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "Retiro, C1004 AAW Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ4G+36",
+        "plus_code_short": "CJ4G+36 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "popularity": 7.862730756360886,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51f866e5a8ed2f4dc059ae78341f214c41c0f00102f901f41b654900000000c0020192030b53616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.3744665,
+          "lat1": -34.5950485,
+          "lon2": -58.3744141,
+          "lat2": -34.5944732
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Ciudad del Libertador General San Martín",
+        "other_names": {
+          "official_name": "Ciudad del Libertador General Don José de San Martín",
+          "loc_name": "San Martín"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de General San Martín",
+        "city": "Ciudad del Libertador General San Martín",
+        "postcode": "B1650",
+        "iso3166_2": "AR-B",
+        "lon": -58.5377237,
+        "lat": -34.5771577,
+        "state_code": "B",
+        "result_type": "city",
+        "distance": 14593.013503957782,
+        "formatted": "B1650 Ciudad del Libertador General San Martín, Argentina",
+        "address_line1": "Ciudad del Libertador General San Martín",
+        "address_line2": "B1650 Ciudad del Libertador General San Martín, Argentina",
+        "category": "administrative",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CFF6+4W",
+        "rank": {
+          "importance": 0.4683546029616915,
+          "popularity": 7.547271744662532,
+          "confidence": 0,
+          "match_type": "match_by_city_or_disrict"
+        },
+        "place_id": "515ee45421d4444dc0593a11b34de04941c0f00101f9018fe78b0000000000c002089203294369756461642064656c204c696265727461646f722047656e6572616c2053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.554151,
+          "lat1": -34.5900944,
+          "lon2": -58.5278457,
+          "lat2": -34.5675002
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "San Martín",
+        "country": "Argentina",
+        "county": "General San Martín",
+        "datasource": {
+          "sourcename": "whosonfirst",
+          "attribution": "Who's On First",
+          "license": "CC0",
+          "url": "https://www.whosonfirst.org/docs/licenses/"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "GN",
+        "city": "San Martín",
+        "iso3166_2": "AR-B",
+        "lon": -58.52436,
+        "lat": -34.57072,
+        "result_type": "city",
+        "distance": 13573.432125917512,
+        "formatted": "San Martín, General San Martín, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "General San Martín, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CFHG+P7",
+        "rank": {
+          "popularity": 6.46563927549218,
+          "confidence": 0,
+          "match_type": "match_by_city_or_disrict"
+        },
+        "place_id": "5150aa7d3a1e434dc05929965b5a0d4941c0c0020892030b53616e204d617274c3ad6ee2031e77686f736f6e66697273743a6c6f63616c6974793a343231313931313837",
+        "bbox": {
+          "lon1": -58.54436,
+          "lat1": -34.59072,
+          "lon2": -58.50436,
+          "lat2": -34.55072
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "parsed": {
+        "house": "San Martín",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

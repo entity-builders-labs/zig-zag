@@ -1,0 +1,4603 @@
+{
+  "id": "54e45b83-17a8-43e1-afaf-82deeab49d7f",
+  "name": "Buenos Aires, Argentina",
+  "description": "Tour personalizado",
+  "ownerId": "cd31d17d-a4e5-4b9e-b3b2-d3a14f208a4e",
+  "price": null,
+  "duration": null,
+  "maxGroupSize": null,
+  "startDates": [],
+  "totalDays": 1,
+  "totalDistance": null,
+  "estimatedBudget": null,
+  "recommendedGroupSize": null,
+  "coverImage": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/CABA_-_Avenida_9_de_Julio.jpg/1280px-CABA_-_Avenida_9_de_Julio.jpg?utm_source=es.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+  "prompt": "Create a tour from this canonical wizard intent:\nDestination: Buenos Aires, Argentina\nNumber of days: 1\nBudget level: medium\nGroup type: solo\nInterests: none specified\nExploration style: balanced\nAllowed transportation modes: walking\nTravel pace: moderate\nWalking limits captured (deterministic enforcement arrives in the spatial-feasibility stage): 50000 meters per day; 20000 meters maximum continuous leg\nAdditional preferences: Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido.",
+  "query": null,
+  "categories": [],
+  "metadata": {
+    "generatedAt": "2026-09-28T03:21:56.922Z",
+    "generationError": "Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [intent:walk] has no strong catalog match yet.",
+    "generationTrace": {
+      "steps": [
+        {
+          "label": "Interpretación de preferencias",
+          "stage": "preference_interpretation",
+          "inputs": {
+            "intents": [
+              "walk"
+            ],
+            "groupType": "solo",
+            "budgetLevel": "medium",
+            "accessibilityNeeds": [],
+            "dietaryRestrictions": [],
+            "hasAdditionalPreferences": true
+          },
+          "status": "PASS",
+          "timing": {
+            "durationMs": 982
+          },
+          "outputs": {
+            "intent": {
+              "notes": [],
+              "ambiguities": [],
+              "anchoredPlaces": [
+                {
+                  "usage": "specific_destination",
+                  "rawName": "Caminito",
+                  "priority": "must"
+                }
+              ],
+              "excludedThemes": [],
+              "excludedTraits": [],
+              "hardExclusions": [],
+              "preferredFacets": [
+                {
+                  "key": "walk",
+                  "source": "free_text",
+                  "evidence": [
+                    {
+                      "text": "recorrer Caminito caminando",
+                      "source": "user_free_text"
+                    }
+                  ],
+                  "dimension": "intent",
+                  "confidence": 1,
+                  "importance": 1
+                }
+              ],
+              "softConstraints": [],
+              "groupPreferences": [],
+              "budgetPreferences": [],
+              "dietaryPreferences": [],
+              "positiveSemanticQuery": "walking Caminito to see representative places",
+              "accessibilityPreferences": []
+            },
+            "preferenceSpec": {
+              "trip": {
+                "days": 1,
+                "pace": "moderate",
+                "startDates": []
+              },
+              "facets": [
+                {
+                  "key": "walk",
+                  "source": "wizard",
+                  "weight": 1,
+                  "required": false,
+                  "dimension": "intent"
+                }
+              ],
+              "anchors": [
+                {
+                  "usage": "specific_destination",
+                  "rawName": "Caminito",
+                  "priority": "must"
+                }
+              ],
+              "exclusions": {
+                "hard": [],
+                "themes": [],
+                "traits": []
+              },
+              "semanticQuery": "walking Caminito to see representative places",
+              "resolvedAnchors": [
+                {
+                  "kind": "route",
+                  "usage": "specific_destination",
+                  "status": "resolved",
+                  "rawName": "Caminito",
+                  "geometry": {
+                    "type": "MultiLineString",
+                    "coordinates": [
+                      [
+                        [
+                          -58.3632988,
+                          -34.6391307
+                        ],
+                        [
+                          -58.3632393,
+                          -34.6391711
+                        ],
+                        [
+                          -58.3630755,
+                          -34.6392431
+                        ],
+                        [
+                          -58.3629034,
+                          -34.639299
+                        ],
+                        [
+                          -58.3626552,
+                          -34.6393481
+                        ],
+                        [
+                          -58.3623762,
+                          -34.6393831
+                        ],
+                        [
+                          -58.3622584,
+                          -34.6393874
+                        ],
+                        [
+                          -58.3618064,
+                          -34.6393968
+                        ],
+                        [
+                          -58.3617988,
+                          -34.639397
+                        ]
+                      ]
+                    ]
+                  },
+                  "priority": "must",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+                  "canonicalName": "Caminito",
+                  "candidateFacts": [
+                    {
+                      "branch": "area",
+                      "eligibility": "NO_CANDIDATE",
+                      "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                      "discoveryStatus": "no_match"
+                    },
+                    {
+                      "kind": "route",
+                      "branch": "route",
+                      "decision": "SELECTED",
+                      "provider": "openstreetmap",
+                      "externalId": "osm:way:144844726",
+                      "eligibility": "ELIGIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "WITHIN_DESTINATION_BOUNDARY",
+                        "verdict": "COMPATIBLE"
+                      },
+                      "discoveryStatus": "match"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:269972048",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:190947717",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:46859224",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:205650907",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:191914894",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    }
+                  ]
+                }
+              ],
+              "softConstraints": {
+                "group": [],
+                "budget": [],
+                "dietary": [],
+                "accessibility": []
+              },
+              "explorationStyle": "balanced"
+            }
+          },
+          "summary": "Preferencias libres normalizadas y combinadas con filtros.",
+          "component": "PreferenceInterpreterService",
+          "preferenceInterpretation": {
+            "model": "qwen/qwen3.8-27b",
+            "stage": "preference_interpretation",
+            "status": "applied",
+            "provider": "groq",
+            "durationMs": 982,
+            "userPrompt": "Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido.",
+            "rawResponse": "{\n  \"preferredFacets\": [\n    {\n      \"dimension\": \"intent\",\n      \"key\": \"walk\",\n      \"confidence\": 1.0,\n      \"strength\": \"strong\",\n      \"evidence\": [\n        \"recorrer Caminito caminando\"\n      ]\n    }\n  ],\n  \"anchoredPlaces\": [\n    {\n      \"rawName\": \"Caminito\",\n      \"usage\": \"specific_destination\",\n      \"priority\": \"must\"\n    }\n  ],\n  \"excludedThemes\": [],\n  \"excludedTraits\": [],\n  \"hardExclusions\": [],\n  \"softConstraints\": [],\n  \"ambiguities\": [],\n  \"dietaryPreferences\": [],\n  \"accessibilityPreferences\": [],\n  \"budgetPreferences\": [],\n  \"groupPreferences\": [],\n  \"positiveSemanticQuery\": \"walking Caminito to see representative places\",\n  \"notes\": []\n}",
+            "systemPrompt": "Interpret the user's supplemental tourism preferences into normalized intent.\nReturn JSON only. You interpret language; deterministic code enforces the result.\nNever invent geographic entities, provider IDs, coordinates, or evidence.\nDo not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.\nFor positive preferences, output preferredFacets as a list of objects with:\n- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.\n- key: CANONICAL domain key in English (e.g. \"architecture\" not \"arquitectura\", \"food\" not \"comida\", \"walk\" not \"caminata\", \"history\" not \"historia\").\n- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.\n- confidence: float between 0 and 1 indicating certainty.\n- strength: \"strong\" | \"medium\" | \"weak\" indicating user emphasis.\n- evidence: one or more short excerpts copied from the user's text that support\n  this facet. Never invent evidence; facets without supporting excerpts are rejected.\nDo not invent arbitrary importance numbers; code derives importance deterministically from strength.\nAlso output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by\nname (never a generic theme). For each, output:\n- rawName: the name as mentioned by the user.\n- usage: \"geographic_scope\" | \"specific_destination\" | \"named_path\" | \"unknown\". This describes how the phrase uses the name, not what geographic entity it is.\n- priority: \"must\" ONLY for explicit, unambiguous named-place intent, for example\n  \"quiero visitar X\", \"incluí X\", \"sí o sí quiero ir a X\", \"no me quiero perder X\".\n  Anything weaker or ambiguous -- including a place mentioned only in passing while\n  describing a theme, e.g. \"me interesa la arquitectura de X\" -- is priority \"soft\".\nExtract anchors conservatively: when in doubt about the name or the intent, omit the anchor\nrather than guessing. Do not invent named places that were not mentioned.\nOther fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,\ndietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,\npositiveSemanticQuery, notes. Use short lowercase phrases.",
+            "parsedResponse": {
+              "notes": [],
+              "ambiguities": [],
+              "anchoredPlaces": [
+                {
+                  "usage": "specific_destination",
+                  "rawName": "Caminito",
+                  "priority": "must"
+                }
+              ],
+              "excludedThemes": [],
+              "excludedTraits": [],
+              "hardExclusions": [],
+              "preferredFacets": [
+                {
+                  "key": "walk",
+                  "source": "free_text",
+                  "evidence": [
+                    {
+                      "text": "recorrer Caminito caminando",
+                      "source": "user_free_text"
+                    }
+                  ],
+                  "dimension": "intent",
+                  "confidence": 1,
+                  "importance": 1
+                }
+              ],
+              "softConstraints": [],
+              "groupPreferences": [],
+              "budgetPreferences": [],
+              "dietaryPreferences": [],
+              "positiveSemanticQuery": "walking Caminito to see representative places",
+              "accessibilityPreferences": []
+            },
+            "responseSchema": {
+              "type": "object",
+              "required": [
+                "preferredFacets",
+                "anchoredPlaces",
+                "excludedThemes",
+                "excludedTraits",
+                "hardExclusions",
+                "softConstraints",
+                "ambiguities",
+                "dietaryPreferences",
+                "accessibilityPreferences",
+                "budgetPreferences",
+                "groupPreferences",
+                "positiveSemanticQuery",
+                "notes"
+              ],
+              "properties": {
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "ambiguities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "anchoredPlaces": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "rawName",
+                      "usage",
+                      "priority"
+                    ],
+                    "properties": {
+                      "usage": {
+                        "enum": [
+                          "geographic_scope",
+                          "specific_destination",
+                          "named_path",
+                          "unknown"
+                        ],
+                        "type": "string"
+                      },
+                      "rawName": {
+                        "type": "string"
+                      },
+                      "priority": {
+                        "enum": [
+                          "soft",
+                          "must"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "excludedThemes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "excludedTraits": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "hardExclusions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "preferredFacets": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "dimension",
+                      "key",
+                      "confidence"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "evidence": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "strength": {
+                        "enum": [
+                          "strong",
+                          "medium",
+                          "weak"
+                        ],
+                        "type": "string"
+                      },
+                      "dimension": {
+                        "type": "string"
+                      },
+                      "confidence": {
+                        "type": "number"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "softConstraints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "groupPreferences": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "budgetPreferences": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "dietaryPreferences": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "positiveSemanticQuery": {
+                  "type": "string"
+                },
+                "accessibilityPreferences": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "validationErrors": [],
+            "facetNormalizationDecisions": [
+              {
+                "rawKey": "walk",
+                "reason": "VALID_AS_EMITTED",
+                "accepted": true,
+                "rawDimension": "intent",
+                "normalizedKey": "walk",
+                "normalizedDimension": "intent"
+              }
+            ]
+          }
+        },
+        {
+          "label": "Intención y movilidad solicitadas",
+          "rules": [
+            {
+              "rule": "Usar el wizard canónico como fuente de restricciones explícitas",
+              "actual": 1,
+              "reason": "La generación parte de TourGenerationRequest contractVersion=1.",
+              "result": "PASS",
+              "ruleId": "INTENT-CANONICAL-001",
+              "expected": 1
+            },
+            {
+              "rule": "Conservar preferencias adicionales como intención suplementaria",
+              "actual": "Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido.",
+              "reason": "Hay texto adicional disponible para búsqueda/ranking semántico.",
+              "result": "PASS",
+              "ruleId": "INTENT-FREETEXT-001"
+            }
+          ],
+          "stage": "tour_intent",
+          "inputs": {
+            "days": 1,
+            "themes": [],
+            "travelPace": "moderate",
+            "destination": "Buenos Aires, Argentina",
+            "explorationStyle": "balanced",
+            "accessibilityNeeds": [],
+            "additionalPreferences": "Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido.",
+            "allowedTransportationModes": [
+              "walking"
+            ],
+            "maxWalkingDistancePerDayMeters": 50000,
+            "maxContinuousWalkingDistanceMeters": 20000
+          },
+          "outputs": {
+            "requestedDays": 1,
+            "requestedThemes": []
+          },
+          "summary": "Temas: sin temas específicos. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido.\".",
+          "decision": {
+            "reason": "La solicitud contiene el contrato canónico requerido por el motor.",
+            "status": "INFO",
+            "outcome": "INTENT_ACCEPTED",
+            "reasonCodes": [
+              "CANONICAL_REQUEST_AVAILABLE"
+            ],
+            "triggeredActions": [
+              "RESOLVE_DESTINATION"
+            ]
+          },
+          "component": "TourGenerationRequest"
+        },
+        {
+          "label": "Resolución del destino",
+          "rules": [
+            {
+              "rule": "Determinar si el destino puede usar boundary real o debe degradar a punto",
+              "actual": "area",
+              "reason": "Se obtuvo boundary administrativo utilizable.",
+              "result": "PASS",
+              "ruleId": "DEST-SCALE-001"
+            }
+          ],
+          "stage": "destination_resolution",
+          "inputs": {
+            "destinationText": "Buenos Aires, Argentina",
+            "attemptedQueries": [
+              "forward:Buenos Aires, Argentina"
+            ]
+          },
+          "status": "PASS",
+          "outputs": {
+            "scale": "area",
+            "boundaryId": "osm:relation:1224652",
+            "boundaryName": "Buenos Aires"
+          },
+          "summary": "\"Buenos Aires, Argentina\" resolvió a un límite real de ciudad: Buenos Aires. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:Buenos Aires, Argentina.",
+          "decision": {
+            "reason": "El boundary real es más preciso que un radio artificial para recuperación local.",
+            "status": "PASS",
+            "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+            "reasonCodes": [
+              "AREA_BOUNDARY_RESOLVED"
+            ],
+            "triggeredActions": [
+              "RETRIEVE_CATALOG"
+            ]
+          },
+          "component": "DestinationResolutionService"
+        },
+        {
+          "label": "Resolución geográfica de anchors",
+          "stage": "anchor_geo_resolution",
+          "inputs": {
+            "anchors": [
+              {
+                "usage": "specific_destination",
+                "rawName": "Caminito",
+                "priority": "must"
+              }
+            ]
+          },
+          "status": "PASS",
+          "outputs": {
+            "anchors": [
+              {
+                "kind": "route",
+                "usage": "specific_destination",
+                "status": "resolved",
+                "rawName": "Caminito",
+                "geometry": {
+                  "type": "MultiLineString",
+                  "coordinates": [
+                    [
+                      [
+                        -58.3632988,
+                        -34.6391307
+                      ],
+                      [
+                        -58.3632393,
+                        -34.6391711
+                      ],
+                      [
+                        -58.3630755,
+                        -34.6392431
+                      ],
+                      [
+                        -58.3629034,
+                        -34.639299
+                      ],
+                      [
+                        -58.3626552,
+                        -34.6393481
+                      ],
+                      [
+                        -58.3623762,
+                        -34.6393831
+                      ],
+                      [
+                        -58.3622584,
+                        -34.6393874
+                      ],
+                      [
+                        -58.3618064,
+                        -34.6393968
+                      ],
+                      [
+                        -58.3617988,
+                        -34.639397
+                      ]
+                    ]
+                  ]
+                },
+                "priority": "must",
+                "provider": "openstreetmap",
+                "externalId": "osm:way:144844726",
+                "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+                "canonicalName": "Caminito",
+                "candidateFacts": [
+                  {
+                    "branch": "area",
+                    "eligibility": "NO_CANDIDATE",
+                    "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                    "discoveryStatus": "no_match"
+                  },
+                  {
+                    "kind": "route",
+                    "branch": "route",
+                    "decision": "SELECTED",
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:144844726",
+                    "eligibility": "ELIGIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "WITHIN_DESTINATION_BOUNDARY",
+                      "verdict": "COMPATIBLE"
+                    },
+                    "discoveryStatus": "match"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:269972048",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:190947717",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:46859224",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:205650907",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:191914894",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  }
+                ]
+              }
+            ]
+          },
+          "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+          "component": "AreaRouteAnchorResolverService"
+        },
+        {
+          "label": "Cobertura de preferencias (facet-first)",
+          "rules": [
+            {
+              "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+              "actual": 0,
+              "reason": "0 Experience(s) elegible(s) frente a 4 requerida(s).",
+              "result": "FAIL",
+              "ruleId": "PCOV-QUANTITY-001",
+              "expected": 4
+            },
+            {
+              "rule": "Cobertura del facet solicitado: intent:walk",
+              "actual": 0,
+              "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+              "result": "FAIL",
+              "ruleId": "PCOV-FACET-INTENT-WALK",
+              "expected": ">= 1"
+            }
+          ],
+          "stage": "coverage_analysis",
+          "inputs": {
+            "providerHealth": {
+              "status": "healthy"
+            },
+            "requestedFacetCount": 1,
+            "offeredCandidateCount": 0
+          },
+          "status": "FAIL",
+          "outputs": {
+            "sufficient": false,
+            "facetResults": [
+              {
+                "key": "walk",
+                "dimension": "intent",
+                "satisfied": false,
+                "weakMatchCount": 0,
+                "strongMatchCount": 0
+              }
+            ],
+            "portfolioTarget": 4,
+            "allFacetsSatisfied": false,
+            "acquisitionDeficits": [
+              {
+                "key": "walk",
+                "origin": "preference_facet",
+                "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+                "dimension": "intent"
+              }
+            ],
+            "globalCapacityDeficit": null,
+            "totalDistinctEligibleExperiences": 0
+          },
+          "summary": "Facets sin cobertura fuerte: intent:walk.",
+          "decision": {
+            "reason": "Facets sin cobertura fuerte: intent:walk.",
+            "status": "FAIL",
+            "outcome": "needs_additional_discovery",
+            "reasonCodes": [
+              "preference_facet"
+            ],
+            "triggeredActions": [
+              "RUN_ACQUISITION"
+            ]
+          },
+          "component": "FacetRetrievalService",
+          "semanticRanking": {
+            "status": "applied",
+            "indexedCandidateCount": 0,
+            "offeredCandidateCount": 0,
+            "eligibleCandidateCount": 0
+          }
+        },
+        {
+          "label": "Recuperación inicial del catálogo",
+          "rules": [
+            {
+              "rule": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+              "actual": 0,
+              "reason": "El catálogo no aportó candidatos; la cobertura decidirá si adquirir nuevos.",
+              "result": "WARN",
+              "ruleId": "CATALOG-RETRIEVAL-001"
+            }
+          ],
+          "stage": "db_search",
+          "inputs": {
+            "radiusKm": 13.42013407658705
+          },
+          "status": "WARN",
+          "outputs": {
+            "candidateCount": 0
+          },
+          "summary": "No se recuperaron actividades del catálogo en el alcance inicial.",
+          "decision": {
+            "reason": "No hay candidatos persistidos para este alcance.",
+            "status": "WARN",
+            "outcome": "CATALOG_POOL_EMPTY",
+            "triggeredActions": [
+              "ANALYZE_COVERAGE"
+            ]
+          },
+          "component": "ExperienceCatalog.findVerifiedWithin",
+          "candidates": [],
+          "candidateDecisions": []
+        },
+        {
+          "label": "Enrutamiento de déficits de adquisición",
+          "stage": "coverage_analysis",
+          "inputs": {
+            "anchors": [
+              {
+                "kind": "route",
+                "usage": "specific_destination",
+                "status": "resolved",
+                "rawName": "Caminito",
+                "geometry": {
+                  "type": "MultiLineString",
+                  "coordinates": [
+                    [
+                      [
+                        -58.3632988,
+                        -34.6391307
+                      ],
+                      [
+                        -58.3632393,
+                        -34.6391711
+                      ],
+                      [
+                        -58.3630755,
+                        -34.6392431
+                      ],
+                      [
+                        -58.3629034,
+                        -34.639299
+                      ],
+                      [
+                        -58.3626552,
+                        -34.6393481
+                      ],
+                      [
+                        -58.3623762,
+                        -34.6393831
+                      ],
+                      [
+                        -58.3622584,
+                        -34.6393874
+                      ],
+                      [
+                        -58.3618064,
+                        -34.6393968
+                      ],
+                      [
+                        -58.3617988,
+                        -34.639397
+                      ]
+                    ]
+                  ]
+                },
+                "priority": "must",
+                "provider": "openstreetmap",
+                "externalId": "osm:way:144844726",
+                "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+                "canonicalName": "Caminito",
+                "candidateFacts": [
+                  {
+                    "branch": "area",
+                    "eligibility": "NO_CANDIDATE",
+                    "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                    "discoveryStatus": "no_match"
+                  },
+                  {
+                    "kind": "route",
+                    "branch": "route",
+                    "decision": "SELECTED",
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:144844726",
+                    "eligibility": "ELIGIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "WITHIN_DESTINATION_BOUNDARY",
+                      "verdict": "COMPATIBLE"
+                    },
+                    "discoveryStatus": "match"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:269972048",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:190947717",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:46859224",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:205650907",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:191914894",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  }
+                ]
+              }
+            ],
+            "acquisitionDeficits": [
+              {
+                "key": "walk",
+                "origin": "preference_facet",
+                "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+                "dimension": "intent"
+              }
+            ]
+          },
+          "status": "INFO",
+          "outputs": {
+            "generic": [],
+            "areaRouteWalk": [
+              {
+                "anchor": {
+                  "kind": "route",
+                  "usage": "specific_destination",
+                  "status": "resolved",
+                  "rawName": "Caminito",
+                  "geometry": {
+                    "type": "MultiLineString",
+                    "coordinates": [
+                      [
+                        [
+                          -58.3632988,
+                          -34.6391307
+                        ],
+                        [
+                          -58.3632393,
+                          -34.6391711
+                        ],
+                        [
+                          -58.3630755,
+                          -34.6392431
+                        ],
+                        [
+                          -58.3629034,
+                          -34.639299
+                        ],
+                        [
+                          -58.3626552,
+                          -34.6393481
+                        ],
+                        [
+                          -58.3623762,
+                          -34.6393831
+                        ],
+                        [
+                          -58.3622584,
+                          -34.6393874
+                        ],
+                        [
+                          -58.3618064,
+                          -34.6393968
+                        ],
+                        [
+                          -58.3617988,
+                          -34.639397
+                        ]
+                      ]
+                    ]
+                  },
+                  "priority": "must",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+                  "canonicalName": "Caminito",
+                  "candidateFacts": [
+                    {
+                      "branch": "area",
+                      "eligibility": "NO_CANDIDATE",
+                      "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                      "discoveryStatus": "no_match"
+                    },
+                    {
+                      "kind": "route",
+                      "branch": "route",
+                      "decision": "SELECTED",
+                      "provider": "openstreetmap",
+                      "externalId": "osm:way:144844726",
+                      "eligibility": "ELIGIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "WITHIN_DESTINATION_BOUNDARY",
+                        "verdict": "COMPATIBLE"
+                      },
+                      "discoveryStatus": "match"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:269972048",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:190947717",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:46859224",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:205650907",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:191914894",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    }
+                  ]
+                },
+                "deficit": {
+                  "key": "walk",
+                  "origin": "preference_facet",
+                  "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+                  "dimension": "intent"
+                },
+                "intentKey": "walk",
+                "anchorMode": "canonical"
+              }
+            ]
+          },
+          "summary": "AREA_ROUTE_WALK=1; GENERIC=0.",
+          "component": "partitionDeficitsByStrategy"
+        },
+        {
+          "label": "Adquisición o reutilización de walk/ruta",
+          "stage": "area_route_walk_acquisition",
+          "inputs": {
+            "anchor": {
+              "kind": "route",
+              "usage": "specific_destination",
+              "status": "resolved",
+              "rawName": "Caminito",
+              "geometry": {
+                "type": "MultiLineString",
+                "coordinates": [
+                  [
+                    [
+                      -58.3632988,
+                      -34.6391307
+                    ],
+                    [
+                      -58.3632393,
+                      -34.6391711
+                    ],
+                    [
+                      -58.3630755,
+                      -34.6392431
+                    ],
+                    [
+                      -58.3629034,
+                      -34.639299
+                    ],
+                    [
+                      -58.3626552,
+                      -34.6393481
+                    ],
+                    [
+                      -58.3623762,
+                      -34.6393831
+                    ],
+                    [
+                      -58.3622584,
+                      -34.6393874
+                    ],
+                    [
+                      -58.3618064,
+                      -34.6393968
+                    ],
+                    [
+                      -58.3617988,
+                      -34.639397
+                    ]
+                  ]
+                ]
+              },
+              "priority": "must",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:144844726",
+              "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+              "canonicalName": "Caminito",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "kind": "route",
+                  "branch": "route",
+                  "decision": "SELECTED",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "eligibility": "ELIGIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "WITHIN_DESTINATION_BOUNDARY",
+                    "verdict": "COMPATIBLE"
+                  },
+                  "discoveryStatus": "match"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:269972048",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:190947717",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:46859224",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:205650907",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:191914894",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                }
+              ]
+            },
+            "deficit": {
+              "key": "walk",
+              "origin": "preference_facet",
+              "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+              "dimension": "intent"
+            },
+            "intentKey": "walk"
+          },
+          "status": "WARN",
+          "outputs": {
+            "reason": "no_accepted_results",
+            "outcome": "no_result",
+            "diagnostics": {
+              "execution": {
+                "webResults": [
+                  {
+                    "status": "success",
+                    "evidenceCount": 10,
+                    "candidateCount": 0,
+                    "extractorModel": "@cf/qwen/qwen3.8-27b",
+                    "groundingStatus": "applied",
+                    "validationErrors": [],
+                    "extractorProvider": "cloudflare"
+                  }
+                ],
+                "candidateCount": 0,
+                "webCandidateCount": 0,
+                "structuredCandidateCount": 0
+              },
+              "anchorResolved": true,
+              "materialization": {
+                "acceptedCount": 0,
+                "rejectedCount": 0,
+                "resolvedCount": 0,
+                "rejectionReasons": {},
+                "semanticallyEligibleCount": 0
+              },
+              "sourcePlanProviders": [
+                "wikivoyage",
+                "web"
+              ]
+            }
+          },
+          "summary": "Resultado AREA_ROUTE_WALK: no_result.",
+          "component": "AreaRouteWalkAcquisitionService"
+        },
+        {
+          "label": "Adquisición multi-fuente (pase 1)",
+          "rules": [
+            {
+              "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+              "reason": "Fuentes enrutadas: wikivoyage, web.",
+              "result": "PASS",
+              "ruleId": "ACQ-ROUTING-001"
+            },
+            {
+              "rule": "Una fuente que falla no aborta la adquisición",
+              "reason": "Todas las fuentes atendidas respondieron.",
+              "result": "PASS",
+              "ruleId": "ACQ-ISOLATION-001"
+            },
+            {
+              "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+              "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+              "result": "PASS",
+              "ruleId": "ACQ-CANDIDATE-001"
+            }
+          ],
+          "stage": "discovery",
+          "inputs": {
+            "deficits": [
+              {
+                "key": "walk",
+                "origin": "preference_facet",
+                "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+                "dimension": "intent"
+              }
+            ],
+            "passNumber": 1,
+            "routedProviders": [
+              "wikivoyage",
+              "web"
+            ]
+          },
+          "status": "PASS",
+          "outputs": {
+            "webResults": [
+              {
+                "query": "Buenos Aires Caminito walking tours walks walking Caminito to see representative places",
+                "status": "success",
+                "evidenceCount": 10,
+                "groundedModel": "google-search",
+                "candidateCount": 0,
+                "extractorModel": "@cf/qwen/qwen3.8-27b",
+                "groundingStatus": "applied",
+                "groundedProvider": "serper",
+                "validationErrors": [],
+                "extractorProvider": "cloudflare",
+                "destinationCountryCode": "AR",
+                "groundedProviderLocale": {
+                  "gl": "ar"
+                }
+              }
+            ],
+            "candidateCount": 0,
+            "observationCount": 0,
+            "webCandidateCount": 0,
+            "structuredProviders": [
+              {
+                "status": "success",
+                "provider": "wikivoyage"
+              }
+            ],
+            "structuredCandidateCount": 0
+          },
+          "summary": "Pase 1: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+          "component": "ExperienceAcquisitionService",
+          "acquisition": {
+            "deficits": [
+              {
+                "key": "walk",
+                "origin": "preference_facet",
+                "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+                "dimension": "intent"
+              }
+            ],
+            "evidence": [
+              {
+                "url": "https://buenosairesfreewalks.com/la-boca-tour/",
+                "kind": "organic_result",
+                "order": 1,
+                "title": "La Boca Tour",
+                "source": "La Boca Tour",
+                "snippet": "We will walk the famous little street Caminito, full of the colorful collective houses of the working class immigrants in the Buenos Aires of the 1900s, who ...",
+                "evidenceKey": "ev-1"
+              },
+              {
+                "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/",
+                "kind": "organic_result",
+                "order": 2,
+                "title": "One Day in Buenos Aires: A Self-Guided Walking Tour",
+                "source": "One Day in Buenos Aires: A Self-Guided Walking Tour",
+                "snippet": "See all the major sights in just one day in Buenos Aires with this self-guided walking tour, created by a local.",
+                "evidenceKey": "ev-2"
+              },
+              {
+                "url": "https://bafreetour.com/what-to-do-in-caminito/",
+                "kind": "organic_result",
+                "order": 3,
+                "title": "What to do in Caminito - Free Walking Tours Buenos Aires",
+                "source": "What to do in Caminito - Free Walking Tours Buenos Aires",
+                "snippet": "1.1 Walk Through the Colorful Streets ; 1.2 Enjoy Live Tango Performances ; 1.3 Explore Street Art and Galleries ; 1.4 Visit the La Boca Fine Arts ...",
+                "evidenceKey": "ev-3"
+              },
+              {
+                "url": "https://turismo.buenosaires.gob.ar/en/atractivo/caminito-tourist-assistance-center",
+                "kind": "organic_result",
+                "order": 4,
+                "title": "Caminito Tourist Assistance Center",
+                "source": "Caminito Tourist Assistance Center",
+                "snippet": "Caminito Tourist Assistance Center. Open every day, 9am - 6pm. Located opposite the Plazoleta de los Suspiros in La Boca neighbourhood.",
+                "evidenceKey": "ev-4"
+              },
+              {
+                "url": "https://www.youtube.com/watch?v=HBuv95C64z8",
+                "kind": "organic_result",
+                "order": 5,
+                "title": "BUENOS AIRES Walking Tour | Caminito, La Boca, Argentina ...",
+                "source": "BUENOS AIRES Walking Tour | Caminito, La Boca, Argentina ...",
+                "snippet": "Immerse yourself in this stunning 4K, 60fps Buenos Aires walking tour, featuring the colorful streets of Caminito and the vibrant neighborhood ...",
+                "evidenceKey": "ev-5"
+              },
+              {
+                "url": "https://www.argentina.travel/en/news/what-to-do-in-caminito-in-la-boca",
+                "kind": "organic_result",
+                "order": 6,
+                "title": "Visit Argentina - What to Do in Caminito in La Boca",
+                "source": "Visit Argentina - What to Do in Caminito in La Boca",
+                "snippet": "Once there, you can walk the 150 meters of the passage to see an authentic open-air museum with the colorful tenement buildings that defined an ...",
+                "evidenceKey": "ev-6"
+              },
+              {
+                "url": "https://www.getyourguide.com/buenos-aires-l1/san-telmo-caminito-the-local-walking-tour-t747764/",
+                "kind": "organic_result",
+                "order": 7,
+                "title": "Beyond Caminito & San Telmo - Buenos Aires",
+                "source": "Beyond Caminito & San Telmo - Buenos Aires",
+                "snippet": "In this tour you'll walk throught San Telmo and Caminito in 3 hours. We'll walk inside the narrow streets and discover the historic houses and palaces. Dorrego ...",
+                "evidenceKey": "ev-7"
+              },
+              {
+                "url": "https://www.facebook.com/groups/759447375483950/posts/1247443426684340/",
+                "kind": "organic_result",
+                "order": 8,
+                "title": "What are recommended walking tours in Buenos Aires?",
+                "source": "What are recommended walking tours in Buenos Aires?",
+                "snippet": "You'll visit major areas including Plaza de Mayo, San Telmo, La Boca, Caminito, Recoleta, El Ateneo Grand Splendid, and Floralis Genérica. • A ...",
+                "evidenceKey": "ev-8"
+              },
+              {
+                "url": "https://www.tripadvisor.com/AttractionProductReview-g312741-d15305345-Private_Caminito_La_Boca_Walking_Tour-Buenos_Aires_Capital_Federal_District.html",
+                "kind": "organic_result",
+                "order": 9,
+                "title": "Private Caminito & La Boca Walking Tour (with Reviews)",
+                "source": "Private Caminito & La Boca Walking Tour (with Reviews)",
+                "snippet": "Very picturesque neighborhood, full of beautiful places and walks to tour with very good places to eat typical Argentine foods and lots and lots of tango!",
+                "evidenceKey": "ev-9"
+              },
+              {
+                "url": "https://www.smart-guide.org/destinations/en/buenos-aires/?tour=From+La+Boca+to+Barrio+Norte+District&place=Caminito",
+                "kind": "organic_result",
+                "order": 10,
+                "title": "Your audio guide of Buenos Aires: From La Boca to Barrio ...",
+                "source": "Your audio guide of Buenos Aires: From La Boca to Barrio ...",
+                "snippet": "Discover the beauty of Buenos-Aires. Turn your phone into a personal audio guide and embark on a self-guided tour. From tourist to explorer in just one ...",
+                "evidenceKey": "ev-10"
+              }
+            ],
+            "candidates": [],
+            "passNumber": 1,
+            "sourcePlans": [
+              {
+                "status": "success",
+                "provider": "wikivoyage",
+                "observations": [],
+                "configuration": {
+                  "sections": [
+                    "DO"
+                  ],
+                  "articleTargets": [
+                    "Buenos Aires",
+                    "Caminito"
+                  ]
+                },
+                "observationCount": 0,
+                "runtimeProviders": []
+              },
+              {
+                "web": {
+                  "query": "Buenos Aires Caminito walking tours walks walking Caminito to see representative places",
+                  "evidence": [
+                    {
+                      "url": "https://buenosairesfreewalks.com/la-boca-tour/",
+                      "kind": "organic_result",
+                      "order": 1,
+                      "title": "La Boca Tour",
+                      "source": "La Boca Tour",
+                      "snippet": "We will walk the famous little street Caminito, full of the colorful collective houses of the working class immigrants in the Buenos Aires of the 1900s, who ...",
+                      "evidenceKey": "ev-1"
+                    },
+                    {
+                      "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/",
+                      "kind": "organic_result",
+                      "order": 2,
+                      "title": "One Day in Buenos Aires: A Self-Guided Walking Tour",
+                      "source": "One Day in Buenos Aires: A Self-Guided Walking Tour",
+                      "snippet": "See all the major sights in just one day in Buenos Aires with this self-guided walking tour, created by a local.",
+                      "evidenceKey": "ev-2"
+                    },
+                    {
+                      "url": "https://bafreetour.com/what-to-do-in-caminito/",
+                      "kind": "organic_result",
+                      "order": 3,
+                      "title": "What to do in Caminito - Free Walking Tours Buenos Aires",
+                      "source": "What to do in Caminito - Free Walking Tours Buenos Aires",
+                      "snippet": "1.1 Walk Through the Colorful Streets ; 1.2 Enjoy Live Tango Performances ; 1.3 Explore Street Art and Galleries ; 1.4 Visit the La Boca Fine Arts ...",
+                      "evidenceKey": "ev-3"
+                    },
+                    {
+                      "url": "https://turismo.buenosaires.gob.ar/en/atractivo/caminito-tourist-assistance-center",
+                      "kind": "organic_result",
+                      "order": 4,
+                      "title": "Caminito Tourist Assistance Center",
+                      "source": "Caminito Tourist Assistance Center",
+                      "snippet": "Caminito Tourist Assistance Center. Open every day, 9am - 6pm. Located opposite the Plazoleta de los Suspiros in La Boca neighbourhood.",
+                      "evidenceKey": "ev-4"
+                    },
+                    {
+                      "url": "https://www.youtube.com/watch?v=HBuv95C64z8",
+                      "kind": "organic_result",
+                      "order": 5,
+                      "title": "BUENOS AIRES Walking Tour | Caminito, La Boca, Argentina ...",
+                      "source": "BUENOS AIRES Walking Tour | Caminito, La Boca, Argentina ...",
+                      "snippet": "Immerse yourself in this stunning 4K, 60fps Buenos Aires walking tour, featuring the colorful streets of Caminito and the vibrant neighborhood ...",
+                      "evidenceKey": "ev-5"
+                    },
+                    {
+                      "url": "https://www.argentina.travel/en/news/what-to-do-in-caminito-in-la-boca",
+                      "kind": "organic_result",
+                      "order": 6,
+                      "title": "Visit Argentina - What to Do in Caminito in La Boca",
+                      "source": "Visit Argentina - What to Do in Caminito in La Boca",
+                      "snippet": "Once there, you can walk the 150 meters of the passage to see an authentic open-air museum with the colorful tenement buildings that defined an ...",
+                      "evidenceKey": "ev-6"
+                    },
+                    {
+                      "url": "https://www.getyourguide.com/buenos-aires-l1/san-telmo-caminito-the-local-walking-tour-t747764/",
+                      "kind": "organic_result",
+                      "order": 7,
+                      "title": "Beyond Caminito & San Telmo - Buenos Aires",
+                      "source": "Beyond Caminito & San Telmo - Buenos Aires",
+                      "snippet": "In this tour you'll walk throught San Telmo and Caminito in 3 hours. We'll walk inside the narrow streets and discover the historic houses and palaces. Dorrego ...",
+                      "evidenceKey": "ev-7"
+                    },
+                    {
+                      "url": "https://www.facebook.com/groups/759447375483950/posts/1247443426684340/",
+                      "kind": "organic_result",
+                      "order": 8,
+                      "title": "What are recommended walking tours in Buenos Aires?",
+                      "source": "What are recommended walking tours in Buenos Aires?",
+                      "snippet": "You'll visit major areas including Plaza de Mayo, San Telmo, La Boca, Caminito, Recoleta, El Ateneo Grand Splendid, and Floralis Genérica. • A ...",
+                      "evidenceKey": "ev-8"
+                    },
+                    {
+                      "url": "https://www.tripadvisor.com/AttractionProductReview-g312741-d15305345-Private_Caminito_La_Boca_Walking_Tour-Buenos_Aires_Capital_Federal_District.html",
+                      "kind": "organic_result",
+                      "order": 9,
+                      "title": "Private Caminito & La Boca Walking Tour (with Reviews)",
+                      "source": "Private Caminito & La Boca Walking Tour (with Reviews)",
+                      "snippet": "Very picturesque neighborhood, full of beautiful places and walks to tour with very good places to eat typical Argentine foods and lots and lots of tango!",
+                      "evidenceKey": "ev-9"
+                    },
+                    {
+                      "url": "https://www.smart-guide.org/destinations/en/buenos-aires/?tour=From+La+Boca+to+Barrio+Norte+District&place=Caminito",
+                      "kind": "organic_result",
+                      "order": 10,
+                      "title": "Your audio guide of Buenos Aires: From La Boca to Barrio ...",
+                      "source": "Your audio guide of Buenos Aires: From La Boca to Barrio ...",
+                      "snippet": "Discover the beauty of Buenos-Aires. Turn your phone into a personal audio guide and embark on a self-guided tour. From tourist to explorer in just one ...",
+                      "evidenceKey": "ev-10"
+                    }
+                  ],
+                  "extractor": {
+                    "model": "@cf/qwen/qwen3.8-27b",
+                    "provider": "cloudflare",
+                    "validationErrors": [],
+                    "inputEvidenceKeys": [
+                      "ev-1",
+                      "ev-2",
+                      "ev-3",
+                      "ev-4",
+                      "ev-5",
+                      "ev-6",
+                      "ev-7",
+                      "ev-8",
+                      "ev-9",
+                      "ev-10"
+                    ],
+                    "candidateDecisions": [],
+                    "requestAnchorNames": [
+                      "Caminito"
+                    ],
+                    "sourceSupportAudits": [],
+                    "admittedCandidateCount": 0,
+                    "rejectedCandidateCount": 0,
+                    "extractedCandidateCount": 0
+                  },
+                  "anchorNames": [
+                    "Caminito"
+                  ],
+                  "groundedModel": "google-search",
+                  "semanticQuery": "walking Caminito to see representative places",
+                  "groundingStatus": "applied",
+                  "groundedProvider": "serper",
+                  "requestedIntents": [
+                    "walk"
+                  ],
+                  "destinationCountryCode": "AR",
+                  "groundedProviderLocale": {
+                    "gl": "ar"
+                  }
+                },
+                "status": "success",
+                "provider": "web",
+                "observations": [],
+                "configuration": {
+                  "query": "Buenos Aires Caminito walking tours walks walking Caminito to see representative places",
+                  "anchorNames": [
+                    "Caminito"
+                  ],
+                  "semanticQuery": "walking Caminito to see representative places",
+                  "requestedIntents": [
+                    "walk"
+                  ]
+                },
+                "observationCount": 0,
+                "runtimeProviders": []
+              }
+            ],
+            "acquisitionContext": {
+              "anchor": {
+                "kind": "route",
+                "usage": "specific_destination",
+                "status": "resolved",
+                "rawName": "Caminito",
+                "geometry": {
+                  "type": "MultiLineString",
+                  "coordinates": [
+                    [
+                      [
+                        -58.3632988,
+                        -34.6391307
+                      ],
+                      [
+                        -58.3632393,
+                        -34.6391711
+                      ],
+                      [
+                        -58.3630755,
+                        -34.6392431
+                      ],
+                      [
+                        -58.3629034,
+                        -34.639299
+                      ],
+                      [
+                        -58.3626552,
+                        -34.6393481
+                      ],
+                      [
+                        -58.3623762,
+                        -34.6393831
+                      ],
+                      [
+                        -58.3622584,
+                        -34.6393874
+                      ],
+                      [
+                        -58.3618064,
+                        -34.6393968
+                      ],
+                      [
+                        -58.3617988,
+                        -34.639397
+                      ]
+                    ]
+                  ]
+                },
+                "priority": "must",
+                "provider": "openstreetmap",
+                "externalId": "osm:way:144844726",
+                "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+                "canonicalName": "Caminito",
+                "candidateFacts": [
+                  {
+                    "branch": "area",
+                    "eligibility": "NO_CANDIDATE",
+                    "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                    "discoveryStatus": "no_match"
+                  },
+                  {
+                    "kind": "route",
+                    "branch": "route",
+                    "decision": "SELECTED",
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:144844726",
+                    "eligibility": "ELIGIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "WITHIN_DESTINATION_BOUNDARY",
+                      "verdict": "COMPATIBLE"
+                    },
+                    "discoveryStatus": "match"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:269972048",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:190947717",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:46859224",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:205650907",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:191914894",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  }
+                ]
+              },
+              "strategy": "area_route_walk",
+              "passNumber": 1
+            }
+          },
+          "providerStatus": "success",
+          "acquisitionContext": {
+            "anchor": {
+              "kind": "route",
+              "usage": "specific_destination",
+              "status": "resolved",
+              "rawName": "Caminito",
+              "geometry": {
+                "type": "MultiLineString",
+                "coordinates": [
+                  [
+                    [
+                      -58.3632988,
+                      -34.6391307
+                    ],
+                    [
+                      -58.3632393,
+                      -34.6391711
+                    ],
+                    [
+                      -58.3630755,
+                      -34.6392431
+                    ],
+                    [
+                      -58.3629034,
+                      -34.639299
+                    ],
+                    [
+                      -58.3626552,
+                      -34.6393481
+                    ],
+                    [
+                      -58.3623762,
+                      -34.6393831
+                    ],
+                    [
+                      -58.3622584,
+                      -34.6393874
+                    ],
+                    [
+                      -58.3618064,
+                      -34.6393968
+                    ],
+                    [
+                      -58.3617988,
+                      -34.639397
+                    ]
+                  ]
+                ]
+              },
+              "priority": "must",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:144844726",
+              "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+              "canonicalName": "Caminito",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "kind": "route",
+                  "branch": "route",
+                  "decision": "SELECTED",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "eligibility": "ELIGIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "WITHIN_DESTINATION_BOUNDARY",
+                    "verdict": "COMPATIBLE"
+                  },
+                  "discoveryStatus": "match"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:269972048",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:190947717",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:46859224",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:205650907",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:191914894",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                }
+              ]
+            },
+            "strategy": "area_route_walk",
+            "passNumber": 1
+          }
+        },
+        {
+          "label": "Resolución de entidades reales",
+          "rules": [
+            {
+              "rule": "Resolver hints contra identidades geográficas independientes del LLM",
+              "actual": 0,
+              "reason": "0 entidad(es) reales resueltas; 0 con coordenadas.",
+              "result": "WARN",
+              "ruleId": "RES-IDENTITY-001"
+            },
+            {
+              "rule": "No decidir coherencia geográfica ni persistencia durante entity resolution",
+              "reason": "La salida queda pendiente del GeographicValidationService.",
+              "result": "PASS",
+              "ruleId": "RES-SEPARATION-001"
+            },
+            {
+              "rule": "Toda propuesta no resoluble debe conservar razones explícitas",
+              "reason": "No hubo rechazos de resolución.",
+              "result": "PASS",
+              "ruleId": "RES-REJECTION-001"
+            }
+          ],
+          "stage": "entity_resolution",
+          "inputs": {
+            "totalCandidates": 0
+          },
+          "status": "INFO",
+          "outputs": {
+            "rejectedCount": 0,
+            "candidateCount": 0,
+            "resolvedEntityCount": 0,
+            "resolutionReadyCount": 0,
+            "entitiesWithCoordinates": 0
+          },
+          "summary": "Entity resolution procesó 0 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 0 no pudieron resolverse. Se obtuvieron 0 entidad(es) provider-backed, 0 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite.",
+          "decision": {
+            "reason": "Ninguna propuesta produjo suficientes entidades reales para continuar.",
+            "status": "WARN",
+            "outcome": "NO_PROPOSALS_RESOLVED",
+            "reasonCodes": [],
+            "triggeredActions": [
+              "CONTINUE_WITH_EXISTING_POOL"
+            ]
+          },
+          "component": "ExperienceProposalResolverService",
+          "degradedReason": "no_proposals_resolved",
+          "providerStatus": "failed",
+          "acquisitionContext": {
+            "anchor": {
+              "kind": "route",
+              "usage": "specific_destination",
+              "status": "resolved",
+              "rawName": "Caminito",
+              "geometry": {
+                "type": "MultiLineString",
+                "coordinates": [
+                  [
+                    [
+                      -58.3632988,
+                      -34.6391307
+                    ],
+                    [
+                      -58.3632393,
+                      -34.6391711
+                    ],
+                    [
+                      -58.3630755,
+                      -34.6392431
+                    ],
+                    [
+                      -58.3629034,
+                      -34.639299
+                    ],
+                    [
+                      -58.3626552,
+                      -34.6393481
+                    ],
+                    [
+                      -58.3623762,
+                      -34.6393831
+                    ],
+                    [
+                      -58.3622584,
+                      -34.6393874
+                    ],
+                    [
+                      -58.3618064,
+                      -34.6393968
+                    ],
+                    [
+                      -58.3617988,
+                      -34.639397
+                    ]
+                  ]
+                ]
+              },
+              "priority": "must",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:144844726",
+              "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+              "canonicalName": "Caminito",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "kind": "route",
+                  "branch": "route",
+                  "decision": "SELECTED",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "eligibility": "ELIGIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "WITHIN_DESTINATION_BOUNDARY",
+                    "verdict": "COMPATIBLE"
+                  },
+                  "discoveryStatus": "match"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:269972048",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:190947717",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:46859224",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:205650907",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:191914894",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                }
+              ]
+            },
+            "strategy": "area_route_walk",
+            "passNumber": 1
+          },
+          "candidateDecisions": [],
+          "entityResolutionAudit": []
+        },
+        {
+          "label": "Validación geográfica independiente",
+          "rules": [
+            {
+              "rule": "Grounded text por sí solo no prueba existencia geográfica",
+              "reason": "La aceptación requiere entidades resueltas independientemente del LLM.",
+              "result": "PASS",
+              "ruleId": "GEO-INDEPENDENT-001"
+            },
+            {
+              "rule": "Las composites pueden validarse por componentes reales sin exact-name global",
+              "reason": "ROUTE/EXPERIENCE/WALK pueden usar anchors/componentes según su estrategia.",
+              "result": "PASS",
+              "ruleId": "GEO-COMPONENTS-001"
+            },
+            {
+              "rule": "Conservar razones machine-readable para cada rechazo",
+              "reason": "No hubo rechazos geográficos.",
+              "result": "PASS",
+              "ruleId": "GEO-RESULT-001"
+            }
+          ],
+          "stage": "geographic_validation",
+          "inputs": {
+            "proposalCount": 0,
+            "validatorVersions": []
+          },
+          "status": "WARN",
+          "outputs": {
+            "results": [],
+            "rejectedCount": 0,
+            "geoVerifiedCount": 0,
+            "maxComputedRadiusMeters": null
+          },
+          "summary": "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+          "decision": {
+            "reason": "Ninguna propuesta alcanzó verificación geográfica.",
+            "status": "WARN",
+            "outcome": "NO_GEO_VERIFIED_PROPOSALS",
+            "reasonCodes": [],
+            "triggeredActions": [
+              "CONTINUE_WITH_EXISTING_POOL"
+            ]
+          },
+          "component": "CompositeGeographicValidationService",
+          "degradedReason": "no_geo_verified_proposals",
+          "providerStatus": "failed",
+          "acquisitionContext": {
+            "anchor": {
+              "kind": "route",
+              "usage": "specific_destination",
+              "status": "resolved",
+              "rawName": "Caminito",
+              "geometry": {
+                "type": "MultiLineString",
+                "coordinates": [
+                  [
+                    [
+                      -58.3632988,
+                      -34.6391307
+                    ],
+                    [
+                      -58.3632393,
+                      -34.6391711
+                    ],
+                    [
+                      -58.3630755,
+                      -34.6392431
+                    ],
+                    [
+                      -58.3629034,
+                      -34.639299
+                    ],
+                    [
+                      -58.3626552,
+                      -34.6393481
+                    ],
+                    [
+                      -58.3623762,
+                      -34.6393831
+                    ],
+                    [
+                      -58.3622584,
+                      -34.6393874
+                    ],
+                    [
+                      -58.3618064,
+                      -34.6393968
+                    ],
+                    [
+                      -58.3617988,
+                      -34.639397
+                    ]
+                  ]
+                ]
+              },
+              "priority": "must",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:144844726",
+              "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+              "canonicalName": "Caminito",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "kind": "route",
+                  "branch": "route",
+                  "decision": "SELECTED",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "eligibility": "ELIGIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "WITHIN_DESTINATION_BOUNDARY",
+                    "verdict": "COMPATIBLE"
+                  },
+                  "discoveryStatus": "match"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:269972048",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:190947717",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:46859224",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:205650907",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:191914894",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                }
+              ]
+            },
+            "strategy": "area_route_walk",
+            "passNumber": 1
+          },
+          "candidateDecisions": [],
+          "geographicValidationAudit": []
+        },
+        {
+          "label": "Materialización en catálogo",
+          "rules": [
+            {
+              "rule": "Persistir composites solo después de GEO_VERIFIED",
+              "reason": "ExperienceCatalogService consume el resultado del validador geográfico.",
+              "result": "PASS",
+              "ruleId": "MAT-GEO-GATE-001"
+            },
+            {
+              "rule": "Exponer solo IDs canónicos persistidos al re-query/ranking",
+              "actual": 0,
+              "reason": "0 Experience id(s) quedaron disponibles para re-query.",
+              "result": "WARN",
+              "ruleId": "MAT-CANONICAL-001"
+            }
+          ],
+          "stage": "catalog_materialization",
+          "inputs": {
+            "geoVerifiedCount": 0
+          },
+          "status": "WARN",
+          "outputs": {
+            "rejectedCount": 0,
+            "materializedCount": 0,
+            "persistedExperienceIds": []
+          },
+          "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+          "decision": {
+            "reason": "No hubo propuesta verificada que pudiera materializarse.",
+            "status": "WARN",
+            "outcome": "NO_EXPERIENCES_MATERIALIZED",
+            "reasonCodes": [],
+            "triggeredActions": [
+              "CONTINUE_WITH_EXISTING_POOL"
+            ]
+          },
+          "component": "ExperienceCatalogService",
+          "degradedReason": "no_experiences_materialized",
+          "providerStatus": "failed",
+          "acquisitionContext": {
+            "anchor": {
+              "kind": "route",
+              "usage": "specific_destination",
+              "status": "resolved",
+              "rawName": "Caminito",
+              "geometry": {
+                "type": "MultiLineString",
+                "coordinates": [
+                  [
+                    [
+                      -58.3632988,
+                      -34.6391307
+                    ],
+                    [
+                      -58.3632393,
+                      -34.6391711
+                    ],
+                    [
+                      -58.3630755,
+                      -34.6392431
+                    ],
+                    [
+                      -58.3629034,
+                      -34.639299
+                    ],
+                    [
+                      -58.3626552,
+                      -34.6393481
+                    ],
+                    [
+                      -58.3623762,
+                      -34.6393831
+                    ],
+                    [
+                      -58.3622584,
+                      -34.6393874
+                    ],
+                    [
+                      -58.3618064,
+                      -34.6393968
+                    ],
+                    [
+                      -58.3617988,
+                      -34.639397
+                    ]
+                  ]
+                ]
+              },
+              "priority": "must",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:144844726",
+              "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+              "canonicalName": "Caminito",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "kind": "route",
+                  "branch": "route",
+                  "decision": "SELECTED",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "eligibility": "ELIGIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "WITHIN_DESTINATION_BOUNDARY",
+                    "verdict": "COMPATIBLE"
+                  },
+                  "discoveryStatus": "match"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:269972048",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:190947717",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:46859224",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:205650907",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:191914894",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                }
+              ]
+            },
+            "strategy": "area_route_walk",
+            "passNumber": 1
+          },
+          "candidateDecisions": [],
+          "classificationAudit": [],
+          "materializationAudit": []
+        },
+        {
+          "label": "Cobertura de preferencias (facet-first)",
+          "rules": [
+            {
+              "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+              "actual": 0,
+              "reason": "0 Experience(s) elegible(s) frente a 4 requerida(s).",
+              "result": "FAIL",
+              "ruleId": "PCOV-QUANTITY-001",
+              "expected": 4
+            },
+            {
+              "rule": "Cobertura del facet solicitado: intent:walk",
+              "actual": 0,
+              "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+              "result": "FAIL",
+              "ruleId": "PCOV-FACET-INTENT-WALK",
+              "expected": ">= 1"
+            }
+          ],
+          "stage": "coverage_analysis",
+          "inputs": {
+            "providerHealth": {
+              "status": "healthy"
+            },
+            "requestedFacetCount": 1,
+            "offeredCandidateCount": 0
+          },
+          "status": "FAIL",
+          "outputs": {
+            "sufficient": false,
+            "facetResults": [
+              {
+                "key": "walk",
+                "dimension": "intent",
+                "satisfied": false,
+                "weakMatchCount": 0,
+                "strongMatchCount": 0
+              }
+            ],
+            "portfolioTarget": 4,
+            "allFacetsSatisfied": false,
+            "acquisitionDeficits": [
+              {
+                "key": "walk",
+                "origin": "preference_facet",
+                "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+                "dimension": "intent"
+              }
+            ],
+            "globalCapacityDeficit": null,
+            "totalDistinctEligibleExperiences": 0
+          },
+          "summary": "Facets sin cobertura fuerte: intent:walk.",
+          "decision": {
+            "reason": "Facets sin cobertura fuerte: intent:walk.",
+            "status": "FAIL",
+            "outcome": "needs_additional_discovery",
+            "reasonCodes": [
+              "preference_facet"
+            ],
+            "triggeredActions": [
+              "RUN_ACQUISITION"
+            ]
+          },
+          "component": "FacetRetrievalService",
+          "semanticRanking": {
+            "status": "applied",
+            "indexedCandidateCount": 0,
+            "offeredCandidateCount": 0,
+            "eligibleCandidateCount": 0
+          }
+        },
+        {
+          "label": "Enrutamiento de déficits de adquisición",
+          "stage": "coverage_analysis",
+          "inputs": {
+            "anchors": [
+              {
+                "kind": "route",
+                "usage": "specific_destination",
+                "status": "resolved",
+                "rawName": "Caminito",
+                "geometry": {
+                  "type": "MultiLineString",
+                  "coordinates": [
+                    [
+                      [
+                        -58.3632988,
+                        -34.6391307
+                      ],
+                      [
+                        -58.3632393,
+                        -34.6391711
+                      ],
+                      [
+                        -58.3630755,
+                        -34.6392431
+                      ],
+                      [
+                        -58.3629034,
+                        -34.639299
+                      ],
+                      [
+                        -58.3626552,
+                        -34.6393481
+                      ],
+                      [
+                        -58.3623762,
+                        -34.6393831
+                      ],
+                      [
+                        -58.3622584,
+                        -34.6393874
+                      ],
+                      [
+                        -58.3618064,
+                        -34.6393968
+                      ],
+                      [
+                        -58.3617988,
+                        -34.639397
+                      ]
+                    ]
+                  ]
+                },
+                "priority": "must",
+                "provider": "openstreetmap",
+                "externalId": "osm:way:144844726",
+                "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+                "canonicalName": "Caminito",
+                "candidateFacts": [
+                  {
+                    "branch": "area",
+                    "eligibility": "NO_CANDIDATE",
+                    "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                    "discoveryStatus": "no_match"
+                  },
+                  {
+                    "kind": "route",
+                    "branch": "route",
+                    "decision": "SELECTED",
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:144844726",
+                    "eligibility": "ELIGIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "WITHIN_DESTINATION_BOUNDARY",
+                      "verdict": "COMPATIBLE"
+                    },
+                    "discoveryStatus": "match"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:269972048",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:190947717",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:46859224",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:205650907",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:191914894",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  }
+                ]
+              }
+            ],
+            "acquisitionDeficits": [
+              {
+                "key": "walk",
+                "origin": "preference_facet",
+                "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+                "dimension": "intent"
+              }
+            ]
+          },
+          "status": "INFO",
+          "outputs": {
+            "generic": [],
+            "areaRouteWalk": [
+              {
+                "anchor": {
+                  "kind": "route",
+                  "usage": "specific_destination",
+                  "status": "resolved",
+                  "rawName": "Caminito",
+                  "geometry": {
+                    "type": "MultiLineString",
+                    "coordinates": [
+                      [
+                        [
+                          -58.3632988,
+                          -34.6391307
+                        ],
+                        [
+                          -58.3632393,
+                          -34.6391711
+                        ],
+                        [
+                          -58.3630755,
+                          -34.6392431
+                        ],
+                        [
+                          -58.3629034,
+                          -34.639299
+                        ],
+                        [
+                          -58.3626552,
+                          -34.6393481
+                        ],
+                        [
+                          -58.3623762,
+                          -34.6393831
+                        ],
+                        [
+                          -58.3622584,
+                          -34.6393874
+                        ],
+                        [
+                          -58.3618064,
+                          -34.6393968
+                        ],
+                        [
+                          -58.3617988,
+                          -34.639397
+                        ]
+                      ]
+                    ]
+                  },
+                  "priority": "must",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+                  "canonicalName": "Caminito",
+                  "candidateFacts": [
+                    {
+                      "branch": "area",
+                      "eligibility": "NO_CANDIDATE",
+                      "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                      "discoveryStatus": "no_match"
+                    },
+                    {
+                      "kind": "route",
+                      "branch": "route",
+                      "decision": "SELECTED",
+                      "provider": "openstreetmap",
+                      "externalId": "osm:way:144844726",
+                      "eligibility": "ELIGIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "WITHIN_DESTINATION_BOUNDARY",
+                        "verdict": "COMPATIBLE"
+                      },
+                      "discoveryStatus": "match"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:269972048",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:190947717",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:46859224",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:205650907",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    },
+                    {
+                      "kind": "venue",
+                      "branch": "place",
+                      "provider": "nominatim",
+                      "externalId": "osm:way:191914894",
+                      "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                      "canonicalName": "Caminito",
+                      "compatibility": {
+                        "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                        "verdict": "INCOMPATIBLE"
+                      },
+                      "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                      "discoveryStatus": "rejected"
+                    }
+                  ]
+                },
+                "deficit": {
+                  "key": "walk",
+                  "origin": "preference_facet",
+                  "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+                  "dimension": "intent"
+                },
+                "intentKey": "walk",
+                "anchorMode": "canonical"
+              }
+            ]
+          },
+          "summary": "AREA_ROUTE_WALK=1; GENERIC=0.",
+          "component": "partitionDeficitsByStrategy"
+        },
+        {
+          "label": "Adquisición o reutilización de walk/ruta",
+          "stage": "area_route_walk_acquisition",
+          "inputs": {
+            "anchor": {
+              "kind": "route",
+              "usage": "specific_destination",
+              "status": "resolved",
+              "rawName": "Caminito",
+              "geometry": {
+                "type": "MultiLineString",
+                "coordinates": [
+                  [
+                    [
+                      -58.3632988,
+                      -34.6391307
+                    ],
+                    [
+                      -58.3632393,
+                      -34.6391711
+                    ],
+                    [
+                      -58.3630755,
+                      -34.6392431
+                    ],
+                    [
+                      -58.3629034,
+                      -34.639299
+                    ],
+                    [
+                      -58.3626552,
+                      -34.6393481
+                    ],
+                    [
+                      -58.3623762,
+                      -34.6393831
+                    ],
+                    [
+                      -58.3622584,
+                      -34.6393874
+                    ],
+                    [
+                      -58.3618064,
+                      -34.6393968
+                    ],
+                    [
+                      -58.3617988,
+                      -34.639397
+                    ]
+                  ]
+                ]
+              },
+              "priority": "must",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:144844726",
+              "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+              "canonicalName": "Caminito",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "kind": "route",
+                  "branch": "route",
+                  "decision": "SELECTED",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "eligibility": "ELIGIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "WITHIN_DESTINATION_BOUNDARY",
+                    "verdict": "COMPATIBLE"
+                  },
+                  "discoveryStatus": "match"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:269972048",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:190947717",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:46859224",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:205650907",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:191914894",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                }
+              ]
+            },
+            "deficit": {
+              "key": "walk",
+              "origin": "preference_facet",
+              "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+              "dimension": "intent"
+            },
+            "intentKey": "walk"
+          },
+          "status": "WARN",
+          "outputs": {
+            "reason": "no_accepted_results",
+            "outcome": "no_result",
+            "diagnostics": {
+              "execution": {
+                "webResults": [],
+                "candidateCount": 0
+              },
+              "anchorResolved": true,
+              "materialization": {
+                "acceptedCount": 0,
+                "rejectedCount": 0,
+                "resolvedCount": 0,
+                "rejectionReasons": {},
+                "semanticallyEligibleCount": 0
+              },
+              "sourcePlanProviders": [
+                "wikivoyage",
+                "web"
+              ]
+            }
+          },
+          "summary": "Resultado AREA_ROUTE_WALK: no_result.",
+          "component": "AreaRouteWalkAcquisitionService"
+        },
+        {
+          "label": "Adquisición multi-fuente (pase 2)",
+          "rules": [
+            {
+              "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+              "reason": "Fuentes enrutadas: wikivoyage, web.",
+              "result": "PASS",
+              "ruleId": "ACQ-ROUTING-001"
+            },
+            {
+              "rule": "Una fuente que falla no aborta la adquisición",
+              "reason": "Todas las fuentes atendidas respondieron.",
+              "result": "PASS",
+              "ruleId": "ACQ-ISOLATION-001"
+            },
+            {
+              "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+              "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+              "result": "PASS",
+              "ruleId": "ACQ-CANDIDATE-001"
+            }
+          ],
+          "stage": "discovery",
+          "inputs": {
+            "deficits": [
+              {
+                "key": "walk",
+                "origin": "preference_facet",
+                "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+                "dimension": "intent"
+              }
+            ],
+            "passNumber": 2,
+            "routedProviders": [
+              "wikivoyage",
+              "web"
+            ]
+          },
+          "status": "INFO",
+          "outputs": {
+            "webResults": [],
+            "candidateCount": 0,
+            "executionSkipped": {
+              "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+              "fingerprint": "{\"destination\":{\"destinationCountryCode\":\"AR\",\"destinationName\":\"Buenos Aires\",\"latitude\":-34.6161845,\"longitude\":-58.4332979,\"radiusMeters\":13420.134076587048},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[{\"canonicalName\":\"Caminito\",\"externalId\":\"osm:way:144844726\",\"geoEntityId\":\"e7655141-6d24-466b-a1c5-414aac152c6f\",\"geometry\":{\"coordinates\":[[[-34.6391307,-58.3632988],[-34.6391711,-58.3632393],[-34.6392431,-58.3630755],[-34.639299,-58.3629034],[-34.6393481,-58.3626552],[-34.6393831,-58.3623762],[-34.6393874,-58.3622584],[-34.6393968,-58.3618064],[-34.639397,-58.3617988]]],\"type\":\"MultiLineString\"},\"kind\":\"route\",\"priority\":\"must\",\"provider\":\"openstreetmap\",\"rawName\":\"Caminito\",\"status\":\"resolved\",\"usage\":\"specific_destination\"}],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"articleTargets\":[\"Buenos Aires\",\"Caminito\"],\"sections\":[\"DO\"]}}}"
+            },
+            "observationCount": 0,
+            "webCandidateCount": 0,
+            "structuredProviders": [],
+            "structuredCandidateCount": 0,
+            "executionSkippedSourcePlans": [
+              {
+                "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+                "provider": "wikivoyage",
+                "fingerprint": "{\"destination\":{\"destinationCountryCode\":\"AR\",\"destinationName\":\"Buenos Aires\",\"latitude\":-34.6161845,\"longitude\":-58.4332979,\"radiusMeters\":13420.134076587048},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[{\"canonicalName\":\"Caminito\",\"externalId\":\"osm:way:144844726\",\"geoEntityId\":\"e7655141-6d24-466b-a1c5-414aac152c6f\",\"geometry\":{\"coordinates\":[[[-34.6391307,-58.3632988],[-34.6391711,-58.3632393],[-34.6392431,-58.3630755],[-34.639299,-58.3629034],[-34.6393481,-58.3626552],[-34.6393831,-58.3623762],[-34.6393874,-58.3622584],[-34.6393968,-58.3618064],[-34.639397,-58.3617988]]],\"type\":\"MultiLineString\"},\"kind\":\"route\",\"priority\":\"must\",\"provider\":\"openstreetmap\",\"rawName\":\"Caminito\",\"status\":\"resolved\",\"usage\":\"specific_destination\"}],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"articleTargets\":[\"Buenos Aires\",\"Caminito\"],\"sections\":[\"DO\"]}}}"
+              },
+              {
+                "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+                "provider": "web",
+                "fingerprint": "{\"destination\":{\"destinationCountryCode\":\"AR\",\"destinationName\":\"Buenos Aires\",\"latitude\":-34.6161845,\"longitude\":-58.4332979,\"radiusMeters\":13420.134076587048},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"web\",\"relevantAnchors\":[{\"canonicalName\":\"Caminito\",\"externalId\":\"osm:way:144844726\",\"geoEntityId\":\"e7655141-6d24-466b-a1c5-414aac152c6f\",\"geometry\":{\"coordinates\":[[[-34.6391307,-58.3632988],[-34.6391711,-58.3632393],[-34.6392431,-58.3630755],[-34.639299,-58.3629034],[-34.6393481,-58.3626552],[-34.6393831,-58.3623762],[-34.6393874,-58.3622584],[-34.6393968,-58.3618064],[-34.639397,-58.3617988]]],\"type\":\"MultiLineString\"},\"kind\":\"route\",\"priority\":\"must\",\"provider\":\"openstreetmap\",\"rawName\":\"Caminito\",\"status\":\"resolved\",\"usage\":\"specific_destination\"}],\"relevantDeficits\":[{\"dimension\":\"intent\",\"key\":\"walk\",\"origin\":\"preference_facet\",\"reason\":\"Preference facet [intent:walk] has no strong catalog match yet.\"}],\"sourcePlanPayload\":{\"provider\":\"web\",\"web\":{\"anchorNames\":[\"Caminito\"],\"query\":\"Buenos Aires Caminito walking tours walks walking Caminito to see representative places\",\"requestedIntents\":[\"walk\"],\"semanticQuery\":\"walking Caminito to see representative places\"}}}"
+              }
+            ]
+          },
+          "summary": "Pase 2: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+          "component": "ExperienceAcquisitionService",
+          "acquisition": {
+            "deficits": [
+              {
+                "key": "walk",
+                "origin": "preference_facet",
+                "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+                "dimension": "intent"
+              }
+            ],
+            "evidence": [],
+            "candidates": [],
+            "passNumber": 2,
+            "sourcePlans": [
+              {
+                "status": "unknown",
+                "provider": "wikivoyage",
+                "observations": [],
+                "configuration": {
+                  "sections": [
+                    "DO"
+                  ],
+                  "articleTargets": [
+                    "Buenos Aires",
+                    "Caminito"
+                  ]
+                },
+                "observationCount": 0,
+                "runtimeProviders": []
+              },
+              {
+                "web": {
+                  "query": "Buenos Aires Caminito walking tours walks walking Caminito to see representative places",
+                  "evidence": [],
+                  "anchorNames": [
+                    "Caminito"
+                  ],
+                  "semanticQuery": "walking Caminito to see representative places",
+                  "requestedIntents": [
+                    "walk"
+                  ]
+                },
+                "status": "unknown",
+                "provider": "web",
+                "observations": [],
+                "configuration": {
+                  "query": "Buenos Aires Caminito walking tours walks walking Caminito to see representative places",
+                  "anchorNames": [
+                    "Caminito"
+                  ],
+                  "semanticQuery": "walking Caminito to see representative places",
+                  "requestedIntents": [
+                    "walk"
+                  ]
+                },
+                "observationCount": 0,
+                "runtimeProviders": []
+              }
+            ],
+            "executionSkipped": {
+              "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+              "fingerprint": "{\"destination\":{\"destinationCountryCode\":\"AR\",\"destinationName\":\"Buenos Aires\",\"latitude\":-34.6161845,\"longitude\":-58.4332979,\"radiusMeters\":13420.134076587048},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[{\"canonicalName\":\"Caminito\",\"externalId\":\"osm:way:144844726\",\"geoEntityId\":\"e7655141-6d24-466b-a1c5-414aac152c6f\",\"geometry\":{\"coordinates\":[[[-34.6391307,-58.3632988],[-34.6391711,-58.3632393],[-34.6392431,-58.3630755],[-34.639299,-58.3629034],[-34.6393481,-58.3626552],[-34.6393831,-58.3623762],[-34.6393874,-58.3622584],[-34.6393968,-58.3618064],[-34.639397,-58.3617988]]],\"type\":\"MultiLineString\"},\"kind\":\"route\",\"priority\":\"must\",\"provider\":\"openstreetmap\",\"rawName\":\"Caminito\",\"status\":\"resolved\",\"usage\":\"specific_destination\"}],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"articleTargets\":[\"Buenos Aires\",\"Caminito\"],\"sections\":[\"DO\"]}}}"
+            },
+            "acquisitionContext": {
+              "anchor": {
+                "kind": "route",
+                "usage": "specific_destination",
+                "status": "resolved",
+                "rawName": "Caminito",
+                "geometry": {
+                  "type": "MultiLineString",
+                  "coordinates": [
+                    [
+                      [
+                        -58.3632988,
+                        -34.6391307
+                      ],
+                      [
+                        -58.3632393,
+                        -34.6391711
+                      ],
+                      [
+                        -58.3630755,
+                        -34.6392431
+                      ],
+                      [
+                        -58.3629034,
+                        -34.639299
+                      ],
+                      [
+                        -58.3626552,
+                        -34.6393481
+                      ],
+                      [
+                        -58.3623762,
+                        -34.6393831
+                      ],
+                      [
+                        -58.3622584,
+                        -34.6393874
+                      ],
+                      [
+                        -58.3618064,
+                        -34.6393968
+                      ],
+                      [
+                        -58.3617988,
+                        -34.639397
+                      ]
+                    ]
+                  ]
+                },
+                "priority": "must",
+                "provider": "openstreetmap",
+                "externalId": "osm:way:144844726",
+                "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+                "canonicalName": "Caminito",
+                "candidateFacts": [
+                  {
+                    "branch": "area",
+                    "eligibility": "NO_CANDIDATE",
+                    "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                    "discoveryStatus": "no_match"
+                  },
+                  {
+                    "kind": "route",
+                    "branch": "route",
+                    "decision": "SELECTED",
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:144844726",
+                    "eligibility": "ELIGIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "WITHIN_DESTINATION_BOUNDARY",
+                      "verdict": "COMPATIBLE"
+                    },
+                    "discoveryStatus": "match"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:269972048",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:190947717",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:46859224",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:205650907",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  },
+                  {
+                    "kind": "venue",
+                    "branch": "place",
+                    "provider": "nominatim",
+                    "externalId": "osm:way:191914894",
+                    "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                    "canonicalName": "Caminito",
+                    "compatibility": {
+                      "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                      "verdict": "INCOMPATIBLE"
+                    },
+                    "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                    "discoveryStatus": "rejected"
+                  }
+                ]
+              },
+              "strategy": "area_route_walk",
+              "passNumber": 2
+            },
+            "executionSkippedSourcePlans": [
+              {
+                "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+                "provider": "wikivoyage",
+                "fingerprint": "{\"destination\":{\"destinationCountryCode\":\"AR\",\"destinationName\":\"Buenos Aires\",\"latitude\":-34.6161845,\"longitude\":-58.4332979,\"radiusMeters\":13420.134076587048},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"wikivoyage\",\"relevantAnchors\":[{\"canonicalName\":\"Caminito\",\"externalId\":\"osm:way:144844726\",\"geoEntityId\":\"e7655141-6d24-466b-a1c5-414aac152c6f\",\"geometry\":{\"coordinates\":[[[-34.6391307,-58.3632988],[-34.6391711,-58.3632393],[-34.6392431,-58.3630755],[-34.639299,-58.3629034],[-34.6393481,-58.3626552],[-34.6393831,-58.3623762],[-34.6393874,-58.3622584],[-34.6393968,-58.3618064],[-34.639397,-58.3617988]]],\"type\":\"MultiLineString\"},\"kind\":\"route\",\"priority\":\"must\",\"provider\":\"openstreetmap\",\"rawName\":\"Caminito\",\"status\":\"resolved\",\"usage\":\"specific_destination\"}],\"relevantDeficits\":[],\"sourcePlanPayload\":{\"provider\":\"wikivoyage\",\"wikivoyage\":{\"articleTargets\":[\"Buenos Aires\",\"Caminito\"],\"sections\":[\"DO\"]}}}"
+              },
+              {
+                "reason": "DUPLICATE_SOURCE_PLAN_EXECUTION",
+                "provider": "web",
+                "fingerprint": "{\"destination\":{\"destinationCountryCode\":\"AR\",\"destinationName\":\"Buenos Aires\",\"latitude\":-34.6161845,\"longitude\":-58.4332979,\"radiusMeters\":13420.134076587048},\"evidenceRequirements\":[\"MULTI_COMPONENT_EXPERIENCE\"],\"provider\":\"web\",\"relevantAnchors\":[{\"canonicalName\":\"Caminito\",\"externalId\":\"osm:way:144844726\",\"geoEntityId\":\"e7655141-6d24-466b-a1c5-414aac152c6f\",\"geometry\":{\"coordinates\":[[[-34.6391307,-58.3632988],[-34.6391711,-58.3632393],[-34.6392431,-58.3630755],[-34.639299,-58.3629034],[-34.6393481,-58.3626552],[-34.6393831,-58.3623762],[-34.6393874,-58.3622584],[-34.6393968,-58.3618064],[-34.639397,-58.3617988]]],\"type\":\"MultiLineString\"},\"kind\":\"route\",\"priority\":\"must\",\"provider\":\"openstreetmap\",\"rawName\":\"Caminito\",\"status\":\"resolved\",\"usage\":\"specific_destination\"}],\"relevantDeficits\":[{\"dimension\":\"intent\",\"key\":\"walk\",\"origin\":\"preference_facet\",\"reason\":\"Preference facet [intent:walk] has no strong catalog match yet.\"}],\"sourcePlanPayload\":{\"provider\":\"web\",\"web\":{\"anchorNames\":[\"Caminito\"],\"query\":\"Buenos Aires Caminito walking tours walks walking Caminito to see representative places\",\"requestedIntents\":[\"walk\"],\"semanticQuery\":\"walking Caminito to see representative places\"}}}"
+              }
+            ]
+          },
+          "providerStatus": "success",
+          "acquisitionContext": {
+            "anchor": {
+              "kind": "route",
+              "usage": "specific_destination",
+              "status": "resolved",
+              "rawName": "Caminito",
+              "geometry": {
+                "type": "MultiLineString",
+                "coordinates": [
+                  [
+                    [
+                      -58.3632988,
+                      -34.6391307
+                    ],
+                    [
+                      -58.3632393,
+                      -34.6391711
+                    ],
+                    [
+                      -58.3630755,
+                      -34.6392431
+                    ],
+                    [
+                      -58.3629034,
+                      -34.639299
+                    ],
+                    [
+                      -58.3626552,
+                      -34.6393481
+                    ],
+                    [
+                      -58.3623762,
+                      -34.6393831
+                    ],
+                    [
+                      -58.3622584,
+                      -34.6393874
+                    ],
+                    [
+                      -58.3618064,
+                      -34.6393968
+                    ],
+                    [
+                      -58.3617988,
+                      -34.639397
+                    ]
+                  ]
+                ]
+              },
+              "priority": "must",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:144844726",
+              "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+              "canonicalName": "Caminito",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "kind": "route",
+                  "branch": "route",
+                  "decision": "SELECTED",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "eligibility": "ELIGIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "WITHIN_DESTINATION_BOUNDARY",
+                    "verdict": "COMPATIBLE"
+                  },
+                  "discoveryStatus": "match"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:269972048",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:190947717",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:46859224",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:205650907",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:191914894",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                }
+              ]
+            },
+            "strategy": "area_route_walk",
+            "passNumber": 2
+          }
+        },
+        {
+          "label": "Resolución de entidades reales",
+          "rules": [
+            {
+              "rule": "Resolver hints contra identidades geográficas independientes del LLM",
+              "actual": 0,
+              "reason": "0 entidad(es) reales resueltas; 0 con coordenadas.",
+              "result": "WARN",
+              "ruleId": "RES-IDENTITY-001"
+            },
+            {
+              "rule": "No decidir coherencia geográfica ni persistencia durante entity resolution",
+              "reason": "La salida queda pendiente del GeographicValidationService.",
+              "result": "PASS",
+              "ruleId": "RES-SEPARATION-001"
+            },
+            {
+              "rule": "Toda propuesta no resoluble debe conservar razones explícitas",
+              "reason": "No hubo rechazos de resolución.",
+              "result": "PASS",
+              "ruleId": "RES-REJECTION-001"
+            }
+          ],
+          "stage": "entity_resolution",
+          "inputs": {
+            "totalCandidates": 0
+          },
+          "status": "INFO",
+          "outputs": {
+            "rejectedCount": 0,
+            "candidateCount": 0,
+            "resolvedEntityCount": 0,
+            "resolutionReadyCount": 0,
+            "entitiesWithCoordinates": 0
+          },
+          "summary": "Entity resolution procesó 0 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 0 no pudieron resolverse. Se obtuvieron 0 entidad(es) provider-backed, 0 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite.",
+          "decision": {
+            "reason": "Ninguna propuesta produjo suficientes entidades reales para continuar.",
+            "status": "WARN",
+            "outcome": "NO_PROPOSALS_RESOLVED",
+            "reasonCodes": [],
+            "triggeredActions": [
+              "CONTINUE_WITH_EXISTING_POOL"
+            ]
+          },
+          "component": "ExperienceProposalResolverService",
+          "degradedReason": "no_proposals_resolved",
+          "providerStatus": "failed",
+          "acquisitionContext": {
+            "anchor": {
+              "kind": "route",
+              "usage": "specific_destination",
+              "status": "resolved",
+              "rawName": "Caminito",
+              "geometry": {
+                "type": "MultiLineString",
+                "coordinates": [
+                  [
+                    [
+                      -58.3632988,
+                      -34.6391307
+                    ],
+                    [
+                      -58.3632393,
+                      -34.6391711
+                    ],
+                    [
+                      -58.3630755,
+                      -34.6392431
+                    ],
+                    [
+                      -58.3629034,
+                      -34.639299
+                    ],
+                    [
+                      -58.3626552,
+                      -34.6393481
+                    ],
+                    [
+                      -58.3623762,
+                      -34.6393831
+                    ],
+                    [
+                      -58.3622584,
+                      -34.6393874
+                    ],
+                    [
+                      -58.3618064,
+                      -34.6393968
+                    ],
+                    [
+                      -58.3617988,
+                      -34.639397
+                    ]
+                  ]
+                ]
+              },
+              "priority": "must",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:144844726",
+              "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+              "canonicalName": "Caminito",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "kind": "route",
+                  "branch": "route",
+                  "decision": "SELECTED",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "eligibility": "ELIGIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "WITHIN_DESTINATION_BOUNDARY",
+                    "verdict": "COMPATIBLE"
+                  },
+                  "discoveryStatus": "match"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:269972048",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:190947717",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:46859224",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:205650907",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:191914894",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                }
+              ]
+            },
+            "strategy": "area_route_walk",
+            "passNumber": 2
+          },
+          "candidateDecisions": [],
+          "entityResolutionAudit": []
+        },
+        {
+          "label": "Validación geográfica independiente",
+          "rules": [
+            {
+              "rule": "Grounded text por sí solo no prueba existencia geográfica",
+              "reason": "La aceptación requiere entidades resueltas independientemente del LLM.",
+              "result": "PASS",
+              "ruleId": "GEO-INDEPENDENT-001"
+            },
+            {
+              "rule": "Las composites pueden validarse por componentes reales sin exact-name global",
+              "reason": "ROUTE/EXPERIENCE/WALK pueden usar anchors/componentes según su estrategia.",
+              "result": "PASS",
+              "ruleId": "GEO-COMPONENTS-001"
+            },
+            {
+              "rule": "Conservar razones machine-readable para cada rechazo",
+              "reason": "No hubo rechazos geográficos.",
+              "result": "PASS",
+              "ruleId": "GEO-RESULT-001"
+            }
+          ],
+          "stage": "geographic_validation",
+          "inputs": {
+            "proposalCount": 0,
+            "validatorVersions": []
+          },
+          "status": "WARN",
+          "outputs": {
+            "results": [],
+            "rejectedCount": 0,
+            "geoVerifiedCount": 0,
+            "maxComputedRadiusMeters": null
+          },
+          "summary": "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+          "decision": {
+            "reason": "Ninguna propuesta alcanzó verificación geográfica.",
+            "status": "WARN",
+            "outcome": "NO_GEO_VERIFIED_PROPOSALS",
+            "reasonCodes": [],
+            "triggeredActions": [
+              "CONTINUE_WITH_EXISTING_POOL"
+            ]
+          },
+          "component": "CompositeGeographicValidationService",
+          "degradedReason": "no_geo_verified_proposals",
+          "providerStatus": "failed",
+          "acquisitionContext": {
+            "anchor": {
+              "kind": "route",
+              "usage": "specific_destination",
+              "status": "resolved",
+              "rawName": "Caminito",
+              "geometry": {
+                "type": "MultiLineString",
+                "coordinates": [
+                  [
+                    [
+                      -58.3632988,
+                      -34.6391307
+                    ],
+                    [
+                      -58.3632393,
+                      -34.6391711
+                    ],
+                    [
+                      -58.3630755,
+                      -34.6392431
+                    ],
+                    [
+                      -58.3629034,
+                      -34.639299
+                    ],
+                    [
+                      -58.3626552,
+                      -34.6393481
+                    ],
+                    [
+                      -58.3623762,
+                      -34.6393831
+                    ],
+                    [
+                      -58.3622584,
+                      -34.6393874
+                    ],
+                    [
+                      -58.3618064,
+                      -34.6393968
+                    ],
+                    [
+                      -58.3617988,
+                      -34.639397
+                    ]
+                  ]
+                ]
+              },
+              "priority": "must",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:144844726",
+              "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+              "canonicalName": "Caminito",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "kind": "route",
+                  "branch": "route",
+                  "decision": "SELECTED",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "eligibility": "ELIGIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "WITHIN_DESTINATION_BOUNDARY",
+                    "verdict": "COMPATIBLE"
+                  },
+                  "discoveryStatus": "match"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:269972048",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:190947717",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:46859224",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:205650907",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:191914894",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                }
+              ]
+            },
+            "strategy": "area_route_walk",
+            "passNumber": 2
+          },
+          "candidateDecisions": [],
+          "geographicValidationAudit": []
+        },
+        {
+          "label": "Materialización en catálogo",
+          "rules": [
+            {
+              "rule": "Persistir composites solo después de GEO_VERIFIED",
+              "reason": "ExperienceCatalogService consume el resultado del validador geográfico.",
+              "result": "PASS",
+              "ruleId": "MAT-GEO-GATE-001"
+            },
+            {
+              "rule": "Exponer solo IDs canónicos persistidos al re-query/ranking",
+              "actual": 0,
+              "reason": "0 Experience id(s) quedaron disponibles para re-query.",
+              "result": "WARN",
+              "ruleId": "MAT-CANONICAL-001"
+            }
+          ],
+          "stage": "catalog_materialization",
+          "inputs": {
+            "geoVerifiedCount": 0
+          },
+          "status": "WARN",
+          "outputs": {
+            "rejectedCount": 0,
+            "materializedCount": 0,
+            "persistedExperienceIds": []
+          },
+          "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+          "decision": {
+            "reason": "No hubo propuesta verificada que pudiera materializarse.",
+            "status": "WARN",
+            "outcome": "NO_EXPERIENCES_MATERIALIZED",
+            "reasonCodes": [],
+            "triggeredActions": [
+              "CONTINUE_WITH_EXISTING_POOL"
+            ]
+          },
+          "component": "ExperienceCatalogService",
+          "degradedReason": "no_experiences_materialized",
+          "providerStatus": "failed",
+          "acquisitionContext": {
+            "anchor": {
+              "kind": "route",
+              "usage": "specific_destination",
+              "status": "resolved",
+              "rawName": "Caminito",
+              "geometry": {
+                "type": "MultiLineString",
+                "coordinates": [
+                  [
+                    [
+                      -58.3632988,
+                      -34.6391307
+                    ],
+                    [
+                      -58.3632393,
+                      -34.6391711
+                    ],
+                    [
+                      -58.3630755,
+                      -34.6392431
+                    ],
+                    [
+                      -58.3629034,
+                      -34.639299
+                    ],
+                    [
+                      -58.3626552,
+                      -34.6393481
+                    ],
+                    [
+                      -58.3623762,
+                      -34.6393831
+                    ],
+                    [
+                      -58.3622584,
+                      -34.6393874
+                    ],
+                    [
+                      -58.3618064,
+                      -34.6393968
+                    ],
+                    [
+                      -58.3617988,
+                      -34.639397
+                    ]
+                  ]
+                ]
+              },
+              "priority": "must",
+              "provider": "openstreetmap",
+              "externalId": "osm:way:144844726",
+              "geoEntityId": "e7655141-6d24-466b-a1c5-414aac152c6f",
+              "canonicalName": "Caminito",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "kind": "route",
+                  "branch": "route",
+                  "decision": "SELECTED",
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:144844726",
+                  "eligibility": "ELIGIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "WITHIN_DESTINATION_BOUNDARY",
+                    "verdict": "COMPATIBLE"
+                  },
+                  "discoveryStatus": "match"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:269972048",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:190947717",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:46859224",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:205650907",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                },
+                {
+                  "kind": "venue",
+                  "branch": "place",
+                  "provider": "nominatim",
+                  "externalId": "osm:way:191914894",
+                  "eligibility": "REJECTED_DESTINATION_INCOMPATIBLE",
+                  "canonicalName": "Caminito",
+                  "compatibility": {
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+                    "verdict": "INCOMPATIBLE"
+                  },
+                  "discoveryReason": "DESTINATION_INCOMPATIBLE",
+                  "discoveryStatus": "rejected"
+                }
+              ]
+            },
+            "strategy": "area_route_walk",
+            "passNumber": 2
+          },
+          "candidateDecisions": [],
+          "classificationAudit": [],
+          "materializationAudit": []
+        },
+        {
+          "label": "Cobertura de preferencias (facet-first)",
+          "rules": [
+            {
+              "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+              "actual": 0,
+              "reason": "0 Experience(s) elegible(s) frente a 4 requerida(s).",
+              "result": "FAIL",
+              "ruleId": "PCOV-QUANTITY-001",
+              "expected": 4
+            },
+            {
+              "rule": "Cobertura del facet solicitado: intent:walk",
+              "actual": 0,
+              "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+              "result": "FAIL",
+              "ruleId": "PCOV-FACET-INTENT-WALK",
+              "expected": ">= 1"
+            }
+          ],
+          "stage": "coverage_analysis",
+          "inputs": {
+            "providerHealth": {
+              "status": "healthy"
+            },
+            "requestedFacetCount": 1,
+            "offeredCandidateCount": 0
+          },
+          "status": "FAIL",
+          "outputs": {
+            "sufficient": false,
+            "facetResults": [
+              {
+                "key": "walk",
+                "dimension": "intent",
+                "satisfied": false,
+                "weakMatchCount": 0,
+                "strongMatchCount": 0
+              }
+            ],
+            "portfolioTarget": 4,
+            "allFacetsSatisfied": false,
+            "acquisitionDeficits": [
+              {
+                "key": "walk",
+                "origin": "preference_facet",
+                "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+                "dimension": "intent"
+              }
+            ],
+            "globalCapacityDeficit": null,
+            "totalDistinctEligibleExperiences": 0
+          },
+          "summary": "Facets sin cobertura fuerte: intent:walk.",
+          "decision": {
+            "reason": "Facets sin cobertura fuerte: intent:walk.",
+            "status": "FAIL",
+            "outcome": "needs_additional_discovery",
+            "reasonCodes": [
+              "preference_facet"
+            ],
+            "triggeredActions": [
+              "RUN_ACQUISITION"
+            ]
+          },
+          "component": "FacetRetrievalService",
+          "semanticRanking": {
+            "status": "applied",
+            "indexedCandidateCount": 0,
+            "offeredCandidateCount": 0,
+            "eligibleCandidateCount": 0
+          }
+        }
+      ],
+      "version": 4,
+      "canonicalRequest": {
+        "days": 1,
+        "intent": {
+          "intents": [
+            "walk"
+          ],
+          "interests": [],
+          "explorationStyle": "balanced",
+          "additionalPreferences": "Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido."
+        },
+        "mobility": {
+          "travelPace": "moderate",
+          "accessibilityNeeds": [],
+          "allowedTransportationModes": [
+            "walking"
+          ],
+          "maxWalkingDistancePerDayMeters": 50000,
+          "maxContinuousWalkingDistanceMeters": 20000
+        },
+        "groupType": "solo",
+        "categories": [],
+        "startDates": [],
+        "budgetLevel": "medium",
+        "destination": {
+          "label": "Buenos Aires, Argentina",
+          "latitude": -34.6037,
+          "longitude": -58.3816,
+          "scaleHint": "settlement"
+        },
+        "excludeTours": [],
+        "contractVersion": 1,
+        "dietaryRestrictions": [],
+        "skipImageGeneration": true,
+        "includeExistingExperiences": true
+      },
+      "executionSummary": {
+        "status": "failed",
+        "failure": "Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [intent:walk] has no strong catalog match yet.",
+        "acquisition": {
+          "passes": 2,
+          "providersFailed": [],
+          "observationCount": 0,
+          "webCandidateCount": 0,
+          "providersAttempted": [
+            "serper",
+            "wikivoyage"
+          ],
+          "structuredCandidateCount": 0
+        },
+        "orderedStages": [
+          {
+            "stage": "preference_interpretation",
+            "status": "PASS",
+            "ordinal": 1,
+            "summary": "Preferencias libres normalizadas y combinadas con filtros.",
+            "component": "PreferenceInterpreterService"
+          },
+          {
+            "stage": "tour_intent",
+            "counts": {
+              "requestedDays": 1
+            },
+            "status": "INFO",
+            "ordinal": 2,
+            "outcome": "INTENT_ACCEPTED",
+            "summary": "Temas: sin temas específicos. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido.\".",
+            "component": "TourGenerationRequest"
+          },
+          {
+            "stage": "destination_resolution",
+            "status": "PASS",
+            "ordinal": 3,
+            "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+            "summary": "\"Buenos Aires, Argentina\" resolvió a un límite real de ciudad: Buenos Aires. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:Buenos Aires, Argentina.",
+            "component": "DestinationResolutionService"
+          },
+          {
+            "stage": "anchor_geo_resolution",
+            "status": "PASS",
+            "ordinal": 4,
+            "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+            "component": "AreaRouteAnchorResolverService"
+          },
+          {
+            "stage": "coverage_analysis",
+            "counts": {
+              "portfolioTarget": 4,
+              "totalDistinctEligibleExperiences": 0
+            },
+            "status": "FAIL",
+            "ordinal": 5,
+            "outcome": "needs_additional_discovery",
+            "summary": "Facets sin cobertura fuerte: intent:walk.",
+            "component": "FacetRetrievalService"
+          },
+          {
+            "stage": "db_search",
+            "counts": {
+              "candidateCount": 0
+            },
+            "status": "WARN",
+            "ordinal": 6,
+            "outcome": "CATALOG_POOL_EMPTY",
+            "summary": "No se recuperaron actividades del catálogo en el alcance inicial.",
+            "component": "ExperienceCatalog.findVerifiedWithin"
+          },
+          {
+            "stage": "coverage_analysis",
+            "status": "INFO",
+            "ordinal": 7,
+            "summary": "AREA_ROUTE_WALK=1; GENERIC=0.",
+            "component": "partitionDeficitsByStrategy"
+          },
+          {
+            "stage": "area_route_walk_acquisition",
+            "status": "WARN",
+            "ordinal": 8,
+            "summary": "Resultado AREA_ROUTE_WALK: no_result.",
+            "component": "AreaRouteWalkAcquisitionService"
+          },
+          {
+            "stage": "discovery",
+            "counts": {
+              "candidateCount": 0,
+              "observationCount": 0,
+              "webCandidateCount": 0,
+              "structuredCandidateCount": 0
+            },
+            "status": "PASS",
+            "ordinal": 9,
+            "summary": "Pase 1: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+            "component": "ExperienceAcquisitionService"
+          },
+          {
+            "stage": "entity_resolution",
+            "counts": {
+              "rejectedCount": 0,
+              "candidateCount": 0,
+              "resolvedEntityCount": 0,
+              "resolutionReadyCount": 0,
+              "entitiesWithCoordinates": 0
+            },
+            "status": "INFO",
+            "ordinal": 10,
+            "outcome": "NO_PROPOSALS_RESOLVED",
+            "summary": "Entity resolution procesó 0 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 0 no pudieron resolverse. Se obtuvieron 0 entidad(es) provider-backed, 0 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite.",
+            "component": "ExperienceProposalResolverService"
+          },
+          {
+            "stage": "geographic_validation",
+            "counts": {
+              "rejectedCount": 0,
+              "geoVerifiedCount": 0
+            },
+            "status": "WARN",
+            "ordinal": 11,
+            "outcome": "NO_GEO_VERIFIED_PROPOSALS",
+            "summary": "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+            "component": "CompositeGeographicValidationService"
+          },
+          {
+            "stage": "catalog_materialization",
+            "counts": {
+              "rejectedCount": 0,
+              "materializedCount": 0
+            },
+            "status": "WARN",
+            "ordinal": 12,
+            "outcome": "NO_EXPERIENCES_MATERIALIZED",
+            "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+            "component": "ExperienceCatalogService"
+          },
+          {
+            "stage": "coverage_analysis",
+            "counts": {
+              "portfolioTarget": 4,
+              "totalDistinctEligibleExperiences": 0
+            },
+            "status": "FAIL",
+            "ordinal": 13,
+            "outcome": "needs_additional_discovery",
+            "summary": "Facets sin cobertura fuerte: intent:walk.",
+            "component": "FacetRetrievalService"
+          },
+          {
+            "stage": "coverage_analysis",
+            "status": "INFO",
+            "ordinal": 14,
+            "summary": "AREA_ROUTE_WALK=1; GENERIC=0.",
+            "component": "partitionDeficitsByStrategy"
+          },
+          {
+            "stage": "area_route_walk_acquisition",
+            "status": "WARN",
+            "ordinal": 15,
+            "summary": "Resultado AREA_ROUTE_WALK: no_result.",
+            "component": "AreaRouteWalkAcquisitionService"
+          },
+          {
+            "stage": "discovery",
+            "counts": {
+              "candidateCount": 0,
+              "observationCount": 0,
+              "webCandidateCount": 0,
+              "structuredCandidateCount": 0
+            },
+            "status": "INFO",
+            "ordinal": 16,
+            "summary": "Pase 2: fuentes [wikivoyage, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+            "component": "ExperienceAcquisitionService"
+          },
+          {
+            "stage": "entity_resolution",
+            "counts": {
+              "rejectedCount": 0,
+              "candidateCount": 0,
+              "resolvedEntityCount": 0,
+              "resolutionReadyCount": 0,
+              "entitiesWithCoordinates": 0
+            },
+            "status": "INFO",
+            "ordinal": 17,
+            "outcome": "NO_PROPOSALS_RESOLVED",
+            "summary": "Entity resolution procesó 0 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 0 no pudieron resolverse. Se obtuvieron 0 entidad(es) provider-backed, 0 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite.",
+            "component": "ExperienceProposalResolverService"
+          },
+          {
+            "stage": "geographic_validation",
+            "counts": {
+              "rejectedCount": 0,
+              "geoVerifiedCount": 0
+            },
+            "status": "WARN",
+            "ordinal": 18,
+            "outcome": "NO_GEO_VERIFIED_PROPOSALS",
+            "summary": "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+            "component": "CompositeGeographicValidationService"
+          },
+          {
+            "stage": "catalog_materialization",
+            "counts": {
+              "rejectedCount": 0,
+              "materializedCount": 0
+            },
+            "status": "WARN",
+            "ordinal": 19,
+            "outcome": "NO_EXPERIENCES_MATERIALIZED",
+            "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+            "component": "ExperienceCatalogService"
+          },
+          {
+            "stage": "coverage_analysis",
+            "counts": {
+              "portfolioTarget": 4,
+              "totalDistinctEligibleExperiences": 0
+            },
+            "status": "FAIL",
+            "ordinal": 20,
+            "outcome": "needs_additional_discovery",
+            "summary": "Facets sin cobertura fuerte: intent:walk.",
+            "component": "FacetRetrievalService"
+          }
+        ],
+        "selectedExperiences": 0
+      }
+    },
+    "generationStatus": "failed",
+    "generationMessage": "Error: Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [intent:walk] has no strong catalog match yet.",
+    "generationRequest": {
+      "days": 1,
+      "intent": {
+        "intents": [
+          "walk"
+        ],
+        "interests": [],
+        "explorationStyle": "balanced",
+        "additionalPreferences": "Me interesa recorrer Caminito caminando y conocer los lugares más representativos del recorrido."
+      },
+      "mobility": {
+        "travelPace": "moderate",
+        "accessibilityNeeds": [],
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 50000,
+        "maxContinuousWalkingDistanceMeters": 20000
+      },
+      "groupType": "solo",
+      "categories": [],
+      "startDates": [],
+      "budgetLevel": "medium",
+      "destination": {
+        "label": "Buenos Aires, Argentina",
+        "latitude": -34.6037,
+        "longitude": -58.3816,
+        "scaleHint": "settlement"
+      },
+      "excludeTours": [],
+      "contractVersion": 1,
+      "dietaryRestrictions": [],
+      "skipImageGeneration": true,
+      "includeExistingExperiences": true
+    },
+    "generationFailedAt": "2026-09-28T03:22:05.298Z",
+    "generationStartedAt": "2026-09-28T03:21:58.145Z"
+  },
+  "createdAt": "2026-09-28T03:21:56.931Z",
+  "updatedAt": "2026-09-28T03:22:05.316Z",
+  "experiences": [],
+  "dayTotals": []
+}

@@ -1,0 +1,77 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Galería Güemes",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar",
+    "hl": "es"
+  },
+  "capturedAt": "2026-09-25T12:56:51.237Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 1022
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Galería Güemes",
+      "gl": "ar",
+      "hl": "es",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.6062056,-58.3771069,18.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Galería Güemes",
+        "address": "Florida 165, San Martín 170, 1005 Buenos Aires, Argentina",
+        "latitude": -34.6060778,
+        "longitude": -58.3750133,
+        "rating": 4.5,
+        "ratingCount": 13319,
+        "type": "Centro comercial",
+        "types": [
+          "Centro comercial"
+        ],
+        "website": "http://www.galeriaguemes.com.ar/",
+        "phoneNumber": "+54 11 4331-5731",
+        "description": "Edificio art nouveau elegante con tiendas de especialidad y restaurantes en el primer piso.",
+        "openingHours": {
+          "viernes": "8 a.m.–8 p.m.",
+          "sábado": "9 a.m.–3 p.m.",
+          "domingo": "Cerrado",
+          "lunes": "8 a.m.–8 p.m.",
+          "martes": "8 a.m.–8 p.m.",
+          "miércoles": "8 a.m.–8 p.m.",
+          "jueves": "8 a.m.–8 p.m."
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNLc6AUo9hgkk0cs7bkZ3qQkYxiOZ9WOqdK66hyCT5BWCaMvfJc6blkImAE3IafMGvFZZL6LOxdh_q8TJ2hnM6KjWl2cnT5Vr6n1Itb3c_kM7-1WKkTHTWA4s5Gyk3HgjTt7X6OOnulaT3t",
+        "cid": "16796121189498305479",
+        "fid": "0x95bccad27ad63ce5:0xe917cf3b70753bc7",
+        "placeId": "ChIJ5TzWetLKvJURxzt1cDvPF-k"
+      },
+      {
+        "position": 2,
+        "title": "Galería Güemes . Arbol De Navidad",
+        "address": "San Nicolas, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6063335,
+        "longitude": -58.3740507,
+        "rating": 4.9,
+        "ratingCount": 10,
+        "type": "Mirador",
+        "types": [
+          "Mirador"
+        ],
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPk2yPm3p32cKAMSSxj_sqOFHvEzGIKcafafi3u480m_PU8h94ude3TrThyMettI5oi4mqTTRGYfetNAhKzg7DBkPWy3EXLqDDkDsd40UfVjkI0BMpzMgvsECBOdjIZlMzvcCYP",
+        "cid": "1865344032706130523",
+        "fid": "0x95bccad28c57538d:0x19e30883c557f25b",
+        "placeId": "ChIJjVNXjNLKvJURW_JXxYMI4xk"
+      }
+    ],
+    "credits": 3
+  }
+}

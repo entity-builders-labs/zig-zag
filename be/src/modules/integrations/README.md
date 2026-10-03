@@ -1,50 +1,78 @@
 # Integrations Module
 
-External service integrations. Currently contains the **Google Places** integration for crawling and enriching activity data.
+External service integrations, split into five submodules: `google-places` (Places search, provider-neutral), `osm` (Nominatim destination resolution + Overpass streets/boundaries), `wikidata` (content-safety check only — see below), `photos` (a photo-provider abstraction, currently unused by the live media path — see below), and `serper` (low-level Serper Google Search/Maps/Places client — see below).
 
 ## Architecture
 
 ```
 integrations/
 ├── google-places/
-│   ├── google-places.service.ts         # Main crawling orchestrator
-│   ├── dto/
-│   │   └── crawl-location.dto.ts        # Crawl request params
-│   ├── interfaces/
-│   │   ├── google-places.interface.ts   # Place type definitions
-│   │   └── places-api.interface.ts      # IPlacesApiService interface
-│   └── services/
-│       ├── google-places-api.service.ts # Direct Google API calls
-│       └── cached-places-api.service.ts # Cached wrapper (implements IPlacesApiService)
+│   ├── dto/crawl-location.dto.ts
+│   ├── interfaces/places-api.interface.ts   # IPlacesApiService
+│   ├── services/
+│   │   ├── google-places-api.service.ts     # Direct Google Places API calls
+│   │   ├── geoapify-places-api.service.ts   # Direct Geoapify API calls (alternative provider)
+│   │   └── cached-places-api.service.ts     # Cache wrapper (implements IPlacesApiService)
+│   └── utils/catalog-acquisition-plan.util.ts, catalog-place-taxonomy.ts, price-level.util.ts
+├── osm/
+│   ├── services/
+│   │   ├── nominatim-api.service.ts, cached-nominatim-api.service.ts  # Destination boundary resolution
+│   │   ├── overpass-api.service.ts, cached-overpass-api.service.ts   # Streets/boundaries/POIs
+│   │   ├── osm-places.service.ts            # Resolves ExperienceCandidate componentHints → OSM features
+│   │   └── osm-membership.service.ts        # Bounded exact containment (is point X inside area Y)
+│   └── utils/geojson-containment.util.ts, osm-geometry.util.ts
+├── wikidata/
+│   ├── services/wikidata-api.service.ts, cached-wikidata-api.service.ts
+│   └── utils/wikidata-content-safety.util.ts
+├── photos/                                  # See "Photo providers" below — not wired to the live path
+│   └── providers/hybrid-, wikimedia-, google-places-, serpapi-, mock-photo.provider.ts
+├── serper/
+│   ├── interfaces/serper.interface.ts       # Raw Serper request/response contract + SerperApiError
+│   └── services/serper-api.service.ts       # POST /search, /maps, /places (X-API-KEY, timeout, error mapping)
 └── integrations.module.ts
 ```
 
-## Google Places Crawling Pipeline
+## Places acquisition
 
-The crawling flow is triggered in background by `HybridSearchService` when a new area is searched:
+The Experience acquisition path (`ExperienceCatalogService.acquireNearbyAsExperiences`, `experience-generation.service.ts`) is the only real caller of `'PlacesApiService'` today. There is no crawler/background-population job — Places acquisition happens inline during a live Tour generation request, gated by `CoverageAnalyzer`.
 
-1. **`GooglePlacesService.crawlAndSaveActivities(dto)`**
-2. Searches Google Places API for various activity categories (restaurants, parks, museums, etc.)
-3. For each place found:
-   - Filters by minimum rating
-   - Matches to known activity types (static mapping)
-   - Falls back to **AI classification** if no static match (`classifyActivityCategoryWithAI()`)
-   - Fetches detailed place info (photos, reviews, opening hours)
-4. Saves activities to PostgreSQL via `ActivitiesService.createMany()`
-5. Generates embeddings and stores in ChromaDB via `VectorStoreService`
-6. Records a `CrawlerSearch` entry to prevent re-crawling the same area within 24h
+`IPlacesApiService` is provider-neutral: `GooglePlacesApiService` (default) or `GeoapifyPlacesApiService` (explicit alternative), selected by `PLACES_PROVIDER` and wrapped by `CachedPlacesApiService`.
 
 ## Caching Layer
 
-`CachedPlacesApiService` implements `IPlacesApiService` and wraps `GooglePlacesApiService`:
+`CachedPlacesApiService` (and the equivalent `CachedNominatimApiService`/`CachedOverpassApiService`/`CachedWikidataApiService`) implement their real provider's interface and wrap it:
 
-- Caches API responses to reduce Google Places API costs
-- Injected via NestJS provider token `'PlacesApiService'`
+- Cache keys include provider, schema version, method, and normalized params.
+- `read`: cache first, live provider on miss, without writing.
+- `write`: cache first, live provider on miss, then write.
+- `strict`: cache only; a miss fails without an external call.
+- Injected via a `'...ApiService'` NestJS provider token per integration.
 
-## Known Activity Types
+## Destination resolution and OSM (`osm/`)
 
-On module init, `GooglePlacesService.ensureKnownActivityTypes()` seeds the DB with a fixed set of activity categories (e.g., "restaurant", "museum", "park", "nightlife") used for classification.
+`NominatimApiService` resolves a destination label to a real administrative boundary or a synthetic point-radius scope. `OverpassApiService` fetches streets/boundaries/POIs used to resolve a multi-component Experience's `componentHints` (`OsmPlacesService`) and to check exact containment (`OsmMembershipService`, e.g. "is this discovered venue really inside San Telmo").
+
+## Wikidata (`wikidata/`) — content-safety only, not narrative enrichment
+
+Despite the module name, Wikidata is **not** used to enrich an Experience's description today — `wikidata-content-safety.util.ts`'s prompt is the only live consumer, used as a safety check during composite-Experience resolution. (An earlier Activity-era feature enriched a composite variant's description from a Wikidata QID; that specific enrichment path was removed with the domain cutover.)
+
+## Photo providers (`photos/`) — built but currently unused
+
+A complete, config-driven photo-provider abstraction exists here (`'PhotoEnrichmentProvider'` token, switchable via `PHOTO_PROVIDER` between `hybrid`/`wikimedia`/`serpapi`/`google_places`/`mock`, including a real `GooglePlacesPhotoProvider`) — but **nothing in `be/src/modules/media` or `be/src/modules/tours` calls it**. The live media-enrichment path (`MediaEnrichmentProcessorService`, see `CLAUDE.md`) independently reimplements a narrower Wikimedia-only fetch via a *different* class (`media/services/wikimedia-commons.service.ts`), duplicating what this module already does more capably. Wiring `MediaEnrichmentProcessorService` to this module's `PhotoEnrichmentProvider` (instead of its own bespoke Wikimedia client) is the fastest path to adding real Google Places photos — the provider already exists, it's just not called.
+
+## Serper (`serper/`) — transport client only
+
+`SerperApiService` is the single Serper HTTP client (`search`, `searchMaps`, `searchPlaces`): auth via the `X-API-KEY` header (never the URL), timeout, JSON parsing and typed `SerperApiError` codes (`missing_api_key`, `http_error`, `timeout`, `network_error`, `invalid_response`). It returns Serper's raw shape; evidence normalization, identity and tour semantics belong to callers.
+
+- `/search` backs `SerperGroundedSearchService` (`GROUNDED_SEARCH_PROVIDER=serper`, Google organic results). It is **not** a substitute for SerpApi's `engine=google_ai_mode`.
+- `/maps` and `/places` have **no production PLACE consumer**. Their characterization (recall, identity fields, geo/locale behavior, cost) is in `spikes/stage3-serper-provider-characterization-2026-09-25/`. `/maps` returns Google `placeId` + `cid`; `/places` returns only `cid`. A Google Place ID obtained through Serper belongs to Google's identity namespace — the acquisition route (Serper) is provenance, not a separate identity namespace.
 
 ## Environment Variables
 
-- `GOOGLE_MAPS_API_KEY` — Google Places API key (required)
+- `PLACES_PROVIDER` — `google` (default) or `geoapify`; invalid values fail startup.
+- `GOOGLE_MAPS_API_KEY` — required when `PLACES_PROVIDER=google`.
+- `GEOAPIFY_API_KEY` — required when `PLACES_PROVIDER=geoapify`.
+- `USE_MOCK_MAPS` / `MOCK_MAPS_MODE` (`read`/`write`/`strict`) — shared cache-mode toggle reused by Places/OSM/Wikidata so tests/CI never hit them unintentionally.
+- `OVERPASS_API_URL` / `OVERPASS_TIMEOUT_MS` / `OVERPASS_MAX_RADIUS_METERS` / `OVERPASS_MAX_CONCURRENCY`, `WIKIDATA_API_URL`.
+- `SERPER_API_KEY` / `SERPER_API_URL` / `SERPER_TIMEOUT_MS` — Serper client (see above).
+- `PHOTO_PROVIDER` — selects the (currently unused) `photos/` provider; irrelevant until `MediaEnrichmentProcessorService` is wired to it.

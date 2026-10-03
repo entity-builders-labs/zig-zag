@@ -1,0 +1,15 @@
+{
+  "runLabel": "rw3-retrieval-warm",
+  "tourId": "b3462360-9859-45bc-9af8-542bd1b788c0",
+  "email": "rw3-spike-rw3-retrieval-warm-1790612139937@example.com",
+  "baseUrl": "http://localhost:3134",
+  "requestFile": "request.json",
+  "createHttpMs": 37,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 153889,
+  "startedAt": "2026-09-28T16:15:40.080Z",
+  "finishedAt": "2026-09-28T16:18:13.982Z"
+}

@@ -1,0 +1,46 @@
+{
+  "runType": "COLD",
+  "runNumber": 1,
+  "parentCold": null,
+  "timestamp": "2026-09-22T23:17:59.644Z",
+  "branch": "feat/preference-first-selection",
+  "commitSha": "774cf60c7473befe1f5ae43b52f08fbe90d9d5dd",
+  "runtimeDirtyForDiagnosticInstrumentation": true,
+  "tourId": "2c5ab857-aef6-45f8-9752-200e1eebb15d",
+  "generationStatus": "completed",
+  "generationStartedAt": null,
+  "generationCompletedAt": "2026-09-22T22:58:10.371Z",
+  "observationTimeoutOccurred": false,
+  "databaseClass": "dedicated PostgreSQL/PostGIS forensic database",
+  "databaseName": "zigzag_rw1_forensic_cold1",
+  "providerConfiguration": {
+    "GROUNDED_SEARCH_PROVIDER": "serpapi",
+    "observedGroundedProvider": "serpapi",
+    "observedGroundedModel": "google-ai-mode",
+    "DISCOVERY_EXTRACTOR_PROVIDER": "groq",
+    "observedExtractorProvider": "groq",
+    "observedExtractorModel": "qwen/qwen3.8-27b",
+    "preferenceInterpreterProvider": "groq",
+    "preferenceInterpreterModel": "qwen/qwen3.8-27b",
+    "classifierProvider": null,
+    "classifierModel": null,
+    "PLACES_PROVIDER": "google",
+    "AI_CACHE_MODE": "off",
+    "OVERPASS": {
+      "localOrExternal": "local",
+      "endpoint": "http://localhost:12345/api/interpreter",
+      "snapshotTimestamp": null
+    },
+    "NOMINATIM": {
+      "localOrExternal": "local",
+      "endpoint": "http://localhost:8088/search",
+      "data_updated": null
+    },
+    "USE_MOCK_MAPS": false,
+    "otherMockFlags": {
+      "MOCK_MAPS_MODE": "strict",
+      "diagnosticInstrumentation": "local-only"
+    }
+  },
+  "secretsRedacted": true
+}

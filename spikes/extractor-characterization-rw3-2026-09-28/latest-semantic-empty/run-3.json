@@ -1,0 +1,20 @@
+{
+  "run": 3,
+  "caseName": "latest-semantic-empty",
+  "outcome": "SEMANTIC_EMPTY (0 candidates)",
+  "httpStatus": 200,
+  "latencyMs": 1006,
+  "elapsedMs": 1009,
+  "finishReason": "stop",
+  "completionTokens": 10,
+  "rawContent": "{\n  \"candidates\": []\n}",
+  "extractResult": {
+    "candidates": [],
+    "validationErrors": [],
+    "sourceSupportAudits": [],
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "rawOutput": "{\n  \"candidates\": []\n}"
+  },
+  "error": null
+}

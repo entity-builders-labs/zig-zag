@@ -5,37 +5,34 @@ import { TourStopTransport } from './types';
 
 export const SmartConnector = ({ data }: { data: TourStopTransport }) => {
   return (
-    <HStack flex={1}>
+    <HStack>
       {/* Timeline Line */}
-      <Box width={40} alignItems='center'>
+      <Box width={36} alignItems='center'>
         <Box
           flex={1}
           width={2}
           bg='$borderLight300'
-          borderStyle='dashed'
-          borderWidth={1}
-          borderColor='#E5E5E5'
         />
       </Box>
 
       {/* Content */}
-      <Box flex={1} py='$4'>
+      <Box flex={1} py='$2' pl='$2' pr='$2'>
         <Box
-          bg='$backgroundLight50'
-          py='$2'
+          bg='$backgroundLight100'
+          py='$1.5'
           px='$3'
           borderRadius='$full'
           alignSelf='flex-start'
           borderWidth={1}
           borderColor='$borderLight200'
         >
-          <HStack space='sm' alignItems='center'>
+          <HStack space='xs' alignItems='center'>
             <Icon
               as={data.mode === 'bus' ? Bus : Footprints}
-              size='xs'
-              color='$primary500'
+              size='2xs'
+              color='$primary600'
             />
-            <Text size='xs' fontWeight='$medium' color='$textLight700'>
+            <Text size='2xs' fontWeight='$semibold' color='$textLight700'>
               {data.label} • {data.duration}
             </Text>
           </HStack>

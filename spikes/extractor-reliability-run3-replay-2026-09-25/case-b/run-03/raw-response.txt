@@ -1,0 +1,58 @@
+{
+  "candidates": [
+    {
+      "name": "San Telmo Historical Walk",
+      "description": "A 2-hour walking tour through the historic heart of San Telmo, exploring colonial architecture, the antique galleries, and iconic squares and parks.",
+      "themes": [
+        "history",
+        "architecture"
+      ],
+      "traits": [
+        "colonial architecture",
+        "bohemian spirit"
+      ],
+      "intents": [
+        "walk"
+      ],
+      "suggestedDurationMinutes": 120,
+      "componentHints": [
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "walk along the Lezama Park, the antique galleries, Plaza Dorrego"
+        },
+        {
+          "key": "leczama-park",
+          "name": "Lezama Park",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "walk along the Lezama Park"
+        },
+        {
+          "key": "mercadito-de-san-telmo",
+          "name": "El Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "Plaza Dorrego, El Mercado de San Telmo"
+        }
+      ],
+      "evidenceKeys": [
+        "ev-4",
+        "ev-5"
+      ],
+      "shortReason": "Grounded evidence explicitly describes a walking tour itinerary that visits Plaza Dorrego, Lezama Park, and El Mercado de San Telmo.",
+      "orderedByEvidence": false
+    }
+  ]
+}

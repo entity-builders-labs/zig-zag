@@ -1,0 +1,15 @@
+{
+  "runLabel": "composite-cold",
+  "tourId": "14054cff-eb8f-4d36-ba52-c1af1022781c",
+  "email": "stage3-spike-composite-cold-1790189303511@example.com",
+  "baseUrl": "http://localhost:3001",
+  "requestFile": "request.json",
+  "createHttpMs": 118,
+  "generationStatus": "failed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 16509,
+  "startedAt": "2026-09-23T18:48:23.700Z",
+  "finishedAt": "2026-09-23T18:48:40.215Z"
+}

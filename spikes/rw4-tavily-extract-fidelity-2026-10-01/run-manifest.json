@@ -1,0 +1,77 @@
+{
+  "spike": "rw4-tavily-extract-fidelity-2026-10-01",
+  "executedAt": "2026-10-01T15:18:33.160Z",
+  "targetUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+  "origin": {
+    "status": 200,
+    "durationMs": 402,
+    "chars": 476591,
+    "sha256": "f1af4e4265a3ab60988c9aa9b66574f31a6a05133e969c605facdf142dba14ff"
+  },
+  "arms": [
+    {
+      "armId": "basic-markdown",
+      "depth": "basic",
+      "format": "markdown",
+      "requestUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/?tavily_spike_basic-markdown_1790867884546=1",
+      "httpStatus": 200,
+      "durationMs": 2934,
+      "error": null,
+      "tavilyResponseTime": 1.8,
+      "usage": {
+        "credits": 0
+      },
+      "contentChars": 52974,
+      "resultsCount": 1,
+      "failedResultsCount": 0
+    },
+    {
+      "armId": "advanced-markdown",
+      "depth": "advanced",
+      "format": "markdown",
+      "requestUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/?tavily_spike_advanced-markdown_1790867884546=1",
+      "httpStatus": 200,
+      "durationMs": 6413,
+      "error": null,
+      "tavilyResponseTime": 5.58,
+      "usage": {
+        "credits": 1
+      },
+      "contentChars": 85287,
+      "resultsCount": 1,
+      "failedResultsCount": 0
+    },
+    {
+      "armId": "basic-text",
+      "depth": "basic",
+      "format": "text",
+      "requestUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/?tavily_spike_basic-text_1790867884546=1",
+      "httpStatus": 200,
+      "durationMs": 2591,
+      "error": null,
+      "tavilyResponseTime": 1.9,
+      "usage": {
+        "credits": 0
+      },
+      "contentChars": 34123,
+      "resultsCount": 1,
+      "failedResultsCount": 0
+    },
+    {
+      "armId": "advanced-text",
+      "depth": "advanced",
+      "format": "text",
+      "requestUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/?tavily_spike_advanced-text_1790867884546=1",
+      "httpStatus": 200,
+      "durationMs": 16666,
+      "error": null,
+      "tavilyResponseTime": 16.5,
+      "usage": {
+        "credits": 0
+      },
+      "contentChars": 50517,
+      "resultsCount": 1,
+      "failedResultsCount": 0
+    }
+  ]
+}

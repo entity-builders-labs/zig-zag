@@ -1,0 +1,160 @@
+{
+  "classification": "CANDIDATE",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.7,
+  "maxCompletionTokens": 900,
+  "responseFormat": "json_object",
+  "elapsedMs": 19126,
+  "candidates": [
+    {
+      "name": "San Telmo Essential Free Walking Tour",
+      "description": "A 2-hour guided walking tour exploring the historic heart of San Telmo, featuring colonial architecture, the San Telmo Fair, and local culture. The route visits key landmarks including Lezama Park, antique galleries, Plaza Dorrego, and El Mercado de San Telmo.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture"
+      ],
+      "traits": [
+        "free",
+        "guided",
+        "colonial architecture",
+        "bohemian spirit"
+      ],
+      "intents": [
+        "walk"
+      ],
+      "suggestedDurationMinutes": 120,
+      "componentHints": [
+        {
+          "key": "lezama-park",
+          "name": "Lezama Park",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ]
+        },
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4",
+            "ev-2"
+          ]
+        },
+        {
+          "key": "mercado-san-telmo",
+          "name": "El Mercado de San Telmo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ]
+        }
+      ],
+      "evidenceKeys": [
+        "ev-4",
+        "ev-8",
+        "ev-9"
+      ],
+      "shortReason": "Evidence explicitly describes a walking tour itinerary with specific named stops (Lezama Park, Plaza Dorrego, Mercado de San Telmo) within the San Telmo neighborhood.",
+      "orderedByEvidence": false
+    }
+  ],
+  "validationErrors": [],
+  "sourceSupportAudits": [
+    {
+      "candidateName": "San Telmo Essential Free Walking Tour",
+      "status": "SUPPORTED",
+      "emittedComponentCount": 3,
+      "supportedComponentCount": 3,
+      "unsupportedComponentCount": 0,
+      "components": [
+        {
+          "index": 0,
+          "key": "lezama-park",
+          "name": "Lezama Park",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "status": "SUPPORTED"
+        },
+        {
+          "index": 1,
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4",
+            "ev-2"
+          ],
+          "status": "SUPPORTED"
+        },
+        {
+          "index": 2,
+          "key": "mercado-san-telmo",
+          "name": "El Mercado de San Telmo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "status": "SUPPORTED"
+        }
+      ]
+    }
+  ],
+  "rawComponentFacts": [
+    {
+      "name": "San Telmo Essential Free Walking Tour",
+      "components": [
+        {
+          "index": 0,
+          "key": "lezama-park",
+          "name": "Lezama Park",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "walk along the Lezama Park"
+        },
+        {
+          "index": 1,
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4",
+            "ev-2"
+          ],
+          "supportSpan": "Plaza Dorrego"
+        },
+        {
+          "index": 2,
+          "key": "mercado-san-telmo",
+          "name": "El Mercado de San Telmo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "El Mercado de San Telmo"
+        }
+      ],
+      "evidenceKeys": [
+        "ev-4",
+        "ev-8",
+        "ev-9"
+      ],
+      "orderedByEvidence": false
+    }
+  ]
+}

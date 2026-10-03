@@ -1,0 +1,100 @@
+{
+  "request": {
+    "id": "5197da9c94932f4dc059568b3ed5d74e41c0f00103f901a7ac669300000000c0020192031e4d6166616c64612c20537573616e69746120616e64204d616e6f6c69746fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f32343732393739363233"
+  },
+  "status": 200,
+  "durationMs": 813,
+  "response": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "feature_type": "details",
+          "description": "Paseo de la Historieta",
+          "name": "Mafalda, Susanita y Manolito",
+          "name_other": {
+            "alt_name": "Mafalda"
+          },
+          "name_international": {
+            "en": "Mafalda, Susanita and Manolito",
+            "pt": "Mafalda, Manolito e Susanita"
+          },
+          "color": "#ffffff",
+          "wiki_and_media": {
+            "wikidata": "Q111038841",
+            "wikimedia_commons": "Category:Mafalda statue (San Telmo)"
+          },
+          "artwork": {
+            "artwork_type": "sculpture"
+          },
+          "categories": [
+            "tourism",
+            "tourism.attraction"
+          ],
+          "datasource": {
+            "sourcename": "openstreetmap",
+            "attribution": "© OpenStreetMap contributors",
+            "license": "Open Database License",
+            "url": "https://www.openstreetmap.org/copyright",
+            "raw": {
+              "name": "Mafalda, Susanita y Manolito",
+              "seats": 1,
+              "colour": "#ffffff",
+              "osm_id": 2472979623,
+              "amenity": "bench",
+              "name:en": "Mafalda, Susanita and Manolito",
+              "name:pt": "Mafalda, Manolito e Susanita",
+              "tourism": "attraction",
+              "alt_name": "Mafalda",
+              "backrest": "yes",
+              "material": "wood",
+              "osm_type": "n",
+              "wikidata": "Q111038841",
+              "description": "Paseo de la Historieta",
+              "artwork_type": "sculpture",
+              "wikimedia_commons": "Category:Mafalda statue (San Telmo)"
+            }
+          },
+          "housenumber": "700",
+          "street": "Defensa",
+          "city": "Buenos Aires",
+          "state": "Buenos Aires",
+          "state_code": "B",
+          "postcode": "C1065AAJ",
+          "country": "Argentina",
+          "country_code": "ar",
+          "district": "Comuna 1",
+          "suburb": "Monserrat",
+          "formatted": "Mafalda, Susanita and Manolito, Defensa 700, Monserrat, C1065 AAJ Buenos Aires, Argentina",
+          "address_line1": "Mafalda, Susanita and Manolito",
+          "address_line2": "Defensa 700, Monserrat, C1065 AAJ Buenos Aires, Argentina",
+          "lat": -34.6159617,
+          "lon": -58.3716913,
+          "iso3166_2": "AR-C",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          },
+          "place_id": "5196da9c94932f4dc05958223ed5d74e41c0f00103f901a7ac66930000000092031c4d6166616c64612c20537573616e6974612079204d616e6f6c69746f"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -58.3716913,
+            -34.6159617
+          ]
+        },
+        "bbox": [
+          -58.3717413,
+          -34.6160117,
+          -58.3716413,
+          -34.6159117
+        ]
+      }
+    ]
+  }
+}

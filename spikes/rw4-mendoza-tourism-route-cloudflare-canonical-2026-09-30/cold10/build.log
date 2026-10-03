@@ -1,0 +1,4 @@
+yarn run v1.22.22
+warning package.json: "dependencies" has dependency "@types/node" with range "^24.10.1" that collides with a dependency in "devDependencies" of the same name with version "^20.3.1"
+$ nest build
+Done in 6.97s.

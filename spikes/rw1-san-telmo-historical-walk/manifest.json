@@ -1,0 +1,44 @@
+{
+  "spike": "RW1 — San Telmo AREA-scoped walk",
+  "plan": "docs/superpowers/plans/2026-09-12-real-world-tourism-research-spike-gate.md",
+  "runTimestamp": "2026-09-13T16:01:44.819Z",
+  "branch": "feat/preference-first-selection",
+  "commitSha": "468fbf0f6e7f1aa8ae3c3072cf22618d9af609c7",
+  "requestText": "caminata histórica por San Telmo",
+  "destination": "San Telmo, Buenos Aires, Argentina",
+  "orchestrationPath": "real HTTP: POST /auth/email/request-code -> POST /auth/email/verify -> POST /tours/generate-tour -> outbox(TourGenerationRequested) -> TourGenerationProcessorService -> ExperienceGenerationService.generateTourExperiences (unmodified production code, no lower-level services invoked manually)",
+  "backendProcess": {
+    "note": "Separate process from the shared dev `zigzag-backend` Docker container, to avoid disrupting the concurrent session's own work. Built via `yarn build`, run as `node dist/src/main.js`, PORT=4001.",
+    "envLayering": "Real repo-root .env sourced first (all real API keys/models), then .env.spike overrides applied on top (GROUNDED_SEARCH_PROVIDER=serpapi, local Overpass/Nominatim, DATABASE_URL=zigzag_spike_preb6, AI_CACHE_MODE=off, USE_MOCK_MAPS=false) — matches the documented .env.spike.example precedence contract."
+  },
+  "providers": {
+    "GROUNDED_SEARCH_PROVIDER": "serpapi",
+    "groundedSearchProviderObservedInTrace": "serpapi",
+    "groundedModelObserved": "google-ai-mode",
+    "DISCOVERY_EXTRACTOR_PROVIDER": "gemini",
+    "extractorModelObserved": "gemini-3.5-flash-lite",
+    "preferenceInterpretationProvider": "groq",
+    "preferenceInterpretationModel": "qwen/qwen3.8-27b",
+    "PLACES_PROVIDER": "google",
+    "OVERPASS_API_URL": "http://localhost:12345/api/interpreter (local)",
+    "NOMINATIM_API_URL": "http://localhost:8088/search (local)",
+    "NOMINATIM_REVERSE_API_URL": "http://localhost:8088/reverse (local)",
+    "AI_CACHE_MODE": "off",
+    "USE_MOCK_MAPS": "false",
+    "mockFlagsConfirmedDisabled": true
+  },
+  "database": {
+    "targetClass": "zigzag_spike_preb6 (dedicated spike database, confirmed clean before RW1 per pre-b6-gates-progress.md)",
+    "confirmedNotSharedDevDb": true
+  },
+  "osmSnapshot": {
+    "nominatimDataUpdated": "2026-09-12T20:15:47+00:00",
+    "overpassTimestampOsmBase": "2026-09-12T20:15:47Z",
+    "note": "Coincidentally identical this run — not guaranteed on a future reimport, see docs/development/local-nominatim.md"
+  },
+  "tours": {
+    "run1ColdTourId": "09e6befd-3438-4bcc-beff-d41cf5e11e75",
+    "run2WarmTourId": "f1582d71-ff01-44fc-af45-cf03a15a9b68"
+  },
+  "secretsRedacted": true
+}

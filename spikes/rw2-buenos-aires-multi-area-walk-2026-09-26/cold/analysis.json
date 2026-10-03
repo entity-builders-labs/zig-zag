@@ -1,0 +1,476 @@
+{
+  "runLabel": "rw2-cold",
+  "tourId": "aabfbc15-924d-431c-8029-69ab33233819",
+  "generationStatus": "completed",
+  "pollElapsedMs": 252177,
+  "steps": [
+    "preference_interpretation",
+    "tour_intent",
+    "destination_resolution",
+    "anchor_geo_resolution",
+    "coverage_analysis",
+    "db_search",
+    "coverage_analysis",
+    "discovery",
+    "entity_resolution",
+    "geographic_validation",
+    "catalog_materialization",
+    "coverage_analysis",
+    "candidate_pool",
+    "embeddings",
+    "daily_planning",
+    "tour_completeness"
+  ],
+  "providers": {
+    "cloudflare.workers-ai": 1,
+    "commons.wikimedia.org": 7,
+    "es.wikivoyage.org": 1,
+    "geoapify.geocode-search": 2,
+    "geoapify.place-details": 16,
+    "geoapify.places": 1,
+    "geoapify/v1/routing": 55,
+    "groq": 36,
+    "localhost:11434": 16,
+    "nominatim.local/search": 7,
+    "overpass.local": 10,
+    "serpapi": 1,
+    "wikidata": 27,
+    "wikipedia(en.wikipedia.org)": 7,
+    "wikipedia(es.wikipedia.org)": 1
+  },
+  "preferenceInterpretation": {
+    "model": "qwen/qwen3.8-27b",
+    "anchoredPlaces": [
+      {
+        "usage": "geographic_scope",
+        "rawName": "San Telmo",
+        "priority": "soft"
+      },
+      {
+        "usage": "geographic_scope",
+        "rawName": "La Boca",
+        "priority": "soft"
+      }
+    ],
+    "preferredFacets": [
+      {
+        "key": "history",
+        "source": "free_text",
+        "evidence": [
+          {
+            "text": "especialmente su historia",
+            "source": "user_free_text"
+          }
+        ],
+        "dimension": "theme",
+        "confidence": 0.9,
+        "importance": 0.7
+      },
+      {
+        "key": "architecture",
+        "source": "free_text",
+        "evidence": [
+          {
+            "text": "arquitectura",
+            "source": "user_free_text"
+          }
+        ],
+        "dimension": "theme",
+        "confidence": 0.9,
+        "importance": 0.7
+      }
+    ],
+    "positiveSemanticQuery": "history architecture landmarks in San Telmo La Boca",
+    "preferenceSpec_facets": [
+      {
+        "key": "history",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "theme"
+      },
+      {
+        "key": "architecture",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "theme"
+      },
+      {
+        "key": "walk",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "intent"
+      }
+    ],
+    "preferenceSpec_semanticQuery": "history architecture landmarks in San Telmo La Boca"
+  },
+  "resolvedAnchors": [
+    {
+      "rawName": "San Telmo",
+      "usage": "geographic_scope",
+      "priority": "soft",
+      "status": "resolved",
+      "kind": "area",
+      "canonicalName": "San Telmo",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069"
+    },
+    {
+      "rawName": "La Boca",
+      "usage": "geographic_scope",
+      "priority": "soft",
+      "status": "resolved",
+      "kind": "area",
+      "canonicalName": "La Boca",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223879"
+    }
+  ],
+  "routing": {
+    "summary": "AREA_ROUTE_WALK=0; GENERIC=3.",
+    "areaRouteWalk": [],
+    "generic": [
+      {
+        "key": "history",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:history] has no strong catalog match yet.",
+        "dimension": "theme"
+      },
+      {
+        "key": "architecture",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:architecture] has no strong catalog match yet.",
+        "dimension": "theme"
+      },
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ]
+  },
+  "discovery": {
+    "summary": "Pase 1: fuentes [wikivoyage, google_places, web] → 20 observación(es) estructurada(s) + 21 candidate(s) (web: 1).",
+    "routedProviders": [
+      "wikivoyage",
+      "google_places",
+      "web"
+    ],
+    "webResults": [
+      {
+        "query": "Buenos Aires architecture historic landmarks historic sites history walking tours walks history architecture landmarks in San Telmo La Boca",
+        "status": "success",
+        "evidenceCount": 20,
+        "groundedModel": "google-ai-mode",
+        "candidateCount": 1,
+        "extractorModel": "@cf/qwen/qwen3.8-27b",
+        "groundingStatus": "applied",
+        "groundedProvider": "serpapi",
+        "validationErrors": [],
+        "extractorProvider": "cloudflare",
+        "destinationCountryCode": "AR"
+      }
+    ],
+    "webEvidence": [
+      {
+        "key": "ev-1",
+        "title": null,
+        "snippet": "San Telmo and La Boca form the historic heart of Buenos Aires, featuring 19th-century colonial and Italian immigrant architecture, cobblestone streets, and legendary tango roots."
+      },
+      {
+        "key": "ev-2",
+        "title": null,
+        "snippet": "Exploring these two adjacent neighborhoods offers a deep dive into the city's origins as a port town, its waves of immigration, and its enduring artistic identity."
+      },
+      {
+        "key": "ev-3",
+        "title": "Historic Landmarks & Architecture in San Telmo",
+        "snippet": "San Telmo is the oldest surviving neighborhood in Buenos Aires, characterized by narrow brick walls, colonial casas chorizo (traditional courtyard houses), and uneven cobblestones."
+      },
+      {
+        "key": "ev-4",
+        "title": "Historic Landmarks & Architecture in San Telmo",
+        "snippet": "DirectionsWebsiteThe historic public square at the center of the neighborhood, famous for hosting the Sunday antiques market (Feria de San Telmo) and surrounded by centuries-old cafes and bars."
+      },
+      {
+        "key": "ev-5",
+        "title": "Historic Landmarks & Architecture in San Telmo",
+        "snippet": "CallDirectionsWebsiteOpened in 1897, this grand iron-and-timber indoor market on Defensa Street preserves its original structural design while functioning as a bustling hub for food stalls and antiques."
+      },
+      {
+        "key": "ev-6",
+        "title": "Historic Landmarks & Architecture in San Telmo",
+        "snippet": "A spine of historic continuity lined with colonial-era facades, antique shops, and architectural relics reflecting the early elite who lived here before the 1871 yellow fever epidemic forced them north."
+      },
+      {
+        "key": "ev-7",
+        "title": "Historic Landmarks & Architecture in San Telmo",
+        "snippet": "CallDirectionsWebsiteA complex of subterranean brick tunnels and restored early-colonial residential ruins that reveal the hidden waterways and changing architecture beneath the neighborhood."
+      },
+      {
+        "key": "ev-8",
+        "title": "Historic Landmarks & Architecture in La Boca",
+        "snippet": "Just down the riverfront, La Boca grew as a working-class dockworkers' port populated largely by Genoese immigrants who painted their corrugated sheet-metal tenement houses (conventillos) with leftover ship paint."
+      },
+      {
+        "key": "ev-9",
+        "title": "Historic Landmarks & Architecture in La Boca",
+        "snippet": "CallDirectionsWebsiteA vibrant open-air museum street curated by artist Benito Quinquela Martín, featuring vividly painted tenements, artist workshops, and street tango."
+      },
+      {
+        "key": "ev-10",
+        "title": "Historic Landmarks & Architecture in La Boca",
+        "snippet": "CallDirectionsWebsiteThe iconic, steep-sided stadium of the Boca Juniors football club, representing the intense cultural and working-class passion of the barrio."
+      },
+      {
+        "key": "ev-11",
+        "title": "Historic Landmarks & Architecture in La Boca",
+        "snippet": "DirectionsHistoric communal housing units where dozens of immigrant families shared single courtyards and kitchens, showcasing a unique utilitarian industrial architecture."
+      },
+      {
+        "key": "ev-12",
+        "title": "Historic Landmarks & Architecture in La Boca",
+        "snippet": "The old port zone where European steamships first docked and where the foundational industrial and Afro-Argentine heritage of the area took root."
+      },
+      {
+        "key": "ev-13",
+        "title": "Recommended Walking Itinerary & Tours",
+        "snippet": "Self-Guided Route: Begin at the edge of San Telmo near Plaza de Mayo, walk down Calle Defensa past colonial facades into Plaza Dorrego, explore the Mercado de San Telmo, and then continue southeast toward La Boca via Avenida Almirante Brown to reach Caminito and the Riachuelo."
+      },
+      {
+        "key": "ev-14",
+        "title": "Recommended Walking Itinerary & Tours",
+        "snippet": "Guided Options: You can book structured itineraries like the Private La Boca and San Telmo History Walk for expert narrative context on Afro-Argentine history, tango, and local Lunfardo slang, or audio-guided walks via platforms like VoiceMap's San Telmo Tour."
+      },
+      {
+        "key": "ev-15",
+        "title": "Recommended Walking Itinerary & Tours",
+        "snippet": "If you'd like to tailor this exploration, let me know:"
+      },
+      {
+        "key": "ev-16",
+        "title": "Recommended Walking Itinerary & Tours",
+        "snippet": "Are you looking for a self-guided walk or a recommended professional tour guide?"
+      },
+      {
+        "key": "ev-17",
+        "title": "Recommended Walking Itinerary & Tours",
+        "snippet": "Do you want to focus more on architecture and photography or food, tango, and local history?"
+      },
+      {
+        "key": "ev-18",
+        "title": "Private La Boca and San Telmo History Walk",
+        "snippet": "Join our La Boca + San Telmo History Walk to explore the heart of Buenos Aires' rich history and culture. Starting in San Telmo, known for cobbled streets, immigrant architecture, and a vibrant food scene, we begin with a mate-tasting experience in a centennial building. Then, visit the historic San Telmo Market, offering ethnic foods, fresh produce, and unique trinkets. Next, discover La Boca, th"
+      },
+      {
+        "key": "ev-19",
+        "title": "Two to Tango: A San Telmo Self Guided Walking Tour",
+        "snippet": "San Telmo is the oldest neighbourhood in Buenos Aires, and its cobblestone streets hold enough history to fill several lifetimes. On this self-guided walking tour, you'll trace how sailors, slaves, immigrants, and tango singers turned a muddy colonial outpost into the soul of the city. You'll also discover how a yellow fever epidemic, two British invasions, and millions of Italian immigrants each "
+      },
+      {
+        "key": "ev-20",
+        "title": "Private La Boca and San Telmo History Walk – Buenos Aires Tour",
+        "snippet": "Discover the vibrant history and culture of Buenos Aires on the Private La Boca and San Telmo History Walk. Begin in San Telmo with a mate-tasting experience in a century-old building, followed by a visit to the bustling San Telmo Market. Explore La Boca’s colorful streets, learn about its immigrant roots, and uncover the stories behind the Afro-Argentine community, tango, and local slang with exp"
+      }
+    ]
+  },
+  "webCompositeCandidate": {
+    "name": "San Telmo to La Boca History Walk",
+    "themes": [
+      "history",
+      "architecture"
+    ],
+    "intents": [
+      "walk"
+    ],
+    "evidenceKeys": [
+      "ev-13"
+    ],
+    "orderedByEvidence": true,
+    "componentHints": [
+      {
+        "key": "plaza-de-mayo",
+        "name": "Plaza de Mayo",
+        "role": "waypoint",
+        "order": 1,
+        "evidenceKeys": [
+          "ev-13"
+        ]
+      },
+      {
+        "key": "calle-defensa",
+        "name": "Calle Defensa",
+        "role": "route",
+        "order": 2,
+        "evidenceKeys": [
+          "ev-13"
+        ]
+      },
+      {
+        "key": "plaza-dorrego",
+        "name": "Plaza Dorrego",
+        "role": "waypoint",
+        "order": 3,
+        "evidenceKeys": [
+          "ev-13"
+        ]
+      },
+      {
+        "key": "mercado-de-san-telmo",
+        "name": "Mercado de San Telmo",
+        "role": "venue",
+        "order": 4,
+        "evidenceKeys": [
+          "ev-13"
+        ]
+      },
+      {
+        "key": "avenida-almirante-brown",
+        "name": "Avenida Almirante Brown",
+        "role": "route",
+        "order": 5,
+        "evidenceKeys": [
+          "ev-13"
+        ]
+      },
+      {
+        "key": "caminito",
+        "name": "Caminito",
+        "role": "waypoint",
+        "order": 6,
+        "evidenceKeys": [
+          "ev-13"
+        ]
+      },
+      {
+        "key": "riachuelo",
+        "name": "Riachuelo",
+        "role": "waypoint",
+        "order": 7,
+        "evidenceKeys": [
+          "ev-13"
+        ]
+      }
+    ]
+  },
+  "entity_resolution": {
+    "summary": "Entity resolution procesó 21 candidato(s): 15 quedaron con entidades concretas suficientes para continuar y 6 no pudieron resolverse. Se obtuvieron 21 entidad(es) provider-backed, 21 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite. Rechazadas: Ferroclub de Remedios de Escalada: UNCONFIRMED_MATCH [resueltos 0/1: Ferroclub de Remedios de Escalada=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)]; Paseo de las Esculturas: UNCONFIRMED_MATCH [resueltos 0/1: Paseo de las Esculturas=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)]; José de San Martín: UNCONFIRMED_MATCH [resueltos 0/1: José de San Martín=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT)]; Centro Científico Tecnológicos.: NO_OSM_MATCH [resueltos 0/1: Centro Científico Tecnológicos.=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)]; Galería Güemes: UNCONFIRMED_MATCH [resueltos 0/1: Galería Güemes=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)]; Iglesia San Ignacio de Loyola: UNCONFIRMED_MATCH [resueltos 0/1: Iglesia San Ignacio de Loyola=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)].",
+    "status": "PASS"
+  },
+  "geographic_validation": {
+    "summary": "Validación geográfica: 15 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+    "status": "PASS"
+  },
+  "catalog_materialization": {
+    "summary": "15 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 6 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution. La Madre: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; La flor de la vida: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Roca granitica: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Museo de Artistas Argentinos Benito Quinquela Martín: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Ferroclub de Remedios de Escalada: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Paseo de las Esculturas: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Estatua Hugo del Carril: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Juventud: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Guillermo Brown: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Museo Histórico de Cera: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Colón Fábrica: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Museo del Cine Pablo Ducrós Hicken: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; José de San Martín: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Museo Casa Taller 'Celia Chevalier': 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Benito Quinquela Martín: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Hidrovértigo: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Centro Científico Tecnológicos.: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Galería Güemes: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Iglesia San Ignacio de Loyola: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; San Telmo to La Boca History Walk: 7/7 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner.",
+    "status": "WARN"
+  },
+  "materializedTour": [
+    {
+      "order": 1,
+      "name": "Museo Casa Taller 'Celia Chevalier'",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 2,
+      "name": "Museo Histórico de Cera",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 3,
+      "name": "Museo de Artistas Argentinos Benito Quinquela Martín",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 4,
+      "name": "La flor de la vida",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 5,
+      "name": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf",
+      "componentCount": 1,
+      "durationMinutes": 120
+    }
+  ],
+  "dbAfter": {
+    "experience": 15,
+    "experienceByStatus": {
+      "VERIFIED": 15
+    },
+    "geoEntity": 23,
+    "geoEntityByKind": {
+      "PLACE": 19,
+      "ROUTE": 2,
+      "AREA": 2
+    },
+    "experienceComponent": 21,
+    "duplicateExperienceNames": 0,
+    "duplicateIdentityRows": 0
+  },
+  "composites": [
+    {
+      "id": "b353fc85-2a41-4b23-af24-6814100f8d31",
+      "name": "San Telmo to La Boca History Walk",
+      "components": 7,
+      "componentSet": [
+        {
+          "geoEntityId": "c74f19ba-5062-4dad-82b5-c5c9ba94b3c8",
+          "geoEntity": "Plaza de Mayo",
+          "kind": "PLACE",
+          "order": 1,
+          "role": "waypoint"
+        },
+        {
+          "geoEntityId": "e0a3b437-ca00-493b-b819-e73c80f907b9",
+          "geoEntity": "Defensa",
+          "kind": "ROUTE",
+          "order": 2,
+          "role": "route"
+        },
+        {
+          "geoEntityId": "18c038ac-fdc3-4e32-a35a-ee66fbf87569",
+          "geoEntity": "Plaza Dorrego",
+          "kind": "PLACE",
+          "order": 3,
+          "role": "waypoint"
+        },
+        {
+          "geoEntityId": "9d82d370-60bd-4527-91ac-1a4938954c9e",
+          "geoEntity": "Mercado de San Telmo",
+          "kind": "PLACE",
+          "order": 4,
+          "role": "venue"
+        },
+        {
+          "geoEntityId": "20067059-1025-48ce-8c45-be2be7ff4516",
+          "geoEntity": "Avenida Almirante Brown",
+          "kind": "ROUTE",
+          "order": 5,
+          "role": "route"
+        },
+        {
+          "geoEntityId": "cce1c905-413f-4ae5-89a5-c5d698bd2b98",
+          "geoEntity": "Caminito",
+          "kind": "PLACE",
+          "order": 6,
+          "role": "waypoint"
+        },
+        {
+          "geoEntityId": "cab24102-a362-4029-b1f0-45638303dd95",
+          "geoEntity": "Plaza Paseo del Riachuelo",
+          "kind": "PLACE",
+          "order": 7,
+          "role": "waypoint"
+        }
+      ]
+    }
+  ]
+}

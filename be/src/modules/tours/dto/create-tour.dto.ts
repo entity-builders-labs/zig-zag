@@ -10,6 +10,15 @@ import {
 import { Prisma } from '@prisma/client';
 
 export class CreateTourDto {
+  @ApiProperty({
+    description:
+      'Owning user id. Ignored on the public endpoint — the controller always overwrites it with the authenticated user.',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  ownerId?: string;
+
   @ApiProperty({ description: 'Tour name', required: true })
   @IsString()
   name: string;
@@ -88,97 +97,4 @@ export class CreateTourDto {
   @IsObject()
   @IsOptional()
   metadata?: Prisma.JsonValue;
-
-  @ApiProperty({ description: 'Tour activities', required: false })
-  @IsArray()
-  @IsOptional()
-  activities?: CreateTourActivityDto[];
-}
-
-export class CreateTourActivityDto {
-  @ApiProperty({
-    description: 'Activity ID (if activity exists in DB)',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  activityId?: string;
-
-  @ApiProperty({
-    description: 'Activity name (if creating inline)',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  activityName?: string;
-
-  @ApiProperty({ description: 'Activity type', required: false })
-  @IsString()
-  @IsOptional()
-  activityType?: string;
-
-  @ApiProperty({ description: 'Activity latitude', required: false })
-  @IsNumber()
-  @IsOptional()
-  activityLatitude?: number;
-
-  @ApiProperty({ description: 'Activity longitude', required: false })
-  @IsNumber()
-  @IsOptional()
-  activityLongitude?: number;
-
-  @ApiProperty({
-    description: 'Full activity data as JSON (if creating inline)',
-    required: false,
-  })
-  @IsObject()
-  @IsOptional()
-  activityData?: Prisma.JsonValue;
-
-  @ApiProperty({
-    description: 'Duration for this activity in tour context (minutes)',
-    required: false,
-  })
-  @IsNumber()
-  @IsOptional()
-  duration?: number;
-
-  @ApiProperty({ description: 'Start time for this activity', required: false })
-  @IsString()
-  @IsOptional()
-  startTime?: string | Date;
-
-  @ApiProperty({
-    description: 'Detailed notes about the activity',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  notes?: string;
-
-  @ApiProperty({ description: 'Day number in the tour', required: false })
-  @IsNumber()
-  @IsOptional()
-  dayNumber?: number;
-
-  @ApiProperty({
-    description: 'Travel time to next activity (minutes)',
-    required: false,
-  })
-  @IsNumber()
-  @IsOptional()
-  travelTimeToNext?: number;
-
-  @ApiProperty({
-    description: 'Distance to next activity (km)',
-    required: false,
-  })
-  @IsNumber()
-  @IsOptional()
-  distanceToNext?: number;
-
-  @ApiProperty({ description: 'Order in the tour sequence', required: false })
-  @IsNumber()
-  @IsOptional()
-  order?: number;
 }

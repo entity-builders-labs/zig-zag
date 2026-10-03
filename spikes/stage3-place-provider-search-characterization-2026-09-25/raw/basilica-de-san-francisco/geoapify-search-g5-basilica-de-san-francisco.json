@@ -1,0 +1,488 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Basílica de San Francisco",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 2134,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica Nuestra Señora de La Merced",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1038AAJ",
+        "district": "Comuna 1",
+        "suburb": "San Nicolás",
+        "quarter": "Microcentro",
+        "street": "Teniente General Juan Domingo Perón",
+        "iso3166_2": "AR-C",
+        "lon": -58.3718009,
+        "lat": -34.6053132,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 914.6134228111318,
+        "formatted": "Basílica Nuestra Señora de La Merced, Teniente General Juan Domingo Perón, San Nicolás, C1038 AAJ Buenos Aires, Argentina",
+        "address_line1": "Basílica Nuestra Señora de La Merced",
+        "address_line2": "Teniente General Juan Domingo Perón, San Nicolás, C1038 AAJ Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JVH+V7",
+        "plus_code_short": "VH+V7 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.28187552194901133,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51ca0f012c972f4dc05926eb26e77a4d41c0f00102f901bb58fe0800000000c00201920326426173c3ad6c696361204e756573747261205365c3b16f7261206465204c61204d6572636564e203216f70656e7374726565746d61703a76656e75653a7761792f313530383836353837",
+        "bbox": {
+          "lon1": -58.3721729,
+          "lat1": -34.605443,
+          "lon2": -58.3714411,
+          "lat2": -34.6051325
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica de San Francisco",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1091AAH",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Moreno",
+        "iso3166_2": "AR-C",
+        "lon": -58.3718121,
+        "lat": -34.6106142,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1180.484492948444,
+        "formatted": "Basílica de San Francisco, Moreno, Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "address_line1": "Basílica de San Francisco",
+        "address_line2": "Moreno, Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+Q7",
+        "plus_code_short": "QH+Q7 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51e8e0f489972f4dc05992bc299b284e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f",
+        "bbox": {
+          "lon1": -58.3719542,
+          "lat1": -34.6112405,
+          "lon2": -58.3708282,
+          "lat2": -34.6101922
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Basílica de San Francisco",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "iso3166_2": "AR-C",
+        "lon": -58.371358,
+        "lat": -34.610703,
+        "result_type": "amenity",
+        "distance": 1218.6091502936745,
+        "postcode": "C1091AAH",
+        "formatted": "Basílica de San Francisco, Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "address_line1": "Basílica de San Francisco",
+        "address_line2": "Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+PF",
+        "plus_code_short": "QH+PF Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51d28db0a8882f4dc059d84812842b4e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636fe203246f70656e7374726565746d61703a76656e75653a72656c6174696f6e2f32333534313532",
+        "bbox": {
+          "lon1": -58.3719542,
+          "lat1": -34.6112405,
+          "lon2": -58.3708282,
+          "lat2": -34.6101922
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica Santuario de Santa Rosa de Lima",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1094",
+        "district": "Comuna 3",
+        "suburb": "Balvanera",
+        "quarter": "Once",
+        "street": "Avenida Belgrano",
+        "iso3166_2": "AR-C",
+        "lon": -58.3977428,
+        "lat": -34.6144041,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1897.1813863047714,
+        "formatted": "Basílica Santuario de Santa Rosa de Lima, Avenida Belgrano, Balvanera, 1094 Buenos Aires, Argentina",
+        "address_line1": "Basílica Santuario de Santa Rosa de Lima",
+        "address_line2": "Avenida Belgrano, Balvanera, 1094 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JP2+6W",
+        "plus_code_short": "9JP2+6W Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.21080589711721126,
+          "popularity": 7.311321886761186,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51181c6f3ce9324dc059a00326cba44e41c0f00103f90148818f1c00000000c00201920329426173c3ad6c6963612053616e74756172696f2064652053616e746120526f7361206465204c696d61e203226f70656e7374726565746d61703a76656e75653a6e6f64652f343739313636373932",
+        "bbox": {
+          "lon1": -58.3977928,
+          "lat1": -34.6144541,
+          "lon2": -58.3976928,
+          "lat2": -34.6143541
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica de Nuestra Señora del Pilar",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1113AAX",
+        "district": "Comuna 2",
+        "neighbourhood": "La Isla",
+        "suburb": "Recoleta",
+        "street": "Junín",
+        "iso3166_2": "AR-C",
+        "lon": -58.3922008,
+        "lat": -34.5867204,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2122.7982409013675,
+        "formatted": "Basílica de Nuestra Señora del Pilar, Junín, Recoleta, C1113 AAX Buenos Aires, Argentina",
+        "address_line1": "Basílica de Nuestra Señora del Pilar",
+        "address_line2": "Junín, Recoleta, C1113 AAX Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ75+84",
+        "plus_code_short": "CJ75+84 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.23992860907835414,
+          "popularity": 7.625690373906214,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "5186bbc4a233324dc059b1f270a7194b41c0f00102f90134ac820a00000000c00201920326426173c3ad6c696361206465204e756573747261205365c3b16f72612064656c2050696c6172e203216f70656e7374726565746d61703a76656e75653a7761792f313736333335393234",
+        "bbox": {
+          "lon1": -58.3927623,
+          "lat1": -34.5869793,
+          "lon2": -58.3917629,
+          "lat2": -34.5864965
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica de San José de Flores",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1406GLZ",
+        "district": "Comuna 7",
+        "suburb": "Flores",
+        "street": "Avenida Rivadavia",
+        "housenumber": "6950",
+        "iso3166_2": "AR-C",
+        "lon": -58.4631104,
+        "lat": -34.6297138,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 8000.278838621453,
+        "formatted": "Basílica de San José de Flores, Avenida Rivadavia 6950, Flores, C1406 GLZ Buenos Aires, Argentina",
+        "address_line1": "Basílica de San José de Flores",
+        "address_line2": "Avenida Rivadavia 6950, Flores, C1406 GLZ Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39GCP+4Q",
+        "plus_code_short": "9GCP+4Q Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.20813244289121335,
+          "popularity": 7.56600893926058,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51ff379b33473b4dc059816b38769a5041c0f00102f901dc23970100000000c00201920320426173c3ad6c6963612064652053616e204a6f73c3a920646520466c6f726573e203206f70656e7374726565746d61703a76656e75653a7761792f3236363832333332",
+        "bbox": {
+          "lon1": -58.4634162,
+          "lat1": -34.6302601,
+          "lon2": -58.4628102,
+          "lat2": -34.6291716
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Basílica Nuestra Señora de Lourdes",
+        "country": "Argentina",
+        "county": "Tres de Febrero",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "TF",
+        "iso3166_2": "AR-B",
+        "lon": -58.545085,
+        "lat": -34.597434,
+        "result_type": "amenity",
+        "distance": 14979.68075470141,
+        "postcode": "B1676AFF",
+        "city": "Santos Lugares",
+        "formatted": "Basílica Nuestra Señora de Lourdes, B1676AFF Santos Lugares, Argentina",
+        "address_line1": "Basílica Nuestra Señora de Lourdes",
+        "address_line2": "B1676AFF Santos Lugares, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CF33+2X",
+        "rank": {
+          "popularity": 6.430161002567338,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "5124456458c5454dc0595dc2a1b7784c41c0f00101f901fe88670000000000c00201920324426173c3ad6c696361204e756573747261205365c3b16f7261206465204c6f7572646573e203246f70656e7374726565746d61703a76656e75653a72656c6174696f6e2f36373835323738",
+        "bbox": {
+          "lon1": -58.5465758,
+          "lat1": -34.598661,
+          "lon2": -58.5446912,
+          "lat2": -34.5972321
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica de Lourdes",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Tres de Febrero",
+        "city": "Santos Lugares",
+        "postcode": "B1676",
+        "street": "427 - Pío XII",
+        "iso3166_2": "AR-B",
+        "lon": -58.5461211,
+        "lat": -34.5989094,
+        "state_code": "B",
+        "county_code": "TF",
+        "result_type": "amenity",
+        "distance": 15067.585744053687,
+        "formatted": "Basílica de Lourdes, 427 - Pío XII, B1676 Santos Lugares, Argentina",
+        "address_line1": "Basílica de Lourdes",
+        "address_line2": "427 - Pío XII, B1676 Santos Lugares, Argentina",
+        "category": "public_transport.bus",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CF23+CH",
+        "rank": {
+          "importance": 0.0000462096589608151,
+          "popularity": 6.446221455079951,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51e913d44be7454dc0592c222f10a94c41c0f00103f901c5dd3ffa01000000c00201920314426173c3ad6c696361206465204c6f7572646573e203236f70656e7374726565746d61703a76656e75653a6e6f64652f38343933343536383337",
+        "bbox": {
+          "lon1": -58.5461711,
+          "lat1": -34.5989594,
+          "lon2": -58.5460711,
+          "lat2": -34.5988594
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica Nuestra Señora de Lourdes",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Tres de Febrero",
+        "city": "Santos Lugares",
+        "postcode": "B1676AFF",
+        "street": "429 - Padre Silberman",
+        "iso3166_2": "AR-B",
+        "lon": -58.545721,
+        "lat": -34.5979581,
+        "state_code": "B",
+        "distance": 15035.195024425446,
+        "formatted": "Basílica Nuestra Señora de Lourdes, 429 - Padre Silberman, B1676 AFF Santos Lugares, Argentina",
+        "address_line1": "Basílica Nuestra Señora de Lourdes",
+        "address_line2": "429 - Padre Silberman, B1676 AFF Santos Lugares, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CF23+RP",
+        "rank": {
+          "importance": 0.0000462096589608151
+        },
+        "place_id": "51c6de8b2fda454dc0596cf019e4894c41c0f00101f901fe88670000000000920324426173c3ad6c696361204e756573747261205365c3b16f7261206465204c6f7572646573",
+        "bbox": {
+          "lon1": -58.5465758,
+          "lat1": -34.5986853,
+          "lon2": -58.5446912,
+          "lat2": -34.5972321
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Partido de San Isidro",
+        "country": "Argentina",
+        "county": "San Isidro",
+        "datasource": {
+          "sourcename": "geonames",
+          "attribution": "GeoNames",
+          "license": "CC BY 4.0",
+          "url": "https://www.geonames.org/datasources/"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "SI",
+        "iso3166_2": "AR-B",
+        "lon": -58.53028,
+        "lat": -34.49009,
+        "result_type": "county",
+        "distance": 18574.633748533437,
+        "formatted": "San Isidro, Argentina",
+        "address_line1": "San Isidro",
+        "address_line2": "Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3GF59+XV",
+        "rank": {
+          "popularity": 5.90785763075713,
+          "confidence": 0,
+          "match_type": "match_by_country_or_state"
+        },
+        "place_id": "5187dc0c37e0434dc0595f0ce544bb3e41c0c002099203155061727469646f2064652053616e2049736964726fe2031767656f6e616d65733a636f756e74793a33343238393833"
+      }
+    ],
+    "query": {
+      "text": "",
+      "parsed": {
+        "house": "Basílica de San Francisco",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

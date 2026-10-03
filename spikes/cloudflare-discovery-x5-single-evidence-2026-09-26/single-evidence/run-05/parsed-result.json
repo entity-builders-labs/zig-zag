@@ -1,0 +1,14 @@
+{
+  "classification": "PROVIDER_FAILURE",
+  "provider": "cloudflare",
+  "model": "@cf/qwen/qwen3.8-27b",
+  "temperature": 0,
+  "maxCompletionTokens": 900,
+  "responseFormat": "none",
+  "chatTemplateKwargs": {
+    "enable_thinking": false
+  },
+  "elapsedMs": 60012,
+  "providerError": "The operation was aborted due to timeout",
+  "providerErrorKind": "other"
+}

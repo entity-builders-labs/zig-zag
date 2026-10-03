@@ -10,106 +10,130 @@ import {
   BadgeText,
   Button,
   ButtonText,
-  Icon,
+  Pressable,
 } from '@gluestack-ui/themed';
-import { ChevronRight } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import { TourStopLocation } from './types';
+import { FONT_DISPLAY } from '@/constants/typography';
 
 export const TourStopCard = ({
   data,
   isLast,
+  stopNumber,
 }: {
   data: TourStopLocation;
   isLast: boolean;
+  stopNumber?: number;
 }) => {
-  return (
-    <HStack flex={1}>
-      {/* Timeline Node */}
-      <Box width={40} alignItems='center' position='relative'>
-        {/* Top Line */}
-        <Box height={20} width={2} bg='$borderLight300' />
+  const router = useRouter();
 
-        {/* Node Dot */}
+  return (
+    <HStack testID={`location-stop-${data.id}`}>
+      {/* Timeline Node */}
+      <Box width={36} alignItems='center' position='relative'>
+        {/* Top Connecting Line */}
+        <Box height={16} width={2} bg='$borderLight300' />
+
+        {/* Node Dot with order number */}
         <Box
-          width={16}
-          height={16}
+          width={24}
+          height={24}
           borderRadius='$full'
           bg='$primary500'
-          borderWidth={3}
+          borderWidth={2}
           borderColor='$white'
           zIndex={1}
+          alignItems='center'
+          justifyContent='center'
           shadowColor='$primary500'
-          shadowOffset={{ width: 0, height: 0 }}
-          shadowOpacity={0.5}
+          shadowOffset={{ width: 0, height: 2 }}
+          shadowOpacity={0.4}
           shadowRadius={4}
-        />
+          elevation={3}
+        >
+          <Text size='2xs' fontWeight='$bold' color='$white'>
+            {stopNumber ?? '•'}
+          </Text>
+        </Box>
 
         {/* Bottom Line (if not last) */}
         {!isLast && <Box flex={1} width={2} bg='$borderLight300' />}
       </Box>
 
       {/* Card Content */}
-      <Box flex={1} pb='$6' pr='$4'>
-        <Box
-          bg='$white'
-          borderRadius='$xl'
-          overflow='hidden'
-          borderWidth={1}
-          borderColor='$borderLight100'
-          shadowColor='$black'
-          shadowOffset={{ width: 0, height: 1 }}
-          shadowOpacity={0.05}
-          shadowRadius={3}
-          elevation={2}
+      <Box flex={1} pb='$4' pl='$2' pr='$2'>
+        <Pressable
+          onPress={() => {
+            if (data.experienceId) {
+              router.push(`/experiences/${data.experienceId}`);
+            }
+          }}
+          disabled={!data.experienceId}
+          $active-opacity={0.8}
+          testID={`tour-stop-card-${data.id}`}
         >
-          <HStack>
-            <Image
-              source={{ uri: data.image }}
-              alt={data.title}
-              width={100}
-              height={100}
-              resizeMode='cover'
-            />
-            <VStack p='$3' flex={1} justifyContent='space-between'>
-              <VStack>
-                <Heading size='sm' numberOfLines={1} ellipsizeMode='tail'>
-                  {data.title}
-                </Heading>
-                <Text size='xs' color='$textLight500' numberOfLines={2} mt='$1'>
-                  {data.description}
-                </Text>
+          <Box
+            bg='$white'
+            borderRadius='$2xl'
+            overflow='hidden'
+            borderWidth={1}
+            borderColor='$borderLight100'
+            shadowColor='$black'
+            shadowOffset={{ width: 0, height: 2 }}
+            shadowOpacity={0.05}
+            shadowRadius={6}
+            elevation={2}
+            p='$3'
+          >
+            <HStack space='md'>
+              <Image
+                source={{ uri: data.image }}
+                alt={data.title}
+                width={84}
+                height={84}
+                borderRadius={12}
+                resizeMode='cover'
+              />
+              <VStack flex={1} justifyContent='space-between'>
+                <VStack>
+                  <HStack justifyContent='space-between' alignItems='center' mb='$1'>
+                    <HStack space='xs' flexWrap='wrap'>
+                      {data.badges?.slice(0, 2).map((badge, idx) => (
+                        <Box
+                          key={idx}
+                          bg='$primary50'
+                          px='$2'
+                          py='$0.5'
+                          borderRadius='$md'
+                          borderWidth={1}
+                          borderColor='$primary100'
+                        >
+                          <Text size='2xs' fontWeight='$bold' color='$primary700'>
+                            {badge.text}
+                          </Text>
+                        </Box>
+                      ))}
+                    </HStack>
+                  </HStack>
+
+                  <Heading
+                    size='sm'
+                    numberOfLines={1}
+                    ellipsizeMode='tail'
+                    color='$textLight900'
+                    style={{ fontFamily: FONT_DISPLAY }}
+                  >
+                    {data.title}
+                  </Heading>
+                  <Text size='xs' color='$textLight500' numberOfLines={2} mt='$0.5'>
+                    {data.description}
+                  </Text>
+                </VStack>
+
               </VStack>
-
-              <HStack
-                justifyContent='space-between'
-                alignItems='center'
-                mt='$2'
-              >
-                <HStack space='xs'>
-                  {data.badges?.map((badge, idx) => (
-                    <Badge
-                      key={idx}
-                      size='sm'
-                      action={badge.action}
-                      variant='outline'
-                      borderRadius='$sm'
-                    >
-                      <BadgeText fontSize='$2xs'>{badge.text}</BadgeText>
-                    </Badge>
-                  ))}
-                </HStack>
-
-                {/* Action Button */}
-                <Button size='xs' variant='link' action='primary' p='$0'>
-                  <ButtonText size='xs' fontWeight='$bold'>
-                    Ver
-                  </ButtonText>
-                  <Icon as={ChevronRight} size='xs' ml='$1' />
-                </Button>
-              </HStack>
-            </VStack>
-          </HStack>
-        </Box>
+            </HStack>
+          </Box>
+        </Pressable>
       </Box>
     </HStack>
   );

@@ -13,7 +13,8 @@ ai/
 └── services/
     ├── ai-cache.service.ts         # File-based response caching
     ├── ai-embedding.service.ts     # Text → vector embeddings
-    └── vector-store.service.ts     # ChromaDB vector store management
+    ├── semantic-experience-document-builder.service.ts # Canonical Experience text
+    └── vector-store.service.ts     # pgvector similarity search
 ```
 
 ## Services
@@ -27,27 +28,45 @@ The primary AI service. Handles all LLM interactions:
   - Ollama supports optional authentication headers
 - **Chat responses**: `generateChatResponse(systemPrompt, userPrompt, variables)`
 - **Completion responses**: `generateCompletionResponse(promptText, variables)`
-- **Activity analysis**: `analyzeActivity(activity, distanceKm)` — generates structured metadata
+- **Experience analysis**: generates structured metadata for acquired Experiences
 - **Prompt templates**: `createPromptTemplate()` + `createChain()` for reusable chains
 - **Caching**: Integrates with `AiCacheService` to avoid redundant API calls
 
+Provider ownership is capability-specific. `AI_PROVIDER` selects only the
+general chat/interpreter transport; discovery extraction uses
+`DISCOVERY_EXTRACTOR_PROVIDER` and its provider-specific discovery model,
+grounded evidence uses `GROUNDED_SEARCH_PROVIDER`, evidence-only
+classification uses `CLASSIFICATION_PROVIDER` and its provider-specific
+classification model, and
+embeddings use `EMBEDDING_PROVIDER`. No capability inherits a model from an
+unrelated provider.
+
 ### `VectorStoreService`
 
-Manages the ChromaDB vector database for semantic similarity search:
+Semantic similarity search over Experiences using **pgvector** — a `vector(256)` column + HNSW index on `Experience.embedding`. No separate vector database process is used.
 
-- **Initialization**: Connects to ChromaDB on module start
-- **`addActivityToVectorStore()`**: Generates embedding for activity text → stores in Chroma
-- **`saveActivityEmbedding()`**: Batch embedding for multiple activities
-- **`findSimilarActivities(prompt, k, filter)`**: Semantic search by text query
-- **`rebuildVectorStore()`**: Re-indexes all activities from PostgreSQL
-- **`resetVectorStore()`**: Clears ChromaDB collection
+- Every write reloads the canonical Experience and uses the semantic Experience document builder; callers cannot provide ad-hoc embedding prose.
+- Every vector stores its provider, model, width, document version, and timestamp. Queries exclude vectors whose identity does not exactly match the configured index.
+- `saveExperienceEmbedding()` returns the exact indexed IDs, reports provider unavailability, or throws `EmbeddingWriteError`; it never swallows a failed write.
+- `getSimilarityScores()` returns `applied` or `unavailable` from the actual query operation, including compatible/missing candidate counts.
+- `rebuildVectorStore()` first clears all vectors and identity fields, then rebuilds every verified Experience. If any batch fails, it clears the partial result before returning the error.
 
 ### `AiEmbeddingService`
 
-Generates text embeddings using the configured provider:
+Generates text embeddings using exactly the configured provider:
 
-- OpenAI: `text-embedding-3-small` model
-- Ollama: Local embedding model
+- production default: Amazon Bedrock Titan Text Embeddings V2, 256 dimensions;
+- local default: Ollama `nomic-embed-text`, truncated and normalized to 256 dimensions;
+- optional explicit provider: OpenAI `text-embedding-3-small`.
+
+`EMBEDDING_PROVIDER` is authoritative. Startup or runtime failure makes the
+service explicitly unavailable; the service never tries another provider even
+when unrelated credentials are present. Changing provider, model, dimensions,
+or the semantic document version requires a coordinated Experience embedding
+rebuild before deployment.
+
+Local and production both use PostgreSQL + pgvector. ChromaDB is not part of
+this architecture.
 
 ### `AiCacheService`
 
@@ -69,13 +88,17 @@ Generates images via OpenAI DALL-E API:
 
 Key environment variables:
 
-| Variable             | Default                  | Description                        |
-| -------------------- | ------------------------ | ---------------------------------- |
-| `AI_PROVIDER`        | `ollama`                 | AI provider (`openai` or `ollama`) |
-| `OPENAI_API_KEY`     | —                        | OpenAI API key                     |
-| `AI_MODEL`           | `llama3.2`               | Model name                         |
-| `AI_EMBEDDING_MODEL` | `nomic-embed-text`       | Embedding model                    |
-| `OLLAMA_URL`         | `http://localhost:11434` | Ollama server URL                  |
-| `CHROMA_URL`         | `http://localhost:8000`  | ChromaDB server URL                |
-| `ENABLE_AI`          | `true`                   | Enable/disable AI features         |
-| `AI_TIMEOUT`         | `60000`                  | Request timeout in ms              |
+| Variable               | Default                           | Description                                                                                                  |
+| ---------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `AI_PROVIDER`          | `openai`                          | General chat/interpreter provider (`openai`, `groq`, `gemini`, or `ollama`)                                  |
+| `OPENAI_API_KEY`       | —                                 | OpenAI API key                                                                                               |
+| `OPENAI_MODEL`         | `gpt-4o-mini`                     | Chat model when `AI_PROVIDER=openai`                                                                         |
+| `GROQ_MODEL`           | `openai/gpt-oss-20b`              | Chat model when `AI_PROVIDER=groq`                                                                           |
+| `GEMINI_MODEL`         | `gemini-3.6-flash`               | Chat model when `AI_PROVIDER=gemini`                                                                         |
+| `OLLAMA_MODEL`         | `llama3.2`                        | Chat model when `AI_PROVIDER=ollama`                                                                         |
+| `EMBEDDING_PROVIDER`   | `ollama` (dev) / `bedrock` (prod) | Authoritative embedding provider (`openai`, `ollama`, or `bedrock`)                                          |
+| `EMBEDDINGS_MODEL`     | provider-specific                 | Titan V2 / `nomic-embed-text` / `text-embedding-3-small`                                                     |
+| `EMBEDDING_DIMENSIONS` | `256`                             | Fixed output width; any other value is rejected until a coordinated pgvector schema migration is implemented |
+| `OLLAMA_BASE_URL`      | `http://localhost:11434`          | Ollama server URL                                                                                            |
+| `ENABLE_AI`            | `true`                            | Enable/disable AI features                                                                                   |
+| `AI_TIMEOUT`           | `60000`                           | Request timeout in ms                                                                                        |

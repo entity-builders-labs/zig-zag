@@ -1,0 +1,131 @@
+{
+  "classification": "CANDIDATE",
+  "provider": "cloudflare",
+  "model": "@cf/qwen/qwen3.8-27b",
+  "temperature": 0,
+  "maxCompletionTokens": 900,
+  "responseFormat": "none",
+  "chatTemplateKwargs": {
+    "enable_thinking": false
+  },
+  "httpStatus": 200,
+  "finishReason": "stop",
+  "completionTokens": 383,
+  "elapsedMs": 9450,
+  "latencyMs": 9446,
+  "rawContentSha256": "d4a12df796e025a98c18ab5676498346cf0adc009795a24232e050fd21e92e86",
+  "candidates": [
+    {
+      "name": "San Telmo Walking Tour",
+      "description": "A 2-hour walking tour through the historic heart of San Telmo, exploring colonial architecture, the bohemian spirit of the neighborhood, and iconic landmarks such as Plaza Dorrego and the San Telmo Market.",
+      "themes": [
+        "history",
+        "architecture",
+        "culture"
+      ],
+      "traits": [
+        "colonial architecture",
+        "bohemian spirit",
+        "historic neighborhood"
+      ],
+      "intents": [
+        "walk"
+      ],
+      "suggestedDurationMinutes": 120,
+      "componentHints": [
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ]
+        },
+        {
+          "key": "mercado-san-telmo",
+          "name": "El Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ]
+        }
+      ],
+      "evidenceKeys": [
+        "ev-4",
+        "ev-5"
+      ],
+      "shortReason": "Evidence explicitly describes a walking tour itinerary that includes specific stops at Plaza Dorrego and El Mercado de San Telmo.",
+      "orderedByEvidence": false
+    }
+  ],
+  "validationErrors": [],
+  "sourceSupportAudits": [
+    {
+      "candidateName": "San Telmo Walking Tour",
+      "status": "SUPPORTED",
+      "emittedComponentCount": 2,
+      "supportedComponentCount": 2,
+      "unsupportedComponentCount": 0,
+      "components": [
+        {
+          "index": 0,
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "status": "SUPPORTED"
+        },
+        {
+          "index": 1,
+          "key": "mercado-san-telmo",
+          "name": "El Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "status": "SUPPORTED"
+        }
+      ]
+    }
+  ],
+  "rawComponentFacts": [
+    {
+      "name": "San Telmo Walking Tour",
+      "components": [
+        {
+          "index": 0,
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "Plaza Dorrego"
+        },
+        {
+          "index": 1,
+          "key": "mercado-san-telmo",
+          "name": "El Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "El Mercado de San Telmo"
+        }
+      ],
+      "evidenceKeys": [
+        "ev-4",
+        "ev-5"
+      ],
+      "orderedByEvidence": false
+    }
+  ]
+}

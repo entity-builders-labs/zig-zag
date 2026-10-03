@@ -1,0 +1,141 @@
+{
+  "evaluatedUrls": [
+    "https://buenosairesfreewalks.com/la-boca-tour/",
+    "https://bafreetour.com/what-to-do-in-caminito/"
+  ],
+  "providers": {
+    "tavily": {
+      "https://buenosairesfreewalks.com/la-boca-tour/": {
+        "retrieval": {
+          "status": "retrieved",
+          "contentChars": 2980,
+          "truncated": false,
+          "latencyMs": 733,
+          "contentType": "markdown"
+        },
+        "extraction": {
+          "latencyMs": 15476,
+          "candidatesCount": 1,
+          "admittedCount": 1,
+          "candidates": [
+            {
+              "name": "La Boca Walking Tour",
+              "description": "A 2-hour guided walking tour through the La Boca neighborhood, starting at the corner of Magallanes and Caminito. The route includes walking the famous Caminito street, viewing the colorful houses and the monument to Benito Quinquela Martín, visiting the Volunteer Firefighters Plaza, and ending at the Boca Juniors stadium.",
+              "themes": [
+                "history",
+                "culture",
+                "art",
+                "architecture"
+              ],
+              "traits": [
+                "guided tour",
+                "colorful houses",
+                "tango history",
+                "fileteado art"
+              ],
+              "intents": [
+                "walk",
+                "route_like"
+              ],
+              "suggestedDurationMinutes": 120,
+              "componentHints": [
+                {
+                  "key": "caminito",
+                  "name": "Caminito",
+                  "sourceName": "Caminito",
+                  "role": "route",
+                  "expectedKind": "ROUTE",
+                  "evidenceKeys": [
+                    "ev-1"
+                  ]
+                },
+                {
+                  "key": "volunteer-firefighters-plaza",
+                  "name": "Volunteer Firefighters Plaza",
+                  "sourceName": "Volunteer Firefighters Plaza",
+                  "role": "venue",
+                  "expectedKind": "PLACE",
+                  "evidenceKeys": [
+                    "ev-1"
+                  ]
+                },
+                {
+                  "key": "boca-juniors-stadium",
+                  "name": "Boca Juniors stadium",
+                  "sourceName": "Boca Juniors stadium",
+                  "role": "venue",
+                  "expectedKind": "PLACE",
+                  "evidenceKeys": [
+                    "ev-1"
+                  ]
+                }
+              ],
+              "evidenceKeys": [
+                "ev-1"
+              ],
+              "shortReason": "Evidence explicitly describes a walking tour itinerary that includes Caminito, Volunteer Firefighters Plaza, and Boca Juniors stadium as sequential stops.",
+              "orderedByEvidence": true
+            }
+          ],
+          "validationErrors": [],
+          "rawOutput": "{\n  \"candidates\": [\n    {\n      \"name\": \"La Boca Walking Tour\",\n      \"description\": \"A 2-hour guided walking tour through the La Boca neighborhood, starting at the corner of Magallanes and Caminito. The route includes walking the famous Caminito street, viewing the colorful houses and the monument to Benito Quinquela Martín, visiting the Volunteer Firefighters Plaza, and ending at the Boca Juniors stadium.\",\n      \"themes\": [\n        \"history\",\n        \"culture\",\n        \"art\",\n        \"architecture\"\n      ],\n      \"traits\": [\n        \"guided tour\",\n        \"colorful houses\",\n        \"tango history\",\n        \"fileteado art\"\n      ],\n      \"intents\": [\n        \"walk\",\n        \"route_like\"\n      ],\n      \"suggestedDurationMinutes\": 120,\n      \"componentHints\": [\n        {\n          \"key\": \"caminito\",\n          \"name\": \"Caminito\",\n          \"role\": \"route\",\n          \"expectedKind\": \"ROUTE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"We will walk the**famous little street Caminito**\"\n        },\n        {\n          \"key\": \"volunteer-firefighters-plaza\",\n          \"name\": \"Volunteer Firefighters Plaza\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"Our tour continues with visit to the square of the **volunteer Fire Fighters**\"\n        },\n        {\n          \"key\": \"boca-juniors-stadium\",\n          \"name\": \"Boca Juniors stadium\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"we will finish our tour seeing the **Boca Juniors Football Stadium**\"\n        }\n      ],\n      \"evidenceKeys\": [\n        \"ev-1\"\n      ],\n      \"shortReason\": \"Evidence explicitly describes a walking tour itinerary that includes Caminito, Volunteer Firefighters Plaza, and Boca Juniors stadium as sequential stops.\",\n      \"orderedByEvidence\": true\n    }\n  ]\n}"
+        }
+      },
+      "https://bafreetour.com/what-to-do-in-caminito/": {
+        "retrieval": {
+          "status": "retrieved",
+          "contentChars": 9858,
+          "truncated": true,
+          "latencyMs": 523,
+          "contentType": "markdown"
+        },
+        "extraction": {
+          "latencyMs": 1351,
+          "candidatesCount": 0,
+          "admittedCount": 0,
+          "candidates": [],
+          "validationErrors": [],
+          "rawOutput": "{\n  \"candidates\": []\n}"
+        }
+      }
+    },
+    "cloudflare": {
+      "https://buenosairesfreewalks.com/la-boca-tour/": {
+        "retrieval": {
+          "status": "retrieved",
+          "contentChars": 6466,
+          "truncated": true,
+          "latencyMs": 5024,
+          "contentType": "markdown"
+        },
+        "extraction": {
+          "latencyMs": 17383,
+          "candidatesCount": 0,
+          "admittedCount": 0,
+          "candidates": [],
+          "validationErrors": [
+            "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 1 (Caminito) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE; component 3 (Boca Juniors stadium) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE; component 4 (Volunteer Firefighters Plaza) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE"
+          ],
+          "rawOutput": "{\n  \"candidates\": [\n    {\n      \"name\": \"La Boca Walking Tour\",\n      \"description\": \"A 2-hour guided walking tour through the La Boca neighborhood, starting at the corner of Magallanes and Caminito. The route covers the history of the old industrial port, the Riachuelo cove, the monument to Benito Quinquela Martín, the colorful houses of Caminito, the Volunteer Firefighters Plaza, and concludes at the Boca Juniors stadium.\",\n      \"themes\": [\n        \"history\",\n        \"culture\",\n        \"art\",\n        \"architecture\"\n      ],\n      \"traits\": [\n        \"guided tour\",\n        \"colorful houses\",\n        \"tango origins\",\n        \"industrial heritage\"\n      ],\n      \"intents\": [\n        \"walk\",\n        \"visit\"\n      ],\n      \"suggestedDurationMinutes\": 120,\n      \"componentHints\": [\n        {\n          \"key\": \"caminito\",\n          \"name\": \"Caminito\",\n          \"role\": \"route\",\n          \"expectedKind\": \"ROUTE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"We will walk the famous little street Caminito\"\n        },\n        {\n          \"key\": \"la-boca\",\n          \"name\": \"La Boca\",\n          \"role\": \"area\",\n          \"expectedKind\": \"AREA\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"WALKING Tour through la boca neighborhood\"\n        },\n        {\n          \"key\": \"boca-juniors-stadium\",\n          \"name\": \"Boca Juniors stadium\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"we will finish our tour seeing the Boca Juniors Football Stadium\"\n        },\n        {\n          \"key\": \"volunteer-firefighters-plaza\",\n          \"name\": \"Volunteer Firefighters Plaza\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"visit to the square of the volunteer Fire Fighters\"\n        }\n      ],\n      \"evidenceKeys\": [\n        \"ev-1\"\n      ],\n      \"shortReason\": \"Evidence explicitly describes a walking tour itinerary that includes Caminito, La Boca, and specific stops like the Volunteer Firefighters Plaza and Boca Juniors stadium, satisfying the multi-component requirement for the named anchor Caminito.\",\n      \"orderedByEvidence\": true\n    }\n  ]\n}"
+        }
+      },
+      "https://bafreetour.com/what-to-do-in-caminito/": {
+        "retrieval": {
+          "status": "retrieved",
+          "contentChars": 91,
+          "truncated": false,
+          "latencyMs": 2169,
+          "contentType": "markdown"
+        },
+        "extraction": {
+          "latencyMs": 1307,
+          "candidatesCount": 0,
+          "admittedCount": 0,
+          "candidates": [],
+          "validationErrors": [],
+          "rawOutput": "{\n  \"candidates\": []\n}"
+        }
+      }
+    }
+  }
+}

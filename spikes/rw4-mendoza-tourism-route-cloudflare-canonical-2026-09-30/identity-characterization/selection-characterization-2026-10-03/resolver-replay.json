@@ -1,0 +1,1541 @@
+{
+  "generatedAt": "2026-10-03T06:15:19.943Z",
+  "destination": {
+    "name": "Ciudad de Mendoza",
+    "countryCode": "AR"
+  },
+  "catalog": "STUB (empty; no reads of canonical state, no writes)",
+  "overtureSnapshots": [
+    {
+      "id": "rw4-uco-aoi-20261003",
+      "countryCode": "AR",
+      "partitionKey": "rw4-uco-aoi",
+      "release": "2026-09-23.1",
+      "completeness": "PARTIAL_PARTITION",
+      "expectedSourceCoverage": "OPERATIONAL_AOI",
+      "sourceUri": "s3://overturemaps-us-west-2/release/2026-09-23.1/theme=places/type=place/*",
+      "licenseNotice": null,
+      "expectedPageKeys": [
+        "aoi-00001"
+      ],
+      "completedPageKeys": [
+        "aoi-00001"
+      ],
+      "failedPartitionKeys": [],
+      "status": "PUBLISHED",
+      "manifest": {
+        "release": "2026-09-23.1",
+        "sourceUri": "s3://overturemaps-us-west-2/release/2026-09-23.1/theme=places/type=place/*",
+        "completeness": "PARTIAL_PARTITION",
+        "elapsedSeconds": 15.73,
+        "filesInspected": "official parquet glob; DuckDB bbox pushdown",
+        "recordsScanned": 4328,
+        "recordsImported": 4328,
+        "operationalBoundary": {
+          "bbox": [
+            -69.5,
+            -34,
+            -68.5,
+            -33
+          ]
+        }
+      },
+      "startedAt": "2026-10-03T03:38:50.899Z",
+      "finalizedAt": "2026-10-03T03:38:50.899Z",
+      "publishedAt": "2026-10-03T03:38:50.899Z",
+      "createdAt": "2026-10-03T03:38:50.899Z",
+      "updatedAt": "2026-10-03T03:38:50.899Z"
+    }
+  ],
+  "overtureIndexRows": {
+    "Alfa Crux": [
+      {
+        "id": "41c15ad3-7c50-4cc6-8a36-90ef0c3d355d",
+        "importSessionId": "rw4-uco-aoi-20261003",
+        "featureId": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+        "countryCode": "AR",
+        "partitionKey": "rw4-uco-aoi",
+        "name": "Alfa Crux",
+        "normalizedName": "alfa crux",
+        "alternateNames": [],
+        "latitude": -33.8040574593,
+        "longitude": -69.119154850671,
+        "address": "El Cepillo",
+        "upstreamDataset": "meta",
+        "upstreamRecordId": "113197860037852",
+        "upstreamUpdatedAt": "2026-09-14T00:00:00.000Z",
+        "license": "CDLA-Permissive-2.0",
+        "lastSeenAt": "2026-10-03T03:38:50.910Z",
+        "createdAt": "2026-10-03T03:38:50.910Z",
+        "updatedAt": "2026-10-03T03:38:50.910Z"
+      }
+    ],
+    "SuperUco": [
+      {
+        "id": "e05ee615-901d-49af-ba7f-723b8b92402b",
+        "importSessionId": "rw4-uco-aoi-20261003",
+        "featureId": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+        "countryCode": "AR",
+        "partitionKey": "rw4-uco-aoi",
+        "name": "SuperUco",
+        "normalizedName": "superuco",
+        "alternateNames": [],
+        "latitude": -33.60353978,
+        "longitude": -69.22870399,
+        "address": "Ruta Nacional 94 11",
+        "upstreamDataset": "meta",
+        "upstreamRecordId": "276131252581993",
+        "upstreamUpdatedAt": "2026-09-14T00:00:00.000Z",
+        "license": "CDLA-Permissive-2.0",
+        "lastSeenAt": "2026-10-03T03:38:50.913Z",
+        "createdAt": "2026-10-03T03:38:50.913Z",
+        "updatedAt": "2026-10-03T03:38:50.913Z"
+      }
+    ],
+    "Bodega Azul": [],
+    "Bodega La Azul": [
+      {
+        "id": "6119b1c3-c131-4812-81f9-20887cfbcd4c",
+        "importSessionId": "rw4-uco-aoi-20261003",
+        "featureId": "673c6cb8-b314-4650-a5c1-ef10d59be7c0",
+        "countryCode": "AR",
+        "partitionKey": "rw4-uco-aoi",
+        "name": "Bodega la Azul",
+        "normalizedName": "bodega la azul",
+        "alternateNames": [],
+        "latitude": -33.57818742,
+        "longitude": -69.01609022,
+        "address": "Avenida Gral San Martin 1131",
+        "upstreamDataset": "meta",
+        "upstreamRecordId": "323045118358807",
+        "upstreamUpdatedAt": "2026-09-14T00:00:00.000Z",
+        "license": "CDLA-Permissive-2.0",
+        "lastSeenAt": "2026-10-03T03:38:50.914Z",
+        "createdAt": "2026-10-03T03:38:50.914Z",
+        "updatedAt": "2026-10-03T03:38:50.914Z"
+      },
+      {
+        "id": "d007479e-d994-4cbe-b73b-459f680cb845",
+        "importSessionId": "rw4-uco-aoi-20261003",
+        "featureId": "d97a65d2-7613-41eb-ab26-fc577699f26d",
+        "countryCode": "AR",
+        "partitionKey": "rw4-uco-aoi",
+        "name": "Bodega La Azul",
+        "normalizedName": "bodega la azul",
+        "alternateNames": [],
+        "latitude": -33.46941806,
+        "longitude": -69.22094381,
+        "address": "Caminos del Vino",
+        "upstreamDataset": "meta",
+        "upstreamRecordId": "1893816807339177",
+        "upstreamUpdatedAt": "2026-09-14T00:00:00.000Z",
+        "license": "CDLA-Permissive-2.0",
+        "lastSeenAt": "2026-10-03T03:38:50.916Z",
+        "createdAt": "2026-10-03T03:38:50.916Z",
+        "updatedAt": "2026-10-03T03:38:50.916Z"
+      }
+    ],
+    "La Azul": [],
+    "A16": [],
+    "Bodega A16": [
+      {
+        "id": "523c88bc-5321-4786-b902-49d8ac06d199",
+        "importSessionId": "rw4-uco-aoi-20261003",
+        "featureId": "7eaf553c-dfdb-4462-ab4e-1f3d6656f3f1",
+        "countryCode": "AR",
+        "partitionKey": "rw4-uco-aoi",
+        "name": "Bodega A16",
+        "normalizedName": "bodega a16",
+        "alternateNames": [],
+        "latitude": -33.0917642,
+        "longitude": -68.9144161,
+        "address": "Calle Cobos",
+        "upstreamDataset": "Microsoft",
+        "upstreamRecordId": "1407374888439853",
+        "upstreamUpdatedAt": "2023-07-14T00:04:22.690Z",
+        "license": "CDLA-Permissive-2.0",
+        "lastSeenAt": "2026-10-03T03:38:50.927Z",
+        "createdAt": "2026-10-03T03:38:50.927Z",
+        "updatedAt": "2026-10-03T03:38:50.927Z"
+      },
+      {
+        "id": "85be5515-8c00-436e-b57c-68a867e765a9",
+        "importSessionId": "rw4-uco-aoi-20261003",
+        "featureId": "8a73108f-cdd4-4b19-8a24-7cc78f14fbd2",
+        "countryCode": "AR",
+        "partitionKey": "rw4-uco-aoi",
+        "name": "Bodega A16",
+        "normalizedName": "bodega a16",
+        "alternateNames": [],
+        "latitude": -33.091156,
+        "longitude": -68.90458,
+        "address": "Cobos 5890",
+        "upstreamDataset": "meta",
+        "upstreamRecordId": "1396967760585038",
+        "upstreamUpdatedAt": "2026-09-14T00:00:00.000Z",
+        "license": "CDLA-Permissive-2.0",
+        "lastSeenAt": "2026-10-03T03:38:50.927Z",
+        "createdAt": "2026-10-03T03:38:50.927Z",
+        "updatedAt": "2026-10-03T03:38:50.927Z"
+      }
+    ]
+  },
+  "overtureLookups": {
+    "Alfa Crux": {
+      "resultCount": 1,
+      "coverage": "PARTIAL_OR_UNKNOWN",
+      "candidate": {
+        "hintKey": "alfa-crux",
+        "hintName": "Alfa Crux",
+        "provider": "overture",
+        "externalId": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+        "canonicalName": "Alfa Crux",
+        "kind": "PLACE",
+        "latitude": -33.8040574593,
+        "longitude": -69.119154850671,
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -69.119154850671,
+            -33.8040574593
+          ]
+        },
+        "role": "venue",
+        "nameEvidenceMultiplicity": {
+          "exactName": "UNKNOWN",
+          "declaredAlias": "UNKNOWN"
+        },
+        "persistenceMetadata": {
+          "overture": {
+            "release": "2026-09-23.1",
+            "upstreamDataset": "meta",
+            "upstreamRecordId": "113197860037852",
+            "upstreamUpdatedAt": "2026-09-14T00:00:00.000Z",
+            "license": "CDLA-Permissive-2.0"
+          }
+        }
+      }
+    },
+    "SuperUco": {
+      "resultCount": 1,
+      "coverage": "PARTIAL_OR_UNKNOWN",
+      "candidate": {
+        "hintKey": "superuco",
+        "hintName": "SuperUco",
+        "provider": "overture",
+        "externalId": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+        "canonicalName": "SuperUco",
+        "kind": "PLACE",
+        "latitude": -33.60353978,
+        "longitude": -69.22870399,
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -69.22870399,
+            -33.60353978
+          ]
+        },
+        "role": "venue",
+        "nameEvidenceMultiplicity": {
+          "exactName": "UNKNOWN",
+          "declaredAlias": "UNKNOWN"
+        },
+        "persistenceMetadata": {
+          "overture": {
+            "release": "2026-09-23.1",
+            "upstreamDataset": "meta",
+            "upstreamRecordId": "276131252581993",
+            "upstreamUpdatedAt": "2026-09-14T00:00:00.000Z",
+            "license": "CDLA-Permissive-2.0"
+          }
+        }
+      }
+    },
+    "Bodega Azul": {
+      "resultCount": 0,
+      "coverage": "PARTIAL_OR_UNKNOWN"
+    },
+    "A16": {
+      "resultCount": 0,
+      "coverage": "PARTIAL_OR_UNKNOWN"
+    },
+    "Ojo de Agua": {
+      "resultCount": 0,
+      "coverage": "PARTIAL_OR_UNKNOWN"
+    }
+  },
+  "nominatimPools": {
+    "Alfa Crux": {
+      "DEFAULT": [],
+      "PROVIDER_MAXIMUM": []
+    },
+    "SuperUco": {
+      "DEFAULT": [],
+      "PROVIDER_MAXIMUM": []
+    },
+    "Bodega Azul": {
+      "DEFAULT": [
+        {
+          "id": "osm:node:4082354791",
+          "class": "shop",
+          "type": "wine",
+          "addresstype": "shop",
+          "importance": 0.00000999999999995449,
+          "state": "Buenos Aires",
+          "exactName": false,
+          "displayName": "Supermercado del Vino \"La Bodega de Azul\", Castellar, Del Carmen, Azul, Partido de Azul, Buenos Aires, 7300, Argentina",
+          "latitude": -36.7868206,
+          "longitude": -59.8591456
+        }
+      ],
+      "PROVIDER_MAXIMUM": [
+        {
+          "id": "osm:node:4082354791",
+          "class": "shop",
+          "type": "wine",
+          "addresstype": "shop",
+          "importance": 0.00000999999999995449,
+          "state": "Buenos Aires",
+          "exactName": false,
+          "displayName": "Supermercado del Vino \"La Bodega de Azul\", Castellar, Del Carmen, Azul, Partido de Azul, Buenos Aires, 7300, Argentina",
+          "latitude": -36.7868206,
+          "longitude": -59.8591456
+        }
+      ]
+    },
+    "A16": {
+      "DEFAULT": [
+        {
+          "id": "osm:way:1535885312",
+          "class": "building",
+          "type": "house",
+          "addresstype": "building",
+          "importance": 0.00000999999999995449,
+          "state": "Río Negro",
+          "exactName": true,
+          "displayName": "a16, Viento Santa Rosa, Barrio Vientos del Oeste, Costa Oeste, Municipio de Allen, Departamento General Roca, Río Negro, R8328, Argentina",
+          "latitude": -39.0242835,
+          "longitude": -67.8419638
+        },
+        {
+          "id": "osm:way:1169755120",
+          "class": "building",
+          "type": "house",
+          "addresstype": "building",
+          "importance": 0.00000999999999995449,
+          "state": "San Juan",
+          "exactName": true,
+          "displayName": "A16, Maestros de San Juan, Barrio Docentes Sanjuaninos, Comuna Sur, Rivadavia, San Juan, J5402AFK, Argentina",
+          "latitude": -31.5535361,
+          "longitude": -68.5656739
+        },
+        {
+          "id": "osm:node:8067336819",
+          "class": "place",
+          "type": "house",
+          "addresstype": "place",
+          "importance": 0.00000999999999995449,
+          "state": "Buenos Aires",
+          "exactName": true,
+          "displayName": "A16, Country Club S.H.A., Pilar, Partido del Pilar, Buenos Aires, B1631, Argentina",
+          "latitude": -34.4592759,
+          "longitude": -58.8772988
+        },
+        {
+          "id": "osm:way:153920802",
+          "class": "highway",
+          "type": "residential",
+          "addresstype": "road",
+          "importance": 0.0533433333333333,
+          "state": "Mendoza",
+          "exactName": false,
+          "displayName": "FC Belgrano, Distrito Cacheuta, Departamento Luján de Cuyo, Mendoza, Argentina",
+          "latitude": -33.0146525,
+          "longitude": -69.1178334
+        },
+        {
+          "id": "osm:way:125985834",
+          "class": "highway",
+          "type": "residential",
+          "addresstype": "road",
+          "importance": 0.0533433333333333,
+          "state": "Mendoza",
+          "exactName": false,
+          "displayName": "FC Belgrano, Distrito El Challao, Departamento Las Heras, Mendoza, Argentina",
+          "latitude": -33.0108629,
+          "longitude": -69.120107
+        }
+      ],
+      "PROVIDER_MAXIMUM": [
+        {
+          "id": "osm:way:1535885312",
+          "class": "building",
+          "type": "house",
+          "addresstype": "building",
+          "importance": 0.00000999999999995449,
+          "state": "Río Negro",
+          "exactName": true,
+          "displayName": "a16, Viento Santa Rosa, Barrio Vientos del Oeste, Costa Oeste, Municipio de Allen, Departamento General Roca, Río Negro, R8328, Argentina",
+          "latitude": -39.0242835,
+          "longitude": -67.8419638
+        },
+        {
+          "id": "osm:way:1169755120",
+          "class": "building",
+          "type": "house",
+          "addresstype": "building",
+          "importance": 0.00000999999999995449,
+          "state": "San Juan",
+          "exactName": true,
+          "displayName": "A16, Maestros de San Juan, Barrio Docentes Sanjuaninos, Comuna Sur, Rivadavia, San Juan, J5402AFK, Argentina",
+          "latitude": -31.5535361,
+          "longitude": -68.5656739
+        },
+        {
+          "id": "osm:node:8067336819",
+          "class": "place",
+          "type": "house",
+          "addresstype": "place",
+          "importance": 0.00000999999999995449,
+          "state": "Buenos Aires",
+          "exactName": true,
+          "displayName": "A16, Country Club S.H.A., Pilar, Partido del Pilar, Buenos Aires, B1631, Argentina",
+          "latitude": -34.4592759,
+          "longitude": -58.8772988
+        },
+        {
+          "id": "osm:way:153920802",
+          "class": "highway",
+          "type": "residential",
+          "addresstype": "road",
+          "importance": 0.0533433333333333,
+          "state": "Mendoza",
+          "exactName": false,
+          "displayName": "FC Belgrano, Distrito Cacheuta, Departamento Luján de Cuyo, Mendoza, Argentina",
+          "latitude": -33.0146525,
+          "longitude": -69.1178334
+        },
+        {
+          "id": "osm:way:125985834",
+          "class": "highway",
+          "type": "residential",
+          "addresstype": "road",
+          "importance": 0.0533433333333333,
+          "state": "Mendoza",
+          "exactName": false,
+          "displayName": "FC Belgrano, Distrito El Challao, Departamento Las Heras, Mendoza, Argentina",
+          "latitude": -33.0108629,
+          "longitude": -69.120107
+        },
+        {
+          "id": "osm:way:152946886",
+          "class": "highway",
+          "type": "residential",
+          "addresstype": "road",
+          "importance": 0.0533433333333333,
+          "state": "Mendoza",
+          "exactName": false,
+          "displayName": "FC Belgrano, Distrito El Challao, Distrito Cacheuta, Departamento Luján de Cuyo, Departamento Las Heras, Mendoza, Argentina",
+          "latitude": -33.0122872,
+          "longitude": -69.1192081
+        },
+        {
+          "id": "osm:way:48965326",
+          "class": "highway",
+          "type": "unclassified",
+          "addresstype": "road",
+          "importance": 0.0533433333333333,
+          "state": "Mendoza",
+          "exactName": false,
+          "displayName": "FC Belgrano, Distrito El Challao, Distrito Potrerillos, Departamento Luján de Cuyo, Departamento Las Heras, Mendoza, 5552, Argentina",
+          "latitude": -32.9274911,
+          "longitude": -69.2227064
+        },
+        {
+          "id": "osm:way:153922264",
+          "class": "highway",
+          "type": "service",
+          "addresstype": "road",
+          "importance": 0.04000999999999999,
+          "state": "Mendoza",
+          "exactName": false,
+          "displayName": "FC Belgrano, Distrito Cacheuta, Departamento Luján de Cuyo, Mendoza, Argentina",
+          "latitude": -33.0234018,
+          "longitude": -69.1140268
+        },
+        {
+          "id": "osm:way:152946890",
+          "class": "highway",
+          "type": "service",
+          "addresstype": "road",
+          "importance": 0.04000999999999999,
+          "state": "Mendoza",
+          "exactName": false,
+          "displayName": "FC Belgrano, Distrito El Challao, Distrito Cacheuta, Departamento Luján de Cuyo, Departamento Las Heras, Mendoza, Argentina",
+          "latitude": -33.0249117,
+          "longitude": -69.1142004
+        }
+      ]
+    },
+    "Ojo de Agua": {
+      "DEFAULT": [
+        {
+          "id": "osm:node:198407364",
+          "class": "place",
+          "type": "hamlet",
+          "addresstype": "hamlet",
+          "importance": 0.1333433333333333,
+          "state": "Córdoba",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Pedanía San Carlos, Departamento Minas, Córdoba, X5291, Argentina",
+          "latitude": -31.2168064,
+          "longitude": -65.2463275
+        },
+        {
+          "id": "osm:node:6348417568",
+          "class": "place",
+          "type": "hamlet",
+          "addresstype": "hamlet",
+          "importance": 0.1333433333333333,
+          "state": "Neuquén",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Departamento Catán Lil, Neuquén, Argentina",
+          "latitude": -39.6322868,
+          "longitude": -70.0019147
+        },
+        {
+          "id": "osm:node:5138938937",
+          "class": "place",
+          "type": "hamlet",
+          "addresstype": "hamlet",
+          "importance": 0.1333433333333333,
+          "state": "Tucumán",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de Tafí del Valle, Departamento Tafí del Valle, Tucumán, T4137, Argentina",
+          "latitude": -26.8962286,
+          "longitude": -65.7082525
+        },
+        {
+          "id": "osm:node:5128388825",
+          "class": "place",
+          "type": "hamlet",
+          "addresstype": "hamlet",
+          "importance": 0.1333433333333333,
+          "state": "Salta",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de General Güemes, General Güemes, Salta, Argentina",
+          "latitude": -24.6200586,
+          "longitude": -64.9801895
+        },
+        {
+          "id": "osm:node:5110696301",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "Jujuy",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de Abdón Castro Tolay, Departamento Cochinoca, Jujuy, Argentina",
+          "latitude": -23.4584412,
+          "longitude": -65.9867325
+        }
+      ],
+      "PROVIDER_MAXIMUM": [
+        {
+          "id": "osm:node:5128388825",
+          "class": "place",
+          "type": "hamlet",
+          "addresstype": "hamlet",
+          "importance": 0.1333433333333333,
+          "state": "Salta",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de General Güemes, General Güemes, Salta, Argentina",
+          "latitude": -24.6200586,
+          "longitude": -64.9801895
+        },
+        {
+          "id": "osm:node:5138938937",
+          "class": "place",
+          "type": "hamlet",
+          "addresstype": "hamlet",
+          "importance": 0.1333433333333333,
+          "state": "Tucumán",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de Tafí del Valle, Departamento Tafí del Valle, Tucumán, T4137, Argentina",
+          "latitude": -26.8962286,
+          "longitude": -65.7082525
+        },
+        {
+          "id": "osm:node:6348417568",
+          "class": "place",
+          "type": "hamlet",
+          "addresstype": "hamlet",
+          "importance": 0.1333433333333333,
+          "state": "Neuquén",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Departamento Catán Lil, Neuquén, Argentina",
+          "latitude": -39.6322868,
+          "longitude": -70.0019147
+        },
+        {
+          "id": "osm:node:198407364",
+          "class": "place",
+          "type": "hamlet",
+          "addresstype": "hamlet",
+          "importance": 0.1333433333333333,
+          "state": "Córdoba",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Pedanía San Carlos, Departamento Minas, Córdoba, X5291, Argentina",
+          "latitude": -31.2168064,
+          "longitude": -65.2463275
+        },
+        {
+          "id": "osm:node:5112503863",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "Jujuy",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de Tumbaya, Municipio de El Moreno, Departamento Tumbaya, Jujuy, Argentina",
+          "latitude": -23.8773874,
+          "longitude": -65.8072056
+        },
+        {
+          "id": "osm:node:5110696301",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "Jujuy",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de Abdón Castro Tolay, Departamento Cochinoca, Jujuy, Argentina",
+          "latitude": -23.4584412,
+          "longitude": -65.9867325
+        },
+        {
+          "id": "osm:node:198407348",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "Córdoba",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Pedanía Candelaria, Departamento Cruz del Eje, Córdoba, X5280, Argentina",
+          "latitude": -31.0706796,
+          "longitude": -65.0671236
+        },
+        {
+          "id": "osm:node:198407304",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "Catamarca",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de El Alto, Departamento El Alto, Catamarca, K4235, Argentina",
+          "latitude": -28.4733633,
+          "longitude": -65.4403387
+        },
+        {
+          "id": "osm:node:5196316248",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "Salta",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de Rosario de la Frontera, Rosario de la Frontera, Salta, Argentina",
+          "latitude": -25.8972033,
+          "longitude": -64.9614643
+        },
+        {
+          "id": "osm:node:198407330",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "Córdoba",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Pedanía Parroquia, Departamento Ischilín, Córdoba, X5200, Argentina",
+          "latitude": -30.6141061,
+          "longitude": -64.3969723
+        },
+        {
+          "id": "osm:node:198407318",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "Córdoba",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Pedanía Parroquia, Departamento Tulumba, Córdoba, X5203, Argentina",
+          "latitude": -30.4543932,
+          "longitude": -64.1374207
+        },
+        {
+          "id": "osm:node:5631071229",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "Buenos Aires",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Cuartel XII, Partido de Coronel Pringles, Buenos Aires, Argentina",
+          "latitude": -38.3804385,
+          "longitude": -61.4056885
+        },
+        {
+          "id": "osm:node:5113635431",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "Jujuy",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de Palma Sola, Departamento Santa Bárbara, Jujuy, Argentina",
+          "latitude": -24.2569089,
+          "longitude": -64.3103262
+        },
+        {
+          "id": "osm:node:5592198666",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "Santa Cruz",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Güer Aike, Santa Cruz, Argentina",
+          "latitude": -51.7408725,
+          "longitude": -72.0800366
+        },
+        {
+          "id": "osm:node:5213772211",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "La Rioja",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Coronel Felipe Varela, La Rioja, F5350, Argentina",
+          "latitude": -29.6104645,
+          "longitude": -68.957584
+        },
+        {
+          "id": "osm:node:198407384",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "addresstype": "isolated_dwelling",
+          "importance": 0.10667666666666664,
+          "state": "San Luis",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Comisión Municipal de Las Chacras, Departamento Libertador General San Martín, San Luis, Argentina",
+          "latitude": -32.6127178,
+          "longitude": -65.8272154
+        },
+        {
+          "id": "osm:node:2821458392",
+          "class": "place",
+          "type": "locality",
+          "addresstype": "locality",
+          "importance": 0.06667666666666666,
+          "state": "Jujuy",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de Santa Catalina, Departamento Santa Catalina, Jujuy, Argentina",
+          "latitude": -22.1617527,
+          "longitude": -66.2373874
+        },
+        {
+          "id": "osm:node:4780182653",
+          "class": "place",
+          "type": "locality",
+          "addresstype": "locality",
+          "importance": 0.06667666666666666,
+          "state": "San Juan",
+          "exactName": true,
+          "displayName": "Ojo de agua, Iglesia, San Juan, Argentina",
+          "latitude": -30.3568019,
+          "longitude": -69.6922182
+        },
+        {
+          "id": "osm:way:287415563",
+          "class": "highway",
+          "type": "residential",
+          "addresstype": "road",
+          "importance": 0.0533433333333333,
+          "state": "Santiago del Estero",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Juan Felipe Ibarra, Santiago del Estero, Municipio de Santiago del Estero, Departamento Juan Francisco Borges, Santiago del Estero, G4200, Argentina",
+          "latitude": -27.7839602,
+          "longitude": -64.2821881
+        },
+        {
+          "id": "osm:way:166490724",
+          "class": "highway",
+          "type": "residential",
+          "addresstype": "road",
+          "importance": 0.0533433333333333,
+          "state": "Córdoba",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Agua de Oro, Municipio de Agua de Oro, Pedanía San Vicente, Departamento Colón, Córdoba, X5111, Argentina",
+          "latitude": -31.0724331,
+          "longitude": -64.2971781
+        },
+        {
+          "id": "osm:way:65719843",
+          "class": "highway",
+          "type": "residential",
+          "addresstype": "road",
+          "importance": 0.0533433333333333,
+          "state": "Río Negro",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Villa Don Orione, San Carlos de Bariloche, Municipio de San Carlos de Bariloche, Departamento Bariloche, Río Negro, 8400, Argentina",
+          "latitude": -41.086214,
+          "longitude": -71.4599656
+        },
+        {
+          "id": "osm:way:47855395",
+          "class": "highway",
+          "type": "residential",
+          "addresstype": "road",
+          "importance": 0.0533433333333333,
+          "state": "Misiones",
+          "exactName": true,
+          "displayName": "Ojo de Agua, El Palomar, Delegacion Municipal Villa Urquiza, Posadas, Municipio de Posadas, Departamento Capital, Misiones, N3300BSP, Argentina",
+          "latitude": -27.3765972,
+          "longitude": -55.8933976
+        },
+        {
+          "id": "osm:way:1312101460",
+          "class": "tourism",
+          "type": "chalet",
+          "addresstype": "tourism",
+          "importance": 0.00000999999999995449,
+          "state": "Buenos Aires",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Los Paraisos, El Dique, Sierra de la Ventana, Cuartel IX, Partido de Tornquist, Buenos Aires, 8168, Argentina",
+          "latitude": -38.1352388,
+          "longitude": -61.796437
+        },
+        {
+          "id": "osm:way:1127539585",
+          "class": "highway",
+          "type": "proposed",
+          "addresstype": "highway",
+          "importance": 0.00000999999999995449,
+          "state": "Río Negro",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Rosario Burgos, Ñirihuau, Municipio de Dina Huapi, Departamento Pilcaniyeu, Río Negro, 8402, Argentina",
+          "latitude": -41.0904618,
+          "longitude": -71.1418572
+        },
+        {
+          "id": "osm:node:7079831786",
+          "class": "shop",
+          "type": "florist",
+          "addresstype": "shop",
+          "importance": 0.00000999999999995449,
+          "state": "Córdoba",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Avenida Ojo de Agua, Barrio La Cancha, Villa General Belgrano, Municipio de Villa General Belgrano, Pedanía Los Reartes, Departamento Calamuchita, Córdoba, X5194, Argentina",
+          "latitude": -31.9796776,
+          "longitude": -64.5533293
+        },
+        {
+          "id": "osm:node:7882386403",
+          "class": "tourism",
+          "type": "chalet",
+          "addresstype": "tourism",
+          "importance": 0.00000999999999995449,
+          "state": "Córdoba",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Avenida Ojo de Agua, Villa General Belgrano, Municipio de Villa General Belgrano, Pedanía Los Reartes, Departamento Calamuchita, Córdoba, X5194, Argentina",
+          "latitude": -31.9779961,
+          "longitude": -64.5582216
+        },
+        {
+          "id": "osm:node:10087932517",
+          "class": "tourism",
+          "type": "hotel",
+          "addresstype": "tourism",
+          "importance": 0.00000999999999995449,
+          "state": "La Pampa",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Municipio de Doblas, Departamento Guatraché, La Pampa, Argentina",
+          "latitude": -37.2605272,
+          "longitude": -64.0421208
+        },
+        {
+          "id": "osm:node:7818396585",
+          "class": "historic",
+          "type": "archaeological_site",
+          "addresstype": "historic",
+          "importance": 0.00000999999999995449,
+          "state": "Salta",
+          "exactName": true,
+          "displayName": "Ojo de Agua, RP127s, Municipio de Campo Quijano, Rosario de Lerma, Salta, Argentina",
+          "latitude": -24.3650293,
+          "longitude": -65.7956803
+        },
+        {
+          "id": "osm:node:4797394430",
+          "class": "amenity",
+          "type": "restaurant",
+          "addresstype": "amenity",
+          "importance": 0.00000999999999995449,
+          "state": "Mendoza",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Funes, Colonia 9 De Julio, Distrito Agrelo, Departamento Luján de Cuyo, Mendoza, 5509, Argentina",
+          "latitude": -33.1300868,
+          "longitude": -68.9641048
+        },
+        {
+          "id": "osm:node:1318699906",
+          "class": "railway",
+          "type": "halt",
+          "addresstype": "railway",
+          "importance": 0.00000999999999995449,
+          "state": "Río Negro",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Ruta Provincial 6, Departamento Ñorquincó, Río Negro, Argentina",
+          "latitude": -41.5569913,
+          "longitude": -69.8688505
+        },
+        {
+          "id": "osm:node:5325786728",
+          "class": "natural",
+          "type": "spring",
+          "addresstype": "natural",
+          "importance": 0.00000999999999995449,
+          "state": "Córdoba",
+          "exactName": true,
+          "displayName": "Ojo de Agua, Sendero Los Hornillos – Cerro la Ventana, Los Hornillos, Comuna de Las Rabonas, Pedanía Rosas, Departamento San Javier, Córdoba, X5870, Argentina",
+          "latitude": -31.9303378,
+          "longitude": -64.9540724
+        }
+      ]
+    }
+  },
+  "wouldPersistCalls": [],
+  "candidates": [
+    {
+      "name": "Uco Valley Wine Tasting Itinerary",
+      "status": "rejected",
+      "rejectionReasons": [
+        "UNCONFIRMED_MATCH"
+      ]
+    },
+    {
+      "name": "Lujan de Cuyo Wine Tasting Itinerary",
+      "status": "rejected",
+      "rejectionReasons": [
+        "NO_OSM_MATCH",
+        "UNCONFIRMED_MATCH"
+      ]
+    }
+  ],
+  "forensicAudit": [
+    {
+      "candidateName": "Uco Valley Wine Tasting Itinerary",
+      "geographicPolicy": "ROUTE_LIKE",
+      "componentSearchScope": {
+        "kind": "AREA",
+        "provenance": "DESTINATION_AREA",
+        "name": "Ciudad de Mendoza"
+      },
+      "components": [
+        {
+          "hintKey": "alfa-crux",
+          "hintName": "Alfa Crux",
+          "sourceName": "Alfa Crux",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "Alfa Crux",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "Alfa Crux",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Alfa Crux",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "Alfa Crux",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "placeSearch": {
+                "resultCount": 0,
+                "rejected": [],
+                "viableCount": 0,
+                "searchWindow": {
+                  "provenance": "DESTINATION_AREA",
+                  "radiusMeters": 12964
+                }
+              },
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "provider": "geoapify",
+              "query": "Alfa Crux",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "Alfa Crux",
+              "providerResultCount": 1,
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "canonicalName": "Alfa Crux",
+                "externalId": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+                "kind": "PLACE",
+                "identities": [
+                  {
+                    "provider": "overture",
+                    "externalId": "79eb9ee4-0591-49f3-a077-51a7926a3ada"
+                  }
+                ],
+                "latitude": -33.8040574593,
+                "longitude": -69.119154850671
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH"
+        },
+        {
+          "hintKey": "superuco",
+          "hintName": "SuperUco",
+          "sourceName": "SuperUco",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "SuperUco",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "SuperUco",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "SuperUco",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "SuperUco",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "placeSearch": {
+                "resultCount": 0,
+                "rejected": [],
+                "viableCount": 0,
+                "searchWindow": {
+                  "provenance": "DESTINATION_AREA",
+                  "radiusMeters": 12964
+                }
+              },
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "provider": "geoapify",
+              "query": "SuperUco",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "SuperUco",
+              "providerResultCount": 1,
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "canonicalName": "SuperUco",
+                "externalId": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+                "kind": "PLACE",
+                "identities": [
+                  {
+                    "provider": "overture",
+                    "externalId": "753ed444-8e83-4178-8ad3-a05e9a28b7c5"
+                  }
+                ],
+                "latitude": -33.60353978,
+                "longitude": -69.22870399
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH"
+        },
+        {
+          "hintKey": "bodega-azul",
+          "hintName": "Bodega Azul",
+          "sourceName": "Bodega Azul",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "Bodega Azul",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "Bodega Azul",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Bodega Azul",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "Bodega Azul",
+              "providerResultCount": 1,
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "canonicalName": "Supermercado del Vino \"La Bodega de Azul\"",
+                "externalId": "osm:node:4082354791",
+                "kind": "PLACE",
+                "identities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4082354791"
+                  }
+                ],
+                "latitude": -36.7868206,
+                "longitude": -59.8591456
+              },
+              "identityEvidence": [
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            },
+            {
+              "strategy": "PLACES",
+              "executionStatus": "failed",
+              "provider": "geoapify",
+              "query": "Bodega Azul",
+              "candidateAcquired": false,
+              "failureReason": "Geoapify text search failed: timeout of 5000ms exceeded",
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "Bodega Azul",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH"
+        }
+      ],
+      "componentResolution": {
+        "scope": {
+          "kind": "SCOPE",
+          "provenance": "DESTINATION_AREA",
+          "name": "Ciudad de Mendoza"
+        },
+        "components": [
+          {
+            "hintKey": "alfa-crux",
+            "hintName": "Alfa Crux",
+            "role": "venue",
+            "expectedKind": "PLACE",
+            "evidenceKeys": [
+              "ev-1"
+            ],
+            "sourceOrder": null,
+            "identityStatus": "UNRESOLVED",
+            "deficit": {
+              "reason": "CANDIDATE_UNCONFIRMED",
+              "classification": "PENDING_CLASSIFICATION"
+            }
+          },
+          {
+            "hintKey": "superuco",
+            "hintName": "SuperUco",
+            "role": "venue",
+            "expectedKind": "PLACE",
+            "evidenceKeys": [
+              "ev-1"
+            ],
+            "sourceOrder": null,
+            "identityStatus": "UNRESOLVED",
+            "deficit": {
+              "reason": "CANDIDATE_UNCONFIRMED",
+              "classification": "PENDING_CLASSIFICATION"
+            }
+          },
+          {
+            "hintKey": "bodega-azul",
+            "hintName": "Bodega Azul",
+            "role": "venue",
+            "expectedKind": "PLACE",
+            "evidenceKeys": [
+              "ev-1"
+            ],
+            "sourceOrder": null,
+            "identityStatus": "UNRESOLVED",
+            "deficit": {
+              "reason": "CANDIDATE_UNCONFIRMED",
+              "classification": "PENDING_CLASSIFICATION"
+            }
+          }
+        ],
+        "coverage": {
+          "totalComponents": 3,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0,
+          "unresolvedComponents": 3,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "resolutionRatio": 0,
+          "openResearchDeficits": [],
+          "sourceCompositionComplete": false
+        }
+      }
+    },
+    {
+      "candidateName": "Lujan de Cuyo Wine Tasting Itinerary",
+      "geographicPolicy": "ROUTE_LIKE",
+      "componentSearchScope": {
+        "kind": "AREA",
+        "provenance": "DESTINATION_AREA",
+        "name": "Ciudad de Mendoza"
+      },
+      "components": [
+        {
+          "hintKey": "a16",
+          "hintName": "A16",
+          "sourceName": "A16",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "A16",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "A16",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "A16",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "A16",
+              "providerResultCount": 6,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "placeSearch": {
+                "resultCount": 0,
+                "rejected": [],
+                "viableCount": 0,
+                "searchWindow": {
+                  "provenance": "DESTINATION_AREA",
+                  "radiusMeters": 12964
+                }
+              },
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "provider": "geoapify",
+              "query": "A16",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "A16",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "NO_OSM_MATCH"
+        },
+        {
+          "hintKey": "ojo-de-agua",
+          "hintName": "Ojo de Agua",
+          "sourceName": "Ojo de Agua",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "provider": "catalog",
+              "query": "Ojo de Agua",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "provider": "trusted_observation",
+              "query": "Ojo de Agua",
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "provider": "openstreetmap",
+              "query": "Ojo de Agua",
+              "poolCandidateCount": 176,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "provider": "nominatim",
+              "query": "Ojo de Agua",
+              "providerResultCount": 31,
+              "candidateAcquired": true,
+              "selectedCandidate": {
+                "canonicalName": "Ojo de Agua",
+                "externalId": "osm:node:4797394430",
+                "kind": "PLACE",
+                "identities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4797394430"
+                  }
+                ],
+                "latitude": -33.1300868,
+                "longitude": -68.9641048
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "MULTIPLE"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "AMBIGUOUS"
+            },
+            {
+              "placeSearch": {
+                "resultCount": 0,
+                "rejected": [],
+                "viableCount": 0,
+                "searchWindow": {
+                  "provenance": "DESTINATION_AREA",
+                  "radiusMeters": 12964
+                }
+              },
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "provider": "geoapify",
+              "query": "Ojo de Agua",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "provider": "overture",
+              "query": "Ojo de Agua",
+              "providerResultCount": 0,
+              "candidateAcquired": false,
+              "identityEvidence": []
+            }
+          ],
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH"
+        }
+      ],
+      "componentResolution": {
+        "scope": {
+          "kind": "SCOPE",
+          "provenance": "DESTINATION_AREA",
+          "name": "Ciudad de Mendoza"
+        },
+        "components": [
+          {
+            "hintKey": "a16",
+            "hintName": "A16",
+            "role": "venue",
+            "expectedKind": "PLACE",
+            "evidenceKeys": [
+              "ev-1"
+            ],
+            "sourceOrder": null,
+            "identityStatus": "UNRESOLVED",
+            "deficit": {
+              "reason": "NO_CANDIDATE_ACQUIRED",
+              "classification": "PENDING_CLASSIFICATION"
+            }
+          },
+          {
+            "hintKey": "ojo-de-agua",
+            "hintName": "Ojo de Agua",
+            "role": "venue",
+            "expectedKind": "PLACE",
+            "evidenceKeys": [
+              "ev-1"
+            ],
+            "sourceOrder": null,
+            "identityStatus": "AMBIGUOUS",
+            "deficit": {
+              "reason": "AMBIGUOUS_CANDIDATES",
+              "classification": "KNOWLEDGE_DEFICIT"
+            }
+          }
+        ],
+        "coverage": {
+          "totalComponents": 2,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0,
+          "unresolvedComponents": 1,
+          "ambiguousComponents": 1,
+          "conflictedComponents": 0,
+          "resolutionRatio": 0,
+          "openResearchDeficits": [
+            "ojo-de-agua"
+          ],
+          "sourceCompositionComplete": false
+        }
+      }
+    }
+  ],
+  "geographicValidation": []
+}

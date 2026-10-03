@@ -1,0 +1,521 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Basílica de San Francisco",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 783,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica de San Francisco",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1091AAH",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Moreno",
+        "iso3166_2": "AR-C",
+        "lon": -58.3718121,
+        "lat": -34.6106142,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1180.484492948444,
+        "formatted": "Basílica de San Francisco, Moreno, Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "address_line1": "Basílica de San Francisco",
+        "address_line2": "Moreno, Monserrat, C1091 AAH Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+Q7",
+        "plus_code_short": "QH+Q7 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.2809844805284867,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51e8e0f489972f4dc05992bc299b284e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f",
+        "bbox": {
+          "lon1": -58.3719542,
+          "lat1": -34.6112405,
+          "lon2": -58.3708282,
+          "lat2": -34.6101922
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica de San Francisco",
+        "other_names": {
+          "alt_name": "Convento Franciscano"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Mendoza",
+        "county": "Sección 1ª Parque Central",
+        "state_district": "Departamento Capital",
+        "city": "Mendoza",
+        "postcode": "M5500",
+        "street": "España",
+        "housenumber": "1418",
+        "iso3166_2": "AR-M",
+        "lon": -68.8416157,
+        "lat": -32.8866115,
+        "state_code": "M",
+        "result_type": "amenity",
+        "distance": 985314.8956380566,
+        "formatted": "Basílica de San Francisco, España 1418, M5500 Mendoza, Argentina",
+        "address_line1": "Basílica de San Francisco",
+        "address_line2": "España 1418, M5500 Mendoza, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Mendoza",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47VH4575+99",
+        "plus_code_short": "75+99 Mendoza, Sección 1ª Parque Central, Argentina",
+        "rank": {
+          "importance": 0.1679799034751623,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5136d31808dd3551c059f660527c7c7140c0f00102f90144445a4d00000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f",
+        "bbox": {
+          "lon1": -68.8419982,
+          "lat1": -32.8867948,
+          "lon2": -68.841217,
+          "lat2": -32.8864268
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica de San Francisco",
+        "other_names": {
+          "name:ja": "サンフランシスコ大聖堂"
+        },
+        "country": "Bolivia",
+        "country_code": "bo",
+        "state": "La Paz",
+        "county": "Provincia Pedro Domingo Murillo",
+        "city": "La Paz",
+        "district": "Centro",
+        "neighbourhood": "El Rosario",
+        "street": "Plaza San Francisco",
+        "iso3166_2": "BO-L",
+        "lon": -68.1373578,
+        "lat": -16.4964826,
+        "state_code": "L",
+        "result_type": "amenity",
+        "distance": 2235586.9355492927,
+        "formatted": "Basílica de San Francisco, Plaza San Francisco, La Paz, Bolivia",
+        "address_line1": "Basílica de San Francisco",
+        "address_line2": "Plaza San Francisco, La Paz, Bolivia",
+        "timezone": {
+          "name": "America/La_Paz",
+          "offset_STD": "-04:00",
+          "offset_DST": "-04:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -14400
+        },
+        "plus_code": "57MHGV37+C3",
+        "plus_code_short": "37+C3 La Paz, Provincia Pedro Domingo Murillo, Bolivia",
+        "rank": {
+          "importance": 0.2861574737770128,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "516fb65e78ca0851c0597608d27b197f30c0f00102f9017bd2671f00000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f",
+        "bbox": {
+          "lon1": -68.1377064,
+          "lat1": -16.4967186,
+          "lon2": -68.1370883,
+          "lat2": -16.4962463
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Centro De Salud 57 Santa Ana II",
+        "other_names": {
+          "official_name": "Centro De Salud Nº 57 Santa Ana II"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Salta",
+        "county": "Capital",
+        "city": "Salta",
+        "town": "General Alvarado",
+        "postcode": "4400",
+        "suburb": "Bº Los Tarcos",
+        "street": "Basílica San Francisco",
+        "iso3166_2": "AR-A",
+        "lon": -65.4598566,
+        "lat": -24.8513171,
+        "state_code": "A",
+        "district": "Bº Los Tarcos",
+        "result_type": "amenity",
+        "distance": 1280909.7035234733,
+        "formatted": "Centro De Salud 57 Santa Ana II, Basílica San Francisco, Bº Los Tarcos, 4400 Salta, Argentina",
+        "address_line1": "Centro De Salud 57 Santa Ana II",
+        "address_line2": "Basílica San Francisco, Bº Los Tarcos, 4400 Salta, Argentina",
+        "category": "healthcare.clinic_or_praxis",
+        "timezone": {
+          "name": "America/Argentina/Salta",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "577P4GXR+F3",
+        "plus_code_short": "4GXR+F3 Salta, Capital, Argentina",
+        "rank": {
+          "importance": 0.000060186923018189024,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "516276604a6e5d50c0598b06dfeaefd938c0f00103f901bf3012bf02000000c0020192031f43656e74726f2044652053616c75642035372053616e746120416e61204949",
+        "bbox": {
+          "lon1": -65.4599066,
+          "lat1": -24.8513671,
+          "lon2": -65.4598066,
+          "lat2": -24.8512671
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Araucania Region",
+        "county": "Provincia de Cautín",
+        "city": "Temuco",
+        "hamlet": "Comunidad Francisco Huirio Lienan",
+        "postcode": "4800000",
+        "district": "Villa San Marcos",
+        "street": "Basílica",
+        "iso3166_2": "CL-AR",
+        "lon": -72.6376649,
+        "lat": -38.7114042,
+        "state_code": "AR",
+        "result_type": "street",
+        "distance": 1349432.1497855969,
+        "formatted": "Basílica, 480 0000 Temuco, Chile",
+        "address_line1": "Basílica",
+        "address_line2": "480 0000 Temuco, Chile",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47H979Q6+CW",
+        "plus_code_short": "79Q6+CW Temuco, Provincia de Cautín, Chile",
+        "rank": {
+          "importance": 0.05339351873044934,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51a8d37080cf2852c059579ef64a0f5b43c0f00102f901a239680500000000c00204920309426173c3ad6c696361",
+        "bbox": {
+          "lon1": -72.6386585,
+          "lat1": -38.7119689,
+          "lon2": -72.6368288,
+          "lat2": -38.7110533
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica de San Francisco",
+        "country": "Venezuela",
+        "country_code": "ve",
+        "state": "Zulia State",
+        "county": "Municipio San Francisco",
+        "city": "San Francisco",
+        "municipality": "Parroquia San Francisco",
+        "suburb": "La Coromoto",
+        "street": "Avenida 5",
+        "iso3166_2": "VE-V",
+        "lon": -71.6218927,
+        "lat": 10.5458317,
+        "state_code": "V",
+        "district": "La Coromoto",
+        "result_type": "amenity",
+        "distance": 5210901.844370431,
+        "formatted": "Basílica de San Francisco, Avenida 5, San Francisco, F, Venezuela",
+        "address_line1": "Basílica de San Francisco",
+        "address_line2": "Avenida 5, San Francisco, F, Venezuela",
+        "category": "building.place_of_worship",
+        "timezone": {
+          "name": "America/Caracas",
+          "offset_STD": "-04:00",
+          "offset_DST": "-04:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -14400
+        },
+        "plus_code": "772CG9WH+86",
+        "plus_code_short": "G9WH+86 San Francisco, Municipio San Francisco, Venezuela",
+        "rank": {
+          "importance": 0.00006445029373612599,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51c1070a17cde751c0597c3da94077172540f00102f901f02ab12900000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f",
+        "bbox": {
+          "lon1": -71.6221231,
+          "lat1": 10.5456796,
+          "lon2": -71.6216432,
+          "lat2": 10.5459459
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Real Basílica de San Francisco el Grande",
+        "other_names": {
+          "alt_name": "Iglesia de San Francisco el Grande"
+        },
+        "country": "Spain",
+        "country_code": "es",
+        "state": "Community of Madrid",
+        "city": "Madrid",
+        "postcode": "28005",
+        "district": "Centro",
+        "neighbourhood": "Barrio de la Latina",
+        "suburb": "Palacio",
+        "street": "Gran Vía de San Francisco",
+        "housenumber": "19",
+        "iso3166_2": "ES-MD",
+        "lon": -3.7144793,
+        "lat": 40.4104355,
+        "state_code": "MD",
+        "result_type": "amenity",
+        "distance": 10043826.879892247,
+        "formatted": "Real Basílica de San Francisco el Grande, Gran Vía de San Francisco, 19, 28005 Madrid, Spain",
+        "address_line1": "Real Basílica de San Francisco el Grande",
+        "address_line2": "Gran Vía de San Francisco, 19, 28005 Madrid, Spain",
+        "timezone": {
+          "name": "Europe/Madrid",
+          "offset_STD": "+01:00",
+          "offset_DST": "+02:00",
+          "offset_STD_seconds": 3600,
+          "offset_DST_seconds": 7200,
+          "abbreviation_STD": "CET",
+          "abbreviation_DST": "CEST"
+        },
+        "plus_code": "8CGRC76P+56",
+        "plus_code_short": "6P+56 Madrid, Community of Madrid, Spain",
+        "rank": {
+          "importance": 0.36591189903985394,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "510e5a59ec40b70dc05907cf842689344440f00102f9019af7b50100000000c002019203295265616c20426173c3ad6c6963612064652053616e204672616e636973636f20656c204772616e6465",
+        "bbox": {
+          "lon1": -3.7150131,
+          "lat1": 40.4101106,
+          "lon2": -3.7141116,
+          "lat2": 40.4107522
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Calle Basílica de San Francisco",
+        "country": "Mexico",
+        "country_code": "mx",
+        "state": "Chihuahua",
+        "county": "Juárez",
+        "city": "Ciudad Juárez",
+        "postcode": "32575",
+        "street": "Calle Basílica de San Francisco",
+        "iso3166_2": "MX-CHH",
+        "lon": -106.3603623,
+        "lat": 31.5722071,
+        "state_code": "CHH",
+        "result_type": "street",
+        "distance": 8905647.086800968,
+        "formatted": "Calle Basílica de San Francisco, 32575 Ciudad Juárez, CHH, Mexico",
+        "address_line1": "Calle Basílica de San Francisco",
+        "address_line2": "32575 Ciudad Juárez, CHH, Mexico",
+        "timezone": {
+          "name": "America/Ciudad_Juarez",
+          "offset_STD": "-07:00",
+          "offset_DST": "-06:00",
+          "offset_STD_seconds": -25200,
+          "offset_DST_seconds": -21600,
+          "abbreviation_STD": "MST",
+          "abbreviation_DST": "MDT"
+        },
+        "plus_code": "853MHJCQ+VV",
+        "rank": {
+          "importance": 0.05337333409628439,
+          "confidence": 1,
+          "confidence_street_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51874d092d10975ac059fc091d2a7c923f40f00102f901760cb92c00000000c0020492032043616c6c6520426173c3ad6c6963612064652053616e204672616e636973636f",
+        "bbox": {
+          "lon1": -106.3608106,
+          "lat1": 31.5713934,
+          "lon2": -106.3597446,
+          "lat2": 31.5729227
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Basílica de San Francisco Javier",
+        "other_names": {
+          "name:eu": "Frantzisko Xabierko basilika"
+        },
+        "country": "Spain",
+        "country_code": "es",
+        "state": "Navarre",
+        "county": "Zangozerria",
+        "city": "Javier",
+        "postcode": "31411",
+        "street": "Explanada del Castillo de Javier",
+        "iso3166_2": "ES-NC",
+        "iso3166_2_sublevel": "ES-NA",
+        "lon": -1.2160934,
+        "lat": 42.5941855,
+        "state_code": "NC",
+        "result_type": "amenity",
+        "distance": 10363277.918227818,
+        "formatted": "Basílica de San Francisco Javier, Explanada del Castillo de Javier, 31411 Javier, Spain",
+        "address_line1": "Basílica de San Francisco Javier",
+        "address_line2": "Explanada del Castillo de Javier, 31411 Javier, Spain",
+        "timezone": {
+          "name": "Europe/Madrid",
+          "offset_STD": "+01:00",
+          "offset_DST": "+02:00",
+          "offset_STD_seconds": 3600,
+          "offset_DST_seconds": 7200,
+          "abbreviation_STD": "CET",
+          "abbreviation_DST": "CEST"
+        },
+        "plus_code": "8CJWHQVM+MH",
+        "plus_code_short": "VM+MH Javier, Zangozerria, Spain",
+        "rank": {
+          "importance": 0.17283327415591612,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51681a5e5a1e75f3bf59f3203d450e4c4540f00102f901e6eb710d00000000c00201920321426173c3ad6c6963612064652053616e204672616e636973636f204a6176696572",
+        "bbox": {
+          "lon1": -1.2162425,
+          "lat1": 42.5940517,
+          "lon2": -1.215876,
+          "lat2": 42.5943352
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Real Basílica Católica de La Merced",
+        "country": "Ecuador",
+        "country_code": "ec",
+        "state": "Imbabura",
+        "county": "Ibarra",
+        "city": "Ibarra",
+        "postcode": "100105",
+        "district": "San Francisco",
+        "street": "Juan José Flores",
+        "iso3166_2": "EC-I",
+        "lon": -78.1205761,
+        "lat": 0.3514492,
+        "state_code": "I",
+        "result_type": "amenity",
+        "distance": 4396084.379955879,
+        "formatted": "Real Basílica Católica de La Merced, Juan José Flores, 100105, Ibarra, Ecuador",
+        "address_line1": "Real Basílica Católica de La Merced",
+        "address_line2": "Juan José Flores, 100105, Ibarra, Ecuador",
+        "timezone": {
+          "name": "America/Guayaquil",
+          "offset_STD": "-05:00",
+          "offset_DST": "-05:00",
+          "offset_STD_seconds": -18000,
+          "offset_DST_seconds": -18000
+        },
+        "plus_code": "67G39V2H+HQ",
+        "plus_code_short": "2H+HQ Ibarra, Ecuador",
+        "rank": {
+          "importance": 0.00005248111696035733,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51788bd184b78753c059ac240dc9247ed63ff00101f901a009bd0000000000c002019203255265616c20426173c3ad6c69636120436174c3b36c696361206465204c61204d6572636564",
+        "bbox": {
+          "lon1": -78.1206683,
+          "lat1": 0.3511958,
+          "lon2": -78.1200878,
+          "lat2": 0.3518168
+        }
+      }
+    ],
+    "query": {
+      "text": "Basílica de San Francisco",
+      "categories": []
+    }
+  }
+}

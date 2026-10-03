@@ -26,7 +26,7 @@ if (rootResult.error && beResult.error) {
 async function bootstrap() {
   console.log('🚀 Starting CLI...');
   console.log(
-    '📋 Available commands: audit-images, check-metadata, check-embeddings',
+    '📋 Available commands: audit-images, check-metadata, check-embeddings, generate-templates',
   );
   await CommandFactory.run(ScriptsModule, ['log', 'warn', 'error']);
 }

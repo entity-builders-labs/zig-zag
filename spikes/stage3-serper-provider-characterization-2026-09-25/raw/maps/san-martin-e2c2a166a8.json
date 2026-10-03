@@ -1,0 +1,330 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "San Martín",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:54.364Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 1049
+  },
+  "data": {
+    "searchParameters": {
+      "q": "San Martín",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.5492781,-58.6623844,12.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "San Martín",
+        "address": "B1650, Buenos Aires Province, Argentina",
+        "latitude": -34.575752099999995,
+        "longitude": -58.5370965,
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmP1F6hiJi2dmxVnNr5BZs0Udbrr9nG6C27X8vt5CHDqdBE7OXADTKz4gyjEJJIaZI9WQVaAh8cuZ6U3Bz9UZLQJnQ79GLVuvTAR4tm9HZzHZjvq1fcoJeoVEl68GiRKwEeLbNDB6w",
+        "cid": "6782881544150604119",
+        "fid": "0x95bcb77160243783:0x5e21a2d3c0a65957",
+        "placeId": "ChIJgzckYHG3vJURV1mmwNOiIV4"
+      },
+      {
+        "position": 2,
+        "title": "General San Martín Partido",
+        "address": "Buenos Aires Province, Argentina",
+        "latitude": -34.560506499999995,
+        "longitude": -58.56581,
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPNXGmvCOnYst1_LaEeEx2IBE81seP-cjFSu3ntJmH1dx53ku8Gjkz79Mr7JeFKs0wckTuUtXBVsXGRpOF73MyjckEvzAt5MtL_F9gNOXl0MIBkqugrCaX0FPKuFhe4kl3dgVvr",
+        "cid": "11712067825273722690",
+        "fid": "0x95bcba05eb9dcabb:0xa2899fa246b8d742",
+        "placeId": "ChIJu8qd6wW6vJURQte4RqKfiaI"
+      },
+      {
+        "position": 3,
+        "title": "San Martín",
+        "address": "B1650 San Martín, Buenos Aires Province, Argentina",
+        "latitude": -34.573740199999996,
+        "longitude": -58.531765699999994,
+        "rating": 3.8,
+        "ratingCount": 3144,
+        "type": "Train station",
+        "types": [
+          "Train station"
+        ],
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOToA_aHKVcIMWRPSHeIsg8hFNbyK0zzPD__N_hjSnNFNmgwpzntW954vTmxVNCTdigBuWtqb424z3ma_J1bT4JOyM_GMMsv2H3_RTBu8sZZ_RndkQO5ejdewr2o3RXIRgoi4AH",
+        "cid": "5310076949015340190",
+        "fid": "0x95bcb70cd27e7d2b:0x49b12ed9e40ca49e",
+        "placeId": "ChIJK31-0gy3vJURnqQM5NkusUk"
+      },
+      {
+        "position": 4,
+        "title": "Instituto Nacional Sanmartiniano",
+        "address": "Mariscal Ramón Castilla 2752, C1425 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.5804317,
+        "longitude": -58.401620699999995,
+        "rating": 4.6,
+        "ratingCount": 310,
+        "type": "Research institute",
+        "types": [
+          "Research institute",
+          "Museum",
+          "Tourist attraction"
+        ],
+        "website": "https://sanmartiniano.cultura.gob.ar/",
+        "phoneNumber": "+54 11 4801-0848",
+        "openingHours": {
+          "Friday": "10 AM–6 PM",
+          "Saturday": "10 AM–6 PM",
+          "Sunday": "10 AM–6 PM",
+          "Monday": "10 AM–6 PM",
+          "Tuesday": "10 AM–6 PM",
+          "Wednesday": "10 AM–6 PM",
+          "Thursday": "10 AM–6 PM"
+        },
+        "bookingLinks": [
+          "https://sanmartiniano.cultura.gob.ar/formularios/contacto/"
+        ],
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmN1V__PdP55QHJUHuTC6WR8mU-YsgfIYUcdEHbrFAZlP_CpqcHzkzGMDD7SdRHwYMMnHZkWFWd4-HQ5D1zK7Kkz8NJEkYWQpYjpbghoxeeMQNfnAgS4kGbxIPxlWek3vt15w0wt",
+        "cid": "7033401573742582301",
+        "fid": "0x95bcb563ca26cc25:0x619ba9777d999a1d",
+        "placeId": "ChIJJcwmymO1vJURHZqZfXepm2E"
+      },
+      {
+        "position": 5,
+        "title": "Plaza San Martín",
+        "address": "B1650 Buenos Aires, Buenos Aires Province, Argentina",
+        "latitude": -34.5774719,
+        "longitude": -58.539015899999995,
+        "rating": 4.3,
+        "ratingCount": 16918,
+        "type": "Park",
+        "types": [
+          "Park"
+        ],
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmM-7bwhyAbKbQn5eP6Bv1iyjmWK-2zFyILHNLrpAuNEt1Fv0kPd7CzwUv41xAiFr0Afhja0AfZMJbr0JNMMU5PFpnfhctHblmgW9Bwl2sRTw9Jg9AX5SEQpuhuRiieNvFG5fKYag78g-UE",
+        "cid": "8924117587853532807",
+        "fid": "0x95bcb776b321c597:0x7bd8d5aa05d35e87",
+        "placeId": "ChIJl8Uhs3a3vJURh17TBarV2Hs"
+      },
+      {
+        "position": 6,
+        "title": "San Martín Restaurante",
+        "address": "Av. Sta. Fe 3402, C1425BGW Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.5870539,
+        "longitude": -58.4134609,
+        "rating": 3.9,
+        "ratingCount": 8641,
+        "type": "Restaurant",
+        "types": [
+          "Restaurant",
+          "Cafe",
+          "Patisserie",
+          "Pizza restaurant"
+        ],
+        "website": "https://www.instagram.com/sanmartinresto/?hl=es",
+        "phoneNumber": "+54 11 5778-0191",
+        "openingHours": {
+          "Friday": "7 AM–1 AM",
+          "Saturday": "7 AM–1 AM",
+          "Sunday": "7 AM–12 AM",
+          "Monday": "7 AM–12 AM",
+          "Tuesday": "7 AM–12 AM",
+          "Wednesday": "7 AM–12 AM",
+          "Thursday": "7 AM–12 AM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOX-o2y8IZcEHb6FnFf8P3zqR2BfsprC0kq5wIU37Je7564mDMBLmUbp52cu4Or4Zq3IHDua_GPHHZYn3HYELwQ38KCFR27s09uUZ5Q12oFpQ8wfHBM1xQeWHrXtt2IxIJJDPg_",
+        "cid": "7128433484485319098",
+        "fid": "0x95bcca81dc536b63:0x62ed487c6fbf59ba",
+        "placeId": "ChIJY2tT3IHKvJURulm_b3xI7WI"
+      },
+      {
+        "position": 7,
+        "title": "Centro Cultural San Martín",
+        "address": "Centro Cultural General San Martín, Sarmiento 1551, C1042 ABC, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.605014,
+        "longitude": -58.3887091,
+        "rating": 4.4,
+        "ratingCount": 8646,
+        "type": "Cultural center",
+        "types": [
+          "Cultural center",
+          "Performing arts theater",
+          "Tourist attraction"
+        ],
+        "website": "http://www.elculturalsanmartin.ar/",
+        "description": "Spacious, government-run hub for art & cultural performances, classes, exhibitions & events.",
+        "openingHours": {
+          "Friday": "8 AM–10 PM",
+          "Saturday": "8 AM–10 PM",
+          "Sunday": "8 AM–10 PM",
+          "Monday": "8 AM–10 PM",
+          "Tuesday": "8 AM–10 PM",
+          "Wednesday": "8 AM–10 PM",
+          "Thursday": "8 AM–10 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmPfHF9-Xnb82_k1lw6A132pCYhL6nRhAUBxEBcmeRlVbymr6DHpE6OwDnHyMZSo7XMfSyu1ZFfiv3a7QZBj8rwPkMP5Mvi0wFkf96paXe99J1HAS0XwR7tG2_zAVpBHBzau6WJpoQQgTTma",
+        "cid": "1406460652130155026",
+        "fid": "0x95bccac4091da5df:0x1384c082e8c83a12",
+        "placeId": "ChIJ36UdCcTKvJUREjrI6ILAhBM"
+      },
+      {
+        "position": 8,
+        "title": "Plaza General San Martín",
+        "address": "C1001 Buenos Aires, Argentina",
+        "latitude": -34.5946764,
+        "longitude": -58.375872799999996,
+        "rating": 4.5,
+        "ratingCount": 25237,
+        "type": "Park",
+        "types": [
+          "Park"
+        ],
+        "website": "https://turismo.buenosaires.gob.ar/es/atractivo/plaza-san-mart%C3%ADn",
+        "description": "Landmark cliffside park featuring a notable equestrian monument, open green space & ancient trees.",
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMtBqUtXbcT48sVfWo2FFdxfEbVoKiwm04X3nxduo0JhqWnv4QHQsptmDvoK4Y1HttzDT8SnMtfooF5yWvGGcEO3E48YY6lEn0aCJTluTJ4BACFoAD6MeSDd07_YU4GVSpqtnam",
+        "cid": "13103633412445345616",
+        "fid": "0x95bccab595993163:0xb5d975299fbe9750",
+        "placeId": "ChIJYzGZlbXKvJURUJe-nyl12bU"
+      },
+      {
+        "position": 9,
+        "title": "Municipality of San Martin",
+        "address": "Belgrano 3747, B1650 San Martín, Provincia de Buenos Aires, Argentina",
+        "latitude": -34.5769701,
+        "longitude": -58.538108699999995,
+        "rating": 3.2,
+        "ratingCount": 519,
+        "type": "Village hall",
+        "types": [
+          "Village hall",
+          "Council"
+        ],
+        "website": "http://www.sanmartin.gov.ar/",
+        "phoneNumber": "+54 800-444-0029",
+        "openingHours": {
+          "Friday": "8 AM–3 PM",
+          "Saturday": "Closed",
+          "Sunday": "Closed",
+          "Monday": "8 AM–3 PM",
+          "Tuesday": "8 AM–3 PM",
+          "Wednesday": "8 AM–3 PM",
+          "Thursday": "8 AM–3 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmM3KjKtj5Mb4pqK2jXIdpLA0ENw4ifl8yWSkOmFHBsGcKgOCcnSmDF36IOOmPhzHJVj6hHHD37RFlrVp01ChnC9j5zRfyeau5GmT3urmUEdnzk6p4uI36MeKpM9apzg42LJQfeWiQ",
+        "cid": "14883698725706168606",
+        "fid": "0x95bcb774024bb63b:0xce8d852241a6791e",
+        "placeId": "ChIJO7ZLAnS3vJURHnmmQSKFjc4"
+      },
+      {
+        "position": 10,
+        "title": "General Club San Martin",
+        "address": "San Lorenzo 2167, B1650BQA San Martín, Provincia de Buenos Aires, Argentina",
+        "latitude": -34.5762443,
+        "longitude": -58.5389785,
+        "rating": 4.5,
+        "ratingCount": 513,
+        "type": "Athletic club",
+        "types": [
+          "Athletic club",
+          "Educational institution"
+        ],
+        "website": "http://www.sanmartinclub.com.ar/",
+        "phoneNumber": "+54 11 4754-4092",
+        "openingHours": {
+          "Friday": "7 AM–10 PM",
+          "Saturday": "7 AM–10 PM",
+          "Sunday": "7 AM–10 PM",
+          "Monday": "7 AM–10 PM",
+          "Tuesday": "7 AM–10 PM",
+          "Wednesday": "7 AM–10 PM",
+          "Thursday": "7 AM–10 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmMm9u8w_5i_Yj9D0FyTEoc2ZUifzeyhAJW2I-czvfwwsWf4hFwHfA75d2yr7WTdyjpc-rLQkrg4iDzqotOBAs7pk4__UDq6YLbqBpEFg3xj5eIEBz5RW9JJrzUuwi9F7ahaCXqkzA",
+        "cid": "1001383270373742963",
+        "fid": "0x95bcb7705a77d26d:0xde5a0c762a55973",
+        "placeId": "ChIJbdJ3WnC3vJURc1mlYseg5Q0"
+      },
+      {
+        "position": 11,
+        "title": "Club San Martin",
+        "address": "Av. Lope de Vega 2598, B1675 Villa Raffo, Provincia de Buenos Aires, Argentina",
+        "latitude": -34.608423699999996,
+        "longitude": -58.5335489,
+        "rating": 4.4,
+        "ratingCount": 2006,
+        "type": "Club",
+        "types": [
+          "Club"
+        ],
+        "website": "http://clubsanmartin.org/",
+        "phoneNumber": "+54 11 4757-0103",
+        "openingHours": {
+          "Friday": "8 AM–11 PM",
+          "Saturday": "8 AM–11 PM",
+          "Sunday": "8 AM–11 PM",
+          "Monday": "9 AM–11 PM",
+          "Tuesday": "8 AM–11 PM",
+          "Wednesday": "8 AM–11 PM",
+          "Thursday": "8 AM–11 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNGNR7ccIKDorY1yBr5p8p2Izd4vSP3ueMqQ97SKHl9Ya_3o7vWcGRN73MkBFFNMOVB4mn8vc8OxYY0Q3umk6N49nczmAM47iUDtF5Z2PWwNBJ04yS_jTKCjDIFoEJzgcQ_F94x",
+        "cid": "267875102286988164",
+        "fid": "0x95bcb7e9b0c86c85:0x3b7aefc7bfcc384",
+        "placeId": "ChIJhWzIsOm3vJURhMP8e_yutwM"
+      },
+      {
+        "position": 12,
+        "title": "Encomiendas San Martín",
+        "address": "Av. Pres. Juan Domingo Perón 3735, B1651ARF Gran Buenos Aires, Provincia de Buenos Aires, Argentina",
+        "latitude": -34.572424,
+        "longitude": -58.543799699999994,
+        "rating": 4.3,
+        "ratingCount": 449,
+        "type": "Freight forwarding service",
+        "types": [
+          "Freight forwarding service"
+        ],
+        "website": "http://www.encomiendasanmartin.com.ar/",
+        "phoneNumber": "+54 11 3249-8040",
+        "openingHours": {
+          "Friday": "9 AM–6 PM",
+          "Saturday": "9 AM–1 PM",
+          "Sunday": "Closed",
+          "Monday": "9 AM–6 PM",
+          "Tuesday": "9 AM–6 PM",
+          "Wednesday": "9 AM–6 PM",
+          "Thursday": "9 AM–6 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW2xmrgwNeoCqb8vK0R4mhLG-Ki_bmY4ufvVAAhn6sWcxXrNj7mUmA776DtJRV_7X7Aj07MsB1pzxidyZXvm-cvY6Kls72BtgYoFogsfW36ZCWaDVkelDavvA_iYpbS4JtYPypNy0Ph2UY-hMdEw0LXiikYudnwhTSWqAZKKvQ5U2S3Qv8b648WBxI5yeHe4AZL5HdvV9A",
+        "cid": "4792647886490679735",
+        "fid": "0x95bcb7656602c91d:0x4282e7dc37cdb9b7",
+        "placeId": "ChIJHckCZmW3vJURt7nNN9zngkI"
+      }
+    ],
+    "credits": 3
+  }
+}

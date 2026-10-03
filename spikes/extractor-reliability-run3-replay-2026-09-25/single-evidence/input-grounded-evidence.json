@@ -1,0 +1,19 @@
+{
+  "provider": "serper",
+  "model": "google-search",
+  "groundingStatus": "applied",
+  "providerLocale": {
+    "gl": "ar"
+  },
+  "evidence": [
+    {
+      "key": "ev-4",
+      "source": "San Telmo Walking Tour (with Reviews)",
+      "snippet": "You'll admire San Telmo ́s colonial architecture, walk along the Lezama Park, the antique galleries, Plaza Dorrego, El Mercado de San Telmo and other iconic ...",
+      "title": "San Telmo Walking Tour (with Reviews)",
+      "url": "https://www.tripadvisor.com/AttractionProductReview-g312741-d25466746-San_Telmo_Walking_Tour-Buenos_Aires_Capital_Federal_District.html",
+      "kind": "organic_result",
+      "order": 4
+    }
+  ]
+}

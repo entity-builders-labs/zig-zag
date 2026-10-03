@@ -1,0 +1,7 @@
+{
+  "request": {
+    "url": "POST https://places.googleapis.com/v1/places:searchText",
+    "fieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.primaryType"
+  },
+  "durationMs": 1
+}

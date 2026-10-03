@@ -1,0 +1,10 @@
+{
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "variant": "A1",
+  "run": "1",
+  "ms": 289,
+  "error": "groq 429: {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[REDACTED]` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 4695, Requested 4920. Please try again in 22.414285714s. Need more tokens? Upgrade to Dev Tier today at h",
+  "summary": "UNPARSEABLE",
+  "raw": ""
+}

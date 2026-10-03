@@ -1,0 +1,63 @@
+{
+  "id": "4fa8c422-18b5-42cc-9c0e-430d44feee0e",
+  "name": "Buenos Aires, Argentina",
+  "description": "Tour personalizado",
+  "ownerId": "aad3fef7-f7c8-4644-84d1-b02a2b39187c",
+  "price": null,
+  "duration": null,
+  "maxGroupSize": null,
+  "startDates": [],
+  "totalDays": 1,
+  "totalDistance": null,
+  "estimatedBudget": null,
+  "recommendedGroupSize": null,
+  "coverImage": null,
+  "prompt": "Create a tour from this canonical wizard intent:\nDestination: Buenos Aires, Argentina\nNumber of days: 1\nBudget level: medium\nGroup type: solo\nInterests: art\nExploration style: balanced\nAllowed transportation modes: walking\nTravel pace: moderate\nWalking limits captured (deterministic enforcement arrives in the spatial-feasibility stage): 6000 meters per day; 3000 meters maximum continuous leg\nAdditional preferences: quiero visitar lugares de arte, museos y galerías en Buenos Aires",
+  "query": null,
+  "categories": [],
+  "metadata": {
+    "generatedAt": "2026-09-23T18:47:48.298Z",
+    "generationStatus": "pending",
+    "generationRequest": {
+      "days": 1,
+      "intent": {
+        "intents": [
+          "visit"
+        ],
+        "interests": [
+          "art"
+        ],
+        "explorationStyle": "balanced",
+        "additionalPreferences": "quiero visitar lugares de arte, museos y galerías en Buenos Aires"
+      },
+      "mobility": {
+        "travelPace": "moderate",
+        "accessibilityNeeds": [],
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 6000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "groupType": "solo",
+      "categories": [],
+      "startDates": [],
+      "budgetLevel": "medium",
+      "destination": {
+        "label": "Buenos Aires, Argentina",
+        "latitude": -34.6037,
+        "longitude": -58.3816,
+        "scaleHint": "settlement"
+      },
+      "excludeTours": [],
+      "contractVersion": 1,
+      "dietaryRestrictions": [],
+      "skipImageGeneration": true,
+      "includeExistingExperiences": true
+    }
+  },
+  "createdAt": "2026-09-23T18:47:48.303Z",
+  "updatedAt": "2026-09-23T18:47:48.303Z",
+  "experiences": [],
+  "dayTotals": []
+}

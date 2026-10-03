@@ -1,0 +1,86 @@
+{
+  "label": "Resolución de entidades reales",
+  "rules": [
+    {
+      "rule": "Resolver hints contra identidades geográficas independientes del LLM",
+      "actual": 0,
+      "reason": "0 entidad(es) reales resueltas; 0 con coordenadas.",
+      "result": "WARN",
+      "ruleId": "RES-IDENTITY-001"
+    },
+    {
+      "rule": "No decidir coherencia geográfica ni persistencia durante entity resolution",
+      "reason": "La salida queda pendiente del GeographicValidationService.",
+      "result": "PASS",
+      "ruleId": "RES-SEPARATION-001"
+    },
+    {
+      "rule": "Toda propuesta no resoluble debe conservar razones explícitas",
+      "reason": "No hubo rechazos de resolución.",
+      "result": "PASS",
+      "ruleId": "RES-REJECTION-001"
+    }
+  ],
+  "stage": "entity_resolution",
+  "inputs": {
+    "totalCandidates": 0
+  },
+  "status": "INFO",
+  "outputs": {
+    "rejectedCount": 0,
+    "candidateCount": 0,
+    "resolvedEntityCount": 0,
+    "resolutionReadyCount": 0,
+    "entitiesWithCoordinates": 0
+  },
+  "summary": "Entity resolution procesó 0 candidato(s): 0 quedaron con entidades concretas suficientes para continuar y 0 no pudieron resolverse. Se obtuvieron 0 entidad(es) provider-backed, 0 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite.",
+  "decision": {
+    "reason": "Ninguna propuesta produjo suficientes entidades reales para continuar.",
+    "status": "WARN",
+    "outcome": "NO_PROPOSALS_RESOLVED",
+    "reasonCodes": [],
+    "triggeredActions": [
+      "CONTINUE_WITH_EXISTING_POOL"
+    ]
+  },
+  "component": "ExperienceProposalResolverService",
+  "degradedReason": "no_proposals_resolved",
+  "providerStatus": "failed",
+  "acquisitionContext": {
+    "anchor": {
+      "kind": "area",
+      "usage": "named_path",
+      "status": "resolved",
+      "rawName": "San Telmo",
+      "geometry": {
+        "type": "Polygon"
+      },
+      "priority": "soft",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069",
+      "geoEntityId": "6d3c9fce-3a6f-4ff6-bca7-d5d29233612b",
+      "osmBoundary": {
+        "id": "osm:relation:2223069",
+        "name": "San Telmo",
+        "tags": {
+          "name": "San Telmo",
+          "type": "boundary",
+          "boundary": "administrative",
+          "wikidata": "Q1026688",
+          "wikipedia": "es:San Telmo (Buenos Aires)",
+          "admin_level": "9"
+        },
+        "osmId": 2223069,
+        "osmType": "relation",
+        "geometry": {
+          "type": "Polygon"
+        }
+      },
+      "canonicalName": "San Telmo"
+    },
+    "strategy": "area_route_walk",
+    "passNumber": 1
+  },
+  "candidateDecisions": [],
+  "entityResolutionAudit": []
+}

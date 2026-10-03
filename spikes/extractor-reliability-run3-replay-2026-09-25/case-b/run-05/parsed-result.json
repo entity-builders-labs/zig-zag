@@ -1,0 +1,153 @@
+{
+  "classification": "CANDIDATE",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "elapsedMs": 18750,
+  "candidates": [
+    {
+      "name": "San Telmo Walking Tour",
+      "description": "A 2-hour walking tour through the historic San Telmo neighborhood, exploring its colonial architecture, antique galleries, and iconic squares and markets.",
+      "themes": [
+        "history",
+        "architecture"
+      ],
+      "traits": [
+        "free walking tour",
+        "2 hours"
+      ],
+      "intents": [
+        "walk"
+      ],
+      "suggestedDurationMinutes": 120,
+      "componentHints": [
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ]
+        },
+        {
+          "key": "mercado-de-san-telmo",
+          "name": "El Mercado de San Telmo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ]
+        },
+        {
+          "key": "lezama-park",
+          "name": "Lezama Park",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ]
+        }
+      ],
+      "evidenceKeys": [
+        "ev-4",
+        "ev-5",
+        "ev-8"
+      ],
+      "shortReason": "Evidence explicitly describes a walking tour that includes multiple named geographic components such as Plaza Dorrego, El Mercado de San Telmo, and Lezama Park.",
+      "orderedByEvidence": false
+    }
+  ],
+  "validationErrors": [
+    "extractor_envelope_repaired: response was a single bare candidate object instead of {\"candidates\":[...]}; wrapped automatically"
+  ],
+  "sourceSupportAudits": [
+    {
+      "candidateName": "San Telmo Walking Tour",
+      "status": "SUPPORTED",
+      "emittedComponentCount": 3,
+      "supportedComponentCount": 3,
+      "unsupportedComponentCount": 0,
+      "components": [
+        {
+          "index": 0,
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "status": "SUPPORTED"
+        },
+        {
+          "index": 1,
+          "key": "mercado-de-san-telmo",
+          "name": "El Mercado de San Telmo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "status": "SUPPORTED"
+        },
+        {
+          "index": 2,
+          "key": "lezama-park",
+          "name": "Lezama Park",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "status": "SUPPORTED"
+        }
+      ]
+    }
+  ],
+  "rawComponentFacts": [
+    {
+      "name": "San Telmo Walking Tour",
+      "components": [
+        {
+          "index": 0,
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "Plaza Dorrego"
+        },
+        {
+          "index": 1,
+          "key": "mercado-de-san-telmo",
+          "name": "El Mercado de San Telmo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "El Mercado de San Telmo"
+        },
+        {
+          "index": 2,
+          "key": "lezama-park",
+          "name": "Lezama Park",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "Lezama Park"
+        }
+      ],
+      "evidenceKeys": [
+        "ev-4",
+        "ev-5",
+        "ev-8"
+      ],
+      "orderedByEvidence": false
+    }
+  ]
+}

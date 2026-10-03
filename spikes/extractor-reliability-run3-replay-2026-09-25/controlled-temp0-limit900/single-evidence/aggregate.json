@@ -1,0 +1,29 @@
+{
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0,
+  "maxCompletionTokens": 900,
+  "responseFormat": "json_object",
+  "runs": 10,
+  "completedRuns": 3,
+  "blocked": true,
+  "blockedReason": "TPD daily limit exhausted",
+  "distribution": {
+    "CANDIDATE": 2,
+    "PROVIDER_FAILURE": 1
+  },
+  "outcomes": [
+    "CANDIDATE",
+    "CANDIDATE",
+    "PROVIDER_FAILURE"
+  ],
+  "transport": {
+    "httpRequests": 7,
+    "httpStatus429": 5,
+    "httpStatus400": 0,
+    "hardOTPM429": 0,
+    "hardTPD429": 1,
+    "hardTPM429": 0,
+    "soft429Retries": 1,
+    "jsonValidateFailed": 0
+  }
+}

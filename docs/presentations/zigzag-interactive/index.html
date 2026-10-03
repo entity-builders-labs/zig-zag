@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zig-Zag — Business, Product &amp; Strategy</title>
+<meta name="description" content="Zig-Zag: de generador de itinerarios a motor inteligente de decisiones de viaje. Presentación interactiva, septiembre 2026.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="progress" aria-hidden="true"><span></span></div>
+<nav class="dots" aria-label="Secciones"></nav>
+<p class="hint" aria-hidden="true">Scroll o <kbd>↓</kbd> <kbd>→</kbd> <kbd>Espacio</kbd> para avanzar</p>
+
+<main>
+
+<!-- 1 · Cover -->
+<section id="cover" class="scene dark sticky" data-title="Portada" style="--len:190vh" data-stops="0,1">
+  <div class="stage">
+    <div class="grid-bg parallax"></div>
+    <svg class="cover-route" viewBox="0 0 1000 600" aria-hidden="true">
+      <path class="draw" pathLength="1" d="M60 520 L230 330 L380 420 L560 190 L700 260 L930 70"/>
+      <g class="pts">
+        <circle cx="60" cy="520" r="11" data-at="0.02"/><circle cx="230" cy="330" r="11" data-at="0"/>
+        <circle cx="380" cy="420" r="11" data-at="0.32"/><circle cx="560" cy="190" r="11" data-at="0.5"/>
+        <circle cx="700" cy="260" r="11" data-at="0.64"/><circle class="end" cx="930" cy="70" r="20" data-at="0.82"/>
+      </g>
+    </svg>
+    <div class="cover-copy">
+      <p class="eyebrow">ZIG-ZAG</p>
+      <h1>De generador de itinerarios<br><span class="accent">a motor inteligente de decisiones de viaje</span></h1>
+      <p class="sub">Business, Product &amp; Strategy Update — Septiembre 2026</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · Problem -->
+<section id="problem" class="scene light sticky" data-title="El problema" style="--len:230vh" data-stops="0,0.55,1">
+  <div class="stage">
+    <div class="wrap">
+      <span class="badge context">Contexto</span>
+      <h2>El problema no es encontrar información. <span class="accent-d">Es decidir.</span></h2>
+    </div>
+    <div class="scatter" aria-label="Fuentes fragmentadas: Google, Maps, Tripadvisor, blogs, TikTok e Instagram, agencias online, guías de viaje, chats de IA genéricos">
+      <span class="chip" style="--x:-34;--y:-10">Google</span>
+      <span class="chip" style="--x:-16;--y:3">Maps</span>
+      <span class="chip" style="--x:24;--y:-11">Tripadvisor</span>
+      <span class="chip" style="--x:36;--y:6">Blogs</span>
+      <span class="chip" style="--x:-36;--y:12">TikTok / Instagram</span>
+      <span class="chip" style="--x:8;--y:13">Agencias online</span>
+      <span class="chip" style="--x:-6;--y:-13">Guías de viaje</span>
+      <span class="chip" style="--x:30;--y:14">IA genérica</span>
+      <div class="core" data-at="0.55"><span>Zig-Zag</span></div>
+    </div>
+    <div class="wrap questions">
+      <ol>
+        <li data-at="0.62">¿Qué vale realmente la pena?</li>
+        <li data-at="0.68">¿Qué encaja conmigo?</li>
+        <li data-at="0.74">¿Qué experiencias existen de verdad?</li>
+        <li data-at="0.8">¿Qué entra razonablemente en mi viaje?</li>
+        <li data-at="0.86">¿En qué información puedo confiar?</li>
+      </ol>
+      <p class="punch" data-at="0.92">El contenido de viaje abunda. <span class="accent-d">Las decisiones confiables escasean.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · Generic AI -->
+<section id="generic" class="scene dark" data-title="IA genérica">
+  <div class="wrap">
+    <span class="badge context">Contexto</span>
+    <h2 data-reveal>Plausible no alcanza.</h2>
+    <div class="compare">
+      <div class="card ghost" data-reveal style="--d:1">
+        <h3>IA generativa genérica</h3>
+        <ul class="list minus">
+          <li>Plausible y rápida</li><li>Flexible</li><li>Puede alucinar lugares o recorridos</li>
+          <li>No construye conocimiento durable del mundo</li><li>Rara vez explica de dónde sale cada dato</li>
+        </ul>
+      </div>
+      <div class="card glow" data-reveal style="--d:2">
+        <h3 class="accent">Zig-Zag</h3>
+        <ul class="list check">
+          <li>Basado en fuentes reales</li><li>Verifica que cada lugar exista y sea el correcto</li><li>Consciente de la geografía</li>
+          <li>Parte de tus preferencias</li><li>Reutilizable: cada hallazgo se guarda</li><li>Trazable: cada decisión se explica</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · Vision -->
+<section id="vision" class="scene light" data-title="Visión">
+  <div class="wrap">
+    <span class="badge future">Futuro</span>
+    <h2 data-reveal>Una capa inteligente entre la intención del viajero y el mundo real</h2>
+    <div class="two">
+      <blockquote data-reveal style="--d:1">“Voy cuatro días a Buenos Aires. Me interesan historia, arquitectura y barrios con identidad. Quiero caminar, pero no quiero perder tiempo cruzando toda la ciudad.”<cite>Ejemplo de interacción futura</cite></blockquote>
+      <ol class="flow" data-reveal style="--d:2">
+        <li>Entiende</li><li>Investiga</li><li>Verifica</li><li>Aprende</li><li>Elige</li><li>Planifica</li><li>Explica</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · Flywheel -->
+<section id="flywheel" class="scene dark sticky" data-title="Círculo virtuoso" style="--len:210vh" data-stops="0,0.5,1">
+  <div class="stage">
+    <div class="wrap split">
+      <div class="wheel">
+        <svg viewBox="0 0 500 500" aria-hidden="true">
+          <circle class="ring-base" cx="250" cy="250" r="190"/>
+          <circle class="ring draw" pathLength="1" cx="250" cy="250" r="190" transform="rotate(-90 250 250)"/>
+        </svg>
+        <div class="hub">Zig-Zag</div>
+        <span class="node" style="--a:0" data-at="0.06">Intención del viajero</span>
+        <span class="node" style="--a:1" data-at="0.16">Investigación con fuentes reales</span>
+        <span class="node" style="--a:2" data-at="0.26">Experiencias verificadas</span>
+        <span class="node" style="--a:3" data-at="0.36">Conocimiento reutilizable</span>
+        <span class="node" style="--a:4" data-at="0.46">Mejor recuperación</span>
+        <span class="node" style="--a:5" data-at="0.56">Mejor personalización</span>
+        <span class="node" style="--a:6" data-at="0.66">Mejor viaje</span>
+        <span class="node" style="--a:7" data-at="0.76">Más conocimiento</span>
+      </div>
+      <div>
+        <span class="badge proposed">Propuesto</span>
+        <h2>Las búsquedas son temporales.<br><span class="accent">El conocimiento verificado se acumula.</span></h2>
+        <div class="evidence" data-at="0.8">
+          <span class="badge proven">Probado</span>
+          <p>Caso real en Buenos Aires: al repetir el mismo pedido, Zig-Zag reutilizó la caminata que ya había verificado, sin volver a investigar. Primera vez: unos 4 minutos. Segunda vez: 34 segundos (entorno de pruebas, una medición).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · Moat -->
+<section id="moat" class="scene light sticky" data-title="Ventaja acumulativa" style="--len:190vh" data-stops="0,1">
+  <div class="stage">
+    <div class="wrap">
+      <span class="badge proposed">Propuesto · ventaja acumulativa potencial</span>
+      <h2>Cada viaje puede mejorar el próximo</h2>
+      <div class="split">
+        <div class="catalog" data-fill aria-label="El catálogo verificado crece con cada solicitud"></div>
+        <ul class="assets">
+          <li>Experiencias únicas, sin duplicados</li><li>Entidades geográficas verificadas</li><li>Procedencia de fuentes</li><li>Clasificación</li>
+          <li>Relaciones entre componentes</li><li>Señales de calidad</li><li>Índices de búsqueda reutilizables</li><li>Historial de decisiones</li>
+        </ul>
+      </div>
+      <div class="notes">
+        <p data-at="0.5"><b class="accent-d">Hoy:</b> el mecanismo existe y ya funcionó en un caso real en Buenos Aires.</p>
+        <p data-at="0.7"><b>Todavía no:</b> no hay efectos de red a escala. Pasar de “generar siempre” a “buscar, validar frescura e instanciar” es la hipótesis.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · Pillars -->
+<section id="pillars" class="scene dark" data-title="Diferencial">
+  <div class="wrap">
+    <h2 data-reveal>No queremos recomendaciones plausibles. <span class="accent">Queremos decisiones defendibles.</span></h2>
+    <div class="pillars">
+      <div class="pillar" data-reveal style="--d:1"><h3>Basado en evidencia</h3><p>Fuentes reales y lugares reales.</p></div>
+      <div class="pillar" data-reveal style="--d:2"><h3>Verificado</h3><p>Identidad, geografía y composición validadas.</p></div>
+      <div class="pillar" data-reveal style="--d:3"><h3>Tus preferencias primero</h3><p>Empieza por lo que le importa al viajero.</p></div>
+      <div class="pillar" data-reveal style="--d:4"><h3>Reutilizable</h3><p>Lo aprendido sirve a la próxima solicitud.</p></div>
+      <div class="pillar hot" data-reveal style="--d:5"><h3>Explicable</h3><p>Cada decisión queda registrada con su motivo.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · North Star -->
+<section id="northstar" class="scene light" data-title="North Star">
+  <div class="wrap">
+    <span class="badge proposed">North Star propuesta</span>
+    <h2 class="big" data-reveal>Tasa de planes de viaje exitosos</h2>
+    <div class="two">
+      <div data-reveal style="--d:1">
+        <p class="lead">% de solicitudes que terminan en un plan que:</p>
+        <ul class="list check dark-check">
+          <li>se alinea con las preferencias principales</li><li>se construye con experiencias verificadas</li>
+          <li>es geográficamente factible</li><li>es temporalmente factible</li>
+          <li>no contiene composiciones fabricadas</li><li>es realmente útil para el viajero</li>
+        </ul>
+        <p class="warn">Todavía no instrumentada. No mostramos valores porque no existen.</p>
+      </div>
+      <div class="metrics" data-reveal style="--d:2">
+        <span>Preferencias satisfechas</span><span>Formato pedido cumplido</span><span>Cobertura con experiencias verificadas</span><span>Reutilización del catálogo</span>
+        <span>Tiempo hasta un plan usable</span><span>Costo de proveedores por plan exitoso</span><span>Aceptación del usuario</span><span>Ediciones al plan</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · Today -->
+<section id="today" class="scene dark" data-title="Hoy">
+  <div class="wrap">
+    <span class="badge proven">Probado</span>
+    <h2 data-reveal>La hipótesis central ya funciona. <span class="accent">Ahora probamos generalidad y calidad.</span></h2>
+    <div class="maturity" data-reveal style="--d:1">
+      <div class="m ok"><span>Entender qué quiere el viajero</span><i>Operativo</i></div>
+      <div class="m ok"><span>Entender el destino</span><i>Operativo</i></div>
+      <div class="m ok"><span>Ubicar lugares que el viajero nombra</span><i>Operativo</i></div>
+      <div class="m ok"><span>Investigar con fuentes reales</span><i>Operativo</i></div>
+      <div class="m ok"><span>Un modelo único de experiencia</span><i>Operativo</i></div>
+      <div class="m ok"><span>Identificar cada lugar sin duplicados</span><i>Operativo</i></div>
+      <div class="m ok"><span>Validación geográfica</span><i>Operativo</i></div>
+      <div class="m ok"><span>Elegir según preferencias</span><i>Operativo</i></div>
+      <div class="m ok"><span>Armar cada día con reglas verificables</span><i>Operativo</i></div>
+      <div class="m ok"><span>Catálogo reutilizable</span><i>Operativo</i></div>
+      <div class="m mat"><span>Registro de decisiones</span><i>Madurando</i></div>
+      <div class="m prog"><span>Generalización entre casos</span><i>En curso</i></div>
+      <div class="m next"><span>Calibración de calidad de producto</span><i>Siguiente</i></div>
+      <div class="m fut"><span>Experiencia agéntica de viaje</span><i>Futuro</i></div>
+    </div>
+    <p class="fine">“Operativo” = implementado y ejercitado en el flujo real, en un entorno de pruebas. No significa listo para producción.</p>
+  </div>
+</section>
+
+<!-- 10 · Buenos Aires case -->
+<section id="rw2" class="scene light sticky" data-title="Caso Buenos Aires" style="--len:260vh" data-stops="0,0.5,1">
+  <div class="stage">
+    <div class="wrap">
+      <span class="badge proven">Probado · caso real</span>
+      <h2>Una caminata real de San Telmo a La Boca</h2>
+      <div class="split rw2">
+        <div class="map">
+          <svg viewBox="0 0 600 420" aria-label="Esquema de la ruta de 7 paradas entre San Telmo y La Boca">
+            <ellipse cx="200" cy="150" rx="185" ry="125" class="zone st"/>
+            <ellipse cx="440" cy="300" rx="145" ry="110" class="zone lb"/>
+            <text x="40" y="250" class="zlabel st">SAN TELMO</text>
+            <text x="410" y="400" class="zlabel lb">LA BOCA</text>
+            <path class="draw route" pathLength="1" d="M80 70 L165 150 L250 105 L315 190 L390 262 L470 238 L535 335"/>
+            <g class="stops">
+              <g data-at="0.05"><circle cx="80" cy="70" r="15"/><text x="80" y="75">1</text></g>
+              <g data-at="0.15"><circle cx="165" cy="150" r="15"/><text x="165" y="155">2</text></g>
+              <g data-at="0.25"><circle cx="250" cy="105" r="15"/><text x="250" y="110">3</text></g>
+              <g data-at="0.35"><circle cx="315" cy="190" r="15"/><text x="315" y="195">4</text></g>
+              <g data-at="0.45"><circle cx="390" cy="262" r="15"/><text x="390" y="267">5</text></g>
+              <g data-at="0.55"><circle cx="470" cy="238" r="15"/><text x="470" y="243">6</text></g>
+              <g data-at="0.62"><circle cx="535" cy="335" r="15"/><text x="535" y="340">7</text></g>
+            </g>
+          </svg>
+          <ol class="stoplist">
+            <li data-at="0.05">Plaza de Mayo</li><li data-at="0.15">Calle Defensa</li><li data-at="0.25">Plaza Dorrego</li>
+            <li data-at="0.35">Mercado de San Telmo</li><li data-at="0.45">Av. Almirante Brown</li><li data-at="0.55">Caminito</li><li data-at="0.62">Riachuelo</li>
+          </ol>
+          <p class="fine">Pedido: Buenos Aires · caminata · historia + arquitectura · San Telmo + La Boca. Esquema ilustrativo, no cartografía a escala.</p>
+        </div>
+        <div class="facts">
+          <p data-at="0.66"><b>Real</b> un recorrido publicado que cruza dos barrios</p>
+          <p data-at="0.7"><b>7/7</b> paradas respaldadas por la fuente</p>
+          <p data-at="0.74"><b>7/7</b> paradas ubicadas en el mapa</p>
+          <p data-at="0.78"><b>✓</b> no se inventó juntando lugares cercanos</p>
+          <p data-at="0.82"><b>✓</b> guardada para reutilizarla</p>
+          <p data-at="0.86"><b>0</b> investigaciones nuevas al pedirla otra vez</p>
+          <p class="punch sm" data-at="0.92">Zig-Zag puede aprender una experiencia de viaje real, no solo juntar puntos cercanos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 · Lesson -->
+<section id="lesson" class="scene dark" data-title="Correcto ≠ útil">
+  <div class="wrap">
+    <span class="badge risk">Riesgo observado</span>
+    <h2 class="big" data-reveal>Correcto ≠ útil</h2>
+    <p class="lead" data-reveal>En el caso de Buenos Aires, Zig-Zag encontró la caminata correcta. Aun así, el plan final mostró cinco museos sueltos.</p>
+    <div class="two">
+      <div class="checks" data-reveal style="--d:1">
+        <p class="ok">Corrección de la investigación <i>Correcto</i></p>
+        <p class="ok">Corrección de identidad <i>Correcto</i></p>
+        <p class="ok">Corrección geográfica <i>Correcto</i></p>
+        <p class="no">Utilidad final para el viajero <i>Requiere calibración</i></p>
+      </div>
+      <div class="card glow" data-reveal style="--d:2">
+        <h3 class="accent">El registro de decisiones mostró por qué</h3>
+        <p>La caminata llegó a la etapa de armado del plan, pero se descartó por los límites de caminata del pedido:</p>
+        <ul class="list minus reasons"><li>superaba el máximo de caminata por día</li><li>tenía un tramo continuo más largo que el permitido</li></ul>
+        <p class="fine">No fue ignorada: la frenó una regla. Ya corregimos que el registro muestre cuánto se camina vs. el límite y cómo se armó la selección. Falta una decisión de producto: qué límites usar por defecto.</p>
+      </div>
+    </div>
+    <p class="punch" data-reveal>La corrección de ingeniería es necesaria. <span class="accent">La calidad de decisión de producto es la próxima frontera.</span></p>
+  </div>
+</section>
+
+<!-- 12 · One engine -->
+<section id="engine" class="scene dark sticky deep" data-title="Un motor" style="--len:230vh" data-stops="0,0.6,1">
+  <div class="stage">
+    <div class="wrap">
+      <span class="badge hypo">Hipótesis de negocio</span>
+      <h2>La app B2C es una distribución. <span class="accent">El motor es el activo.</span></h2>
+    </div>
+    <div class="camera">
+      <div class="engine">
+        <div class="engine-core"><b>Zig-Zag</b><small>Travel Decision Engine</small></div>
+        <span class="chan" style="--a:0" data-at="0.4">App B2C</span>
+        <span class="chan" style="--a:1" data-at="0.46">Reservas / afiliación</span>
+        <span class="chan" style="--a:2" data-at="0.52">Premium / Trip Pass</span>
+        <span class="chan" style="--a:3" data-at="0.58">Integrado en otras apps</span>
+        <span class="chan" style="--a:4" data-at="0.64">Marketplace (futuro)</span>
+        <span class="chan" style="--a:5" data-at="0.7">White-label</span>
+        <span class="chan" style="--a:6" data-at="0.76">B2B API</span>
+      </div>
+    </div>
+    <p class="neutral" data-at="0.85"><b>Principio de neutralidad:</b> la selección prioriza lo que mejor encaja con el viajero; la monetización viene después de decidir.</p>
+  </div>
+</section>
+
+<!-- 13 · Models -->
+<section id="models" class="scene light" data-title="Modelos de negocio">
+  <div class="wrap wide">
+    <span class="badge hypo">Hipótesis de negocio</span>
+    <h2 data-reveal>Opciones de modelo de negocio</h2>
+    <div class="models">
+      <article data-reveal style="--d:1"><h3>B2C gratis + reservas</h3>
+        <dl><dt>Rol</dt><dd>Adquisición, aprendizaje de uso, catálogo, marca</dd><dt>Cobro</dt><dd>Comisión por reserva: actividades, hoteles, transporte</dd><dt>Fortaleza</dt><dd>Feedback directo del usuario</dd><dt>Desafío</dt><dd>Costo de adquisición de consumidores</dd></dl></article>
+      <article data-reveal style="--d:2"><h3>Premium / Trip Pass</h3>
+        <dl><dt>Oferta</dt><dd>Replanificación, alertas, colaboración, offline</dd><dt>Cobro</dt><dd>Por viaje, no suscripción obligatoria</dd><dt>Precio</dt><dd>Supuesto histórico sin validar: de un dígito bajo a pocos dólares de dos dígitos por viaje</dd><dt>Desafío</dt><dd>Un paywall temprano frena la adopción</dd></dl></article>
+      <article data-reveal style="--d:3"><h3>B2B API</h3>
+        <dl><dt>Clientes</dt><dd>Apps de viaje, bancos, fintech, aerolíneas, seguros, movilidad, agencias online</dd><dt>Oferta</dt><dd>Pedido del viajero → experiencias verificadas → itinerario</dd><dt>Cobro</dt><dd>Uso, suscripción, enterprise</dd><dt>Valor</dt><dd>Monetizar el motor sin poseer toda la distribución</dd></dl></article>
+      <article data-reveal style="--d:4"><h3>White-label</h3>
+        <dl><dt>Clientes</dt><dd>Hoteles, agencias, entes de turismo, bancos, aerolíneas</dd><dt>Oferta</dt><dd>Planificador “Powered by Zig-Zag”</dd><dt>Cobro</dt><dd>SaaS / licencia / enterprise</dd><dt>Desafío</dt><dd>Customización que se vuelve servicios</dd></dl></article>
+      <article class="later" data-reveal style="--d:5"><h3>Marketplace <small>más adelante</small></h3>
+        <dl><dt>Oferta</dt><dd>Guías, operadores, entradas, tours reservables</dd><dt>Cobro</dt><dd>Comisión sobre cada venta</dd><dt>Requiere</dt><dd>Demanda, control de calidad, oferta, infraestructura transaccional</dd><dt>Prioridad</dt><dd>No inmediata</dd></dl></article>
+    </div>
+  </div>
+</section>
+
+<!-- 14 · Trade-offs -->
+<section id="tradeoffs" class="scene light alt" data-title="Trade-offs">
+  <div class="wrap wide">
+    <span class="badge hypo">Hipótesis de negocio</span>
+    <h2 data-reveal>Trade-offs entre modelos</h2>
+    <div class="table-wrap" data-reveal style="--d:1">
+      <table>
+        <thead><tr><th>Modelo</th><th>Velocidad de ingreso</th><th>Distribución requerida</th><th>Potencial</th><th>Complejidad</th><th>Aprendizaje</th><th>Momento</th></tr></thead>
+        <tbody>
+          <tr><td>B2C gratis + reservas</td><td>Media</td><td>Alta: adquisición masiva</td><td>Alto</td><td>Baja-media</td><td>Muy alto</td><td>Primero</td></tr>
+          <tr><td>Premium / Trip Pass</td><td>Media</td><td>Alta: usuarios propios</td><td>Medio</td><td>Baja</td><td>Alto</td><td>Luego de validar uso</td></tr>
+          <tr><td>B2B API</td><td>Potencialmente alta</td><td>Ventas a empresas; no requiere captar consumidores</td><td>Muy alto</td><td>Media</td><td>Medio</td><td>Temprano, en paralelo</td></tr>
+          <tr><td>White-label</td><td>Potencialmente alta</td><td>Ventas enterprise</td><td>Muy alto</td><td>Media-alta</td><td>Medio</td><td>Con API estable</td></tr>
+          <tr><td>Marketplace</td><td>Más adelante</td><td>Dos lados: oferta + demanda</td><td>Muy alto</td><td>Muy alta</td><td>Alto</td><td>Mucho más adelante</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">Valoraciones cualitativas del equipo, no mediciones. No usamos puntajes numéricos porque todavía no hay datos que los respalden.</p>
+  </div>
+</section>
+
+<!-- 15 · Sequencing -->
+<section id="sequencing" class="scene dark" data-title="Secuencia">
+  <div class="wrap wide">
+    <span class="badge hypo">Hipótesis de negocio</span>
+    <h2 data-reveal>Aprender con B2C. <span class="accent">Monetizar el motor.</span> Expandir donde digan los datos.</h2>
+    <div class="phases">
+      <div class="phase now" data-reveal style="--d:1"><i>Fase 1</i><h3>Aprendizaje de producto</h3><p>App B2C → validar valor → feedback de preferencias y calidad → fortalecer catálogo.</p><small>Monetización: reservas / afiliación donde sea natural.</small></div>
+      <div class="phase" data-reveal style="--d:2"><i>Fase 2</i><h3>Monetizar el motor</h3><p>B2B API + pilotos white-label selectivos.</p><small>Reusa el motor, depende menos de captar consumidores y prueba disposición a pagar.</small></div>
+      <div class="phase" data-reveal style="--d:3"><i>Fase 3</i><h3>Capa premium</h3><p>Trip Pass y capacidades avanzadas de agente de viaje.</p><small>Para viajeros con alto engagement.</small></div>
+      <div class="phase" data-reveal style="--d:4"><i>Fase 4</i><h3>Marketplace</h3><p>Guías, operadores, entradas.</p><small>Solo con demanda repetible y calidad de oferta suficiente.</small></div>
+    </div>
+    <p class="fine">Secuencia, no elección permanente. Condición previa: que el motor demuestre buena calidad, que es justamente el trabajo de los Horizontes 1 y 2.</p>
+  </div>
+</section>
+
+<!-- 16 · Optionality -->
+<section id="optionality" class="scene light" data-title="Opcionalidad">
+  <div class="wrap wide">
+    <span class="badge hypo">Hipótesis de negocio</span>
+    <h2 data-reveal>No necesitamos saber hoy qué canal va a ganar.</h2>
+    <div class="channels" data-reveal style="--d:1"><span>B2C</span><span>B2B API</span><span>White-label</span><span>Embebido</span><span>Marketplace</span></div>
+    <div class="shared" data-reveal style="--d:2"><b>Núcleo compartido</b><span>Entender al viajero</span><span>Conocimiento verificado</span><span>Selección</span><span>Planificación</span><span>Registro de decisiones</span></div>
+    <p class="punch" data-reveal style="--d:3">La inversión de ingeniería actual <span class="accent-d">preserva la opcionalidad del modelo de negocio.</span></p>
+  </div>
+</section>
+
+<!-- 17 · Risks -->
+<section id="risks" class="scene dark" data-title="Riesgos">
+  <div class="wrap wide">
+    <span class="badge risk">Riesgo observado</span>
+    <h2 data-reveal>Mapa de riesgos actual</h2>
+    <div class="risks">
+      <article data-reveal style="--d:1"><h3>Calidad de recomendación</h3><dl><dt>Impacto</dt><dd>Correcto no siempre es útil</dd><dt>Evidencia</dt><dd>Buenos Aires: 5 museos en vez de la caminata pedida</dd><dt>Próximo</dt><dd>Evaluación con revisión humana</dd></dl></article>
+      <article data-reveal style="--d:2"><h3>Profundidad de las fuentes</h3><dl><dt>Impacto</dt><dd>Experiencias incompletas</dd><dt>Evidencia</dt><dd>La estatua de Mafalda y el Parque Lezama no aparecieron en los resultados de búsqueda</dd><dt>Próximo</dt><dd>Leer las fuentes completas, no solo resúmenes</dd></dl></article>
+      <article data-reveal style="--d:3"><h3>Consistencia de la IA</h3><dl><dt>Impacto</dt><dd>Paradas faltantes</dd><dt>Evidencia</dt><dd>Con la misma información, la IA omitió una parada real en 4 de 5 intentos</dd><dt>Próximo</dt><dd>Set de pruebas fijo para medir y comparar</dd></dl></article>
+      <article data-reveal style="--d:4"><h3>Proveedores externos</h3><dl><dt>Impacto</dt><dd>Latencia, cuotas, costo</dd><dt>Evidencia</dt><dd>Un proveedor de IA agotó su cuota diaria; otro demoró más de 60 s en 1 de 5 intentos</dd><dt>Próximo</dt><dd>Medir costos; luego un plan B con reglas claras</dd></dl></article>
+      <article data-reveal style="--d:5"><h3>Políticas de planificación</h3><dl><dt>Impacto</dt><dd>Restricciones vs. intención</dd><dt>Evidencia</dt><dd>Caminata descartada por límites de 5 km por día y 3 km seguidos</dd><dt>Próximo</dt><dd>Decisión de producto; diagnósticos ya auditables</dd></dl></article>
+      <article data-reveal style="--d:6"><h3>Generalización</h3><dl><dt>Impacto</dt><dd>Tesis probada solo en Buenos Aires</dd><dt>Evidencia</dt><dd>Todos los casos reales hasta ahora son de Buenos Aires</dd><dt>Próximo</dt><dd>Probar una ruta, una región, otra ciudad y un caso negativo</dd></dl></article>
+      <article data-reveal style="--d:7"><h3>Tiempo y costo</h3><dl><dt>Impacto</dt><dd>Investigar de cero es caro</dd><dt>Evidencia</dt><dd>Primera vez unos 4 min; reutilizando, 34 s (entorno de pruebas, una medición)</dd><dt>Próximo</dt><dd>Medir tiempo y costo por plan en condiciones reales</dd></dl></article>
+    </div>
+  </div>
+</section>
+
+<!-- 18 · Roadmap -->
+<section id="roadmap" class="scene light sticky" data-title="Roadmap" style="--len:240vh" data-stops="0,0.34,0.67,1">
+  <div class="stage">
+    <div class="wrap wide">
+      <span class="badge future">Futuro</span>
+      <h2>Roadmap en cuatro horizontes</h2>
+    </div>
+    <div class="track-view">
+      <div class="track">
+        <svg class="track-line" viewBox="0 0 1000 10" preserveAspectRatio="none" aria-hidden="true"><path class="draw" pathLength="1" d="M0 5 L1000 5"/></svg>
+        <div class="hz now"><i>Ahora · H1</i><h3>Probar generalidad</h3><ul><li>Recorrido por Caminito</li><li>Ruta del Vino de Mendoza</li><li>Una ciudad fuera de Argentina</li><li>No inventar lo que no existe</li></ul><p><b>Resultado:</b> el motor funciona más allá de los ejemplos fáciles.</p></div>
+        <div class="hz"><i>H2</i><h3>Cerrar el núcleo del producto</h3><ul><li>Evaluar la calidad de los viajes</li><li>Definir límites de movilidad</li><li>Costos de proveedores</li><li>Pruebas automáticas confiables</li><li>Terminar el nuevo motor de selección</li><li>Mantener el catálogo actualizado</li></ul><p><b>Resultado:</b> generación de viajes confiable y medible.</p></div>
+        <div class="hz"><i>H3</i><h3>Loop de aprendizaje</h3><ul><li>20–30 pedidos representativos</li><li>Revisión humana</li><li>Señales de aceptación / edición</li><li>Feedback de usuarios</li><li>Medición de calidad</li><li>Corrección del catálogo</li></ul><p><b>Resultado:</b> definir y medir qué es un “buen viaje”.</p></div>
+        <div class="hz"><i>H4</i><h3>Experiencia agéntica</h3><ul><li>Refinamiento conversacional</li><li>Replanificación en vivo</li><li>Clima, eventos, horarios</li><li>Disponibilidad</li><li>Ejecución del viaje</li><li>Contexto continuo</li></ul><p><b>Resultado:</b> de generador de itinerarios a agente de decisiones de viaje.</p></div>
+      </div>
+    </div>
+    <p class="fine wrap wide">Horizontes secuenciales, sin fechas comprometidas.</p>
+  </div>
+</section>
+
+<!-- 19 · Final -->
+<section id="final" class="scene dark sticky deep" data-title="Cierre" style="--len:200vh" data-stops="0,0.5,1">
+  <div class="stage center">
+    <div class="finale">
+      <h2 class="big">El activo no es el itinerario.</h2>
+      <p class="reveal-line accent" data-at="0.3">Es la capacidad creciente de tomar mejores decisiones de viaje.</p>
+      <div class="trio" data-at="0.6">
+        <span>Travel Knowledge</span><b>+</b><span class="hot">Decision Engine</span><b>+</b><span>Distribution</span>
+      </div>
+      <p class="eyebrow foot" data-at="0.75">ZIG-ZAG</p>
+    </div>
+  </div>
+</section>
+
+</main>
+<script src="assets/app.js"></script>
+</body>
+</html>

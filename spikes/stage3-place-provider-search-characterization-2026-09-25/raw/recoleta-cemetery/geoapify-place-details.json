@@ -1,0 +1,55 @@
+{
+  "request": {
+    "id": "51aebb79aa43324dc059a5315a47554b41c0c002019203144c61205265636f6c6574612043656d6574657279e2031667656f6e616d65733a76656e75653a37353736313033"
+  },
+  "status": 200,
+  "durationMs": 491,
+  "response": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "country_code": "ar",
+          "name": "La Recoleta Cemetery",
+          "country": "Argentina",
+          "datasource": {
+            "sourcename": "geonames",
+            "pelias_gid": "geonames:venue:7576103",
+            "pelias_layer": "venue",
+            "continent": "South America"
+          },
+          "rank": {
+            "pelias_accuracy": "point"
+          },
+          "state": "Autonomous City of Buenos Aires",
+          "state_code": "CF",
+          "city": "Buenos Aires",
+          "district": "Comuna 2",
+          "suburb": "Recoleta",
+          "iso3166_2": "AR-C",
+          "lon": -58.39269,
+          "lat": -34.58854,
+          "feature_type": "details",
+          "formatted": "Recoleta, Buenos Aires, Comuna 2, Argentina",
+          "address_line1": "Recoleta",
+          "address_line2": "Buenos Aires, Comuna 2, Argentina",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          }
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -58.39269,
+            -34.58854
+          ]
+        }
+      }
+    ]
+  }
+}

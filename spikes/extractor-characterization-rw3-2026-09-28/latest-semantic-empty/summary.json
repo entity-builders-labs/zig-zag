@@ -1,0 +1,9 @@
+{
+  "caseName": "latest-semantic-empty",
+  "model": "@cf/qwen/qwen3.8-27b",
+  "totalRuns": 5,
+  "outcomes": {
+    "SEMANTIC_EMPTY (0 candidates)": 5
+  },
+  "avgLatencyMs": 1035
+}

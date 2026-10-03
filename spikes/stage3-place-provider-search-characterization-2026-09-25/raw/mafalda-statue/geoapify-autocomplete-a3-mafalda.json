@@ -1,0 +1,331 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Mafalda",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 843,
+  "response": {
+    "results": [
+      {
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Ezeiza",
+        "city": "Ezeiza",
+        "postcode": "1804",
+        "street": "Arturo Ilia",
+        "name": "Princesa Mafalda y Derqui",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state_code": "B",
+        "iso3166_2": "AR-B",
+        "lon": -58.5278244,
+        "lat": -34.8545718,
+        "result_type": "amenity",
+        "formatted": "Princesa Mafalda y Derqui, Arturo Ilia, 1804 Ezeiza, Argentina",
+        "address_line1": "Princesa Mafalda y Derqui",
+        "address_line2": "Arturo Ilia, 1804 Ezeiza, Argentina",
+        "category": "public_transport.bus",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q34FWC+5V",
+        "rank": {
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51f203fcbf8f434dc059bc8ad69b626d41c0f00103f901aa75420a01000000c002019203195072696e63657361204d6166616c6461207920446572717569",
+        "bbox": {
+          "lon1": -58.5278244,
+          "lat1": -34.8545718,
+          "lon2": -58.5278244,
+          "lat2": -34.8545718
+        }
+      },
+      {
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Escobar",
+        "city": "Matheu",
+        "postcode": "B1627EIJ",
+        "street": "Reina Mafalda",
+        "name": "Reina Mafalda",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state_code": "B",
+        "iso3166_2": "AR-B",
+        "lon": -58.8158291,
+        "lat": -34.3797743,
+        "result_type": "street",
+        "formatted": "Reina Mafalda, B1627 EIJ Matheu, Argentina",
+        "address_line1": "Reina Mafalda",
+        "address_line2": "B1627 EIJ Matheu, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3J5CM+3M",
+        "rank": {
+          "confidence": 1,
+          "confidence_street_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5104d083166d684dc0593f2ebb719c3041c0f00102f9012d54590300000000c0020492030d5265696e61204d6166616c6461",
+        "bbox": {
+          "lon1": -58.8173855,
+          "lat1": -34.3805938,
+          "lon2": -58.8142714,
+          "lat2": -34.3789571
+        }
+      },
+      {
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Ezeiza",
+        "city": "Ezeiza",
+        "postcode": "1804",
+        "street": "Arturo Ilia",
+        "housenumber": "1",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state_code": "B",
+        "iso3166_2": "AR-B",
+        "lon": -58.5223088,
+        "lat": -34.8518648,
+        "result_type": "building",
+        "formatted": "Arturo Ilia 1, 1804 Ezeiza, Argentina",
+        "address_line1": "Arturo Ilia 1",
+        "address_line2": "1804 Ezeiza, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q34FXH+73",
+        "rank": {
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51dd34c703db424dc0598a4ee0e7096d41c0f00103f901d07ac04602000000c00203",
+        "bbox": {
+          "lon1": -58.5223088,
+          "lat1": -34.8518648,
+          "lon2": -58.5223088,
+          "lat2": -34.8518648
+        }
+      },
+      {
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Ezeiza",
+        "city": "Ezeiza",
+        "postcode": "1804",
+        "street": "Arturo Ilia",
+        "housenumber": "100",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state_code": "B",
+        "iso3166_2": "AR-B",
+        "lon": -58.5230055,
+        "lat": -34.8522875,
+        "result_type": "building",
+        "formatted": "Arturo Ilia 100, 1804 Ezeiza, Argentina",
+        "address_line1": "Arturo Ilia 100",
+        "address_line2": "1804 Ezeiza, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q34FXG+3Q",
+        "rank": {
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5166101fd8f1424dc05912a5bdc1176d41c0f00103f901cd7ac04602000000c00203",
+        "bbox": {
+          "lon1": -58.5230055,
+          "lat1": -34.8522875,
+          "lon2": -58.5230055,
+          "lat2": -34.8522875
+        }
+      },
+      {
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Ezeiza",
+        "city": "Ezeiza",
+        "postcode": "1804",
+        "street": "Arturo Ilia",
+        "housenumber": "99",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state_code": "B",
+        "iso3166_2": "AR-B",
+        "lon": -58.5230454,
+        "lat": -34.8522333,
+        "result_type": "building",
+        "formatted": "Arturo Ilia 99, 1804 Ezeiza, Argentina",
+        "address_line1": "Arturo Ilia 99",
+        "address_line2": "1804 Ezeiza, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q34FXG+4Q",
+        "rank": {
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5160a9d326f3424dc059f50714fb156d41c0f00103f901cf7ac04602000000c00203",
+        "bbox": {
+          "lon1": -58.5230454,
+          "lat1": -34.8522333,
+          "lon2": -58.5230454,
+          "lat2": -34.8522333
+        }
+      },
+      {
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Ezeiza",
+        "city": "Ezeiza",
+        "postcode": "1804",
+        "street": "Arturo Ilia",
+        "housenumber": "255",
+        "name": "Comisaría Ezeiza 1°",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state_code": "B",
+        "iso3166_2": "AR-B",
+        "lon": -58.5254888,
+        "lat": -34.8533364,
+        "result_type": "amenity",
+        "formatted": "Comisaría Ezeiza 1°, Arturo Ilia 255, 1804 Ezeiza, Argentina",
+        "address_line1": "Comisaría Ezeiza 1°",
+        "address_line2": "Arturo Ilia 255, 1804 Ezeiza, Argentina",
+        "category": "service.police",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q34FWF+MR",
+        "rank": {
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5107358d3743434dc059423e8d203a6d41c0f00103f90128e1950901000000c00201920315436f6d69736172c3ad6120457a65697a612031c2b0",
+        "bbox": {
+          "lon1": -58.5254888,
+          "lat1": -34.8533364,
+          "lon2": -58.5254888,
+          "lat2": -34.8533364
+        }
+      },
+      {
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Ezeiza",
+        "city": "Ezeiza",
+        "postcode": "1804",
+        "street": "Arturo Ilia",
+        "housenumber": "2",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state_code": "B",
+        "iso3166_2": "AR-B",
+        "lon": -58.5222582,
+        "lat": -34.85193,
+        "result_type": "building",
+        "formatted": "Arturo Ilia 2, 1804 Ezeiza, Argentina",
+        "address_line1": "Arturo Ilia 2",
+        "address_line2": "1804 Ezeiza, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q34FXH+63",
+        "rank": {
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51af88505bd9424dc0599b3dd00a0c6d41c0f00103f901ce7ac04602000000c00203",
+        "bbox": {
+          "lon1": -58.5222582,
+          "lat1": -34.85193,
+          "lon2": -58.5222582,
+          "lat2": -34.85193
+        }
+      }
+    ],
+    "query": {
+      "text": "Mafalda",
+      "parsed": {
+        "city": "mafalda",
+        "expected_type": "unknown"
+      },
+      "categories": []
+    }
+  }
+}

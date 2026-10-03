@@ -1,0 +1,4355 @@
+{
+  "mendozaDestination": {
+    "destinationId": 931,
+    "name": "Mendoza",
+    "type": "CITY",
+    "parentDestinationId": 78,
+    "lookupId": "9.78.931",
+    "destinationUrl": "https://shop.live.rc.viator.com/x/d931-ttd?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+    "defaultCurrencyCode": "ARS",
+    "timeZone": "America/Argentina/Mendoza",
+    "iataCodes": [
+      "MDZ"
+    ],
+    "countryCallingCode": "+54",
+    "languages": [
+      "es-AR"
+    ],
+    "center": {
+      "latitude": -32.890183,
+      "longitude": -68.8440498
+    }
+  },
+  "mendozaCandidates": [
+    {
+      "destinationId": 51255,
+      "name": "Mendoza Province",
+      "type": "PROVINCE",
+      "parentDestinationId": 78,
+      "lookupId": "9.78.51255",
+      "destinationUrl": "https://shop.live.rc.viator.com/x/d51255-ttd?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+      "defaultCurrencyCode": "ARS",
+      "center": {
+        "latitude": -32.89084,
+        "longitude": -68.82717
+      }
+    },
+    {
+      "destinationId": 931,
+      "name": "Mendoza",
+      "type": "CITY",
+      "parentDestinationId": 78,
+      "lookupId": "9.78.931",
+      "destinationUrl": "https://shop.live.rc.viator.com/x/d931-ttd?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+      "defaultCurrencyCode": "ARS",
+      "timeZone": "America/Argentina/Mendoza",
+      "iataCodes": [
+        "MDZ"
+      ],
+      "countryCallingCode": "+54",
+      "languages": [
+        "es-AR"
+      ],
+      "center": {
+        "latitude": -32.890183,
+        "longitude": -68.8440498
+      }
+    }
+  ],
+  "queries": [
+    {
+      "query": "Mendoza wine tour",
+      "request": {
+        "searchTerm": "Mendoza wine tour",
+        "productFiltering": {
+          "destination": "931"
+        },
+        "searchTypes": [
+          {
+            "searchType": "PRODUCTS",
+            "pagination": {
+              "start": 1,
+              "count": 20
+            }
+          }
+        ],
+        "currency": "USD"
+      },
+      "status": 200,
+      "totalCount": 200,
+      "results": [
+        {
+          "rank": 1,
+          "productCode": "5573772P5",
+          "title": "Tour of 3 Wineries and Olive Trees with Tastings",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-and-Tasting-in-3-Wineries-and-1-Olive-Tree-in-Maipu/d931-5573772P5?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 326,
+            "combinedAverageRating": 4.8190184
+          },
+          "tags": [
+            11889,
+            367662,
+            367654,
+            367659,
+            21972,
+            367667,
+            22143,
+            21911,
+            367661,
+            367658,
+            11891,
+            367653,
+            11930,
+            21574,
+            11938,
+            367652
+          ]
+        },
+        {
+          "rank": 2,
+          "productCode": "40520P12",
+          "title": "Half Day Winery Tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Half-Day-Winery-Tour/d931-40520P12?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 601,
+            "combinedAverageRating": 4.6489186
+          },
+          "tags": [
+            21574,
+            11891,
+            367653,
+            11930,
+            367652,
+            11929,
+            367659,
+            367654,
+            11938,
+            367667,
+            367661,
+            21972,
+            11889,
+            367668,
+            21911,
+            22143
+          ]
+        },
+        {
+          "rank": 3,
+          "productCode": "5674P681",
+          "title": "Vineyards Tour in Mendoza: Wine & Olive Oil Tasting Experience",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Visit-to-the-Wineries-with-wine-tasting-in-Mendoza/d931-5674P681?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 35,
+            "combinedAverageRating": 4.3714285
+          },
+          "tags": [
+            367661,
+            21972,
+            22083,
+            21911,
+            11938,
+            21733,
+            22111,
+            11971,
+            367667,
+            20757,
+            367654,
+            11891,
+            11929,
+            367653,
+            11930,
+            21574
+          ]
+        },
+        {
+          "rank": 4,
+          "productCode": "5573772P8",
+          "title": "City Tour of Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/City-Tour-of-Mendoza/d931-5573772P8?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 240,
+            "variableDurationToMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 35,
+            "combinedAverageRating": 4.7714286
+          },
+          "tags": [
+            367653,
+            367654,
+            12028,
+            12029,
+            11889,
+            367661,
+            367667,
+            11930,
+            11929,
+            11938
+          ]
+        },
+        {
+          "rank": 5,
+          "productCode": "5668946P2",
+          "title": "Chocolates and Olive Winery Tour in Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Chocolates-and-Olive-Winery-Tour-in-Mendoza/d931-5668946P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 14,
+            "combinedAverageRating": 4.928571
+          },
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367661,
+            20205,
+            11930,
+            11929,
+            11889,
+            367668,
+            21911
+          ]
+        },
+        {
+          "rank": 6,
+          "productCode": "44877P1",
+          "title": "Tour Aconcagua Park in Small Group from Mendoza with Barbecue Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Small-group-Andes-Day-Trip-by-Minibus/d931-44877P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 442,
+            "combinedAverageRating": 4.8393664
+          },
+          "tags": [
+            11938,
+            21911,
+            367667,
+            21733,
+            367654,
+            11930,
+            11889,
+            21972,
+            367661,
+            367662,
+            22046,
+            21860,
+            367653,
+            21574,
+            367652,
+            11928,
+            11891
+          ]
+        },
+        {
+          "rank": 7,
+          "productCode": "44877P6",
+          "title": "All Day, Small Group, Luxury Wine Tour with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/All-day-small-group-luxury-wine-tour-with-gourmet-lunch/d931-44877P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 1135,
+            "combinedAverageRating": 4.9312778
+          },
+          "tags": [
+            11938,
+            21911,
+            22111,
+            367652,
+            22170,
+            21574,
+            367648,
+            11930,
+            367667,
+            367653,
+            367654,
+            22143,
+            11939,
+            367661,
+            11891,
+            21972,
+            11889,
+            11928,
+            21860,
+            367655
+          ]
+        },
+        {
+          "rank": 8,
+          "productCode": "110469P3",
+          "title": "Self-Guided Bike Tour in Luján de Cuyo Wine Region (Mendoza)",
+          "destinations": [
+            {
+              "ref": "52093",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Lujan-de-Cuyo/Self-guided-tour-at-malbec-region-Lujan-de-Cuyo-Mendoza/d52093-110469P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 240,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 22,
+            "combinedAverageRating": 4.3636365
+          },
+          "tags": [
+            21574,
+            11891,
+            21972,
+            22111,
+            367652,
+            367659,
+            367661,
+            367653,
+            367654,
+            11911,
+            21911,
+            11889,
+            367667,
+            21702,
+            11938
+          ]
+        },
+        {
+          "rank": 9,
+          "productCode": "411023P3",
+          "title": "Top Rated: Winery Tour with Lunch in Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Small-group-Winery-Tour-with-Lunch-and-Experiences/d931-411023P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 79,
+            "combinedAverageRating": 4.670886
+          },
+          "tags": [
+            21574,
+            21860,
+            11891,
+            367653,
+            11930,
+            11928,
+            367667,
+            367652,
+            11938,
+            367654,
+            21911,
+            11889,
+            21733,
+            367661,
+            12053,
+            21972,
+            367658
+          ]
+        },
+        {
+          "rank": 10,
+          "productCode": "5530264P8",
+          "title": "Mendoza Winery Tour with Olive Trees in Private Service",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Mendoza-Winery-Tour-with-Olive-Trees-in-Private-Service/d931-5530264P8?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 44,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            11938,
+            21911,
+            367667,
+            21733,
+            367654,
+            11930,
+            367659,
+            11889,
+            21972,
+            367661,
+            11941,
+            367658,
+            367653,
+            21574,
+            12028,
+            367652,
+            11928,
+            11891
+          ]
+        },
+        {
+          "rank": 11,
+          "productCode": "411967P1",
+          "title": "Mendoza: Make an Argentine Asado BBQ w/ Local Host & Wine Tasting",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Argentinean-asado-with-Local-Host-and-Wine-Tasting/d931-411967P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 240
+          },
+          "reviews": {
+            "totalReviews": 98,
+            "combinedAverageRating": 4.9489794
+          },
+          "tags": [
+            367654,
+            21578,
+            367667,
+            21911,
+            21571,
+            22111,
+            367652,
+            11890,
+            21860,
+            22143,
+            11891,
+            21972,
+            21579,
+            367661,
+            367659,
+            367653
+          ]
+        },
+        {
+          "rank": 12,
+          "productCode": "111729P3",
+          "title": "Wine Trails from Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Wine-Trails-from-Mendoza/d931-111729P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": null,
+          "tags": [
+            11938,
+            11903,
+            12029,
+            22111,
+            367661,
+            12028,
+            11889,
+            367658,
+            11930,
+            367667
+          ]
+        },
+        {
+          "rank": 13,
+          "productCode": "405093P1",
+          "title": "Private Tour Wineries in Mendoza with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Tour-Wineries-for-the-day-in-Mendoza/d931-405093P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 360,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 6,
+            "combinedAverageRating": 4.6666665
+          },
+          "tags": [
+            367661,
+            20224,
+            11930,
+            11889,
+            21911,
+            21733,
+            11938,
+            11941,
+            367667
+          ]
+        },
+        {
+          "rank": 14,
+          "productCode": "32301P2",
+          "title": "Private Uco Valley Tour paired Lunch, Wine Tastings from Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Uco-Valley-Tour-including-Lunch-and-Wine-Tasting-from-Mendoza/d931-32301P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 15,
+            "combinedAverageRating": 4.866667
+          },
+          "tags": [
+            367661,
+            11889,
+            21574,
+            11930,
+            367653,
+            367654,
+            11929,
+            12053,
+            367667,
+            367659,
+            11941,
+            21911,
+            11891,
+            22111,
+            367652,
+            21733,
+            11938
+          ]
+        },
+        {
+          "rank": 15,
+          "productCode": "251560P1",
+          "title": "Horseback riding and roast in the mountains of Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Horseback-riding-adventure-in-Mendoza/d931-251560P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 396,
+            "combinedAverageRating": 4.9116163
+          },
+          "tags": [
+            367652,
+            367653,
+            21972,
+            367659,
+            11903,
+            22143,
+            367667,
+            367654,
+            367661,
+            11973
+          ]
+        },
+        {
+          "rank": 16,
+          "productCode": "5693MAIPU",
+          "title": "Wine-Tasting Tour from Maipú Mendoza Including Trapiche Winery",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Maipu-Wine-Tasting-Tour-from-Mendoza-Including-Trapiche-Winery/d931-5693MAIPU?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 125,
+            "combinedAverageRating": 4.584
+          },
+          "tags": [
+            367663,
+            11938,
+            21911,
+            21574,
+            11930,
+            11889,
+            11928,
+            22111,
+            11891,
+            21972,
+            11941,
+            367661
+          ]
+        },
+        {
+          "rank": 17,
+          "productCode": "5362P11",
+          "title": "3-hour Mendoza Tasting Tour with 34 Traditional Argentine Flavors",
+          "destinations": [
+            {
+              "ref": "51255",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza-Province/Taste-of-Argentina-Discover-34-amazing-yet-unknown-local-foods/d51255-5362P11?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 210
+          },
+          "reviews": {
+            "totalReviews": 36,
+            "combinedAverageRating": 4.8333335
+          },
+          "tags": [
+            21860,
+            21911,
+            367667,
+            11890,
+            21571,
+            21579,
+            367661,
+            11891,
+            21972,
+            21481,
+            367658
+          ]
+        },
+        {
+          "rank": 18,
+          "productCode": "69673P95",
+          "title": "Mendoza Meals Food Tour with 12+ Tastings",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Mendoza-Meals-Food-Tour-with-12-Tastings/d931-69673P95?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 240
+          },
+          "reviews": {
+            "totalReviews": 3,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            12046,
+            21860,
+            11929,
+            20245,
+            11938,
+            22143,
+            21911,
+            367661
+          ]
+        },
+        {
+          "rank": 19,
+          "productCode": "5674P1222",
+          "title": "Mendoza Wine Bus Tour Hop On Hop Off Wineries Experience",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Mendoza-Wine-Bus-Tour-Hop-On-Hop-Off-Wineries-Experience/d931-5674P1222?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 300
+          },
+          "reviews": null,
+          "tags": [
+            21574,
+            22083,
+            367650,
+            11938,
+            11930,
+            12028,
+            12058,
+            367661,
+            11891,
+            20757,
+            22111,
+            21911
+          ]
+        },
+        {
+          "rank": 20,
+          "productCode": "5566621P1",
+          "title": "Mendoza Tour Wines Empanadas and Olive Oil",
+          "destinations": [
+            {
+              "ref": "51255",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza-Province/The-Real-Mendoza-Tasting-of-Empanadas-Wines-and-Oil/d51255-5566621P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 20,
+            "combinedAverageRating": 4.95
+          },
+          "tags": [
+            21574,
+            367653,
+            367658,
+            367661,
+            21972,
+            21911,
+            21733,
+            11938,
+            367659,
+            11929,
+            20206,
+            367654,
+            11930,
+            12035,
+            367652,
+            11891,
+            367667
+          ]
+        }
+      ]
+    },
+    {
+      "query": "Maipu wine tour",
+      "request": {
+        "searchTerm": "Maipu wine tour",
+        "productFiltering": {
+          "destination": "931"
+        },
+        "searchTypes": [
+          {
+            "searchType": "PRODUCTS",
+            "pagination": {
+              "start": 1,
+              "count": 20
+            }
+          }
+        ],
+        "currency": "USD"
+      },
+      "status": 200,
+      "totalCount": 200,
+      "results": [
+        {
+          "rank": 1,
+          "productCode": "5573772P5",
+          "title": "Tour of 3 Wineries and Olive Trees with Tastings",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-and-Tasting-in-3-Wineries-and-1-Olive-Tree-in-Maipu/d931-5573772P5?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 326,
+            "combinedAverageRating": 4.8190184
+          },
+          "tags": [
+            11889,
+            367662,
+            367654,
+            367659,
+            21972,
+            367667,
+            22143,
+            21911,
+            367661,
+            367658,
+            11891,
+            367653,
+            11930,
+            21574,
+            11938,
+            367652
+          ]
+        },
+        {
+          "rank": 2,
+          "productCode": "40520P12",
+          "title": "Half Day Winery Tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Half-Day-Winery-Tour/d931-40520P12?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 601,
+            "combinedAverageRating": 4.6489186
+          },
+          "tags": [
+            21574,
+            11891,
+            367653,
+            11930,
+            367652,
+            11929,
+            367659,
+            367654,
+            11938,
+            367667,
+            367661,
+            21972,
+            11889,
+            367668,
+            21911,
+            22143
+          ]
+        },
+        {
+          "rank": 3,
+          "productCode": "475969P2",
+          "title": "Maipu Tour 3 wineries with lunch + olive all inclusive!",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Visit-to-Biodynamic-and-Traditional-wineries-and-6-course-lunch/d931-475969P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 21,
+            "combinedAverageRating": 4.857143
+          },
+          "tags": [
+            11938,
+            21911,
+            367659,
+            367654,
+            11891,
+            21733,
+            367652,
+            11928,
+            367667,
+            21574,
+            21860,
+            11889,
+            12053,
+            367658,
+            11930,
+            367653,
+            367661
+          ]
+        },
+        {
+          "rank": 4,
+          "productCode": "411023P7",
+          "title": "Maipu Wine Tour: 3 Wineries and Olive Oil Factory",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-of-Olive-Wineries-and-Steps-Lunch-in-Maipu/d931-411023P7?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 6,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            21860,
+            21578,
+            11890,
+            11891,
+            21484,
+            367658,
+            367667,
+            22111,
+            367661,
+            367668,
+            21911
+          ]
+        },
+        {
+          "rank": 5,
+          "productCode": "246702P1",
+          "title": "Lujan & Maipu - The Best WineTour & Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Full-day-Wine-tasting-and-paired-lunch-with-wines-small-group-wine-tour/d931-246702P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 450
+          },
+          "reviews": {
+            "totalReviews": 53,
+            "combinedAverageRating": 4.8301888
+          },
+          "tags": [
+            367661,
+            12053,
+            11889,
+            11928,
+            367663,
+            21733,
+            11891,
+            367652,
+            11938,
+            367653,
+            11930,
+            21574,
+            367654,
+            367668,
+            21911,
+            11941
+          ]
+        },
+        {
+          "rank": 6,
+          "productCode": "301304P3",
+          "title": "Wine Chocolate & Olive",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Walk-to-the-Maranon-From-Mendoza/d931-301304P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 60,
+            "variableDurationToMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 23,
+            "combinedAverageRating": 4.7391305
+          },
+          "tags": [
+            22111,
+            11930,
+            367659,
+            367653,
+            367668,
+            11938,
+            21574,
+            367654,
+            11891,
+            367652,
+            11928,
+            367661,
+            367667,
+            20205,
+            21911
+          ]
+        },
+        {
+          "rank": 7,
+          "productCode": "44877P6",
+          "title": "All Day, Small Group, Luxury Wine Tour with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/All-day-small-group-luxury-wine-tour-with-gourmet-lunch/d931-44877P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 1135,
+            "combinedAverageRating": 4.9312778
+          },
+          "tags": [
+            11938,
+            21911,
+            22111,
+            367652,
+            22170,
+            21574,
+            367648,
+            11930,
+            367667,
+            367653,
+            367654,
+            22143,
+            11939,
+            367661,
+            11891,
+            21972,
+            11889,
+            11928,
+            21860,
+            367655
+          ]
+        },
+        {
+          "rank": 8,
+          "productCode": "199477P3",
+          "title": "Private Mendoza WineTour: 3 Premium Wineries Michelin-Guide Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/LUJAN-DE-CUYO-Wineries-Private-Driver/d931-199477P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 37,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            367654,
+            21733,
+            11941,
+            11889,
+            21911,
+            367652,
+            11938,
+            367668,
+            11928,
+            367663,
+            21574,
+            11891,
+            21972,
+            11930,
+            367653
+          ]
+        },
+        {
+          "rank": 9,
+          "productCode": "5530264P8",
+          "title": "Mendoza Winery Tour with Olive Trees in Private Service",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Mendoza-Winery-Tour-with-Olive-Trees-in-Private-Service/d931-5530264P8?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 44,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            11938,
+            21911,
+            367667,
+            21733,
+            367654,
+            11930,
+            367659,
+            11889,
+            21972,
+            367661,
+            11941,
+            367658,
+            367653,
+            21574,
+            12028,
+            367652,
+            11928,
+            11891
+          ]
+        },
+        {
+          "rank": 10,
+          "productCode": "309457P3",
+          "title": "Wine and Olivicola Tour Wine and Oil Tastings",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Wine-and-Olivicola-Tour-Wine-and-Oil-Tastings/d931-309457P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 390
+          },
+          "reviews": {
+            "totalReviews": 2,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367663,
+            11928,
+            22111,
+            367661,
+            11930,
+            11889,
+            367668,
+            21911
+          ]
+        },
+        {
+          "rank": 11,
+          "productCode": "224017P1",
+          "title": "FULL DAY Wineries in Maipu and Lujan - EXCLUSIVE/PRIVATE VEHICLE",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Executive-Transfers-from-Mendoza-Airport-to-Capital-and-Excursions/d931-224017P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 15,
+            "combinedAverageRating": 4.733333
+          },
+          "tags": [
+            20238,
+            367667,
+            367661,
+            367654
+          ]
+        },
+        {
+          "rank": 12,
+          "productCode": "5668946P2",
+          "title": "Chocolates and Olive Winery Tour in Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Chocolates-and-Olive-Winery-Tour-in-Mendoza/d931-5668946P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 14,
+            "combinedAverageRating": 4.928571
+          },
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367661,
+            20205,
+            11930,
+            11929,
+            11889,
+            367668,
+            21911
+          ]
+        },
+        {
+          "rank": 13,
+          "productCode": "227574P1",
+          "title": "Private Transfer + Maipu Vinicolas",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Vinicolas-Lujan-Maipu-Tour/d931-227574P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 360,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 208,
+            "combinedAverageRating": 4.9615383
+          },
+          "tags": [
+            20206,
+            21733,
+            11941,
+            11889,
+            21911,
+            11938,
+            367668,
+            367663,
+            21574,
+            11891,
+            21972,
+            367661,
+            367669,
+            11930,
+            21736,
+            12053
+          ]
+        },
+        {
+          "rank": 14,
+          "productCode": "161924P54",
+          "title": "Exclusive Half Day Tour of Wineries and Olive Oil from Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Exclusive-half-day-tour-of-wineries-and-olive-oil-company/d931-161924P54?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 27,
+            "combinedAverageRating": 4.6666665
+          },
+          "tags": [
+            21972,
+            20224,
+            12046,
+            11930,
+            367658,
+            11889,
+            12058,
+            367661,
+            367663,
+            11938,
+            11929
+          ]
+        },
+        {
+          "rank": 15,
+          "productCode": "44877P7",
+          "title": "Horseback ride through vineyards followed by gourmet lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Horseback-ride-through-vineyards-followed-by-gourmet-winery-lunch/d931-44877P7?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 70,
+            "combinedAverageRating": 4.9142857
+          },
+          "tags": [
+            367654,
+            21484,
+            12034,
+            21578,
+            21911,
+            11890,
+            11973,
+            11903,
+            21860,
+            367663,
+            11891,
+            21972,
+            367661,
+            21489,
+            367653
+          ]
+        },
+        {
+          "rank": 16,
+          "productCode": "40520P3",
+          "title": "Wine tour with lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Wine-Tour-with-Lunch-from-Mendoza/d931-40520P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 34,
+            "combinedAverageRating": 4.470588
+          },
+          "tags": [
+            11891,
+            367653,
+            367654,
+            21574,
+            22111,
+            11889,
+            21911,
+            367661,
+            367667,
+            11930,
+            11938,
+            11928
+          ]
+        },
+        {
+          "rank": 17,
+          "productCode": "5560697P8",
+          "title": "Tour in Maipu region with Lunch and wines and olive groves",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-in-Maipu-region-with-Lunch-and-wines-and-olive-groves/d931-5560697P8?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": null,
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367663,
+            11928,
+            367661,
+            11930,
+            11889,
+            367668,
+            21911
+          ]
+        },
+        {
+          "rank": 18,
+          "productCode": "405093P1",
+          "title": "Private Tour Wineries in Mendoza with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Tour-Wineries-for-the-day-in-Mendoza/d931-405093P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 360,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 6,
+            "combinedAverageRating": 4.6666665
+          },
+          "tags": [
+            367661,
+            20224,
+            11930,
+            11889,
+            21911,
+            21733,
+            11938,
+            11941,
+            367667
+          ]
+        },
+        {
+          "rank": 19,
+          "productCode": "5674P681",
+          "title": "Vineyards Tour in Mendoza: Wine & Olive Oil Tasting Experience",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Visit-to-the-Wineries-with-wine-tasting-in-Mendoza/d931-5674P681?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 35,
+            "combinedAverageRating": 4.3714285
+          },
+          "tags": [
+            367661,
+            21972,
+            22083,
+            21911,
+            11938,
+            21733,
+            22111,
+            11971,
+            367667,
+            20757,
+            367654,
+            11891,
+            11929,
+            367653,
+            11930,
+            21574
+          ]
+        },
+        {
+          "rank": 20,
+          "productCode": "32301P6",
+          "title": "Maipu and Lujan Wine & Olive Oil Tour, tastings and paired lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Group-Winery-Tour-Experience-with-Lunch/d931-32301P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 420
+          },
+          "reviews": null,
+          "tags": [
+            11941,
+            21911,
+            367667,
+            11938,
+            11928,
+            367661,
+            12053,
+            11930,
+            367658,
+            22111,
+            11891,
+            21574
+          ]
+        }
+      ]
+    },
+    {
+      "query": "Lujan de Cuyo winery tour",
+      "request": {
+        "searchTerm": "Lujan de Cuyo winery tour",
+        "productFiltering": {
+          "destination": "931"
+        },
+        "searchTypes": [
+          {
+            "searchType": "PRODUCTS",
+            "pagination": {
+              "start": 1,
+              "count": 20
+            }
+          }
+        ],
+        "currency": "USD"
+      },
+      "status": 200,
+      "totalCount": 200,
+      "results": [
+        {
+          "rank": 1,
+          "productCode": "5530264P4",
+          "title": "Tour wineries Lujan de Cuyo",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-wineries-Lujan-de-Cuyo/d931-5530264P4?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 25,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            11938,
+            11941,
+            11930,
+            21911,
+            11891,
+            21733,
+            367669,
+            11928,
+            21972,
+            367667,
+            11889,
+            21574,
+            367658,
+            367668,
+            367661
+          ]
+        },
+        {
+          "rank": 2,
+          "productCode": "40520P12",
+          "title": "Half Day Winery Tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Half-Day-Winery-Tour/d931-40520P12?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 601,
+            "combinedAverageRating": 4.6489186
+          },
+          "tags": [
+            21574,
+            11891,
+            367653,
+            11930,
+            367652,
+            11929,
+            367659,
+            367654,
+            11938,
+            367667,
+            367661,
+            21972,
+            11889,
+            367668,
+            21911,
+            22143
+          ]
+        },
+        {
+          "rank": 3,
+          "productCode": "199477P3",
+          "title": "Private Mendoza WineTour: 3 Premium Wineries Michelin-Guide Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/LUJAN-DE-CUYO-Wineries-Private-Driver/d931-199477P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 37,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            367654,
+            21733,
+            11941,
+            11889,
+            21911,
+            367652,
+            11938,
+            367668,
+            11928,
+            367663,
+            21574,
+            11891,
+            21972,
+            11930,
+            367653
+          ]
+        },
+        {
+          "rank": 4,
+          "productCode": "246702P1",
+          "title": "Lujan & Maipu - The Best WineTour & Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Full-day-Wine-tasting-and-paired-lunch-with-wines-small-group-wine-tour/d931-246702P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 450
+          },
+          "reviews": {
+            "totalReviews": 53,
+            "combinedAverageRating": 4.8301888
+          },
+          "tags": [
+            367661,
+            12053,
+            11889,
+            11928,
+            367663,
+            21733,
+            11891,
+            367652,
+            11938,
+            367653,
+            11930,
+            21574,
+            367654,
+            367668,
+            21911,
+            11941
+          ]
+        },
+        {
+          "rank": 5,
+          "productCode": "15735P14",
+          "title": "Lujan Deluxe - Full day - Premium Wine Tour with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Lujan-Wine-Region-Tour-with-Lunch-from-Mendoza/d931-15735P14?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 360,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 52,
+            "combinedAverageRating": 4.923077
+          },
+          "tags": [
+            11889,
+            12053,
+            21733,
+            11938,
+            367667,
+            11891,
+            22111,
+            21574,
+            11930,
+            11941,
+            21911,
+            21972,
+            367661
+          ]
+        },
+        {
+          "rank": 6,
+          "productCode": "227574P9",
+          "title": "Private Tour in Lujan de Cuyo Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Lujan-de-Cuyo-Region-Bicycle-Tour/d931-227574P9?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 360,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 25,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            21733,
+            11941,
+            367667,
+            11889,
+            21911,
+            11938,
+            21574,
+            11891,
+            21972,
+            367661,
+            367669,
+            11930,
+            367656
+          ]
+        },
+        {
+          "rank": 7,
+          "productCode": "44877P6",
+          "title": "All Day, Small Group, Luxury Wine Tour with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/All-day-small-group-luxury-wine-tour-with-gourmet-lunch/d931-44877P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 1135,
+            "combinedAverageRating": 4.9312778
+          },
+          "tags": [
+            11938,
+            21911,
+            22111,
+            367652,
+            22170,
+            21574,
+            367648,
+            11930,
+            367667,
+            367653,
+            367654,
+            22143,
+            11939,
+            367661,
+            11891,
+            21972,
+            11889,
+            11928,
+            21860,
+            367655
+          ]
+        },
+        {
+          "rank": 8,
+          "productCode": "40380P739",
+          "title": "Private Transfer Mendoza Airport MDZ to Lujan de Cuyo or Maipu",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Arrival-Private-Transfer-Mendoza-Airport-MDZ-to-Lujan-de-Cuyo-or-Maipu-by-Sedan/d931-40380P739?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "unstructuredDuration": "14 to 44 mins"
+          },
+          "reviews": null,
+          "tags": [
+            12044,
+            367667,
+            20238,
+            367661,
+            367669
+          ]
+        },
+        {
+          "rank": 9,
+          "productCode": "475969P3",
+          "title": "Tour of 3 Wineries in Lujan de Cuyo with Lunch included",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-of-3-Wineries-in-Lujan-de-Cuyo-with-Lunch-included/d931-475969P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 3,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            11930,
+            367661,
+            11929,
+            367658,
+            11891,
+            11889,
+            21911,
+            21860,
+            21574,
+            21733,
+            11938,
+            367667
+          ]
+        },
+        {
+          "rank": 10,
+          "productCode": "67126P1",
+          "title": "wine tours in wine country mendoza Argentina",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/wine-tours-in-wine-country-mendoza-Argentina/d931-67126P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 6,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            367651,
+            11941,
+            367667,
+            21911,
+            22111,
+            367661,
+            367669,
+            367656,
+            367668
+          ]
+        },
+        {
+          "rank": 11,
+          "productCode": "5595319P9",
+          "title": "Full Day Winery in Mendoza and Tour of Potrerillos and Cacheuta",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Dike-Potrerillos-With-Gourmet-Lunch-in-Winery/d931-5595319P9?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 240,
+            "variableDurationToMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 6,
+            "combinedAverageRating": 4.6666665
+          },
+          "tags": [
+            11891,
+            21733,
+            11929,
+            367667,
+            367661,
+            11941,
+            11938,
+            21911,
+            11930,
+            12053,
+            21574
+          ]
+        },
+        {
+          "rank": 12,
+          "productCode": "5668946P2",
+          "title": "Chocolates and Olive Winery Tour in Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Chocolates-and-Olive-Winery-Tour-in-Mendoza/d931-5668946P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 14,
+            "combinedAverageRating": 4.928571
+          },
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367661,
+            20205,
+            11930,
+            11929,
+            11889,
+            367668,
+            21911
+          ]
+        },
+        {
+          "rank": 13,
+          "productCode": "199477P1",
+          "title": "Private Transfers in Mendoza and Lujan de Cuyo",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/TRANSFER-TOUR-TO-UCO-VALLEY/d931-199477P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 6,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            367667,
+            20238,
+            367668
+          ]
+        },
+        {
+          "rank": 14,
+          "productCode": "460400P3",
+          "title": "Wineries to Luján de Cuyo! Semi-private tours",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Tour-to-the-Wineries-in-Lujan-de-Cuyo-or-Maipu/d931-460400P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 360,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 1,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            367661,
+            11930,
+            12035,
+            367658,
+            367663,
+            367668,
+            11938,
+            21574,
+            21860,
+            11889,
+            11891,
+            21911
+          ]
+        },
+        {
+          "rank": 15,
+          "productCode": "15735P7",
+          "title": "Prestigious wineries of Uco - Private luxury tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Hidden-Wineries-of-the-Uco-Valley/d931-15735P7?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 480,
+            "variableDurationToMinutes": 600
+          },
+          "reviews": {
+            "totalReviews": 89,
+            "combinedAverageRating": 4.9101124
+          },
+          "tags": [
+            11938,
+            11941,
+            21911,
+            367659,
+            367652,
+            21574,
+            11930,
+            12053,
+            367667,
+            367653,
+            367654,
+            367661,
+            11891,
+            11889,
+            11928,
+            21733
+          ]
+        },
+        {
+          "rank": 16,
+          "productCode": "40380P740",
+          "title": "Private Transfer Lujan de Cuyo or Maipu to Mendoza Airport MDZ",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Departure-Private-Transfer-Lujan-de-Cuyo-or-Maipu-to-Mendoza-Airport-MDZ-Sedan/d931-40380P740?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 20,
+            "variableDurationToMinutes": 35
+          },
+          "reviews": null,
+          "tags": [
+            367667,
+            20238,
+            367669,
+            367661,
+            12044
+          ]
+        },
+        {
+          "rank": 17,
+          "productCode": "199477P2",
+          "title": "Uco Valley Day Wine Tour with Private Driver",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/UCO-VALLEY-DAY-hop-on-hop-off-tour/d931-199477P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 148,
+            "combinedAverageRating": 4.9324327
+          },
+          "tags": [
+            11938,
+            367659,
+            21911,
+            367654,
+            20206,
+            11891,
+            22111,
+            367652,
+            367650,
+            11928,
+            21574,
+            367653,
+            367667,
+            11889,
+            367661,
+            11941
+          ]
+        },
+        {
+          "rank": 18,
+          "productCode": "5564080P1",
+          "title": "Private Wine Tour in Lujan de Cuyo - 2 Wineries",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Winery-Tour-in-Mendoza-with-Exclusive-Tasting/d931-5564080P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": null,
+          "tags": [
+            11938,
+            11941,
+            11930,
+            22111,
+            21911,
+            11891,
+            21733,
+            367669,
+            11928,
+            367667,
+            21574,
+            367658,
+            367661
+          ]
+        },
+        {
+          "rank": 19,
+          "productCode": "411967P2",
+          "title": "Lujan de Cuyo Hidden Wineries Tour With A Wine Maker's Guide",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Lujan-de-Cuyo-Hidden-Wineries-Tour-With-A-Wine-Makers-Guide/d931-411967P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 360,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 8,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            11938,
+            11941,
+            21911,
+            22111,
+            367661,
+            11891,
+            11889,
+            367658,
+            21574,
+            11930,
+            21733,
+            367667
+          ]
+        },
+        {
+          "rank": 20,
+          "productCode": "482577P8",
+          "title": "Visit Kaiken Winery with Lunch at Francis Mallmann",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Visit-Cassone-and-Kaiken-Wineries-with-Lunch-at-Francis-Mallmann/d931-482577P8?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 1,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            11938,
+            11941,
+            21911,
+            367661,
+            11891,
+            11929,
+            367658,
+            21574,
+            11930,
+            12053,
+            21733,
+            367667
+          ]
+        }
+      ]
+    },
+    {
+      "query": "Uco Valley wine tour",
+      "request": {
+        "searchTerm": "Uco Valley wine tour",
+        "productFiltering": {
+          "destination": "931"
+        },
+        "searchTypes": [
+          {
+            "searchType": "PRODUCTS",
+            "pagination": {
+              "start": 1,
+              "count": 20
+            }
+          }
+        ],
+        "currency": "USD"
+      },
+      "status": 200,
+      "totalCount": 178,
+      "results": [
+        {
+          "rank": 1,
+          "productCode": "70442P6",
+          "title": "Uco Valley Wine Tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Uco-Valley-Wine-Tour/d931-70442P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 12,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            21733,
+            11891,
+            21574,
+            22111,
+            21911,
+            367661,
+            367667,
+            11930,
+            11941,
+            12053,
+            11938,
+            11928
+          ]
+        },
+        {
+          "rank": 2,
+          "productCode": "199477P2",
+          "title": "Uco Valley Day Wine Tour with Private Driver",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/UCO-VALLEY-DAY-hop-on-hop-off-tour/d931-199477P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 148,
+            "combinedAverageRating": 4.9324327
+          },
+          "tags": [
+            11938,
+            367659,
+            21911,
+            367654,
+            20206,
+            11891,
+            22111,
+            367652,
+            367650,
+            11928,
+            21574,
+            367653,
+            367667,
+            11889,
+            367661,
+            11941
+          ]
+        },
+        {
+          "rank": 3,
+          "productCode": "40520P12",
+          "title": "Half Day Winery Tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Half-Day-Winery-Tour/d931-40520P12?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 601,
+            "combinedAverageRating": 4.6489186
+          },
+          "tags": [
+            21574,
+            11891,
+            367653,
+            11930,
+            367652,
+            11929,
+            367659,
+            367654,
+            11938,
+            367667,
+            367661,
+            21972,
+            11889,
+            367668,
+            21911,
+            22143
+          ]
+        },
+        {
+          "rank": 4,
+          "productCode": "5597673P9",
+          "title": "Private Uco Valley Wine Tour: 3 Wineries, Malbec Tasting &Transfer",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Winery-Day-in-Uco-Valley-with-Private-Transfer/d931-5597673P9?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 1,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            11941,
+            21911,
+            11938,
+            367667,
+            11930,
+            21733,
+            22111,
+            11928,
+            11891,
+            367668,
+            367650,
+            21574,
+            12053,
+            367658,
+            11889,
+            367661
+          ]
+        },
+        {
+          "rank": 5,
+          "productCode": "246702P2",
+          "title": "Uco Valley Wine Experience - The Best Wine Tour & Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Local-food-experience-and-wineries-visit-Private-tour-bilingual-guide/d931-246702P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 44,
+            "combinedAverageRating": 4.8636365
+          },
+          "tags": [
+            21733,
+            21574,
+            367667,
+            11930,
+            11938,
+            11928,
+            367661,
+            11941,
+            21911,
+            11889,
+            22111,
+            11891
+          ]
+        },
+        {
+          "rank": 6,
+          "productCode": "44877P2",
+          "title": "Malbec & Mountain Uco Valley Private Wine Tour with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Day-Trip-Mendoza-Wine-Tasting-with-Lunch/d931-44877P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 480,
+            "variableDurationToMinutes": 600
+          },
+          "reviews": {
+            "totalReviews": 117,
+            "combinedAverageRating": 4.9658117
+          },
+          "tags": [
+            11938,
+            21911,
+            367667,
+            367654,
+            12053,
+            11889,
+            21972,
+            367661,
+            11941,
+            367653,
+            21574,
+            367652,
+            22111,
+            11928,
+            11891,
+            12035
+          ]
+        },
+        {
+          "rank": 7,
+          "productCode": "32301P2",
+          "title": "Private Uco Valley Tour paired Lunch, Wine Tastings from Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Uco-Valley-Tour-including-Lunch-and-Wine-Tasting-from-Mendoza/d931-32301P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 15,
+            "combinedAverageRating": 4.866667
+          },
+          "tags": [
+            367661,
+            11889,
+            21574,
+            11930,
+            367653,
+            367654,
+            11929,
+            12053,
+            367667,
+            367659,
+            11941,
+            21911,
+            11891,
+            22111,
+            367652,
+            21733,
+            11938
+          ]
+        },
+        {
+          "rank": 8,
+          "productCode": "5573772P5",
+          "title": "Tour of 3 Wineries and Olive Trees with Tastings",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-and-Tasting-in-3-Wineries-and-1-Olive-Tree-in-Maipu/d931-5573772P5?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 326,
+            "combinedAverageRating": 4.8190184
+          },
+          "tags": [
+            11889,
+            367662,
+            367654,
+            367659,
+            21972,
+            367667,
+            22143,
+            21911,
+            367661,
+            367658,
+            11891,
+            367653,
+            11930,
+            21574,
+            11938,
+            367652
+          ]
+        },
+        {
+          "rank": 9,
+          "productCode": "44877P6",
+          "title": "All Day, Small Group, Luxury Wine Tour with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/All-day-small-group-luxury-wine-tour-with-gourmet-lunch/d931-44877P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 1135,
+            "combinedAverageRating": 4.9312778
+          },
+          "tags": [
+            11938,
+            21911,
+            22111,
+            367652,
+            22170,
+            21574,
+            367648,
+            11930,
+            367667,
+            367653,
+            367654,
+            22143,
+            11939,
+            367661,
+            11891,
+            21972,
+            11889,
+            11928,
+            21860,
+            367655
+          ]
+        },
+        {
+          "rank": 10,
+          "productCode": "225765P2",
+          "title": "Salentein (Uco Valley) + 2 wineries with lunch included",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-3-wineries/d931-225765P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 240,
+            "variableDurationToMinutes": 540
+          },
+          "reviews": {
+            "totalReviews": 22,
+            "combinedAverageRating": 4.409091
+          },
+          "tags": [
+            11930,
+            12035,
+            367653,
+            367668,
+            11938,
+            21574,
+            367654,
+            11891,
+            367652,
+            367661,
+            12053,
+            21733,
+            11941,
+            367667,
+            21911
+          ]
+        },
+        {
+          "rank": 11,
+          "productCode": "15735P7",
+          "title": "Prestigious wineries of Uco - Private luxury tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Hidden-Wineries-of-the-Uco-Valley/d931-15735P7?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 480,
+            "variableDurationToMinutes": 600
+          },
+          "reviews": {
+            "totalReviews": 89,
+            "combinedAverageRating": 4.9101124
+          },
+          "tags": [
+            11938,
+            11941,
+            21911,
+            367659,
+            367652,
+            21574,
+            11930,
+            12053,
+            367667,
+            367653,
+            367654,
+            367661,
+            11891,
+            11889,
+            11928,
+            21733
+          ]
+        },
+        {
+          "rank": 12,
+          "productCode": "227574P6",
+          "title": "Private Tour + Uco Valley Vinicolas",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Wine-Tour-Uco-Valley/d931-227574P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 360,
+            "variableDurationToMinutes": 540
+          },
+          "reviews": {
+            "totalReviews": 129,
+            "combinedAverageRating": 4.9534883
+          },
+          "tags": [
+            11941,
+            21911,
+            21733,
+            11938,
+            11889,
+            367661,
+            21972,
+            21574,
+            11930,
+            367668,
+            367669,
+            367663,
+            11891
+          ]
+        },
+        {
+          "rank": 13,
+          "productCode": "372644P33",
+          "title": "Uco Valley : Zuccardi Experience & Lunch at Salentein Winery.",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Full-Day-Wine-Tour-in-Mendoza-Zuccardi-and-Salentein-with-Lunch/d931-372644P33?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 7,
+            "combinedAverageRating": 4.714286
+          },
+          "tags": [
+            11941,
+            21911,
+            11938,
+            367667,
+            367654,
+            11930,
+            21733,
+            367652,
+            11928,
+            11891,
+            367668,
+            367653,
+            21574,
+            12053,
+            367658,
+            367661
+          ]
+        },
+        {
+          "rank": 14,
+          "productCode": "482577P2",
+          "title": "Visit Bodega Salentein + Lunch Winery Domaine Bousquet",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Top-Winery-and-Gourmet-Experience-in-Uco-Valley-Transfer-included/d931-482577P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 2,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            11941,
+            21911,
+            11938,
+            367667,
+            11930,
+            21733,
+            11928,
+            11891,
+            367668,
+            21574,
+            12053,
+            367658,
+            11889,
+            367661
+          ]
+        },
+        {
+          "rank": 15,
+          "productCode": "334096P2",
+          "title": "Uco Valley Gourmet Wine Tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Uco-Valley-Gourmet-Wine-Tour-Shared/d931-334096P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 480,
+            "variableDurationToMinutes": 540
+          },
+          "reviews": {
+            "totalReviews": 18,
+            "combinedAverageRating": 4.888889
+          },
+          "tags": [
+            21911,
+            11938,
+            367667,
+            11930,
+            21733,
+            22111,
+            11928,
+            11891,
+            367668,
+            21574,
+            12053,
+            367658,
+            11889,
+            367661
+          ]
+        },
+        {
+          "rank": 16,
+          "productCode": "5668946P2",
+          "title": "Chocolates and Olive Winery Tour in Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Chocolates-and-Olive-Winery-Tour-in-Mendoza/d931-5668946P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 14,
+            "combinedAverageRating": 4.928571
+          },
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367661,
+            20205,
+            11930,
+            11929,
+            11889,
+            367668,
+            21911
+          ]
+        },
+        {
+          "rank": 17,
+          "productCode": "309457P3",
+          "title": "Wine and Olivicola Tour Wine and Oil Tastings",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Wine-and-Olivicola-Tour-Wine-and-Oil-Tastings/d931-309457P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 390
+          },
+          "reviews": {
+            "totalReviews": 2,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367663,
+            11928,
+            22111,
+            367661,
+            11930,
+            11889,
+            367668,
+            21911
+          ]
+        },
+        {
+          "rank": 18,
+          "productCode": "5674P273",
+          "title": "Explore Atuel Canyon and San Rafael: A Guided Adventure",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Canon-del-Atuel-Day-Trip-from-Mendoza/d931-5674P273?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 900
+          },
+          "reviews": {
+            "totalReviews": 14,
+            "combinedAverageRating": 4.714286
+          },
+          "tags": [
+            367663,
+            20757,
+            22083,
+            11903,
+            11889,
+            11928,
+            367661,
+            11938,
+            11930
+          ]
+        },
+        {
+          "rank": 19,
+          "productCode": "379582P18",
+          "title": "Zuccardi Legacy Tour Through Uco Valley’s Finest",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Wine-Idols-Zuccardi-Legacy-Journey-Through-Uco-Valleys-Finest/d931-379582P18?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 2,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            11891,
+            11929,
+            21574,
+            21733,
+            11930,
+            367652,
+            367667,
+            21860,
+            21911,
+            11938,
+            367658,
+            367661
+          ]
+        },
+        {
+          "rank": 20,
+          "productCode": "460400P4",
+          "title": "Wineries to Valle de Uco! Semi-private tours",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Tour-to-the-wineries-in-Valle-de-Uco/d931-460400P4?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 540,
+            "variableDurationToMinutes": 600
+          },
+          "reviews": {
+            "totalReviews": 4,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            21860,
+            21574,
+            11891,
+            12035,
+            11930,
+            11938,
+            367658,
+            367663,
+            11928,
+            367661,
+            11889,
+            367668,
+            21911
+          ]
+        }
+      ]
+    },
+    {
+      "query": "Mendoza wine bus",
+      "request": {
+        "searchTerm": "Mendoza wine bus",
+        "productFiltering": {
+          "destination": "931"
+        },
+        "searchTypes": [
+          {
+            "searchType": "PRODUCTS",
+            "pagination": {
+              "start": 1,
+              "count": 20
+            }
+          }
+        ],
+        "currency": "USD"
+      },
+      "status": 200,
+      "totalCount": 200,
+      "results": [
+        {
+          "rank": 1,
+          "productCode": "5573772P5",
+          "title": "Tour of 3 Wineries and Olive Trees with Tastings",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-and-Tasting-in-3-Wineries-and-1-Olive-Tree-in-Maipu/d931-5573772P5?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 326,
+            "combinedAverageRating": 4.8190184
+          },
+          "tags": [
+            11889,
+            367662,
+            367654,
+            367659,
+            21972,
+            367667,
+            22143,
+            21911,
+            367661,
+            367658,
+            11891,
+            367653,
+            11930,
+            21574,
+            11938,
+            367652
+          ]
+        },
+        {
+          "rank": 2,
+          "productCode": "5674P681",
+          "title": "Vineyards Tour in Mendoza: Wine & Olive Oil Tasting Experience",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Visit-to-the-Wineries-with-wine-tasting-in-Mendoza/d931-5674P681?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 35,
+            "combinedAverageRating": 4.3714285
+          },
+          "tags": [
+            367661,
+            21972,
+            22083,
+            21911,
+            11938,
+            21733,
+            22111,
+            11971,
+            367667,
+            20757,
+            367654,
+            11891,
+            11929,
+            367653,
+            11930,
+            21574
+          ]
+        },
+        {
+          "rank": 3,
+          "productCode": "5668946P2",
+          "title": "Chocolates and Olive Winery Tour in Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Chocolates-and-Olive-Winery-Tour-in-Mendoza/d931-5668946P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 14,
+            "combinedAverageRating": 4.928571
+          },
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367661,
+            20205,
+            11930,
+            11929,
+            11889,
+            367668,
+            21911
+          ]
+        },
+        {
+          "rank": 4,
+          "productCode": "40520P12",
+          "title": "Half Day Winery Tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Half-Day-Winery-Tour/d931-40520P12?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 601,
+            "combinedAverageRating": 4.6489186
+          },
+          "tags": [
+            21574,
+            11891,
+            367653,
+            11930,
+            367652,
+            11929,
+            367659,
+            367654,
+            11938,
+            367667,
+            367661,
+            21972,
+            11889,
+            367668,
+            21911,
+            22143
+          ]
+        },
+        {
+          "rank": 5,
+          "productCode": "44877P6",
+          "title": "All Day, Small Group, Luxury Wine Tour with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/All-day-small-group-luxury-wine-tour-with-gourmet-lunch/d931-44877P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 1135,
+            "combinedAverageRating": 4.9312778
+          },
+          "tags": [
+            11938,
+            21911,
+            22111,
+            367652,
+            22170,
+            21574,
+            367648,
+            11930,
+            367667,
+            367653,
+            367654,
+            22143,
+            11939,
+            367661,
+            11891,
+            21972,
+            11889,
+            11928,
+            21860,
+            367655
+          ]
+        },
+        {
+          "rank": 6,
+          "productCode": "411967P1",
+          "title": "Mendoza: Make an Argentine Asado BBQ w/ Local Host & Wine Tasting",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Argentinean-asado-with-Local-Host-and-Wine-Tasting/d931-411967P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 240
+          },
+          "reviews": {
+            "totalReviews": 98,
+            "combinedAverageRating": 4.9489794
+          },
+          "tags": [
+            367654,
+            21578,
+            367667,
+            21911,
+            21571,
+            22111,
+            367652,
+            11890,
+            21860,
+            22143,
+            11891,
+            21972,
+            21579,
+            367661,
+            367659,
+            367653
+          ]
+        },
+        {
+          "rank": 7,
+          "productCode": "40380P732",
+          "title": "Private Transfer Mendoza Airport MDZ to Mendoza by Car or Minibus",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Arrival-Private-Transfer-Mendoza-Airport-MDZ-to-Mendoza-City-Center-by-Sedan/d931-40380P732?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "unstructuredDuration": "14 to 44 mins"
+          },
+          "reviews": {
+            "totalReviews": 6,
+            "combinedAverageRating": 4
+          },
+          "tags": [
+            367654,
+            12044,
+            367667,
+            20238,
+            22143,
+            367661,
+            367669,
+            367653
+          ]
+        },
+        {
+          "rank": 8,
+          "productCode": "5693FDWINE",
+          "title": "Mendoza Wine Tour with Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Mendoza-Wine-Tour-with-Lunch/d931-5693FDWINE?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 134,
+            "combinedAverageRating": 4.597015
+          },
+          "tags": [
+            21972,
+            22111,
+            11928,
+            367661,
+            11891,
+            367667,
+            21574,
+            11889,
+            11930,
+            21911
+          ]
+        },
+        {
+          "rank": 9,
+          "productCode": "372644P11",
+          "title": "Bodega Salentein, Almuerzo Bodega La Azul with Private Transportation",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Bodegas-Salentein-La-Azul-Private-Tour-with-Lunch-and-Transport/d931-372644P11?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 27,
+            "combinedAverageRating": 4.5925927
+          },
+          "tags": [
+            11938,
+            11928,
+            367661,
+            11930,
+            367654,
+            11891,
+            21733,
+            21574,
+            367667,
+            367652,
+            11941,
+            21911
+          ]
+        },
+        {
+          "rank": 10,
+          "productCode": "111729P3",
+          "title": "Wine Trails from Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Wine-Trails-from-Mendoza/d931-111729P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": null,
+          "tags": [
+            11938,
+            11903,
+            12029,
+            22111,
+            367661,
+            12028,
+            11889,
+            367658,
+            11930,
+            367667
+          ]
+        },
+        {
+          "rank": 11,
+          "productCode": "5573772P8",
+          "title": "City Tour of Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/City-Tour-of-Mendoza/d931-5573772P8?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 240,
+            "variableDurationToMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 35,
+            "combinedAverageRating": 4.7714286
+          },
+          "tags": [
+            367653,
+            367654,
+            12028,
+            12029,
+            11889,
+            367661,
+            367667,
+            11930,
+            11929,
+            11938
+          ]
+        },
+        {
+          "rank": 12,
+          "productCode": "32301P2",
+          "title": "Private Uco Valley Tour paired Lunch, Wine Tastings from Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Uco-Valley-Tour-including-Lunch-and-Wine-Tasting-from-Mendoza/d931-32301P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 15,
+            "combinedAverageRating": 4.866667
+          },
+          "tags": [
+            367661,
+            11889,
+            21574,
+            11930,
+            367653,
+            367654,
+            11929,
+            12053,
+            367667,
+            367659,
+            11941,
+            21911,
+            11891,
+            22111,
+            367652,
+            21733,
+            11938
+          ]
+        },
+        {
+          "rank": 13,
+          "productCode": "5530264P8",
+          "title": "Mendoza Winery Tour with Olive Trees in Private Service",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Mendoza-Winery-Tour-with-Olive-Trees-in-Private-Service/d931-5530264P8?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 44,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            11938,
+            21911,
+            367667,
+            21733,
+            367654,
+            11930,
+            367659,
+            11889,
+            21972,
+            367661,
+            11941,
+            367658,
+            367653,
+            21574,
+            12028,
+            367652,
+            11928,
+            11891
+          ]
+        },
+        {
+          "rank": 14,
+          "productCode": "411023P3",
+          "title": "Top Rated: Winery Tour with Lunch in Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Small-group-Winery-Tour-with-Lunch-and-Experiences/d931-411023P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 79,
+            "combinedAverageRating": 4.670886
+          },
+          "tags": [
+            21574,
+            21860,
+            11891,
+            367653,
+            11930,
+            11928,
+            367667,
+            367652,
+            11938,
+            367654,
+            21911,
+            11889,
+            21733,
+            367661,
+            12053,
+            21972,
+            367658
+          ]
+        },
+        {
+          "rank": 15,
+          "productCode": "131112P379",
+          "title": "Mendoza Airport (MDZ) Private Transfer to Mendoza City",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/One-Way-Mendoza-Airport-MDZ-to-from-Lujan-de-Cuyo-Mendoza/d931-131112P379?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 20
+          },
+          "reviews": {
+            "totalReviews": 6,
+            "combinedAverageRating": 2.6666667
+          },
+          "tags": [
+            22143,
+            367667,
+            20238,
+            12059,
+            367653,
+            367654,
+            367669,
+            367661,
+            12044
+          ]
+        },
+        {
+          "rank": 16,
+          "productCode": "379582P3",
+          "title": "Mendoza Food Safari - 4 Top Restaurants in One Night",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Best-Mendozas-Restaurants-in-One-Night/d931-379582P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 25,
+            "combinedAverageRating": 4.84
+          },
+          "tags": [
+            21972,
+            11938,
+            12053,
+            11941,
+            367661,
+            367667,
+            12046,
+            367654,
+            11929,
+            367652,
+            21911,
+            22143
+          ]
+        },
+        {
+          "rank": 17,
+          "productCode": "350808P247",
+          "title": "Mendoza Airport (MDZ) to Mendoza - Roundtrip Private Transfer",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Mendoza-Airport-MDZ-to-Mendoza-Roundtrip-Private-Transfer/d931-350808P247?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 50
+          },
+          "reviews": {
+            "totalReviews": 1,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            12044,
+            367667,
+            20238,
+            367661,
+            367669
+          ]
+        },
+        {
+          "rank": 18,
+          "productCode": "40380P730",
+          "title": "Private Transfer Mendoza to Mendoza Airport MDZ by Car or Minibus",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Departure-Private-Transfer-Mendoza-City-Center-to-Mendoza-Airport-MDZ-by-Sedan/d931-40380P730?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 25,
+            "variableDurationToMinutes": 60
+          },
+          "reviews": {
+            "totalReviews": 1,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            22143,
+            12044,
+            367653,
+            367654,
+            367661,
+            367669,
+            20238,
+            367667
+          ]
+        },
+        {
+          "rank": 19,
+          "productCode": "103759P43",
+          "title": "Horseback Riding in Mendoza through the vineyards and river with optional Asado.",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Horseback-Riding-in-Los-Andes-with-Asado-Mendoza-Argentina/d931-103759P43?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 60
+          },
+          "reviews": {
+            "totalReviews": 27,
+            "combinedAverageRating": 4.962963
+          },
+          "tags": [
+            11973,
+            367661,
+            367654,
+            367663,
+            367653,
+            11903,
+            367659,
+            21860,
+            367652
+          ]
+        },
+        {
+          "rank": 20,
+          "productCode": "405093P1",
+          "title": "Private Tour Wineries in Mendoza with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Tour-Wineries-for-the-day-in-Mendoza/d931-405093P1?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 360,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 6,
+            "combinedAverageRating": 4.6666665
+          },
+          "tags": [
+            367661,
+            20224,
+            11930,
+            11889,
+            21911,
+            21733,
+            11938,
+            11941,
+            367667
+          ]
+        }
+      ]
+    },
+    {
+      "query": "Mendoza full day wine excursion",
+      "request": {
+        "searchTerm": "Mendoza full day wine excursion",
+        "productFiltering": {
+          "destination": "931"
+        },
+        "searchTypes": [
+          {
+            "searchType": "PRODUCTS",
+            "pagination": {
+              "start": 1,
+              "count": 20
+            }
+          }
+        ],
+        "currency": "USD"
+      },
+      "status": 200,
+      "totalCount": 200,
+      "results": [
+        {
+          "rank": 1,
+          "productCode": "5573772P5",
+          "title": "Tour of 3 Wineries and Olive Trees with Tastings",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-and-Tasting-in-3-Wineries-and-1-Olive-Tree-in-Maipu/d931-5573772P5?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 326,
+            "combinedAverageRating": 4.8190184
+          },
+          "tags": [
+            11889,
+            367662,
+            367654,
+            367659,
+            21972,
+            367667,
+            22143,
+            21911,
+            367661,
+            367658,
+            11891,
+            367653,
+            11930,
+            21574,
+            11938,
+            367652
+          ]
+        },
+        {
+          "rank": 2,
+          "productCode": "40520P12",
+          "title": "Half Day Winery Tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Half-Day-Winery-Tour/d931-40520P12?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 601,
+            "combinedAverageRating": 4.6489186
+          },
+          "tags": [
+            21574,
+            11891,
+            367653,
+            11930,
+            367652,
+            11929,
+            367659,
+            367654,
+            11938,
+            367667,
+            367661,
+            21972,
+            11889,
+            367668,
+            21911,
+            22143
+          ]
+        },
+        {
+          "rank": 3,
+          "productCode": "44877P6",
+          "title": "All Day, Small Group, Luxury Wine Tour with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/All-day-small-group-luxury-wine-tour-with-gourmet-lunch/d931-44877P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 1135,
+            "combinedAverageRating": 4.9312778
+          },
+          "tags": [
+            11938,
+            21911,
+            22111,
+            367652,
+            22170,
+            21574,
+            367648,
+            11930,
+            367667,
+            367653,
+            367654,
+            22143,
+            11939,
+            367661,
+            11891,
+            21972,
+            11889,
+            11928,
+            21860,
+            367655
+          ]
+        },
+        {
+          "rank": 4,
+          "productCode": "5674P681",
+          "title": "Vineyards Tour in Mendoza: Wine & Olive Oil Tasting Experience",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Visit-to-the-Wineries-with-wine-tasting-in-Mendoza/d931-5674P681?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 35,
+            "combinedAverageRating": 4.3714285
+          },
+          "tags": [
+            367661,
+            21972,
+            22083,
+            21911,
+            11938,
+            21733,
+            22111,
+            11971,
+            367667,
+            20757,
+            367654,
+            11891,
+            11929,
+            367653,
+            11930,
+            21574
+          ]
+        },
+        {
+          "rank": 5,
+          "productCode": "5668946P2",
+          "title": "Chocolates and Olive Winery Tour in Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Chocolates-and-Olive-Winery-Tour-in-Mendoza/d931-5668946P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 14,
+            "combinedAverageRating": 4.928571
+          },
+          "tags": [
+            21574,
+            11891,
+            11938,
+            367661,
+            20205,
+            11930,
+            11929,
+            11889,
+            367668,
+            21911
+          ]
+        },
+        {
+          "rank": 6,
+          "productCode": "32301P2",
+          "title": "Private Uco Valley Tour paired Lunch, Wine Tastings from Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Uco-Valley-Tour-including-Lunch-and-Wine-Tasting-from-Mendoza/d931-32301P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 360
+          },
+          "reviews": {
+            "totalReviews": 15,
+            "combinedAverageRating": 4.866667
+          },
+          "tags": [
+            367661,
+            11889,
+            21574,
+            11930,
+            367653,
+            367654,
+            11929,
+            12053,
+            367667,
+            367659,
+            11941,
+            21911,
+            11891,
+            22111,
+            367652,
+            21733,
+            11938
+          ]
+        },
+        {
+          "rank": 7,
+          "productCode": "5530264P8",
+          "title": "Mendoza Winery Tour with Olive Trees in Private Service",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Mendoza-Winery-Tour-with-Olive-Trees-in-Private-Service/d931-5530264P8?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 44,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            11938,
+            21911,
+            367667,
+            21733,
+            367654,
+            11930,
+            367659,
+            11889,
+            21972,
+            367661,
+            11941,
+            367658,
+            367653,
+            21574,
+            12028,
+            367652,
+            11928,
+            11891
+          ]
+        },
+        {
+          "rank": 8,
+          "productCode": "161924P67",
+          "title": "Atuel Canyon Full Day Tour with Transportation from Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Atuel-Canyon-Full-Day-Tour-with-Transportation-from-Mendoza/d931-161924P67?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 780,
+            "variableDurationToMinutes": 840
+          },
+          "reviews": {
+            "totalReviews": 9,
+            "combinedAverageRating": 4.7777777
+          },
+          "tags": [
+            11938,
+            11930,
+            367663,
+            367658,
+            11889,
+            11928,
+            20224,
+            12046,
+            12058,
+            367661,
+            367668
+          ]
+        },
+        {
+          "rank": 9,
+          "productCode": "161924P54",
+          "title": "Exclusive Half Day Tour of Wineries and Olive Oil from Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Exclusive-half-day-tour-of-wineries-and-olive-oil-company/d931-161924P54?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 27,
+            "combinedAverageRating": 4.6666665
+          },
+          "tags": [
+            21972,
+            20224,
+            12046,
+            11930,
+            367658,
+            11889,
+            12058,
+            367661,
+            367663,
+            11938,
+            11929
+          ]
+        },
+        {
+          "rank": 10,
+          "productCode": "15735P7",
+          "title": "Prestigious wineries of Uco - Private luxury tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Hidden-Wineries-of-the-Uco-Valley/d931-15735P7?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 480,
+            "variableDurationToMinutes": 600
+          },
+          "reviews": {
+            "totalReviews": 89,
+            "combinedAverageRating": 4.9101124
+          },
+          "tags": [
+            11938,
+            11941,
+            21911,
+            367659,
+            367652,
+            21574,
+            11930,
+            12053,
+            367667,
+            367653,
+            367654,
+            367661,
+            11891,
+            11889,
+            11928,
+            21733
+          ]
+        },
+        {
+          "rank": 11,
+          "productCode": "379582P3",
+          "title": "Mendoza Food Safari - 4 Top Restaurants in One Night",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Best-Mendozas-Restaurants-in-One-Night/d931-379582P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 25,
+            "combinedAverageRating": 4.84
+          },
+          "tags": [
+            21972,
+            11938,
+            12053,
+            11941,
+            367661,
+            367667,
+            12046,
+            367654,
+            11929,
+            367652,
+            21911,
+            22143
+          ]
+        },
+        {
+          "rank": 12,
+          "productCode": "40520P9",
+          "title": "Andes High Mountain full day Tour",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Andes-High-Mountain-full-day-Tour/d931-40520P9?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 600,
+            "variableDurationToMinutes": 720
+          },
+          "reviews": {
+            "totalReviews": 471,
+            "combinedAverageRating": 4.77707
+          },
+          "tags": [
+            367653,
+            11930,
+            367652,
+            367659,
+            367654,
+            12077,
+            11938,
+            367663,
+            11928,
+            367661,
+            11889,
+            367668,
+            11903
+          ]
+        },
+        {
+          "rank": 13,
+          "productCode": "225765P2",
+          "title": "Salentein (Uco Valley) + 2 wineries with lunch included",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Tour-3-wineries/d931-225765P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 240,
+            "variableDurationToMinutes": 540
+          },
+          "reviews": {
+            "totalReviews": 22,
+            "combinedAverageRating": 4.409091
+          },
+          "tags": [
+            11930,
+            12035,
+            367653,
+            367668,
+            11938,
+            21574,
+            367654,
+            11891,
+            367652,
+            367661,
+            12053,
+            21733,
+            11941,
+            367667,
+            21911
+          ]
+        },
+        {
+          "rank": 14,
+          "productCode": "44877P2",
+          "title": "Malbec & Mountain Uco Valley Private Wine Tour with Gourmet Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Private-Day-Trip-Mendoza-Wine-Tasting-with-Lunch/d931-44877P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 480,
+            "variableDurationToMinutes": 600
+          },
+          "reviews": {
+            "totalReviews": 117,
+            "combinedAverageRating": 4.9658117
+          },
+          "tags": [
+            11938,
+            21911,
+            367667,
+            367654,
+            12053,
+            11889,
+            21972,
+            367661,
+            11941,
+            367653,
+            21574,
+            367652,
+            22111,
+            11928,
+            11891,
+            12035
+          ]
+        },
+        {
+          "rank": 15,
+          "productCode": "372644P28",
+          "title": "Visit and Tasting at Catena Zapata Winery and Private Transportation",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Visit-and-Tasting-EN-Catena-Zapata-Winery-and-Private-Transportation/d931-372644P28?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 150
+          },
+          "reviews": {
+            "totalReviews": 1,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            21733,
+            367658,
+            11930,
+            21574,
+            367668,
+            11938,
+            12029,
+            11941,
+            367661,
+            367667,
+            21911,
+            11891
+          ]
+        },
+        {
+          "rank": 16,
+          "productCode": "5693FDWINE",
+          "title": "Mendoza Wine Tour with Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Mendoza-Wine-Tour-with-Lunch/d931-5693FDWINE?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 134,
+            "combinedAverageRating": 4.597015
+          },
+          "tags": [
+            21972,
+            22111,
+            11928,
+            367661,
+            11891,
+            367667,
+            21574,
+            11889,
+            11930,
+            21911
+          ]
+        },
+        {
+          "rank": 17,
+          "productCode": "199477P3",
+          "title": "Private Mendoza WineTour: 3 Premium Wineries Michelin-Guide Lunch",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/LUJAN-DE-CUYO-Wineries-Private-Driver/d931-199477P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "fixedDurationInMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 37,
+            "combinedAverageRating": 5
+          },
+          "tags": [
+            367654,
+            21733,
+            11941,
+            11889,
+            21911,
+            367652,
+            11938,
+            367668,
+            11928,
+            367663,
+            21574,
+            11891,
+            21972,
+            11930,
+            367653
+          ]
+        },
+        {
+          "rank": 18,
+          "productCode": "372644P2",
+          "title": "Catena Zapata Winery, Lunch and Private Transportation",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Visit-with-Tasting-and-Lunch-in-Wine-Cellars/d931-372644P2?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 300,
+            "variableDurationToMinutes": 420
+          },
+          "reviews": {
+            "totalReviews": 84,
+            "combinedAverageRating": 4.571429
+          },
+          "tags": [
+            21574,
+            11891,
+            367653,
+            11930,
+            367652,
+            21733,
+            367654,
+            11938,
+            11941,
+            367667,
+            367661,
+            367668,
+            21911
+          ]
+        },
+        {
+          "rank": 19,
+          "productCode": "411023P3",
+          "title": "Top Rated: Winery Tour with Lunch in Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Small-group-Winery-Tour-with-Lunch-and-Experiences/d931-411023P3?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 420,
+            "variableDurationToMinutes": 480
+          },
+          "reviews": {
+            "totalReviews": 79,
+            "combinedAverageRating": 4.670886
+          },
+          "tags": [
+            21574,
+            21860,
+            11891,
+            367653,
+            11930,
+            11928,
+            367667,
+            367652,
+            11938,
+            367654,
+            21911,
+            11889,
+            21733,
+            367661,
+            12053,
+            21972,
+            367658
+          ]
+        },
+        {
+          "rank": 20,
+          "productCode": "5573772P8",
+          "title": "City Tour of Mendoza",
+          "destinations": [
+            {
+              "ref": "931",
+              "primary": true
+            }
+          ],
+          "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/City-Tour-of-Mendoza/d931-5573772P8?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+          "itineraryDurationMinutes": {
+            "variableDurationFromMinutes": 240,
+            "variableDurationToMinutes": 300
+          },
+          "reviews": {
+            "totalReviews": 35,
+            "combinedAverageRating": 4.7714286
+          },
+          "tags": [
+            367653,
+            367654,
+            12028,
+            12029,
+            11889,
+            367661,
+            367667,
+            11930,
+            11929,
+            11938
+          ]
+        }
+      ]
+    }
+  ]
+}

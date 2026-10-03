@@ -1,0 +1,3529 @@
+{
+  "label": "cold-1",
+  "tourId": "e146bc4f-93f3-449f-88a6-5a4e09113b87",
+  "generationStatus": "completed",
+  "pollElapsedMs": 337610,
+  "providerRequests": {
+    "commons.wikimedia.org": 6,
+    "es.wikivoyage.org": 3,
+    "geoapify.place-details": 9,
+    "geoapify.places": 1,
+    "geoapify/v1/routing": 124,
+    "groq": 29,
+    "localhost:11434": 15,
+    "nominatim.local/search": 4,
+    "overpass.local": 6,
+    "serper": 3,
+    "wikidata": 13,
+    "wikipedia(en.wikipedia.org)": 5,
+    "wikipedia(es.wikipedia.org)": 1
+  },
+  "extractor": [
+    {
+      "pass": 1,
+      "strategy": "area_route_walk",
+      "groundedProvider": "serper",
+      "evidenceCount": 7,
+      "extracted": 1,
+      "admitted": 1,
+      "rejected": 0,
+      "sourceSupport": [
+        {
+          "candidate": "San Telmo Walking Tour",
+          "status": "SUPPORTED",
+          "components": [
+            "Lezama Park:SUPPORTED",
+            "Plaza Dorrego:SUPPORTED"
+          ]
+        }
+      ]
+    },
+    {
+      "pass": 1,
+      "strategy": "generic",
+      "groundedProvider": "serper",
+      "evidenceCount": 7,
+      "extracted": 0,
+      "admitted": 0,
+      "rejected": 0,
+      "sourceSupport": []
+    },
+    {
+      "pass": 1,
+      "strategy": "generic",
+      "groundedProvider": "serper",
+      "evidenceCount": 10,
+      "extracted": 0,
+      "admitted": 0,
+      "rejected": 0,
+      "sourceSupport": []
+    }
+  ],
+  "stepsExecuted": [
+    "preference_interpretation",
+    "tour_intent",
+    "destination_resolution",
+    "anchor_geo_resolution",
+    "coverage_analysis",
+    "db_search",
+    "coverage_analysis",
+    "area_route_walk_acquisition",
+    "discovery",
+    "entity_resolution",
+    "geographic_validation",
+    "catalog_materialization",
+    "discovery",
+    "entity_resolution",
+    "geographic_validation",
+    "catalog_materialization",
+    "coverage_analysis",
+    "candidate_pool",
+    "embeddings",
+    "discovery",
+    "entity_resolution",
+    "geographic_validation",
+    "catalog_materialization",
+    "daily_planning",
+    "tour_completeness"
+  ],
+  "candidates": [
+    {
+      "stepIndex": 9,
+      "candidate": "San Telmo Walking Tour",
+      "origin": "web",
+      "shape": "composite",
+      "componentCount": 2,
+      "components": [
+        {
+          "hint": "Lezama Park",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "754209cf-baa8-4aa5-bd46-6d2024322134",
+          "canonicalName": "Parque Lezama",
+          "externalId": "osm:way:17441757",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "LOCAL_OSM_POOL",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:way:17441757",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "WIKIDATA_IDENTITY_MATCH"
+              ]
+            }
+          ]
+        },
+        {
+          "hint": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "57677762-3787-406f-9bee-739b03bd3897",
+          "canonicalName": "Plaza Dorrego",
+          "externalId": "osm:way:31364659",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "LOCAL_OSM_POOL",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:way:31364659",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(SINGLE)",
+                "DECLARED_ALIAS_MATCH(SINGLE)"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 2,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 2,
+        "geographicallyAcceptedComponents": 2
+      },
+      "componentScope": {
+        "kind": "VALIDATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "component_defined",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 2,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 2,
+          "geographicallyAcceptedComponents": 2
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "46554d95-891c-48b7-9b10-39e5667f369f",
+          "dedupeDecision": "NEW"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "component_defined"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Solar French",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Solar French",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "6229787c-d26e-40ec-a1ea-4cd7c847ba68",
+          "canonicalName": "Solar French",
+          "externalId": "osm:node:6903962986",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "LOCAL_OSM_POOL",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "geoapify",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368",
+              "verdict": "REJECTED",
+              "evidence": [
+                "EXACT_NAME(UNKNOWN)",
+                "WIKIDATA_IDENTITY_MATCH"
+              ]
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:node:6903962986",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(SINGLE)",
+                "IDENTITY_CONVERGENCE"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "c009a80a-07fb-49d5-9b87-46cd236444ef",
+          "dedupeDecision": "NEW"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Museo de las Escuelas",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Museo de las Escuelas",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "4701f2a6-a9de-41a5-a3b1-8805efe587db",
+          "canonicalName": "Museo de las Escuelas",
+          "externalId": "osm:node:6437125104",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "LOCAL_OSM_POOL",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "geoapify",
+              "execution": "failed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": [],
+              "failure": "Geoapify details failed for 5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173: timeout of 5000ms exceeded"
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:node:6437125104",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(SINGLE)"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "c62ea33a-5769-4ea8-abaa-b1b3746ad19d",
+          "dedupeDecision": "NEW"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Roca granitica",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Roca granitica",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Monasterio San SAVAS",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Monasterio San SAVAS",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Monumento a Pedro de Mendoza",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Monumento a Pedro de Mendoza",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "00a7d4f3-8008-452d-b076-3952fd609a31",
+          "canonicalName": "Monumento a Pedro de Mendoza",
+          "externalId": "osm:node:1376764723",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "LOCAL_OSM_POOL",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "geoapify",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61",
+              "verdict": "REJECTED",
+              "evidence": [
+                "EXACT_NAME(UNKNOWN)",
+                "WIKIDATA_IDENTITY_MATCH"
+              ]
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:node:1376764723",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(SINGLE)",
+                "IDENTITY_CONVERGENCE"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "3e5305d9-4a45-470e-9f99-eb074ab52765",
+          "dedupeDecision": "NEW"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "El Zanjón de Granados (historic ruins)",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "El Zanjón de Granados (historic ruins)",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "fa1cd059-7f6d-4301-b65c-dec303b41486",
+          "canonicalName": "El Zanjón de Granados (historic ruins)",
+          "externalId": "osm:node:9953027884",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "LOCAL_OSM_POOL",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "geoapify",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329",
+              "verdict": "REJECTED",
+              "evidence": [
+                "EXACT_NAME(UNKNOWN)",
+                "WIKIDATA_IDENTITY_MATCH"
+              ]
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:node:9953027884",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(SINGLE)",
+                "IDENTITY_CONVERGENCE"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+          "dedupeDecision": "NEW"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "La Hazana",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "La Hazana",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Isidoro Cañones",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Isidoro Cañones",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Monumento Canto al Trabajo",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Monumento Canto al Trabajo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "6d3a051a-e2d5-47c4-a492-583025eecbe3",
+          "canonicalName": "Monumento Canto al Trabajo",
+          "externalId": "osm:node:1493476686",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "LOCAL_OSM_POOL",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "geoapify",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f",
+              "verdict": "REJECTED",
+              "evidence": [
+                "EXACT_NAME(UNKNOWN)",
+                "WIKIDATA_IDENTITY_MATCH"
+              ]
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:node:1493476686",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(SINGLE)",
+                "IDENTITY_CONVERGENCE"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+          "dedupeDecision": "NEW"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Baloon",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Baloon",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Museo Histórico Nacional",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Museo Histórico Nacional",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "0ba03a2c-354f-4b3d-b24f-68fd3676b752",
+          "canonicalName": "Museo Histórico Nacional",
+          "externalId": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "TRUSTED_OBSERVATION_REUSE",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "geoapify",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(UNKNOWN)",
+                "WIKIDATA_IDENTITY_MATCH"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+          "dedupeDecision": "NEW"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Carnavales de la Calle Defensa",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Carnavales de la Calle Defensa",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "8accac92-c979-4470-aaf9-2abfa78844e2",
+          "canonicalName": "Carnavales de la Calle Defensa",
+          "externalId": "osm:node:5410557722",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "LOCAL_OSM_POOL",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "geoapify",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361",
+              "verdict": "REJECTED",
+              "evidence": [
+                "EXACT_NAME(UNKNOWN)",
+                "WIKIDATA_IDENTITY_MATCH"
+              ]
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:node:5410557722",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(SINGLE)",
+                "IDENTITY_CONVERGENCE"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "f7f3d091-ede4-4473-ac81-262700af8526",
+          "dedupeDecision": "NEW"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Museo de la Historia del Traje",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Museo de la Historia del Traje",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Casa Mínima",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Casa Mínima",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "d41753be-e798-4436-af7c-986d2d55eeaf",
+          "canonicalName": "Casa Mínima",
+          "externalId": "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "TRUSTED_OBSERVATION_REUSE",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "geoapify",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(UNKNOWN)",
+                "WIKIDATA_IDENTITY_MATCH"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "607ad17e-10c1-4e02-a463-f6a368a74652",
+          "dedupeDecision": "NEW"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Plaza 30'000 compañeros",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Plaza 30'000 compañeros",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "8399f480-1370-4e7c-bf4a-3ed8d7c99f3e",
+          "canonicalName": "Plaza 30'000 compañeros",
+          "externalId": "osm:node:5290138422",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "LOCAL_OSM_POOL",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "geoapify",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73",
+              "verdict": "REJECTED",
+              "evidence": [
+                "EXACT_NAME(UNKNOWN)",
+                "WIKIDATA_IDENTITY_MATCH"
+              ]
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:node:5290138422",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(SINGLE)",
+                "IDENTITY_CONVERGENCE"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "78c7c2d8-ad3a-4962-a5ed-a41c7edd14e9",
+          "dedupeDecision": "NEW"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Princess",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Princess",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Manzana de las Luces",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Manzana de las Luces",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Mercado San Telmo",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Mercado San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "8552e758-239f-4b2c-89e6-b56cd349ea02",
+          "canonicalName": "Mercado de San Telmo",
+          "externalId": "osm:way:158893271",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "LOCAL_OSM_POOL",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:way:158893271",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "DECLARED_ALIAS_MATCH(SINGLE)"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+          "dedupeDecision": "NEW"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Pasaje San Lorenzo",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Pasaje San Lorenzo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "Plaza Dorrego",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "57677762-3787-406f-9bee-739b03bd3897",
+          "canonicalName": "Plaza Dorrego",
+          "externalId": "osm:way:31364659",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "CATALOG_REUSE",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:way:31364659",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(SINGLE)"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "AMBIGUOUS_DEDUPE"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 13,
+      "candidate": "El Zanjón de Granados",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "El Zanjón de Granados",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "fa1cd059-7f6d-4301-b65c-dec303b41486",
+          "canonicalName": "El Zanjón de Granados (historic ruins)",
+          "externalId": "osm:node:9953027884",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "NOMINATIM",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:node:9953027884",
+              "verdict": "REJECTED",
+              "evidence": [
+                "WIKIDATA_IDENTITY_MATCH"
+              ]
+            },
+            {
+              "strategy": "NOMINATIM",
+              "provider": "nominatim",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:node:9953027884",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "IDENTITY_CONVERGENCE"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "AMBIGUOUS_DEDUPE"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 20,
+      "candidate": "Bar El Federal",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Bar El Federal",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 20,
+      "candidate": "Manzana de las Luces",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Manzana de las Luces",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 20,
+      "candidate": "Mercado San Telmo",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Mercado San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "8552e758-239f-4b2c-89e6-b56cd349ea02",
+          "canonicalName": "Mercado de San Telmo",
+          "externalId": "osm:way:158893271",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "CATALOG_REUSE",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:way:158893271",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "CATALOG_VERIFIED_HINT_MATCH(SINGLE)"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+          "dedupeDecision": "SAME"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 20,
+      "candidate": "Museo Histórico Nacional",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Museo Histórico Nacional",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "0ba03a2c-354f-4b3d-b24f-68fd3676b752",
+          "canonicalName": "Museo Histórico Nacional",
+          "externalId": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "CATALOG_REUSE",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(SINGLE)"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+          "dedupeDecision": "SAME"
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 20,
+      "candidate": "Pasaje San Lorenzo",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Pasaje San Lorenzo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "UNRESOLVED",
+          "geoEntityId": null,
+          "canonicalName": null,
+          "externalId": null,
+          "geoEntityKind": null,
+          "canonicalGeometry": null,
+          "relation": "N/A",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": "NO_CANDIDATE_ACQUIRED",
+          "deficitClassification": "PENDING_CLASSIFICATION",
+          "finalReason": "NO_OSM_MATCH",
+          "verifiedBy": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "provider": "trusted_observation",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "provider": "openstreetmap",
+              "execution": "completed",
+              "acquired": false,
+              "selected": null,
+              "verdict": null,
+              "evidence": []
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": false,
+        "rejectionReasons": [
+          "NO_OSM_MATCH"
+        ]
+      },
+      "compositeGeographicValidation": {
+        "reached": false
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "stepIndex": 20,
+      "candidate": "Plaza Dorrego",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "57677762-3787-406f-9bee-739b03bd3897",
+          "canonicalName": "Plaza Dorrego",
+          "externalId": "osm:way:31364659",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "CATALOG_REUSE",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:way:31364659",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "EXACT_NAME(SINGLE)"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "AMBIGUOUS_DEDUPE"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    },
+    {
+      "stepIndex": 20,
+      "candidate": "El Zanjón de Granados",
+      "origin": "structured",
+      "shape": "simple",
+      "componentCount": 1,
+      "components": [
+        {
+          "hint": "El Zanjón de Granados",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "identityStatus": "RESOLVED",
+          "geoEntityId": "fa1cd059-7f6d-4301-b65c-dec303b41486",
+          "canonicalName": "El Zanjón de Granados (historic ruins)",
+          "externalId": "osm:node:9953027884",
+          "geoEntityKind": "PLACE",
+          "canonicalGeometry": "POINT",
+          "relation": "INSIDE",
+          "distanceToBoundaryMeters": null,
+          "deficitReason": null,
+          "deficitClassification": null,
+          "finalReason": null,
+          "verifiedBy": "CATALOG_REUSE",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "provider": "catalog",
+              "execution": "completed",
+              "acquired": true,
+              "selected": "osm:node:9953027884",
+              "verdict": "VERIFIED",
+              "evidence": [
+                "CATALOG_VERIFIED_HINT_MATCH(SINGLE)"
+              ]
+            }
+          ]
+        }
+      ],
+      "coverage": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "componentScope": {
+        "kind": "DESTINATION_AREA",
+        "name": "San Telmo"
+      },
+      "entityResolution": {
+        "admittedToGeographicValidation": true,
+        "rejectionReasons": []
+      },
+      "compositeGeographicValidation": {
+        "reached": true,
+        "accepted": true,
+        "status": "GEO_VERIFIED",
+        "strategy": "venue_centric",
+        "rejectionReasons": [],
+        "offending": []
+      },
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 1,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 1
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "AMBIGUOUS_DEDUPE"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "venue_centric"
+        }
+      }
+    }
+  ],
+  "plannerSelected": [
+    {
+      "order": 1,
+      "dayNumber": 1,
+      "experienceId": "46554d95-891c-48b7-9b10-39e5667f369f",
+      "durationHours": 3.225307777777778,
+      "componentCount": 2
+    },
+    {
+      "order": 2,
+      "dayNumber": 1,
+      "experienceId": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 3,
+      "dayNumber": 1,
+      "experienceId": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 4,
+      "dayNumber": 1,
+      "experienceId": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+      "durationHours": 2,
+      "componentCount": 1
+    }
+  ],
+  "dbBefore": {
+    "database": "zigzag_spike_stage5_rw1_cold1",
+    "capturedAt": "2026-09-25T22:12:47Z",
+    "geoEntity": 0,
+    "geoEntityByKind": {},
+    "geoEntityIdentity": 0,
+    "verifiedHintMemoryEntries": 0,
+    "duplicateIdentityRows": 0,
+    "duplicateVerifiedHintKeysWithinKind": [],
+    "experience": 0,
+    "experienceByStatus": {},
+    "experienceComponent": 0,
+    "duplicateExperienceNames": 0,
+    "experiences": [],
+    "geoEntities": []
+  },
+  "dbAfter": {
+    "database": "zigzag_spike_stage5_rw1_cold1",
+    "capturedAt": "2026-09-25T22:18:31Z",
+    "geoEntity": 13,
+    "geoEntityByKind": {
+      "PLACE": 12,
+      "AREA": 1
+    },
+    "geoEntityIdentity": 17,
+    "verifiedHintMemoryEntries": 13,
+    "duplicateIdentityRows": 0,
+    "duplicateVerifiedHintKeysWithinKind": [],
+    "experience": 11,
+    "experienceByStatus": {
+      "VERIFIED": 11
+    },
+    "experienceComponent": 12,
+    "duplicateExperienceNames": 0,
+    "experiences": [
+      {
+        "id": "f7f3d091-ede4-4473-ac81-262700af8526",
+        "name": "Carnavales de la Calle Defensa",
+        "status": "VERIFIED",
+        "components": 1,
+        "componentset": [
+          {
+            "geoEntityId": "8accac92-c979-4470-aaf9-2abfa78844e2",
+            "geoEntity": "Carnavales de la Calle Defensa",
+            "kind": "PLACE",
+            "order": null,
+            "role": "venue"
+          }
+        ]
+      },
+      {
+        "id": "607ad17e-10c1-4e02-a463-f6a368a74652",
+        "name": "Casa Mínima",
+        "status": "VERIFIED",
+        "components": 1,
+        "componentset": [
+          {
+            "geoEntityId": "d41753be-e798-4436-af7c-986d2d55eeaf",
+            "geoEntity": "Casa Mínima",
+            "kind": "PLACE",
+            "order": null,
+            "role": "venue"
+          }
+        ]
+      },
+      {
+        "id": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+        "name": "El Zanjón de Granados (historic ruins)",
+        "status": "VERIFIED",
+        "components": 1,
+        "componentset": [
+          {
+            "geoEntityId": "fa1cd059-7f6d-4301-b65c-dec303b41486",
+            "geoEntity": "El Zanjón de Granados (historic ruins)",
+            "kind": "PLACE",
+            "order": null,
+            "role": "venue"
+          }
+        ]
+      },
+      {
+        "id": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+        "name": "Mercado San Telmo",
+        "status": "VERIFIED",
+        "components": 1,
+        "componentset": [
+          {
+            "geoEntityId": "8552e758-239f-4b2c-89e6-b56cd349ea02",
+            "geoEntity": "Mercado de San Telmo",
+            "kind": "PLACE",
+            "order": null,
+            "role": "venue"
+          }
+        ]
+      },
+      {
+        "id": "3e5305d9-4a45-470e-9f99-eb074ab52765",
+        "name": "Monumento a Pedro de Mendoza",
+        "status": "VERIFIED",
+        "components": 1,
+        "componentset": [
+          {
+            "geoEntityId": "00a7d4f3-8008-452d-b076-3952fd609a31",
+            "geoEntity": "Monumento a Pedro de Mendoza",
+            "kind": "PLACE",
+            "order": null,
+            "role": "venue"
+          }
+        ]
+      },
+      {
+        "id": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+        "name": "Monumento Canto al Trabajo",
+        "status": "VERIFIED",
+        "components": 1,
+        "componentset": [
+          {
+            "geoEntityId": "6d3a051a-e2d5-47c4-a492-583025eecbe3",
+            "geoEntity": "Monumento Canto al Trabajo",
+            "kind": "PLACE",
+            "order": null,
+            "role": "venue"
+          }
+        ]
+      },
+      {
+        "id": "c62ea33a-5769-4ea8-abaa-b1b3746ad19d",
+        "name": "Museo de las Escuelas",
+        "status": "VERIFIED",
+        "components": 1,
+        "componentset": [
+          {
+            "geoEntityId": "4701f2a6-a9de-41a5-a3b1-8805efe587db",
+            "geoEntity": "Museo de las Escuelas",
+            "kind": "PLACE",
+            "order": null,
+            "role": "venue"
+          }
+        ]
+      },
+      {
+        "id": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+        "name": "Museo Histórico Nacional",
+        "status": "VERIFIED",
+        "components": 1,
+        "componentset": [
+          {
+            "geoEntityId": "0ba03a2c-354f-4b3d-b24f-68fd3676b752",
+            "geoEntity": "Museo Histórico Nacional",
+            "kind": "PLACE",
+            "order": null,
+            "role": "venue"
+          }
+        ]
+      },
+      {
+        "id": "78c7c2d8-ad3a-4962-a5ed-a41c7edd14e9",
+        "name": "Plaza 30'000 compañeros",
+        "status": "VERIFIED",
+        "components": 1,
+        "componentset": [
+          {
+            "geoEntityId": "8399f480-1370-4e7c-bf4a-3ed8d7c99f3e",
+            "geoEntity": "Plaza 30'000 compañeros",
+            "kind": "PLACE",
+            "order": null,
+            "role": "venue"
+          }
+        ]
+      },
+      {
+        "id": "46554d95-891c-48b7-9b10-39e5667f369f",
+        "name": "San Telmo Walking Tour",
+        "status": "VERIFIED",
+        "components": 2,
+        "componentset": [
+          {
+            "geoEntityId": "754209cf-baa8-4aa5-bd46-6d2024322134",
+            "geoEntity": "Parque Lezama",
+            "kind": "PLACE",
+            "order": null,
+            "role": "waypoint"
+          },
+          {
+            "geoEntityId": "57677762-3787-406f-9bee-739b03bd3897",
+            "geoEntity": "Plaza Dorrego",
+            "kind": "PLACE",
+            "order": null,
+            "role": "waypoint"
+          }
+        ]
+      },
+      {
+        "id": "c009a80a-07fb-49d5-9b87-46cd236444ef",
+        "name": "Solar French",
+        "status": "VERIFIED",
+        "components": 1,
+        "componentset": [
+          {
+            "geoEntityId": "6229787c-d26e-40ec-a1ea-4cd7c847ba68",
+            "geoEntity": "Solar French",
+            "kind": "PLACE",
+            "order": null,
+            "role": "venue"
+          }
+        ]
+      }
+    ],
+    "geoEntities": [
+      {
+        "id": "8accac92-c979-4470-aaf9-2abfa78844e2",
+        "name": "Carnavales de la Calle Defensa",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "Carnavales de la Calle Defensa"
+        ],
+        "identities": [
+          "openstreetmap:osm:node:5410557722"
+        ]
+      },
+      {
+        "id": "d41753be-e798-4436-af7c-986d2d55eeaf",
+        "name": "Casa Mínima",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "Casa Mínima"
+        ],
+        "identities": [
+          "geoapify:geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61",
+          "openstreetmap:osm:node:4440588689",
+          "wikidata:Q5966085"
+        ]
+      },
+      {
+        "id": "fa1cd059-7f6d-4301-b65c-dec303b41486",
+        "name": "El Zanjón de Granados (historic ruins)",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "El Zanjón de Granados (historic ruins)",
+          "El Zanjón de Granados"
+        ],
+        "identities": [
+          "openstreetmap:osm:node:9953027884"
+        ]
+      },
+      {
+        "id": "8552e758-239f-4b2c-89e6-b56cd349ea02",
+        "name": "Mercado de San Telmo",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "Mercado San Telmo"
+        ],
+        "identities": [
+          "openstreetmap:osm:way:158893271"
+        ]
+      },
+      {
+        "id": "00a7d4f3-8008-452d-b076-3952fd609a31",
+        "name": "Monumento a Pedro de Mendoza",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "Monumento a Pedro de Mendoza"
+        ],
+        "identities": [
+          "openstreetmap:osm:node:1376764723"
+        ]
+      },
+      {
+        "id": "6d3a051a-e2d5-47c4-a492-583025eecbe3",
+        "name": "Monumento Canto al Trabajo",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "Monumento Canto al Trabajo"
+        ],
+        "identities": [
+          "openstreetmap:osm:node:1493476686"
+        ]
+      },
+      {
+        "id": "4701f2a6-a9de-41a5-a3b1-8805efe587db",
+        "name": "Museo de las Escuelas",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "Museo de las Escuelas"
+        ],
+        "identities": [
+          "openstreetmap:osm:node:6437125104"
+        ]
+      },
+      {
+        "id": "0ba03a2c-354f-4b3d-b24f-68fd3676b752",
+        "name": "Museo Histórico Nacional",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "Museo Histórico Nacional"
+        ],
+        "identities": [
+          "geoapify:geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+          "openstreetmap:osm:way:122969767",
+          "wikidata:Q57785"
+        ]
+      },
+      {
+        "id": "754209cf-baa8-4aa5-bd46-6d2024322134",
+        "name": "Parque Lezama",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "Lezama Park"
+        ],
+        "identities": [
+          "openstreetmap:osm:way:17441757"
+        ]
+      },
+      {
+        "id": "8399f480-1370-4e7c-bf4a-3ed8d7c99f3e",
+        "name": "Plaza 30'000 compañeros",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "Plaza 30'000 compañeros"
+        ],
+        "identities": [
+          "openstreetmap:osm:node:5290138422"
+        ]
+      },
+      {
+        "id": "57677762-3787-406f-9bee-739b03bd3897",
+        "name": "Plaza Dorrego",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "Plaza Dorrego"
+        ],
+        "identities": [
+          "openstreetmap:osm:way:31364659"
+        ]
+      },
+      {
+        "id": "bf0c3b1a-9e7c-403f-9aaf-567ffbf8ec2b",
+        "name": "San Telmo",
+        "kind": "AREA",
+        "geometrytype": "Polygon",
+        "hints": [],
+        "identities": [
+          "openstreetmap:osm:relation:2223069"
+        ]
+      },
+      {
+        "id": "6229787c-d26e-40ec-a1ea-4cd7c847ba68",
+        "name": "Solar French",
+        "kind": "PLACE",
+        "geometrytype": "Point",
+        "hints": [
+          "Solar French"
+        ],
+        "identities": [
+          "openstreetmap:osm:node:6903962986"
+        ]
+      }
+    ]
+  }
+}

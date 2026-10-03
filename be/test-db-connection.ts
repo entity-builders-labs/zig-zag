@@ -120,8 +120,8 @@ async function testConnection() {
     // Test database access by trying to query a table
     console.log('\n🧪 Testing database access...');
     try {
-      const count = await prisma.activity.count();
-      console.log(`✅ Can access 'activity' table (${count} records)`);
+      const count = await prisma.experience.count();
+      console.log(`✅ Can access 'experience' table (${count} records)`);
     } catch (error: any) {
       if (error.code === 'P2021' || error.message?.includes('does not exist')) {
         console.log(

@@ -1,0 +1,43 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Galería Güemes",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar",
+    "hl": "es"
+  },
+  "capturedAt": "2026-09-25T12:56:52.141Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 903
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Galería Güemes",
+      "gl": "ar",
+      "hl": "es",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Galería Güemes",
+        "address": "Florida 165, San Martín 170",
+        "latitude": -34.60608,
+        "longitude": -58.37501,
+        "rating": 4.5,
+        "ratingCount": 13,
+        "category": "Centro comercial",
+        "phoneNumber": "011 4331-5731",
+        "cid": "16796121189498305479"
+      }
+    ],
+    "credits": 1
+  }
+}

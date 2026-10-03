@@ -1,0 +1,80 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Casa Mínima",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 433,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Casa Mínima",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1098AAH",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "street": "San Lorenzo",
+        "housenumber": "380",
+        "iso3166_2": "AR-C",
+        "lon": -58.3713487,
+        "lat": -34.6167555,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Casa Mínima, San Lorenzo 380, San Telmo, C1098 AAH Buenos Aires, Argentina",
+        "address_line1": "Casa Mínima",
+        "address_line2": "San Lorenzo 380, San Telmo, C1098 AAH Buenos Aires, Argentina",
+        "category": "tourism.attraction",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JMH+7F",
+        "plus_code_short": "MH+7F Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.12743869505990896,
+          "popularity": 7.953640848669934,
+          "confidence": 1,
+          "confidence_city_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae0801000000c0020192030c43617361204dc3ad6e696d61",
+        "bbox": {
+          "lon1": -58.3713987,
+          "lat1": -34.6168055,
+          "lon2": -58.3712987,
+          "lat2": -34.6167055
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "parsed": {
+        "house": "Casa Mínima",
+        "city": "Buenos Aires",
+        "country": "Argentina",
+        "expected_type": "amenity"
+      }
+    }
+  }
+}

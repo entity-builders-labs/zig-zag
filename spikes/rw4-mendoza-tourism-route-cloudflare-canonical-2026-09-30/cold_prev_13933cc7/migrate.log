@@ -1,0 +1,64 @@
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma/schema.prisma.
+Datasource "db": PostgreSQL database "zigzag_spike_rw4_canonical_cold_7", schema "public" at "localhost:5432"
+
+17 migrations found in prisma/migrations
+
+Applying migration `20260813015410_baseline`
+Applying migration `20260813201219_add_pgvector_embedding`
+Applying migration `20260819143151_add_composite_activities_model`
+Applying migration `20260824023000_add_embedding_index_identity`
+Applying migration `20260829190458_add_outbox_and_negative_media_lookup`
+Applying migration `20260830232751_add_user_device`
+Applying migration `20260831011500_add_web_push_subscription`
+Applying migration `20260901205427_experience_domain_v2`
+Applying migration `20260901214405_experience_domain_v2`
+Applying migration `20260901215000_restore_activity_embedding_hnsw`
+Applying migration `20260902120000_remove_activity_domain_v2`
+Applying migration `20260902224500_add_experience_embedding_hnsw`
+Applying migration `20260902235500_add_experience_media_urls`
+Applying migration `20260904101500_add_experience_opening_hours`
+Applying migration `20260907022156_add_tour_experience_travel_from_previous`
+Applying migration `20260911233115_add_postgis_extension`
+Applying migration `20260925180000_add_geo_entity_verified_hint_names`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260813015410_baseline/
+    └─ migration.sql
+  └─ 20260813201219_add_pgvector_embedding/
+    └─ migration.sql
+  └─ 20260819143151_add_composite_activities_model/
+    └─ migration.sql
+  └─ 20260824023000_add_embedding_index_identity/
+    └─ migration.sql
+  └─ 20260829190458_add_outbox_and_negative_media_lookup/
+    └─ migration.sql
+  └─ 20260830232751_add_user_device/
+    └─ migration.sql
+  └─ 20260831011500_add_web_push_subscription/
+    └─ migration.sql
+  └─ 20260901205427_experience_domain_v2/
+    └─ migration.sql
+  └─ 20260901214405_experience_domain_v2/
+    └─ migration.sql
+  └─ 20260901215000_restore_activity_embedding_hnsw/
+    └─ migration.sql
+  └─ 20260902120000_remove_activity_domain_v2/
+    └─ migration.sql
+  └─ 20260902224500_add_experience_embedding_hnsw/
+    └─ migration.sql
+  └─ 20260902235500_add_experience_media_urls/
+    └─ migration.sql
+  └─ 20260904101500_add_experience_opening_hours/
+    └─ migration.sql
+  └─ 20260907022156_add_tour_experience_travel_from_previous/
+    └─ migration.sql
+  └─ 20260911233115_add_postgis_extension/
+    └─ migration.sql
+  └─ 20260925180000_add_geo_entity_verified_hint_names/
+    └─ migration.sql
+
+All migrations have been successfully applied.

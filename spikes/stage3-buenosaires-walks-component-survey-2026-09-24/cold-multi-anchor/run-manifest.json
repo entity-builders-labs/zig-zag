@@ -1,0 +1,15 @@
+{
+  "runLabel": "ba-multi-anchor-cold",
+  "tourId": "7ef49e6c-e8bc-4ebc-9cde-53419751e5d4",
+  "email": "stage3-spike-ba-multi-anchor-cold-1790262903347@example.com",
+  "baseUrl": "http://localhost:4014",
+  "requestFile": "request-multi-anchor.json",
+  "createHttpMs": 34,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 1200000,
+  "pollElapsedMs": 277024,
+  "startedAt": "2026-09-24T15:15:03.463Z",
+  "finishedAt": "2026-09-24T15:19:40.498Z"
+}

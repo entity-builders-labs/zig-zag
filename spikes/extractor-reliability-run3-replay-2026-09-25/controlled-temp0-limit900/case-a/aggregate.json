@@ -1,0 +1,22 @@
+{
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0,
+  "maxCompletionTokens": 900,
+  "responseFormat": "json_object",
+  "runs": 10,
+  "completedRuns": 0,
+  "distribution": {},
+  "outcomes": [],
+  "transport": {
+    "httpRequests": 0,
+    "httpStatus429": 0,
+    "httpStatus400": 0,
+    "hardOTPM429": 0,
+    "hardTPD429": 0,
+    "hardTPM429": 0,
+    "soft429Retries": 0,
+    "jsonValidateFailed": 0
+  },
+  "blocked": true,
+  "blockedReason": "TPD exhausted during higher-priority single-evidence case"
+}

@@ -1,0 +1,530 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Casa Mínima",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1240,
+  "response": {
+    "results": [
+      {
+        "country_code": "ar",
+        "name": "Pink House",
+        "housenumber": "50",
+        "street": "Balcarce",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "postcode": "C1064AAB",
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "iso3166_2": "AR-C",
+        "lon": -58.370704,
+        "lat": -34.608325,
+        "result_type": "amenity",
+        "distance": 1122.0241218659692,
+        "formatted": "Pink House, Balcarce 50, Monserrat, C1064 AAB Buenos Aires, Argentina",
+        "address_line1": "Pink House",
+        "address_line2": "Balcarce 50, Monserrat, C1064 AAB Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JRH+MP",
+        "plus_code_short": "RH+MP Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 8.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "518a3f8a3a732f4dc0596b2bf697dd4d41c0f00102f901ec26120b00000000c0020192030a50696e6b20486f757365e203216f70656e7374726565746d61703a76656e75653a7761792f313835373338393838",
+        "bbox": {
+          "lon1": -58.3707259,
+          "lat1": -34.6086616,
+          "lon2": -58.369813,
+          "lat2": -34.6076781
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Casa Nacional del Bicentenario",
+        "other_names": {
+          "short_name": "Casa del Bicentenario"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1116ABC",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "quarter": "Barrio Norte",
+        "street": "Riobamba",
+        "housenumber": "985",
+        "iso3166_2": "AR-C",
+        "lon": -58.394459,
+        "lat": -34.5976102,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1357.855360858041,
+        "formatted": "Casa Nacional del Bicentenario, Riobamba 985, Recoleta, C1116 ABC Buenos Aires, Argentina",
+        "address_line1": "Casa Nacional del Bicentenario",
+        "address_line2": "Riobamba 985, Recoleta, C1116 ABC Buenos Aires, Argentina",
+        "category": "entertainment.culture.arts_centre",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ24+X6",
+        "plus_code_short": "CJ24+X6 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.18554865524912875,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51724eeca17d324dc059c560b47d7e4c41c0f00102f901e20ee50500000000c0020192031e43617361204e6163696f6e616c2064656c20426963656e74656e6172696fe203206f70656e7374726565746d61703a76656e75653a7761792f3938383937363334",
+        "bbox": {
+          "lon1": -58.394636,
+          "lat1": -34.597726,
+          "lon2": -58.3942833,
+          "lat2": -34.5975043
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Casa Mínima",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1098AAH",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "street": "San Lorenzo",
+        "housenumber": "380",
+        "iso3166_2": "AR-C",
+        "lon": -58.3713487,
+        "lat": -34.6167555,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1728.4740061033845,
+        "formatted": "Casa Mínima, San Lorenzo 380, San Telmo, C1098 AAH Buenos Aires, Argentina",
+        "address_line1": "Casa Mínima",
+        "address_line2": "San Lorenzo 380, San Telmo, C1098 AAH Buenos Aires, Argentina",
+        "category": "tourism.attraction",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JMH+7F",
+        "plus_code_short": "MH+7F Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.12743869505990896,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae0801000000c0020192030c43617361204dc3ad6e696d61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34343430353838363839",
+        "bbox": {
+          "lon1": -58.3713987,
+          "lat1": -34.6168055,
+          "lon2": -58.3712987,
+          "lat2": -34.6167055
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Casa Calise",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1090",
+        "district": "Comuna 3",
+        "suburb": "Balvanera",
+        "quarter": "Once",
+        "street": "Hipólito Yrigoyen",
+        "housenumber": "2568",
+        "iso3166_2": "AR-C",
+        "lon": -58.4027381,
+        "lat": -34.6113573,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2113.6523659477957,
+        "formatted": "Casa Calise, Hipólito Yrigoyen 2568, Balvanera, 1090 Buenos Aires, Argentina",
+        "address_line1": "Casa Calise",
+        "address_line2": "Hipólito Yrigoyen 2568, Balvanera, 1090 Buenos Aires, Argentina",
+        "category": "tourism.attraction",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39HQW+FW",
+        "plus_code_short": "9HQW+FW Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.581970253177436,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51352d0cec8c334dc059dfd5bcf4404e41c0f00102f90187a4f43400000000c0020192030b436173612043616c697365e203216f70656e7374726565746d61703a76656e75653a7761792f383838343438313335",
+        "bbox": {
+          "lon1": -58.4028833,
+          "lat1": -34.6115671,
+          "lon2": -58.4025914,
+          "lat2": -34.6111447
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Casa Valente",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1263AAB",
+        "city_district": "Comuna 4",
+        "district": "Distrito Tecnológico",
+        "suburb": "Parque Patricios",
+        "street": "Avenida Caseros",
+        "housenumber": "3299",
+        "iso3166_2": "AR-C",
+        "lon": -58.4109281,
+        "lat": -34.6379177,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 4656.071426690227,
+        "formatted": "Casa Valente, Avenida Caseros 3299, Parque Patricios, C1263 AAB Buenos Aires, Argentina",
+        "address_line1": "Casa Valente",
+        "address_line2": "Avenida Caseros 3299, Parque Patricios, C1263 AAB Buenos Aires, Argentina",
+        "category": "commercial.toy_and_game",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39H6Q+RJ",
+        "plus_code_short": "9H6Q+RJ Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 6.923320484671021,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51f340bf4a99344dc05910858549a75141c0f00103f901b005221001000000c0020192030c436173612056616c656e7465e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34353635363332343332",
+        "bbox": {
+          "lon1": -58.4109781,
+          "lat1": -34.6379677,
+          "lon2": -58.4108781,
+          "lat2": -34.6378677
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Casa Caravan",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1414DAR",
+        "city_district": "Comuna 14",
+        "district": "Distrito Audiovisual",
+        "suburb": "Palermo",
+        "street": "Uriarte",
+        "housenumber": "1642",
+        "iso3166_2": "AR-C",
+        "lon": -58.4318282,
+        "lat": -34.5870311,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 4957.135641527751,
+        "formatted": "Casa Caravan, Uriarte 1642, Palermo, C1414 DAR Buenos Aires, Argentina",
+        "address_line1": "Casa Caravan",
+        "address_line2": "Uriarte 1642, Palermo, C1414 DAR Buenos Aires, Argentina",
+        "category": "accommodation.hotel",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH79+57",
+        "plus_code_short": "CH79+57 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.771622386860324,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51ca3e7e2546374dc059111ec8d5234b41c0f00102f901259cf64700000000c0020192030c43617361204361726176616ee203226f70656e7374726565746d61703a76656e75653a7761792f31323037333434313635",
+        "bbox": {
+          "lon1": -58.4319225,
+          "lat1": -34.5871366,
+          "lon2": -58.4316823,
+          "lat2": -34.5869162
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Casa Masantonio",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1437",
+        "city_district": "Comuna 4",
+        "district": "Distrito Tecnológico",
+        "suburb": "Parque Patricios",
+        "street": "Herminio Masantonio",
+        "housenumber": "2984",
+        "iso3166_2": "AR-C",
+        "lon": -58.4032908,
+        "lat": -34.6463635,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 5142.414450104975,
+        "formatted": "Casa Masantonio, Herminio Masantonio 2984, Parque Patricios, 1437 Buenos Aires, Argentina",
+        "address_line1": "Casa Masantonio",
+        "address_line2": "Herminio Masantonio 2984, Parque Patricios, 1437 Buenos Aires, Argentina",
+        "category": "healthcare.clinic_or_praxis",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39H3W+FM",
+        "plus_code_short": "9H3W+FM Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 6.8154931955419995,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "518b636e089f334dc059ffe9060abc5241c0f00103f901b3f950bf01000000c0020192030f43617361204d6173616e746f6e696fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f37353034373232333535",
+        "bbox": {
+          "lon1": -58.4033408,
+          "lat1": -34.6464135,
+          "lon2": -58.4032408,
+          "lat2": -34.6463135
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Casa Puerto",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1406GZB",
+        "district": "Comuna 7",
+        "suburb": "Parque Chacabuco",
+        "street": "Curapaligüe",
+        "iso3166_2": "AR-C",
+        "lon": -58.4514461,
+        "lat": -34.631416,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 7095.786816826122,
+        "formatted": "Casa Puerto, Curapaligüe, Parque Chacabuco, C1406 GZB Buenos Aires, Argentina",
+        "address_line1": "Casa Puerto",
+        "address_line2": "Curapaligüe, Parque Chacabuco, C1406 GZB Buenos Aires, Argentina",
+        "category": "education.library",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39G9X+CC",
+        "plus_code_short": "9G9X+CC Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.044850483463522,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "5110b45dfcc8394dc059e8154f3dd25041c0f00103f901250d388800000000c0020192030b436173612050756572746fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f32323835333734373537",
+        "bbox": {
+          "lon1": -58.4514961,
+          "lat1": -34.631466,
+          "lon2": -58.4513961,
+          "lat2": -34.631366
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Casa China",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1428AID",
+        "district": "Comuna 13",
+        "neighbourhood": "Barrio Chino",
+        "suburb": "Belgrano",
+        "street": "Arribeños",
+        "housenumber": "2173",
+        "iso3166_2": "AR-C",
+        "lon": -58.4505333,
+        "lat": -34.5574002,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 8144.443556280487,
+        "formatted": "Casa China, Arribeños 2173, Belgrano, C1428 AID Buenos Aires, Argentina",
+        "address_line1": "Casa China",
+        "address_line2": "Arribeños 2173, Belgrano, C1428 AID Buenos Aires, Argentina",
+        "category": "commercial.supermarket",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CGVX+2Q",
+        "plus_code_short": "CGVX+2Q Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.365550698640193,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "5125a13e13ab394dc05955e4c6e3584741c0f00103f901fa10e30801000000c0020192030a43617361204368696e61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34343434303636303432",
+        "bbox": {
+          "lon1": -58.4505833,
+          "lat1": -34.5574502,
+          "lon2": -58.4504833,
+          "lat2": -34.5573502
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Casa Hutton S.A. - Casa Central",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de General San Martín",
+        "city": "Villa Maipú",
+        "postcode": "B1650",
+        "street": "48 - Estrada",
+        "housenumber": "1921",
+        "iso3166_2": "AR-B",
+        "lon": -58.5212757,
+        "lat": -34.5676708,
+        "state_code": "B",
+        "county_code": "GN",
+        "result_type": "amenity",
+        "distance": 13399.469035517173,
+        "formatted": "Casa Hutton S.A. - Casa Central, 48 - Estrada 1921, B1650 Villa Maipú, Argentina",
+        "address_line1": "Casa Hutton S.A. - Casa Central",
+        "address_line2": "48 - Estrada 1921, B1650 Villa Maipú, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CFJH+WF",
+        "rank": {
+          "importance": 0.00004653009842064572,
+          "popularity": 6.414158842380686,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "5189d98129b9424dc0597472d06fa94841c0f00102f901997a304500000000c0020192031f4361736120487574746f6e20532e412e202d20436173612043656e7472616ce203226f70656e7374726565746d61703a76656e75653a7761792f31313630383035303137",
+        "bbox": {
+          "lon1": -58.5221416,
+          "lat1": -34.5684761,
+          "lon2": -58.5202992,
+          "lat2": -34.5669639
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "parsed": {
+        "house": "Casa Mínima",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

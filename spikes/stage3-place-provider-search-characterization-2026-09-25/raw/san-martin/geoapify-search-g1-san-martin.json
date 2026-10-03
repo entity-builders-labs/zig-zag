@@ -1,0 +1,125 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "San Martín",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 2566,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Ciudad del Libertador General San Martín",
+        "other_names": {
+          "official_name": "Ciudad del Libertador General Don José de San Martín",
+          "loc_name": "San Martín"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de General San Martín",
+        "city": "Ciudad del Libertador General San Martín",
+        "postcode": "B1650",
+        "iso3166_2": "AR-B",
+        "lon": -58.5377237,
+        "lat": -34.5771577,
+        "state_code": "B",
+        "result_type": "city",
+        "distance": 14593.013503957782,
+        "formatted": "Ciudad del Libertador General San Martín, B, Argentina",
+        "address_line1": "Ciudad del Libertador General San Martín",
+        "address_line2": "Ciudad del Libertador General San Martín, B, Argentina",
+        "category": "administrative",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CFF6+4W",
+        "rank": {
+          "importance": 0.4683546029616915,
+          "popularity": 7.547271744662532,
+          "confidence": 1,
+          "confidence_city_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "515ee45421d4444dc0593a11b34de04941c0f00101f9018fe78b0000000000c002089203294369756461642064656c204c696265727461646f722047656e6572616c2053616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.554151,
+          "lat1": -34.5900944,
+          "lon2": -58.5278457,
+          "lat2": -34.5675002
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "San Martín",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "Virrey Del Pino",
+        "postcode": "B1763",
+        "suburb": "San Martín",
+        "iso3166_2": "AR-B",
+        "lon": -58.6663378,
+        "lat": -34.8553307,
+        "state_code": "B",
+        "result_type": "suburb",
+        "distance": 38209.605389475204,
+        "formatted": "San Martín, Virrey Del Pino, B, Argentina",
+        "address_line1": "San Martín",
+        "address_line2": "Virrey Del Pino, B, Argentina",
+        "category": "populated_place",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q348VM+VF",
+        "rank": {
+          "importance": 0.13337083466849772,
+          "popularity": 4.360877009803891,
+          "confidence": 1,
+          "confidence_city_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51578b998e4a554dc059e5e1f3797b6d41c0f00103f901bcf7f8bf02000000c0020592030b53616e204d617274c3ad6e",
+        "bbox": {
+          "lon1": -58.6763378,
+          "lat1": -34.8653307,
+          "lon2": -58.6563378,
+          "lat2": -34.8453307
+        }
+      }
+    ],
+    "query": {
+      "text": "San Martín",
+      "parsed": {
+        "city": "san martín",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

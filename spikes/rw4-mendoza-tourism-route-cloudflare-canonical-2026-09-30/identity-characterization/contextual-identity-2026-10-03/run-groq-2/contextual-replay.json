@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-10-03T07:13:20.548Z",
+  "extractor": {
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "validationErrors": [],
+    "extractionFailures": [],
+    "rawOutput": "{\n  \"candidates\": []\n}"
+  },
+  "extractedHints": [],
+  "sourceSupportAudits": [],
+  "catalog": "STUB (empty; no reads of canonical state, no writes)",
+  "wouldPersistCalls": [],
+  "candidates": [],
+  "forensicAudit": []
+}
