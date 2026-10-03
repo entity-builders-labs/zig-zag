@@ -88,23 +88,43 @@ export class IdentityVerifier {
 
     // 4. WIKIDATA_IDENTITY_MATCH
     const wikidataMatch = this.evidenceOf(evidence, 'WIKIDATA_IDENTITY_MATCH');
+    const namePoolHasCollision =
+      exactName?.identityMultiplicity === 'MULTIPLE' ||
+      alias?.identityMultiplicity === 'MULTIPLE';
     if (wikidataMatch) {
-      if (wikidataMatch.hintMatched && wikidataMatch.candidateMatched) {
+      // A NEARBY search is centered on the selected candidate's own point
+      // and compares names only, so every same-named pool member that has
+      // a Wikidata item corroborates itself equally. It can confirm a
+      // unique candidate; it never decides WHICH member of a real name
+      // collision the source meant (live: "Ojo de Agua" -> a Cordoba hamlet
+      // 383 km from the source's Lujan de Cuyo). A QID the candidate record
+      // itself declares (OWN_QID) or the source declares (OBSERVATION_QID)
+      // is a structural link, not a proximity search, and keeps its rule.
+      const corroborated =
+        wikidataMatch.hintMatched && wikidataMatch.candidateMatched;
+      const disambiguates =
+        !namePoolHasCollision || wikidataMatch.source !== 'NEARBY';
+      if (corroborated && disambiguates) {
         return { status: 'VERIFIED' };
       }
-      // A non-corroborating Wikidata match doesn't actively CONTRADICT the
-      // candidate -- it only failed to confirm one specific member of an
-      // already-observed multi-candidate pool. When that real name
-      // collision already exists (EXACT_NAME/DECLARED_ALIAS_MATCH
-      // MULTIPLE), the honest diagnosis is AMBIGUOUS, not REJECTED, which
-      // implies the identity was disproven.
-      if (
-        (exactName && exactName.identityMultiplicity === 'MULTIPLE') ||
-        (alias && alias.identityMultiplicity === 'MULTIPLE')
-      ) {
+      // A non-corroborating (or non-disambiguating) match over a real name
+      // collision only failed to single out one member: AMBIGUOUS, not
+      // REJECTED, which would imply the identity was disproven.
+      if (namePoolHasCollision) {
         return { status: 'AMBIGUOUS' };
       }
-      return { status: 'REJECTED' };
+      // NEARBY matching neither name only means no Wikidata item was found
+      // there: NOT_CORROBORATED, never CONTRADICTED (2026-09-22 amendment
+      // §6). Fall through to the multiplicity fallback below. An item that
+      // matches only one of the two names, or a candidate's own/observed
+      // QID that fails to match, is positive evidence of another identity.
+      const nothingFoundNearby =
+        wikidataMatch.source === 'NEARBY' &&
+        !wikidataMatch.hintMatched &&
+        !wikidataMatch.candidateMatched;
+      if (!nothingFoundNearby) {
+        return { status: 'REJECTED' };
+      }
     }
 
     // 5. Fallback based on multiplicity

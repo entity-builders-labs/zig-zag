@@ -403,12 +403,15 @@ describe('IdentityVerifier', () => {
       expect(result).toEqual({ status: 'AMBIGUOUS' });
     });
 
-    // Non-regression: when Wikidata DOES positively corroborate (both hint
-    // and candidate match), that resolves WHICH of the multiple pool
-    // candidates is meant -- this must stay VERIFIED, not be downgraded to
-    // AMBIGUOUS merely because the local pool also happened to contain other
-    // same-named candidates.
-    it('Case F: EXACT_NAME MULTIPLE stays VERIFIED when Wikidata positively corroborates (disambiguates which candidate is meant)', async () => {
+    // Revised 2026-10-03 (RW4 verifier characterization): a Wikidata match
+    // cannot resolve WHICH member of a same-name pool the source meant. Its
+    // NEARBY search is centered on the selected candidate and every variant
+    // compares names only, so each same-named pool member that has its own
+    // Wikidata item "corroborates" itself. The live replay verified "Ojo de
+    // Agua" (a Lujan de Cuyo source component) to a Cordoba hamlet 383 km
+    // away this way. Corroboration of the selected member is not
+    // disambiguation: the pool stays AMBIGUOUS.
+    it('Case F: EXACT_NAME MULTIPLE stays AMBIGUOUS even when Wikidata matches the selected member', async () => {
       const verifier = new IdentityVerifier();
       const result = await verifier.verify(
         { name: 'Nuestra Señora de Belén' },
@@ -425,7 +428,7 @@ describe('IdentityVerifier', () => {
           'MULTIPLE',
         ),
       );
-      expect(result).toEqual({ status: 'VERIFIED' });
+      expect(result).toEqual({ status: 'AMBIGUOUS' });
     });
 
     // Without any Wikidata evidence at all, the bare EXACT_NAME MULTIPLE
@@ -571,6 +574,224 @@ describe('IdentityVerifier', () => {
           { name: 'Farmacia la Estrella' },
           attempt([verifiedHint('UNKNOWN')], 'UNKNOWN', 'UNKNOWN'),
         ),
+      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+    });
+  });
+
+  /**
+   * RW4 IdentityVerifier characterization (2026-10-03). Evidence shapes are
+   * the ones the production resolver actually produced in
+   * spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/
+   * identity-characterization/verifier-characterization-2026-10-03/
+   * resolver-replay.json (real Overture AOI snapshot, local Nominatim,
+   * Geoapify, live Wikidata). Canonical rule: spec 2026-09-22 amendment §6
+   * -- NOT_CORROBORATED must not collapse into CONTRADICTED.
+   */
+  describe('RW4 component identity characterization (2026-10-03)', () => {
+    const verifier = new IdentityVerifier();
+    const nearby = (
+      hintMatched: boolean,
+      candidateMatched: boolean,
+    ): ResolutionAttempt['evidence'][number] => ({
+      type: 'WIKIDATA_IDENTITY_MATCH',
+      source: 'NEARBY',
+      hintMatched,
+      candidateMatched,
+    });
+    const overtureAttempt = (
+      canonicalName: string,
+      evidence: ResolutionAttempt['evidence'],
+      exactName: IdentityMultiplicity,
+    ): ResolutionAttempt => ({
+      strategy: 'OVERTURE_IDENTITY',
+      candidate: {
+        ...candidate(exactName, 'UNKNOWN'),
+        provider: 'overture',
+        canonicalName,
+      },
+      evidence,
+    });
+
+    // Observed: one exact record in a PARTIAL (AOI) snapshot -> multiplicity
+    // UNKNOWN; no Wikidata item within 200 m. Absence of corroboration is
+    // not a contradiction: insufficient, never REJECTED.
+    it.each([
+      ['Alfa Crux', '79eb9ee4-0591-49f3-a077-51a7926a3ada'],
+      ['SuperUco', '753ed444-8e83-4178-8ad3-a05e9a28b7c5'],
+    ])(
+      '%s with its actual evidence (EXACT_NAME UNKNOWN, no Wikidata item) is INSUFFICIENT_EVIDENCE',
+      (name, featureId) => {
+        expect(
+          verifier.verify(
+            { name },
+            {
+              ...overtureAttempt(
+                name,
+                [
+                  { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
+                  nearby(false, false),
+                ],
+                'UNKNOWN',
+              ),
+              candidate: {
+                ...overtureAttempt(name, [], 'UNKNOWN').candidate,
+                externalId: featureId,
+              },
+            },
+          ),
+        ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+      },
+    );
+
+    // Only a published COMPLETE_COUNTRY snapshot may establish uniqueness;
+    // then the existing EXACT_NAME + SINGLE rule applies unchanged.
+    it('Alfa Crux verifies only once complete-country uniqueness is established', () => {
+      expect(
+        verifier.verify(
+          { name: 'Alfa Crux' },
+          overtureAttempt(
+            'Alfa Crux',
+            [{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }],
+            'SINGLE',
+          ),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
+
+    // Two distinct establishments with one name, and an exact-name match
+    // whose location contradicts the source: the real "Ojo de Agua" case
+    // (5 same-name Nominatim objects; the selected one is a Cordoba hamlet
+    // 383 km from Lujan de Cuyo; Wikidata found its own same-named item).
+    it('two same-name establishments stay AMBIGUOUS although Wikidata matches the selected one (Ojo de Agua)', () => {
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          {
+            strategy: 'NOMINATIM',
+            candidate: {
+              ...candidate('MULTIPLE', 'UNKNOWN'),
+              provider: 'openstreetmap',
+              externalId: 'osm:node:198407364',
+              canonicalName: 'Ojo de Agua',
+            },
+            evidence: [
+              { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+              nearby(true, true),
+            ],
+          },
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    });
+
+    // Retained (not demonstrated defective; see RW1 San Telmo, anchor
+    // resolver spec): a QID declared by the candidate record itself or by
+    // the source is a structural link, not a search around the candidate.
+    it.each(['OWN_QID', 'OBSERVATION_QID'] as const)(
+      'a corroborating %s match still singles out a MULTIPLE exact-name member',
+      (source) => {
+        expect(
+          verifier.verify(
+            { name: 'San Telmo' },
+            attempt(
+              [
+                { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+                {
+                  type: 'WIKIDATA_IDENTITY_MATCH',
+                  source,
+                  hintMatched: true,
+                  candidateMatched: true,
+                },
+              ],
+              'MULTIPLE',
+            ),
+          ),
+        ).toEqual({ status: 'VERIFIED' });
+      },
+    );
+
+    it('a MULTIPLE declared-alias pool is not disambiguated by a NEARBY match either', () => {
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt(
+            [
+              {
+                type: 'DECLARED_ALIAS_MATCH',
+                identityMultiplicity: 'MULTIPLE',
+              },
+              nearby(true, true),
+            ],
+            'UNKNOWN',
+            'MULTIPLE',
+          ),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    });
+
+    // Same brand, different physical facility: Overture holds the Tupungato
+    // winery (d97a65d2) and the Tunuyan store (673c6cb8) under one
+    // normalized name, sharing website and phone. Brand facts never
+    // collapse facilities.
+    it('a same-brand establishment at a different location keeps the pool AMBIGUOUS (Bodega La Azul)', () => {
+      expect(
+        verifier.verify(
+          { name: 'Bodega La Azul' },
+          overtureAttempt(
+            'Bodega La Azul',
+            [
+              { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+              nearby(true, true),
+            ],
+            'MULTIPLE',
+          ),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    });
+
+    // Observed: hint "Bodega Azul" has no exact record anywhere; Nominatim
+    // returned the city supermarket 'Supermercado del Vino "La Bodega de
+    // Azul"' with no Wikidata item nearby. Not the source's winery, but
+    // nothing CONTRADICTS it either: unconfirmed, never REJECTED.
+    it('Bodega Azul vs the "La Bodega de Azul" supermarket is INSUFFICIENT_EVIDENCE, not REJECTED', () => {
+      expect(
+        verifier.verify(
+          { name: 'Bodega Azul' },
+          {
+            strategy: 'NOMINATIM',
+            candidate: {
+              ...candidate('UNKNOWN', 'UNKNOWN'),
+              provider: 'openstreetmap',
+              externalId: 'osm:node:4082354791',
+              canonicalName: 'Supermercado del Vino "La Bodega de Azul"',
+            },
+            evidence: [nearby(false, false)],
+          },
+        ),
+      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+    });
+
+    // A Wikidata item matching only the hint (or only the candidate) near
+    // the candidate is positive evidence of a different identity there.
+    it.each([
+      [true, false],
+      [false, true],
+    ])(
+      'a partial nearby Wikidata match (hint=%s, candidate=%s) stays REJECTED',
+      (hintMatched, candidateMatched) => {
+        expect(
+          verifier.verify(
+            { name: 'Recoleta Cemetery' },
+            attempt([nearby(hintMatched, candidateMatched)], 'UNKNOWN'),
+          ),
+        ).toEqual({ status: 'REJECTED' });
+      },
+    );
+
+    // A16 negative control: no exact record for "A16" (only "Bodega A16"
+    // x2, "A16 Wine & Deli", "Cava A16"); nothing was acquired.
+    it('A16 with no acquired evidence is INSUFFICIENT_EVIDENCE', () => {
+      expect(
+        verifier.verify({ name: 'A16' }, overtureAttempt('A16', [], 'UNKNOWN')),
       ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
     });
   });

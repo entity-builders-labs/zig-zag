@@ -80,6 +80,8 @@ export const RESET_TABLES = [
   'email_login_code',
   'user',
   'source',
+  'overture_place_index',
+  'overture_places_import_session',
 ];
 
 export async function resetTablesWith(
