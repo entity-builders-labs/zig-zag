@@ -24,6 +24,9 @@ import { getPrisma, resetDb, closeDb } from '../support/test-db';
  *        no new Experience row. Nothing is patched by hand.
  *  H:    the destination-window retrieval does not make that Experience
  *        tour-eligible for a destination-only request.
+ *  J:    (§P2-18) the same flow for a SOURCE-DEFINED Experience: no AREA
+ *        hint, no canonical polygon — persisted COLD on its verified
+ *        components, retrieved WARM through the regional request scope.
  */
 describe('tour-generation integration · regional catalog reuse (Part II G/H)', () => {
   const square = (lon: number, lat: number, d: number) => ({
@@ -277,6 +280,119 @@ describe('tour-generation integration · regional catalog reuse (Part II G/H)', 
     const again = await resolveCold();
     expect(again.resolved[0].experienceId).toBe(experienceId);
     expect(await prisma.experience.count()).toBe(1);
+  });
+
+  it('§P2-18 J: a SOURCE-DEFINED Experience (no source-named AREA, no canonical polygon) is persisted COLD and retrieved WARM through a grounded regional request scope — no AREA is fabricated, no area-role component is required', async () => {
+    const prisma = await getPrisma();
+    // --- COLD: the source names only the two estates; nothing names or
+    // resolves an enclosing AREA. Identities come from the country-bounded
+    // query (destinationCountryCode FX), never a radius.
+    const cold = await new ExperienceProposalResolverService(
+      osmPlaces as any,
+      catalog,
+      new CompositeGeographicValidationService(),
+      undefined,
+      nominatim as any,
+    ).resolve({
+      destinationName: 'Fixture City',
+      destinationCountryCode: 'FX',
+      geographicScope: FIXTURE_CITY,
+      candidates: [
+        {
+          candidate: {
+            name: 'Two estates day trip',
+            themes: ['wine'],
+            traits: [],
+            intents: ['route_like'],
+            componentHints: [
+              {
+                key: 'one',
+                name: 'Estate One',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+              {
+                key: 'two',
+                name: 'Estate Two',
+                role: 'venue',
+                expectedKind: 'PLACE',
+                evidenceKeys: ['ev-1'],
+              },
+            ],
+            evidenceKeys: ['ev-1'],
+            shortReason: 'source-defined day trip',
+          },
+          geographicAuthorization: ownedAuthorization('route_like'),
+        },
+      ],
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'web',
+          url: 'https://example.test/two-estates',
+          title: 'Fixture City day trips',
+          snippet: 'From Fixture City: Estate One, then Estate Two.',
+        },
+      ],
+    });
+    expect(nominatim.search).toHaveBeenCalledWith(
+      'Estate One',
+      expect.objectContaining({ countryCode: 'FX' }),
+    );
+    expect(cold.resolved[0].status).toBe('accepted');
+    const validation = cold.geographicValidation.results[0];
+    expect(validation.strategy).toBe('source_defined_components');
+    expect(validation.experienceScope).toEqual({
+      kind: 'SOURCE_DEFINED_COMPONENTS',
+      provenance: 'SOURCE_COMPOSITION',
+      membership: 'DESCRIPTIVE',
+      supportingEvidenceKeys: ['ev-1'],
+    });
+    const experienceId = cold.resolved[0].experienceId!;
+    const persisted = await prisma.experience.findUniqueOrThrow({
+      where: { id: experienceId },
+      include: { components: { include: { geoEntity: true } } },
+    });
+    expect(persisted.status).toBe('VERIFIED');
+    expect(persisted.components).toHaveLength(2);
+    expect(persisted.components.some((c) => c.role === 'area')).toBe(false);
+    expect(await prisma.geoEntity.count({ where: { kind: 'AREA' } })).toBe(0);
+
+    // --- WARM: a later request names the region as its geographic scope.
+    // The real anchor resolver resolves the real regional AREA; catalog
+    // retrieval finds the SAME Experience from its verified components'
+    // canonical geography — without reacquiring them.
+    nominatim.search.mockClear();
+    const [anchor] = await new AreaRouteAnchorResolverService(
+      osmPlaces as any,
+      catalog,
+      nominatim as any,
+    ).resolveNamedAnchors(
+      [
+        {
+          rawName: 'Fixture Valley',
+          usage: 'geographic_scope',
+          priority: 'must',
+        },
+      ],
+      { destinationCountryCode: 'FX', geographicScope: FIXTURE_CITY },
+    );
+    expect(anchor).toMatchObject({ status: 'resolved', kind: 'area' });
+    const warm = await catalog.findVerifiedMultiComponentInArea(
+      (anchor as any).geoEntityId,
+      'AREA_ANCHORED_ROUTE',
+    );
+    expect(warm.map((row) => row.id)).toEqual([experienceId]);
+    expect(nominatim.search.mock.calls.map(([query]) => query)).not.toContain(
+      'Estate One',
+    );
+    expect(await prisma.experience.count()).toBe(1);
+
+    // Retrieval is not eligibility: from the destination it stays a
+    // regional Experience (PD1).
+    const [row] = await catalog.findVerifiedByIds([experienceId]);
+    expect(isTourEligibleForDestinationRequest(row, FIXTURE_CITY)).toBe(false);
   });
 
   it('H: the destination-window retrieval may return nothing of the regional Experience, and even when a row is retrieved it is not tour-eligible unless WITHIN the destination', async () => {

@@ -49,6 +49,11 @@ describe('geographic distance authority (spec 2026-10-02 Part II §P2-13)', () =
       /\bPLACES_FALLBACK_BIAS_RADIUS_METERS\b/,
       /\bNOMINATIM_BIAS_RADIUS_METERS\b/,
       /\bHIGHWAYS_BY_NAME_MAX_RADIUS_METERS\b/,
+      // §P2-18: a missing canonical AREA is never a geographic verdict.
+      /\bunknownWhenBeyondDestination\b/,
+      /\bNO_VERIFIED_SCOPE_FOR_COMPONENTS_BEYOND_DESTINATION\b/,
+      /\bMULTIPLE_CANDIDATE_SCOPES\b/,
+      /\bOUTSIDE_EXPERIENCE_ROUTE_SCOPE\b/,
     ];
     const offenders = allProduction.flatMap((path) => {
       const source = read(path);
@@ -57,6 +62,35 @@ describe('geographic distance authority (spec 2026-10-02 Part II §P2-13)', () =
         .map((pattern) => `${rel(path)}: ${pattern}`);
     });
     expect(offenders).toEqual([]);
+  });
+
+  it('§P2-18: source-composition support and membership semantics read no distance, provider or candidate-name fact', () => {
+    for (const name of [
+      '../utils/source-composition-support.policy.ts',
+      '../utils/experience-geographic-scope.policy.ts',
+    ]) {
+      const source = read(join(__dirname, name));
+      expect(source).not.toMatch(/geographic-coherence\.util/);
+      expect(source).not.toMatch(/\bdistanceMeters\b|_RADIUS_METERS\b/);
+      expect(source).not.toMatch(/google_places|geoapify|nominatim|overture/i);
+    }
+    // One owner decides whether a composition may extend beyond the
+    // destination; acquisition and validation both ask it.
+    for (const name of [
+      'experience-proposal-resolver.service.ts',
+      'composite-geographic-validation.service.ts',
+    ]) {
+      const source = read(join(__dirname, name));
+      expect(source).toMatch(/\bmayExtendBeyondDestination\(/);
+    }
+  });
+
+  it('§P2-18: regional catalog retrieval is bounded — never a scan of every VERIFIED Experience', () => {
+    const catalog = read(join(__dirname, 'experience-catalog.service.ts'));
+    const start = catalog.indexOf('async findVerifiedMultiComponentInArea(');
+    const body = catalog.slice(start, catalog.indexOf('\n  }\n', start));
+    expect(body).toMatch(/findVerifiedWithinForMatching\(/);
+    expect(body).toMatch(/id: \{ in: ids \}/);
   });
 
   it('destination compatibility is polygon-only: it imports no centroid/distance helper and no threshold', () => {
