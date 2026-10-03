@@ -156,6 +156,7 @@ export type ResolutionStrategy =
   | 'LOCAL_OSM_POOL'
   | 'NOMINATIM'
   | 'PLACES'
+  | 'OVERTURE_IDENTITY'
   | 'AREA_TO_PLACE_CORRECTION'
   | 'ANCHOR_RESOLUTION';
 

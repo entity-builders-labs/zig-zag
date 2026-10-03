@@ -14,6 +14,7 @@ import { OsmModule } from './osm/osm.module';
 import { WikidataModule } from './wikidata/wikidata.module';
 import { PhotosModule } from './photos/photos.module';
 import { SerperModule } from './serper/serper.module';
+import { OvertureModule } from './overture/overture.module';
 
 export function createRealPlacesApiService(
   configService: ConfigService,
@@ -55,6 +56,7 @@ export function createPlacesApiService(
     WikidataModule,
     PhotosModule,
     SerperModule,
+    OvertureModule,
   ],
   providers: [
     PrismaService,
@@ -78,6 +80,7 @@ export function createPlacesApiService(
     WikidataModule,
     PhotosModule,
     SerperModule,
+    OvertureModule,
   ],
 })
 export class IntegrationsModule {}

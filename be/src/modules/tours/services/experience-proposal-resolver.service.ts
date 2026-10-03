@@ -104,6 +104,11 @@ import { IdentityVerifier } from './identity-verifier.service';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
 import { traceCandidateKey } from '../utils/experience-candidate-correlation.util';
 import {
+  authorizesIdentityStrategy,
+  buildIdentityAcquisitionPlan,
+} from '../interfaces/identity-acquisition-plan.interface';
+import { OverturePlacesIndexService } from '@integrations/overture/overture-places-index.service';
+import {
   AuthorizedExperienceCandidate,
   GeographicValidationAuthorization,
 } from '../interfaces/geographic-validation-authorization.interface';
@@ -334,6 +339,8 @@ export class ExperienceProposalResolverService
     @Optional()
     @Inject('WikidataApiService')
     private readonly wikidata?: IWikidataApiService,
+    @Optional()
+    private readonly overturePlaces?: OverturePlacesIndexService,
   ) {
     this.identityVerifier = new IdentityVerifier();
     this.identityEvidenceCollector = new IdentityEvidenceCollector(wikidata);
@@ -1116,10 +1123,18 @@ export class ExperienceProposalResolverService
         );
       }
 
-      // External lookups need either source evidence associating the
-      // destination, or a verified candidate-owned scope (itself
-      // source-backed and canonically resolved) bounding the search.
-      if (destinationAssociationVerified || componentScope.candidateOwned) {
+      // Build the explicit identity-acquisition authorization before any
+      // external call. Strategy execution below is governed exclusively by
+      // this plan; a provider miss/failure never authorizes another provider.
+      const identityPlan = buildIdentityAcquisitionPlan({
+        hintKey: hint.key,
+        expectedKind: hint.expectedKind,
+        geographicAuthorization,
+        externalAcquisitionAuthorized:
+          destinationAssociationVerified || componentScope.candidateOwned,
+        countryCode: destinationCountryCode,
+      });
+      if (authorizesIdentityStrategy(identityPlan, 'NOMINATIM')) {
         const nominatimResolved = await this.resolveViaNominatim(
           hint,
           destinationScope,
@@ -1180,6 +1195,9 @@ export class ExperienceProposalResolverService
         // attempt, not evidence that the independently allowed PLACE lookup
         // cannot succeed. Keep this ordering explicit: acquire, verify, then
         // continue to the next strategy on any non-verified decision.
+      }
+
+      if (authorizesIdentityStrategy(identityPlan, 'PLACES')) {
         const placesResolved = await this.resolveViaPlaces(
           hint,
           destinationScope,
@@ -1224,6 +1242,77 @@ export class ExperienceProposalResolverService
           recordAttempt(
             'PLACES',
             { ...placesResolved, status: placesResolved.status },
+            undefined,
+          );
+        }
+      }
+
+      if (
+        authorizesIdentityStrategy(identityPlan, 'OVERTURE_IDENTITY') &&
+        this.overturePlaces &&
+        identityPlan.countryCode
+      ) {
+        try {
+          const overture = await this.overturePlaces.lookupExactPlace({
+            hintKey: hint.key,
+            hintName: hint.name,
+            countryCode: identityPlan.countryCode,
+            role: hint.role,
+          });
+          if (overture.candidate) {
+            const verification = await this.isVerified(
+              'OVERTURE_IDENTITY',
+              overture.candidate,
+              hint,
+              observations,
+              seenIdentities,
+            );
+            recordAttempt(
+              'OVERTURE_IDENTITY',
+              {
+                status: 'completed',
+                provider: 'overture',
+                query: hint.name,
+                providerResultCount: overture.resultCount,
+                entity: overture.candidate,
+              },
+              verification,
+            );
+            if (verification.decision.status === 'VERIFIED') {
+              const resolved = await this.persistVerifiedCandidate(
+                overture.candidate,
+              );
+              entities.push(resolved);
+              finishAudit(resolved);
+              return;
+            }
+            unconfirmedGlobalMatch = this.unconfirmedEntity(
+              hint,
+              overture.candidate.provider,
+            );
+          } else {
+            recordAttempt(
+              'OVERTURE_IDENTITY',
+              {
+                status: 'no_candidate',
+                provider: 'overture',
+                query: hint.name,
+                providerResultCount: overture.resultCount,
+              },
+              undefined,
+            );
+          }
+        } catch (error) {
+          recordAttempt(
+            'OVERTURE_IDENTITY',
+            {
+              status: 'failed',
+              provider: 'overture',
+              query: hint.name,
+              failureReason:
+                error instanceof Error ? error.message : String(error),
+              failureStage: 'provider_search',
+            },
             undefined,
           );
         }
