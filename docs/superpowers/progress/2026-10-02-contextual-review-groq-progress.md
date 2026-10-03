@@ -503,14 +503,14 @@ paid credits.
   which `additionalProperties: false` correctly rejects. In calibration this is
   expected; against a live PR it means the pipeline would refuse to publish,
   which is the correct outcome rather than a schema weakness.
-- **`scripts/agent-review-calibration --reuse` can record a false
-  `inspect_exit`.** Reusing a captured transcript forces `inspect_status=0`, so
-  a transcript from a failed run is recorded as a clean inspection even though
-  the original run exited 1. The empty-evidence branch still fails closed, so
-  this cannot manufacture a verdict, but the recorded exit code lies. Left
-  unfixed deliberately: it is latent, off the authorized path, and fixing it
-  needs a failing run to test against. Recorded here rather than silently
-  patched.
+- **`scripts/agent-review-calibration --reuse` no longer records a false
+  `inspect_exit` (corrected).** Reuse previously forced `inspect_status=0`, so a
+  transcript captured from a failed run was re-reported as a clean inspection.
+  Reuse now derives the status from the transcript's own provider error events.
+  Verified against the real truncated Overture transcript, which now derives
+  `1`, and against a clean transcript, which derives `0`. The empty-evidence
+  branch still fails closed, so this path could never manufacture a verdict
+  either way.
 - **Insufficient evidence could previously become a canonical PASS.** The
   normalizer prompt instructed it to return `findings: []` plus `PASS` when the
   evidence was "empty or unusable", and the published invariant already accepts

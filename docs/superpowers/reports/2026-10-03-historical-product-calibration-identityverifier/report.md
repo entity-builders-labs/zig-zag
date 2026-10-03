@@ -86,6 +86,34 @@ finding_paths_missing=0
   Required fix: Fail the probe with a recorded error when destination.countryCode is undefined (or when scale !== 'area', which the spec already checks for `scale` but not for countryCode).
 
 
+## Independent verification of these findings (track author, not the reviewer)
+
+The findings above are the reviewer's output and are preserved verbatim,
+including its line citations. The track author then checked each one against the
+reviewed tree instead of accepting it. Results:
+
+- **F1 — CONFIRMED.** The fall-through is present at
+  `identity-verifier.service.ts:91-107` and `:144-145`, exactly as cited.
+- **F2 — CONFIRMED.** `run.sh` does write `resolver-replay.json` /
+  `db-after-probe.json` while the committed artifacts are the
+  `.pre-fix`/`.post-fix` variants, so the committed evidence is not
+  regenerable under its own harness names.
+- **F3 — SUBSTANCE CONFIRMED, CITATION WRONG.** The defect described is real: a
+  non-null assertion on `destination.countryCode` can crash the diagnostic probe
+  when `resolveDestination` degrades to point scale. But the assertion is at
+  **line 177** of `be/test/live/rw4-identity-verifier-characterization.live-spec.ts`,
+  **not** 145–146 as cited above.
+
+The reviewer therefore reached a correct conclusion with an incorrect anchor.
+Its verdict stands; the F3 line reference does not. This is the measured limit of
+this calibration: the reviewer demonstrably detects real product-code issues, but
+its line citations are not reliable enough to be treated as self-verifying. Two
+of three citations were exact, so the imprecision is real but not systematic.
+
+No product finding was fixed as part of this track. Reviewing product code is
+this track's purpose; changing it is not.
+
+
 ## Reviewer verification summary (verbatim)
 
 Read-only inspection only; no commands were executed. No unit tests, integration tests (require disposable Postgres), e2e, the live probe (require docker containers zigzag-postgres, Nominatim, Overpass, Geoapify, live Wikidata), typecheck, lint, or Git range verification were run; no CI evidence section was present in the input, so the CI state of head 15af1ccb641122d633de4c5f1fd853d963ba0a18 is unknown, and all test/CI results cited in the progress document are author-reported and unverified here. The incremental baseline is 1842004715930ea2cc2f27aed0ff483d90888ec7 (range 1842004715930ea2cc2f27aed0ff483d90888ec7..15af1ccb641122d633de4c5f1fd853d963ba0a18). Coverage limitation: the following remain unverified and are recorded as open work, correctly not attempted in this delta — the EXACT_NAME/SINGLE-vs-contradiction gap (RW4-ID-CONTRADICTION-1), QID homonym false-positive risk (RW4-ID-QID-HOMONYM-1), the UNKNOWN-multiplicity + corroborating-NEARBY VERIFIED hole (F1, neither fixed nor recorded), the repo-owned Overture COMPLETE_COUNTRY importer, Bodega Azul evidence acquisition (declared alias or component-bound fact), A16 coverage, COLD #12 and WARM reuse, and the e2e flake (RW4-E2E-FLAKE-1). The inspector read all 11 changed files on disk plus the canonical contracts they depend on, so this is a full read of the incremental range; the verdict rests on static analysis, not executed suites.

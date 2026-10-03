@@ -265,8 +265,15 @@ tracked_tree() {
 tree_before="$(tracked_tree)"
 set +e
 if [ "$REUSE" = true ] && [ -s "$OUT/inspect.jsonl" ]; then
-  : # keep the captured inspection transcript
-  inspect_status=0
+  # Keep the captured inspection transcript, but do NOT assert that the run it
+  # came from succeeded. Deriving the status from the transcript's own provider
+  # error events keeps the recorded inspect_exit honest; forcing 0 here would
+  # let a failed run be re-reported as a clean inspection.
+  if jq -e 'select(.type=="error")' "$OUT/inspect.jsonl" >/dev/null 2>&1; then
+    inspect_status=1
+  else
+    inspect_status=0
+  fi
 else
   (cd "$SNAP" && opencode run --standalone \
     --agent reviewer \
