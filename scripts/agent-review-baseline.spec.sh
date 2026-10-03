@@ -307,4 +307,49 @@ if grep -Fq 'if [ -n "$(git status --porcelain)" ]' "$WF"; then
 fi
 pass 'model inputs are staged inside the checkout and integrity still holds'
 
+# --- case 20: tracked-file integrity must be decided from content ---------
+# `git status` answers from the index's stat cache. A reviewer's only legitimate
+# output is `read`/`grep`, so the only way the checkout changes is a bug in the
+# provider, the prompt, or the agent definition. Proving the checkout is intact
+# therefore has to rest on content, not on timestamps that a restore can
+# reproduce. Hashing the tracked working tree with a private index is content
+# based, ignores untracked staging by construction, and leaves the reviewer's
+# own index untouched.
+grep -Fq 'git write-tree' "$WF" || fail '20 tracked-file integrity must hash content with git write-tree'
+grep -Fq 'git read-tree HEAD' "$WF" || fail '20 integrity baseline must start from the committed tree'
+grep -Fq 'GIT_INDEX_FILE=' "$WF" \
+  || fail '20 integrity must use a private index so the reviewer index is untouched'
+# `git add -u` records only already-tracked paths, which is what makes the
+# untracked staging directory irrelevant rather than merely excluded.
+grep -Fq 'git add -u -- .' "$WF" \
+  || fail '20 integrity must stage only tracked paths (git add -u)'
+# Both model-driven phases need the comparison: a normalizer bug must not be
+# able to alter what gets published either. Assert each phase's own baseline and
+# comparison rather than a total count, so adding a diagnostic cannot silently
+# satisfy or break the guard.
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+[ "$(grep -Fc 'tree_before="$(tracked_tree)"' "$WF")" -eq 1 ] \
+  || fail '20 inspection must baseline the tracked tree before the model runs'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+[ "$(grep -Fc 'tree_after="$(tracked_tree)"' "$WF")" -eq 1 ] \
+  || fail '20 inspection must compare the tracked tree after the model runs'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+[ "$(grep -Fc 'tree_before="$(GIT_INDEX_FILE=' "$WF")" -eq 1 ] \
+  || fail '20 normalization must baseline the tracked tree before the model runs'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+[ "$(grep -Fc 'tree_after="$(GIT_INDEX_FILE=' "$WF")" -eq 1 ] \
+  || fail '20 normalization must compare the tracked tree after the model runs'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq 'if [ "$tree_after" != "$tree_before" ]; then' "$WF" \
+  || fail '20 both phases must fail closed on a tracked-content change'
+grep -Fq 'modified tracked files in the reviewed checkout' "$WF" \
+  || fail '20 a tracked-content change must report a review failure'
+# A bare `git status` emptiness test is no longer the integrity signal, so it
+# must not reappear as the sole guard for a tracked modification.
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+if grep -Fq 'if [ -z "$(git status --porcelain --untracked-files=no)" ]; then' "$WF"; then
+  fail '20 stat-based porcelain test is not sufficient proof of checkout integrity'
+fi
+pass 'tracked-file integrity is decided from content, not stat metadata'
+
 printf 'ALL BASELINE FIXTURES PASSED\n'

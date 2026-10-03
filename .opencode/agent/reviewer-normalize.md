@@ -2,6 +2,11 @@
 description: Tool-free normalizer that turns inspected evidence into the canonical review JSON
 mode: primary
 temperature: 0.0
+# No reasoning for structured normalization. This phase has no tool calls and a
+# single mechanical job, so reasoning only consumes output budget that the JSON
+# body needs.
+reasoning:
+  effort: none
 tools:
   read: false
   grep: false

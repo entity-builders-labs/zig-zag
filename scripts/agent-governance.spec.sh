@@ -6,6 +6,7 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 pass() { printf 'PASS %s\n' "$1"; }
+fail() { printf 'FAIL %s\n' "$1" >&2; exit 1; }
 expect_ok() { "$@" >/dev/null; }
 expect_fail() { if "$@" >/dev/null 2>&1; then echo "expected failure: $*" >&2; exit 1; fi; }
 
@@ -158,9 +159,13 @@ grep -Fq 'test "$(git rev-parse HEAD)" = "$HEAD_SHA"' "$REVIEW_WORKFLOW"
 # shellcheck disable=SC2016 # literal workflow expression, not a shell expansion
 grep -Fq 'DIFF_RANGE="$REV_RANGE"' "$REVIEW_WORKFLOW"
 grep -Fq "git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*'" "$REVIEW_WORKFLOW"
-# The reviewed checkout must be proven unchanged after the model runs.
-grep -Fq 'reviewed checkout changed during inspection' "$REVIEW_WORKFLOW"
-grep -Fq 'reviewer modified the reviewed checkout' "$REVIEW_WORKFLOW"
+# The reviewed checkout must be proven unchanged after the model runs. Both the
+# HEAD anchor and the tracked working-tree content are checked; the content check
+# is what makes the proof independent of file timestamps.
+grep -Fq 'reviewed checkout HEAD changed during inspection' "$REVIEW_WORKFLOW"
+grep -Fq 'reviewer modified tracked files in the reviewed checkout' "$REVIEW_WORKFLOW"
+grep -Fq 'normalization modified tracked files in the reviewed checkout' "$REVIEW_WORKFLOW"
+grep -Fq 'not present in the reviewed checkout' "$REVIEW_WORKFLOW"
 pass 'review is pinned, exact-HEAD anchored, and reviewed over an incremental range'
 
 for required in \
@@ -212,14 +217,40 @@ fi
 pass 'canonical context, structured output, marker, and stale semantics are explicit'
 
 for required in \
-  'CLOUDFLARE_ACCOUNT_ID' \
-  'CLOUDFLARE_API_TOKEN' \
+  'OPENROUTER_API_KEY' \
+  'openrouter/qwen/qwen3.8-27b:free' \
   'Validate structured review output' \
   'gh api' \
   'Avoid duplicate review for the same head' \
   'REVIEW UNAVAILABLE / FAILED'; do
   grep -Fq "$required" "$REVIEW_WORKFLOW"
 done
+# The retired providers must be gone entirely. A leftover reference is either a
+# dead credential or an accidental paid fallback, both of which breach the cost
+# contract this track is operating under.
+for retired in 'CLOUDFLARE' 'cloudflare' 'workers-ai' 'GROQ' 'groq'; do
+  if grep -Fq "$retired" "$REVIEW_WORKFLOW"; then
+    fail "retired provider reference '$retired' remains in the review workflow"
+  fi
+done
+# The paid sibling of the free model must never be reachable. Every model-driven
+# phase asserts the :free suffix before issuing its request, so a misconfigured
+# identifier fails closed instead of billing a paid endpoint.
+[ "$(grep -Fc "REVIEW_MODEL must name a :free endpoint" "$REVIEW_WORKFLOW")" -eq 2 ] \
+  || fail 'both model-driven phases must fail closed on a non-free model id'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+[ "$(grep -Fc 'REVIEW_MODEL: openrouter/qwen/qwen3.8-27b:free' "$REVIEW_WORKFLOW")" -eq 2 ] \
+  || fail 'both model-driven phases must pin the explicitly free model id'
+# Reasoning must be off for both phases. Reasoning tokens share the output
+# budget, so an unbudgeted reasoning pass can consume the whole completion
+# allowance and return an empty body.
+for agent in "$ROOT/.opencode/agent/reviewer.md" "$ROOT/.opencode/agent/reviewer-normalize.md"; do
+  grep -Fq 'effort: none' "$agent" || fail "reasoning must be disabled in $agent"
+done
+# An HTTP success with no visible body is not a review.
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+[ "$(grep -Fc 'returned no visible content' "$REVIEW_WORKFLOW")" -eq 2 ] \
+  || fail 'both model-driven phases must reject an empty visible response'
 # Fabrication guards: a failed provider phase must not become a PASS.
 for required in \
   'normalization produced no JSON' \
@@ -233,9 +264,9 @@ done
 # A provider failure must report the provider's own reason. OpenCode surfaces
 # rate limits and auth failures as a JSON error event on stdout, so a stderr-only
 # tail reports nothing and hides the cause of the failure.
-# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
-[ "$(grep -Fc 'select(.type=="error") | .error | {type, message}' "$REVIEW_WORKFLOW")" -eq 2 ] \
-  || fail 'both model phases must surface the provider error object on failure'
+# Assert each phase's own diagnostic site rather than a total count: a count
+# breaks whenever an additional legitimate diagnostic is added, and the
+# invariant is that each failure path reports the provider's reason.
 # shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
 grep -Fq 'inspect.jsonl" >&2 || true' "$REVIEW_WORKFLOW" \
   || fail 'inspection failure must surface the provider error object'

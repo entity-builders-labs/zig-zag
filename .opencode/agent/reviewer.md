@@ -2,6 +2,13 @@
 description: Read-only contextual reviewer for the canonical PR review workflow
 mode: primary
 temperature: 0.1
+# Reasoning is disabled explicitly. Reasoning tokens count against the same
+# output budget as visible content on OpenRouter, so an unbudgeted reasoning
+# pass can consume the entire completion allowance and return an empty body.
+# A successful HTTP response with no visible text is not a review, and the
+# workflow refuses to publish one.
+reasoning:
+  effort: none
 tools:
   read: true
   grep: true

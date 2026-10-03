@@ -4,14 +4,13 @@
 
 ## Current execution verdict
 
-**BLOCKED on provider quota. Shell, range selection, and fail-closed behavior
-are verified in real CI; the model-driven half of the pipeline has never
-completed a review. No review published.**
+**Provider switched to OpenRouter under one bounded substitution. The minimal
+live probe passed all seven acceptance criteria; the full pipeline has still
+never completed a review. No review published.**
 
 Seven implementation defects were found and fixed, two of them shipped by me and
-found by CI. The provider's daily free allocation is now exhausted, so
-acceptance cannot be completed without either a budget reset or an explicit
-decision about paid usage.
+found by CI. Cloudflare is exhausted and is no longer the provider; the current
+provider is OpenRouter's explicitly free endpoint.
 
 This track was bootstrapped manually from `origin/feat/preference-first-selection`
 at `1ceb477de44b3589cbc01b13eac9bf7aa22c98da`, following the existing
@@ -27,9 +26,84 @@ No production behavior is in scope. RW4 code is untouched.
 
 ## Current checkpoint
 
-**Implementation complete and locally verified. In CI the pipeline now runs
-through inspection and fails closed for the right reason. Acceptance awaits a
-green run that publishes.**
+**OpenRouter probe passed. Acceptance awaits one CI run that publishes.**
+
+### Provider decision: OpenRouter + Qwen3.8 27B Free
+
+Groq was rejected because OpenCode's intrinsic request size exceeds the free-tier
+input-token-per-minute limit. Cloudflare Workers AI connected and executed
+repository tools but exhausted a 10,000-neuron daily free allocation across the
+probe and three CI attempts. The human owner authorized exactly one bounded
+substitution to `openrouter/qwen/qwen3.8-27b:free`. No second substitution and no
+paid endpoint are authorized.
+
+The `:free` suffix is now enforced, not merely configured. Both model-driven
+phases assert that `REVIEW_MODEL` ends in `:free` and fail closed otherwise, so a
+misconfigured identifier cannot silently bill the paid sibling
+`qwen/qwen3.8-27b`, which exists in the catalog as a distinct entry. There is no
+automatic fallback to any other provider. A governance assertion rejects any
+`CLOUDFLARE`, `cloudflare`, `workers-ai`, `GROQ`, or `groq` reference remaining in
+the workflow, so a retired provider cannot linger as a dead credential or an
+accidental paid path.
+
+### Minimal live probe — verified conclusions only
+
+Run once against `openrouter/qwen/qwen3.8-27b:free` with the pinned OpenCode
+2.0.21 and the existing read-only `reviewer` agent:
+
+1. The provider accepted the request; exit 0 with no error events.
+2. OpenCode executed a real repository `read` tool call, state `completed`.
+3. The model received the result and quoted the requested lines byte-exactly,
+   including an adjacent line it was not asked about, which is difficult to
+   produce without having read the file.
+4. The response carried visible, evidence-backed text.
+5. `HEAD` was unchanged and the only modified tracked paths were this track's
+   own uncommitted edits. This is weaker than it sounds: file modification times
+   are not proof of content integrity, so it is recorded as suggestive rather
+   than proven. The CI run no longer relies on it (see below).
+6. The tested endpoint was explicitly `:free`, confirmed present in the
+   models.dev catalog as `qwen/qwen3.8-27b:free`.
+7. No paid usage was reported. One request, roughly 17k input and 67 output
+   tokens, on a free endpoint, with no fallback attempted.
+
+**Not proven: that `reasoning.effort: none` is transmitted to OpenRouter.** The
+probe still reported 182 reasoning tokens with the setting in the agent
+frontmatter. A control comparison was attempted and was inconclusive, because
+tool-free runs returned no `step_finish` event to compare token counts against.
+What is established is behavioral, not mechanistic: the agent configured with
+`effort: none` produces visible output, which is the property the pipeline
+actually depends on. The documented OpenRouter semantics — reasoning tokens
+counting against the same output budget as visible content — explain the earlier
+empty-response failure, and OpenCode sets no comparable output cap. The
+empty-visible-content guards added to both phases make the review fail closed
+regardless of whether reasoning control reaches the wire. This uncertainty is
+recorded rather than resolved; further investigation is not authorized and is not
+required for the review to run.
+
+### Empty-response hardening
+
+A successful HTTP response with no visible body is not a review. Both phases now
+reject a whitespace-only response explicitly, in addition to the existing
+non-empty and valid-JSON checks, so reasoning that consumes the entire output
+budget cannot be normalized into an empty-but-valid review.
+
+### Deterministic checkout integrity
+
+The previous integrity guard used `git status --porcelain --untracked-files=no`.
+That answers from the index's stat cache rather than from file content, so it is
+not proof that the reviewer left the checkout alone, and the probe's evidence
+rested on modification times. Both model-driven phases now hash the tracked
+working tree with `git write-tree` through a private `GIT_INDEX_FILE` and compare
+the object id before and after the model call.
+
+`git add -u` records only already-tracked paths, so the untracked `.review-input`
+staging directory cannot mask a change or fake one, and the reviewer's own index
+is never touched. The guard was exercised against four scenarios: a tracked
+modification, a tracked deletion, an untracked file, and a clean run. The first
+two changed the hash; the latter two did not. Four deliberate regressions were
+then injected into the workflow to confirm the fixture is not vacuous —
+reverting to `git status`, widening to `git add -A`, dropping the normalization
+phase comparison, and removing the private index — and each was detected.
 
 Preserved from the accepted bootstrap:
 
@@ -285,49 +359,38 @@ further provider substitution and no paid upgrade.
 
 ## Next authorized action
 
-**BLOCKED — the provider has no remaining daily neuron allocation. Do not push
-to re-run the review until budget exists; another attempt would fail
-identically.**
+**Run the one bounded CI acceptance execution for the OpenRouter provider and
+report the result, including a failure if that is what happens.**
 
-Two unblocking options, both requiring an explicit human decision that the plan
-does not currently authorize:
+The pipeline is committed and the credential is configured. Do not start a
+fix/retry cycle if it fails, and do not substitute another provider: report the
+failing stage and its sanitized error instead.
 
-1. Wait for the daily Cloudflare allocation to reset, then run
-   `gh run rerun 37095891616`. No code change is needed; the pipeline is
-   committed and ready. One run is enough to exercise inspection,
-   normalization, path verification, schema validation, and publication.
-2. Enable a paid Workers plan. Previously refused for Groq; the same refusal
-   was never re-asked for Cloudflare, so this is an open question rather than a
-   settled one.
-
-Acceptance criteria when unblocked: a published review whose `commit_id` equals
-the PR head, whose marker track and `reviewed_head` agree with it, and whose
-coverage statement matches what `scripts/agent-review-baseline` selected. Then
-the bounded historical calibration at
-`4b3d2bb20818d3b36b68c591205e45b7ad155fa4`.
-
-Do not add a second provider, do not wire an automatic fix/commit/push/merge
-loop, and do not merge PR #72.
+Acceptance criteria: a published review on PR #72 whose `commit_id` equals the
+exact reviewed HEAD, produced through inspection, normalization, path
+verification, schema validation, and publication on the incremental range
+`scripts/agent-review-baseline` selected.
 
 Do not add a second provider, do not wire an automatic fix/commit/push/merge
 loop, and do not merge PR #72.
 
 ## Open findings / blockers
 
-- **BLOCKED: Cloudflare daily free allocation exhausted (10,000 neurons/day,
-  HTTP 429 code 4006).** Consumed by the probe plus three CI attempts. This is a
-  hard quota wall of the same class as the original Groq stop, not a defect.
-  Until it resets or paid usage is authorized, the review pipeline cannot be
-  exercised end to end. Notably the workflow *hid* this reason, because
-  OpenCode emits provider errors on stdout while the step only tailed stderr;
-  both model phases now surface the provider error object, and a governance
-  assertion enforces it.
+- **The Cloudflare quota wall is historical, not current.** Cloudflare was
+  exhausted at 10,000 neurons/day (HTTP 429, code 4006) across the probe plus
+  three CI attempts, and the provider has since been replaced by OpenRouter. One
+  diagnostic lesson is retained: the workflow *hid* that reason, because OpenCode
+  emits provider errors on stdout while the step only tailed stderr. Both model
+  phases now surface the provider error object, and a governance assertion
+  enforces it. This matters for the pending run — a quota or auth failure on
+  OpenRouter will be visible rather than silent.
 - **The reviewer has never completed a single live review.** The probe proved
   the provider accepts an oversized request and executes read tools, but not
   this pipeline. Normalization into the canonical schema, finding-path
   verification, ajv validation, and publication are all unexercised against real
   model output. Fixture coverage proves the guards fire; it does not prove the
-  happy path works.
+  happy path works. A successful probe is not acceptance, and neither is a green
+  fixture suite.
 - **Live GitHub Actions execution has failed five times and is not yet proven.**
   Runs on `c3002986` and `56f16332` exited 2 on shell defects in the range and
   prepare steps; run 37095103080 attempt 1 failed closed on absent credentials,
@@ -351,11 +414,13 @@ loop, and do not merge PR #72.
   finding-path verification, schema validation, and publication work on real
   model output. Those phases have fixtures proving their *guards* fire on bad
   input, which is not the same as proving they *pass* on good input.
-- **Repository secrets are now set.** `CLOUDFLARE_ACCOUNT_ID` and
-  `CLOUDFLARE_API_TOKEN` were added as scoped repository secrets. Values were
-  piped from the sibling worktree's `.env` and never printed. The older
-  `GROQ_API_KEY` secret is now unused by this workflow and is dead weight, but
-  removing it is out of scope for this track.
+- **Repository secrets are now set.** `OPENROUTER_API_KEY` is configured as a
+  scoped repository secret and its value has never been printed, committed, or
+  written to a workflow artifact. The local probe read the key from a git-ignored
+  `.env.openrouter` in this worktree only; the tracked tree never contained it.
+  `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and `GROQ_API_KEY` remain in
+  the repository but are no longer referenced by this workflow. Removing them is
+  out of scope for this track.
 - **`workflow_dispatch` is declared but not dispatchable.** `gh workflow run`
   returns HTTP 422 for this workflow because GitHub resolves dispatch against
   the default branch, where the file does not exist. Retry during this track was
@@ -372,5 +437,16 @@ loop, and do not merge PR #72.
 - The context bundle is bounded per section. A decisive section that falls past
   the bound is handed to the model as a path plus a truncation marker. This is a
   deliberate context/size tradeoff, not proof that the reviewer saw everything.
-- Neuron consumption for a full review is not yet measured. The probe cost ~5.16
-  neurons for a trivial call; a real review reads far more.
+- **The `:free` suffix is enforced but not independently verified upstream.**
+  Both phases assert it before issuing a request, which prevents this workflow
+  from selecting a paid identifier. It does not prove OpenRouter honored the free
+  tier for a given request; only OpenRouter's own accounting can show that, and
+  this run does not query it. No paid usage was reported during the probe.
+- **Reasoning control is behavioral, not mechanistic.** See the checkpoint
+  section: the agent configured with `effort: none` produces visible output, but
+  the setting was not observed on the wire and 182 reasoning tokens still
+  appeared. This is the one place where a review could plausibly return an empty
+  body despite a successful response; both phases now reject that explicitly.
+- **The probe's checkout integrity evidence was weak and is superseded.** It
+  relied on modification times, which a restore can reproduce. Both CI phases now
+  compare a content hash of the tracked tree instead.

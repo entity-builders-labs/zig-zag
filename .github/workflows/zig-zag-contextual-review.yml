@@ -52,7 +52,7 @@ jobs:
     steps:
       - run: |
           echo "Contextual review skipped: PR head repository is not entity-builders-labs/zig-zag."
-          echo "No CLOUDFLARE_API_TOKEN is exposed to untrusted fork code."
+          echo "No OPENROUTER_API_KEY is exposed to untrusted fork code."
 
   review:
     needs: resolve-pr
@@ -216,11 +216,10 @@ jobs:
       - name: Require review provider configuration
         if: steps.existing.outputs.current != 'true'
         env:
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
-          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "REVIEW UNAVAILABLE / FAILED: configure repository secrets CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN." >&2
+          if [ -z "$OPENROUTER_API_KEY" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: configure repository secret OPENROUTER_API_KEY." >&2
             exit 1
           fi
       - name: Install pinned OpenCode
@@ -242,16 +241,40 @@ jobs:
         env:
           # Provider credentials only. No GitHub token is passed to this step so
           # the model process cannot read or write anything on GitHub.
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          REVIEW_MODEL: cloudflare-workers-ai/@cf/qwen/qwen3.8-27b
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          # The :free suffix is mandatory. A review that silently fell back to the
+          # paid qwen/qwen3.8-27b endpoint would breach the cost contract, so the
+          # identifier is asserted below before the request is issued.
+          REVIEW_MODEL: openrouter/qwen/qwen3.8-27b:free
           INSPECT_INPUT: ${{ runner.temp }}/track-review-input.md
           REVIEW_CONTEXT: ${{ runner.temp }}/track-review-context.md
           REVIEW_DIFF: ${{ runner.temp }}/delta.diff
           EXPECTED_SHA: ${{ steps.prepare.outputs.reviewed_checkout_sha }}
         run: |
           set -euo pipefail
+          # Cost contract: this review must never reach a paid endpoint. Assert
+          # the free identifier before issuing the request rather than trusting
+          # the configured value, and never retry on a different model.
+          case "$REVIEW_MODEL" in
+            *:free) ;;
+            *)
+              echo "REVIEW UNAVAILABLE / FAILED: REVIEW_MODEL must name a :free endpoint (got '$REVIEW_MODEL')" >&2
+              exit 1
+              ;;
+          esac
+          printf 'review_model=%s\n' "$REVIEW_MODEL"
+          # Deterministic tracked-file integrity. Compare the content hash of
+          # the tracked working tree, not `git status`, which answers from the
+          # index's stat cache rather than from content. `git add -u` records
+          # only tracked paths, so the untracked staging directory cannot mask
+          # or fake a change, and a private index leaves the reviewer's own
+          # index untouched.
+          tracked_tree() {
+            rm -f "$RUNNER_TEMP/.integrity-index"
+            GIT_INDEX_FILE="$RUNNER_TEMP/.integrity-index" git read-tree HEAD
+            GIT_INDEX_FILE="$RUNNER_TEMP/.integrity-index" git add -u -- . >/dev/null 2>&1
+            GIT_INDEX_FILE="$RUNNER_TEMP/.integrity-index" git write-tree
+          }
           # OpenCode refuses to read paths outside the project directory, and
           # RUNNER_TEMP sits outside the checkout. Stage the review inputs inside
           # the repository so the read tool can reach them.
@@ -263,6 +286,9 @@ jobs:
           cp "$REVIEW_DIFF" "$stage/delta.diff"
           inspect_prompt="$(sed "s|@CONTEXT_FILE@|$stage/context.md|; s|@INPUT_FILE@|$stage/input.md|" \
             .github/codex/track-review-inspect-prompt.md)"
+          # Baseline the tracked content before the model runs, so the comparison
+          # isolates what the reviewer itself changed.
+          tree_before="$(tracked_tree)"
           set +e
           opencode run --standalone \
             --agent reviewer \
@@ -272,17 +298,14 @@ jobs:
             "$inspect_prompt" > "$RUNNER_TEMP/inspect.jsonl" 2> "$RUNNER_TEMP/inspect.err"
           status=$?
           set -e
-          # The staged inputs are untracked, so the tracked tree object is the
-          # integrity signal. It catches any tracked modification, addition, or
-          # deletion without being confused by the staging directory itself.
-          after="$(git rev-parse HEAD)"
-          if [ "$after" != "$EXPECTED_SHA" ]; then
-            echo "REVIEW UNAVAILABLE / FAILED: reviewed checkout changed during inspection ($EXPECTED_SHA -> $after)" >&2
+          if [ "$(git rev-parse HEAD)" != "$EXPECTED_SHA" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: reviewed checkout HEAD changed during inspection" >&2
             exit 1
           fi
-          if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
-            echo "REVIEW UNAVAILABLE / FAILED: reviewer modified the reviewed checkout" >&2
-            git status --porcelain --untracked-files=no >&2
+          tree_after="$(tracked_tree)"
+          if [ "$tree_after" != "$tree_before" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: reviewer modified tracked files in the reviewed checkout" >&2
+            git status --porcelain --untracked-files=no >&2 || true
             exit 1
           fi
           if [ "$status" -ne 0 ]; then
@@ -308,14 +331,22 @@ jobs:
             echo "REVIEW UNAVAILABLE / FAILED: inspection produced no evidence" >&2
             exit 1
           fi
+          # An HTTP 200 with an empty or whitespace-only body is a provider
+          # success, not a review. Reasoning tokens can consume the whole output
+          # budget and leave nothing visible, so refuse to continue rather than
+          # normalizing a blank into an empty-but-valid review.
+          if [ -z "$(tr -d '[:space:]' < "$RUNNER_TEMP/inspect-evidence.txt")" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: inspection returned no visible content" >&2
+            jq -c 'select(.type=="error") | .error | {type, message}' \
+              "$RUNNER_TEMP/inspect.jsonl" >&2 || true
+            exit 1
+          fi
       - name: Normalize evidence into the canonical schema
         id: normalize
         if: steps.existing.outputs.current != 'true'
         env:
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          REVIEW_MODEL: cloudflare-workers-ai/@cf/qwen/qwen3.8-27b
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          REVIEW_MODEL: openrouter/qwen/qwen3.8-27b:free
           TRACK: ${{ steps.track.outputs.track }}
           PR_NUMBER: ${{ needs.resolve-pr.outputs.number }}
           HEAD_SHA: ${{ needs.resolve-pr.outputs.head_sha }}
@@ -323,6 +354,15 @@ jobs:
           EVIDENCE: ${{ runner.temp }}/inspect-evidence.txt
         run: |
           set -euo pipefail
+          # Cost contract, enforced independently of the inspection phase so a
+          # provider that answered inspection cannot license a paid retry here.
+          case "$REVIEW_MODEL" in
+            *:free) ;;
+            *)
+              echo "REVIEW UNAVAILABLE / FAILED: REVIEW_MODEL must name a :free endpoint (got '$REVIEW_MODEL')" >&2
+              exit 1
+              ;;
+          esac
           # Deliberately tool-free: strict structured output and repository tool
           # use cannot be combined on this provider, so they are separate calls.
           {
@@ -333,6 +373,13 @@ jobs:
             printf 'reviewed_head=%s\n' "$HEAD_SHA"
             printf 'base_branch=%s\n' "$BASE_REF"
           } > "$RUNNER_TEMP/normalize-prompt.txt"
+          # The normalizer is tool-free, but a provider bug or a mis-escaped prompt
+          # must not be able to alter what gets published. Baseline the tracked
+          # content for the same deterministic reason as the inspection phase.
+          GIT_INDEX_FILE="$RUNNER_TEMP/.integrity-index" git read-tree HEAD
+          GIT_INDEX_FILE="$RUNNER_TEMP/.integrity-index" git add -u -- . >/dev/null 2>&1
+          tree_before="$(GIT_INDEX_FILE="$RUNNER_TEMP/.integrity-index" git write-tree)"
+          rm -f "$RUNNER_TEMP/.integrity-index"
           set +e
           opencode run --standalone \
             --agent reviewer-normalize \
@@ -343,6 +390,15 @@ jobs:
             > "$RUNNER_TEMP/normalize.jsonl" 2> "$RUNNER_TEMP/normalize.err"
           status=$?
           set -e
+          GIT_INDEX_FILE="$RUNNER_TEMP/.integrity-index" git read-tree HEAD
+          GIT_INDEX_FILE="$RUNNER_TEMP/.integrity-index" git add -u -- . >/dev/null 2>&1
+          tree_after="$(GIT_INDEX_FILE="$RUNNER_TEMP/.integrity-index" git write-tree)"
+          rm -f "$RUNNER_TEMP/.integrity-index"
+          if [ "$tree_after" != "$tree_before" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: normalization modified tracked files in the reviewed checkout" >&2
+            git status --porcelain --untracked-files=no >&2 || true
+            exit 1
+          fi
           if [ "$status" -ne 0 ]; then
             echo "REVIEW UNAVAILABLE / FAILED: normalization exited $status" >&2
             jq -c 'select(.type=="error") | .error | {type, message}' \
@@ -361,6 +417,11 @@ jobs:
           fi
           if ! jq -e . "$RUNNER_TEMP/review.json" > /dev/null 2>&1; then
             echo "REVIEW UNAVAILABLE / FAILED: normalization output is not valid JSON" >&2
+            exit 1
+          fi
+          # A provider success with no visible body must not become a review.
+          if [ -z "$(tr -d '[:space:]' < "$RUNNER_TEMP/review.json")" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: normalization returned no visible content" >&2
             exit 1
           fi
       - name: Verify finding paths exist in the reviewed checkout
