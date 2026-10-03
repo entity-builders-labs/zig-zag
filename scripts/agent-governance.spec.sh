@@ -248,9 +248,19 @@ for agent in "$ROOT/.opencode/agent/reviewer.md" "$ROOT/.opencode/agent/reviewer
   grep -Fq 'effort: none' "$agent" || fail "reasoning must be disabled in $agent"
 done
 # An HTTP success with no visible body is not a review.
+# Assert the inspection phase's own diagnostic site rather than a total count: a
+# count over both phases protected dead code, because normalization's emptiness
+# is structurally impossible once `review.json` exists (it is the output of
+# `sed -n '/^{/,/^}/p'`, so it is either empty or starts with `{`). The real
+# normalization emptiness guards are the no-JSON and invalid-JSON checks.
 # shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
-[ "$(grep -Fc 'returned no visible content' "$REVIEW_WORKFLOW")" -eq 2 ] \
-  || fail 'both model-driven phases must reject an empty visible response'
+grep -Fq 'inspection returned no visible content' "$REVIEW_WORKFLOW" \
+  || fail 'inspection must reject an empty visible response'
+grep -Fq "tr -d '[:space:]' < \"\$RUNNER_TEMP/inspect-evidence.txt\"" "$REVIEW_WORKFLOW" \
+  || fail 'inspection emptiness must be tested against the visible evidence text'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+[ "$(grep -Fc 'returned no visible content' "$REVIEW_WORKFLOW")" -eq 1 ] \
+  || fail 'normalization must not carry a whitespace guard that can never fire'
 # Fabrication guards: a failed provider phase must not become a PASS.
 for required in \
   'normalization produced no JSON' \
@@ -735,3 +745,121 @@ pass 'published review request binds commit_id and event'
 grep -Fq 'commit_id="$HEAD_SHA"' "$REVIEW_WORKFLOW"
 grep -Fq 'event="COMMENT"' "$REVIEW_WORKFLOW"
 pass 'workflow publishes review with commit_id binding'
+
+# ---------------------------------------------------------------------------
+# Evidence sufficiency must fail closed, not merely be requested in a prompt.
+#
+# The normalizer is told to return `findings: []` plus PASS when the evidence is
+# empty or unusable, and the published invariant already accepts `PASS` with zero
+# findings. Without a deterministic gate, a truncated or hallucinated inspection
+# report becomes a clean, permanently recorded PASS that nobody ever earned.
+# These are behavioral cases, not greps: the gate must actually refuse.
+# ---------------------------------------------------------------------------
+EVIDENCE_GATE="$ROOT/scripts/agent-review-evidence-gate"
+[ -x "$EVIDENCE_GATE" ] && [ ! -L "$EVIDENCE_GATE" ]
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq 'bash scripts/agent-review-evidence-gate' "$REVIEW_WORKFLOW" \
+  || fail 'the workflow must run the evidence sufficiency gate before publishing'
+grep -Fq 'a canonical PASS requires the inspection to cover at least one changed path' "$EVIDENCE_GATE" \
+  || fail 'the gate must refuse a PASS whose evidence covers no changed path'
+
+EG="$TMP/evidence-gate"
+mkdir -p "$EG"
+printf '%s\n' 'a.txt' 'b.txt' >"$EG/changed.txt"
+
+evidence() { printf '%s\n' "$@" >"$EG/evidence.txt"; }
+verdict() { printf '{"code_review_verdict":"%s","findings":%s}\n' "$1" "$2" >"$EG/review.json"; }
+gate() {
+  EVIDENCE="$EG/evidence.txt" REVIEW_JSON="$EG/review.json" \
+    CHANGED_FILES="$EG/changed.txt" bash "$EVIDENCE_GATE"
+}
+
+# PASS with genuine coverage of a changed path is allowed.
+evidence 'INSPECTED PATHS' 'a.txt' 'be/src/x.ts' '' 'OBSERVATIONS' 'inspected'
+verdict PASS '[]'
+expect_ok gate
+# A verdict that is not PASS stays publishable; its findings are gated separately.
+evidence 'INSPECTED PATHS' 'a.txt' '' 'OBSERVATIONS' 'found a defect'
+verdict CHANGES_REQUIRED '[{"id":"F1"}]'
+expect_ok gate
+
+# The regression this gate exists for: insufficient evidence must not become PASS.
+evidence 'INSPECTED PATHS' 'docs/superpowers/README.md' '' 'OBSERVATIONS' 'read something'
+verdict PASS '[]'
+expect_fail gate
+evidence 'INSPECTED PATHS' '' 'OBSERVATIONS' 'I could not read the delta.'
+verdict PASS '[]'
+expect_fail gate
+# A report with no INSPECTED PATHS section at all is unusable evidence.
+evidence 'OBSERVATIONS' 'I could not read the delta.'
+verdict PASS '[]'
+expect_fail gate
+# An unrecognized verdict is an unknown state, never a clean review.
+evidence 'INSPECTED PATHS' 'a.txt' '' 'OBSERVATIONS' 'x'
+verdict LATER_APPROVED '[]'
+expect_fail gate
+pass 'insufficient or non-covering evidence cannot produce a canonical PASS'
+
+# The refusal must be explicit, so an operator can tell a gate refusal from a
+# provider failure instead of seeing a silent missing review.
+evidence 'OBSERVATIONS' 'no paths'
+verdict PASS '[]'
+GATE_MSG="$(EVIDENCE="$EG/evidence.txt" REVIEW_JSON="$EG/review.json" \
+  CHANGED_FILES="$EG/changed.txt" bash "$EVIDENCE_GATE" 2>&1)" || true
+printf '%s\n' "$GATE_MSG" | grep -q 'REVIEW UNAVAILABLE / FAILED'
+pass 'evidence refusal is reported as an explicit unavailable review'
+
+# A gate failure must not be silent in the workflow: the gate runs as its own
+# step so the job fails closed instead of publishing an unjustified verdict.
+grep -Fq 'Require evidence sufficient to justify the verdict' "$REVIEW_WORKFLOW" \
+  || fail 'the evidence sufficiency gate must be a named workflow step'
+pass 'workflow enforces evidence sufficiency as a named step'
+
+# ---------------------------------------------------------------------------
+# Canonical North Star discovery must follow the authority index.
+#
+# The index declares the canonical roadmap relative to its own directory, so a
+# repo-root existence test silently failed and a hardcoded filename took over.
+# The result was that discovery could never take effect and a changed canonical
+# declaration was ignored with no signal.
+# ---------------------------------------------------------------------------
+CTX="$TMP/context-northstar"
+mkdir -p "$CTX/scripts" "$CTX/docs/superpowers/plans" "$CTX/docs/superpowers/progress"
+cp "$ROOT/scripts/agent-track" "$ROOT/scripts/agent-review-context" "$CTX/scripts/"
+chmod +x "$CTX/scripts/agent-track" "$CTX/scripts/agent-review-context"
+printf '# Plan\n' >"$CTX/docs/superpowers/plans/track-plan.md"
+printf '# Old North Star\n' >"$CTX/docs/superpowers/plans/2001-01-01-old-roadmap.md"
+printf '# New North Star\n' >"$CTX/docs/superpowers/plans/2099-01-01-new-canonical-roadmap.md"
+declare_ctx() { printf '%s\n' "$@" >"$CTX/docs/superpowers/README.md"; }
+git -C "$CTX" init -q -b main
+git -C "$CTX" config user.email governance@example.test
+git -C "$CTX" config user.name Governance
+git -C "$CTX" add . >/dev/null && git -C "$CTX" commit -qm base
+CTX_BASE="$(git -C "$CTX" rev-parse HEAD)"
+git -C "$CTX" checkout -qb feat/ctx
+printf '# P\n<!-- agent-track: id=ctx; status=ACTIVE; branch=feat/ctx; integration=main; base=%s; plan=docs/superpowers/plans/track-plan.md -->\n## Current checkpoint\nc\n' \
+  "$CTX_BASE" >"$CTX/docs/superpowers/progress/track.md"
+# shellcheck disable=SC2016 # literal index declaration, not a shell expansion
+declare_ctx '# Index' '| Product | `plans/2001-01-01-old-roadmap.md` | **CANONICAL ROADMAP** |'
+git -C "$CTX" add . >/dev/null && git -C "$CTX" commit -qm ctx
+
+# A changed canonical declaration must be followed, not silently ignored.
+# shellcheck disable=SC2016 # literal index declaration, not a shell expansion
+declare_ctx '# Index' '| Product | `plans/2099-01-01-new-canonical-roadmap.md` | **CANONICAL ROADMAP** |'
+expect_ok bash -c "cd '$CTX' && TRACK=ctx scripts/agent-review-context out.md"
+grep -q '2099-01-01-new-canonical-roadmap.md' "$CTX/out.md"
+grep -q 'New North Star' "$CTX/out.md"
+pass 'North Star discovery follows the changed canonical index declaration'
+
+# An unresolvable authoritative reference must fail explicitly, never fall back.
+# shellcheck disable=SC2016 # literal index declaration, not a shell expansion
+declare_ctx '# Index' '| Product | `plans/2099-12-31-absent-roadmap.md` | **CANONICAL ROADMAP** |'
+expect_fail bash -c "cd '$CTX' && TRACK=ctx scripts/agent-review-context out.md"
+declare_ctx '# Index' 'no roadmap is declared here'
+expect_fail bash -c "cd '$CTX' && TRACK=ctx scripts/agent-review-context out.md"
+rm -f "$CTX/docs/superpowers/README.md"
+expect_fail bash -c "cd '$CTX' && TRACK=ctx scripts/agent-review-context out.md"
+# No hardcoded North Star filename may survive as a silent fallback.
+grep -Fq '2026-09-09-travel-content-agentic-planning-convergence-roadmap.md' "$ROOT/scripts/agent-review-context" \
+  && { echo 'hardcoded North Star filename must not survive discovery' >&2; exit 1; }
+pass 'an unresolvable canonical roadmap reference fails explicitly with no fallback'

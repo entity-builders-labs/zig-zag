@@ -419,11 +419,11 @@ jobs:
             echo "REVIEW UNAVAILABLE / FAILED: normalization output is not valid JSON" >&2
             exit 1
           fi
-          # A provider success with no visible body must not become a review.
-          if [ -z "$(tr -d '[:space:]' < "$RUNNER_TEMP/review.json")" ]; then
-            echo "REVIEW UNAVAILABLE / FAILED: normalization returned no visible content" >&2
-            exit 1
-          fi
+          # No separate whitespace guard is needed here. `review.json` is the
+          # output of `sed -n '/^{/,/^}/p'`, so it is either empty or begins with
+          # `{`; it can never hold whitespace-only content. The empty and
+          # invalid-JSON guards above are the real normalization emptiness
+          # checks, and an earlier whitespace guard on this file was dead code.
       - name: Verify finding paths exist in the reviewed checkout
         if: steps.existing.outputs.current != 'true'
         env:
@@ -445,6 +445,20 @@ jobs:
             echo "REVIEW UNAVAILABLE / FAILED: $missing finding path(s) are not present in the reviewed checkout" >&2
             exit 1
           fi
+      - name: Require evidence sufficient to justify the verdict
+        if: steps.existing.outputs.current != 'true'
+        env:
+          EVIDENCE: ${{ runner.temp }}/inspect-evidence.txt
+          REVIEW_JSON: ${{ runner.temp }}/review.json
+          CHANGED_FILES: ${{ runner.temp }}/changed-files.txt
+        run: |
+          set -euo pipefail
+          # A review verdict is a durable claim that the delta is correct. When
+          # the evidence cannot support that claim the pipeline must publish
+          # nothing rather than record a clean verdict it did not earn. This gate
+          # is the deterministic enforcement of that rule; the normalizer prompt
+          # states the same rule for the model, but wording is not enforcement.
+          bash scripts/agent-review-evidence-gate
       - name: Validate structured review output
         if: steps.existing.outputs.current != 'true'
         run: |

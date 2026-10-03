@@ -238,7 +238,7 @@ for block in "$run_blocks_dir"/*; do
     fail '15 an embedded run: block is not valid shell'
   fi
 done
-[ "$block_count" -ge 10 ] || fail "15 expected the review workflow blocks, found $block_count"
+[ "$block_count" -ge 10 ] || fail "expected the review workflow blocks, found $block_count"
 pass "all $block_count embedded run: blocks are valid shell"
 
 # --- case 17: range marker survives a POSIX shell, not just GNU sed ---------

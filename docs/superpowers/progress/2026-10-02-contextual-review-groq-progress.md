@@ -4,38 +4,53 @@
 
 ## Current execution verdict
 
-**Provider switched to OpenRouter under one bounded substitution. The minimal
-live probe passed all seven acceptance criteria; the full pipeline has still
-never completed a review. No review published.**
+**The pipeline completed a real end-to-end review and published it on PR #72 at
+the exact reviewed HEAD. Its five findings are now resolved. Pipeline
+acceptance and product-review quality remain two separate questions, and only
+the first is settled.**
 
-Seven implementation defects were found and fixed, two of them shipped by me and
-found by CI. Cloudflare is exhausted and is no longer the provider; the current
-provider is OpenRouter's explicitly free endpoint.
+The reviewer published a canonical `CHANGES REQUIRED` /
+`ARCHITECTURE_DRIFT_WARNING` review with `commit_id` equal to
+`4f2c87b52711274184849d55d1766b32bee431fe`, produced through inspection,
+normalization, finding-path verification, schema validation, and publication on
+the incremental range `scripts/agent-review-baseline` selected
+(`f6d8f6e4...`, `latest-commit-only`, 1 commit). It found three real defects in
+this track's own governance code, which is the first evidence that the reviewer
+reasons about real code rather than restating the diff.
 
-This track was bootstrapped manually from `origin/feat/preference-first-selection`
-at `1ceb477de44b3589cbc01b13eac9bf7aa22c98da`, following the existing
-`agent-track` header convention rather than introducing new governance. The
-`zig-zag-track-start` skill does not exist and was explicitly not created.
+That review does **not** yet demonstrate product-review quality against the
+Preference-First tour engine. Its own verification section states it read six
+changed files, executed no test, shellcheck, YAML, ajv, git, or provider call, and
+left the model-driven happy path unproven. A reviewer that has only inspected
+governance YAML has not yet been shown to understand the domain contracts.
 
-Scope is bounded to replacing the failed inference harness in
+Scope remains bounded to replacing the failed inference harness in
 `.github/workflows/zig-zag-contextual-review.yml`. The existing workflow
-contract, the review artifact contract, the JSON schema, and the canonical
-prompt authority are all preserved and unchanged.
+contract, the review artifact contract, and the JSON schema are preserved and
+unchanged. The artifact contract, the canonical prompt authority, and the
+canonical North Star remain the single authorities; no parallel registry was
+introduced.
 
-No production behavior is in scope. RW4 code is untouched.
+No production behavior is in scope. RW4 code is untouched. Neither PR #72 nor
+PR #71 is merged.
 
 ## Current checkpoint
 
-**OpenRouter probe passed. Acceptance awaits one CI run that publishes.**
+**Governance acceptance is met and its five findings are resolved. The open
+question is product-review quality, measured separately.**
 
 ### Provider decision: OpenRouter + Qwen3.8 27B Free
 
 Groq was rejected because OpenCode's intrinsic request size exceeds the free-tier
 input-token-per-minute limit. Cloudflare Workers AI connected and executed
 repository tools but exhausted a 10,000-neuron daily free allocation across the
-probe and three CI attempts. The human owner authorized exactly one bounded
-substitution to `openrouter/qwen/qwen3.8-27b:free`. No second substitution and no
-paid endpoint are authorized.
+probe and three CI attempts. The human owner authorized exactly one further
+bounded substitution to `openrouter/qwen/qwen3.8-27b:free`, which then published
+a real review. The substitution budget is now exhausted: no third substitution
+and no paid endpoint are authorized. This decision is recorded in the canonical
+plan, which previously still asserted a Cloudflare-only clause; the plan now
+carries an explicit SUPERSEDED provider decision rather than leaving plan
+authority to drift into progress prose.
 
 The `:free` suffix is now enforced, not merely configured. Both model-driven
 phases assert that `REVIEW_MODEL` ends in `:free` and fail closed otherwise, so a
@@ -75,17 +90,27 @@ What is established is behavioral, not mechanistic: the agent configured with
 actually depends on. The documented OpenRouter semantics — reasoning tokens
 counting against the same output budget as visible content — explain the earlier
 empty-response failure, and OpenCode sets no comparable output cap. The
-empty-visible-content guards added to both phases make the review fail closed
-regardless of whether reasoning control reaches the wire. This uncertainty is
+empty-visible-content guard added to the inspection phase makes the review fail
+closed regardless of whether reasoning control reaches the wire. This
+uncertainty is
 recorded rather than resolved; further investigation is not authorized and is not
 required for the review to run.
 
 ### Empty-response hardening
 
-A successful HTTP response with no visible body is not a review. Both phases now
-reject a whitespace-only response explicitly, in addition to the existing
-non-empty and valid-JSON checks, so reasoning that consumes the entire output
-budget cannot be normalized into an empty-but-valid review.
+A successful HTTP response with no visible body is not a review. The inspection
+phase rejects a whitespace-only response explicitly, in addition to the existing
+non-empty check, so reasoning that consumes the entire output budget cannot be
+normalized into an empty-but-valid review.
+
+The normalization phase does **not** carry a separate whitespace guard, and the
+earlier claim that it did was wrong. `review.json` is the output of
+`sed -n '/^{/,/^}/p'`, so it is either empty or begins with `{`; whitespace-only
+content is unreachable there. Its real emptiness guards are the no-JSON and
+invalid-JSON checks that immediately precede it. The dead guard was removed rather
+than relocated, and the governance assertion that counted "two" such guards was
+replaced with per-phase assertions, matching the convention already used for the
+provider-error diagnostics in the same spec.
 
 ### Deterministic checkout integrity
 
@@ -120,20 +145,25 @@ Preserved from the accepted bootstrap:
 Local verification actually executed for this checkpoint:
 
 ```text
-scripts/agent-review-baseline.spec.sh   19 fixtures PASS, exit 0
-scripts/agent-governance.spec.sh        59 assertions PASS, exit 0
-shellcheck (7 governance + review scripts)   clean
-ruby YAML parse, both workflows                valid
+scripts/agent-review-baseline.spec.sh   18 fixtures PASS, exit 0
+scripts/agent-governance.spec.sh        64 assertions PASS, exit 0
+shellcheck (5 governance + review scripts, 2 specs)   clean, exit 0
+ruby YAML parse, 8 workflows                valid, exit 0
 ajv draft2020, schema-conformant JSON         valid, exit 0
 ajv draft2020, schema-violating JSON         rejected, exit 1
 ```
+
+These counts are measured, not carried forward. An earlier revision of this block
+claimed 19 baseline fixtures and 59 governance assertions; neither matched the
+suite at any commit — the baseline spec has 18 fixture assertions, and the
+governance spec stood at 59 before this checkpoint added its five. The block was
+corrected here rather than left describing a checkpoint it did not cover.
 
 The canonical schema, artifact contract, and original prompt authority are
 unchanged; the two new phase prompts are additive and neither emits a verdict
 during inspection.
 
-No production behavior was touched. RW4 code is untouched. No review was
-published and no `CODE REVIEW: PASS` was synthesized.
+No production behavior was touched. RW4 code is untouched.
 
 **Provider evaluation history — Groq rejected, Cloudflare accepted.**
 
@@ -359,39 +389,75 @@ further provider substitution and no paid upgrade.
 
 ## Next authorized action
 
-**Run the one bounded CI acceptance execution for the OpenRouter provider and
-report the result, including a failure if that is what happens.**
+**Answer the product-review-quality question separately from pipeline
+acceptance, using one bounded historical calibration against the real
+Preference-First identity code.**
 
-The pipeline is committed and the credential is configured. Do not start a
-fix/retry cycle if it fails, and do not substitute another provider: report the
-failing stage and its sanitized error instead.
+Pipeline acceptance is met: the published review on PR #72 binds
+`commit_id` to the exact reviewed HEAD `4f2c87b5...` and reached publication
+through inspection, normalization, finding-path verification, schema validation,
+and publication on the incremental range `scripts/agent-review-baseline`
+selected.
 
-Acceptance criteria: a published review on PR #72 whose `commit_id` equals the
-exact reviewed HEAD, produced through inspection, normalization, path
-verification, schema validation, and publication on the incremental range
-`scripts/agent-review-baseline` selected.
+What is still unproven is whether the reviewer can reason about the actual
+Preference-First tour engine. Its only published review covered this track's own
+governance files. Calibrate once against the declared historical range
+`1842004715930ea2cc2f27aed0ff483d90888ec7..15af1ccb641122d633de4c5f1fd853d963ba0a18`
+(`fix(identity): stop NEARBY Wikidata deciding homonyms or contradictions`, plus
+its RW4 characterization evidence) in an isolated checkout that does not touch
+`feat/preference-first-selection`, its registered worktree, or PR #71.
 
-Do not add a second provider, do not wire an automatic fix/commit/push/merge
-loop, and do not merge PR #72.
+That calibration is explicitly **not** a canonical review of PR #71. It must be
+labeled as a historical product calibration, must not create a `CURRENT` marker,
+and must not be bound to a commit it did not review. Stop after the bounded
+tests and report both conclusions independently.
+
+Do not merge PR #72 or PR #71, do not implement `zig-zag-track-start`, do not
+wire an automatic fix/commit/push/merge loop, and do not substitute another
+provider.
 
 ## Open findings / blockers
 
+- **Pipeline acceptance is met; product-review quality is not.** The reviewer's
+  published review proves the artifact contract end to end: inspection,
+  normalization, finding-path verification, schema validation, and publication all
+  worked on real model output, and the review binds to the exact reviewed HEAD.
+  Its three findings were genuine defects in this track's own files. It does not
+  prove the reviewer can judge the Preference-First product architecture, which is
+  the remaining open question and the subject of the calibration below.
+- **Insufficient evidence could previously become a canonical PASS.** The
+  normalizer prompt instructed it to return `findings: []` plus `PASS` when the
+  evidence was "empty or unusable", and the published invariant already accepts
+  `PASS` with zero findings. A truncated or hallucinated inspection report could
+  therefore have become a clean, permanently recorded, canonical PASS that
+  asserted the delta was correct. This was fail-open, not merely weakly worded.
+  It is now enforced deterministically by `scripts/agent-review-evidence-gate`:
+  evidence with no usable `INSPECTED PATHS` record fails closed whatever the
+  verdict, and a `PASS` additionally requires that the inspected paths cover at
+  least one path the reviewed range actually changed. The prompt states the same
+  rule so the model does not waste a request that will be discarded. Regression
+  cases cover non-covering evidence, an empty record, a missing section, and an
+  unrecognized verdict. These tests are not vacuous: they caught a real ordering
+  bug in the first version of the gate, where an unknown verdict exited through
+  the non-`PASS` branch before it was validated.
+- **Canonical North Star discovery was silently dead.** `scripts/agent-review-context`
+  extracted the roadmap path the authority index declares, but tested it relative
+  to the repository root while the index declares it relative to
+  `docs/superpowers/`. The existence test could never succeed, so the hardcoded
+  filename was always used and a changed canonical declaration was ignored with no
+  signal. The index is still the single authority — no second North Star registry
+  was added. Discovery now resolves against the authority directory, prefers the
+  row the index labels canonical, and fails explicitly when the declaration is
+  unresolvable rather than falling back. A regression case changes the declared
+  canonical roadmap and asserts the new file is the one consulted.
 - **The Cloudflare quota wall is historical, not current.** Cloudflare was
   exhausted at 10,000 neurons/day (HTTP 429, code 4006) across the probe plus
   three CI attempts, and the provider has since been replaced by OpenRouter. One
   diagnostic lesson is retained: the workflow *hid* that reason, because OpenCode
   emits provider errors on stdout while the step only tailed stderr. Both model
   phases now surface the provider error object, and a governance assertion
-  enforces it. This matters for the pending run — a quota or auth failure on
-  OpenRouter will be visible rather than silent.
-- **The reviewer has never completed a single live review.** The probe proved
-  the provider accepts an oversized request and executes read tools, but not
-  this pipeline. Normalization into the canonical schema, finding-path
-  verification, ajv validation, and publication are all unexercised against real
-  model output. Fixture coverage proves the guards fire; it does not prove the
-  happy path works. A successful probe is not acceptance, and neither is a green
-  fixture suite.
-- **Live GitHub Actions execution has failed five times and is not yet proven.**
+  enforces it.
+- **Live GitHub Actions execution had failed five times before it succeeded.**
   Runs on `c3002986` and `56f16332` exited 2 on shell defects in the range and
   prepare steps; run 37095103080 attempt 1 failed closed on absent credentials,
   correctly; attempt 2 reached the reviewer and failed because OpenCode refuses
@@ -399,21 +465,23 @@ loop, and do not merge PR #72.
   provider allocation. The range logic behaved correctly every time:
   `COVERAGE=latest-commit-only`, `COMMIT_COUNT=1`, `CHANGED_FILE_COUNT=11`,
   `DOCS_ONLY=false`, with the coverage limitation stated rather than claiming
-  full history. Seven defects are fixed and pinned by fixtures. No review has
-  been published. Every phase after inspection is still unexercised in CI, so
-  the artifact contract remains unproven end to end.
-- **What the five failures did establish.** The deterministic half of the
+  full history. Seven defects are fixed and pinned by fixtures. The subsequent
+  run published a real review rather than failing closed.
+- **The five earlier failures still established the deterministic contract.** The
+  deterministic half of the
   pipeline is genuinely proven against real CI: HEAD resolution, trusted-repo
   checks, track identity, integration-target validation, incremental baseline
   selection, context assembly, provider-config gating, and the
   checkout-integrity and fail-closed guards. Five independent failure paths each
   produced `REVIEW UNAVAILABLE / FAILED`, zero reviews, and no synthesized
   `PASS`. That contract holds under real failure, not only under fixtures.
-- **What remains unproven is narrower than it looks.** Only the model-driven
-  middle: that inspection emits usable evidence, and that normalization,
-  finding-path verification, schema validation, and publication work on real
-  model output. Those phases have fixtures proving their *guards* fire on bad
-  input, which is not the same as proving they *pass* on good input.
+- **What remains unproven is now a single thing.** The model-driven middle
+  previously had fixtures proving its *guards* fire on bad input, which is not the
+  same as proving it *passes* on good input. The published review closes that
+  gap: real model output normalized into the canonical schema, passed
+  finding-path verification and ajv, and published. What is still unproven is
+  whether the reviewer's conclusions are *correct* on product code — which is an
+  independent question from whether the pipeline executed correctly.
 - **Repository secrets are now set.** `OPENROUTER_API_KEY` is configured as a
   scoped repository secret and its value has never been printed, committed, or
   written to a workflow artifact. The local probe read the key from a git-ignored

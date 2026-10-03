@@ -44,7 +44,9 @@ contract, and does not change any production behavior.
 - `zig-zag-track-start` (explicitly deferred until this manual bootstrap is
   validated).
 - Any automatic fix, commit, push, rebase, or merge loop.
-- Any paid model, paid overage, or additional model provider/framework.
+- Any paid model, paid overage, or additional model provider/framework, except
+  the two bounded free-tier substitutions recorded under "Provider decision"
+  below.
 
 ## Implementation constraints
 
@@ -122,6 +124,35 @@ integration — not `codex-action` and not another proxy.
 The substitution is bounded to exactly one provider and one model. No further
 provider-hopping is authorized, and no new reviewer architecture, track,
 worktree, or PR may be created for it.
+
+#### Second bounded substitution: Cloudflare Workers AI → OpenRouter
+
+**Status: SUPERSEDED provider decision.** This subsection supersedes the
+Cloudflare-only substitution clause above; that clause remains recorded as
+history. It does not authorize a general provider-hopping policy.
+
+Cloudflare Workers AI exhausted its 10,000-neuron daily free allocation across
+one local probe and three CI attempts (HTTP 429, code 4006). The human owner
+authorized exactly one further bounded substitution, to OpenRouter's explicitly
+free tier. This is the second and final substitution authorized on this track.
+
+- Provider: `openrouter` (OpenCode's documented native provider integration)
+- OpenCode model identifier: `openrouter/qwen/qwen3.8-27b:free`
+- Required environment: `OPENROUTER_API_KEY`
+- Advertised context: sufficient for the ~30k-token canonical context set that
+  Groq could not carry
+
+The same cost contract that constrained Cloudflare constrains OpenRouter, and it
+is enforced rather than documented: the `:free` suffix is asserted before each
+model-driven request, so a misconfigured identifier cannot silently bill the paid
+sibling `qwen/qwen3.8-27b`, which exists in the catalog as a distinct entry.
+
+No third substitution, no automatic fallback to any other provider, and no paid
+endpoint are authorized on this track. Reaching OpenRouter exhausted the
+provider-substitution budget; a further provider failure is a reported blocker
+for human direction, not a reason to hop again. Groq remains rejected on the free
+tier's input-token-per-minute ceiling, which OpenCode's intrinsic request size
+exceeds, and paid Groq billing remains refused.
 
 ### Required runtime isolation
 
@@ -222,7 +253,14 @@ Cover, without weakening the existing governance fixture suite:
 9. a failed/cancelled review followed by another push;
 10. the review covering exactly the declared incremental range;
 11. provider failure publishing no canonical review;
-12. review publication using the actual HEAD.
+12. review publication using the actual HEAD;
+13. insufficient inspection evidence failing closed instead of producing a
+    canonical `PASS` — including evidence with no usable `INSPECTED PATHS`
+    record, and evidence whose inspected paths cover none of the changed paths
+    in the reviewed range;
+14. canonical North Star discovery following a changed authority-index
+    declaration, and failing explicitly when the declared roadmap cannot be
+    resolved rather than falling back to a hardcoded path.
 
 ### Minimal provider probe
 
