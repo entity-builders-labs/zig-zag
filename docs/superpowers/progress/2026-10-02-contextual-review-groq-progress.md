@@ -4,10 +4,8 @@
 
 ## Current execution verdict
 
-**The pipeline completed a real end-to-end review and published it on PR #72 at
-the exact reviewed HEAD. Its five findings are now resolved. Pipeline
-acceptance and product-review quality remain two separate questions, and only
-the first is settled.**
+**Both questions are now answered, and they have different answers. Pipeline
+acceptance is met. Product-review quality is demonstrated but not flawless.**
 
 The reviewer published a canonical `CHANGES REQUIRED` /
 `ARCHITECTURE_DRIFT_WARNING` review with `commit_id` equal to
@@ -15,14 +13,21 @@ The reviewer published a canonical `CHANGES REQUIRED` /
 normalization, finding-path verification, schema validation, and publication on
 the incremental range `scripts/agent-review-baseline` selected
 (`f6d8f6e4...`, `latest-commit-only`, 1 commit). It found three real defects in
-this track's own governance code, which is the first evidence that the reviewer
-reasons about real code rather than restating the diff.
+this track's own governance code.
 
-That review does **not** yet demonstrate product-review quality against the
-Preference-First tour engine. Its own verification section states it read six
-changed files, executed no test, shellcheck, YAML, ajv, git, or provider call, and
-left the model-driven happy path unproven. A reviewer that has only inspected
-governance YAML has not yet been shown to understand the domain contracts.
+Product-review quality: a bounded historical calibration against the real
+Preference-First IdentityVerifier returned `CHANGES_REQUIRED` /
+`ARCHITECTURE_DRIFT_WARNING` with 3 findings over 20 observed read tool calls.
+I verified them independently: two held exactly, and the third was substantively
+correct but carried a **wrong line anchor** (the assertion is at live-spec line
+177, not 145–146). That is the honest shape of the result: the reviewer
+demonstrably reasons about product code and reaches sound conclusions, but its
+citations are not yet reliable enough to be treated as self-verifying.
+
+A second calibration on the Overture commit could not complete. The free-tier
+daily allowance for the pinned free model was exhausted and the attempt is
+recorded as `INCOMPLETE` with no verdict, which is itself correct fail-closed
+behavior under a real provider wall.
 
 Scope remains bounded to replacing the failed inference harness in
 `.github/workflows/zig-zag-contextual-review.yml`. The existing workflow
@@ -36,8 +41,8 @@ PR #71 is merged.
 
 ## Current checkpoint
 
-**Governance acceptance is met and its five findings are resolved. The open
-question is product-review quality, measured separately.**
+**Both acceptance questions are answered. The track's bounded work is complete
+and awaits a human decision; no further review execution is authorized.**
 
 ### Provider decision: OpenRouter + Qwen3.8 27B Free
 
@@ -387,44 +392,125 @@ I am stopping here rather than pushing again. Pushing would consume CI minutes
 to produce a fourth identical rate-limit failure, and the plan authorizes no
 further provider substitution and no paid upgrade.
 
+### Historical product calibration — IdentityVerifier (completed)
+
+The remaining question — can the reviewer reason about the real Preference-First
+tour engine, not just this track's governance YAML? — was answered by one
+bounded calibration over the declared historical range
+`1842004715930ea2cc2f27aed0ff483d90888ec7..15af1ccb641122d633de4c5f1fd853d963ba0a18`.
+The report is
+`docs/superpowers/reports/2026-10-03-historical-product-calibration-identityverifier/`.
+
+It is explicitly **not** a canonical review of PR #71. It carries no `CURRENT`
+marker, binds no PR, and is labeled a historical product calibration in its own
+title. Isolation was by `git archive` export rather than `git worktree add`,
+because registering another worktree would have altered `agent-track`
+discovery semantics for the Preference-First track. Post-run isolation was
+re-verified: the Preference-First head, its worktree, PR #71's empty review
+list, the worktree count, and PR #72's single review were all unchanged.
+
+Result: **`CHANGES_REQUIRED` / `ARCHITECTURE_DRIFT_WARNING`, 3 findings**, with
+20 observed read tool calls and the evidence gate satisfied.
+
+I verified the findings myself rather than accepting them, and two of three
+held while the third was partly wrong:
+
+- F1 confirmed at `identity-verifier.service.ts:91-107` and `:144-145`.
+- F2 confirmed: `run.sh` writes `db-after-probe.json` while the committed
+  artifacts are `.pre-fix/.post-fix.json`.
+- F3's substance is real but its **line anchor is wrong**. The assertion the
+  finding targets is at live-spec line **177**, not 145–146. The reviewer
+  reached the right conclusion with a bad citation, so its verdict stands while
+  the citation does not. Treat the anchor error as measured reviewer
+  imprecision, not a defect in the reviewed code.
+
+### Historical product calibration — Overture (incomplete)
+
+A second calibration on `f39101726f9abca012575cc47b2102d43b6c9c18` was attempted
+and is recorded as **INCOMPLETE with no verdict** in
+`docs/superpowers/reports/2026-10-03-historical-product-calibration-overture-incomplete/`.
+The transcript proves a real, bounded attempt — 21 read and 17 grep calls across
+16 paths, reading the changed files, the module, downstream consumers, the
+canonical engineering principles, and the live spec — before a
+`provider.internal` network loss and then a `free-models-per-day` 429 ended it.
+Zero `text` events were emitted, so no evidence existed to normalize. Deriving a
+verdict from that transcript would mean inventing one, and the harness correctly
+reported `INCOMPLETE` instead. The attempt was abandoned rather than retried
+with credits, because paid fallback and provider substitution are forbidden.
+
 ## Next authorized action
 
-**Answer the product-review-quality question separately from pipeline
-acceptance, using one bounded historical calibration against the real
-Preference-First identity code.**
+**Stop. Both acceptance questions are answered and no further review execution
+is authorized. The remaining step belongs to the human owner: decide the
+integration of PR #72.**
 
-Pipeline acceptance is met: the published review on PR #72 binds
-`commit_id` to the exact reviewed HEAD `4f2c87b5...` and reached publication
-through inspection, normalization, finding-path verification, schema validation,
-and publication on the incremental range `scripts/agent-review-baseline`
-selected.
+What is settled, as two independent conclusions:
 
-What is still unproven is whether the reviewer can reason about the actual
-Preference-First tour engine. Its only published review covered this track's own
-governance files. Calibrate once against the declared historical range
-`1842004715930ea2cc2f27aed0ff483d90888ec7..15af1ccb641122d633de4c5f1fd853d963ba0a18`
-(`fix(identity): stop NEARBY Wikidata deciding homonyms or contradictions`, plus
-its RW4 characterization evidence) in an isolated checkout that does not touch
-`feat/preference-first-selection`, its registered worktree, or PR #71.
+- **Pipeline acceptance: met.** The published review on PR #72 binds
+  `commit_id` to the exact reviewed HEAD `4f2c87b5...` and reached publication
+  through inspection, normalization, finding-path verification, schema
+  validation, and publication on the incremental range
+  `scripts/agent-review-baseline` selected.
+- **Product-review quality: demonstrated, with a measured limit.** The
+  IdentityVerifier calibration produced a sound verdict and 3 findings, 2 of
+  which I confirmed exactly and 1 of which is substantively right but cites the
+  wrong line. The reviewer reasons about product code; its line citations are
+  not yet dependable enough to skip human verification.
 
-That calibration is explicitly **not** a canonical review of PR #71. It must be
-labeled as a historical product calibration, must not create a `CURRENT` marker,
-and must not be bound to a commit it did not review. Stop after the bounded
-tests and report both conclusions independently.
+Three commits are prepared and local only; none is pushed. A human must decide
+whether to push, request review, or close. Nothing further should be pushed or
+merged by an agent without that decision.
 
-Do not merge PR #72 or PR #71, do not implement `zig-zag-track-start`, do not
-wire an automatic fix/commit/push/merge loop, and do not substitute another
-provider.
+Still unauthorized: do not merge PR #72 or PR #71, do not implement
+`zig-zag-track-start`, do not wire an automatic fix/commit/push/merge loop, do
+not substitute another provider, and do not retry the Overture calibration with
+paid credits.
 
 ## Open findings / blockers
 
-- **Pipeline acceptance is met; product-review quality is not.** The reviewer's
-  published review proves the artifact contract end to end: inspection,
-  normalization, finding-path verification, schema validation, and publication all
-  worked on real model output, and the review binds to the exact reviewed HEAD.
-  Its three findings were genuine defects in this track's own files. It does not
-  prove the reviewer can judge the Preference-First product architecture, which is
-  the remaining open question and the subject of the calibration below.
+- **Pipeline acceptance is met; product-review quality is demonstrated but
+  imperfect.** The reviewer's published review proves the artifact contract end
+  to end: inspection, normalization, finding-path verification, schema
+  validation, and publication all worked on real model output, and the review
+  binds to the exact reviewed HEAD. Its three findings were genuine defects in
+  this track's own files. The IdentityVerifier calibration then showed the
+  reviewer does judge real product architecture, with the citation caveat
+  recorded below.
+- **The reviewer cited the wrong line for one calibration finding.** The
+  IdentityVerifier calibration's F3 substance is correct — the assertion it
+  targets exists — but the anchor is wrong: the live assertion is at line **177**,
+  not 145–146. I confirmed this by reading the file rather than trusting the
+  report. Two of the three findings cited lines that were exact. Treat reviewer
+  line citations as a lead to verify, not as proof, and do not let a correct
+  verdict launder a wrong citation in a published canonical review.
+- **The reviewer cannot execute anything, so its test and CI claims are
+  author-reported.** The inspection agent is read-only: it runs no test, no
+  shellcheck, no YAML parse, no `ajv`, no `git`, and no provider call. Every
+  verification claim in a review — including the ones in this document when
+  written by the reviewer — is unverified. Deterministic gates remain the only
+  source of truth for whether code actually passes.
+- **The free OpenRouter tier is a real availability dependency of the canonical
+  pipeline, not a local inconvenience.** The second calibration died on
+  `free-models-per-day` after a transient `provider.internal` network loss. In
+  CI the same wall produces `REVIEW UNAVAILABLE / FAILED` with zero published
+  reviews, which is correct fail-closed behavior but means a review can be
+  unavailable purely on quota. This is the same class of wall as the earlier
+  Cloudflare 10,000-neuron stop, and it is now the pipeline's standing
+  operational risk. No paid fallback is authorized by the plan.
+- **Calibration cannot validate the canonical review schema, by
+  construction.** The schema requires `pr_number` and `base_branch`, which exist
+  only for a live pull request. The model substituted `baseline`/`range` keys,
+  which `additionalProperties: false` correctly rejects. In calibration this is
+  expected; against a live PR it means the pipeline would refuse to publish,
+  which is the correct outcome rather than a schema weakness.
+- **`scripts/agent-review-calibration --reuse` can record a false
+  `inspect_exit`.** Reusing a captured transcript forces `inspect_status=0`, so
+  a transcript from a failed run is recorded as a clean inspection even though
+  the original run exited 1. The empty-evidence branch still fails closed, so
+  this cannot manufacture a verdict, but the recorded exit code lies. Left
+  unfixed deliberately: it is latent, off the authorized path, and fixing it
+  needs a failing run to test against. Recorded here rather than silently
+  patched.
 - **Insufficient evidence could previously become a canonical PASS.** The
   normalizer prompt instructed it to return `findings: []` plus `PASS` when the
   evidence was "empty or unusable", and the published invariant already accepts
@@ -475,13 +561,14 @@ provider.
   checkout-integrity and fail-closed guards. Five independent failure paths each
   produced `REVIEW UNAVAILABLE / FAILED`, zero reviews, and no synthesized
   `PASS`. That contract holds under real failure, not only under fixtures.
-- **What remains unproven is now a single thing.** The model-driven middle
-  previously had fixtures proving its *guards* fire on bad input, which is not the
+- **The model-driven middle is no longer the open question.** It previously had
+  fixtures proving its *guards* fire on bad input, which is not the
   same as proving it *passes* on good input. The published review closes that
   gap: real model output normalized into the canonical schema, passed
-  finding-path verification and ajv, and published. What is still unproven is
-  whether the reviewer's conclusions are *correct* on product code — which is an
-  independent question from whether the pipeline executed correctly.
+  finding-path verification and ajv, and published. Whether the reviewer's
+  conclusions are *correct* on product code is an independent question from
+  whether the pipeline executed correctly; the IdentityVerifier calibration
+  answers it as "mostly yes, with imprecise citations".
 - **Repository secrets are now set.** `OPENROUTER_API_KEY` is configured as a
   scoped repository secret and its value has never been printed, committed, or
   written to a workflow artifact. The local probe read the key from a git-ignored
