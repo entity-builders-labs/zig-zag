@@ -2138,8 +2138,12 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   extractor emitted no locality assertion); Alfa Crux and SuperUco are
   INSUFFICIENT_EVIDENCE; Bodega Azul is INSUFFICIENT_EVIDENCE; A16 has no
   candidate. 0 rows persisted.
-- Intended RW1 change: El Zanjón and Farmacia la Estrella no longer verify
-  on shared-upstream OSM convergence alone.
+- No regression trading: an M1 rule broke RW1 El Zanjón and Farmacia la
+  Estrella. Their historical tests are restored verbatim from `15af1ccb`
+  and pass under a corrected generic rule. Shared-upstream convergence
+  confirms a record only while no name collision is known; it never
+  disambiguates one. Matrix: `contextual-identity-2026-10-03/regression-matrix.md`.
+  No live RW1, RW2 or RW3 COLD/WARM run was executed.
 
 ## Next authorized action
 
@@ -2182,10 +2186,14 @@ not start an autonomous reviewer/fixer loop.
 - RW4-ID-OVERTURE-SEL-1: CLOSED. Overture returns its whole exact-name
   pool. Selection uses the shared contextual policy plus nearest-to-window,
   and the selected member answers to the same scope admission.
-- RW4-ID-CONVERGENCE-OSM-1: CLOSED. Convergence carries its upstream
-  relation and decides only across independent upstreams. RW1 El Zanjón and
-  Farmacia la Estrella no longer verify on shared-upstream convergence
-  alone (amendment §5/§9 notes).
+- RW4-ID-CONVERGENCE-OSM-1: CLOSED. `CONVERGENCE_PROVENANCE` records the
+  upstream relation and any known name collision. Shared-upstream
+  convergence never decides a collision (resolver-level negative test), and
+  RW1 El Zanjón and Farmacia still verify under their original evidence.
+- RW4-ID-PLACES-LOCAL-SINGLE-1: OPEN, LOW. A Places pool restricted to the
+  destination circle verifies on EXACT_NAME/SINGLE even when another
+  provider saw homonyms elsewhere. This is pre-existing behavior; changing
+  it would alter accepted Places cases, so it needs a separate review.
 - RW4-ID-SOURCE-FACTS-1: PARTIALLY CLOSED. Locality, kind and link
   assertions are typed, grounded and audited. OPEN: the real extractor does
   not reliably emit the locality assertion. The Overture import still drops
@@ -2204,10 +2212,10 @@ not start an autonomous reviewer/fixer loop.
   still singles out a MULTIPLE same-name member by label-only matching
   (retained for RW1 San Telmo). It is a potential false positive for
   homonyms that each carry a QID. Not demonstrated.
-- RW4-INT-FLAKE-2: OPEN, LOW. One full `yarn test:integration` run on
-  2026-10-03 (M2 tree) failed `catalog-reuse › reuses the persisted catalog`;
-  the failure message was not captured. Three subsequent runs on the same
-  tree passed (113/113). Likely the same flake as PF-CI-FLAKE-1.
+- RW4-INT-FLAKE-2: MERGED into PF-CI-FLAKE-1. `catalog-reuse` failed COLD
+  planning with `MAX_WALKING_PER_DAY_EXCEEDED` in 1 of 6 runs on this tree.
+  The untouched baseline `15af1ccb` fails identically in 1 of 10 runs, so
+  this is a pre-existing planner flake, not an identity regression.
 - RW4-E2E-FLAKE-1: OPEN, LOW. One `yarn test:e2e` run on 2026-10-03 failed
   1 of 41 tests, and the failing test name was not captured. Six
   subsequent runs on the same tree passed 41/41.

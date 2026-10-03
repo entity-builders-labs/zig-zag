@@ -334,16 +334,11 @@ describe('tour-generation integration · verified hint memory', () => {
           getPlaceDetails: jest.fn().mockResolvedValue({
             data: {
               id: 'geo-farmacia-details',
-              // The pharmacy's own Wikidata item declares the hint spelling
-              // as an alias (OWN_QID): the structural path that verifies the
-              // non-exact hint. Nominatim and Geoapify reaching the same OSM
-              // node is one upstream record, not corroboration.
               sourceIdentities: [
                 {
                   provider: 'openstreetmap',
                   externalId: 'osm:node:3348573778',
                 },
-                { provider: 'wikidata', externalId: 'Q-farmacia' },
               ],
             },
             provenance: {
@@ -355,18 +350,7 @@ describe('tour-generation integration · verified hint memory', () => {
           }),
         },
         wikidata: {
-          getEntitySummaries: jest.fn().mockResolvedValue(
-            new Map([
-              [
-                'Q-farmacia',
-                {
-                  qid: 'Q-farmacia',
-                  label: 'Farmacia de la Estrella',
-                  aliases: ['Farmacia la Estrella'],
-                },
-              ],
-            ]),
-          ),
+          getEntitySummaries: jest.fn().mockResolvedValue(new Map()),
           findNearbyPlaces: jest.fn().mockResolvedValue([]),
         },
       };

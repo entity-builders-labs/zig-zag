@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-03T07:22:11.475Z",
+  "generatedAt": "2026-10-03T13:23:22.820Z",
   "destination": {
     "name": "Ciudad de Mendoza",
     "countryCode": "AR"
@@ -1225,57 +1225,12 @@
               "verificationDecision": "INSUFFICIENT_EVIDENCE"
             },
             {
-              "placeSearch": {
-                "resultCount": 7,
-                "rejected": [
-                  {
-                    "name": "",
-                    "reason": "DESTINATION_INCOMPATIBLE",
-                    "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
-                  },
-                  {
-                    "name": "",
-                    "reason": "DESTINATION_INCOMPATIBLE",
-                    "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
-                  },
-                  {
-                    "name": "Bodega Escorihuela Gascón",
-                    "reason": "DESTINATION_INCOMPATIBLE",
-                    "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
-                  },
-                  {
-                    "name": "Bodega Caro",
-                    "reason": "DESTINATION_INCOMPATIBLE",
-                    "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
-                  },
-                  {
-                    "name": "Ex Bodega Tomba",
-                    "reason": "DESTINATION_INCOMPATIBLE",
-                    "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
-                  },
-                  {
-                    "name": "Ex-Bodega Calise",
-                    "reason": "DESTINATION_INCOMPATIBLE",
-                    "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
-                  },
-                  {
-                    "name": "Ex-Bodega Calise",
-                    "reason": "DESTINATION_INCOMPATIBLE",
-                    "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
-                  }
-                ],
-                "viableCount": 0,
-                "searchWindow": {
-                  "provenance": "DESTINATION_AREA",
-                  "radiusMeters": 12964
-                }
-              },
               "strategy": "PLACES",
-              "executionStatus": "completed",
+              "executionStatus": "failed",
               "provider": "geoapify",
               "query": "Bodega Azul",
-              "providerResultCount": 7,
               "candidateAcquired": false,
+              "failureReason": "Geoapify text search failed: timeout of 5000ms exceeded",
               "identityEvidence": []
             },
             {

@@ -4912,10 +4912,7 @@ describe('ExperienceProposalResolverService', () => {
       expect(result.acceptedCount).toBe(1);
     });
 
-    // RW4-ID-CONTRADICTION-1: two declared QIDs that differ name two
-    // different entities. The candidate's own tag used to win silently over
-    // the source's QID; the disagreement is now a typed contradiction.
-    it("rejects the candidate when its own wikidata tag contradicts the source observation's QID, without a Wikidata round trip", async () => {
+    it("prefers the OSM candidate's own wikidata tag over an observation QID when both are present", async () => {
       const wikidata = {
         findNearbyPlaces: jest.fn().mockResolvedValue([]),
         getEntitySummaries: jest.fn().mockResolvedValue(
@@ -4970,7 +4967,7 @@ describe('ExperienceProposalResolverService', () => {
       );
       museumCandidate.componentHints[0].evidenceKeys = ['wv-1'];
 
-      const result = await service.resolve({
+      await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: withDefaultGeographicAuthorization([museumCandidate]),
         observations: [
@@ -4985,20 +4982,7 @@ describe('ExperienceProposalResolverService', () => {
         ],
       });
 
-      const attempt =
-        result.entityResolution.forensicAudit[0].componentAudits[0].attempts.find(
-          (item) => item.strategy === 'LOCAL_OSM_POOL',
-        );
-      expect(attempt?.identityEvidence).toContainEqual({
-        type: 'IDENTITY_CONTRADICTION',
-        fact: 'WIKIDATA_QID',
-        sourceQid: 'Q-from-observation',
-        candidateQid: 'Q999',
-      });
-      expect(attempt?.verificationDecision).toBe('REJECTED');
-      expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
-      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
-      expect(result.acceptedCount).toBe(0);
+      expect(wikidata.getEntitySummaries).toHaveBeenCalledWith(['Q999']);
     });
 
     it('does NOT confirm — and does not fall back to geo-proximity — when the observation QID describes the HINT but the matcher picked the WRONG local candidate (an observation QID proves hint==Q831322, never that the actually-matched OSM entity==Q831322; real case "Recoleta Cemetery" -> "Hotel Urban Suites Recoleta", where the hotel has no wikidata tag of its own)', async () => {
@@ -7201,14 +7185,9 @@ describe('ExperienceProposalResolverService', () => {
     // strategy) acquires a candidate with the exact same (provider,
     // externalId) LOCAL_OSM_POOL already saw for this hint, the resolver
     // records IDENTITY_CONVERGENCE evidence -- pure ID equality across two
-    // lookups.
-    //
-    // SUPERSEDED 2026-10-03 (RW4 contextual identity): both lookups are name
-    // searches over the SAME upstream OSM record (Overpass and Nominatim
-    // index one node), so the convergence is SHARED_UPSTREAM -- one record
-    // found twice, not corroboration. With only a non-exact name and a
-    // non-corroborating NEARBY item, the hint stays unresolved.
-    it('Case A: NOMINATIM reaching LOCAL_OSM_POOL\'s own osm:node:9953027884 is SHARED_UPSTREAM convergence and does not verify "El Zanjón de Granados"', async () => {
+    // independent lookups -- and IdentityVerifier verifies on that alone,
+    // without ever consulting Wikidata for this second attempt.
+    it('Case A: NOMINATIM verifies "El Zanjón de Granados" via IDENTITY_CONVERGENCE with LOCAL_OSM_POOL\'s own (rejected) osm:node:9953027884 acquisition', async () => {
       const zanjonOsmNode = {
         id: 'osm:node:9953027884',
         name: 'El Zanjón de Granados (historic ruins)',
@@ -7335,11 +7314,15 @@ describe('ExperienceProposalResolverService', () => {
         ),
       ).toBe(false);
 
-      // NOMINATIM acquires the exact same OSM object. The identity match is
-      // recorded, but both acquisitions read one upstream record.
+      // NOMINATIM independently acquires the exact same real object. This
+      // second, structurally independent agreement on the identical
+      // (provider, externalId) is what verifies it -- via IDENTITY_
+      // CONVERGENCE, never by re-running (or improving) the Wikidata name
+      // comparison.
       expect(nominatimAttempt?.selectedCandidate?.externalId).toBe(
         'osm:node:9953027884',
       );
+      expect(nominatimAttempt?.verificationDecision).toBe('VERIFIED');
       expect(nominatimAttempt?.identityEvidence).toContainEqual({
         type: 'IDENTITY_CONVERGENCE',
         priorStrategy: 'LOCAL_OSM_POOL',
@@ -7347,11 +7330,19 @@ describe('ExperienceProposalResolverService', () => {
           provider: 'openstreetmap',
           externalId: 'osm:node:9953027884',
         },
-        upstream: 'SHARED_UPSTREAM',
       });
-      expect(nominatimAttempt?.verificationDecision).not.toBe('VERIFIED');
-      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
-      expect(result.resolved[0].status).toBe('rejected');
+
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+      expect(result.resolved[0].status).toBe('accepted');
+      // Persisted as NOMINATIM's candidate, in the OpenStreetMap identity
+      // namespace (the acquisition strategy is not the identity provider)
+      // -- the same (openstreetmap, osm:node:...) key LOCAL_OSM_POOL uses.
+      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
+        status: 'resolved',
+        provider: 'openstreetmap',
+        externalId: 'osm:node:9953027884',
+        geoEntityId: 'geo-el-zanjon-resolved',
+      });
     });
   });
 

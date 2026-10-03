@@ -85,16 +85,6 @@ const FARMACIA = place(
   'point_of_interest',
 );
 
-// The pharmacy's own Wikidata item declares the hint's spelling as an
-// alias: a structural link (OWN_QID), the legitimate path that verifies
-// "Farmacia la Estrella" -> "Farmacia de la Estrella".
-const FARMACIA_QID_LABELS = {
-  'Q-farmacia': {
-    label: 'Farmacia de la Estrella',
-    aliases: ['Farmacia la Estrella'],
-  },
-};
-
 const placeCandidate = (hintName: string) => ({
   name: `${hintName} visit`,
   themes: ['history'],
@@ -507,7 +497,7 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
       address: { city: 'Buenos Aires', country: 'Argentina' },
     };
 
-    it('Nominatim osm:node:3348573778 + Geoapify Place Details osm:node:3348573778 is ONE OSM record found twice: SHARED_UPSTREAM convergence, never verified on its own', async () => {
+    it('Nominatim osm:node:3348573778 + Geoapify Place Details osm:node:3348573778 -> IDENTITY_CONVERGENCE -> RESOLVED -> one PLACE GeoEntity with both identities', async () => {
       const { service, catalog, placesApi } = build({
         nominatimResults: [NOMINATIM_FARMACIA],
         searchResults: [FARMACIA],
@@ -541,8 +531,6 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
         { provider: 'geoapify', externalId: 'geoapify:geo-farmacia-search' },
         { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
       ]);
-      // Both acquisitions are name searches over the same OSM record: the
-      // identity match is recorded, but it corroborates nothing.
       expect(attempt.identityEvidence).toContainEqual({
         type: 'IDENTITY_CONVERGENCE',
         priorStrategy: 'NOMINATIM',
@@ -550,13 +538,30 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
           provider: 'openstreetmap',
           externalId: 'osm:node:3348573778',
         },
-        upstream: 'SHARED_UPSTREAM',
       });
-      expect(attempt.verificationDecision).not.toBe('VERIFIED');
+      expect(attempt.verificationDecision).toBe('VERIFIED');
+
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
-      expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();
-      expect(audit.finalStatus).toBe('unresolved');
-      expect(result.resolved[0].status).toBe('rejected');
+      expect(catalog.upsertGeoEntityWithIdentities).toHaveBeenCalledTimes(1);
+      expect(catalog.upsertGeoEntityWithIdentities).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Farmacia de la Estrella',
+          kind: GeoEntityKind.PLACE,
+          identities: [
+            {
+              provider: 'geoapify',
+              externalId: 'geoapify:geo-farmacia-search',
+            },
+            { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
+          ],
+        }),
+      );
+      expect(audit.finalStatus).toBe('resolved');
+      expect(audit.resolvedGeoEntity).toMatchObject({
+        geoEntityId: 'geo-place',
+        persistence: { status: 'CREATED' },
+      });
+      expect(result.resolved[0].status).toBe('accepted');
     });
 
     it('a different OSM object from each strategy is NOT convergence (identity, not name)', async () => {
@@ -611,11 +616,9 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
           'geo-farmacia-search': {
             sourceIdentities: [
               { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
-              { provider: 'wikidata', externalId: 'Q-farmacia' },
             ],
           },
         },
-        wikidataLabels: FARMACIA_QID_LABELS,
         upsertWithIdentitiesResult: {
           status: 'IDENTITY_CONFLICT',
           conflictingGeoEntityIds: ['geo-a', 'geo-b'],
@@ -726,7 +729,7 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
   });
 
   describe('trusted-observation reuse keeps declared cross-identities', () => {
-    it('a Geoapify observation whose details declare the OSM node and a later Nominatim acquisition of that node share one upstream: recorded, never verified on that alone', async () => {
+    it('a Geoapify observation whose details declare the OSM node converges with a later Nominatim acquisition of that node', async () => {
       const { service, placesApi, catalog } = build({
         details: {
           'obs-farmacia': {
@@ -800,11 +803,15 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
           provider: 'openstreetmap',
           externalId: 'osm:node:3348573778',
         },
-        upstream: 'SHARED_UPSTREAM',
       });
-      expect(nominatimAttempt.verificationDecision).not.toBe('VERIFIED');
-      expect(placesApi.searchText).toHaveBeenCalled();
-      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(nominatimAttempt.verificationDecision).toBe('VERIFIED');
+      expect(placesApi.searchText).not.toHaveBeenCalled();
+      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+        expect.objectContaining({
+          provider: 'openstreetmap',
+          externalId: 'osm:node:3348573778',
+        }),
+      );
     });
   });
 
@@ -910,11 +917,9 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
             id: 'geo-farmacia-details',
             sourceIdentities: [
               { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
-              { provider: 'wikidata', externalId: 'Q-farmacia' },
             ],
           },
         },
-        wikidataLabels: FARMACIA_QID_LABELS,
         ...extra,
       });
     const catalogRow = (
@@ -999,18 +1004,7 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
     });
 
     it('does not remember a REJECTED candidate (PLACES alone, no convergence -- Farmacia without Nominatim)', async () => {
-      const { service, catalog } = farmaciaCold({
-        nominatimResults: [],
-        // No own QID: nothing beyond the non-exact name remains.
-        details: {
-          'geo-farmacia-search': {
-            id: 'geo-farmacia-details',
-            sourceIdentities: [
-              { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
-            ],
-          },
-        },
-      });
+      const { service, catalog } = farmaciaCold({ nominatimResults: [] });
 
       const result = await resolveHint(service, 'Farmacia la Estrella');
 

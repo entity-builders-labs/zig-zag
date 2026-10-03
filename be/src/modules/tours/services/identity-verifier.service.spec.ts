@@ -31,42 +31,49 @@ const attempt = (
 
 describe('IdentityVerifier', () => {
   /**
-   * ID-based identity evidence, not string matching, is decisive only when
-   * the two acquisitions read INDEPENDENT upstream datasets. The real spike
-   * case "El Zanjón de Granados" (LOCAL_OSM_POOL and NOMINATIM both
-   * reaching osm:node:9953027884) is one OSM record found twice by name:
-   * it is not corroboration and leaves the decision to the other evidence.
+   * ID-based identity evidence, not string matching: a different,
+   * structurally independent acquisition strategy already returned this
+   * exact same (provider, externalId) for this hint (real spike case: "El
+   * Zanjón de Granados" -- LOCAL_OSM_POOL and NOMINATIM both independently
+   * acquired osm:node:9953027884). Verified regardless of any name-based
+   * evidence, and even when Wikidata itself would separately reject the
+   * candidate on a string basis.
    */
-  const convergence = (
-    upstream:
-      | 'SHARED_UPSTREAM'
-      | 'INDEPENDENT_UPSTREAMS'
-      | 'UNDETERMINED_UPSTREAM',
-  ) => ({
-    type: 'IDENTITY_CONVERGENCE' as const,
-    priorStrategy: 'LOCAL_OSM_POOL' as const,
-    identity: {
-      provider: 'openstreetmap',
-      externalId: 'osm:node:9953027884',
-    },
-    upstream,
-  });
+  it('verifies immediately on IDENTITY_CONVERGENCE, with no other evidence needed', async () => {
+    const verifier = new IdentityVerifier();
 
-  it('verifies on IDENTITY_CONVERGENCE across independent upstreams, with no other evidence needed', () => {
-    expect(
-      new IdentityVerifier().verify(
+    await expect(
+      verifier.verify(
         { name: 'El Zanjón de Granados' },
-        attempt([convergence('INDEPENDENT_UPSTREAMS')]),
+        attempt([
+          {
+            type: 'IDENTITY_CONVERGENCE',
+            priorStrategy: 'LOCAL_OSM_POOL',
+            identity: {
+              provider: 'openstreetmap',
+              externalId: 'osm:node:9953027884',
+            },
+          },
+        ]),
       ),
     ).toEqual({ status: 'VERIFIED' });
   });
 
-  it('independent-upstream convergence overrides an otherwise-rejecting WIKIDATA_IDENTITY_MATCH', () => {
-    expect(
-      new IdentityVerifier().verify(
+  it('IDENTITY_CONVERGENCE overrides an otherwise-rejecting WIKIDATA_IDENTITY_MATCH', async () => {
+    const verifier = new IdentityVerifier();
+
+    await expect(
+      verifier.verify(
         { name: 'El Zanjón de Granados' },
         attempt([
-          convergence('INDEPENDENT_UPSTREAMS'),
+          {
+            type: 'IDENTITY_CONVERGENCE',
+            priorStrategy: 'LOCAL_OSM_POOL',
+            identity: {
+              provider: 'openstreetmap',
+              externalId: 'osm:node:9953027884',
+            },
+          },
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'NEARBY',
@@ -77,31 +84,6 @@ describe('IdentityVerifier', () => {
       ),
     ).toEqual({ status: 'VERIFIED' });
   });
-
-  it.each(['SHARED_UPSTREAM', 'UNDETERMINED_UPSTREAM'] as const)(
-    '%s convergence (one record found twice, e.g. Nominatim + Geoapify on one OSM node) is not corroboration',
-    (upstream) => {
-      const verifier = new IdentityVerifier();
-      expect(
-        verifier.verify(
-          { name: 'Ojo de Agua' },
-          attempt([convergence(upstream)]),
-        ),
-      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
-      expect(
-        verifier.verify(
-          { name: 'Ojo de Agua' },
-          attempt(
-            [
-              convergence(upstream),
-              { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
-            ],
-            'MULTIPLE',
-          ),
-        ),
-      ).toEqual({ status: 'AMBIGUOUS' });
-    },
-  );
 
   it('rejects a candidate that only shares half of an observation QID identity', async () => {
     const verifier = new IdentityVerifier();
@@ -845,7 +827,6 @@ describe('IdentityVerifier', () => {
             type: 'IDENTITY_CONVERGENCE',
             priorStrategy: 'NOMINATIM',
             identity: { provider: 'openstreetmap', externalId: 'osm:node:1' },
-            upstream: 'INDEPENDENT_UPSTREAMS',
           },
         ],
       ],
@@ -1022,6 +1003,111 @@ describe('IdentityVerifier', () => {
           ),
         ),
       ).toEqual({ status: 'AMBIGUOUS' });
+    });
+  });
+
+  /**
+   * Convergence provenance (2026-10-03). Two strategies reaching one strong
+   * identity confirm that record; over a shared upstream (one OSM node
+   * found by Overpass, Nominatim and Geoapify) that is never enough to
+   * single out a member of a KNOWN name collision.
+   */
+  describe('convergence provenance', () => {
+    const verifier = new IdentityVerifier();
+    const identity = {
+      provider: 'openstreetmap',
+      externalId: 'osm:node:4797394430',
+    };
+    const convergence = {
+      type: 'IDENTITY_CONVERGENCE' as const,
+      priorStrategy: 'NOMINATIM' as const,
+      identity,
+    };
+    const provenance = (
+      upstream:
+        | 'SHARED_UPSTREAM'
+        | 'INDEPENDENT_UPSTREAMS'
+        | 'UNDETERMINED_UPSTREAM',
+      nameCollision: boolean,
+    ) => ({
+      type: 'CONVERGENCE_PROVENANCE' as const,
+      identity,
+      upstream,
+      nameCollision,
+    });
+
+    it.each(['SHARED_UPSTREAM', 'UNDETERMINED_UPSTREAM'] as const)(
+      '%s convergence with no known collision confirms the record (RW1 El Zanjón / Farmacia shape)',
+      (upstream) => {
+        expect(
+          verifier.verify(
+            { name: 'Ojo de Agua' },
+            attempt([convergence, provenance(upstream, false)]),
+          ),
+        ).toEqual({ status: 'VERIFIED' });
+      },
+    );
+
+    it.each(['SHARED_UPSTREAM', 'UNDETERMINED_UPSTREAM'] as const)(
+      '%s convergence never decides a known collision (Nominatim + Geoapify on one Ojo de Agua homonym)',
+      (upstream) => {
+        expect(
+          verifier.verify(
+            { name: 'Ojo de Agua' },
+            attempt(
+              [
+                convergence,
+                provenance(upstream, true),
+                { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+              ],
+              'MULTIPLE',
+            ),
+          ),
+        ).toEqual({ status: 'AMBIGUOUS' });
+      },
+    );
+
+    it('a collision seen only by the OTHER converging acquisition still blocks a shared-upstream decision', () => {
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt([convergence, provenance('SHARED_UPSTREAM', true)]),
+        ),
+      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+    });
+
+    it('independent upstreams agreeing on one identity decide even a collision', () => {
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt(
+            [
+              convergence,
+              provenance('INDEPENDENT_UPSTREAMS', true),
+              { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+            ],
+            'MULTIPLE',
+          ),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
+
+    it('a contradiction still outranks any convergence', () => {
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt([
+            convergence,
+            provenance('INDEPENDENT_UPSTREAMS', false),
+            {
+              type: 'IDENTITY_CONTRADICTION',
+              fact: 'LOCALITY',
+              assertedLocality: 'Lujan de Cuyo',
+              boundaryId: 'osm:relation:1',
+            },
+          ]),
+        ),
+      ).toEqual({ status: 'REJECTED' });
     });
   });
 });

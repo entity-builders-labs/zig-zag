@@ -12,8 +12,10 @@ import {
  *  1. Explicit contradiction (source vs candidate QID, locality or
  *     physical kind) -> REJECTED. Nothing positive outweighs it.
  *  2. Structural identity: a single route cluster, catalog route variant
- *     or verified hint memory (each with its own multiplicity), or the
- *     same identity reached through INDEPENDENT upstreams.
+ *     or verified hint memory (each with its own multiplicity), or one
+ *     strong identity reached by two strategies -- across independent
+ *     upstreams always, over one shared upstream only while no name
+ *     collision is known.
  *  3. Contextual correspondence: the source's component-specific locality
  *     (and kind) singles out exactly one member of a fully examined pool
  *     -> VERIFIED without country-wide name uniqueness; two consistent
@@ -21,8 +23,6 @@ import {
  *  4. Name, address and alias evidence with its own multiplicity.
  *  5. Wikidata corroboration (NEARBY never decides a name collision).
  *  6. Missing evidence -> INSUFFICIENT_EVIDENCE / AMBIGUOUS.
- * Two acquisitions repeating one upstream record (Nominatim and Geoapify
- * on one OSM node) are one fact, not convergence.
  */
 export class IdentityVerifier {
   verify(
@@ -41,14 +41,26 @@ export class IdentityVerifier {
       return { status: 'REJECTED' };
     }
 
-    // 0. IDENTITY_CONVERGENCE -> VERIFIED only across INDEPENDENT
-    // upstreams: two acquisitions over different datasets landing on the
-    // same strong identity. Two indexes of one upstream record (Nominatim
-    // and Geoapify on one OSM node, both chosen by name and proximity) are
-    // one fact and fall through to the remaining evidence.
+    // 0. IDENTITY_CONVERGENCE: two acquisition strategies reached the same
+    // strong identity (pure ID equality). Across INDEPENDENT upstreams it
+    // verifies outright. Over a shared or undetermined upstream (Overpass,
+    // Nominatim and Geoapify indexing one OSM node) it confirms the record
+    // only while no name collision is known: two name searches agreeing on
+    // one record can never decide WHICH member of a real collision the
+    // source meant (same reasoning as the NEARBY rule below). Then it falls
+    // through to the remaining evidence.
     const convergence = this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE');
-    if (convergence?.upstream === 'INDEPENDENT_UPSTREAMS') {
-      return { status: 'VERIFIED' };
+    if (convergence) {
+      const provenance = this.evidenceOf(evidence, 'CONVERGENCE_PROVENANCE');
+      const collisionKnown =
+        provenance?.nameCollision === true ||
+        exactName?.identityMultiplicity === 'MULTIPLE' ||
+        alias?.identityMultiplicity === 'MULTIPLE' ||
+        this.evidenceOf(evidence, 'CONTEXTUAL_CORRESPONDENCE')?.outcome ===
+          'AMBIGUOUS';
+      if (provenance?.upstream === 'INDEPENDENT_UPSTREAMS' || !collisionKnown) {
+        return { status: 'VERIFIED' };
+      }
     }
 
     // 0b. STRUCTURED_ROUTE_RESOLUTION -> VERIFIED only for exactly one

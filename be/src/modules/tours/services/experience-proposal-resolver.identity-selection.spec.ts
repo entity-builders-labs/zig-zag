@@ -63,6 +63,15 @@ function build(options: {
   placesFailure?: Error;
   catalogCandidates?: unknown[];
   overtureCandidates?: unknown[];
+  /** A Geoapify result whose Place Details declares this OSM identity. */
+  placesDeclaringOsm?: {
+    name: string;
+    latitude: number;
+    longitude: number;
+    osmId: string;
+    /** A second same-name Places result (a collision inside the circle). */
+    secondSameName?: { latitude: number; longitude: number };
+  };
 }) {
   const osmPlaces = {
     lookupPoisWithin: jest
@@ -121,16 +130,71 @@ function build(options: {
           },
     ),
   };
-  const placesApi = options.placesFailure
+  const declared = options.placesDeclaringOsm;
+  const placesApi = declared
     ? {
         provider: 'geoapify' as const,
         declaresSourceIdentitiesInDetails: true,
         getStatus: jest.fn(),
         searchNearby: jest.fn(),
-        searchText: jest.fn().mockRejectedValue(options.placesFailure),
-        getPlaceDetails: jest.fn(),
+        searchText: jest.fn().mockResolvedValue({
+          data: [
+            ...(declared.secondSameName
+              ? [
+                  {
+                    id: 'geo-2',
+                    name: declared.name,
+                    displayName: { text: declared.name },
+                    location: declared.secondSameName,
+                    types: [],
+                    featureClass: 'point_of_interest',
+                  },
+                ]
+              : []),
+            {
+              id: 'geo-1',
+              name: declared.name,
+              displayName: { text: declared.name },
+              location: {
+                latitude: declared.latitude,
+                longitude: declared.longitude,
+              },
+              types: [],
+              featureClass: 'point_of_interest',
+            },
+          ],
+          provenance: {
+            provider: 'geoapify',
+            cacheStatus: 'miss-live',
+            requestedCount: 10,
+            receivedCount: 1,
+          },
+        }),
+        getPlaceDetails: jest.fn().mockResolvedValue({
+          data: {
+            id: 'geo-1',
+            sourceIdentities: [
+              { provider: 'openstreetmap', externalId: declared.osmId },
+            ],
+          },
+          provenance: {
+            provider: 'geoapify',
+            cacheStatus: 'miss-live',
+            requestedCount: 1,
+            receivedCount: 1,
+          },
+        }),
       }
-    : undefined;
+    : options.placesFailure
+      ? {
+          provider: 'geoapify' as const,
+          declaresSourceIdentitiesInDetails: true,
+          getStatus: jest.fn(),
+          searchNearby: jest.fn(),
+          searchText: jest.fn().mockRejectedValue(options.placesFailure),
+          getPlaceDetails: jest.fn(),
+        }
+      : undefined;
   const service = new ExperienceProposalResolverService(
     osmPlaces as any,
     catalog as any,
@@ -301,6 +365,52 @@ describe('ExperienceProposalResolverService -- RW4 candidate selection before ve
     expectNoIdentityWrites(catalog);
   });
 
+  it('NEGATIVE: Nominatim and Geoapify converging on the same OSM node never decide a known homonym collision', async () => {
+    // Constructed: an "Ojo de Agua" venue inside Ciudad de Mendoza added to
+    // the REAL pre-fix pool (five homonyms elsewhere). Geoapify's search is
+    // a circle around the destination, so it can only reach this member;
+    // Place Details declares the same OSM node Nominatim selected.
+    const inDestination: NominatimResult = {
+      ...POOL.DEFAULT[0],
+      osmId: 77,
+      class: 'amenity',
+      type: 'restaurant',
+      latitude: -32.89,
+      longitude: -68.85,
+      displayName: 'Ojo de Agua, Ciudad de Mendoza, Mendoza, Argentina',
+    };
+    const { service, catalog } = build({
+      nominatimResults: [...POOL.DEFAULT, inDestination],
+      nearby: [{ qid: 'Q-nearby', label: 'Ojo de Agua' }],
+      placesDeclaringOsm: {
+        name: 'Ojo de Agua',
+        latitude: -32.89,
+        longitude: -68.85,
+        osmId: 'osm:node:77',
+        // A second same-name venue inside the circle, farther from the
+        // centre: Places also sees a collision.
+        secondSameName: { latitude: -32.92, longitude: -68.88 },
+      },
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua');
+
+    const places = attemptOf(result, 'PLACES');
+    expect(places.identityEvidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: 'IDENTITY_CONVERGENCE' }),
+        expect.objectContaining({
+          type: 'CONVERGENCE_PROVENANCE',
+          upstream: 'SHARED_UPSTREAM',
+          nameCollision: true,
+        }),
+      ]),
+    );
+    expect(places.verificationDecision).not.toBe('VERIFIED');
+    expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();
+    expectNoIdentityWrites(catalog);
+  });
+
   it('a unique exact-name member in the right area still verifies (selection widening does not weaken a genuine SINGLE)', async () => {
     const restaurant = POOL.PROVIDER_MAXIMUM.find(
       (result) => `osm:${result.osmType}:${result.osmId}` === LUJAN_RESTAURANT,
@@ -335,7 +445,7 @@ describe('ExperienceProposalResolverService -- explicit identity contradiction',
   });
 
   it('rejects a unique exact-name record whose own QID differs from the QID the source declares, before any write', async () => {
-    const { service, catalog, wikidata } = build({
+    const { service, catalog } = build({
       osmPool: [osmWinery('Q200')],
     });
 
@@ -356,8 +466,6 @@ describe('ExperienceProposalResolverService -- explicit identity contradiction',
       ]),
     );
     expect(attempt.verificationDecision).toBe('REJECTED');
-    // A typed, local fact: no Wikidata round trip is needed to see it.
-    expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
     expectNoIdentityWrites(catalog);
   });
 

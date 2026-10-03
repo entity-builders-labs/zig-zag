@@ -200,8 +200,21 @@ export { selectBestPlaceCandidate } from '../utils/places-candidate-selector.uti
  */
 type SeenIdentities = Map<
   string,
-  { strategy: ResolutionStrategy; upstreamDatasets?: readonly string[] }
+  {
+    strategy: ResolutionStrategy;
+    upstreamDatasets?: readonly string[];
+    nameCollision: boolean;
+  }
 >;
+
+/** A known name collision in the pool this candidate was acquired from. */
+function hasKnownNameCollision(candidate: EntityCandidate): boolean {
+  return (
+    candidate.nameEvidenceMultiplicity.exactName === 'MULTIPLE' ||
+    candidate.nameEvidenceMultiplicity.declaredAlias === 'MULTIPLE' ||
+    candidate.contextualPool?.outcome === 'AMBIGUOUS'
+  );
+}
 
 type StrategyAcquisitionResult =
   | { status: 'not_applicable' }
@@ -1880,15 +1893,23 @@ export class ExperienceProposalResolverService
       for (const identity of identities) {
         const prior = seenIdentities.get(strongIdentityKey(identity));
         if (prior && prior.strategy !== strategy) {
-          evidence.push({
-            type: 'IDENTITY_CONVERGENCE',
-            priorStrategy: prior.strategy,
-            identity,
-            upstream: upstreamRelation(
-              prior.upstreamDatasets,
-              entity.upstreamDatasets,
-            ),
-          });
+          evidence.push(
+            {
+              type: 'IDENTITY_CONVERGENCE',
+              priorStrategy: prior.strategy,
+              identity,
+            },
+            {
+              type: 'CONVERGENCE_PROVENANCE',
+              identity,
+              upstream: upstreamRelation(
+                prior.upstreamDatasets,
+                entity.upstreamDatasets,
+              ),
+              nameCollision:
+                prior.nameCollision || hasKnownNameCollision(entity),
+            },
+          );
           break;
         }
       }
@@ -1898,6 +1919,7 @@ export class ExperienceProposalResolverService
           seenIdentities.set(key, {
             strategy,
             upstreamDatasets: entity.upstreamDatasets,
+            nameCollision: hasKnownNameCollision(entity),
           });
         }
       }
@@ -1908,12 +1930,7 @@ export class ExperienceProposalResolverService
       evidence,
     };
     const directDecision = this.identityVerifier.verify(hint, attempt);
-    // Local evidence is already terminal: VERIFIED, or REJECTED by an
-    // explicit contradiction no corroboration can outweigh.
-    if (
-      directDecision.status === 'VERIFIED' ||
-      directDecision.status === 'REJECTED'
-    ) {
+    if (directDecision.status === 'VERIFIED') {
       return { decision: directDecision, evidence: [...attempt.evidence] };
     }
     attempt.evidence.push(

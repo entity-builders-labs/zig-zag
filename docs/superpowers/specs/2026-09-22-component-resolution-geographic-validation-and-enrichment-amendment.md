@@ -231,11 +231,10 @@ A provider divergence may mean:
 
 Only the last case is contradictory evidence.
 
-> **Amended 2026-10-03 (§19).** Convergence stays recorded evidence, but it
-> decides identity only across independent upstream datasets. Two
-> acquisitions that index the same upstream record (Overpass, Nominatim and
-> an OSM-backed Places result on one OSM node) are one fact, not
-> corroboration.
+> **Amended 2026-10-03 (§19).** Convergence on one strong identity stays
+> decisive only while no name collision is known. Over a shared upstream
+> (Overpass, Nominatim and an OSM-backed Places result on one OSM node) it
+> confirms the record but never disambiguates a same-name collision.
 
 ### 5.1 Correlation groups observations; IdentityVerifier decides identity
 
@@ -419,14 +418,6 @@ source-backed component
 
 If providers produce genuinely incompatible candidate clusters, the result is
 AMBIGUOUS / NEEDS_RESEARCH, never silent majority voting.
-
-> **Amended 2026-10-03 (§19).** The 2026-09-24 implementation verified El
-> Zanjón on shared-upstream convergence alone, which is weaker than the
-> evidence listed above requires. Under §19 its convergence is
-> `SHARED_UPSTREAM`. With a non-exact name and only a NEARBY item that
-> matches the hint and not the candidate, it stays unresolved until a
-> discriminating fact reaches the verifier, such as a component-specific
-> locality or address, or a structural QID.
 
 ### Plaza de Mayo — design scenario, not the observed RW1 geo failure
 
@@ -1072,10 +1063,17 @@ order has no score and no threshold:
    lunch". No positive rule outweighs a contradiction.
 2. **Structural identity.** This covers a single route cluster, a catalog
    route variant or verified hint memory (each with its own multiplicity),
-   and convergence on one strong identity across *independent* upstream
-   datasets. Convergence is `SHARED_UPSTREAM` when both records derive from
-   one dataset. It is `UNDETERMINED_UPSTREAM` when either side's upstream is
-   unknown. Neither of those decides.
+   and two strategies reaching one strong identity (`IDENTITY_CONVERGENCE`,
+   with its own `CONVERGENCE_PROVENANCE` fact).
+   - Convergence across *independent* upstream datasets verifies.
+   - Over a shared or undetermined upstream it verifies only while neither
+     converging acquisition saw a name collision (MULTIPLE exact-name or
+     declared-alias members, or an AMBIGUOUS context).
+   - Two name searches agreeing on one record confirm that record; they
+     cannot decide which homonym the source meant.
+   - This keeps the accepted RW1 resolutions (El Zanjón, Farmacia la
+     Estrella) and blocks convergence inside a known collision (the Ojo de
+     Agua class).
 3. **Contextual correspondence.** A same-name pool is evaluated against the
    component's grounded locality, and against its stated kind when the
    source states one. `DISTINGUISHED` means exactly one consistent member,

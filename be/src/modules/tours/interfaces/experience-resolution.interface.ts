@@ -163,15 +163,24 @@ export type IdentityEvidence =
       type: 'IDENTITY_CONVERGENCE';
       priorStrategy: ResolutionStrategy;
       identity: StrongIdentity;
+    }
+  | {
       /**
-       * SHARED_UPSTREAM when both acquisitions derive from the same upstream
-       * dataset (e.g. Nominatim and Geoapify both indexing one OSM node):
-       * one record found twice, not independent corroboration.
+       * Provenance of an IDENTITY_CONVERGENCE on `identity`, recorded as its
+       * own fact. SHARED_UPSTREAM when both acquisitions derive from one
+       * upstream dataset (Overpass, Nominatim and Geoapify indexing one OSM
+       * node): one record found twice, which confirms the record but cannot
+       * single out a member of a known name collision. `nameCollision` is
+       * whether either converging acquisition saw MULTIPLE exact-name or
+       * declared-alias members (or an AMBIGUOUS context) in its own pool.
        */
+      type: 'CONVERGENCE_PROVENANCE';
+      identity: StrongIdentity;
       upstream:
         | 'SHARED_UPSTREAM'
         | 'INDEPENDENT_UPSTREAMS'
         | 'UNDETERMINED_UPSTREAM';
+      nameCollision: boolean;
     }
   | {
       /**
