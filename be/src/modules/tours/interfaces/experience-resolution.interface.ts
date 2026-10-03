@@ -1,9 +1,19 @@
 import { GeoEntityKind } from '@prisma/client';
 import {
+  ComponentLocalityAssertion,
   ComponentNormalizationKind,
+  ComponentPhysicalKind,
+  ComponentPhysicalKindAssertion,
+  ComponentSourceLink,
   ExperienceCandidate,
   GeoEntityHint,
 } from './experience-discovery.interface';
+import {
+  CandidateStructuralKind,
+  ContextualPoolCoverage,
+  ContextualPoolEvaluation,
+  ContextualPoolOutcome,
+} from './component-identity-context.interface';
 import { DedupeEvidence } from '../utils/experience-dedupe.util';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import {
@@ -90,20 +100,51 @@ export type IdentityEvidence =
   | { type: 'WIKIDATA_UNAVAILABLE' }
   | {
       /**
-       * An explicit, structural conflict between what the SOURCE declares
-       * this component to be and what the candidate record declares itself
-       * to be: the source observation cited by the hint carries a Wikidata
-       * QID and the candidate carries a different own QID. Two declared
-       * identifiers that differ name two different entities -- no label,
-       * name, distance or count is compared. It overrides every positive
-       * rule: a unique name, an address, an alias or two providers
-       * converging on one record never establish that the SOURCE meant the
-       * entity it has explicitly identified as something else.
+       * An explicit conflict between what the SOURCE states about this
+       * component and what the candidate's own record states. It overrides
+       * every positive rule: a unique name, an address, an alias, a
+       * catalog memory or two providers repeating one record never
+       * establish that the source meant an entity it identifies otherwise.
+       *  - WIKIDATA_QID: the cited source declares one QID, the candidate
+       *    a different own QID (two identifiers, two entities).
+       *  - LOCALITY: the candidate lies outside the administrative boundary
+       *    of the locality the source attributes to this component.
+       *  - PHYSICAL_KIND: the source states the component's kind (a venue
+       *    versus a settlement) and the candidate is structurally the other.
        */
       type: 'IDENTITY_CONTRADICTION';
       fact: 'WIKIDATA_QID';
       sourceQid: string;
       candidateQid: string;
+    }
+  | {
+      type: 'IDENTITY_CONTRADICTION';
+      fact: 'LOCALITY';
+      assertedLocality: string;
+      boundaryId: string;
+    }
+  | {
+      type: 'IDENTITY_CONTRADICTION';
+      fact: 'PHYSICAL_KIND';
+      assertedKind: ComponentPhysicalKind;
+      candidateKind: CandidateStructuralKind;
+    }
+  | {
+      /**
+       * The examined same-name pool compared against the component's
+       * grounded source locality (and stated kind), projected onto this
+       * candidate. Only `DISTINGUISHED` is discriminating correspondence:
+       * this candidate is the single member consistent with the source's
+       * component-specific facts, over a comparison known not to be cut
+       * off. It never comes from proximity or provider rank.
+       */
+      type: 'CONTEXTUAL_CORRESPONDENCE';
+      assertion: 'LOCALITY';
+      locality: string;
+      coverage: ContextualPoolCoverage;
+      memberCount: number;
+      consistentCount: number;
+      outcome: ContextualPoolOutcome;
     }
   | {
       /**
@@ -122,6 +163,15 @@ export type IdentityEvidence =
       type: 'IDENTITY_CONVERGENCE';
       priorStrategy: ResolutionStrategy;
       identity: StrongIdentity;
+      /**
+       * SHARED_UPSTREAM when both acquisitions derive from the same upstream
+       * dataset (e.g. Nominatim and Geoapify both indexing one OSM node):
+       * one record found twice, not independent corroboration.
+       */
+      upstream:
+        | 'SHARED_UPSTREAM'
+        | 'INDEPENDENT_UPSTREAMS'
+        | 'UNDETERMINED_UPSTREAM';
     }
   | {
       /**
@@ -294,6 +344,17 @@ export interface PlaceSearchAudit {
     | { status: 'FAILED'; failureReason: string };
 }
 
+export interface ComponentIdentityContextAudit {
+  locality?: ComponentLocalityAssertion & {
+    grounding: 'GROUNDED' | 'UNGROUNDED';
+    boundaryId?: string;
+    boundaryName?: string;
+    ungroundedReason?: string;
+  };
+  physicalKind?: ComponentPhysicalKindAssertion;
+  sourceLink?: ComponentSourceLink;
+}
+
 export interface ComponentResolutionAudit {
   hintKey: string;
   hintName: string;
@@ -303,6 +364,12 @@ export interface ComponentResolutionAudit {
   expectedKind?: string;
   evidenceKeys: string[];
   addressHint?: string;
+  /**
+   * The component-specific source context the identity decision used: the
+   * stated locality (with its span and whether it was grounded in a real
+   * boundary), the stated physical kind and the source link.
+   */
+  identityContext?: ComponentIdentityContextAudit;
   attempts: ResolutionAttemptAudit[];
   finalStatus: ResolvedGeoEntityStatus;
   finalReason?: string;
@@ -494,6 +561,17 @@ export interface EntityCandidate {
    * absent, that single pair is the only strong identity.
    */
   identities?: StrongIdentity[];
+  /** Coarse structural kind, normalized at the provider boundary. */
+  structuralKind?: CandidateStructuralKind;
+  /**
+   * Upstream datasets this record derives from (`openstreetmap` for an OSM
+   * node however it was reached, `overture:meta` for a Meta-sourced
+   * Overture row). Two acquisitions sharing an upstream are not
+   * independent corroboration of each other.
+   */
+  upstreamDatasets?: string[];
+  /** The contextual evaluation of the pool this candidate was taken from. */
+  contextualPool?: ContextualPoolEvaluation;
 }
 
 export interface ResolvedGeoEntity {

@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { NominatimResult } from '@integrations/osm/interfaces/nominatim.interface';
+import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
+import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ownedAuthorization } from '../fixtures/geographic-authorization.fixture';
@@ -56,6 +58,9 @@ function build(options: {
   osmPool?: unknown[];
   nearby?: Array<{ qid: string; label: string }>;
   wikidataLabels?: Record<string, { label: string; aliases?: string[] }>;
+  /** Boundary the (faked) locality grounder returns for any assertion. */
+  localityBoundary?: GeoJsonGeometry;
+  placesFailure?: Error;
 }) {
   const osmPlaces = {
     lookupPoisWithin: jest
@@ -94,19 +99,54 @@ function build(options: {
     }),
     findNearbyPlaces: jest.fn().mockResolvedValue(options.nearby ?? []),
   };
+  const localityGrounder = {
+    groundLocality: jest.fn(async (assertion: any) =>
+      options.localityBoundary
+        ? {
+            status: 'GROUNDED' as const,
+            assertion,
+            boundary: {
+              provider: 'openstreetmap' as const,
+              externalId: 'osm:relation:lujan',
+              name: 'Departamento Luján de Cuyo',
+              geometry: options.localityBoundary,
+            },
+          }
+        : {
+            status: 'UNGROUNDED' as const,
+            assertion,
+            reason: 'NO_BOUNDARY' as const,
+          },
+    ),
+  };
+  const placesApi = options.placesFailure
+    ? {
+        provider: 'geoapify' as const,
+        declaresSourceIdentitiesInDetails: true,
+        getStatus: jest.fn(),
+        searchNearby: jest.fn(),
+        searchText: jest.fn().mockRejectedValue(options.placesFailure),
+        getPlaceDetails: jest.fn(),
+      }
+    : undefined;
   const service = new ExperienceProposalResolverService(
     osmPlaces as any,
     catalog as any,
     { validate: jest.fn().mockReturnValue({ accepted: true }) } as any,
     undefined,
     nominatim as any,
-    undefined,
+    placesApi as any,
     wikidata as any,
+    undefined,
+    localityGrounder,
   );
-  return { service, catalog, nominatim, wikidata };
+  return { service, catalog, nominatim, wikidata, localityGrounder, placesApi };
 }
 
-const lujanItinerary = (hintName: string) => ({
+const lujanItinerary = (
+  hintName: string,
+  assertions: Partial<GeoEntityHint> = {},
+) => ({
   name: 'Lujan de Cuyo Wine Tasting Itinerary',
   themes: ['wine'],
   traits: [] as string[],
@@ -118,6 +158,7 @@ const lujanItinerary = (hintName: string) => ({
       role: 'venue' as const,
       expectedKind: 'PLACE' as const,
       evidenceKeys: ['ev-1'],
+      ...assertions,
     },
   ],
   evidenceKeys: ['ev-1'],
@@ -128,6 +169,7 @@ const resolveRouteLike = (
   service: ExperienceProposalResolverService,
   hintName: string,
   observations?: SourceObservation[],
+  assertions: Partial<GeoEntityHint> = {},
 ) =>
   service.resolve({
     destinationName: 'Ciudad de Mendoza',
@@ -135,7 +177,7 @@ const resolveRouteLike = (
     geographicScope: MENDOZA,
     candidates: [
       {
-        candidate: lujanItinerary(hintName),
+        candidate: lujanItinerary(hintName, assertions),
         geographicAuthorization: ownedAuthorization('route_like'),
       },
     ],
@@ -324,5 +366,379 @@ describe('ExperienceProposalResolverService -- explicit identity contradiction',
       ),
     ).toBe(false);
     expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('ExperienceProposalResolverService -- contextual identity on the real Ojo de Agua pool', () => {
+  // Simplified Luján de Cuyo department: contains the Agrelo restaurant
+  // (-33.13, -68.96) and none of the other 30 homonyms. The REAL OSM
+  // boundary is grounded by the production grounder (milestone 2).
+  const LUJAN: GeoJsonGeometry = {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [-69.3, -33.45],
+        [-68.75, -33.45],
+        [-68.75, -32.95],
+        [-69.3, -32.95],
+        [-69.3, -33.45],
+      ],
+    ],
+  };
+  // Elsewhere in Mendoza (Valle de Uco), holding no homonym.
+  const TUNUYAN: GeoJsonGeometry = {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [-69.4, -33.7],
+        [-69.0, -33.7],
+        [-69.0, -33.4],
+        [-69.4, -33.4],
+        [-69.4, -33.7],
+      ],
+    ],
+  };
+  const CAPTION = 'Wine and lunch at Ojo de Agua in Lujan de Cuyo';
+  const lujanAssertion = {
+    localityAssertion: {
+      locality: 'Lujan de Cuyo',
+      evidenceKey: 'ev-1',
+      supportSpan: CAPTION,
+    },
+  };
+  const establishment = {
+    physicalKindAssertion: {
+      kind: 'ESTABLISHMENT' as const,
+      term: 'winery lunch',
+      evidenceKey: 'ev-1',
+      supportSpan: '3. Ojo de Agua – 1:30 pm for a winery lunch',
+    },
+  };
+  const restaurant = POOL.PROVIDER_MAXIMUM.find(
+    (result) => `osm:${result.osmType}:${result.osmId}` === LUJAN_RESTAURANT,
+  )!;
+
+  it('POSITIVE: the stated locality + stated kind single out the Agrelo restaurant among 31 homonyms -> contextually VERIFIED', async () => {
+    const { service, catalog } = build({
+      nominatimResults: POOL.PROVIDER_MAXIMUM,
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+      ...lujanAssertion,
+      ...establishment,
+    });
+
+    const audit = result.entityResolution.forensicAudit[0].componentAudits[0];
+    const attempt = attemptOf(result, 'NOMINATIM');
+    expect(attempt.selectedCandidate.externalId).toBe(LUJAN_RESTAURANT);
+    expect(attempt.identityEvidence).toEqual(
+      expect.arrayContaining([
+        { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+        {
+          type: 'CONTEXTUAL_CORRESPONDENCE',
+          assertion: 'LOCALITY',
+          locality: 'Lujan de Cuyo',
+          coverage: 'PROVIDER_WINDOW_NOT_REACHED',
+          memberCount: 31,
+          consistentCount: 1,
+          outcome: 'DISTINGUISHED',
+        },
+      ]),
+    );
+    expect(attempt.verificationDecision).toBe('VERIFIED');
+    expect(audit.identityContext).toMatchObject({
+      locality: {
+        locality: 'Lujan de Cuyo',
+        supportSpan: CAPTION,
+        grounding: 'GROUNDED',
+        boundaryId: 'osm:relation:lujan',
+      },
+      physicalKind: { kind: 'ESTABLISHMENT', term: 'winery lunch' },
+    });
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+      expect.objectContaining({ externalId: LUJAN_RESTAURANT }),
+    );
+  });
+
+  it('the decision does not depend on proximity: context picks the restaurant even when a nearer member would win the ranking', async () => {
+    // A same-name dwelling placed next to the destination centre ranks
+    // first by distance; it is outside Luján de Cuyo.
+    const nearDwelling: NominatimResult = {
+      ...POOL.DEFAULT[4],
+      osmId: 2,
+      latitude: -32.89,
+      longitude: -68.84,
+    };
+    const { service } = build({
+      nominatimResults: [nearDwelling, ...POOL.PROVIDER_MAXIMUM],
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+      ...lujanAssertion,
+      ...establishment,
+    });
+
+    expect(attemptOf(result, 'NOMINATIM').selectedCandidate.externalId).toBe(
+      LUJAN_RESTAURANT,
+    );
+  });
+
+  it('NEGATIVE: the pre-fix window (no Luján member) never verifies the Córdoba hamlet: locality and kind both contradict it', async () => {
+    const { service, catalog } = build({
+      nominatimResults: POOL.DEFAULT,
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+      ...lujanAssertion,
+      ...establishment,
+    });
+
+    const attempt = attemptOf(result, 'NOMINATIM');
+    expect(attempt.selectedCandidate.externalId).toBe(CORDOBA_HAMLET);
+    expect(attempt.identityEvidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'IDENTITY_CONTRADICTION',
+          fact: 'LOCALITY',
+        }),
+        expect.objectContaining({
+          type: 'IDENTITY_CONTRADICTION',
+          fact: 'PHYSICAL_KIND',
+          candidateKind: 'SETTLEMENT',
+        }),
+      ]),
+    );
+    expect(attempt.verificationDecision).toBe('REJECTED');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('NEGATIVE: the wrong explicitly asserted locality rejects the same-name restaurant', async () => {
+    const { service, catalog } = build({
+      nominatimResults: [restaurant],
+      localityBoundary: TUNUYAN,
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+      localityAssertion: {
+        locality: 'Tunuyan',
+        evidenceKey: 'ev-1',
+        supportSpan: 'Ojo de Agua in Tunuyan',
+      },
+    });
+
+    const attempt = attemptOf(result, 'NOMINATIM');
+    // A provider-local unique name does not survive a known contradiction.
+    expect(attempt.identityEvidence).toContainEqual({
+      type: 'EXACT_NAME',
+      identityMultiplicity: 'SINGLE',
+    });
+    expect(attempt.verificationDecision).toBe('REJECTED');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('NEGATIVE: two equally plausible establishments in one locality stay AMBIGUOUS', async () => {
+    const twin: NominatimResult = {
+      ...restaurant,
+      osmId: 3,
+      latitude: -33.2,
+      longitude: -69.0,
+    };
+    const { service, catalog } = build({
+      nominatimResults: [...POOL.PROVIDER_MAXIMUM, twin],
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+      ...lujanAssertion,
+      ...establishment,
+    });
+
+    const attempt = attemptOf(result, 'NOMINATIM');
+    expect(attempt.identityEvidence).toContainEqual(
+      expect.objectContaining({
+        type: 'CONTEXTUAL_CORRESPONDENCE',
+        outcome: 'AMBIGUOUS',
+        consistentCount: 2,
+      }),
+    );
+    expect(attempt.verificationDecision).toBe('AMBIGUOUS');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('NEGATIVE: a window cut off at the provider maximum is not a complete comparison', async () => {
+    const filler = (index: number): NominatimResult => ({
+      ...POOL.DEFAULT[1],
+      osmId: 1000 + index,
+    });
+    const saturated = [
+      restaurant,
+      ...Array.from({ length: 39 }, (_unused, index) => filler(index)),
+    ];
+    const { service, catalog } = build({
+      nominatimResults: saturated,
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+      ...lujanAssertion,
+      ...establishment,
+    });
+
+    const attempt = attemptOf(result, 'NOMINATIM');
+    expect(attempt.identityEvidence).toContainEqual(
+      expect.objectContaining({
+        type: 'CONTEXTUAL_CORRESPONDENCE',
+        coverage: 'NOT_ESTABLISHED',
+        outcome: 'INCOMPLETE_COMPARISON',
+      }),
+    );
+    expect(attempt.verificationDecision).toBe('AMBIGUOUS');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('NEGATIVE: a lone exact match in a saturated window is not SINGLE (multiplicity UNKNOWN)', async () => {
+    const other = (index: number): NominatimResult => ({
+      ...POOL.DEFAULT[1],
+      osmId: 2000 + index,
+      displayName: `Hostería Aguas ${index}, Neuquén, Argentina`,
+    });
+    const { service, catalog } = build({
+      nominatimResults: [
+        restaurant,
+        ...Array.from({ length: 39 }, (_unused, index) => other(index)),
+      ],
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua');
+
+    expect(attemptOf(result, 'NOMINATIM').identityEvidence).toContainEqual({
+      type: 'EXACT_NAME',
+      identityMultiplicity: 'UNKNOWN',
+    });
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('NEGATIVE: an itinerary heading alone ("Lujan de Cuyo Itinerary") is no component assertion: the real pool stays AMBIGUOUS', async () => {
+    const { service, catalog, localityGrounder } = build({
+      nominatimResults: POOL.PROVIDER_MAXIMUM,
+      localityBoundary: LUJAN,
+    });
+
+    // The Experience is named after Luján de Cuyo, but the hint carries no
+    // component-specific locality assertion.
+    const result = await resolveRouteLike(service, 'Ojo de Agua');
+
+    expect(localityGrounder.groundLocality).not.toHaveBeenCalled();
+    expect(attemptOf(result, 'NOMINATIM').verificationDecision).toBe(
+      'AMBIGUOUS',
+    );
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('NEGATIVE: an ungroundable locality is missing evidence, never a contradiction or a verification', async () => {
+    const { service, catalog } = build({
+      nominatimResults: POOL.PROVIDER_MAXIMUM,
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+      ...lujanAssertion,
+    });
+
+    const audit = result.entityResolution.forensicAudit[0].componentAudits[0];
+    expect(audit.identityContext.locality).toMatchObject({
+      grounding: 'UNGROUNDED',
+      ungroundedReason: 'NO_BOUNDARY',
+    });
+    expect(attemptOf(result, 'NOMINATIM').verificationDecision).toBe(
+      'AMBIGUOUS',
+    );
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('NEGATIVE: a near, differently named business is never a contextual match', async () => {
+    const nearbyBusiness: NominatimResult = {
+      ...restaurant,
+      osmId: 4,
+      displayName:
+        'Bodega Ojo del Agua Restó, Agrelo, Luján de Cuyo, Mendoza, Argentina',
+    };
+    const { service, catalog } = build({
+      nominatimResults: [nearbyBusiness],
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+      ...lujanAssertion,
+      ...establishment,
+    });
+
+    const attempt = attemptOf(result, 'NOMINATIM');
+    expect(attempt?.verificationDecision).not.toBe('VERIFIED');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('a later Places timeout does not block an identity already established by the examined pool', async () => {
+    const { service, catalog, placesApi } = build({
+      nominatimResults: POOL.PROVIDER_MAXIMUM,
+      localityBoundary: LUJAN,
+      placesFailure: new Error('timeout of 5000ms exceeded'),
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+      ...lujanAssertion,
+      ...establishment,
+    });
+
+    expect(attemptOf(result, 'NOMINATIM').verificationDecision).toBe(
+      'VERIFIED',
+    );
+    expect(placesApi!.searchText).not.toHaveBeenCalled();
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+  });
+
+  it('NEGATIVE: a provider-local unique name in the local OSM pool is rejected when it lies outside the asserted locality', async () => {
+    const { service, catalog } = build({
+      osmPool: [
+        {
+          id: 'osm:node:88',
+          name: 'Bodega Ejemplo',
+          osmType: 'node',
+          osmId: 88,
+          // Mendoza city centre: outside Luján de Cuyo.
+          geometry: { type: 'Point', coordinates: [-68.845, -32.889] },
+          tags: { craft: 'winery' },
+        },
+      ],
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Bodega Ejemplo',
+      undefined,
+      {
+        localityAssertion: {
+          locality: 'Lujan de Cuyo',
+          evidenceKey: 'ev-1',
+          supportSpan: 'Bodega Ejemplo in Lujan de Cuyo',
+        },
+      },
+    );
+
+    const attempt = attemptOf(result, 'LOCAL_OSM_POOL');
+    expect(attempt.identityEvidence).toEqual(
+      expect.arrayContaining([
+        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+        expect.objectContaining({
+          type: 'IDENTITY_CONTRADICTION',
+          fact: 'LOCALITY',
+        }),
+      ]),
+    );
+    expect(attempt.verificationDecision).toBe('REJECTED');
+    expectNoIdentityWrites(catalog);
   });
 });

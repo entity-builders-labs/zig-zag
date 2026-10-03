@@ -94,3 +94,19 @@ export function sourceDeclaredWikidataQid(
   }
   return undefined;
 }
+
+/**
+ * Whether two acquisitions that reached one strong identity read
+ * independent upstream datasets. Shared when any upstream is common (two
+ * indexes of one OSM node); undetermined when either side's upstream is not
+ * known -- never assumed independent.
+ */
+export function upstreamRelation(
+  prior: readonly string[] | undefined,
+  current: readonly string[] | undefined,
+): 'SHARED_UPSTREAM' | 'INDEPENDENT_UPSTREAMS' | 'UNDETERMINED_UPSTREAM' {
+  if (!prior?.length || !current?.length) return 'UNDETERMINED_UPSTREAM';
+  return prior.some((dataset) => current.includes(dataset))
+    ? 'SHARED_UPSTREAM'
+    : 'INDEPENDENT_UPSTREAMS';
+}

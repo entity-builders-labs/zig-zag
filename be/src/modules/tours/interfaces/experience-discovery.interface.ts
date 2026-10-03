@@ -44,6 +44,60 @@ export interface GeoEntityHint {
    * either matches or it doesn't, unlike fuzzy name-token overlap.
    */
   addressHint?: string;
+  /**
+   * A locality the cited source explicitly attributes to THIS component
+   * ("Wine and lunch at Ojo de Agua in Lujan de Cuyo"), with the literal
+   * span that states it. Never derived from an itinerary heading, the
+   * Experience name, the destination, or another component's passage.
+   */
+  localityAssertion?: ComponentLocalityAssertion;
+  /**
+   * The physical kind the cited source explicitly attributes to THIS
+   * component ("a winery lunch" -> ESTABLISHMENT), with the literal term and
+   * span. The discovery `expectedKind`/`role` stays a proposal; only this
+   * grounded assertion can contradict a candidate's structural kind.
+   */
+  physicalKindAssertion?: ComponentPhysicalKindAssertion;
+  /**
+   * A link the source attaches to THIS component (a Markdown link whose text
+   * is the component's source name). Supporting provenance only: a URL
+   * identifies a site, never by itself one physical facility.
+   */
+  sourceLink?: ComponentSourceLink;
+}
+
+/** Where a component-specific source assertion comes from, verbatim. */
+export interface ComponentAssertionProvenance {
+  evidenceKey: string;
+  /** Literal text of the cited source that states the fact. */
+  supportSpan: string;
+}
+
+export interface ComponentLocalityAssertion
+  extends ComponentAssertionProvenance {
+  /** The locality exactly as the source names it. */
+  locality: string;
+}
+
+/**
+ * Coarse physical kinds a source can state for a component. Deliberately
+ * structural, not a category taxonomy: a venue/business versus a
+ * settlement.
+ */
+export type ComponentPhysicalKind = 'ESTABLISHMENT' | 'SETTLEMENT';
+
+export interface ComponentPhysicalKindAssertion
+  extends ComponentAssertionProvenance {
+  kind: ComponentPhysicalKind;
+  /** The literal word(s) in `supportSpan` that state the kind. */
+  term: string;
+}
+
+export interface ComponentSourceLink {
+  evidenceKey: string;
+  url: string;
+  /** The literal link text, equal to the component's source name. */
+  linkText: string;
 }
 
 /**

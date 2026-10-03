@@ -31,49 +31,42 @@ const attempt = (
 
 describe('IdentityVerifier', () => {
   /**
-   * ID-based identity evidence, not string matching: a different,
-   * structurally independent acquisition strategy already returned this
-   * exact same (provider, externalId) for this hint (real spike case: "El
-   * Zanjón de Granados" -- LOCAL_OSM_POOL and NOMINATIM both independently
-   * acquired osm:node:9953027884). Verified regardless of any name-based
-   * evidence, and even when Wikidata itself would separately reject the
-   * candidate on a string basis.
+   * ID-based identity evidence, not string matching, is decisive only when
+   * the two acquisitions read INDEPENDENT upstream datasets. The real spike
+   * case "El Zanjón de Granados" (LOCAL_OSM_POOL and NOMINATIM both
+   * reaching osm:node:9953027884) is one OSM record found twice by name:
+   * it is not corroboration and leaves the decision to the other evidence.
    */
-  it('verifies immediately on IDENTITY_CONVERGENCE, with no other evidence needed', async () => {
-    const verifier = new IdentityVerifier();
+  const convergence = (
+    upstream:
+      | 'SHARED_UPSTREAM'
+      | 'INDEPENDENT_UPSTREAMS'
+      | 'UNDETERMINED_UPSTREAM',
+  ) => ({
+    type: 'IDENTITY_CONVERGENCE' as const,
+    priorStrategy: 'LOCAL_OSM_POOL' as const,
+    identity: {
+      provider: 'openstreetmap',
+      externalId: 'osm:node:9953027884',
+    },
+    upstream,
+  });
 
-    await expect(
-      verifier.verify(
+  it('verifies on IDENTITY_CONVERGENCE across independent upstreams, with no other evidence needed', () => {
+    expect(
+      new IdentityVerifier().verify(
         { name: 'El Zanjón de Granados' },
-        attempt([
-          {
-            type: 'IDENTITY_CONVERGENCE',
-            priorStrategy: 'LOCAL_OSM_POOL',
-            identity: {
-              provider: 'openstreetmap',
-              externalId: 'osm:node:9953027884',
-            },
-          },
-        ]),
+        attempt([convergence('INDEPENDENT_UPSTREAMS')]),
       ),
     ).toEqual({ status: 'VERIFIED' });
   });
 
-  it('IDENTITY_CONVERGENCE overrides an otherwise-rejecting WIKIDATA_IDENTITY_MATCH', async () => {
-    const verifier = new IdentityVerifier();
-
-    await expect(
-      verifier.verify(
+  it('independent-upstream convergence overrides an otherwise-rejecting WIKIDATA_IDENTITY_MATCH', () => {
+    expect(
+      new IdentityVerifier().verify(
         { name: 'El Zanjón de Granados' },
         attempt([
-          {
-            type: 'IDENTITY_CONVERGENCE',
-            priorStrategy: 'LOCAL_OSM_POOL',
-            identity: {
-              provider: 'openstreetmap',
-              externalId: 'osm:node:9953027884',
-            },
-          },
+          convergence('INDEPENDENT_UPSTREAMS'),
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'NEARBY',
@@ -84,6 +77,31 @@ describe('IdentityVerifier', () => {
       ),
     ).toEqual({ status: 'VERIFIED' });
   });
+
+  it.each(['SHARED_UPSTREAM', 'UNDETERMINED_UPSTREAM'] as const)(
+    '%s convergence (one record found twice, e.g. Nominatim + Geoapify on one OSM node) is not corroboration',
+    (upstream) => {
+      const verifier = new IdentityVerifier();
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt([convergence(upstream)]),
+        ),
+      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt(
+            [
+              convergence(upstream),
+              { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+            ],
+            'MULTIPLE',
+          ),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    },
+  );
 
   it('rejects a candidate that only shares half of an observation QID identity', async () => {
     const verifier = new IdentityVerifier();
@@ -827,6 +845,7 @@ describe('IdentityVerifier', () => {
             type: 'IDENTITY_CONVERGENCE',
             priorStrategy: 'NOMINATIM',
             identity: { provider: 'openstreetmap', externalId: 'osm:node:1' },
+            upstream: 'INDEPENDENT_UPSTREAMS',
           },
         ],
       ],
@@ -867,6 +886,142 @@ describe('IdentityVerifier', () => {
           attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }]),
         ),
       ).toEqual({ status: 'VERIFIED' });
+    });
+  });
+
+  /**
+   * RW4 contextual identity: the source's component-specific locality (and
+   * stated kind) compared with the examined same-name pool.
+   */
+  describe('contextual correspondence and context contradictions', () => {
+    const verifier = new IdentityVerifier();
+    const contextual = (
+      outcome:
+        | 'DISTINGUISHED'
+        | 'AMBIGUOUS'
+        | 'NO_CONSISTENT_MEMBER'
+        | 'INCOMPLETE_COMPARISON'
+        | 'KIND_UNESTABLISHED',
+    ) => ({
+      type: 'CONTEXTUAL_CORRESPONDENCE' as const,
+      assertion: 'LOCALITY' as const,
+      locality: 'Lujan de Cuyo',
+      coverage: 'PROVIDER_WINDOW_NOT_REACHED' as const,
+      memberCount: 31,
+      consistentCount: outcome === 'AMBIGUOUS' ? 2 : 1,
+      outcome,
+    });
+    const wrongLocality = {
+      type: 'IDENTITY_CONTRADICTION' as const,
+      fact: 'LOCALITY' as const,
+      assertedLocality: 'Lujan de Cuyo',
+      boundaryId: 'osm:relation:1',
+    };
+    const settlement = {
+      type: 'IDENTITY_CONTRADICTION' as const,
+      fact: 'PHYSICAL_KIND' as const,
+      assertedKind: 'ESTABLISHMENT' as const,
+      candidateKind: 'SETTLEMENT' as const,
+    };
+
+    it.each(['MULTIPLE', 'UNKNOWN'] as const)(
+      'DISTINGUISHED verifies without country-wide name uniqueness (exact name %s)',
+      (multiplicity) => {
+        expect(
+          verifier.verify(
+            { name: 'Ojo de Agua' },
+            attempt(
+              [
+                { type: 'EXACT_NAME', identityMultiplicity: multiplicity },
+                contextual('DISTINGUISHED'),
+              ],
+              multiplicity,
+            ),
+          ),
+        ).toEqual({ status: 'VERIFIED' });
+      },
+    );
+
+    it('AMBIGUOUS context overrides a provider-local unique name', () => {
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt([
+            { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+            contextual('AMBIGUOUS'),
+          ]),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    });
+
+    it.each([
+      'NO_CONSISTENT_MEMBER',
+      'INCOMPLETE_COMPARISON',
+      'KIND_UNESTABLISHED',
+    ] as const)(
+      '%s is not discriminating: a MULTIPLE pool stays AMBIGUOUS',
+      (outcome) => {
+        expect(
+          verifier.verify(
+            { name: 'Ojo de Agua' },
+            attempt(
+              [
+                { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+                contextual(outcome),
+              ],
+              'MULTIPLE',
+            ),
+          ),
+        ).toEqual({ status: 'AMBIGUOUS' });
+      },
+    );
+
+    it.each([
+      ['wrong asserted locality', wrongLocality],
+      ['settlement for a stated establishment', settlement],
+    ])(
+      'a %s contradiction rejects even a provider-local unique exact name',
+      (_label, contradiction) => {
+        expect(
+          verifier.verify(
+            { name: 'Ojo de Agua' },
+            attempt([
+              { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+              contradiction,
+            ]),
+          ),
+        ).toEqual({ status: 'REJECTED' });
+      },
+    );
+
+    it('a contradiction outranks a DISTINGUISHED projection', () => {
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt([contextual('DISTINGUISHED'), settlement]),
+        ),
+      ).toEqual({ status: 'REJECTED' });
+    });
+
+    it('a NEARBY item matching a wrong homonym still never decides the pool', () => {
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt(
+            [
+              { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+              contextual('INCOMPLETE_COMPARISON'),
+              {
+                type: 'WIKIDATA_IDENTITY_MATCH',
+                source: 'NEARBY',
+                hintMatched: true,
+                candidateMatched: true,
+              },
+            ],
+            'MULTIPLE',
+          ),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
     });
   });
 });

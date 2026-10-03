@@ -7,6 +7,8 @@ import {
 } from '@integrations/osm/services/osm-places.service';
 import {
   INominatimApiService,
+  NOMINATIM_PROVIDER_MAXIMUM_RESULTS,
+  NominatimResult,
   NominatimSearchOptions,
 } from '@integrations/osm/interfaces/nominatim.interface';
 import {
@@ -42,9 +44,10 @@ import {
 import {
   bestNominatimMatch,
   candidateMatchCountToMultiplicity,
+  aliasMatches,
   countAliasMatches,
   countExactNormalizedMatches,
-  countNominatimExactMatches,
+  nominatimExactMatches,
   extractDeclaredNameAliases,
   extractWikidataQid,
   isAreaScaleEligible,
@@ -97,7 +100,27 @@ import {
   canonicalPlacesExternalId,
   placesAcquisitionLabel,
 } from '../utils/places-external-identity.util';
-import { buildLocalIdentityEvidence } from '../utils/identity-evidence-builder.util';
+import {
+  buildLocalIdentityEvidence,
+  upstreamRelation,
+} from '../utils/identity-evidence-builder.util';
+import {
+  candidateIdentityKey,
+  contextualIdentityEvidence,
+  contextuallyDistinguishedKey,
+  evaluateContextualPool,
+} from '../utils/contextual-identity.policy';
+import {
+  structuralKindFromNominatim,
+  structuralKindFromOsmTags,
+  structuralKindFromPlaceFeatureClass,
+} from '../utils/candidate-structural-kind.util';
+import {
+  COMPONENT_LOCALITY_GROUNDER,
+  ComponentIdentityContext,
+  ComponentLocalityGrounder,
+  ContextualPoolMember,
+} from '../interfaces/component-identity-context.interface';
 import { evaluatePlaceStructuralCompatibility } from '../utils/place-structural-compatibility.policy';
 import {
   strongIdentitiesOf,
@@ -168,6 +191,16 @@ interface ComponentAcquisitionScope {
  * ExperienceProposalResolverService and AreaRouteAnchorResolverService.
  */
 export { selectBestPlaceCandidate } from '../utils/places-candidate-selector.util';
+
+/**
+ * Strong identities acquired for one hint so far, with the strategy that
+ * first reached each and the upstream datasets that strategy's record
+ * derives from (to tell real convergence from one record found twice).
+ */
+type SeenIdentities = Map<
+  string,
+  { strategy: ResolutionStrategy; upstreamDatasets?: readonly string[] }
+>;
 
 type StrategyAcquisitionResult =
   | { status: 'not_applicable' }
@@ -344,6 +377,9 @@ export class ExperienceProposalResolverService
     private readonly wikidata?: IWikidataApiService,
     @Optional()
     private readonly overturePlaces?: OverturePlacesIndexService,
+    @Optional()
+    @Inject(COMPONENT_LOCALITY_GROUNDER)
+    private readonly localityGrounder?: ComponentLocalityGrounder,
   ) {
     this.identityVerifier = new IdentityVerifier();
     this.identityEvidenceCollector = new IdentityEvidenceCollector(wikidata);
@@ -729,6 +765,13 @@ export class ExperienceProposalResolverService
       componentScope: ComponentAcquisitionScope,
     ): Promise<void> => {
       const attempts: ResolutionAttemptAudit[] = [];
+      // Source-grounded component context (stated locality and kind),
+      // resolved once per hint before any acquisition and passed explicitly
+      // to candidate selection and to every identity decision.
+      const identityContext = await this.groundIdentityContext(
+        hint,
+        destinationCountryCode,
+      );
       // Real-world identity by ID equality, tracked across every strategy
       // attempted for THIS hint (verified or not): keyed by every strong
       // identity (namespace + canonical id, see strongIdentityKey) an
@@ -737,7 +780,7 @@ export class ExperienceProposalResolverService
       // candidate whose identity set intersects these keys, `isVerified`
       // below injects IDENTITY_CONVERGENCE evidence -- never a name/string
       // comparison, never a vote among candidates.
-      const seenIdentities = new Map<string, ResolutionStrategy>();
+      const seenIdentities: SeenIdentities = new Map();
       const recordAttempt = (
         strategy: ResolutionStrategy,
         acquisition: {
@@ -810,6 +853,37 @@ export class ExperienceProposalResolverService
           expectedKind: hint.expectedKind,
           evidenceKeys: [...hint.evidenceKeys],
           addressHint: hint.addressHint,
+          ...(identityContext.locality ||
+          identityContext.physicalKind ||
+          hint.sourceLink
+            ? {
+                identityContext: {
+                  ...(identityContext.locality
+                    ? {
+                        locality: {
+                          ...identityContext.locality.assertion,
+                          grounding: identityContext.locality.status,
+                          ...(identityContext.locality.status === 'GROUNDED'
+                            ? {
+                                boundaryId:
+                                  identityContext.locality.boundary.externalId,
+                                boundaryName:
+                                  identityContext.locality.boundary.name,
+                              }
+                            : {
+                                ungroundedReason:
+                                  identityContext.locality.reason,
+                              }),
+                        },
+                      }
+                    : {}),
+                  ...(identityContext.physicalKind
+                    ? { physicalKind: identityContext.physicalKind }
+                    : {}),
+                  ...(hint.sourceLink ? { sourceLink: hint.sourceLink } : {}),
+                },
+              }
+            : {}),
           attempts,
           finalStatus: entity.status,
           finalReason: entity.reason,
@@ -882,6 +956,7 @@ export class ExperienceProposalResolverService
           observations,
           seenIdentities,
           catalogResult.evidence,
+          identityContext,
         );
         recordAttempt(
           'CATALOG_REUSE',
@@ -953,6 +1028,8 @@ export class ExperienceProposalResolverService
           hint,
           observations,
           seenIdentities,
+          [],
+          identityContext,
         );
         recordAttempt(
           'TRUSTED_OBSERVATION_REUSE',
@@ -1079,12 +1156,48 @@ export class ExperienceProposalResolverService
           matched,
           nameMultiplicity,
         );
+        if (!isAreaHint) {
+          // Exact-name and declared-alias members are the competitors. The
+          // pool is bounded to the destination (or scope) area, not to the
+          // source's locality, so it is never a complete comparison: it can
+          // expose an equally consistent competitor, never single one out.
+          const needle = normalizeGeoName(hint.name);
+          const members = [
+            ...new Map(
+              [
+                ...pool.filter(
+                  (candidate) => normalizeGeoName(candidate.name) === needle,
+                ),
+                ...aliasMatches(hint.name, pool),
+              ].map((candidate) => [candidate.id, candidate]),
+            ).values(),
+          ];
+          const contextualPool = evaluateContextualPool(
+            identityContext,
+            members.map((candidate): ContextualPoolMember => {
+              const point = this.representativePoint(candidate);
+              return {
+                identityKey: candidateIdentityKey({
+                  provider: 'openstreetmap',
+                  externalId: candidate.id,
+                }),
+                latitude: point?.latitude,
+                longitude: point?.longitude,
+                structuralKind: structuralKindFromOsmTags(candidate.tags),
+              };
+            }),
+            'NOT_ESTABLISHED',
+          );
+          if (contextualPool) resolvedEntity.contextualPool = contextualPool;
+        }
         const verification = await this.isVerified(
           'LOCAL_OSM_POOL',
           resolvedEntity,
           hint,
           observations,
           seenIdentities,
+          [],
+          identityContext,
         );
         recordAttempt(
           'LOCAL_OSM_POOL',
@@ -1143,6 +1256,7 @@ export class ExperienceProposalResolverService
           destinationScope,
           destinationCountryCode,
           componentScope,
+          identityContext,
         );
         if (nominatimResolved.status === 'candidate') {
           const verification = await this.isVerified(
@@ -1151,6 +1265,8 @@ export class ExperienceProposalResolverService
             hint,
             observations,
             seenIdentities,
+            [],
+            identityContext,
           );
           recordAttempt(
             'NOMINATIM',
@@ -1205,6 +1321,7 @@ export class ExperienceProposalResolverService
           hint,
           destinationScope,
           componentScope,
+          identityContext,
         );
         if (placesResolved.status === 'candidate') {
           const verification = await this.isVerified(
@@ -1213,6 +1330,8 @@ export class ExperienceProposalResolverService
             hint,
             observations,
             seenIdentities,
+            [],
+            identityContext,
           );
           recordAttempt(
             'PLACES',
@@ -1269,6 +1388,8 @@ export class ExperienceProposalResolverService
               hint,
               observations,
               seenIdentities,
+              [],
+              identityContext,
             );
             recordAttempt(
               'OVERTURE_IDENTITY',
@@ -1368,6 +1489,8 @@ export class ExperienceProposalResolverService
             correctedHint,
             observations,
             seenIdentities,
+            [],
+            identityContext,
           );
           recordAttempt(
             'AREA_TO_PLACE_CORRECTION',
@@ -1718,11 +1841,13 @@ export class ExperienceProposalResolverService
     entity: EntityCandidate,
     hint: any,
     observations: SourceObservation[] = [],
-    seenIdentities?: Map<string, ResolutionStrategy>,
+    seenIdentities?: SeenIdentities,
     acquisitionEvidence: IdentityEvidence[] = [],
+    context: ComponentIdentityContext = {},
   ): Promise<VerificationResult> {
     const evidence = [
       ...buildLocalIdentityEvidence(hint, entity, observations),
+      ...contextualIdentityEvidence(context, entity),
       ...acquisitionEvidence,
     ];
     if (seenIdentities) {
@@ -1734,22 +1859,33 @@ export class ExperienceProposalResolverService
       // identity provider, never the acquisition strategy, so Nominatim's
       // and Geoapify's views of one OSM node share a key while `osm:node:1`
       // and `osm:way:1` never do. Exact equality only -- no names, no
-      // coordinates, no count of agreeing providers.
+      // coordinates, no count of agreeing providers. Whether the two
+      // acquisitions are independent is a separate fact: their records'
+      // upstream datasets.
       const identities = strongIdentitiesOf(entity);
       for (const identity of identities) {
-        const priorStrategy = seenIdentities.get(strongIdentityKey(identity));
-        if (priorStrategy && priorStrategy !== strategy) {
+        const prior = seenIdentities.get(strongIdentityKey(identity));
+        if (prior && prior.strategy !== strategy) {
           evidence.push({
             type: 'IDENTITY_CONVERGENCE',
-            priorStrategy,
+            priorStrategy: prior.strategy,
             identity,
+            upstream: upstreamRelation(
+              prior.upstreamDatasets,
+              entity.upstreamDatasets,
+            ),
           });
           break;
         }
       }
       for (const identity of identities) {
         const key = strongIdentityKey(identity);
-        if (!seenIdentities.has(key)) seenIdentities.set(key, strategy);
+        if (!seenIdentities.has(key)) {
+          seenIdentities.set(key, {
+            strategy,
+            upstreamDatasets: entity.upstreamDatasets,
+          });
+        }
       }
     }
     const attempt: ResolutionAttempt = {
@@ -1988,7 +2124,7 @@ export class ExperienceProposalResolverService
     hint: any,
     destinationScope: GeographicScope,
     observations: SourceObservation[],
-    seenIdentities: Map<string, ResolutionStrategy>,
+    seenIdentities: SeenIdentities,
   ): Promise<{
     entity: ResolvedGeoEntity;
     acquisition: {
@@ -2140,8 +2276,50 @@ export class ExperienceProposalResolverService
       nameAliasCandidates: extractDeclaredNameAliases(matched.tags),
       addressConfirmed: matchesAddressHint(hint.addressHint, matched.tags),
       nameEvidenceMultiplicity: nameMultiplicity,
+      structuralKind: structuralKindFromOsmTags(matched.tags),
+      upstreamDatasets: ['openstreetmap'],
       persistenceMetadata: { tags: matched.tags },
     };
+  }
+
+  /**
+   * The component's identity context: the source-stated physical kind as
+   * is, and the source-stated locality grounded in a real boundary. A
+   * locality that cannot be grounded stays an explicit UNGROUNDED fact.
+   */
+  private async groundIdentityContext(
+    hint: GeoEntityHint,
+    countryCode: string | undefined,
+  ): Promise<ComponentIdentityContext> {
+    const context: ComponentIdentityContext = hint.physicalKindAssertion
+      ? { physicalKind: hint.physicalKindAssertion }
+      : {};
+    const assertion = hint.localityAssertion;
+    if (!assertion) return context;
+    if (!this.localityGrounder) {
+      return {
+        ...context,
+        locality: { status: 'UNGROUNDED', assertion, reason: 'NO_GROUNDER' },
+      };
+    }
+    try {
+      return {
+        ...context,
+        locality: await this.localityGrounder.groundLocality(
+          assertion,
+          countryCode,
+        ),
+      };
+    } catch {
+      return {
+        ...context,
+        locality: {
+          status: 'UNGROUNDED',
+          assertion,
+          reason: 'PROVIDER_FAILURE',
+        },
+      };
+    }
   }
 
   private localOsmAuditFacts(lookup: OsmLookupResult<OsmCandidate[]>): {
@@ -2170,6 +2348,7 @@ export class ExperienceProposalResolverService
     destinationScope: GeographicScope,
     destinationCountryCode: string | undefined,
     componentScope: ComponentAcquisitionScope,
+    context: ComponentIdentityContext = {},
   ): Promise<StrategyAcquisitionResult> {
     if (!this.nominatim || hint.expectedKind === 'ROUTE') {
       return { status: 'not_applicable' };
@@ -2203,10 +2382,46 @@ export class ExperienceProposalResolverService
           : {}),
       };
       const results = await this.nominatim.search(hint.name, searchOptions);
-      const match = bestNominatimMatch(hint.name, results, window?.center);
-      const exactNameCount = countNominatimExactMatches(hint.name, results);
+      // A full window may have been cut off: it can neither establish that
+      // a name is unique nor be a complete contextual comparison.
+      const windowReached =
+        results.length >= NOMINATIM_PROVIDER_MAXIMUM_RESULTS;
+      const exactMatches = nominatimExactMatches(hint.name, results);
+      const nominatimKey = (result: NominatimResult) =>
+        `openstreetmap/osm:${result.osmType}:${result.osmId}`;
+      const contextualPool = evaluateContextualPool(
+        context,
+        exactMatches.map(
+          (result): ContextualPoolMember => ({
+            identityKey: nominatimKey(result),
+            ...(Number.isFinite(result.latitude) &&
+            Number.isFinite(result.longitude)
+              ? {
+                  latitude: result.latitude as number,
+                  longitude: result.longitude as number,
+                }
+              : {}),
+            structuralKind: structuralKindFromNominatim(result),
+          }),
+        ),
+        windowReached ? 'NOT_ESTABLISHED' : 'PROVIDER_WINDOW_NOT_REACHED',
+      );
+      // The member the source context singles out is the one tried;
+      // otherwise the existing ranking picks a member to try. Neither
+      // ranking nor proximity is ever identity evidence.
+      const distinguishedKey = contextuallyDistinguishedKey(contextualPool);
+      const match =
+        (distinguishedKey &&
+          exactMatches.find(
+            (result) => nominatimKey(result) === distinguishedKey,
+          )) ||
+        bestNominatimMatch(hint.name, results, window?.center);
+      const exactNameCount = exactMatches.length;
       const nameMultiplicity = {
-        exactName: candidateMatchCountToMultiplicity(exactNameCount),
+        exactName:
+          windowReached && exactNameCount === 1
+            ? ('UNKNOWN' as const)
+            : candidateMatchCountToMultiplicity(exactNameCount),
         declaredAlias: 'UNKNOWN' as const,
       };
       if (
@@ -2431,6 +2646,9 @@ export class ExperienceProposalResolverService
           geometry,
           role: correctedHint.role,
           nameEvidenceMultiplicity: nameMultiplicity,
+          structuralKind: structuralKindFromNominatim(match),
+          upstreamDatasets: ['openstreetmap'],
+          ...(contextualPool ? { contextualPool } : {}),
           adminContext: {
             country: match.address?.country,
             region: match.address?.state,
@@ -2855,6 +3073,7 @@ export class ExperienceProposalResolverService
           exactName: 'UNKNOWN',
           declaredAlias: 'UNKNOWN',
         },
+        ...this.placesUpstreamDatasets(providerLabel, sourceIdentities),
         ...(wikidataQid ? { wikidataQid } : {}),
         ...(sourceIdentities.length > 0
           ? {
@@ -2898,6 +3117,7 @@ export class ExperienceProposalResolverService
     hint: any,
     destinationScope: GeographicScope,
     componentScope: ComponentAcquisitionScope,
+    context: ComponentIdentityContext = {},
   ): Promise<StrategyAcquisitionResult> {
     if (!this.placesApi || hint.expectedKind !== 'PLACE') {
       return { status: 'not_applicable' };
@@ -2978,6 +3198,39 @@ export class ExperienceProposalResolverService
         exactName: candidateMatchCountToMultiplicity(exactNameCount),
         declaredAlias: 'UNKNOWN' as const,
       };
+      // Every exact-name result is a potential competitor, whatever its
+      // admission. The provider search is a hard circle around the scope
+      // window, so it is never a complete comparison for a source locality:
+      // it can expose an equally consistent competitor (AMBIGUOUS) but can
+      // never single one out.
+      const placeName = (candidate: PlaceData) =>
+        candidate.displayName?.text || candidate.name || '';
+      const contextualPool = evaluateContextualPool(
+        context,
+        result.data
+          .filter(
+            (candidate) =>
+              normalizeGeoName(placeName(candidate)) ===
+              normalizeGeoName(hint.name),
+          )
+          .map(
+            (candidate): ContextualPoolMember => ({
+              identityKey: candidateIdentityKey({
+                provider: providerLabel,
+                externalId: canonicalPlacesExternalId(
+                  this.placesApi!.provider,
+                  candidate.id,
+                ),
+              }),
+              latitude: candidate.location?.latitude,
+              longitude: candidate.location?.longitude,
+              structuralKind: structuralKindFromPlaceFeatureClass(
+                candidate.featureClass,
+              ),
+            }),
+          ),
+        'NOT_ESTABLISHED',
+      );
       if (
         !place?.location ||
         !Number.isFinite(place.location.latitude) ||
@@ -3026,6 +3279,11 @@ export class ExperienceProposalResolverService
           geometry,
           role: hint.role,
           nameEvidenceMultiplicity: nameMultiplicity,
+          structuralKind: structuralKindFromPlaceFeatureClass(
+            place.featureClass,
+          ),
+          ...this.placesUpstreamDatasets(providerLabel, sourceIdentities),
+          ...(contextualPool ? { contextualPool } : {}),
           ...(wikidataQid ? { wikidataQid } : {}),
           ...(sourceIdentities.length > 0
             ? {
@@ -3052,6 +3310,30 @@ export class ExperienceProposalResolverService
         failureReason: error?.message ?? String(error),
       };
     }
+  }
+
+  /**
+   * Upstream datasets of a Places record. A provider that declares its
+   * records' sources (Place Details) derives this record from the declared
+   * non-Wikidata namespaces (a QID is a cross-reference, not a source); a
+   * provider without that capability is its own dataset. A declaring
+   * provider that declared nothing leaves the upstream undetermined.
+   */
+  private placesUpstreamDatasets(
+    providerLabel: string,
+    sourceIdentities: ReadonlyArray<{ provider: string }>,
+  ): { upstreamDatasets?: string[] } {
+    if (!this.placesApi?.declaresSourceIdentitiesInDetails) {
+      return { upstreamDatasets: [providerLabel] };
+    }
+    const upstream = [
+      ...new Set(
+        sourceIdentities
+          .map((identity) => identity.provider)
+          .filter((provider) => provider !== 'wikidata'),
+      ),
+    ];
+    return upstream.length > 0 ? { upstreamDatasets: upstream } : {};
   }
 
   /**

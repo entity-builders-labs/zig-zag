@@ -2123,16 +2123,19 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
-RW4 component identity: candidate selection and the verifier are now
-characterized against the real provider pools (2026-10-03, see "RW4
-candidate selection before identity verification"). The Nominatim window
-truncation that hid the only Mendoza "Ojo de Agua" is fixed. A
-source-declared QID that conflicts with the candidate's QID now overrides
-every positive rule. The real Uco and Luján components remain unverified
-for evidence reasons, not policy reasons. Ojo de Agua is AMBIGUOUS on the
-plausible Luján de Cuyo candidate, Alfa Crux and SuperUco are
-INSUFFICIENT_EVIDENCE (PARTIAL snapshot), Bodega Azul has no exact record,
-and A16 has no exact record.
+RW4 contextual physical identity, milestone 1 of 3 DONE (2026-10-03):
+`IdentityVerifier` now follows the ordered policy in amendment §19. The
+order is: contradiction (QID, LOCALITY, PHYSICAL_KIND), then structural
+identity (convergence counts only across independent upstreams), then
+contextual correspondence over the examined pool (DISTINGUISHED verifies
+without country-wide uniqueness; AMBIGUOUS overrides a unique name), then
+name, address and alias, then Wikidata. Pools are evaluated for NOMINATIM,
+PLACES and LOCAL_OSM_POOL. A saturated Nominatim window no longer yields
+SINGLE. Intended behavior change: RW1 "El Zanjón de Granados" and
+"Farmacia la Estrella" verified only through shared-upstream OSM
+convergence and are now unresolved without discriminating evidence.
+Milestones 2 (grounded source assertions + real OSM locality grounding +
+hint-memory safety) and 3 (Overture pool) are next.
 
 ## Next authorized action
 

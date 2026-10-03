@@ -7,6 +7,22 @@ import {
 /**
  * The single authority for interpreting normalized identity facts. It never
  * acquires or ranks candidates and never persists them.
+ *
+ * Decision order (no score, no threshold):
+ *  1. Explicit contradiction (source vs candidate QID, locality or
+ *     physical kind) -> REJECTED. Nothing positive outweighs it.
+ *  2. Structural identity: a single route cluster, catalog route variant
+ *     or verified hint memory (each with its own multiplicity), or the
+ *     same identity reached through INDEPENDENT upstreams.
+ *  3. Contextual correspondence: the source's component-specific locality
+ *     (and kind) singles out exactly one member of a fully examined pool
+ *     -> VERIFIED without country-wide name uniqueness; two consistent
+ *     members -> AMBIGUOUS whatever the name evidence says.
+ *  4. Name, address and alias evidence with its own multiplicity.
+ *  5. Wikidata corroboration (NEARBY never decides a name collision).
+ *  6. Missing evidence -> INSUFFICIENT_EVIDENCE / AMBIGUOUS.
+ * Two acquisitions repeating one upstream record (Nominatim and Geoapify
+ * on one OSM node) are one fact, not convergence.
  */
 export class IdentityVerifier {
   verify(
@@ -25,12 +41,13 @@ export class IdentityVerifier {
       return { status: 'REJECTED' };
     }
 
-    // 0. IDENTITY_CONVERGENCE -> VERIFIED immediately. A different,
-    // structurally independent acquisition strategy already found this
-    // exact same (provider, externalId) for this hint -- pure ID equality
-    // across two separate lookup mechanisms, never a name/string
-    // comparison and never a vote among competing candidates.
-    if (this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE')) {
+    // 0. IDENTITY_CONVERGENCE -> VERIFIED only across INDEPENDENT
+    // upstreams: two acquisitions over different datasets landing on the
+    // same strong identity. Two indexes of one upstream record (Nominatim
+    // and Geoapify on one OSM node, both chosen by name and proximity) are
+    // one fact and fall through to the remaining evidence.
+    const convergence = this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE');
+    if (convergence?.upstream === 'INDEPENDENT_UPSTREAMS') {
       return { status: 'VERIFIED' };
     }
 
@@ -76,6 +93,21 @@ export class IdentityVerifier {
       return { status: 'VERIFIED' };
     }
     if (verifiedHint?.identityMultiplicity === 'MULTIPLE') {
+      return { status: 'AMBIGUOUS' };
+    }
+
+    // 0e. Contextual correspondence. DISTINGUISHED: the source's
+    // component-specific locality (and stated kind) is consistent with
+    // exactly this member of a same-name pool examined without truncation
+    // -- discriminating, so country-wide name uniqueness is not required.
+    // AMBIGUOUS: another known member is equally consistent, which no
+    // name-uniqueness claim can override. Other outcomes are not
+    // discriminating and leave the decision to the remaining evidence.
+    const contextual = this.evidenceOf(evidence, 'CONTEXTUAL_CORRESPONDENCE');
+    if (contextual?.outcome === 'DISTINGUISHED') {
+      return { status: 'VERIFIED' };
+    }
+    if (contextual?.outcome === 'AMBIGUOUS') {
       return { status: 'AMBIGUOUS' };
     }
 

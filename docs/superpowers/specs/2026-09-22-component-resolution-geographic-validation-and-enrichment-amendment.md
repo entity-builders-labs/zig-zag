@@ -231,6 +231,12 @@ A provider divergence may mean:
 
 Only the last case is contradictory evidence.
 
+> **Amended 2026-10-03 (§19).** Convergence stays recorded evidence, but it
+> decides identity only across independent upstream datasets. Two
+> acquisitions that index the same upstream record (Overpass, Nominatim and
+> an OSM-backed Places result on one OSM node) are one fact, not
+> corroboration.
+
 ### 5.1 Correlation groups observations; IdentityVerifier decides identity
 
 Candidate correlation and identity verification are deliberately different
@@ -413,6 +419,14 @@ source-backed component
 
 If providers produce genuinely incompatible candidate clusters, the result is
 AMBIGUOUS / NEEDS_RESEARCH, never silent majority voting.
+
+> **Amended 2026-10-03 (§19).** The 2026-09-24 implementation verified El
+> Zanjón on shared-upstream convergence alone, which is weaker than the
+> evidence listed above requires. Under §19 its convergence is
+> `SHARED_UPSTREAM`. With a non-exact name and only a NEARBY item that
+> matches the hint and not the candidate, it stays unresolved until a
+> discriminating fact reaches the verifier, such as a component-specific
+> locality or address, or a structural QID.
 
 ### Plaza de Mayo — design scenario, not the observed RW1 geo failure
 
@@ -1044,4 +1058,65 @@ Partial research objects that are not planner-eligible canonical Experiences
 must not gain semantic-ranking authority merely because some components are
 known.
 
+## 19. Contextual physical identity (2026-10-03, RW4)
+
+Physical identity is decided from source-grounded component facts and
+candidate facts, interpreted by `IdentityVerifier` in a fixed order. The
+order has no score and no threshold:
+
+1. **Explicit contradiction, which yields REJECTED.** Three facts count. A
+   source-declared QID that differs from the candidate's own QID. A
+   candidate outside the administrative boundary of a locality the source
+   attributes to *this* component. A candidate whose structural kind
+   contradicts a kind the source states, such as a settlement for "a winery
+   lunch". No positive rule outweighs a contradiction.
+2. **Structural identity.** This covers a single route cluster, a catalog
+   route variant or verified hint memory (each with its own multiplicity),
+   and convergence on one strong identity across *independent* upstream
+   datasets. Convergence is `SHARED_UPSTREAM` when both records derive from
+   one dataset. It is `UNDETERMINED_UPSTREAM` when either side's upstream is
+   unknown. Neither of those decides.
+3. **Contextual correspondence.** A same-name pool is evaluated against the
+   component's grounded locality, and against its stated kind when the
+   source states one. `DISTINGUISHED` means exactly one consistent member,
+   over a comparison not cut off at the provider's result limit, with the
+   kind shown compatible when stated. That verifies without country-wide
+   name uniqueness. `AMBIGUOUS` means two consistent members, and it
+   overrides any name-uniqueness claim. `INCOMPLETE_COMPARISON`,
+   `KIND_UNESTABLISHED` and `NO_CONSISTENT_MEMBER` are not discriminating.
+4. **Name, address and alias evidence** with its own multiplicity. A
+   provider window that reached its limit cannot establish SINGLE.
+5. **Wikidata corroboration.** NEARBY never decides a name collision.
+6. **Missing evidence**, which yields INSUFFICIENT_EVIDENCE or AMBIGUOUS.
+
+**Source grounding.**
+- A locality or kind assertion lives on the component hint
+  (`localityAssertion`, `physicalKindAssertion`), with its evidence key and
+  literal support span.
+- An itinerary heading, the Experience name, the destination and another
+  component's passage are never component assertions.
+- A locality is grounded only when its name resolves to exactly one
+  administrative boundary in the destination country. Containment is a
+  point-in-polygon test against that boundary, never a string comparison
+  with a candidate's address.
+- An ungrounded locality is missing evidence, not a contradiction.
+- A component link (`sourceLink`) is provenance only. A shared brand
+  website or phone never identifies one physical facility.
+
+**Pools.**
+- Competitors are the exact-name and declared-alias members of each
+  provider's own pool.
+- A pool bounded to another area is never a complete comparison for a
+  locality: the local OSM pool, or a Places search restricted to a circle.
+  Such a pool can expose an equally consistent competitor, but it cannot
+  single one out.
+- Records of different upstream datasets are not counted as competitors of
+  each other, because they may describe the same facility.
+- A provider failure is always recorded. It blocks only when it leaves a
+  material uncertainty unresolved. A later timeout does not undo an identity
+  the examined pool already established.
+
+Geography used here distinguishes physical identities. It is not the
+geography that decides whether a source-defined Experience is valid
+(§P2-18): contextual identity never constrains composition.
 

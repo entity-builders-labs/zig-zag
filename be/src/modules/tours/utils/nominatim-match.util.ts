@@ -377,8 +377,15 @@ export function countAliasMatches(
     nameAliasCandidates?: string[];
   }>,
 ): number {
+  return aliasMatches(hintName, pool).length;
+}
+
+/** The pool members whose declared aliases match the hint (see above). */
+export function aliasMatches<
+  T extends { tags?: Record<string, string>; nameAliasCandidates?: string[] },
+>(hintName: string, pool: readonly T[]): T[] {
   const needle = normalizeGeoName(hintName);
-  if (!needle) return 0;
+  if (!needle) return [];
   return pool.filter((candidate) => {
     // Extract aliases from tags if available, otherwise use pre-extracted nameAliasCandidates
     const aliases =
@@ -389,7 +396,7 @@ export function countAliasMatches(
         requireAllTokens: true,
       }),
     );
-  }).length;
+  });
 }
 
 /**

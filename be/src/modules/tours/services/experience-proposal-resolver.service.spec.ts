@@ -7201,9 +7201,14 @@ describe('ExperienceProposalResolverService', () => {
     // strategy) acquires a candidate with the exact same (provider,
     // externalId) LOCAL_OSM_POOL already saw for this hint, the resolver
     // records IDENTITY_CONVERGENCE evidence -- pure ID equality across two
-    // independent lookups -- and IdentityVerifier verifies on that alone,
-    // without ever consulting Wikidata for this second attempt.
-    it('Case A: NOMINATIM verifies "El Zanjón de Granados" via IDENTITY_CONVERGENCE with LOCAL_OSM_POOL\'s own (rejected) osm:node:9953027884 acquisition', async () => {
+    // lookups.
+    //
+    // SUPERSEDED 2026-10-03 (RW4 contextual identity): both lookups are name
+    // searches over the SAME upstream OSM record (Overpass and Nominatim
+    // index one node), so the convergence is SHARED_UPSTREAM -- one record
+    // found twice, not corroboration. With only a non-exact name and a
+    // non-corroborating NEARBY item, the hint stays unresolved.
+    it('Case A: NOMINATIM reaching LOCAL_OSM_POOL\'s own osm:node:9953027884 is SHARED_UPSTREAM convergence and does not verify "El Zanjón de Granados"', async () => {
       const zanjonOsmNode = {
         id: 'osm:node:9953027884',
         name: 'El Zanjón de Granados (historic ruins)',
@@ -7330,15 +7335,11 @@ describe('ExperienceProposalResolverService', () => {
         ),
       ).toBe(false);
 
-      // NOMINATIM independently acquires the exact same real object. This
-      // second, structurally independent agreement on the identical
-      // (provider, externalId) is what verifies it -- via IDENTITY_
-      // CONVERGENCE, never by re-running (or improving) the Wikidata name
-      // comparison.
+      // NOMINATIM acquires the exact same OSM object. The identity match is
+      // recorded, but both acquisitions read one upstream record.
       expect(nominatimAttempt?.selectedCandidate?.externalId).toBe(
         'osm:node:9953027884',
       );
-      expect(nominatimAttempt?.verificationDecision).toBe('VERIFIED');
       expect(nominatimAttempt?.identityEvidence).toContainEqual({
         type: 'IDENTITY_CONVERGENCE',
         priorStrategy: 'LOCAL_OSM_POOL',
@@ -7346,19 +7347,11 @@ describe('ExperienceProposalResolverService', () => {
           provider: 'openstreetmap',
           externalId: 'osm:node:9953027884',
         },
+        upstream: 'SHARED_UPSTREAM',
       });
-
-      expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
-      expect(result.resolved[0].status).toBe('accepted');
-      // Persisted as NOMINATIM's candidate, in the OpenStreetMap identity
-      // namespace (the acquisition strategy is not the identity provider)
-      // -- the same (openstreetmap, osm:node:...) key LOCAL_OSM_POOL uses.
-      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
-        status: 'resolved',
-        provider: 'openstreetmap',
-        externalId: 'osm:node:9953027884',
-        geoEntityId: 'geo-el-zanjon-resolved',
-      });
+      expect(nominatimAttempt?.verificationDecision).not.toBe('VERIFIED');
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(result.resolved[0].status).toBe('rejected');
     });
   });
 

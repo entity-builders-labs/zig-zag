@@ -40,6 +40,14 @@ export interface NominatimResult {
   };
 }
 
+/**
+ * Nominatim's documented cap for `limit` ("cannot be more than 40"): the
+ * size of the `PROVIDER_MAXIMUM` result window. A response this long may
+ * have been cut off; a shorter one was not truncated by the request limit
+ * (which is not proof of global completeness).
+ */
+export const NOMINATIM_PROVIDER_MAXIMUM_RESULTS = 40;
+
 export interface NominatimSearchOptions {
   /**
    * ISO 3166-1 alpha-2 country code (e.g. "ar") to restrict results to. A
