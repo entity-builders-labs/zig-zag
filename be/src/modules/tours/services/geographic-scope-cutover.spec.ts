@@ -188,34 +188,58 @@ describe('Part II geographic scope — composite validation (S4)', () => {
       name: 'valley',
       geoEntityId: 'geo-valley',
       destinationRelation: 'OUTSIDE',
+      membership: 'DESCRIPTIVE',
     });
     expect(result.destinationRelation?.relation).toBe('OUTSIDE_DESTINATION');
   });
 
-  it('E/F: a fake regional composition — one stop outside the verified AREA — is REJECTED', () => {
-    const result = validateWith(
-      VALLEY_CANDIDATE,
-      [
-        ...VALLEY_ENTITIES.slice(0, 3),
-        // "Other Province": real, but nowhere near Fixture Valley.
-        venueEntity('v3', 46.5, 12.5),
-      ],
-      { authorization: ownedAuthorization('route_like') },
+  it('§P2-18 C/F: a stop far outside the source-named AREA is not decided by distance — evidence decides: one supporting record + no contradiction keeps it (fact recorded); a region contradiction of the AREA rejects it', () => {
+    const farStop = (adminContext?: ResolvedGeoEntity['adminContext']) =>
+      validateWith(
+        VALLEY_CANDIDATE,
+        [
+          areaEntity('valley', FIXTURE_VALLEY_GEOMETRY, 43.92, 10),
+          venueEntity(
+            'v1',
+            43.85,
+            9.9,
+            adminContext && { ...adminContext, region: 'South' },
+          ),
+          venueEntity(
+            'v2',
+            43.95,
+            10.05,
+            adminContext && { ...adminContext, region: 'South' },
+          ),
+          // Real, but nowhere near Fixture Valley.
+          venueEntity('v3', 46.5, 12.5, adminContext),
+        ],
+        { authorization: ownedAuthorization('route_like') },
+      );
+
+    const noRegionEvidence = farStop();
+    expect(noRegionEvidence.accepted).toBe(true);
+    expect(noRegionEvidence.experienceScope?.outsideScopeComponentKeys).toEqual(
+      ['v3'],
     );
 
-    expect(result.accepted).toBe(false);
-    expect(result.rejectionReasons).toEqual(['outside_experience_scope']);
+    const contradicted = farStop({
+      country: 'Fixtureland',
+      region: 'Other Province',
+    });
+    expect(contradicted.accepted).toBe(false);
+    expect(contradicted.rejectionReasons).toEqual(['geographic_incoherence']);
     expect(
-      result.decisionEntities?.find((entity) => entity.hintKey === 'v3'),
+      contradicted.decisionEntities?.find((entity) => entity.hintKey === 'v3'),
     ).toEqual(
       expect.objectContaining({
         relation: 'offending',
-        decisionReason: 'OUTSIDE_CANONICAL_AREA_BOUNDARY',
+        decisionReason: 'REGION_CONFLICT',
       }),
     );
   });
 
-  it('E: components inside the AREA but with contradicting authoritative region evidence are REJECTED (REGION_CONFLICT)', () => {
+  it('§P2-18: region diversity among members INSIDE the AREA is not a contradiction (an AREA may straddle a boundary) — REGION_CONFLICT only contradicts the source-named AREA for a member outside it', () => {
     const result = validateWith(
       VALLEY_CANDIDATE,
       [
@@ -233,15 +257,11 @@ describe('Part II geographic scope — composite validation (S4)', () => {
       { authorization: ownedAuthorization('route_like') },
     );
 
-    expect(result.accepted).toBe(false);
-    expect(result.rejectionReasons).toEqual(['geographic_incoherence']);
-    expect(
-      result.decisionEntities?.find((entity) => entity.relation === 'offending')
-        ?.decisionReason,
-    ).toBe('REGION_CONFLICT');
+    expect(result.accepted).toBe(true);
+    expect(result.experienceScope?.outsideScopeComponentKeys).toBeUndefined();
   });
 
-  it('PD2/E: the same venues WITHOUT a verified AREA are GEOGRAPHIC_SCOPE_UNKNOWN — no circle is invented', () => {
+  it('§P2-18 E (amended PD2): the same venues WITHOUT a verified AREA are a source-defined composition — no circle, no polygon, no UNKNOWN for a missing AREA', () => {
     const result = validateWith(
       candidateOf('Fixture Valley itinerary', [
         hint('v1', 'Estate One'),
@@ -252,8 +272,13 @@ describe('Part II geographic scope — composite validation (S4)', () => {
       { authorization: ownedAuthorization('route_like') },
     );
 
-    expect(result.accepted).toBe(false);
-    expect(result.rejectionReasons).toEqual(['geographic_scope_unknown']);
+    expect(result.accepted).toBe(true);
+    expect(result.experienceScope).toEqual({
+      kind: 'SOURCE_DEFINED_COMPONENTS',
+      provenance: 'SOURCE_COMPOSITION',
+      membership: 'DESCRIPTIVE',
+      supportingEvidenceKeys: ['ev-1'],
+    });
     expect(result.destinationRelation?.relation).toBe('OUTSIDE_DESTINATION');
   });
 
@@ -375,7 +400,7 @@ describe('Part II geographic scope — Uco regression (case L)', () => {
     ).toBeGreaterThan(100_000);
   });
 
-  it('(i) without a source-backed AREA (the real COLD #11 extraction): GEOGRAPHIC_SCOPE_UNKNOWN', () => {
+  it('(i) without a source-backed AREA (the real COLD #11 extraction): GEOGRAPHICALLY valid as a source-defined composition IF its identities were verified (fixture coordinates; the real identities are not)', () => {
     const result = validateWith(
       candidateOf('Uco Valley Wine Tasting Itinerary', [
         hint('alfa-crux', 'Alfa Crux'),
@@ -388,8 +413,9 @@ describe('Part II geographic scope — Uco regression (case L)', () => {
         authorization: ownedAuthorization('route_like'),
       },
     );
-    expect(result.accepted).toBe(false);
-    expect(result.rejectionReasons).toEqual(['geographic_scope_unknown']);
+    expect(result.accepted).toBe(true);
+    expect(result.experienceScope?.kind).toBe('SOURCE_DEFINED_COMPONENTS');
+    expect(result.destinationRelation?.relation).toBe('OUTSIDE_DESTINATION');
   });
 
   it('(ii) with a verified source-backed AREA (fixture polygon): accepted under S-b, never via a radius', () => {
@@ -754,7 +780,7 @@ describe('Part II geographic scope — two-phase resolution & identity search (S
     expect(audit.componentAudits[0].finalStatus).toBe('resolved');
   });
 
-  it('J: a venue the provider returns outside the verified AREA is rejected as OUTSIDE_EXPERIENCE_SCOPE -- not admitted by proximity', async () => {
+  it('J: a Places venue outside the verified AREA and outside the destination is not admitted — Places has no country bound, and proximity to the AREA never admits it', async () => {
     const { service } = buildResolver({
       nominatimByQuery: { 'Fixture Valley': [valleyNominatimResult()] },
       boundary: VALLEY_BOUNDARY,
@@ -768,11 +794,15 @@ describe('Part II geographic scope — two-phase resolution & identity search (S
       .find((component) => component.hintKey === 'v1')!
       .attempts.find((a) => a.strategy === 'PLACES');
     expect(attempt?.placeSearch?.rejected).toEqual([
-      { name: 'Estate One', reason: 'OUTSIDE_EXPERIENCE_SCOPE' },
+      {
+        name: 'Estate One',
+        reason: 'DESTINATION_INCOMPATIBLE',
+        destinationReason: 'OUTSIDE_DESTINATION_BOUNDARY',
+      },
     ]);
   });
 
-  it('C: the source names a region the canonical providers cannot resolve (only homonymous streets) -> no scope; venues found beyond the destination record GEOGRAPHIC_SCOPE_UNKNOWN', async () => {
+  it('C: the source names a region the canonical providers cannot resolve (only homonymous streets) -> no scope; Places venues beyond the destination stay unacquired — an IDENTITY blocker, not GEOGRAPHIC_SCOPE_UNKNOWN', async () => {
     const { service, placesApi } = buildResolver({
       // The real "Valle de Uco" Nominatim shape: residential streets only.
       nominatimByQuery: {
@@ -810,9 +840,12 @@ describe('Part II geographic scope — two-phase resolution & identity search (S
       radius: destinationWindow.radiusMeters,
     });
     expect(result.resolved[0].status).toBe('rejected');
-    expect(result.resolved[0].rejectionReasons).toEqual(
-      expect.arrayContaining(['GEOGRAPHIC_SCOPE_UNKNOWN']),
-    );
+    // Per-component identity reasons (nothing resolved); no geographic
+    // scope verdict substitutes for the missing identities.
+    expect(result.resolved[0].rejectionReasons).toEqual([
+      'UNCONFIRMED_MATCH',
+      'OSM_QUERY_EMPTY',
+    ]);
   });
 
   it('coarse-AREA guard: an administrative unit coarser than the destination is never one Experience scope', async () => {

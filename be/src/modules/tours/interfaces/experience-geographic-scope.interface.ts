@@ -19,7 +19,7 @@ import { Coordinates } from '@shared/utils/distance.utils';
  *    derived from the scope's real geometry — never a plausibility radius.
  */
 
-/** Who established an Experience scope (§P2-6 S-a…S-e). */
+/** Who established an Experience scope (§P2-6 S-a…S-e, §P2-18). */
 export type ExperienceGeographicScopeProvenance =
   /** S-a: the user-named anchor of the producing work unit. */
   | 'WORK_UNIT_ANCHOR'
@@ -30,19 +30,39 @@ export type ExperienceGeographicScopeProvenance =
   /** S-d: the trip destination's administrative polygon. */
   | 'DESTINATION_AREA'
   /** S-e: the trip destination's explicit point-radius scope. */
-  | 'DESTINATION_POINT_RADIUS';
+  | 'DESTINATION_POINT_RADIUS'
+  /**
+   * §P2-18: no enclosing canonical geometry — the Experience's geography is
+   * its independently verified components, its membership the ONE source
+   * record that defines the composition.
+   */
+  | 'SOURCE_COMPOSITION';
 
 /**
- * Why no Experience scope could be established (§P2-7, PD2). Every reason
- * fails closed with `GEOGRAPHIC_SCOPE_UNKNOWN`; none manufactures a region.
+ * What a scope's geometry means for component membership (§P2-18). Decided
+ * only by WHO established the scope, never by a distance, a provider
+ * category, a candidate title or the mere presence of an AREA hint:
+ *  - STRICT: a constraint the components must satisfy — the user-named
+ *    work-unit anchor (the unit exists to serve an Experience OF that
+ *    anchor), and the destination as the authorization ceiling of a
+ *    DEFAULT/WALK candidate (Part I: no wider policy class was granted);
+ *  - DESCRIPTIVE: geographic context the source gives for the composition
+ *    (a source-named AREA, a resolved ROUTE the Experience follows). A
+ *    verified component outside it is a recorded FACT, never by itself a
+ *    rejection: the source — not the polygon — defines membership.
+ */
+export type ScopeMembershipSemantics = 'STRICT' | 'DESCRIPTIVE';
+
+/**
+ * Why no Experience scope could be established (§P2-7, PD2 as amended by
+ * §P2-18). Every reason fails closed with `GEOGRAPHIC_SCOPE_UNKNOWN`; none
+ * manufactures a region. A missing canonical AREA is NOT one of them: a
+ * ROUTE_LIKE composition without one is judged on its source-defined
+ * component geography (`SOURCE_DEFINED_COMPONENTS`).
  */
 export type GeographicScopeUnknownReason =
-  /** Components lie beyond the destination and the candidate owns no verified scope. */
-  | 'NO_VERIFIED_SCOPE_FOR_COMPONENTS_BEYOND_DESTINATION'
   /** A candidate-owned scope lies beyond the destination and the authorization does not admit it. */
   | 'SCOPE_BEYOND_DESTINATION_NOT_AUTHORIZED'
-  /** Two or more candidate-owned scopes and the composition is not destination-local. */
-  | 'MULTIPLE_CANDIDATE_SCOPES'
   /** The destination has no usable geography to relate the candidate to. */
   | 'DESTINATION_GEOGRAPHY_UNKNOWN';
 
@@ -72,13 +92,28 @@ export type ExperienceGeographicScope =
       radiusMeters: number;
     }
   | {
+      /**
+       * §P2-18: a ROUTE_LIKE composition whose verified components extend
+       * beyond the destination with no enclosing canonical AREA/ROUTE. It
+       * has no geometry and therefore no search window: its footprint is
+       * its components' own canonical geography and never masquerades as an
+       * official polygon. Produced only by composite validation, never by
+       * scope derivation (it depends on where the components were verified).
+       */
+      kind: 'SOURCE_DEFINED_COMPONENTS';
+      provenance: 'SOURCE_COMPOSITION';
+      /** The evidence record(s) that each support EVERY member component. */
+      supportingEvidenceKeys: string[];
+    }
+  | {
       kind: 'UNKNOWN';
       reason: GeographicScopeUnknownReason;
     };
 
+/** A scope with real geometry (or a point radius): what derivation yields. */
 export type KnownExperienceGeographicScope = Exclude<
   ExperienceGeographicScope,
-  { kind: 'UNKNOWN' }
+  { kind: 'UNKNOWN' } | { kind: 'SOURCE_DEFINED_COMPONENTS' }
 >;
 
 /**
@@ -153,4 +188,13 @@ export interface ExperienceGeographicScopeProjection {
   unknownReason?: GeographicScopeUnknownReason;
   /** Relation of a candidate-owned scope to the destination. */
   destinationRelation?: ScopeDestinationRelation;
+  /** STRICT constraint or DESCRIPTIVE source context (§P2-18). */
+  membership?: ScopeMembershipSemantics;
+  /**
+   * Verified members positively outside a DESCRIPTIVE scope geometry — a
+   * geographic fact (descriptive boundary mismatch), not a rejection.
+   */
+  outsideScopeComponentKeys?: string[];
+  /** SOURCE_DEFINED_COMPONENTS: the record(s) supporting every member. */
+  supportingEvidenceKeys?: string[];
 }

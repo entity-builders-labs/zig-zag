@@ -11,6 +11,7 @@ import { StructuredCandidateCorroborationService } from './structured-candidate-
 import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
 import { AreaScopeMembershipPolicy } from '../interfaces/area-scope-membership.interface';
 import { evaluateAreaScopeMembership } from '../utils/area-scope-membership-policy';
+import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
 
 const GENERIC_REFILL_EVIDENCE_REQUIREMENTS = [
   'SINGLE_PLACE',
@@ -558,6 +559,16 @@ export class ExperienceCatalogService {
    * Warm lookup using the same canonical area membership policy as cold
    * geographic validation. Filtering is intentionally performed over the
    * hydrated canonical facts so SQL cannot grow a second interpretation.
+   *
+   * Membership is decided from the components' own canonical geography: an
+   * Experience never needs an area-role component to be retrieved through a
+   * regional AREA — a source-defined composition (§P2-18) whose verified
+   * components lie in the user-named AREA is found exactly like one whose
+   * source named that AREA. The scan is bounded, never global: the pool is
+   * the existing PostGIS catalog boundary over the AREA's own bounding-box
+   * covering window (a physical derivation of the real polygon, no radius
+   * constant), plus any Experience that has the AREA itself as a component.
+   * A line component is pooled through its canonical representative point.
    */
   async findVerifiedMultiComponentInArea(
     areaGeoEntityId: string,
@@ -568,12 +579,42 @@ export class ExperienceCatalogService {
       select: { kind: true, geometry: true },
     });
     if (!area || area.kind !== GeoEntityKind.AREA || !area.geometry) return [];
+    const window = boundingBoxToCenterRadius(area.geometry as GeoJsonGeometry);
+    if (
+      !Number.isFinite(window.latitude) ||
+      !Number.isFinite(window.longitude) ||
+      !Number.isFinite(window.radiusMeters)
+    ) {
+      return [];
+    }
+    const [windowed, withAreaComponent] = await Promise.all([
+      this.findVerifiedWithinForMatching(
+        window.latitude,
+        window.longitude,
+        Math.ceil(window.radiusMeters),
+      ),
+      this.prisma.experience.findMany({
+        where: {
+          status: ExperienceStatus.VERIFIED,
+          components: { some: { geoEntityId: areaGeoEntityId } },
+        },
+        select: { id: true },
+      }),
+    ]);
+    const ids = [
+      ...new Set([
+        ...windowed.map((row) => row.id),
+        ...withAreaComponent.map((row) => row.id),
+      ]),
+    ];
+    if (ids.length === 0) return [];
     const rows = await this.prisma.experience.findMany({
-      where: { status: ExperienceStatus.VERIFIED },
+      where: { id: { in: ids }, status: ExperienceStatus.VERIFIED },
       include: {
         components: { include: { geoEntity: true } },
         traits: { include: { traitDefinition: true } },
       },
+      orderBy: { id: 'asc' },
     });
     return rows
       .filter(

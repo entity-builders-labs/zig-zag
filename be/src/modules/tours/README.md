@@ -66,13 +66,19 @@ The primary flow when a user creates a tour from the mobile app wizard:
      is derived by one owner (`utils/experience-geographic-scope.policy.ts`) from
      a verified source-backed AREA/ROUTE component, a user-named anchor, or the
      destination; resolution is two-phase (scope hints first, then components
-     searched in the scope-derived window), validation checks membership in
-     that scope, and a missing scope fails closed (`GEOGRAPHIC_SCOPE_UNKNOWN`).
-     Only `ROUTE_LIKE` may use a real scope beyond the destination; the
+     searched in the scope-derived window). A user-named anchor (and, for a
+     DEFAULT/WALK candidate, the destination) is a STRICT constraint; a
+     source-named AREA/ROUTE is DESCRIPTIVE context whose mismatches are
+     recorded facts. A `ROUTE_LIKE` composition with no enclosing canonical
+     geometry is judged on its verified components plus ONE supporting source
+     record (`SOURCE_DEFINED_COMPONENTS`, `utils/source-composition-support.policy.ts`),
+     with members acquired by a country-bounded provider query — a missing
+     AREA is never `GEOGRAPHIC_SCOPE_UNKNOWN`; identity stays fail-closed.
+     Only `ROUTE_LIKE` (without a strict anchor) may extend beyond the destination; the
      trip-destination relation is a fact, and only Experiences WITHIN the
      destination are tour-eligible from the destination window
      (`utils/tour-destination-eligibility.policy.ts`). See spec
-     `docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md` Part II.
+     `docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md` Part II (§P2-18).
    - Runs deterministic daily planning and persists `TourExperience` snapshots
    - Publishes media work through the existing outbox flow
 

@@ -620,7 +620,7 @@ describe('CompositeGeographicValidationService', () => {
       };
     }
 
-    it('rejects when a required waypoint resolves OUTSIDE the canonical area', () => {
+    it('§P2-18 B: a waypoint OUTSIDE the source-named (DESCRIPTIVE) area but inside the destination is a recorded fact, not a rejection (DEFAULT ceiling satisfied)', () => {
       const candidate = areaCandidate([
         {
           key: 'a',
@@ -662,8 +662,15 @@ describe('CompositeGeographicValidationService', () => {
         },
         boundary,
       );
-      expect(result.accepted).toBe(false);
-      expect(result.rejectionReasons).toEqual(['outside_experience_scope']);
+      expect(result.accepted).toBe(true);
+      expect(result.strategy).toBe('canonical_area');
+      expect(result.experienceScope).toEqual(
+        expect.objectContaining({
+          provenance: 'CANDIDATE_AREA',
+          membership: 'DESCRIPTIVE',
+          outsideScopeComponentKeys: ['w'],
+        }),
+      );
     });
 
     it('rejects when a source (non-area) hint is unresolved, even with a valid canonical area', () => {
@@ -911,7 +918,7 @@ describe('CompositeGeographicValidationService', () => {
       },
     };
 
-    it('rejects a canonical ROUTE candidate whose waypoint has no topological relation to the route and lies outside the destination (S-c membership, no radius)', () => {
+    it('rejects a DEFAULT canonical ROUTE candidate whose waypoint has no topological relation to the route and lies outside the destination — the authorization ceiling, not the route, rejects it (no radius)', () => {
       const candidate = routeCandidate([
         {
           key: 'r',
@@ -954,16 +961,19 @@ describe('CompositeGeographicValidationService', () => {
         boundary,
       );
       expect(result.accepted).toBe(false);
-      expect(result.rejectionReasons).toEqual(['outside_experience_scope']);
+      expect(result.rejectionReasons).toEqual(['destination_mismatch']);
       expect(result.experienceScope).toEqual(
-        expect.objectContaining({ provenance: 'CANDIDATE_ROUTE' }),
+        expect.objectContaining({
+          provenance: 'CANDIDATE_ROUTE',
+          membership: 'DESCRIPTIVE',
+        }),
       );
       expect(
         result.decisionEntities?.find((entity) => entity.hintKey === 'w'),
       ).toEqual(
         expect.objectContaining({
           relation: 'offending',
-          decisionReason: 'OUTSIDE_EXPERIENCE_ROUTE_SCOPE',
+          decisionReason: 'OUTSIDE_DESTINATION_BOUNDARY',
         }),
       );
     });
@@ -1178,7 +1188,7 @@ describe('CompositeGeographicValidationService', () => {
       expect(result.rejectionReasons).toEqual(['destination_mismatch']);
     });
 
-    it('E: a ROUTE_LIKE candidate with a stop beyond the destination and no verified scope is GEOGRAPHIC_SCOPE_UNKNOWN (PD2 fail-closed, no circle)', () => {
+    it('§P2-18 E: a ROUTE_LIKE candidate with a stop beyond the destination and no enclosing canonical scope is judged on its source-defined component geography (no circle, no UNKNOWN for a missing AREA)', () => {
       const candidate: ExperienceCandidate = {
         name: 'Ruta del Vino de Mendoza',
         themes: [],
@@ -1244,18 +1254,45 @@ describe('CompositeGeographicValidationService', () => {
         undefined,
         ownedAuthorization('route_like'),
       );
-      expect(result.accepted).toBe(false);
-      expect(result.rejectionReasons).toEqual(['geographic_scope_unknown']);
-      expect(result.experienceScope).toEqual(
-        expect.objectContaining({ provenance: 'DESTINATION_AREA' }),
-      );
+      expect(result.accepted).toBe(true);
+      expect(result.strategy).toBe('source_defined_components');
+      expect(result.experienceScope).toEqual({
+        kind: 'SOURCE_DEFINED_COMPONENTS',
+        provenance: 'SOURCE_COMPOSITION',
+        membership: 'DESCRIPTIVE',
+        supportingEvidenceKeys: ['e'],
+      });
       expect(result.destinationRelation?.relation).toBe(
         'EXTENDS_BEYOND_DESTINATION',
       );
+
+      // The same stops cited by DIFFERENT source records: an unsupported
+      // union, rejected whatever the distance.
+      const union = new CompositeGeographicValidationService().validate(
+        {
+          candidate: {
+            ...candidate,
+            componentHints: candidate.componentHints.map((hint) => ({
+              ...hint,
+              evidenceKeys: [hint.key === 'w2' ? 'e-other' : 'e'],
+            })),
+          },
+          status: 'accepted',
+          resolvedEntities: entities,
+          rejectionReasons: [],
+        },
+        boundary,
+        undefined,
+        ownedAuthorization('route_like'),
+      );
+      expect(union.accepted).toBe(false);
+      expect(union.rejectionReasons).toEqual([
+        'source_composition_unsupported',
+      ]);
       expect(
-        result.decisionEntities?.find((entity) => entity.hintKey === 'w2')
+        union.decisionEntities?.find((entity) => entity.hintKey === 'w2')
           ?.decisionReason,
-      ).toBe('GEOGRAPHIC_SCOPE_UNKNOWN');
+      ).toBe('COMPOSITION_NOT_SUPPORTED_BY_ONE_SOURCE');
     });
 
     it('leaves an ordinary multi-neighborhood walk (no AREA hint, no route_like) untouched', () => {
@@ -2166,7 +2203,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
     }
   });
 
-  it('uses OUTSIDE_CANONICAL_AREA_BOUNDARY (not OUTSIDE_DESTINATION_BOUNDARY) when component is outside canonical area', () => {
+  it('§P2-18: a component outside a DESCRIPTIVE canonical area (inside the destination) is a recorded fact, never an offending entity', () => {
     const candidate: ExperienceCandidate = {
       name: 'San Telmo walk',
       themes: ['culture'],
@@ -2217,25 +2254,14 @@ describe('Regression tests for forensic geographic trace evidence', () => {
       destinationBoundary,
     );
 
-    expect(result.accepted).toBe(false);
-    expect(result.rejectionReasons).toEqual(['outside_experience_scope']);
-
+    expect(result.accepted).toBe(true);
+    expect(result.experienceScope?.outsideScopeComponentKeys).toEqual(['w']);
     const outsideEntity = result.decisionEntities!.find(
       (e) => e.hintKey === 'w',
     );
     expect(outsideEntity).toBeDefined();
-    expect(outsideEntity!.relation).toBe('offending');
-    expect(outsideEntity!.decisionReason).toBe(
-      'OUTSIDE_CANONICAL_AREA_BOUNDARY',
-    );
-    expect(outsideEntity!.decisionReason).not.toBe(
-      'OUTSIDE_DESTINATION_BOUNDARY',
-    );
-    expect(outsideEntity!.distanceToBoundaryMeters).toBeDefined();
-    expect(Number.isFinite(outsideEntity!.distanceToBoundaryMeters!)).toBe(
-      true,
-    );
-    expect(outsideEntity!.distanceToBoundaryMeters! > 0).toBe(true);
+    expect(outsideEntity!.relation).toBe('evaluated');
+    expect(outsideEntity!.decisionReason).toBeUndefined();
   });
 
   it('uses OUTSIDE_POINT_RADIUS_SCOPE (not EXTERNAL_AREA_SCOPE_MISMATCH) and has no distance for point radius rejection', () => {
@@ -2834,7 +2860,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
         expect(result.strategy).toBe('canonical_area');
       });
 
-      it('rejects a ROUTE-kind component without line geometry instead of trusting its representative point', () => {
+      it('rejects (DEFAULT) a ROUTE-kind component without line geometry instead of trusting its representative point — its relation is UNDETERMINED', () => {
         const result = new CompositeGeographicValidationService().validate(
           {
             candidate: walk(candidateHints),
@@ -2849,11 +2875,12 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           boundary,
         );
         expect(result.accepted).toBe(false);
+        expect(result.rejectionReasons).toEqual(['geographic_scope_unknown']);
         expect(
           result.decisionEntities?.find((item) => item.hintKey === 'pasaje'),
         ).toMatchObject({
           relation: 'offending',
-          decisionReason: 'OUTSIDE_CANONICAL_AREA_BOUNDARY',
+          decisionReason: 'GEOGRAPHIC_SCOPE_UNKNOWN',
         });
       });
     });

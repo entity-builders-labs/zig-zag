@@ -23,7 +23,10 @@ import {
   AuthorizedExperienceCandidate,
   GeographicValidationAuthorization,
 } from './geographic-validation-authorization.interface';
-import { GeographicValidationDecisionEntity } from './geographic-validation.interface';
+import {
+  GeographicValidationDecisionEntity,
+  GeographicVerificationStrategy,
+} from './geographic-validation.interface';
 import type {
   DestinationCompatibilityReason,
   DestinationCompatibilityVerdict,
@@ -640,13 +643,7 @@ export interface ExperienceGeographicValidationResult {
     | 'AUTHORITATIVELY_VERIFIED'
     | 'REJECTED';
   accepted: boolean;
-  strategy?:
-    | 'canonical_entity'
-    | 'canonical_area'
-    | 'compact_anchors'
-    | 'canonical_geometry'
-    | 'component_defined'
-    | 'venue_centric';
+  strategy?: GeographicVerificationStrategy;
   canonicalEntity?: ResolvedGeoEntity;
   anchors: ResolvedGeoEntity[];
   coherence?: {

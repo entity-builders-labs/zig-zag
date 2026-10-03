@@ -1252,7 +1252,7 @@ describe('ExperienceProposalResolverService -- candidate-scoped geographic autho
     });
   });
 
-  it('E/PD2: a place 70 km out is never admitted by a destination-centroid radius; a ROUTE_LIKE candidate without a verified scope records GEOGRAPHIC_SCOPE_UNKNOWN, a DEFAULT one only the destination mismatch', async () => {
+  it('E/§P2-18: a place 70 km out is never admitted by a destination-centroid radius, and a Places search (no country bound) never admits it beyond the destination; the unresolved component is an IDENTITY blocker, never GEOGRAPHIC_SCOPE_UNKNOWN for a missing AREA', async () => {
     const farWinery = place(
       'geo-far-winery',
       'Bodega Lejana',
@@ -1296,15 +1296,9 @@ describe('ExperienceProposalResolverService -- candidate-scoped geographic autho
         }),
       ]);
       expect(result.resolved[0].status).toBe('rejected');
-      if (authorization.kind === 'ROUTE_LIKE') {
-        expect(result.resolved[0].rejectionReasons).toContain(
-          'GEOGRAPHIC_SCOPE_UNKNOWN',
-        );
-      } else {
-        expect(result.resolved[0].rejectionReasons).not.toContain(
-          'GEOGRAPHIC_SCOPE_UNKNOWN',
-        );
-      }
+      expect(result.resolved[0].rejectionReasons).not.toContain(
+        'GEOGRAPHIC_SCOPE_UNKNOWN',
+      );
     }
   });
 

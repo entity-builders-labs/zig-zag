@@ -8,9 +8,9 @@ import {
 import {
   ExperienceGeographicScope,
   ExperienceGeographicScopeProjection,
-  GeographicScopeUnknownReason,
   KnownExperienceGeographicScope,
   ScopeDestinationRelation,
+  ScopeMembershipSemantics,
   ScopeSearchWindow,
   WorkUnitAnchorScope,
 } from '../interfaces/experience-geographic-scope.interface';
@@ -40,6 +40,12 @@ import { isUsableRouteGeometry } from './route-geometry.util';
  * Authorization selects which REAL scopes are admissible; it never creates
  * one: ROUTE_LIKE is the only class that may use a candidate-owned scope
  * lying beyond the destination (§P2-6 table). WALK never borrows that.
+ *
+ * §P2-18: a derived scope is either a STRICT constraint or DESCRIPTIVE
+ * source context (`scopeMembershipSemantics`), and the absence of an
+ * enclosing canonical scope is not UNKNOWN for a ROUTE_LIKE candidate: the
+ * destination scope is returned and composite validation judges members
+ * beyond it on their source-defined component geography.
  */
 
 /**
@@ -83,14 +89,6 @@ export interface DerivedExperienceGeographicScope {
   scope: ExperienceGeographicScope;
   /** Relation of a candidate-owned scope to the destination (a fact). */
   ownedScopeDestinationRelation?: ScopeDestinationRelation;
-  /**
-   * Set only on a destination scope (S-d/S-e) of a ROUTE_LIKE candidate:
-   * the authorization would have admitted a real scope beyond the
-   * destination, but none was verified. If any component lies beyond the
-   * destination, the Experience scope is UNKNOWN for this reason (PD2) —
-   * never a manufactured region.
-   */
-  unknownWhenBeyondDestination?: GeographicScopeUnknownReason;
 }
 
 function destinationExperienceScope(
@@ -151,6 +149,9 @@ export function deriveExperienceGeographicScope(input: {
               isCanonicalAreaScopeComponent(entity),
           )
         : undefined;
+  // Two or more candidate-owned scopes give no single Experience scope:
+  // they stay descriptive context of the composition and the destination
+  // scope judges it (a ROUTE_LIKE member beyond it is source-defined).
   const multipleOwned =
     routes.length > 1 || (routes.length === 0 && areaHints.length > 1);
 
@@ -231,18 +232,52 @@ export function deriveExperienceGeographicScope(input: {
     }
   }
 
-  const destinationScope = destinationExperienceScope(input.destination);
-  if (destinationScope.kind === 'UNKNOWN') return { scope: destinationScope };
-  return {
-    scope: destinationScope,
-    ...(routeLike
-      ? {
-          unknownWhenBeyondDestination: multipleOwned
-            ? 'MULTIPLE_CANDIDATE_SCOPES'
-            : 'NO_VERIFIED_SCOPE_FOR_COMPONENTS_BEYOND_DESTINATION',
-        }
-      : {}),
-  };
+  return { scope: destinationExperienceScope(input.destination) };
+}
+
+/**
+ * §P2-18: may this candidate's composition extend beyond the trip
+ * destination without an enclosing canonical scope? Only a ROUTE_LIKE
+ * authorization (Part I: the one policy class whose owning work unit was
+ * granted a wider geography) and only when no STRICT user anchor bounds the
+ * work unit — an anchor is the request's own geography and is never
+ * bypassed by a source-defined extension. The single owner for both
+ * component acquisition (country-bounded admission) and validation.
+ */
+export function mayExtendBeyondDestination(
+  authorization: GeographicValidationAuthorization,
+  workUnitScope: WorkUnitAnchorScope | undefined,
+): boolean {
+  return authorization.kind === 'ROUTE_LIKE' && !workUnitScope;
+}
+
+/**
+ * §P2-18: what a known scope's geometry means for membership. Decided only
+ * by who established it (and, for the destination, by whether the candidate
+ * may extend beyond it) — never by a distance, a category, a title or the
+ * mere presence of an AREA hint.
+ *  - WORK_UNIT_ANCHOR: STRICT — the user named it as the geography of the
+ *    walk/route_like need its work unit exclusively owns.
+ *  - CANDIDATE_AREA / CANDIDATE_ROUTE: DESCRIPTIVE — the source's own
+ *    geographic description of its composition.
+ *  - DESTINATION_*: STRICT unless `mayExtendBeyondDestination` (DEFAULT/WALK
+ *    authorization ceiling, or a strict anchor's unit); DESCRIPTIVE for a
+ *    ROUTE_LIKE source-defined composition.
+ */
+export function scopeMembershipSemantics(
+  scope: KnownExperienceGeographicScope,
+  extendsBeyondDestination: boolean,
+): ScopeMembershipSemantics {
+  switch (scope.provenance) {
+    case 'WORK_UNIT_ANCHOR':
+      return 'STRICT';
+    case 'CANDIDATE_AREA':
+    case 'CANDIDATE_ROUTE':
+      return 'DESCRIPTIVE';
+    case 'DESTINATION_AREA':
+    case 'DESTINATION_POINT_RADIUS':
+      return extendsBeyondDestination ? 'DESCRIPTIVE' : 'STRICT';
+  }
 }
 
 /**
@@ -253,7 +288,9 @@ export function deriveExperienceGeographicScope(input: {
 export function scopeSearchWindow(
   scope: ExperienceGeographicScope,
 ): ScopeSearchWindow | undefined {
-  if (scope.kind === 'UNKNOWN') return undefined;
+  if (scope.kind === 'UNKNOWN' || scope.kind === 'SOURCE_DEFINED_COMPONENTS') {
+    return undefined;
+  }
   if (scope.kind === 'POINT_RADIUS') {
     return {
       provenance: scope.provenance,
@@ -302,6 +339,10 @@ export function geographicScopeSearchWindow(
 
 export function projectExperienceGeographicScope(
   derived: DerivedExperienceGeographicScope,
+  membership?: {
+    semantics: ScopeMembershipSemantics;
+    outsideScopeComponentKeys?: string[];
+  },
 ): ExperienceGeographicScopeProjection {
   const { scope } = derived;
   if (scope.kind === 'UNKNOWN') {
@@ -313,6 +354,14 @@ export function projectExperienceGeographicScope(
         : {}),
     };
   }
+  if (scope.kind === 'SOURCE_DEFINED_COMPONENTS') {
+    return {
+      kind: scope.kind,
+      provenance: scope.provenance,
+      membership: 'DESCRIPTIVE',
+      supportingEvidenceKeys: [...scope.supportingEvidenceKeys],
+    };
+  }
   return {
     kind: scope.kind,
     provenance: scope.provenance,
@@ -322,6 +371,10 @@ export function projectExperienceGeographicScope(
       : {}),
     ...(derived.ownedScopeDestinationRelation
       ? { destinationRelation: derived.ownedScopeDestinationRelation }
+      : {}),
+    ...(membership ? { membership: membership.semantics } : {}),
+    ...(membership?.outsideScopeComponentKeys?.length
+      ? { outsideScopeComponentKeys: [...membership.outsideScopeComponentKeys] }
       : {}),
   };
 }
@@ -341,51 +394,59 @@ export interface ComponentLocationAdmission {
 
 /**
  * Acquisition-time admission of a provider location for a component of a
- * candidate whose scope is `scope` — the same geometry validation later
- * judges with:
- *  - CANDIDATE_AREA / regional WORK_UNIT_ANCHOR AREA: the point must lie
- *    inside that verified AREA polygon;
- *  - every other scope: the destination policy (a point can never be
- *    topologically ON a route line, so a CANDIDATE_ROUTE admits points the
- *    destination admits; S-a anchors are validated afterwards, in
- *    conjunction).
+ * candidate whose scope is `scope` — consistent with how composite
+ * validation will judge it (§P2-10 as amended by §P2-18):
+ *  - a STRICT regional WORK_UNIT_ANCHOR AREA acting as the Experience scope:
+ *    the point must lie inside that polygon;
+ *  - a DESCRIPTIVE CANDIDATE_AREA: inside the AREA is admitted; outside it
+ *    the location is judged like any other scope's, below (an AREA the
+ *    source names never becomes a containment boundary);
+ *  - every scope: the destination policy (a point can never be topologically
+ *    ON a route line, so a CANDIDATE_ROUTE admits what the destination
+ *    admits; S-a anchors are validated afterwards, in conjunction);
+ *  - a location the destination positively excludes is still admitted when
+ *    the provider query itself was bounded to the destination COUNTRY (a
+ *    real authority, enforced provider-side) and the candidate may extend
+ *    beyond the destination (`mayExtendBeyondDestination`: ROUTE_LIKE, no
+ *    strict work-unit anchor). Identity is then decided by
+ *    `IdentityVerifier` over that country-bounded result set — never by
+ *    proximity, never by being the first hit.
  * UNKNOWN destination compatibility excludes nothing (unchanged).
  */
 export function admitComponentLocation(
   scope: KnownExperienceGeographicScope,
   location: Coordinates | undefined,
   destination: GeographicScope | undefined,
+  provider: { countryBounded: boolean } = { countryBounded: false },
 ): ComponentLocationAdmission {
-  if (
-    scope.kind === 'AREA' &&
-    (scope.provenance === 'CANDIDATE_AREA' ||
-      scope.provenance === 'WORK_UNIT_ANCHOR')
-  ) {
-    if (
-      !location ||
-      !Number.isFinite(location.latitude) ||
-      !Number.isFinite(location.longitude)
-    ) {
+  const finite =
+    !!location &&
+    Number.isFinite(location.latitude) &&
+    Number.isFinite(location.longitude);
+  if (scope.kind === 'AREA' && scope.provenance !== 'DESTINATION_AREA') {
+    const inside =
+      finite &&
+      classifyComponentAreaRelation(scope.geometry, {
+        role: 'venue',
+        latitude: location.latitude,
+        longitude: location.longitude,
+      }).relation === 'INSIDE';
+    if (inside) return { admitted: true };
+    if (scope.provenance === 'WORK_UNIT_ANCHOR') {
       return { admitted: false, reason: 'OUTSIDE_EXPERIENCE_SCOPE' };
     }
-    const relation = classifyComponentAreaRelation(scope.geometry, {
-      role: 'venue',
-      latitude: location.latitude,
-      longitude: location.longitude,
-    }).relation;
-    return relation === 'INSIDE'
-      ? { admitted: true }
-      : { admitted: false, reason: 'OUTSIDE_EXPERIENCE_SCOPE' };
   }
   const destinationCompatibility = evaluateDestinationCompatibility(
     { probePoints: location ? [location] : [] },
     destination,
   );
-  return destinationCompatibility.verdict === 'INCOMPATIBLE'
-    ? {
-        admitted: false,
-        reason: 'DESTINATION_INCOMPATIBLE',
-        destinationCompatibility,
-      }
-    : { admitted: true };
+  if (destinationCompatibility.verdict !== 'INCOMPATIBLE') {
+    return { admitted: true };
+  }
+  if (provider.countryBounded && finite) return { admitted: true };
+  return {
+    admitted: false,
+    reason: 'DESTINATION_INCOMPATIBLE',
+    destinationCompatibility,
+  };
 }

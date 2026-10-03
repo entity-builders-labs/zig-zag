@@ -65,6 +65,7 @@ import {
 import {
   admitComponentLocation,
   deriveExperienceGeographicScope,
+  mayExtendBeyondDestination,
   DerivedExperienceGeographicScope,
   geographicScopeSearchWindow,
   projectExperienceGeographicScope,
@@ -131,6 +132,14 @@ interface ComponentAcquisitionScope {
   candidateOwned: boolean;
   /** Bounds a phase-1 AREA hint search to the country only (ROUTE_LIKE). */
   countryBoundedAreaSearch: boolean;
+  /**
+   * §P2-18: the candidate may extend beyond the destination (ROUTE_LIKE, no
+   * strict work-unit anchor), so a provider query bounded to the
+   * destination COUNTRY (the real authority, enforced provider-side) may
+   * admit a location the destination excludes. False whenever a STRICT
+   * scope bounds the candidate or no country is known.
+   */
+  admitsCountryBoundedBeyondDestination: boolean;
 }
 
 /**
@@ -1379,6 +1388,7 @@ export class ExperienceProposalResolverService
       destinationScope,
       entityResolutionScope,
       entities,
+      false,
     );
     for (const hint of hints.filter(isScopeHint)) {
       await resolveHint(hint, {
@@ -1395,11 +1405,17 @@ export class ExperienceProposalResolverService
       destination: destinationScope,
       workUnitScope,
     });
+    // §P2-18: a ROUTE_LIKE composition not bound by a STRICT user anchor
+    // may extend beyond the destination with no enclosing canonical scope;
+    // its members may then be acquired by a provider query bounded to the
+    // destination COUNTRY — never by a radius or an unbounded search.
     const memberAcquisition = this.componentAcquisitionScope(
       derivedScope,
       destinationScope,
       entityResolutionScope,
       entities,
+      mayExtendBeyondDestination(geographicAuthorization, workUnitScope) &&
+        Boolean(destinationCountryCode),
     );
     for (const hint of hints.filter((hint) => !isScopeHint(hint))) {
       await resolveHint(hint, memberAcquisition);
@@ -1414,31 +1430,6 @@ export class ExperienceProposalResolverService
     );
     const componentSearchScope = projectExperienceGeographicScope(derivedScope);
     await this.rememberVerifiedHints(verifiedHintsToRemember);
-    // PD2 knowledge deficit: a ROUTE_LIKE candidate without a verified
-    // candidate-owned scope whose components were positively acquired only
-    // BEYOND the destination has no Experience scope — recorded as
-    // GEOGRAPHIC_SCOPE_UNKNOWN, never rescued by a circle.
-    const acquiredOnlyBeyondDestination = (audit: ComponentResolutionAudit) =>
-      audit.finalStatus === 'unresolved' &&
-      audit.attempts.some(
-        (attempt) =>
-          attempt.destinationCompatibility?.reason ===
-            'OUTSIDE_DESTINATION_BOUNDARY' ||
-          (attempt.placeSearch?.rejected ?? []).some(
-            (rejected) =>
-              rejected.reason === 'DESTINATION_INCOMPATIBLE' &&
-              rejected.destinationReason === 'OUTSIDE_DESTINATION_BOUNDARY',
-          ),
-      );
-    const scopeUnknown =
-      derivedScope.unknownWhenBeyondDestination !== undefined &&
-      componentAudits.some(
-        (audit) =>
-          !isScopeHint(
-            hints.find((hint) => hint.key === audit.hintKey) as GeoEntityHint,
-          ) && acquiredOnlyBeyondDestination(audit),
-      );
-
     // Source composition is the authority on WHICH components make up this
     // Experience. A candidate is admitted to geographic validation (and so
     // to persistence) only when every source-backed component hint has a
@@ -1478,7 +1469,6 @@ export class ExperienceProposalResolverService
                   ),
                 ]
               : ['INCOMPLETE_SOURCE_COMPOSITION']),
-            ...(scopeUnknown ? ['GEOGRAPHIC_SCOPE_UNKNOWN'] : []),
           ],
         },
         audit: {
@@ -1527,6 +1517,7 @@ export class ExperienceProposalResolverService
     destinationScope: GeographicScope,
     entityResolutionScope: GeographicScope,
     entities: ResolvedGeoEntity[],
+    admitsCountryBoundedBeyondDestination: boolean,
   ): ComponentAcquisitionScope {
     const destinationOnly = deriveExperienceGeographicScope({
       candidate: { componentHints: [] },
@@ -1543,12 +1534,22 @@ export class ExperienceProposalResolverService
             'WORK_UNIT_ANCHOR',
           );
     const scope =
-      derived.scope.kind !== 'UNKNOWN' ? derived.scope : destinationOnly;
-    if (scope.kind === 'UNKNOWN') {
+      derived.scope.kind !== 'UNKNOWN' &&
+      derived.scope.kind !== 'SOURCE_DEFINED_COMPONENTS'
+        ? derived.scope
+        : destinationOnly;
+    if (
+      scope.kind === 'UNKNOWN' ||
+      scope.kind === 'SOURCE_DEFINED_COMPONENTS'
+    ) {
       // No destination geography at all: no window, no scope; providers run
       // country-bounded only and admission defers to the destination policy
       // (UNKNOWN excludes nothing). Nothing is admitted by a fabricated scope.
-      return { candidateOwned: false, countryBoundedAreaSearch: false };
+      return {
+        candidateOwned: false,
+        countryBoundedAreaSearch: false,
+        admitsCountryBoundedBeyondDestination: false,
+      };
     }
     // A verified candidate-owned scope, or a regional work-unit anchor
     // acting as the Experience scope, bounds the search itself.
@@ -1580,6 +1581,7 @@ export class ExperienceProposalResolverService
       ...(poolBoundary ? { poolBoundary } : {}),
       candidateOwned,
       countryBoundedAreaSearch: false,
+      admitsCountryBoundedBeyondDestination,
     };
   }
 
@@ -2188,7 +2190,8 @@ export class ExperienceProposalResolverService
           // destination (e.g. "San Martín" -> Partido de General San Martín
           // for a Buenos Aires walk) is never a component of a
           // destination-scoped candidate; UNKNOWN never counts as inside. A
-          // member AREA of a candidate-owned AREA must lie in that AREA.
+          // member AREA of a candidate-owned (DESCRIPTIVE) AREA is admitted
+          // inside that AREA or, like any member, inside the destination.
           const destinationCompatibility = this.areaDestinationCompatibility(
             boundary.value,
             destinationScope,
@@ -2197,7 +2200,7 @@ export class ExperienceProposalResolverService
               longitude: match.longitude as number,
             },
           );
-          const insideOwnedArea =
+          const ownedAreaAdmitted =
             componentScope.scope?.provenance === 'CANDIDATE_AREA'
               ? admitComponentLocation(
                   componentScope.scope,
@@ -2208,7 +2211,7 @@ export class ExperienceProposalResolverService
                   destinationScope,
                 ).admitted
               : undefined;
-          if (insideOwnedArea === false) {
+          if (ownedAreaAdmitted === false) {
             return {
               status: 'no_candidate',
               provider: 'nominatim',
@@ -2218,7 +2221,7 @@ export class ExperienceProposalResolverService
             };
           }
           if (
-            insideOwnedArea !== true &&
+            ownedAreaAdmitted !== true &&
             destinationCompatibility.verdict !== 'COMPATIBLE'
           ) {
             return {
@@ -2264,6 +2267,10 @@ export class ExperienceProposalResolverService
       // gallery in another partido is never a component). UNKNOWN (no
       // destination polygon) excludes nothing -- the country code + soft
       // bias remain the only geographic constraint, as before.
+      // §P2-18: this query carried the destination country code (enforced
+      // by the provider), so for a candidate that may extend beyond the
+      // destination a country-bounded match is admissible; identity is
+      // still decided by IdentityVerifier over the same result set.
       const admission = componentScope.scope
         ? admitComponentLocation(
             componentScope.scope,
@@ -2272,6 +2279,11 @@ export class ExperienceProposalResolverService
               longitude: match.longitude as number,
             },
             destinationScope,
+            {
+              countryBounded:
+                componentScope.admitsCountryBoundedBeyondDestination &&
+                Boolean(destinationCountryCode),
+            },
           )
         : { admitted: true };
       if (!admission.admitted) {

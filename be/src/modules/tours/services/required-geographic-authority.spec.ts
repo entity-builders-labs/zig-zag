@@ -199,6 +199,11 @@ describe('Stage 4: `required` carries no geographic authority', () => {
         experience: {
           findMany: jest.fn().mockResolvedValue([row(routeRequired)]),
         },
+        // Bounded pool (PostGIS window over the AREA's bbox), never a
+        // global scan.
+        $queryRaw: jest
+          .fn()
+          .mockResolvedValue([{ id: 'exp-walk', distance_meters: 0 }]),
       };
       return {
         service: new ExperienceCatalogService(prisma, {} as any),
