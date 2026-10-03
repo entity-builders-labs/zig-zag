@@ -18,7 +18,11 @@ classification contract and deterministic validation are unchanged.
 >
 > Code wins over stale progress text. The cutover has progressed non-linearly: M4 is already landed and substantial M5 work is already landed. Do not revert later milestone work merely because an earlier milestone needed a forward correction.
 
-## Current execution verdict — 2026-09-29
+## Current execution verdict
+
+*(Previously headed `Current execution verdict — 2026-09-29`. Renamed to the
+canonical machine-readable heading so `scripts/agent-track context` resolves it
+exactly; body unchanged.)*
 
 **Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY (native producer cutover complete; v4 legacy paths deleted; modular domain audit split complete; zero avoidable `any`).**  
 **RW3 final classification/warm-reuse gate — CLOSED / ACCEPTED.**  
@@ -2057,3 +2061,56 @@ by the disposable-database guard (`unknown/<none>`); no guard bypass was used.
 The cold M9 live generation was not run because the required disposable DB and
 live-gate environment were unavailable. No generation ID or Trace path exists
 for this implementation run; M9 remains **NOT CLOSED** pending live validation.
+
+## Current checkpoint
+
+Multi-agent collaboration governance is now merged into this branch: merge
+commit `a4967e48` brings PR #70 head `d5f6f6e6` into
+`feat/preference-first-selection`. `scripts/agent-track`,
+`scripts/agent-preflight`, and `scripts/agent-progress-gate` are therefore
+available in this checkout, and this progress document is the ACTIVE track
+record for `preference-first-selection` (`integration=main`, base
+`016f10586d4faf9fe7e703a2d28684136cf99abe`).
+
+This checkpoint adds the machine-readable execution delta that the track
+contract requires. It is progress-only: no product, RW4, planner, provider, or
+persisted-contract behavior is changed by it.
+
+RW4 product state is unchanged and is recorded here as-is. Geographic-scope
+architecture S1-S6 is IMPLEMENTED with PD1/PD2/PD3 recorded; work-unit
+geographic authorization landed in `4da75fac` with the global
+`requestValidationIntent` singleton deleted; canonical COLD runs #5 through #11
+are recorded above. The open RW4 blocker is unchanged: persistence/WARM of a
+REAL multi-component Experience, where real component IDENTITY
+coverage/corroboration is the next blocker.
+
+## Next authorized action
+
+Run the Gate C RW4 next gate: obtain real component identity
+coverage/corroboration for a multi-component Experience, then prove
+persistence/WARM of that REAL Experience.
+
+The draft pull request for `feat/preference-first-selection` -> `main` exists
+for review only. Do not merge to `main`, do not change RW4 conclusions, and do
+not start an autonomous reviewer/fixer loop.
+
+## Open findings / blockers
+
+- PF-REVIEW-PROVIDER-1: OPEN, BLOCKING for automated review. The contextual
+  review workflow cannot publish an artifact: the configured Groq endpoint
+  rejects the Codex CLI request body (`invalid JSON body`, with
+  `unknown field client_metadata` and unsupported `include` on replay). No
+  canonical review exists for this branch's head. The first real product review
+  of this head is therefore an independent ChatGPT review of the same SHA, not
+  a Groq artifact. Provider choice is a human decision and is not made here.
+- PF-CI-FLAKE-1: OPEN, MEDIUM. `backend-integration` failed once on
+  `tour-generation/catalog-reuse` with
+  `MAX_CONTINUOUS_WALKING_EXCEEDED` and passed on rerun of the identical
+  merge result. The merge result's `be/` tree is byte-identical to this branch
+  head, so this is product-suite flakiness in the RW4 area, not a governance
+  regression. Do not weaken an invariant or a fixture to hide it.
+- Local, untracked RW4 spike artifacts under
+  `spikes/rw4-mendoza-tourism-route-cloudflare-*/` (raw run dumps, roughly
+  7 MB) are excluded through `.git/info/exclude`, matching the existing entries
+  for the earlier spikes. They are forensic material from prior canonical COLD
+  runs, are not part of this branch, and were deliberately not deleted.
