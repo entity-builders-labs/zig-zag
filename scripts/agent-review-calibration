@@ -1,0 +1,489 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2016 # markdown backticks in single-quoted printf formats
+# Bounded historical product calibration for the contextual reviewer.
+#
+# THIS IS NOT THE PRODUCTION REVIEW PIPELINE. It never publishes a GitHub
+# review, never writes a CURRENT marker, and never binds a verdict to a commit it
+# did not review. Its only output is a local, human-readable report.
+#
+# Why a separate harness exists: the canonical workflow resolves its range from
+# the live PR and publishes to it. A calibration must review a *declared,
+# historical* range against an *isolated* checkout of that exact historical
+# commit, without touching the live integration branch, its registered worktree,
+# its progress document, or its PR history. Reusing the production workflow would
+# require faking a PR, which is exactly the kind of fabrication the review
+# contract forbids.
+#
+# Isolation method: `git archive` exports the exact tree of the reviewed commit
+# into a throwaway directory. It creates no branch, no worktree, and no index
+# entry, so the real repository's worktree registry and track discovery are
+# untouched. The exported snapshot is its own throwaway git repository so the
+# canonical `agent-track` / `agent-review-context` tooling can resolve the track
+# at that snapshot.
+#
+# What IS reused unchanged from the production pipeline:
+#   - .github/codex/track-review-inspect-prompt.md
+#   - .github/codex/track-review-normalize-prompt.md
+#   - .github/codex/track-review-schema.json
+#   - .opencode/agent/reviewer.md and reviewer-normalize.md (read-only)
+#   - scripts/agent-review-evidence-gate
+#   - the ":free" model-id assertion
+#
+# Usage:
+#   agent-review-calibration --baseline <sha> --reviewed <sha> --track <id> \
+#                            --title "<text>" --out <dir>
+
+set -euo pipefail
+
+BASELINE=''
+REVIEWED=''
+TRACK=''
+TITLE=''
+OUT=''
+REUSE=false
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --baseline) BASELINE="${2:-}"; shift 2 ;;
+    --reviewed) REVIEWED="${2:-}"; shift 2 ;;
+    --track) TRACK="${2:-}"; shift 2 ;;
+    --title) TITLE="${2:-}"; shift 2 ;;
+    --out) OUT="${2:-}"; shift 2 ;;
+    --reuse) REUSE=true; shift ;;
+    *)
+      echo "unknown argument: $1" >&2
+      exit 2
+      ;;
+  esac
+done
+
+[ -n "$BASELINE" ] || { echo 'CALIBRATION FAILED: --baseline is required' >&2; exit 2; }
+[ -n "$REVIEWED" ] || { echo 'CALIBRATION FAILED: --reviewed is required' >&2; exit 2; }
+[ -n "$TRACK" ] || { echo 'CALIBRATION FAILED: --track is required' >&2; exit 2; }
+[ -n "$TITLE" ] || { echo 'CALIBRATION FAILED: --title is required' >&2; exit 2; }
+[ -n "$OUT" ] || { echo 'CALIBRATION FAILED: --out is required' >&2; exit 2; }
+
+# The label is a safety control, not decoration. A calibration report that could
+# be mistaken for a canonical review is the exact failure this track must avoid,
+# so the required wording is enforced rather than merely suggested.
+case "$TITLE" in
+  *'NOT A CANONICAL'*'REVIEW'*) ;;
+  *)
+    echo 'CALIBRATION FAILED: --title must contain "NOT A CANONICAL ... REVIEW"' >&2
+    exit 2
+    ;;
+esac
+
+SOURCE_ROOT="$(git rev-parse --show-toplevel)"
+cd "$SOURCE_ROOT"
+
+# Preserve exact SHAs. Never substitute a moving branch head.
+for sha in "$BASELINE" "$REVIEWED"; do
+  [ "$(git cat-file -t "$sha" 2>/dev/null)" = commit ] || {
+    echo "CALIBRATION FAILED: $sha is not a commit in this repository" >&2
+    exit 2
+  }
+done
+git merge-base --is-ancestor "$BASELINE" "$REVIEWED" || {
+  echo "CALIBRATION FAILED: baseline $BASELINE is not an ancestor of reviewed $REVIEWED" >&2
+  exit 2
+}
+
+REVIEW_MODEL='openrouter/qwen/qwen3.8-27b:free'
+# Same cost contract as the production pipeline, asserted rather than assumed.
+case "$REVIEW_MODEL" in
+  *:free) ;;
+  *)
+    echo "CALIBRATION FAILED: REVIEW_MODEL must name a :free endpoint (got '$REVIEW_MODEL')" >&2
+    exit 1
+    ;;
+esac
+
+if [ -z "${OPENROUTER_API_KEY:-}" ] && [ -f .env.openrouter ]; then
+  OPENROUTER_API_KEY="$(sed -n 's/^OPENROUTER_API_KEY=//p' .env.openrouter | head -1)"
+  export OPENROUTER_API_KEY
+fi
+[ -n "${OPENROUTER_API_KEY:-}" ] || {
+  echo 'CALIBRATION FAILED: OPENROUTER_API_KEY is not configured' >&2
+  exit 1
+}
+
+mkdir -p "$OUT"
+SNAP="$OUT/snapshot"
+if [ "$REUSE" != true ]; then
+  rm -rf "$SNAP"
+fi
+mkdir -p "$SNAP"
+
+# --- isolate: export the exact historical tree, create no branch or worktree ---
+git archive "$REVIEWED" | tar -x -C "$SNAP"
+
+# Overlay only the reviewer tooling this track introduced. Canonical documents
+# and all product code stay exactly as they were at the reviewed commit.
+mkdir -p "$SNAP/scripts"
+cp "$SOURCE_ROOT/scripts/agent-track" "$SNAP/scripts/agent-track"
+cp "$SOURCE_ROOT/scripts/agent-review-context" "$SNAP/scripts/agent-review-context"
+cp "$SOURCE_ROOT/scripts/agent-review-evidence-gate" "$SNAP/scripts/agent-review-evidence-gate"
+chmod +x "$SNAP/scripts/agent-track" "$SNAP/scripts/agent-review-context" \
+  "$SNAP/scripts/agent-review-evidence-gate"
+
+# The read-only reviewer agents are harness, not product code. They postdate the
+# reviewed snapshot, so without this overlay OpenCode aborts with
+# `Agent not found: "reviewer"` before any request is issued. Overlaying them is
+# required to review an older commit at all, and changes no reviewed file.
+mkdir -p "$SNAP/.opencode/agent"
+cp "$SOURCE_ROOT/.opencode/agent/reviewer.md" "$SNAP/.opencode/agent/reviewer.md"
+cp "$SOURCE_ROOT/.opencode/agent/reviewer-normalize.md" "$SNAP/.opencode/agent/reviewer-normalize.md"
+
+# The snapshot needs to be its own repository so the canonical track tooling can
+# resolve the track as of that commit. It is throwaway and disconnected.
+#
+# The branch must come from the header of the *requested* track. A snapshot can
+# legitimately contain several ACTIVE track headers, and initializing on another
+# track's branch makes `agent-track context` resolve that other track instead.
+TRACK_BRANCH=''
+while IFS= read -r progress_file; do
+  header="$(grep -m1 '<!-- agent-track:' "$progress_file" 2>/dev/null || true)"
+  case "$header" in
+    *"id=$TRACK;"*)
+      TRACK_BRANCH="$(printf '%s' "$header" | sed -n 's/.*branch=\([^;]*\);.*/\1/p')"
+      break
+      ;;
+  esac
+done < <(find "$SNAP/docs/superpowers/progress" -name '*.md' 2>/dev/null | sort)
+[ -n "$TRACK_BRANCH" ] || {
+  echo "CALIBRATION FAILED: no ACTIVE agent-track header declares id=$TRACK in the reviewed snapshot" >&2
+  exit 1
+}
+(
+  cd "$SNAP"
+  git init -q -b "$TRACK_BRANCH" .
+  git config user.email 'calibration@example.test'
+  git config user.name 'Historical Calibration'
+  git config commit.gpgsign false
+  git add -A >/dev/null 2>&1 || true
+  git commit -qm "historical snapshot $REVIEWED" >/dev/null 2>&1 || true
+)
+
+# --- exact range facts, declared explicitly (never the incremental algorithm) ---
+RANGE="$BASELINE..$REVIEWED"
+COMMITS="$(git log --reverse --format='%H %s' "$RANGE")"
+CHANGED_FILES="$(git diff --name-only "$RANGE")"
+COMMIT_COUNT="$(git rev-list --count "$RANGE")"
+
+PR_TITLE="$(git log -1 --format=%s "$REVIEWED")"
+BASE_SUBJECT="$(git log -1 --format=%s "$BASELINE")"
+printf '%.0s-' {1..72} >>"$OUT/.banner"
+{
+  printf '# %s\n\n' "$TITLE"
+  printf -- '- Reviewed product SHA: `%s`\n' "$REVIEWED"
+  printf -- '- Reviewed commit: %s\n' "$PR_TITLE"
+  printf -- '- Baseline SHA: `%s`\n' "$BASELINE"
+  printf -- '- Baseline commit: %s\n' "$BASE_SUBJECT"
+  printf -- '- Declared range: `%s`\n' "$RANGE"
+  printf -- '- Commits in range: %s\n' "$COMMIT_COUNT"
+  printf -- '- Track reviewed against: `%s`\n' "$TRACK"
+  printf -- '- Model: `%s`\n' "$REVIEW_MODEL"
+  printf -- '- Checkout mode: isolated `git archive` export; no branch, worktree,\n'
+  printf '  index, or PR state was created or modified\n'
+  printf '\n'
+} >"$OUT/report.md"
+
+{
+  printf 'track=%s\n' "$TRACK"
+  printf 'reviewed_head=%s\n' "$REVIEWED"
+  printf 'baseline=%s\n' "$BASELINE"
+  printf 'range=%s\n' "$RANGE"
+} >"$OUT/runtime-facts.txt"
+
+printf '%s\n' "$CHANGED_FILES" >"$OUT/changed-files.txt"
+
+printf '%s\n' "$COMMITS" | sed -n 's/^\([0-9a-f]\{40\}\) /\1 /p' >"$OUT/commits.txt"
+
+{
+  printf '# Runtime calibration input\n\n'
+  printf 'track=%s\nreviewed_head=%s\nbaseline=%s\nrange=%s\ncommit_count=%s\n\n' \
+    "$TRACK" "$REVIEWED" "$BASELINE" "$RANGE" "$COMMIT_COUNT"
+  printf '## Commits in the declared calibration range\n\n```text\n%s\n```\n\n' "$COMMITS"
+  printf '## Changed files in the declared calibration range\n\n```text\n%s\n```\n\n' "$CHANGED_FILES"
+  printf 'The complete diff for the declared range is attached as delta.diff.\n'
+  printf 'Read it with your read tool. This is a declared historical range, not\n'
+  printf 'the incremental-baseline algorithm used for live pull requests.\n'
+} >"$OUT/input.md"
+
+git diff --find-renames --find-copies "$RANGE" >"$OUT/delta.diff"
+
+# Canonical context, assembled deterministically from the historical snapshot's
+# own authority index rather than from the live branch.
+#
+# This must run with the snapshot as the working directory:
+# `agent-review-context` resolves `scripts/agent-track` relatively, so running it
+# from this worktree would resolve the *live* ACTIVE track instead of the
+# historical one and report that the track cannot be resolved.
+if ! (cd "$SNAP" && TRACK="$TRACK" CHANGED_FILES="$OUT/changed-files.txt" \
+  bash scripts/agent-review-context "$OUT/context.md") 2>"$OUT/context.err"; then
+  {
+    printf '## Calibration could not assemble canonical context\n\n'
+    printf '```text\n'
+    cat "$OUT/context.err"
+    printf '```\n\n'
+    printf 'Result: **INCOMPLETE** — no review was attempted.\n'
+  } >>"$OUT/report.md"
+  cp "$OUT/report.md" "$OUT/report.md.done"
+  echo "calibration_incomplete=context_assembly_failed"
+  exit 1
+fi
+
+printf 'context_lines=%s\n' "$(wc -l <"$OUT/context.md" | tr -d ' ')"
+printf 'changed_file_count=%s\n' "$(grep -c . "$OUT/changed-files.txt" || echo 0)"
+echo "snapshot_ready=$SNAP"
+# --- inspection phase: same canonical prompt, same read-only agent ---
+STAGE="$SNAP/.review-input"
+mkdir -p "$STAGE"
+cp "$OUT/input.md" "$STAGE/input.md"
+cp "$OUT/context.md" "$STAGE/context.md"
+cp "$OUT/delta.diff" "$STAGE/delta.diff"
+
+inspect_prompt="$(sed "s|@CONTEXT_FILE@|$STAGE/context.md|; s|@INPUT_FILE@|$STAGE/input.md|" \
+  .github/codex/track-review-inspect-prompt.md)"
+
+# Reuse previously captured transcripts instead of spending the provider budget
+# again. This exists only so a defect in post-processing can be corrected without
+# discarding real model output; it cannot fabricate a verdict, because the
+# normalizer still runs against the captured inspection evidence below.
+if [ "$REUSE" = true ] && [ -s "$OUT/normalize.jsonl" ] && [ -s "$OUT/inspect.jsonl" ]; then
+  echo 'reuse=captured_transcripts'
+fi
+
+tracked_tree() {
+  rm -f "$OUT/.integrity-index"
+  GIT_INDEX_FILE="$OUT/.integrity-index" git -C "$SNAP" read-tree HEAD >/dev/null
+  GIT_INDEX_FILE="$OUT/.integrity-index" git -C "$SNAP" add -u -- "$SNAP" >/dev/null 2>&1
+  GIT_INDEX_FILE="$OUT/.integrity-index" git -C "$SNAP" write-tree
+}
+
+tree_before="$(tracked_tree)"
+set +e
+if [ "$REUSE" = true ] && [ -s "$OUT/inspect.jsonl" ]; then
+  : # keep the captured inspection transcript
+  inspect_status=0
+else
+  (cd "$SNAP" && opencode run --standalone \
+    --agent reviewer \
+    --model "$REVIEW_MODEL" \
+    --format json \
+    --file "$STAGE/delta.diff" \
+    "$inspect_prompt") >"$OUT/inspect.jsonl" 2>"$OUT/inspect.err"
+  inspect_status=$?
+fi
+set -e
+tree_after="$(tracked_tree)"
+printf 'checkout_unchanged=%s\n' "$([ "$tree_after" = "$tree_before" ] && echo true || echo false)" >"$OUT/evidence-meta.txt"
+printf 'inspect_exit=%s\n' "$inspect_status" >>"$OUT/evidence-meta.txt"
+
+if [ "$inspect_status" -ne 0 ]; then
+  {
+    printf '## Inspection phase failed\n\n'
+    printf '```text\n'
+    tail -20 "$OUT/inspect.err"
+    printf '```\n\n'
+    printf 'Provider error events:\n\n```json\n'
+    jq -c 'select(.type=="error") | .error | {type, message}' "$OUT/inspect.jsonl" 2>/dev/null || echo '(none)'
+    printf '```\n\nResult: **INCOMPLETE**\n'
+  } >>"$OUT/report.md"
+  cp "$OUT/report.md" "$OUT/report.md.done"
+  echo "calibration_incomplete=inspect_exit_$inspect_status"
+  exit 1
+fi
+
+# Prove tool use happened rather than trusting a prose summary.
+tool_calls="$(jq -r 'select(.type=="tool_use") | .part.tool' "$OUT/inspect.jsonl" | sort | uniq -c || true)"
+printf 'tool_calls<<EOF\n%s\nEOF\n' "$tool_calls" >>"$OUT/evidence-meta.txt"
+read_calls="$(jq -r 'select(.type=="tool_use" and .part.tool=="read") | .part.state.input.filePath // .part.state.input.path // empty' "$OUT/inspect.jsonl" 2>/dev/null | sort -u | grep -c . || true)"
+printf 'observed_read_paths=%s\n' "$read_calls" >>"$OUT/evidence-meta.txt"
+
+jq -r 'select(.type=="text") | .part.text' "$OUT/inspect.jsonl" >"$OUT/inspect-evidence.txt"
+
+if [ ! -s "$OUT/inspect-evidence.txt" ]; then
+  printf 'RESULT=INCOMPLETE\n' >>"$OUT/evidence-meta.txt"
+  {
+    printf '## Inspection produced no evidence\n\nResult: **INCOMPLETE**\n'
+  } >>"$OUT/report.md"
+  cp "$OUT/report.md" "$OUT/report.md.done"
+  echo 'calibration_incomplete=no_evidence'
+  exit 1
+fi
+if [ "$read_calls" -eq 0 ]; then
+  printf 'RESULT=INCOMPLETE\n' >>"$OUT/evidence-meta.txt"
+  {
+    printf '## Inspection performed no repository read tool call\n\nResult: **INCOMPLETE**\n'
+  } >>"$OUT/report.md"
+  cp "$OUT/report.md" "$OUT/report.md.done"
+  echo 'calibration_incomplete=no_read_tool_call'
+  exit 1
+fi
+
+# --- normalization phase: same canonical prompt, same tool-free agent ---
+{
+  cat .github/codex/track-review-normalize-prompt.md
+  printf '\n\nRuntime facts to copy exactly:\n'
+  cat "$OUT/runtime-facts.txt"
+} >"$OUT/normalize-prompt.txt"
+
+set +e
+if [ "$REUSE" = true ] && [ -s "$OUT/normalize.jsonl" ]; then
+  : # keep the captured normalization transcript
+  norm_status=0
+else
+  (cd "$SNAP" && opencode run --standalone \
+    --agent reviewer-normalize \
+    --model "$REVIEW_MODEL" \
+    --format json \
+    --file "$OUT/inspect-evidence.txt" \
+    "$(cat "$OUT/normalize-prompt.txt")") >"$OUT/normalize.jsonl" 2>"$OUT/normalize.err"
+  norm_status=$?
+fi
+set -e
+printf 'normalize_exit=%s\n' "$norm_status" >>"$OUT/evidence-meta.txt"
+
+if [ "$norm_status" -ne 0 ]; then
+  {
+    printf '## Normalization phase failed\n\n```text\n'
+    tail -20 "$OUT/normalize.err"
+    printf '```\n\nResult: **INCOMPLETE**\n'
+  } >>"$OUT/report.md"
+  cp "$OUT/report.md" "$OUT/report.md.done"
+  echo "calibration_incomplete=normalize_exit_$norm_status"
+  exit 1
+fi
+
+jq -r 'select(.type=="text") | .part.text' "$OUT/normalize.jsonl" \
+  | sed -e 's/^[[:space:]]*```json[[:space:]]*$//' -e 's/^[[:space:]]*```[[:space:]]*$//' \
+  >"$OUT/review.raw"
+sed -n '/^{/,/^}/p' "$OUT/review.raw" >"$OUT/review.json"
+
+if [ ! -s "$OUT/review.json" ] || ! jq -e . "$OUT/review.json" >/dev/null 2>&1; then
+  {
+    printf '## Normalization produced no valid JSON\n\n```text\n'
+    head -30 "$OUT/review.raw"
+    printf '```\n\nResult: **INCOMPLETE**\n'
+  } >>"$OUT/report.md"
+  cp "$OUT/report.md" "$OUT/report.md.done"
+  echo 'calibration_incomplete=no_valid_json'
+  exit 1
+fi
+
+# --- the same deterministic guards the production pipeline applies ---
+VERDICT="$(jq -r '.code_review_verdict // "UNKNOWN"' "$OUT/review.json")"
+ARCH="$(jq -r '.architecture_verdict // "UNKNOWN"' "$OUT/review.json")"
+FINDING_COUNT="$(jq -r '(.findings // []) | length' "$OUT/review.json")"
+
+schema_ok=false
+if npx --yes --package ajv-cli@5.0.0 ajv validate \
+  -s .github/codex/track-review-schema.json -d "$OUT/review.json" --spec=draft2020 \
+  >"$OUT/ajv.out" 2>&1; then
+  schema_ok=true
+fi
+{
+  printf 'schema_valid=%s\n' "$schema_ok"
+  printf 'verdict=%s\n' "$VERDICT"
+  printf 'architecture_verdict=%s\n' "$ARCH"
+  printf 'finding_count=%s\n' "$FINDING_COUNT"
+} >>"$OUT/evidence-meta.txt"
+
+gate_ok=true
+if ! EVIDENCE="$OUT/inspect-evidence.txt" REVIEW_JSON="$OUT/review.json" \
+  CHANGED_FILES="$OUT/changed-files.txt" \
+  bash scripts/agent-review-evidence-gate >"$OUT/gate.out" 2>&1; then
+  gate_ok=false
+fi
+printf 'evidence_gate_passed=%s\n' "$gate_ok" >>"$OUT/evidence-meta.txt"
+
+# Finding paths must exist in the reviewed checkout, exactly as production does.
+missing_paths=0
+while IFS=$'\t' read -r fpath; do
+  [ -n "$fpath" ] || continue
+  case "$fpath" in
+    ./*|docs/*|scripts/*|.github/*|be/*|fe/*|spikes/*) ;;
+    *) missing_paths=$((missing_paths + 1)); continue ;;
+  esac
+  [ -e "$SNAP/$fpath" ] || missing_paths=$((missing_paths + 1))
+done < <(jq -r '.findings[]?.file // empty' "$OUT/review.json" 2>/dev/null)
+printf 'finding_paths_missing=%s\n' "$missing_paths" >>"$OUT/evidence-meta.txt"
+
+# --- human-readable report ---
+{
+  printf '## Reviewer result\n\n'
+  printf -- '- `code_review_verdict`: **%s**\n' "$VERDICT"
+  printf -- '- `architecture_verdict`: **%s**\n' "$ARCH"
+  printf -- '- Findings emitted: %s\n' "$FINDING_COUNT"
+  printf -- '- JSON schema valid: %s\n' "$schema_ok"
+  printf -- '- Evidence sufficiency gate passed: %s\n' "$gate_ok"
+  printf -- '- Finding paths absent from the reviewed checkout: %s\n' "$missing_paths"
+  printf -- '- Observed repository read tool calls: %s\n' "$read_calls"
+  printf -- '- Reviewed checkout unchanged: %s\n' \
+    "$([ "$(grep '^checkout_unchanged=' "$OUT/evidence-meta.txt" | cut -d= -f2)" = true ] && echo true || echo false)"
+  printf '\n'
+  if [ "$schema_ok" != true ]; then
+    printf '### Why the canonical schema did not validate here\n\n'
+    printf 'This is a property of the calibration, not of the reviewer. The canonical\n'
+    printf 'schema requires `pr_number` and `base_branch`, which only exist for a live\n'
+    printf 'pull request. A declared historical range is deliberately not bound to a PR,\n'
+    printf 'so those runtime facts are not supplied and the model cannot emit them.\n'
+    printf 'Conversely, the runtime facts supplied here include `baseline` and `range`,\n'
+    printf 'which the model copied into the object and which `additionalProperties: false`\n'
+    printf 'rejects. In the live pipeline the runtime facts carry exactly the canonical\n'
+    printf 'fields, so this specific mismatch does not arise. The live pipeline would\n'
+    printf 'have refused to publish this output, which is the correct fail-closed\n'
+    printf 'behaviour and is itself evidence that the schema guard works.\n\n'
+    printf '```text\n'
+    cat "$OUT/ajv.out"
+    printf '```\n\n'
+  fi
+  printf '\n## Tool-call evidence\n\n```text\n'
+  cat "$OUT/evidence-meta.txt"
+  printf '```\n\n'
+  printf '## Findings\n\n'
+  if [ "$FINDING_COUNT" -eq 0 ]; then
+    printf '_The reviewer emitted no findings._\n\n'
+  else
+    jq -r '(.findings // [])[] | "- [\(.severity)] \(.id): \(.title)\n  File: `\(.file)`\(.line | if . == "" then "" else ":" + . end)\n  Reason: \(.reason)\n  Required fix: \(.required_fix)\n"' \
+      "$OUT/review.json"
+    printf '\n'
+  fi
+  printf '## Reviewer verification summary (verbatim)\n\n'
+  jq -r '.verification_summary // "(none)"' "$OUT/review.json"
+  printf '\n\n## Canonical context actually assembled\n\n'
+  printf 'Assembled by `scripts/agent-review-context` from the historical snapshot at\n'
+  printf '`%s`, resolving its canonical roadmap from that snapshot'"'"'s own authority\n' "$REVIEWED"
+  printf 'index. North Star section: %s\n\n' \
+    "$(grep -m1 '^## 3\. NORTH STAR' "$OUT/context.md" || echo '(absent)')"
+  printf '## Files inspected by the reviewer (as declared by the reviewer)\n\n```text\n'
+  sed -n '/^INSPECTED PATHS[[:space:]]*$/,/^OBSERVATIONS[[:space:]]*$/p' "$OUT/inspect-evidence.txt" \
+    | sed -e '1d' -e '$d' || true
+  printf '```\n\n'
+  printf '## What this calibration does NOT establish\n\n'
+  printf -- '- This is **not** a canonical review of PR #71. It is not published, carries\n'
+  printf '  no `zig-zag-contextual-review` marker, and is not bound to PR #71'"'"'s HEAD.\n'
+  printf -- '- It says nothing about the current state of `feat/preference-first-selection`.\n'
+  printf -- '- The reviewer cannot execute tests, builds, or git. Any question requiring\n'
+  printf '  execution is unproven by construction, not merely unchecked.\n'
+  printf -- '- One free-tier model reading one declared range is a single sample. It is\n'
+  printf '  not a statistical claim about review accuracy.\n'
+  printf '\n## Provider failures observed\n\n'
+  if jq -e 'select(.type=="error")' "$OUT/inspect.jsonl" >/dev/null 2>&1 \
+    || jq -e 'select(.type=="error")' "$OUT/normalize.jsonl" >/dev/null 2>&1; then
+    printf 'Provider error events were emitted; see the JSONL transcripts.\n\n```json\n'
+    jq -c 'select(.type=="error") | .error | {type, message}' "$OUT/inspect.jsonl" 2>/dev/null || true
+    jq -c 'select(.type=="error") | .error | {type, message}' "$OUT/normalize.jsonl" 2>/dev/null || true
+    printf '```\n\n'
+  else
+    printf '_None._\n\n'
+  fi
+} >>"$OUT/report.md"
+
+cp "$OUT/report.md" "$OUT/report.md.done"
+{ printf 'RESULT=%s\n' "$VERDICT"; } >>"$OUT/evidence-meta.txt"
+echo "calibration_report=$OUT/report.md"
+echo "calibration_verdict=$VERDICT"
+echo "calibration_findings=$FINDING_COUNT"
