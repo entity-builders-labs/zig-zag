@@ -205,6 +205,20 @@ model phases now print the provider error object before failing, and the
 governance spec asserts both sites, so a future quota or auth failure is
 readable from the run log instead of requiring local reproduction.
 
+**Defect 7's fix is verified in CI.** Run 37096256787 on `594a32a8` failed
+inspection and the run log now states the cause directly, with no local
+reproduction needed:
+
+```text
+REVIEW UNAVAILABLE / FAILED: OpenCode inspection exited 1
+{"type":"provider.rate-limit","message":"AiError: AiError: you have used up your
+ daily free allocation of 10,000 neurons, ... (a87ced56-...)"}
+```
+
+PR #72 carried zero reviews afterward. So the diagnostic fix is confirmed against
+real CI, and the fail-closed contract is confirmed for the fifth consecutive
+run. This run consumed no neurons: the allocation check rejects before inference.
+
 **Defect 6 — OpenCode refuses to read outside the project directory.** With
 credentials present, run 37095103080 attempt 2 reached
 `Inspect the delta with the read-only reviewer` and failed there:
@@ -314,18 +328,29 @@ loop, and do not merge PR #72.
   verification, ajv validation, and publication are all unexercised against real
   model output. Fixture coverage proves the guards fire; it does not prove the
   happy path works.
-- **Live GitHub Actions execution has failed four times and is not yet proven.**
+- **Live GitHub Actions execution has failed five times and is not yet proven.**
   Runs on `c3002986` and `56f16332` exited 2 on shell defects in the range and
   prepare steps; run 37095103080 attempt 1 failed closed on absent credentials,
   correctly; attempt 2 reached the reviewer and failed because OpenCode refuses
-  to read `RUNNER_TEMP`; run 37095891616 failed on the exhausted provider
-  allocation. The range logic behaved correctly every time:
+  to read `RUNNER_TEMP`; runs 37095891616 and 37096256787 failed on the exhausted
+  provider allocation. The range logic behaved correctly every time:
   `COVERAGE=latest-commit-only`, `COMMIT_COUNT=1`, `CHANGED_FILE_COUNT=11`,
   `DOCS_ONLY=false`, with the coverage limitation stated rather than claiming
-  full history. Six defects are fixed and pinned by fixtures. No review has been
-  published. Seven defects are fixed and pinned by fixtures. Every phase after
-  inspection is still unexercised in CI, so the artifact contract remains
-  unproven end to end.
+  full history. Seven defects are fixed and pinned by fixtures. No review has
+  been published. Every phase after inspection is still unexercised in CI, so
+  the artifact contract remains unproven end to end.
+- **What the five failures did establish.** The deterministic half of the
+  pipeline is genuinely proven against real CI: HEAD resolution, trusted-repo
+  checks, track identity, integration-target validation, incremental baseline
+  selection, context assembly, provider-config gating, and the
+  checkout-integrity and fail-closed guards. Five independent failure paths each
+  produced `REVIEW UNAVAILABLE / FAILED`, zero reviews, and no synthesized
+  `PASS`. That contract holds under real failure, not only under fixtures.
+- **What remains unproven is narrower than it looks.** Only the model-driven
+  middle: that inspection emits usable evidence, and that normalization,
+  finding-path verification, schema validation, and publication work on real
+  model output. Those phases have fixtures proving their *guards* fire on bad
+  input, which is not the same as proving they *pass* on good input.
 - **Repository secrets are now set.** `CLOUDFLARE_ACCOUNT_ID` and
   `CLOUDFLARE_API_TOKEN` were added as scoped repository secrets. Values were
   piped from the sibling worktree's `.env` and never printed. The older
