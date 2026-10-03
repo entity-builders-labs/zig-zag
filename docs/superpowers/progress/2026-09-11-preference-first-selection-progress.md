@@ -199,6 +199,37 @@ RW3-N6 resolution and live verification status:
   interrupt the RW4 web-acquisition gate for it.
 
 
+### RW4 candidate selection before identity verification — 2026-10-03
+
+- Dossier: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/selection-characterization-2026-10-03/assessment.md`
+  (real resolver replay; raw Nominatim pools recorded; stub catalog; 0 rows
+  persisted). No COLD #12 / WARM.
+- Ojo de Agua (observed): the resolver's `limit=5` Nominatim window held
+  five non-Mendoza settlements (Córdoba, Neuquén, Tucumán, Salta, Jujuy).
+  `destinationPoint` was available and correctly picked the nearest one,
+  the Córdoba hamlet. The only Mendoza homonym, `osm:node:4797394430`
+  (`amenity=restaurant`, Agrelo, Luján de Cuyo, importance 0), sits near the
+  bottom of the 31-member pool and was truncated by provider importance
+  before any evaluation. Overture independently holds "Ojo de Agua
+  Argentina" (Meta) about 8 m away, which is not an exact name. The source
+  asserts Luján de Cuyo and links `ojodeagua.ch`, but neither fact is typed
+  on the component hint.
+- Fixed (generic): NOMINATIM component acquisition requests the provider's
+  whole window (`resultWindow: 'PROVIDER_MAXIMUM'`, cap 40). Post-fix replay:
+  the Luján de Cuyo node is selected, EXACT_NAME/MULTIPLE (31), AMBIGUOUS,
+  0 writes. Correct geography, insufficient identity. Proximity selects;
+  it never verifies.
+- Fixed (generic, RW4-ID-CONTRADICTION-1): typed `IDENTITY_CONTRADICTION`
+  (`WIKIDATA_QID`, where the cited source's QID differs from the
+  candidate's own QID). It is built locally and checked before every
+  positive rule. Before this change, a local VERIFIED never collected
+  Wikidata, and the collector silently preferred the candidate's QID over
+  the source's.
+- Unchanged: Alfa Crux and SuperUco are INSUFFICIENT_EVIDENCE (PARTIAL
+  snapshot). Bodega Azul is INSUFFICIENT_EVIDENCE (no exact record; the
+  winery and store stay distinct). A16 has nothing acquired. Previous
+  NEARBY corrections are preserved.
+
 ### RW4 IdentityVerifier evidence-driven characterization — 2026-10-03
 
 - Dossier: `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/verifier-characterization-2026-10-03/assessment.md`
@@ -2092,25 +2123,28 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
-RW4 component identity: the IdentityVerifier characterization is recorded
-(2026-10-03, see the RW4 section above). Two generic verifier defects
-demonstrated live are fixed: NEARBY absence is no longer a REJECTED
-contradiction, and NEARBY corroboration no longer disambiguates a MULTIPLE
-same-name pool. The real Uco components remain unverified, for evidence
-reasons rather than policy reasons. Alfa Crux and SuperUco are exact but
-UNKNOWN multiplicity, because the Overture snapshot is an AOI rather than
-a complete country. Bodega Azul has no exact or declared-alias record, and
-A16 has no exact record.
+RW4 component identity: candidate selection and the verifier are now
+characterized against the real provider pools (2026-10-03, see "RW4
+candidate selection before identity verification"). The Nominatim window
+truncation that hid the only Mendoza "Ojo de Agua" is fixed. A
+source-declared QID that conflicts with the candidate's QID now overrides
+every positive rule. The real Uco and Luján components remain unverified
+for evidence reasons, not policy reasons. Ojo de Agua is AMBIGUOUS on the
+plausible Luján de Cuyo candidate, Alfa Crux and SuperUco are
+INSUFFICIENT_EVIDENCE (PARTIAL snapshot), Bodega Azul has no exact record,
+and A16 has no exact record.
 
 ## Next authorized action
 
 Close the RW4 component-identity evidence gap without changing verifier
-policy. First, a reviewed, repo-owned Overture importer that publishes a
-`COMPLETE_COUNTRY` AR snapshot, which establishes or refutes SINGLE for Alfa
-Crux and SuperUco. Second, an evidence-acquisition decision for Bodega Azul:
-a provider-declared alias, or a component-bound independent fact. COLD #12 is
-NOT ready: even with a complete snapshot, the Uco composition requires every
-member, and Bodega Azul stays unresolved.
+policy. The next task is a reviewed, repo-owned Overture importer that
+publishes a `COMPLETE_COUNTRY` AR snapshot and retains the provider
+website, category and locality. This establishes or refutes SINGLE for
+Alfa Crux and SuperUco, and gives component-bound facts somewhere to land.
+After that, decide on source-fact extraction: a typed component URL and an
+explicit locality on `GeoEntityHint` (Ojo de Agua, Bodega Azul). COLD #12 is
+NOT ready: the Uco composition needs every member, and Bodega Azul, A16 and
+Ojo de Agua stay unresolved.
 
 The draft pull request for `feat/preference-first-selection` -> `main` exists
 for review only. Do not merge to `main`, do not change RW4 conclusions, and do
@@ -2131,11 +2165,30 @@ not start an autonomous reviewer/fixer loop.
   merge result. The merge result's `be/` tree is byte-identical to this branch
   head, so this is product-suite flakiness in the RW4 area, not a governance
   regression. Do not weaken an invariant or a fixture to hide it.
-- RW4-ID-CONTRADICTION-1: OPEN, MEDIUM. The identity evidence union has no
-  contradiction type, and EXACT_NAME/SINGLE returns before any other
-  evidence. Only composite geography (REGION/COUNTRY_CONFLICT) can catch a
-  contradicted unique name, and that runs after GeoEntity persistence. Not
-  demonstrated by the RW4 fixtures (no contradicting typed fact exists).
+- RW4-ID-CONTRADICTION-1: CLOSED for the one structural contradiction the
+  evidence carries: a source QID that differs from the candidate's QID is
+  `IDENTITY_CONTRADICTION`, which precedes every positive rule. No typed
+  address-mismatch or physical-kind contradiction exists yet. Composite
+  geography (REGION/COUNTRY_CONFLICT) still runs after persistence.
+- RW4-ID-SEL-1: CLOSED. The NOMINATIM component window (top 5 by global
+  importance) truncated the only plausible member before selection (Ojo de
+  Agua). It now uses the provider-maximum window.
+- RW4-ID-OVERTURE-SEL-1: OPEN, LOW. `OVERTURE_IDENTITY` selects `rows[0]`
+  by featureId and skips `admitComponentLocation`, unlike NOMINATIM and
+  PLACES. No wrong decision has been demonstrated: MULTIPLE is AMBIGUOUS
+  whichever row is selected, and only the name reaches the verifier.
+- RW4-ID-CONVERGENCE-OSM-1: OPEN, LOW. NOMINATIM and Geoapify both index
+  OSM. Their `IDENTITY_CONVERGENCE` is one upstream record found twice by
+  name and proximity, and it verifies even over a MULTIPLE pool. Not
+  observed in RW4 (Geoapify returned 0 for Ojo de Agua).
+- RW4-ID-SOURCE-FACTS-1: OPEN, MEDIUM. The source's component URL and
+  explicit locality ("Ojo de Agua in Lujan de Cuyo", `ojodeagua.ch`) are
+  not typed on `GeoEntityHint`. The Overture import drops the website,
+  category and locality. This is the evidence gap behind the remaining
+  AMBIGUOUS and INSUFFICIENT results.
+- Overture migration/snapshot-partition findings from the earlier review
+  remain separate. This identity task did not touch them, and their
+  details are not recorded on this track.
 - RW4-ID-QID-HOMONYM-1: OPEN, LOW. A corroborating OWN_QID/OBSERVATION_QID
   still singles out a MULTIPLE same-name member by label-only matching
   (retained for RW1 San Telmo). It is a potential false positive for
