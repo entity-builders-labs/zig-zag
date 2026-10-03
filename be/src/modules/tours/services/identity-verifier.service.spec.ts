@@ -35,11 +35,18 @@ describe('IdentityVerifier', () => {
    * structurally independent acquisition strategy already returned this
    * exact same (provider, externalId) for this hint (real spike case: "El
    * Zanjón de Granados" -- LOCAL_OSM_POOL and NOMINATIM both independently
-   * acquired osm:node:9953027884). Verified regardless of any name-based
-   * evidence, and even when Wikidata itself would separately reject the
-   * candidate on a string basis.
+   * acquired osm:node:9953027884).
+   *
+   * Baseline 15af1ccb asserted VERIFIED for these two inputs. Both carry
+   * convergence and NOTHING about competitors: that is exactly the
+   * 2026-10-03 defect A (absence of a known collision read as proof of
+   * none). The inputs are kept verbatim; the expectation is the corrected
+   * policy. The real El Zanjón evidence also carried Nominatim's
+   * untruncated country-bounded response holding only that node, which the
+   * companion tests project (and the resolver-level RW1 Case A test proves
+   * on the original fixture).
    */
-  it('verifies immediately on IDENTITY_CONVERGENCE, with no other evidence needed', async () => {
+  it('convergence with no examination of competitors is not decisive (baseline input; defect A)', async () => {
     const verifier = new IdentityVerifier();
 
     await expect(
@@ -56,10 +63,10 @@ describe('IdentityVerifier', () => {
           },
         ]),
       ),
-    ).toEqual({ status: 'VERIFIED' });
+    ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
   });
 
-  it('IDENTITY_CONVERGENCE overrides an otherwise-rejecting WIKIDATA_IDENTITY_MATCH', async () => {
+  it('convergence with no examination of competitors does not outweigh a rejecting WIKIDATA_IDENTITY_MATCH (baseline input; defect A)', async () => {
     const verifier = new IdentityVerifier();
 
     await expect(
@@ -82,7 +89,62 @@ describe('IdentityVerifier', () => {
           },
         ]),
       ),
-    ).toEqual({ status: 'VERIFIED' });
+    ).toEqual({ status: 'REJECTED' });
+  });
+
+  describe('RW1 El Zanjón facts, projected: convergence over an examined competitor set', () => {
+    const verifier = new IdentityVerifier();
+    const zanjonConvergence = [
+      {
+        type: 'IDENTITY_CONVERGENCE' as const,
+        priorStrategy: 'LOCAL_OSM_POOL' as const,
+        identity: {
+          provider: 'openstreetmap',
+          externalId: 'osm:node:9953027884',
+        },
+      },
+      {
+        type: 'CONVERGENCE_PROVENANCE' as const,
+        identity: {
+          provider: 'openstreetmap',
+          externalId: 'osm:node:9953027884',
+        },
+        upstream: 'SHARED_UPSTREAM' as const,
+      },
+      // Nominatim's untruncated country-bounded response held only this node.
+      {
+        type: 'COMPETITOR_EXAMINATION' as const,
+        outcome: 'NO_MATERIAL_COMPETITOR' as const,
+        examinedStrategies: ['LOCAL_OSM_POOL' as const, 'NOMINATIM' as const],
+        competitorCount: 0,
+      },
+    ];
+
+    it('VERIFIES with no other evidence needed', () => {
+      expect(
+        verifier.verify(
+          { name: 'El Zanjón de Granados' },
+          attempt(zanjonConvergence),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
+
+    it('outweighs a NEARBY item that matches only the hint text', () => {
+      expect(
+        verifier.verify(
+          { name: 'El Zanjón de Granados' },
+          attempt([
+            ...zanjonConvergence,
+            {
+              type: 'WIKIDATA_IDENTITY_MATCH',
+              source: 'NEARBY',
+              hintMatched: true,
+              candidateMatched: false,
+            },
+          ]),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
   });
 
   it('rejects a candidate that only shares half of an observation QID identity', async () => {
@@ -1012,7 +1074,7 @@ describe('IdentityVerifier', () => {
    * found by Overpass, Nominatim and Geoapify) that is never enough to
    * single out a member of a KNOWN name collision.
    */
-  describe('convergence provenance', () => {
+  describe('convergence provenance and competitor examination (defects A, B, C)', () => {
     const verifier = new IdentityVerifier();
     const identity = {
       provider: 'openstreetmap',
@@ -1028,83 +1090,210 @@ describe('IdentityVerifier', () => {
         | 'SHARED_UPSTREAM'
         | 'INDEPENDENT_UPSTREAMS'
         | 'UNDETERMINED_UPSTREAM',
-      nameCollision: boolean,
     ) => ({
       type: 'CONVERGENCE_PROVENANCE' as const,
       identity,
       upstream,
-      nameCollision,
     });
+    const examination = (
+      outcome:
+        | 'MATERIAL_COMPETITOR_KNOWN'
+        | 'NO_MATERIAL_COMPETITOR'
+        | 'NO_COMPETITOR_OBSERVED',
+      competitorCount = outcome === 'MATERIAL_COMPETITOR_KNOWN' ? 1 : 0,
+    ) => ({
+      type: 'COMPETITOR_EXAMINATION' as const,
+      outcome,
+      examinedStrategies: ['NOMINATIM' as const, 'PLACES' as const],
+      competitorCount,
+    });
+    const upstreams = [
+      'SHARED_UPSTREAM',
+      'INDEPENDENT_UPSTREAMS',
+      'UNDETERMINED_UPSTREAM',
+    ] as const;
 
-    it.each(['SHARED_UPSTREAM', 'UNDETERMINED_UPSTREAM'] as const)(
-      '%s convergence with no known collision confirms the record (RW1 El Zanjón / Farmacia shape)',
+    it.each(upstreams)(
+      '%s convergence over an examined set with no material competitor VERIFIES (RW1 El Zanjón / Farmacia shape)',
       (upstream) => {
         expect(
           verifier.verify(
             { name: 'Ojo de Agua' },
-            attempt([convergence, provenance(upstream, false)]),
+            attempt([
+              convergence,
+              provenance(upstream),
+              examination('NO_MATERIAL_COMPETITOR'),
+            ]),
           ),
         ).toEqual({ status: 'VERIFIED' });
       },
     );
 
-    it.each(['SHARED_UPSTREAM', 'UNDETERMINED_UPSTREAM'] as const)(
-      '%s convergence never decides a known collision (Nominatim + Geoapify on one Ojo de Agua homonym)',
+    it.each(upstreams)(
+      '%s convergence with NO_COMPETITOR_OBSERVED (partial pools) is not decisive: INSUFFICIENT_EVIDENCE',
       (upstream) => {
         expect(
           verifier.verify(
             { name: 'Ojo de Agua' },
-            attempt(
-              [
-                convergence,
-                provenance(upstream, true),
-                { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
-              ],
-              'MULTIPLE',
-            ),
+            attempt([
+              convergence,
+              provenance(upstream),
+              examination('NO_COMPETITOR_OBSERVED'),
+            ]),
           ),
-        ).toEqual({ status: 'AMBIGUOUS' });
+        ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
       },
     );
 
-    it('a collision seen only by the OTHER converging acquisition still blocks a shared-upstream decision', () => {
+    it('missing provenance and missing examination: convergence alone is not decisive', () => {
       expect(
-        verifier.verify(
-          { name: 'Ojo de Agua' },
-          attempt([convergence, provenance('SHARED_UPSTREAM', true)]),
-        ),
+        verifier.verify({ name: 'Ojo de Agua' }, attempt([convergence])),
       ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
     });
 
-    it('independent upstreams agreeing on one identity decide even a collision', () => {
+    it('UNKNOWN multiplicity (saturated window) plus convergence is not decisive', () => {
       expect(
         verifier.verify(
           { name: 'Ojo de Agua' },
           attempt(
             [
               convergence,
-              provenance('INDEPENDENT_UPSTREAMS', true),
-              { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+              provenance('SHARED_UPSTREAM'),
+              { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
+              examination('NO_COMPETITOR_OBSERVED'),
             ],
-            'MULTIPLE',
+            'UNKNOWN',
           ),
+        ),
+      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+    });
+
+    it.each(upstreams)(
+      '%s convergence never decides a known material competitor (defect C for independent upstreams)',
+      (upstream) => {
+        expect(
+          verifier.verify(
+            { name: 'Ojo de Agua' },
+            attempt([
+              convergence,
+              provenance(upstream),
+              examination('MATERIAL_COMPETITOR_KNOWN'),
+            ]),
+          ),
+        ).toEqual({ status: 'AMBIGUOUS' });
+      },
+    );
+
+    it('a provider-local SINGLE never outweighs a competitor another pool exposed (defect B)', () => {
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt([
+            { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+            examination('MATERIAL_COMPETITOR_KNOWN'),
+          ]),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    });
+
+    it('a corroborating NEARBY item never outweighs a known competitor', () => {
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt([
+            {
+              type: 'WIKIDATA_IDENTITY_MATCH',
+              source: 'NEARBY',
+              hintMatched: true,
+              candidateMatched: true,
+            },
+            examination('MATERIAL_COMPETITOR_KNOWN'),
+          ]),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    });
+
+    it('discriminating source facts still decide among known competitors', () => {
+      for (const discriminating of [
+        {
+          type: 'SOURCE_DECLARED_IDENTITY_MATCH' as const,
+          identity: { provider: 'wikidata', externalId: 'Q1' },
+        },
+        { type: 'ADDRESS_MATCH' as const },
+        {
+          type: 'WIKIDATA_IDENTITY_MATCH' as const,
+          source: 'OBSERVATION_QID' as const,
+          hintMatched: true,
+          candidateMatched: true,
+        },
+        {
+          type: 'CONTEXTUAL_CORRESPONDENCE' as const,
+          assertion: 'LOCALITY' as const,
+          locality: 'Lujan de Cuyo',
+          coverage: 'PROVIDER_WINDOW_NOT_REACHED' as const,
+          memberCount: 31,
+          consistentCount: 1,
+          outcome: 'DISTINGUISHED' as const,
+        },
+      ]) {
+        expect(
+          verifier.verify(
+            { name: 'Ojo de Agua' },
+            attempt([
+              discriminating,
+              convergence,
+              provenance('SHARED_UPSTREAM'),
+              examination('MATERIAL_COMPETITOR_KNOWN', 30),
+            ]),
+          ),
+        ).toEqual({ status: 'VERIFIED' });
+      }
+    });
+
+    it('a single provider over an examined set verifies without a second dataset', () => {
+      expect(
+        verifier.verify(
+          { name: 'Ojo de Agua' },
+          attempt([
+            { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+            examination('NO_MATERIAL_COMPETITOR'),
+          ]),
         ),
       ).toEqual({ status: 'VERIFIED' });
     });
 
-    it('a contradiction still outranks any convergence', () => {
+    it('a contradiction still outranks any convergence and any examination', () => {
       expect(
         verifier.verify(
           { name: 'Ojo de Agua' },
           attempt([
             convergence,
-            provenance('INDEPENDENT_UPSTREAMS', false),
+            provenance('INDEPENDENT_UPSTREAMS'),
+            examination('NO_MATERIAL_COMPETITOR'),
             {
               type: 'IDENTITY_CONTRADICTION',
               fact: 'LOCALITY',
               assertedLocality: 'Lujan de Cuyo',
               boundaryId: 'osm:relation:1',
             },
+          ]),
+        ),
+      ).toEqual({ status: 'REJECTED' });
+    });
+
+    it('a source/candidate QID conflict REJECTS a unique exact name over an examined set', () => {
+      expect(
+        verifier.verify(
+          { name: 'Bodega Ejemplo' },
+          attempt([
+            {
+              type: 'IDENTITY_CONTRADICTION',
+              fact: 'WIKIDATA_QID',
+              sourceQid: 'Q100',
+              candidateQid: 'Q200',
+            },
+            { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+            examination('NO_MATERIAL_COMPETITOR'),
           ]),
         ),
       ).toEqual({ status: 'REJECTED' });

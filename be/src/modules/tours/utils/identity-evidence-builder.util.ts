@@ -25,19 +25,25 @@ export function buildLocalIdentityEvidence(
 ): IdentityEvidence[] {
   const evidence: IdentityEvidence[] = [];
 
+  // The QID the source declares for this component against the candidate
+  // record's own: two identifiers are two entities (a contradiction), one
+  // shared identifier is discriminating correspondence among homonyms.
   const sourceQid = sourceDeclaredWikidataQid(hint, observations);
   const candidateQid = candidate.wikidataQid;
-  if (
-    sourceQid &&
-    candidateQid &&
-    sourceQid.toUpperCase() !== candidateQid.toUpperCase()
-  ) {
-    evidence.push({
-      type: 'IDENTITY_CONTRADICTION',
-      fact: 'WIKIDATA_QID',
-      sourceQid,
-      candidateQid,
-    });
+  if (sourceQid && candidateQid) {
+    if (sourceQid.toUpperCase() !== candidateQid.toUpperCase()) {
+      evidence.push({
+        type: 'IDENTITY_CONTRADICTION',
+        fact: 'WIKIDATA_QID',
+        sourceQid,
+        candidateQid,
+      });
+    } else {
+      evidence.push({
+        type: 'SOURCE_DECLARED_IDENTITY_MATCH',
+        identity: { provider: 'wikidata', externalId: candidateQid },
+      });
+    }
   }
   const nameMultiplicity = candidate.nameEvidenceMultiplicity;
 

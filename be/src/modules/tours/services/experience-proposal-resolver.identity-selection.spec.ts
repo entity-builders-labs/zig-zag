@@ -6,6 +6,7 @@ import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { ownedAuthorization } from '../fixtures/geographic-authorization.fixture';
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
 import { ExperienceProposalResolverService } from './experience-proposal-resolver.service';
 
 /**
@@ -61,6 +62,8 @@ function build(options: {
   /** Boundary the (faked) locality grounder returns for any assertion. */
   localityBoundary?: GeoJsonGeometry;
   placesFailure?: Error;
+  /** The Nominatim search itself fails (timeout, provider outage). */
+  nominatimFailure?: Error;
   catalogCandidates?: unknown[];
   overtureCandidates?: unknown[];
   /** A Geoapify result whose Place Details declares this OSM identity. */
@@ -89,7 +92,11 @@ function build(options: {
       .mockResolvedValue({ candidates: options.catalogCandidates ?? [] }),
     rememberVerifiedHintName: jest.fn().mockResolvedValue('REMEMBERED'),
     findGeoEntityIdsByIdentities: jest.fn().mockResolvedValue([]),
-    upsertGeoEntityWithIdentities: jest.fn(),
+    upsertGeoEntityWithIdentities: jest.fn().mockResolvedValue({
+      status: 'CREATED',
+      geoEntity: { id: 'geo-1' },
+      attachedExternalIds: [],
+    }),
     upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
     resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
     persistVerifiedExperience: jest
@@ -97,7 +104,9 @@ function build(options: {
       .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
   };
   const nominatim = {
-    search: jest.fn().mockResolvedValue(options.nominatimResults ?? []),
+    search: options.nominatimFailure
+      ? jest.fn().mockRejectedValue(options.nominatimFailure)
+      : jest.fn().mockResolvedValue(options.nominatimResults ?? []),
   };
   const wikidata = {
     getEntitySummaries: jest.fn(async (qids: string[]) => {
@@ -396,13 +405,18 @@ describe('ExperienceProposalResolverService -- RW4 candidate selection before ve
     const result = await resolveRouteLike(service, 'Ojo de Agua');
 
     const places = attemptOf(result, 'PLACES');
+    // The collision is a fact about the hint, recorded from every pool
+    // examined so far, not a flag on the converging pair.
     expect(places.identityEvidence).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ type: 'IDENTITY_CONVERGENCE' }),
         expect.objectContaining({
           type: 'CONVERGENCE_PROVENANCE',
           upstream: 'SHARED_UPSTREAM',
-          nameCollision: true,
+        }),
+        expect.objectContaining({
+          type: 'COMPETITOR_EXAMINATION',
+          outcome: 'MATERIAL_COMPETITOR_KNOWN',
         }),
       ]),
     );
@@ -444,7 +458,7 @@ describe('ExperienceProposalResolverService -- explicit identity contradiction',
     tags: { craft: 'winery', wikidata: qid },
   });
 
-  it('rejects a unique exact-name record whose own QID differs from the QID the source declares, before any write', async () => {
+  it('rejects a lone exact-name record whose own QID differs from the QID the source declares, before any write', async () => {
     const { service, catalog } = build({
       osmPool: [osmWinery('Q200')],
     });
@@ -454,9 +468,11 @@ describe('ExperienceProposalResolverService -- explicit identity contradiction',
     ]);
 
     const attempt = attemptOf(result, 'LOCAL_OSM_POOL');
+    // A regional Experience may lie beyond the destination, so one member
+    // of the destination-bounded pool is not established unique (UNKNOWN).
     expect(attempt.identityEvidence).toEqual(
       expect.arrayContaining([
-        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+        { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
         {
           type: 'IDENTITY_CONTRADICTION',
           fact: 'WIKIDATA_QID',
@@ -817,7 +833,7 @@ describe('ExperienceProposalResolverService -- contextual identity on the real O
     expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
   });
 
-  it('NEGATIVE: a provider-local unique name in the local OSM pool is rejected when it lies outside the asserted locality', async () => {
+  it('NEGATIVE: a provider-local lone name in the local OSM pool is rejected when it lies outside the asserted locality', async () => {
     const { service, catalog } = build({
       osmPool: [
         {
@@ -847,9 +863,11 @@ describe('ExperienceProposalResolverService -- contextual identity on the real O
     );
 
     const attempt = attemptOf(result, 'LOCAL_OSM_POOL');
+    // Regional Experience: the destination-bounded pool cannot establish
+    // SINGLE; the contradiction rejects either way.
     expect(attempt.identityEvidence).toEqual(
       expect.arrayContaining([
-        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+        { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
         expect.objectContaining({
           type: 'IDENTITY_CONTRADICTION',
           fact: 'LOCALITY',
@@ -1083,6 +1101,246 @@ describe('ExperienceProposalResolverService -- Overture pool on the same terms',
       }),
     );
     expect(attempt.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+    expectNoIdentityWrites(catalog);
+  });
+});
+
+/**
+ * 2026-10-03 ambiguity policy: competitors are a fact about the HINT,
+ * collected from every pool examined for it, and uniqueness is concluded
+ * only from a pool that covered the component's admission scope. Each
+ * "c708b9a9" note records the verdict the pre-fix policy produced on the
+ * same inputs (re-run against c708b9a9's production files).
+ */
+describe('ExperienceProposalResolverService -- hint-level competitor examination', () => {
+  const RESTAURANT = POOL.PROVIDER_MAXIMUM.find(
+    (result) => `osm:${result.osmType}:${result.osmId}` === LUJAN_RESTAURANT,
+  )!;
+  // Constructed: a same-name venue inside Ciudad de Mendoza.
+  const inDestination = (
+    osmId: number,
+    latitude = -32.89,
+  ): NominatimResult => ({
+    ...RESTAURANT,
+    osmId,
+    latitude,
+    longitude: -68.85,
+    displayName: 'Ojo de Agua, Ciudad de Mendoza, Mendoza, Argentina',
+  });
+  const inDestinationOsmNode = {
+    id: 'osm:node:77',
+    name: 'Ojo de Agua',
+    osmType: 'node',
+    osmId: 77,
+    geometry: { type: 'Point', coordinates: [-68.85, -32.89] },
+    tags: { amenity: 'restaurant' },
+  };
+  const resolveStrict = (
+    service: ExperienceProposalResolverService,
+    hintName: string,
+    hintExtra: Partial<GeoEntityHint> = {},
+  ) =>
+    service.resolve({
+      destinationName: 'Ciudad de Mendoza',
+      destinationCountryCode: 'AR',
+      geographicScope: MENDOZA,
+      candidates: withDefaultGeographicAuthorization([
+        lujanItinerary(hintName, hintExtra),
+      ]),
+      evidence: [
+        {
+          key: 'ev-1',
+          source: 'web',
+          title: 'Mendoza city restaurants',
+          snippet: `${hintName} in Ciudad de Mendoza`,
+        },
+      ],
+    } as any);
+  const examinationOf = (attempt: any) =>
+    attempt.identityEvidence.find(
+      (item: any) => item.type === 'COMPETITOR_EXAMINATION',
+    );
+
+  it('DEFECT A: a regional Experience never verifies on destination-bounded pools that saw no competitor (Nominatim failed)', async () => {
+    // c708b9a9: LOCAL_OSM_POOL VERIFIED on EXACT_NAME/SINGLE of a pool that
+    // cannot reach Luján de Cuyo; failing that, the PLACES convergence on the
+    // same node VERIFIED because neither pool "knew" a collision.
+    const { service, catalog } = build({
+      osmPool: [inDestinationOsmNode],
+      nominatimFailure: new Error('Nominatim timeout'),
+      placesDeclaringOsm: {
+        name: 'Ojo de Agua',
+        latitude: -32.89,
+        longitude: -68.85,
+        osmId: 'osm:node:77',
+      },
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua');
+
+    const local = attemptOf(result, 'LOCAL_OSM_POOL');
+    expect(local.identityEvidence).toContainEqual({
+      type: 'EXACT_NAME',
+      identityMultiplicity: 'UNKNOWN',
+    });
+    expect(local.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+    expect(attemptOf(result, 'NOMINATIM').executionStatus).toBe('failed');
+    const places = attemptOf(result, 'PLACES');
+    expect(places.identityEvidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: 'IDENTITY_CONVERGENCE' }),
+        expect.objectContaining({
+          type: 'CONVERGENCE_PROVENANCE',
+          upstream: 'SHARED_UPSTREAM',
+        }),
+      ]),
+    );
+    expect(examinationOf(places)).toMatchObject({
+      outcome: 'NO_COMPETITOR_OBSERVED',
+      examinedStrategies: ['LOCAL_OSM_POOL', 'PLACES'],
+    });
+    expect(places.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('DEFECT A: a saturated Nominatim window plus a Places convergence is not an examined competitor set', async () => {
+    // c708b9a9: Nominatim's lone exact member in a full window was UNKNOWN,
+    // which was not a known collision, so the PLACES convergence VERIFIED.
+    const filler = (index: number): NominatimResult => ({
+      ...POOL.DEFAULT[0],
+      osmId: 1000 + index,
+      displayName: `Aguada ${index}, Departamento Minas, Córdoba, Argentina`,
+    });
+    const saturated = [
+      inDestination(77),
+      ...Array.from({ length: 39 }, (_, index) => filler(index)),
+    ];
+    const { service, catalog } = build({
+      nominatimResults: saturated,
+      placesDeclaringOsm: {
+        name: 'Ojo de Agua',
+        latitude: -32.89,
+        longitude: -68.85,
+        osmId: 'osm:node:77',
+      },
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua');
+
+    const nominatim = attemptOf(result, 'NOMINATIM');
+    expect(nominatim.providerResultCount).toBe(40);
+    expect(nominatim.identityEvidence).toContainEqual({
+      type: 'EXACT_NAME',
+      identityMultiplicity: 'UNKNOWN',
+    });
+    const places = attemptOf(result, 'PLACES');
+    expect(
+      places.identityEvidence.some(
+        (item: any) => item.type === 'IDENTITY_CONVERGENCE',
+      ),
+    ).toBe(true);
+    expect(examinationOf(places).outcome).toBe('NO_COMPETITOR_OBSERVED');
+    expect(places.verificationDecision).not.toBe('VERIFIED');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('DEFECT B: a Places SINGLE inside the circle never outweighs two admissible homonyms Nominatim returned', async () => {
+    // c708b9a9: PLACES VERIFIED on its own EXACT_NAME/SINGLE.
+    const { service, catalog } = build({
+      nominatimResults: [inDestination(77), inDestination(78, -32.91)],
+      placesDeclaringOsm: {
+        name: 'Ojo de Agua',
+        latitude: -32.9,
+        longitude: -68.86,
+        // A third OSM record: neither of Nominatim's two.
+        osmId: 'osm:node:500',
+      },
+    });
+
+    const result = await resolveStrict(service, 'Ojo de Agua');
+
+    expect(attemptOf(result, 'NOMINATIM').verificationDecision).toBe(
+      'AMBIGUOUS',
+    );
+    const places = attemptOf(result, 'PLACES');
+    expect(places.identityEvidence).toContainEqual({
+      type: 'EXACT_NAME',
+      identityMultiplicity: 'SINGLE',
+    });
+    expect(examinationOf(places)).toMatchObject({
+      outcome: 'MATERIAL_COMPETITOR_KNOWN',
+      competitorCount: 2,
+      examinedStrategies: ['LOCAL_OSM_POOL', 'NOMINATIM', 'PLACES'],
+    });
+    expect(places.verificationDecision).toBe('AMBIGUOUS');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('a destination-bounded Experience: a homonym the component could never be admitted at does not block (single destination policy)', async () => {
+    // The Córdoba hamlet lies outside the strict destination; the Ciudad de
+    // Mendoza venue is the only admissible record, in both pools.
+    const { service, catalog } = build({
+      nominatimResults: [inDestination(77), POOL.DEFAULT[0]],
+      placesDeclaringOsm: {
+        name: 'Ojo de Agua',
+        latitude: -32.89,
+        longitude: -68.85,
+        osmId: 'osm:node:77',
+      },
+    });
+
+    const result = await resolveStrict(service, 'Ojo de Agua');
+
+    const places = attemptOf(result, 'PLACES');
+    expect(examinationOf(places)).toMatchObject({
+      outcome: 'NO_MATERIAL_COMPETITOR',
+      competitorCount: 0,
+    });
+    expect(places.verificationDecision).toBe('VERIFIED');
+    expect(catalog.upsertGeoEntityWithIdentities).toHaveBeenCalledTimes(1);
+  });
+
+  it('one provider is enough: an untruncated country-bounded pool holding only the candidate verifies with no second dataset', async () => {
+    const { service, catalog } = build({ nominatimResults: [RESTAURANT] });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua');
+
+    const nominatim = attemptOf(result, 'NOMINATIM');
+    expect(examinationOf(nominatim)).toMatchObject({
+      outcome: 'NO_MATERIAL_COMPETITOR',
+      examinedStrategies: ['LOCAL_OSM_POOL', 'NOMINATIM'],
+    });
+    expect(nominatim.verificationDecision).toBe('VERIFIED');
+    expect(attemptOf(result, 'PLACES')).toBeUndefined();
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+  });
+
+  it('a brand website shared by two physical locations identifies neither', async () => {
+    // Constructed: a second "Ojo de Agua" branch of the same brand in
+    // Maipú, Mendoza. The component cites the brand site, which is
+    // provenance only (never a facility identity).
+    const maipuBranch: NominatimResult = {
+      ...RESTAURANT,
+      osmId: 4797394431,
+      latitude: -32.98,
+      longitude: -68.79,
+      displayName: 'Ojo de Agua, Maipú, Mendoza, Argentina',
+    };
+    const { service, catalog } = build({
+      nominatimResults: [RESTAURANT, maipuBranch],
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua', undefined, {
+      sourceLink: {
+        evidenceKey: 'ev-1',
+        url: 'https://ojodeagua.example/',
+        linkText: 'Ojo de Agua',
+      },
+    });
+
+    const nominatim = attemptOf(result, 'NOMINATIM');
+    expect(examinationOf(nominatim).outcome).toBe('MATERIAL_COMPETITOR_KNOWN');
+    expect(nominatim.verificationDecision).toBe('AMBIGUOUS');
     expectNoIdentityWrites(catalog);
   });
 });

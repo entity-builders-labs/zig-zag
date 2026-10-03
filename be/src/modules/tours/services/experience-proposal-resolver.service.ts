@@ -39,8 +39,14 @@ import {
   ResolutionAttemptAudit,
   GeographicScope,
   IdentityEvidence,
+  IdentityMultiplicity,
+  CompetitorPool,
+  CompetitorPoolCoverage,
+  CompetitorPoolMember,
+  StrongIdentity,
   PlaceSearchAudit,
 } from '../interfaces/experience-resolution.interface';
+import { examineCompetitors } from '../utils/competitor-examination.policy';
 import {
   bestNominatimMatch,
   candidateMatchCountToMultiplicity,
@@ -203,17 +209,46 @@ type SeenIdentities = Map<
   {
     strategy: ResolutionStrategy;
     upstreamDatasets?: readonly string[];
-    nameCollision: boolean;
   }
 >;
 
-/** A known name collision in the pool this candidate was acquired from. */
-function hasKnownNameCollision(candidate: EntityCandidate): boolean {
-  return (
-    candidate.nameEvidenceMultiplicity.exactName === 'MULTIPLE' ||
-    candidate.nameEvidenceMultiplicity.declaredAlias === 'MULTIPLE' ||
-    candidate.contextualPool?.outcome === 'AMBIGUOUS'
-  );
+/**
+ * Every pool examined for one hint so far, plus the canonical admission
+ * predicate of that component: what COMPETITOR_EXAMINATION is computed
+ * from for each later identity decision.
+ */
+interface HintCompetition {
+  pools: CompetitorPool[];
+  admits: (member: CompetitorPoolMember) => boolean;
+}
+
+/**
+ * The exact-name multiplicity one pool can claim. A COMPLETE pool counts
+ * (SINGLE / MULTIPLE); a PARTIAL one can expose MULTIPLE but never
+ * establish SINGLE -- a lone member there is UNKNOWN, not unique.
+ */
+function poolMultiplicity(
+  count: number,
+  coverage: CompetitorPoolCoverage,
+): IdentityMultiplicity {
+  if (coverage === 'PARTIAL' && count === 1) return 'UNKNOWN';
+  return candidateMatchCountToMultiplicity(count);
+}
+
+/** A provider record as a competitor-pool member (its strong identities). */
+function competitorMemberOf(candidate: EntityCandidate): CompetitorPoolMember {
+  return {
+    identityKeys: strongIdentitiesOf(candidate).map(strongIdentityKey),
+    name: candidate.canonicalName,
+    ...(Number.isFinite(candidate.latitude) &&
+    Number.isFinite(candidate.longitude)
+      ? {
+          latitude: candidate.latitude as number,
+          longitude: candidate.longitude as number,
+        }
+      : {}),
+    structuralKind: candidate.structuralKind ?? 'UNKNOWN',
+  };
 }
 
 type StrategyAcquisitionResult =
@@ -228,6 +263,8 @@ type StrategyAcquisitionResult =
       /** Set when a structural candidate lay outside the candidate-owned scope. */
       outsideExperienceScope?: true;
       placeSearch?: PlaceSearchAudit;
+      /** The pool the provider returned, whether or not a member was admitted. */
+      competitorPool?: CompetitorPool;
     }
   | {
       status: 'candidate';
@@ -237,6 +274,7 @@ type StrategyAcquisitionResult =
       candidate: EntityCandidate;
       destinationCompatibility?: DestinationCompatibility;
       placeSearch?: PlaceSearchAudit;
+      competitorPool?: CompetitorPool;
     }
   | {
       status: 'failed';
@@ -795,6 +833,19 @@ export class ExperienceProposalResolverService
       // below injects IDENTITY_CONVERGENCE evidence -- never a name/string
       // comparison, never a vote among candidates.
       const seenIdentities: SeenIdentities = new Map();
+      // Every pool any strategy examines for THIS hint, kept so that each
+      // later identity decision sees the competitors an earlier pool
+      // exposed (whichever member that strategy selected).
+      const competition: HintCompetition = {
+        pools: [],
+        admits: (member) =>
+          this.admitsCompetitor(
+            member,
+            componentScope,
+            destinationScope,
+            destinationCountryCode,
+          ),
+      };
       const recordAttempt = (
         strategy: ResolutionStrategy,
         acquisition: {
@@ -971,6 +1022,7 @@ export class ExperienceProposalResolverService
           seenIdentities,
           catalogResult.evidence,
           identityContext,
+          competition,
         );
         recordAttempt(
           'CATALOG_REUSE',
@@ -1044,6 +1096,7 @@ export class ExperienceProposalResolverService
           seenIdentities,
           [],
           identityContext,
+          competition,
         );
         recordAttempt(
           'TRUSTED_OBSERVATION_REUSE',
@@ -1144,26 +1197,31 @@ export class ExperienceProposalResolverService
 
       let unconfirmedLocalMatch: ResolvedGeoEntity | undefined;
       let unconfirmedGlobalMatch: ResolvedGeoEntity | undefined;
+      if (localLookup?.status === 'success') {
+        competition.pools.push(
+          this.localCompetitorPool(
+            'LOCAL_OSM_POOL',
+            hint.name,
+            pool,
+            componentScope,
+          ),
+        );
+      }
       if (matched) {
         let nameMultiplicity: {
-          exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
-          declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
+          exactName: IdentityMultiplicity;
+          declaredAlias: IdentityMultiplicity;
         };
         if (isAreaHint) {
           // Single boundary candidate - no alias pool for boundary candidates
           nameMultiplicity = { exactName: 'SINGLE', declaredAlias: 'UNKNOWN' };
         } else {
           // POI pool - legitimate identity candidates
-          const exactNameCount = countExactNormalizedMatches(
+          nameMultiplicity = this.localPoolNameMultiplicity(
             hint.name,
             pool,
-            (c) => c.name,
+            componentScope,
           );
-          const aliasMatchCount = countAliasMatches(hint.name, pool);
-          nameMultiplicity = {
-            exactName: candidateMatchCountToMultiplicity(exactNameCount),
-            declaredAlias: candidateMatchCountToMultiplicity(aliasMatchCount),
-          };
         }
         const resolvedEntity = this.buildOsmCandidate(
           hint,
@@ -1212,6 +1270,7 @@ export class ExperienceProposalResolverService
           seenIdentities,
           [],
           identityContext,
+          competition,
         );
         recordAttempt(
           'LOCAL_OSM_POOL',
@@ -1272,6 +1331,13 @@ export class ExperienceProposalResolverService
           componentScope,
           identityContext,
         );
+        if (
+          (nominatimResolved.status === 'candidate' ||
+            nominatimResolved.status === 'no_candidate') &&
+          nominatimResolved.competitorPool
+        ) {
+          competition.pools.push(nominatimResolved.competitorPool);
+        }
         if (nominatimResolved.status === 'candidate') {
           const verification = await this.isVerified(
             'NOMINATIM',
@@ -1281,6 +1347,7 @@ export class ExperienceProposalResolverService
             seenIdentities,
             [],
             identityContext,
+            competition,
           );
           recordAttempt(
             'NOMINATIM',
@@ -1337,6 +1404,13 @@ export class ExperienceProposalResolverService
           componentScope,
           identityContext,
         );
+        if (
+          (placesResolved.status === 'candidate' ||
+            placesResolved.status === 'no_candidate') &&
+          placesResolved.competitorPool
+        ) {
+          competition.pools.push(placesResolved.competitorPool);
+        }
         if (placesResolved.status === 'candidate') {
           const verification = await this.isVerified(
             'PLACES',
@@ -1346,6 +1420,7 @@ export class ExperienceProposalResolverService
             seenIdentities,
             [],
             identityContext,
+            competition,
           );
           recordAttempt(
             'PLACES',
@@ -1395,6 +1470,12 @@ export class ExperienceProposalResolverService
             countryCode: identityPlan.countryCode,
             role: hint.role,
           });
+          competition.pools.push({
+            strategy: 'OVERTURE_IDENTITY',
+            coverage:
+              lookup.coverage === 'COMPLETE_COUNTRY' ? 'COMPLETE' : 'PARTIAL',
+            members: lookup.candidates.map(competitorMemberOf),
+          });
           const overture = this.selectPoolCandidate(
             lookup.candidates,
             identityContext,
@@ -1411,6 +1492,7 @@ export class ExperienceProposalResolverService
               seenIdentities,
               [],
               identityContext,
+              competition,
             );
             recordAttempt(
               'OVERTURE_IDENTITY',
@@ -1493,22 +1575,24 @@ export class ExperienceProposalResolverService
             role: 'venue' as const,
             expectedKind: 'PLACE' as const,
           };
-          const exactNameCount = countExactNormalizedMatches(
-            correctedHint.name,
-            poiLookup.value,
-            (candidate) => candidate.name,
-          );
-          const aliasMatchCount = countAliasMatches(
-            correctedHint.name,
-            poiLookup.value,
-          );
+          if (poiLookup.status === 'success') {
+            competition.pools.push(
+              this.localCompetitorPool(
+                'AREA_TO_PLACE_CORRECTION',
+                correctedHint.name,
+                poiLookup.value,
+                componentScope,
+              ),
+            );
+          }
           const resolvedEntity = this.buildOsmCandidate(
             correctedHint,
             venueFallbackMatch,
-            {
-              exactName: candidateMatchCountToMultiplicity(exactNameCount),
-              declaredAlias: candidateMatchCountToMultiplicity(aliasMatchCount),
-            },
+            this.localPoolNameMultiplicity(
+              correctedHint.name,
+              poiLookup.value,
+              componentScope,
+            ),
           );
           const verification = await this.isVerified(
             'AREA_TO_PLACE_CORRECTION',
@@ -1518,6 +1602,7 @@ export class ExperienceProposalResolverService
             seenIdentities,
             [],
             identityContext,
+            competition,
           );
           recordAttempt(
             'AREA_TO_PLACE_CORRECTION',
@@ -1871,11 +1956,27 @@ export class ExperienceProposalResolverService
     seenIdentities?: SeenIdentities,
     acquisitionEvidence: IdentityEvidence[] = [],
     context: ComponentIdentityContext = {},
+    competition?: HintCompetition,
   ): Promise<VerificationResult> {
     const evidence = [
       ...buildLocalIdentityEvidence(hint, entity, observations),
       ...contextualIdentityEvidence(context, entity),
       ...acquisitionEvidence,
+      // Competitors are a fact about the HINT: every pool examined for it
+      // so far, in whatever order, judged against this candidate. Before any
+      // pool (catalog or trusted-observation reuse) nothing was examined,
+      // which the verifier already reads as "not established".
+      ...(competition?.pools.length
+        ? [
+            examineCompetitors({
+              hintName: hint.name,
+              candidate: entity,
+              pools: competition.pools,
+              context,
+              admits: competition.admits,
+            }),
+          ]
+        : []),
     ];
     if (seenIdentities) {
       // Strong-identity correlation: the candidate's identity SET (e.g.
@@ -1906,8 +2007,6 @@ export class ExperienceProposalResolverService
                 prior.upstreamDatasets,
                 entity.upstreamDatasets,
               ),
-              nameCollision:
-                prior.nameCollision || hasKnownNameCollision(entity),
             },
           );
           break;
@@ -1919,7 +2018,6 @@ export class ExperienceProposalResolverService
           seenIdentities.set(key, {
             strategy,
             upstreamDatasets: entity.upstreamDatasets,
-            nameCollision: hasKnownNameCollision(entity),
           });
         }
       }
@@ -2277,6 +2375,107 @@ export class ExperienceProposalResolverService
     };
   }
 
+  /**
+   * Whether a pool bounded to the destination (the local OSM pool, a Places
+   * circle around the scope window) examined every location this component
+   * may be admitted at. For a destination-bounded Experience it did -- the
+   * accepted single-destination contract (P0.2, Galería Güemes G1). For an
+   * Experience admitted beyond the destination (§P2-18) the admission scope
+   * is the country, so the same pool is only PARTIAL; so is any pool when
+   * the destination has no usable geography.
+   */
+  private destinationPoolCoverage(
+    componentScope: ComponentAcquisitionScope,
+  ): CompetitorPoolCoverage {
+    return componentScope.scope &&
+      !componentScope.admitsCountryBoundedBeyondDestination
+      ? 'COMPLETE'
+      : 'PARTIAL';
+  }
+
+  /**
+   * A competitor matters only where this component may be admitted: the
+   * same canonical admission policy every strategy applies to its own
+   * candidate. A member whose position is unknown stays material.
+   */
+  private admitsCompetitor(
+    member: CompetitorPoolMember,
+    componentScope: ComponentAcquisitionScope,
+    destinationScope: GeographicScope,
+    destinationCountryCode: string | undefined,
+  ): boolean {
+    if (
+      !componentScope.scope ||
+      !Number.isFinite(member.latitude) ||
+      !Number.isFinite(member.longitude)
+    ) {
+      return true;
+    }
+    return admitComponentLocation(
+      componentScope.scope,
+      {
+        latitude: member.latitude as number,
+        longitude: member.longitude as number,
+      },
+      destinationScope,
+      {
+        countryBounded:
+          componentScope.admitsCountryBoundedBeyondDestination &&
+          Boolean(destinationCountryCode),
+      },
+    ).admitted;
+  }
+
+  /** The local OSM POI pool as an examined competitor pool. */
+  private localCompetitorPool(
+    strategy: ResolutionStrategy,
+    hintName: string,
+    pool: OsmCandidate[],
+    componentScope: ComponentAcquisitionScope,
+  ): CompetitorPool {
+    const aliasIds = new Set(
+      aliasMatches(hintName, pool).map((candidate) => candidate.id),
+    );
+    return {
+      strategy,
+      coverage: this.destinationPoolCoverage(componentScope),
+      members: pool.map((candidate): CompetitorPoolMember => {
+        const point = this.representativePoint(candidate);
+        return {
+          identityKeys: [
+            strongIdentityKey({
+              provider: 'openstreetmap',
+              externalId: candidate.id,
+            }),
+          ],
+          name: candidate.name,
+          ...(aliasIds.has(candidate.id) ? { declaresHintAlias: true } : {}),
+          ...(point ? point : {}),
+          structuralKind: structuralKindFromOsmTags(candidate.tags),
+        };
+      }),
+    };
+  }
+
+  /** Exact-name / declared-alias multiplicity of the local POI pool. */
+  private localPoolNameMultiplicity(
+    hintName: string,
+    pool: OsmCandidate[],
+    componentScope: ComponentAcquisitionScope,
+  ): { exactName: IdentityMultiplicity; declaredAlias: IdentityMultiplicity } {
+    const coverage = this.destinationPoolCoverage(componentScope);
+    return {
+      exactName: poolMultiplicity(
+        countExactNormalizedMatches(hintName, pool, (c) => c.name),
+        coverage,
+      ),
+      declaredAlias: poolMultiplicity(
+        countAliasMatches(hintName, pool),
+        coverage,
+      ),
+    };
+  }
+
   private buildOsmCandidate(
     hint: any,
     matched: OsmCandidate,
@@ -2526,12 +2725,39 @@ export class ExperienceProposalResolverService
             (result) => nominatimKey(result) === distinguishedKey,
           )) ||
         bestNominatimMatch(hint.name, results, window?.center);
-      const exactNameCount = exactMatches.length;
+      // The search is bounded to the destination country (or unbounded),
+      // so an answer the window did not cut off examined every location
+      // the component may be admitted at.
+      const coverage: CompetitorPoolCoverage = windowReached
+        ? 'PARTIAL'
+        : 'COMPLETE';
+      // A record no Nominatim branch below could ever turn into a component
+      // (a same-name road) is not a competitor of one.
+      const competitorPool: CompetitorPool = {
+        strategy: 'NOMINATIM',
+        coverage,
+        members: results
+          .filter(
+            (result) =>
+              isAreaScaleEligible(result) || isPlaceScaleEligible(result),
+          )
+          .map(
+            (result): CompetitorPoolMember => ({
+              identityKeys: [nominatimKey(result)],
+              name: result.displayName.split(',')[0]?.trim() ?? '',
+              ...(Number.isFinite(result.latitude) &&
+              Number.isFinite(result.longitude)
+                ? {
+                    latitude: result.latitude as number,
+                    longitude: result.longitude as number,
+                  }
+                : {}),
+              structuralKind: structuralKindFromNominatim(result),
+            }),
+          ),
+      };
       const nameMultiplicity = {
-        exactName:
-          windowReached && exactNameCount === 1
-            ? ('UNKNOWN' as const)
-            : candidateMatchCountToMultiplicity(exactNameCount),
+        exactName: poolMultiplicity(exactMatches.length, coverage),
         declaredAlias: 'UNKNOWN' as const,
       };
       if (
@@ -2544,6 +2770,7 @@ export class ExperienceProposalResolverService
           provider: 'nominatim',
           query: hint.name,
           providerResultCount: results.length,
+          competitorPool,
         };
       }
 
@@ -2582,6 +2809,7 @@ export class ExperienceProposalResolverService
             provider: 'nominatim',
             query: hint.name,
             providerResultCount: results.length,
+            competitorPool,
           };
         }
         if (componentScope.countryBoundedAreaSearch) {
@@ -2603,6 +2831,7 @@ export class ExperienceProposalResolverService
               provider: 'nominatim',
               query: hint.name,
               providerResultCount: results.length,
+              competitorPool,
               destinationCompatibility: {
                 verdict: 'INCOMPATIBLE',
                 reason: 'CANDIDATE_COARSER_THAN_DESTINATION',
@@ -2641,6 +2870,7 @@ export class ExperienceProposalResolverService
               provider: 'nominatim',
               query: hint.name,
               providerResultCount: results.length,
+              competitorPool,
               outsideExperienceScope: true,
             };
           }
@@ -2653,6 +2883,7 @@ export class ExperienceProposalResolverService
               provider: 'nominatim',
               query: hint.name,
               providerResultCount: results.length,
+              competitorPool,
               destinationCompatibility,
             };
           }
@@ -2669,6 +2900,7 @@ export class ExperienceProposalResolverService
           provider: 'nominatim',
           query: hint.name,
           providerResultCount: results.length,
+          competitorPool,
           candidate: this.buildOsmCandidate(correctedHint, boundary.value, {
             exactName: nameMultiplicity.exactName,
             declaredAlias: 'UNKNOWN',
@@ -2682,6 +2914,7 @@ export class ExperienceProposalResolverService
           provider: 'nominatim',
           query: hint.name,
           providerResultCount: results.length,
+          competitorPool,
         };
       }
 
@@ -2716,6 +2949,7 @@ export class ExperienceProposalResolverService
           provider: 'nominatim',
           query: hint.name,
           providerResultCount: results.length,
+          competitorPool,
           ...(admission.reason === 'DESTINATION_INCOMPATIBLE'
             ? { destinationCompatibility: admission.destinationCompatibility! }
             : { outsideExperienceScope: true as const }),
@@ -2739,6 +2973,7 @@ export class ExperienceProposalResolverService
         provider: 'nominatim',
         query: hint.name,
         providerResultCount: results.length,
+        competitorPool,
         candidate: {
           hintKey: correctedHint.key,
           hintName: correctedHint.name,
@@ -3299,15 +3534,66 @@ export class ExperienceProposalResolverService
       placeSearch.viableCount = viable.length;
 
       const place = selectBestPlaceCandidate(hint.name, viable, window?.center);
+      // A circle around a destination-bounded scope covers that scope; an
+      // answer filling the requested window may have been cut off.
+      const coverage: CompetitorPoolCoverage =
+        window && result.data.length < PLACES_TEXT_SEARCH_RESULT_WINDOW
+          ? this.destinationPoolCoverage(componentScope)
+          : 'PARTIAL';
       const exactNameCount = countExactNormalizedMatches(
         hint.name,
         viable,
         (candidate) => candidate.displayName?.text || candidate.name,
       );
       const nameMultiplicity = {
-        exactName: candidateMatchCountToMultiplicity(exactNameCount),
+        exactName: poolMultiplicity(exactNameCount, coverage),
         declaredAlias: 'UNKNOWN' as const,
       };
+      // Every structurally possible record is a potential competitor,
+      // whatever its admission (the examination applies the component's
+      // admission itself). Only the selected record carries the
+      // cross-identities its Place Details declared.
+      const placesCompetitorPool = (selected?: {
+        id: string;
+        identities: StrongIdentity[];
+      }): CompetitorPool => ({
+        strategy: 'PLACES',
+        coverage,
+        members: result.data
+          .filter(
+            (candidate) =>
+              evaluatePlaceStructuralCompatibility(candidate.featureClass)
+                .verdict !== 'INCOMPATIBLE',
+          )
+          .map(
+            (candidate): CompetitorPoolMember => ({
+              identityKeys: [
+                strongIdentityKey({
+                  provider: providerLabel,
+                  externalId: canonicalPlacesExternalId(
+                    this.placesApi!.provider,
+                    candidate.id,
+                  ),
+                }),
+                ...(selected?.id === candidate.id
+                  ? selected.identities.map(strongIdentityKey)
+                  : []),
+              ],
+              name: candidate.displayName?.text || candidate.name || '',
+              ...(candidate.location &&
+              Number.isFinite(candidate.location.latitude) &&
+              Number.isFinite(candidate.location.longitude)
+                ? {
+                    latitude: candidate.location.latitude,
+                    longitude: candidate.location.longitude,
+                  }
+                : {}),
+              structuralKind: structuralKindFromPlaceFeatureClass(
+                candidate.featureClass,
+              ),
+            }),
+          ),
+      });
       // Every exact-name result is a potential competitor, whatever its
       // admission. The provider search is a hard circle around the scope
       // window, so it is never a complete comparison for a source locality:
@@ -3352,6 +3638,7 @@ export class ExperienceProposalResolverService
           query: hint.name,
           providerResultCount: result.data.length,
           placeSearch,
+          competitorPool: placesCompetitorPool(),
         };
       }
 
@@ -3377,6 +3664,10 @@ export class ExperienceProposalResolverService
         query: hint.name,
         providerResultCount: result.data.length,
         placeSearch,
+        competitorPool: placesCompetitorPool({
+          id: place.id,
+          identities: sourceIdentities,
+        }),
         candidate: {
           hintKey: hint.key,
           hintName: hint.name,

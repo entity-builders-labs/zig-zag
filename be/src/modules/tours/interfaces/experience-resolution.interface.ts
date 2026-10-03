@@ -169,10 +169,9 @@ export type IdentityEvidence =
        * Provenance of an IDENTITY_CONVERGENCE on `identity`, recorded as its
        * own fact. SHARED_UPSTREAM when both acquisitions derive from one
        * upstream dataset (Overpass, Nominatim and Geoapify indexing one OSM
-       * node): one record found twice, which confirms the record but cannot
-       * single out a member of a known name collision. `nameCollision` is
-       * whether either converging acquisition saw MULTIPLE exact-name or
-       * declared-alias members (or an AMBIGUOUS context) in its own pool.
+       * node): one record found twice. INDEPENDENT_UPSTREAMS corroborates
+       * that the record exists in two datasets. Neither says which homonym
+       * the source meant: that is COMPETITOR_EXAMINATION's question.
        */
       type: 'CONVERGENCE_PROVENANCE';
       identity: StrongIdentity;
@@ -180,7 +179,43 @@ export type IdentityEvidence =
         | 'SHARED_UPSTREAM'
         | 'INDEPENDENT_UPSTREAMS'
         | 'UNDETERMINED_UPSTREAM';
-      nameCollision: boolean;
+    }
+  | {
+      /**
+       * What every pool examined for this HINT so far (any strategy, in any
+       * order, whichever member it selected) establishes about material
+       * competitors of this candidate: records answering to the hint's or
+       * the candidate's name, or declaring a hint alias, that lie inside
+       * the component's admission scope, that no component-specific source
+       * fact (grounded locality, stated kind) excludes, and that are a
+       * different physical identity.
+       *  - MATERIAL_COMPETITOR_KNOWN: at least `competitorCount` such
+       *    records exist. No record-level fact (a name, an alias,
+       *    convergence of any provenance, a Wikidata label) can decide
+       *    between them.
+       *  - NO_MATERIAL_COMPETITOR: a COMPLETE pool holds this candidate and
+       *    none of them -- the competitor set was examined.
+       *  - NO_COMPETITOR_OBSERVED: none seen, but no complete pool examined
+       *    the admission scope. Uniqueness is UNKNOWN, never assumed.
+       */
+      type: 'COMPETITOR_EXAMINATION';
+      outcome:
+        | 'MATERIAL_COMPETITOR_KNOWN'
+        | 'NO_MATERIAL_COMPETITOR'
+        | 'NO_COMPETITOR_OBSERVED';
+      examinedStrategies: ResolutionStrategy[];
+      /** Lower bound on distinct material competitors. */
+      competitorCount: number;
+    }
+  | {
+      /**
+       * The source declares a strong identity for THIS component (a cited
+       * listing's own `wikidata=`) and the candidate's record carries the
+       * same one: discriminating correspondence, the positive counterpart of
+       * IDENTITY_CONTRADICTION/WIKIDATA_QID. It decides among homonyms.
+       */
+      type: 'SOURCE_DECLARED_IDENTITY_MATCH';
+      identity: StrongIdentity;
     }
   | {
       /**
@@ -224,6 +259,42 @@ export type IdentityEvidence =
       verifiedHintKey: string;
       identityMultiplicity: IdentityMultiplicity;
     };
+
+/**
+ * Whether one examined pool can establish that no OTHER record answers to a
+ * name inside the component's admission scope. COMPLETE: the search extent
+ * covers the whole admission scope and the provider's answer was not cut
+ * off -- an untruncated country-bounded search, a complete-country
+ * snapshot, or (for a destination-bounded Experience, the accepted single
+ * destination contract) an untruncated destination pool. PARTIAL: a pool
+ * bounded to less than the admission scope, a saturated window, a partial
+ * snapshot. A PARTIAL pool can expose a competitor; it can never establish
+ * that none exists.
+ */
+export type CompetitorPoolCoverage = 'COMPLETE' | 'PARTIAL';
+
+/** One record of an examined pool, normalized at the provider boundary. */
+export interface CompetitorPoolMember {
+  /** Every strong identity key (`namespace/externalId`) of the record. */
+  identityKeys: string[];
+  name: string;
+  /** The record's own alias tags declare the hint's name. */
+  declaresHintAlias?: boolean;
+  latitude?: number;
+  longitude?: number;
+  structuralKind: CandidateStructuralKind;
+}
+
+/**
+ * A provider pool examined for one component hint. Kept for the whole
+ * resolution of that hint so a later identity decision sees what every
+ * earlier acquisition learned, whichever member it selected.
+ */
+export interface CompetitorPool {
+  strategy: ResolutionStrategy;
+  coverage: CompetitorPoolCoverage;
+  members: CompetitorPoolMember[];
+}
 
 export type ResolutionStrategy =
   | 'CATALOG_REUSE'

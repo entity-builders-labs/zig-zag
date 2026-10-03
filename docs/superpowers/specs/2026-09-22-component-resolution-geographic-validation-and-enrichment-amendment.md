@@ -231,10 +231,13 @@ A provider divergence may mean:
 
 Only the last case is contradictory evidence.
 
-> **Amended 2026-10-03 (§19).** Convergence on one strong identity stays
-> decisive only while no name collision is known. Over a shared upstream
-> (Overpass, Nominatim and an OSM-backed Places result on one OSM node) it
-> confirms the record but never disambiguates a same-name collision.
+> **Amended 2026-10-03 (§19).** Convergence on one strong identity of any
+> provenance is decisive only over an examined competitor set: a complete
+> pool holds the candidate and no material competitor
+> (`COMPETITOR_EXAMINATION: NO_MATERIAL_COMPETITOR`). Over a shared
+> upstream (Overpass, Nominatim and an OSM-backed Places result on one OSM
+> node) it is one record found twice. Across independent upstreams it
+> corroborates existence, not which homonym the source meant.
 
 ### 5.1 Correlation groups observations; IdentityVerifier decides identity
 
@@ -1062,30 +1065,70 @@ order has no score and no threshold:
    contradicts a kind the source states, such as a settlement for "a winery
    lunch". No positive rule outweighs a contradiction.
 2. **Structural identity.** This covers a single route cluster, a catalog
-   route variant or verified hint memory (each with its own multiplicity),
-   and two strategies reaching one strong identity (`IDENTITY_CONVERGENCE`,
-   with its own `CONVERGENCE_PROVENANCE` fact).
-   - Convergence across *independent* upstream datasets verifies.
-   - Over a shared or undetermined upstream it verifies only while neither
-     converging acquisition saw a name collision (MULTIPLE exact-name or
-     declared-alias members, or an AMBIGUOUS context).
-   - Two name searches agreeing on one record confirm that record; they
-     cannot decide which homonym the source meant.
-   - This keeps the accepted RW1 resolutions (El Zanjón, Farmacia la
-     Estrella) and blocks convergence inside a known collision (the Ojo de
-     Agua class).
-3. **Contextual correspondence.** A same-name pool is evaluated against the
-   component's grounded locality, and against its stated kind when the
-   source states one. `DISTINGUISHED` means exactly one consistent member,
-   over a comparison not cut off at the provider's result limit, with the
-   kind shown compatible when stated. That verifies without country-wide
-   name uniqueness. `AMBIGUOUS` means two consistent members, and it
-   overrides any name-uniqueness claim. `INCOMPLETE_COMPARISON`,
-   `KIND_UNESTABLISHED` and `NO_CONSISTENT_MEMBER` are not discriminating.
-4. **Name, address and alias evidence** with its own multiplicity. A
-   provider window that reached its limit cannot establish SINGLE.
-5. **Wikidata corroboration.** NEARBY never decides a name collision.
-6. **Missing evidence**, which yields INSUFFICIENT_EVIDENCE or AMBIGUOUS.
+   route variant, or verified hint memory, each with its own multiplicity.
+3. **Discriminating correspondence.** These are source-grounded facts that
+   single out one record among homonyms.
+   - `CONTEXTUAL_CORRESPONDENCE: DISTINGUISHED`. A same-name pool is
+     evaluated against the component's grounded locality, and against its
+     stated kind when the source states one. Exactly one member is
+     consistent, over a comparison not cut off at the provider's result
+     limit, with the kind shown compatible when stated. This verifies
+     without country-wide name uniqueness. `AMBIGUOUS` (two consistent
+     members) overrides any name-uniqueness claim. `INCOMPLETE_COMPARISON`,
+     `KIND_UNESTABLISHED` and `NO_CONSISTENT_MEMBER` are not
+     discriminating.
+   - `SOURCE_DECLARED_IDENTITY_MATCH`. The source declares a QID for this
+     component and the candidate carries the same QID. It mirrors the QID
+     contradiction.
+   - `ADDRESS_MATCH`. The source's address for the component matches the
+     candidate.
+   - An `OWN_QID` or `OBSERVATION_QID` whose labels corroborate both the
+     hint and the candidate. The residual risk is tracked as
+     RW4-ID-QID-HOMONYM-1.
+4. **Known material competitor, which yields AMBIGUOUS.**
+   `COMPETITOR_EXAMINATION` is a fact about the hint. It is computed from
+   every pool examined for that hint, by any strategy and in any order,
+   judged against this candidate (see **Competitors** below). When it is
+   `MATERIAL_COMPETITOR_KNOWN`, no record-level fact decides: not a name,
+   an alias, convergence of any provenance, or a Wikidata label.
+5. **Convergence** (`IDENTITY_CONVERGENCE`, with its own
+   `CONVERGENCE_PROVENANCE`) verifies only when the result is
+   `NO_MATERIAL_COMPETITOR`. If the provenance or the examination is
+   missing, or the result is `NO_COMPETITOR_OBSERVED`, uniqueness is
+   unknown. That is never read as "no collision". This keeps the accepted
+   RW1 resolutions: El Zanjón and Farmacia la Estrella each carried an
+   untruncated country-bounded Nominatim response holding only the
+   candidate.
+6. **Name, address and alias evidence** with its own multiplicity. A pool
+   can claim `SINGLE` only when it covered the admission scope. A saturated
+   window, or a destination-bounded pool for an Experience admitted beyond
+   the destination, reports `UNKNOWN` for a lone member.
+7. **Wikidata corroboration.** NEARBY never decides a name collision.
+8. **Missing evidence**, which yields INSUFFICIENT_EVIDENCE or AMBIGUOUS.
+
+**Competitors (2026-10-03).** A record is a material competitor when all
+of these hold:
+- It answers to the hint's name or to the candidate's own name, or it
+  declares a hint alias.
+- It is structurally a possible component. A same-name road is not a
+  venue's competitor.
+- It lies inside the component's admission scope, as decided by the
+  canonical `admitComponentLocation` policy.
+- No component-specific source fact excludes it: a grounded locality it
+  lies outside, or a stated kind its structure contradicts.
+- It is a different physical identity. Records are never merged by name,
+  brand, website, phone or proximity.
+
+A record of another namespace that may be the candidate itself is neither
+a competitor nor proof that none exists.
+
+A pool is **complete** when its search extent covers the whole admission
+scope and its answer was not cut off. Three kinds qualify:
+- An untruncated country-bounded Nominatim search.
+- A `COMPLETE_COUNTRY` Overture snapshot.
+- An untruncated local OSM pool or Places circle, for a destination-bounded
+  Experience only. This is the accepted single-destination contract:
+  RW4-ID-DEST-UNIQUENESS-1 records its residual risk.
 
 **Source grounding.**
 - A locality or kind assertion lives on the component hint
@@ -1102,8 +1145,9 @@ order has no score and no threshold:
   website or phone never identifies one physical facility.
 
 **Pools.**
-- Competitors are the exact-name and declared-alias members of each
-  provider's own pool.
+- Contextual (locality) comparison uses the exact-name and declared-alias
+  members of each provider's own pool. Competitor examination (rule 4)
+  uses every pool examined for the hint.
 - A pool bounded to another area is never a complete comparison for a
   locality: the local OSM pool, or a Places search restricted to a circle.
   Such a pool can expose an equally consistent competitor, but it cannot

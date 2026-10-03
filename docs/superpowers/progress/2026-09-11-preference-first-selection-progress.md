@@ -2144,6 +2144,26 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   confirms a record only while no name collision is known; it never
   disambiguates one. Matrix: `contextual-identity-2026-10-03/regression-matrix.md`.
   No live RW1, RW2 or RW3 COLD/WARM run was executed.
+- Ambiguity policy (2026-10-03, after `c708b9a9`). Defects A, B and C are
+  closed. Characterization:
+  `contextual-identity-2026-10-03/ambiguity-policy-characterization.md`.
+  - Competitors are now a hint-level typed fact, `COMPETITOR_EXAMINATION`.
+    It is computed from every pool examined for the hint and judged
+    against the component's admission scope.
+  - Convergence of any provenance decides only over an examined set
+    (`NO_MATERIAL_COMPETITOR`).
+  - A known material competitor makes the result AMBIGUOUS for every
+    record-level fact.
+  - A destination-bounded pool claims `SINGLE` only for a
+    destination-bounded Experience.
+  - A source QID equal to the candidate's QID is the typed
+    `SOURCE_DECLARED_IDENTITY_MATCH`.
+  - RW1 El Zanjón and Farmacia pass on unchanged fixtures.
+  - The c708b9a9 code produced VERIFIED on three of the new regression
+    cases. They are now INSUFFICIENT_EVIDENCE or AMBIGUOUS.
+  - Two baseline verifier unit inputs (convergence with nothing about
+    competitors) changed expectation. They are flagged in the matrix for
+    independent review.
 
 ## Next authorized action
 
@@ -2161,6 +2181,10 @@ The draft pull request for `feat/preference-first-selection` -> `main` exists
 for review only. Do not merge to `main`, do not change RW4 conclusions, and do
 not start an autonomous reviewer/fixer loop.
 
+Independent review is requested for the 2026-10-03 ambiguity-policy
+decisions recorded under RW4-ID-COMPETITOR-1 and RW4-ID-DEST-UNIQUENESS-1
+before RW4 COLD #12. That review does not block the extractor work above.
+
 ## Open findings / blockers
 
 - PF-REVIEW-PROVIDER-1: OPEN, BLOCKING for automated review. The contextual
@@ -2176,6 +2200,11 @@ not start an autonomous reviewer/fixer loop.
   merge result. The merge result's `be/` tree is byte-identical to this branch
   head, so this is product-suite flakiness in the RW4 area, not a governance
   regression. Do not weaken an invariant or a fixture to hide it.
+  2026-10-03 local evidence: `catalog-reuse › reuses the persisted catalog on
+  a second compatible request` failed 2 of 19 runs on the ambiguity-policy
+  tree (`MAX_CONTINUOUS_WALKING_EXCEEDED`). With c708b9a9's production code
+  swapped in, it failed 2 of 10 runs (`MAX_WALKING_PER_DAY_EXCEEDED`,
+  `MAX_CONTINUOUS_WALKING_EXCEEDED`). Planner flake, unrelated to identity.
 - RW4-ID-CONTRADICTION-1: CLOSED. Typed `IDENTITY_CONTRADICTION` covers
   WIKIDATA_QID, LOCALITY (outside a grounded stated locality) and
   PHYSICAL_KIND (structure contradicts a stated kind), and it precedes every
@@ -2186,14 +2215,36 @@ not start an autonomous reviewer/fixer loop.
 - RW4-ID-OVERTURE-SEL-1: CLOSED. Overture returns its whole exact-name
   pool. Selection uses the shared contextual policy plus nearest-to-window,
   and the selected member answers to the same scope admission.
-- RW4-ID-CONVERGENCE-OSM-1: CLOSED. `CONVERGENCE_PROVENANCE` records the
-  upstream relation and any known name collision. Shared-upstream
-  convergence never decides a collision (resolver-level negative test), and
-  RW1 El Zanjón and Farmacia still verify under their original evidence.
-- RW4-ID-PLACES-LOCAL-SINGLE-1: OPEN, LOW. A Places pool restricted to the
-  destination circle verifies on EXACT_NAME/SINGLE even when another
-  provider saw homonyms elsewhere. This is pre-existing behavior; changing
-  it would alter accepted Places cases, so it needs a separate review.
+- RW4-ID-CONVERGENCE-OSM-1: CLOSED. `CONVERGENCE_PROVENANCE` records only
+  the upstream relation. Collision knowledge moved to the hint-level
+  `COMPETITOR_EXAMINATION` (RW4-ID-COMPETITOR-1).
+- RW4-ID-COMPETITOR-1: CLOSED (2026-10-03), independent review requested.
+  - Defect A: convergence verified whenever no collision was *known*. That
+    covered missing provenance, `UNKNOWN` multiplicity, partial or
+    saturated pools and a failed Nominatim call. It now needs
+    `NO_MATERIAL_COMPETITOR` from a complete pool that holds the
+    candidate.
+  - Defect B: a provider-local `SINGLE` ignored homonyms another pool had
+    returned. Every pool examined for the hint now feeds the decision.
+  - Defect C: `INDEPENDENT_UPSTREAMS` outranked known ambiguity. It now
+    corroborates existence only.
+  - Proof: the resolver-level tests were re-run against c708b9a9's
+    production files. That code produced VERIFIED on the
+    regional-destination pool, on the saturated-window convergence and on
+    Places `SINGLE` over two Nominatim homonyms.
+- RW4-ID-PLACES-LOCAL-SINGLE-1: CLOSED by RW4-ID-COMPETITOR-1. A Places
+  `SINGLE` no longer verifies over a material homonym another pool
+  returned. For a regional Experience a destination-bounded pool reports
+  `UNKNOWN`, not `SINGLE`.
+- RW4-ID-DEST-UNIQUENESS-1: OPEN, review. For a destination-bounded
+  Experience, uniqueness inside the destination counts as uniqueness. This
+  is the accepted contract (P0.2, A6, Galería Güemes G1), and 47 accepted
+  tests depend on it. A homonym the component could never be admitted at
+  is therefore not a competitor, even though the source might have meant
+  it. Nominatim's own `EXACT_NAME` still counts country-wide homonyms. It
+  is therefore stricter than the examination fact, in the safe direction.
+  Changing the contract is a product/architecture decision, not part of
+  this fix.
 - RW4-ID-SOURCE-FACTS-1: PARTIALLY CLOSED. Locality, kind and link
   assertions are typed, grounded and audited. OPEN: the real extractor does
   not reliably emit the locality assertion. The Overture import still drops
