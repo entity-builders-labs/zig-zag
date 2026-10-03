@@ -2246,6 +2246,29 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   - Unit 2674/2674, integration 115/115, e2e 41/41; typecheck, lint and
     build green. No COLD/WARM run.
 
+### RW4 functional COLD attempt — 2026-10-03
+
+- **Non-canonical, isolated real campaign** (authorized functional evidence;
+  not COLD #12):
+  `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/functional-cold-20261003/`.
+  It ran HEAD `8bfdc881f525711e0885b323c64b42546b9fe4a6` against
+  `zigzag_spike_rw4_functional_cold_20261003` through the real configured
+  acquisition, resolver, persistence and catalog path; the request completed
+  in 153462 ms.
+- COLD counts moved from `geoEntity=0, experience=0, experienceComponent=0`
+  to `geoEntity=9, experience=9, experienceComponent=9`; all nine persisted
+  Experiences have exactly one component. There are zero duplicate identity
+  rows and zero duplicate Experience names, but **zero multi-component rows**.
+  No target WARM run was performed and `RW4_FUNCTIONAL_MILESTONE_PASSED` is
+  **not** recorded.
+- The source-defined SolSalute Uco/Luján composites still did not materialize.
+  This is evidence of the bounded source-composition/identity blocker, not a
+  reason to relax identity or fabricate a composite.
+- Existing Viator capture has three source-defined multi-stop products, but is
+  sandbox-only and `viator.` is intentionally excluded from editorial web
+  acquisition. Do not use cached/sandbox material as RW4 evidence or add a
+  booking-site exception without separate product/provider authorization.
+
 ## Next authorized action
 
 1. Re-run the contextual replay with the COLD #11 extractor (Cloudflare
