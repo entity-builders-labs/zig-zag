@@ -504,7 +504,9 @@ deficits must never be coalesced into generic plans).
 
 # Part II — Geographic scope, distance thresholds and destination relation
 
-Status: **ACTIVE CONTRACT — S1–S6 IMPLEMENTED (2026-10-02, see §P2-17)**.
+Status: **ACTIVE CONTRACT — S1–S6 IMPLEMENTED (2026-10-02, see §P2-17);
+strict-vs-descriptive scope semantics and source-defined compositions
+amended by §P2-18 (IMPLEMENTED 2026-10-02)**.
 Written 2026-10-02 at `ee0f55c1` as a docs-only correction; product
 decisions PD1/PD2/PD3 recorded in §P2-17. Trigger: the Overture
 identity characterization
@@ -939,6 +941,9 @@ Product decisions (user-approved for the cutover):
   Planner Product Acceptance.
 - **PD2** — fail closed: a multi-component candidate that needs a regional
   scope and has none is rejected `GEOGRAPHIC_SCOPE_UNKNOWN`; no circle.
+  *(AMENDED by §P2-18: unknown canonical AREA does not imply unknown
+  source-defined composition; identity, source composition and strict
+  constraints still fail closed.)*
 - **PD3** — the 25 km point-destination radius (T15) is DEFERRED, unchanged,
   and never borrowed for a regional Experience.
 
@@ -969,3 +974,200 @@ Real-world evidence (2026-10-02, `spikes/rw4-geographic-scope-uco-area-probe-202
 
 COLD #11 proved candidate-scoped authorization propagation; it did NOT prove
 the 80 km geographic policy (§P2-4). That historical record is unchanged.
+
+## P2-18. Amendment — source-grounded tourism geography (strict vs descriptive scope)
+
+Status: **ACTIVE CONTRACT — IMPLEMENTED 2026-10-02** (starting HEAD
+`4da25aef`). Supersedes every §P2-6/§P2-7/§P2-8/§P2-11/§P2-16/§P2-17
+statement that (a) makes a candidate-owned AREA/ROUTE a containment
+boundary, or (b) rejects a ROUTE_LIKE composition as
+`GEOGRAPHIC_SCOPE_UNKNOWN` merely because no enclosing canonical geometry
+exists.
+
+### Invalid assumption removed
+
+> Every regional (beyond-destination) Experience must have ONE enclosing
+> canonical AREA or ROUTE geometry, and a source-named AREA/ROUTE decides
+> component membership by point-in-polygon.
+
+A real, source-grounded tourism Experience does not need an enclosing
+canonical polygon to exist. Polygons establish strict membership only where
+strict membership is actually required.
+
+### Amended PD2
+
+```text
+UNKNOWN CANONICAL AREA
+does not imply
+UNKNOWN SOURCE-DEFINED COMPOSITION.
+```
+
+An Experience still fails closed when required component identity, source
+composition, or an explicitly required strict geographic constraint cannot
+be verified. `GEOGRAPHIC_SCOPE_UNKNOWN` remains only for a non-admissible
+candidate scope (`SCOPE_BEYOND_DESTINATION_NOT_AUTHORIZED`), an unknown
+destination geography, or (DEFAULT/WALK) a member whose relation is
+UNDETERMINED. `NO_VERIFIED_SCOPE_FOR_COMPONENTS_BEYOND_DESTINATION` and
+`MULTIPLE_CANDIDATE_SCOPES` are deleted.
+
+### Five questions, five owners
+
+| Question | Owner | Never decided by |
+| --- | --- | --- |
+| IDENTITY — is this the real place the source names? | resolver strategies + `IdentityVerifier` (unchanged, fail-closed) | a source naming it; proximity; first provider hit |
+| SOURCE COMPOSITION — does the source define these places as ONE Experience? | extraction contract (§16.1 prompt rules, deterministic source-support gate) + `evaluateSourceCompositionSupport` (one record supports every member) | geometry |
+| GEOGRAPHIC DESCRIPTION — where are they relative to the named area/route/destination? | facts on the validation result (`experienceScope.outsideScopeComponentKeys`, `destinationRelation`) | — (facts, not verdicts) |
+| STRICT CONSTRAINT — did the user/contract require a boundary? | `scopeMembershipSemantics` + `mayExtendBeyondDestination` | an AREA hint's presence, a category, a title, a distance |
+| TRIP FEASIBILITY | planner (Planner Product Acceptance) | geographic validation |
+
+### Membership semantics (typed: `ScopeMembershipSemantics`)
+
+| Scope provenance | Semantics | Why |
+| --- | --- | --- |
+| `WORK_UNIT_ANCHOR` (user-named AREA/ROUTE) | **STRICT** | the work unit exists to serve an Experience OF that anchor (Part I). In-destination anchors keep `AREA_CONTAINED` (DEFAULT) / `AREA_ANCHORED_ROUTE` (WALK/ROUTE_LIKE); a regional anchor acting as the Experience scope keeps strict containment (`OUTSIDE_CANONICAL_AREA_BOUNDARY`) |
+| `DESTINATION_AREA` / `DESTINATION_POINT_RADIUS` | **STRICT** unless `mayExtendBeyondDestination` | the destination ceiling of a DEFAULT/WALK candidate, and of any unit bound by a strict anchor |
+| `CANDIDATE_AREA` / `CANDIDATE_ROUTE` (source-named) | **DESCRIPTIVE** | the source's own geographic description; vernacular regions rarely match administrative polygons |
+| `SOURCE_COMPOSITION` (`SOURCE_DEFINED_COMPONENTS`, new) | **DESCRIPTIVE** | no enclosing geometry; the Experience's geography is its verified components |
+
+`mayExtendBeyondDestination(authorization, workUnitScope)` =
+`authorization.kind === 'ROUTE_LIKE' && !workUnitScope` — the single owner
+used by both acquisition and validation. Part I authorization is preserved:
+DEFAULT, WALK and anchored units never extend beyond the destination.
+
+A user mentioning a region as an excursion target is not, by itself, a
+request for administrative containment; but the current interpreted-anchor
+contract (`usage` × `priority`, where `must` means "must include") carries
+no boundary-strictness field, and the existing AREA_ROUTE_WALK contract
+treats a user anchor as strict. That stays STRICT (fail closed). A
+DESCRIPTIVE user-region mode requires an explicit interpreted contract —
+recorded as an open product item, never inferred from a default.
+
+### Validation (`CompositeGeographicValidationService`, validator version 3)
+
+1. Source composition completeness first (unchanged): every hint resolved
+   to a VERIFIED identity with canonical geography; nothing is dropped.
+2. Strict work-unit anchor (S-a) in conjunction (unchanged).
+3. Dispatch on the derived scope:
+   - **Descriptive CANDIDATE_AREA / CANDIDATE_ROUTE.** Each member's relation
+     to the scope is a fact (AREA: point INSIDE / line entering; ROUTE:
+     anchor, `ON_ROUTE`, `SAME_LOCAL_SCOPE`). A member outside the scope
+     is judged by the single destination-relation owner
+     (`evaluateExperienceDestinationRelation`): inside the destination ⇒
+     fine; positively outside or UNDETERMINED ⇒ destination ceiling
+     (`OUTSIDE_DESTINATION_BOUNDARY` / `GEOGRAPHIC_SCOPE_UNKNOWN`) unless
+     the candidate may extend beyond it, in which case ONE source record
+     must support every member (`COMPOSITION_NOT_SUPPORTED_BY_ONE_SOURCE`,
+     rejection `source_composition_unsupported`).
+   - **Destination scope.** All members inside ⇒ destination-local. Members
+     beyond ⇒ rejected (`OUTSIDE_DESTINATION_BOUNDARY`) unless the candidate
+     may extend beyond the destination ⇒ **`SOURCE_DEFINED_COMPONENTS`**
+     (strategy `source_defined_components`): one-record source support
+     required; no geometry, no search window, no polygon masquerade.
+   - Strict regional anchor scope: strict containment (unchanged).
+4. Contradictions (evidence, never distance):
+   - `COUNTRY_CONFLICT` — members positively in different countries (kept
+     everywhere; cross-border compositions are not modeled yet — fail closed).
+   - `REGION_CONFLICT` — **re-targeted**: a member OUTSIDE a source-named
+     AREA whose verified admin region differs from that AREA's region
+     evidence (the AREA's own `adminContext.region`, else the single region
+     its INSIDE members agree on). Region diversity among members alone is
+     no longer a contradiction (a multi-region Experience is not inherently
+     fabricated; an AREA may straddle a boundary). Missing evidence is never
+     a conflict.
+5. No numeric cutoff anywhere: a member 200 m, 1 km or 1,000 km outside a
+   descriptive AREA gets the same treatment; only source support, evidence
+   contradictions and strict constraints decide.
+
+Deleted: `unknownWhenBeyondDestination`,
+`NO_VERIFIED_SCOPE_FOR_COMPONENTS_BEYOND_DESTINATION`,
+`MULTIPLE_CANDIDATE_SCOPES`, `OUTSIDE_EXPERIENCE_ROUTE_SCOPE`, the
+inter-member REGION_CONFLICT rule, the resolver's `scopeUnknown` knowledge
+deficit (an unresolved component is an IDENTITY blocker,
+`INCOMPLETE_SOURCE_COMPOSITION` / per-component reasons, never a geography
+verdict), and the duplicated strategy union in
+`experience-resolution.interface.ts`.
+
+### Identity acquisition without an enclosing AREA
+
+`admitComponentLocation(scope, location, destination, { countryBounded })`:
+
+- a STRICT regional anchor: inside the anchor polygon only;
+- a DESCRIPTIVE `CANDIDATE_AREA`: inside the AREA admitted; otherwise judged
+  like any scope (never a containment boundary);
+- every scope: the destination policy;
+- a location the destination excludes is admitted only when the provider
+  query itself was bounded to the destination COUNTRY (provider-side
+  enforcement) AND `mayExtendBeyondDestination`.
+
+Today only the Nominatim strategy sends the country code; the Places
+strategy has no country bound (bias only) and therefore never admits a
+location beyond the destination for a source-defined composition. External
+lookups still require source evidence associating the destination (or a
+verified candidate-owned scope). Identity is still decided by
+`IdentityVerifier` over the same country-bounded result set: in-country
+exact-name homonyms ⇒ AMBIGUOUS; non-exact names ⇒ INSUFFICIENT_EVIDENCE.
+No global search, radius, proximity proof or first-hit identity.
+
+Residual risk (recorded, not hidden): provider coverage is incomplete, so a
+unique in-country exact-name match can still be a homonym of an unindexed
+real place. Stronger corroboration (address match from the source, Wikidata,
+Overture S7/S8) is the path to closing it; a failed or empty bounded search
+never proves non-existence.
+
+### WARM reuse without a fabricated AREA
+
+`ExperienceCatalogService.findVerifiedMultiComponentInArea` retrieves by the
+components' own canonical geography (area-membership policy) — it never
+needed an area-role component. Its global scan of every VERIFIED Experience
+is replaced by a bounded pool: the PostGIS catalog boundary
+(`findVerifiedWithinForMatching`) over the AREA's bbox covering window
+(physical derivation) ∪ Experiences having that AREA as a component. A
+source-defined Experience is therefore persisted COLD and retrieved WARM
+through a grounded regional request scope (a user-named regional AREA
+anchor) without any AREA being invented (integration scenario J). Retrieval
+stays separate from eligibility (PD1 unchanged). Known limit: a
+line-only Experience is pooled through its canonical representative point.
+
+From a destination-only request, a beyond-destination source-defined
+Experience is neither retrieved by the destination window nor
+tour-eligible (PD1). No grounded request context links such a request to it
+yet; persisting a source-associated destination fact would need its own
+typed contract and is NOT designed here.
+
+### Uco (real) status
+
+- Geography: under §P2-18 the COLD #11 Uco composition (Alfa Crux, SuperUco,
+  Bodega Azul; one SolSalute record; ROUTE_LIKE) no longer needs a "Valle de
+  Uco" polygon — with verified identities it would be a
+  `SOURCE_DEFINED_COMPONENTS` Experience (fixture-proven, scenario L(i)).
+- Identity: still the blocker. Alfa Crux and SuperUco were
+  `NO_CANDIDATE_ACQUIRED` under the enabled sources; Bodega Azul's acquired
+  candidate is unverified. Overture found records but is not integrated.
+  Nothing is VERIFIED; nothing persists; no synthetic identity is inserted.
+
+### Scenario matrix (deterministic; `services/geographic-source-composition.spec.ts`, two unrelated synthetic worlds)
+
+| | Scenario | Result |
+| --- | --- | --- |
+| A | descriptive region, members inside | accepted (`membership: DESCRIPTIVE`) |
+| B | member ~200 m / ~1 km outside the descriptive polygon | accepted; `outsideScopeComponentKeys` fact |
+| C | member substantially outside | same verdict at two very different distances (no cliff); REJECTED by `REGION_CONFLICT`, `COUNTRY_CONFLICT` or a different supporting record |
+| D | explicit strict boundary (regional user anchor; in-destination user anchor) | REJECTED (`OUTSIDE_CANONICAL_AREA_BOUNDARY` with boundary distance as evidence; `external_scope_mismatch`) |
+| E | no AREA polygon | `SOURCE_DEFINED_COMPONENTS` accepted |
+| F | variants from different records; unsupported LLM-added stop; unresolved member | REJECTED / dropped at the source-support gate / `incomplete_source_composition` |
+| G | identity without an AREA | country-bounded query; homonyms and non-exact names stay unresolved; DEFAULT never admits beyond the destination |
+| H | WALK, DEFAULT, ROUTE_LIKE with a strict in-destination anchor | none extends beyond the destination |
+| I | physical ROUTE leaving the destination | admission (country-bounded) and validation agree for ROUTE_LIKE; both refuse for DEFAULT |
+| J | WARM without AREA | integration `regional-catalog-reuse.integration-spec.ts` (real Postgres) |
+| K | portability | every case runs in "Fixtureland valley estates" and "Harborland coastal lighthouses"; no production string of either |
+
+### Engineering-principles review
+
+| Category | Result |
+| --- | --- |
+| provider isolation | PASS — country-boundedness is a strategy capability; no provider-name branching in domain policy |
+| typed boundaries | PASS — `ScopeMembershipSemantics`, `SOURCE_DEFINED_COMPONENTS`, typed reasons; no metadata keys |
+| single policy authority | PASS — `mayExtendBeyondDestination`, `scopeMembershipSemantics`, `evaluateSourceCompositionSupport`, `evaluateExperienceDestinationRelation` each one owner; duplicate strategy union removed |
+| unknown / no magic default | PASS — no radius, buffer or cutoff added; unknown region evidence is never a conflict; UNDETERMINED never inside |
+| migration cutover | PASS — superseded reasons/flags deleted and guarded (`geographic-distance-authority.architecture.spec.ts`) |
+| genericity | PASS — scenario K; no Mendoza/Uco/winery strings in production |

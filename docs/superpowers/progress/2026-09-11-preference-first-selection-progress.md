@@ -22,7 +22,7 @@ classification contract and deterministic validation are unchanged.
 
 **Trace v5 cutover — COMPLETE / ACTIVE TRACE AUTHORITY (native producer cutover complete; v4 legacy paths deleted; modular domain audit split complete; zero avoidable `any`).**  
 **RW3 final classification/warm-reuse gate — CLOSED / ACCEPTED.**  
-**RW4 — AUTHORIZED / NEXT GATE** (2026-10-02: stable deep-source examination [x]; work-unit geographic authorization landed; Experience geographic-scope architecture S1–S6 IMPLEMENTED with PD1/PD2/PD3 recorded, see "RW4 geographic scope cutover (S1–S6)" below; persistence/WARM of a REAL multi-component Experience still open — the real Uco AREA has no canonical polygon, and identity coverage/corroboration is the next evaluation).
+**RW4 — AUTHORIZED / NEXT GATE** (2026-10-02: stable deep-source examination [x]; work-unit geographic authorization landed; Experience geographic-scope architecture S1–S6 IMPLEMENTED with PD1/PD2/PD3 recorded, see "RW4 geographic scope cutover (S1–S6)" below; strict-vs-descriptive scope semantics + source-defined compositions amended by spec §P2-18, see "RW4 source-grounded geography amendment (§P2-18)" below — a missing Uco AREA polygon no longer blocks the composition; persistence/WARM of a REAL multi-component Experience still open — real component IDENTITY coverage/corroboration is the next blocker).
 
 **Active track: Gate C real-world generalization — RW4 NEXT. RW3 final live COLD/WARM acceptance passed on 2026-09-29 with sequence integrity, canonical catalog reuse, zero WARM walk acquisition/classifier calls, and Generation Trace v5 evidence.**
 
@@ -194,6 +194,44 @@ RW3-N6 resolution and live verification status:
   classifier) into the existing identity/geography validation. Do not
   interrupt the RW4 web-acquisition gate for it.
 
+
+### RW4 source-grounded geography amendment (§P2-18) — 2026-10-02
+
+- Contract: spec `2026-10-02-geographic-validation-authorization-review.md`
+  §P2-18 (amends PD2: UNKNOWN CANONICAL AREA does not imply UNKNOWN
+  SOURCE-DEFINED COMPOSITION). Starting HEAD `4da25aef`.
+- Invalid assumption removed: a regional Experience needs one enclosing
+  canonical AREA/ROUTE, and a source-named AREA/ROUTE decides membership
+  by point-in-polygon.
+- Typed semantics: `ScopeMembershipSemantics` STRICT (user work-unit
+  anchor; destination ceiling unless `mayExtendBeyondDestination` =
+  ROUTE_LIKE without a strict anchor) vs DESCRIPTIVE (source-named
+  AREA/ROUTE; mismatches are `outsideScopeComponentKeys` facts). New scope
+  `SOURCE_DEFINED_COMPONENTS` (provenance `SOURCE_COMPOSITION`, no geometry,
+  no search window) requires one supporting source record for every member
+  (`evaluateSourceCompositionSupport`). `REGION_CONFLICT` re-targeted to a
+  member outside a source-named AREA contradicting its region evidence;
+  `COUNTRY_CONFLICT` kept; validator version 3.
+- Identity acquisition: a destination-excluded location is admissible only
+  from a COUNTRY-bounded provider query (Nominatim today; Places has no
+  country bound) for a candidate that may extend beyond the destination;
+  `IdentityVerifier` unchanged (homonyms AMBIGUOUS, non-exact INSUFFICIENT).
+- WARM: `findVerifiedMultiComponentInArea` bounded (PostGIS window over the
+  AREA's bbox ∪ exact area component; no global scan); a source-defined
+  Experience is retrieved through a regional request scope without any
+  area-role component (integration scenario J).
+- Real Uco: geography no longer blocked by the missing "Valle de Uco"
+  polygon; IDENTITY still blocks (Alfa Crux / SuperUco not acquired, Bodega
+  Azul unverified, Overture not integrated). Nothing VERIFIED/persisted.
+- Verification (executed): be typecheck, lint:check, build — exit 0; unit
+  180 suites / 2384 tests PASS; integration (dedicated `zigzag_test`)
+  24 suites / 107 tests PASS; e2e 4 suites / 41 tests PASS.
+- Remaining RW4 blockers: real component identity (S7 Overture
+  re-characterization → S8 decision); a destination-only request has no
+  grounded context to retrieve a beyond-destination source-defined
+  Experience and PD1 keeps it tour-ineligible (product decision needed for
+  RW4 tour inclusion); descriptive user-region anchors need an explicit
+  interpreted contract; canonical COLD #12 / WARM not run.
 
 ### RW4 geographic scope cutover (S1–S6) — 2026-10-02
 
