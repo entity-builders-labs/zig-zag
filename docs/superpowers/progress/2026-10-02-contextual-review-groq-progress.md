@@ -4,9 +4,9 @@
 
 ## Current execution verdict
 
-**Provider unblocked and validated. Incremental reviewer implemented with
-fail-closed guards. Not yet proven by a real GitHub Actions run; nothing
-published.**
+**Pipeline executes in real CI and fails closed correctly. Six defects found and
+fixed; no review published yet. Every phase after inspection is still
+unexercised.**
 
 This track was bootstrapped manually from `origin/feat/preference-first-selection`
 at `1ceb477de44b3589cbc01b13eac9bf7aa22c98da`, following the existing
@@ -22,8 +22,9 @@ No production behavior is in scope. RW4 code is untouched.
 
 ## Current checkpoint
 
-**Provider validation and incremental reviewer implementation — both complete
-and locally verified. Acceptance awaits one real workflow run.**
+**Implementation complete and locally verified. In CI the pipeline now runs
+through inspection and fails closed for the right reason. Acceptance awaits a
+green run that publishes.**
 
 Preserved from the accepted bootstrap:
 
@@ -40,7 +41,7 @@ Preserved from the accepted bootstrap:
 Local verification actually executed for this checkpoint:
 
 ```text
-scripts/agent-review-baseline.spec.sh   18 fixtures PASS, exit 0
+scripts/agent-review-baseline.spec.sh   19 fixtures PASS, exit 0
 scripts/agent-governance.spec.sh        59 assertions PASS, exit 0
 shellcheck (7 governance + review scripts)   clean
 ruby YAML parse, both workflows                valid
@@ -191,21 +192,46 @@ workflow and confirming the fixture fails with the identical parser error CI
 produced, then restoring the fix. An assertion that has never been observed
 failing is not evidence.
 
-## Next authorized action
+**Defect 6 — OpenCode refuses to read outside the project directory.** With
+credentials present, run 37095103080 attempt 2 reached
+`Inspect the delta with the read-only reviewer` and failed there:
 
-**Add the two scoped repository secrets, then run the one authorized real
-GitHub Actions execution.**
-
-```bash
-gh secret set CLOUDFLARE_ACCOUNT_ID -R entity-builders-labs/zig-zag
-gh secret set CLOUDFLARE_API_TOKEN  -R entity-builders-labs/zig-zag
+```text
+REVIEW UNAVAILABLE / FAILED: OpenCode inspection exited 1
+! permission requested: external_directory (/home/runner/work/_temp/*); auto-rejecting
 ```
 
-Then push and observe the contextual review run on PR #72. Acceptance is a real
-published review whose `commit_id` equals the PR head, whose marker track and
-`reviewed_head` agree with it, and whose coverage statement matches what
-`scripts/agent-review-baseline` actually selected. A `REVIEW UNAVAILABLE /
-FAILED` outcome is a valid result and must not be papered over.
+`RUNNER_TEMP` is `/home/runner/work/_temp`, which is outside the checkout at
+`/home/runner/work/zig-zag/zig-zag`. OpenCode auto-rejects any read outside the
+project directory, so `--file` could not load the diff and the prompt's
+context/input paths were unreachable. The reviewer has no path out of the
+repository by design, and this makes it explicit: the staging directory is
+`.review-input/` inside the checkout, and the model is pointed at repo-relative
+paths only.
+
+This also forced a correction to the integrity check. `git status --porcelain`
+would always be non-empty once an untracked staging directory exists, so the
+check that proves "the reviewer did not alter what it reviewed" now uses
+`--untracked-files=no`. That still fails on any tracked modification, addition,
+or deletion, which is the actual invariant; it simply stops tripping on the
+workflow's own scratch files. Fixture 19 pins both halves of this so the check
+cannot silently degrade into a no-op.
+
+Notably, the fail-closed guard behaved exactly as intended here: a provider
+inability produced `REVIEW UNAVAILABLE / FAILED`, zero reviews on the PR, and no
+fabricated `PASS`. That is the contract holding under real failure.
+
+## Next authorized action
+
+**Push the staging fix and drive run 37095103080 to a published review.**
+
+The secrets are in place, so the next run exercises the full pipeline for the
+first time: inspection, normalization, path verification, schema validation, and
+publication. Acceptance is a real published review whose `commit_id` equals the
+PR head, whose marker track and `reviewed_head` agree with it, and whose
+coverage statement matches what `scripts/agent-review-baseline` actually
+selected. A `REVIEW UNAVAILABLE / FAILED` outcome is a valid result and must not
+be papered over.
 
 Then perform the bounded historical calibration at
 `4b3d2bb20818d3b36b68c591205e45b7ad155fa4` if the live run succeeds.
@@ -215,19 +241,28 @@ loop, and do not merge PR #72.
 
 ## Open findings / blockers
 
-- **Live GitHub Actions execution has failed twice and is not yet proven.** Two
-  runs on `c3002986` and `56f16332` exited 2 on shell defects in the range and
-  prepare steps respectively. The range logic itself behaved correctly in both:
+- **Live GitHub Actions execution has failed three times and is not yet proven.**
+  Runs on `c3002986` and `56f16332` exited 2 on shell defects in the range and
+  prepare steps; run 37095103080 attempt 1 failed closed on absent credentials,
+  correctly; attempt 2 reached the reviewer and failed because OpenCode refuses
+  to read `RUNNER_TEMP`. The range logic behaved correctly every time:
   `COVERAGE=latest-commit-only`, `COMMIT_COUNT=1`, `CHANGED_FILE_COUNT=11`,
   `DOCS_ONLY=false`, with the coverage limitation stated rather than claiming
-  full history. No review has been published. All three defects are fixed, and
-  fixture 15 now syntax-checks every embedded `run:` block — but a green run
-  through OpenCode, normalization, validation, and publication is still
-  required, and every phase past `prepare` is still unexercised in CI.
-- **Repository secrets are not yet set.** The probe read credentials from a
-  sibling worktree's local `.env`. CI needs `CLOUDFLARE_ACCOUNT_ID` and
-  `CLOUDFLARE_API_TOKEN` as scoped repository secrets before the workflow can
-  run at all.
+  full history. Six defects are fixed and pinned by fixtures. No review has been
+  published. Every phase after inspection — normalization, path verification,
+  schema validation, publication — is still unexercised in CI, so the artifact
+  contract remains unproven end to end.
+- **Repository secrets are now set.** `CLOUDFLARE_ACCOUNT_ID` and
+  `CLOUDFLARE_API_TOKEN` were added as scoped repository secrets. Values were
+  piped from the sibling worktree's `.env` and never printed. The older
+  `GROQ_API_KEY` secret is now unused by this workflow and is dead weight, but
+  removing it is out of scope for this track.
+- **`workflow_dispatch` is declared but not dispatchable.** `gh workflow run`
+  returns HTTP 422 for this workflow because GitHub resolves dispatch against
+  the default branch, where the file does not exist. Retry during this track was
+  done with `gh run rerun`, which works. The declared trigger is not wrong — it
+  is inert until the workflow lands on the default branch — but it is currently
+  misleading in the file.
 - `openai/codex-action` and the direct Codex CLI both fail against Groq because
   Groq rejects their Responses API request bodies. Neither integration may be
   retried. This is the defect this track exists to remove.

@@ -212,7 +212,6 @@ jobs:
           } > "$RUNNER_TEMP/track-review-input.md"
           TRACK="$TRACK" CHANGED_FILES="$RUNNER_TEMP/changed-files.txt" \
             bash scripts/agent-review-context "$RUNNER_TEMP/track-review-context.md"
-          # The reviewer must not be able to alter the checkout it reviews.
           echo "reviewed_checkout_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - name: Require review provider configuration
         if: steps.existing.outputs.current != 'true'
@@ -253,25 +252,37 @@ jobs:
           EXPECTED_SHA: ${{ steps.prepare.outputs.reviewed_checkout_sha }}
         run: |
           set -euo pipefail
-          inspect_prompt="$(sed "s|@CONTEXT_FILE@|$REVIEW_CONTEXT|; s|@INPUT_FILE@|$INSPECT_INPUT|" \
+          # OpenCode refuses to read paths outside the project directory, and
+          # RUNNER_TEMP sits outside the checkout. Stage the review inputs inside
+          # the repository so the read tool can reach them.
+          stage=".review-input"
+          rm -rf "$stage"
+          mkdir -p "$stage"
+          cp "$INSPECT_INPUT" "$stage/input.md"
+          cp "$REVIEW_CONTEXT" "$stage/context.md"
+          cp "$REVIEW_DIFF" "$stage/delta.diff"
+          inspect_prompt="$(sed "s|@CONTEXT_FILE@|$stage/context.md|; s|@INPUT_FILE@|$stage/input.md|" \
             .github/codex/track-review-inspect-prompt.md)"
           set +e
           opencode run --standalone \
             --agent reviewer \
             --model "$REVIEW_MODEL" \
             --format json \
-            --file "$REVIEW_DIFF" \
+            --file "$stage/delta.diff" \
             "$inspect_prompt" > "$RUNNER_TEMP/inspect.jsonl" 2> "$RUNNER_TEMP/inspect.err"
           status=$?
           set -e
+          # The staged inputs are untracked, so the tracked tree object is the
+          # integrity signal. It catches any tracked modification, addition, or
+          # deletion without being confused by the staging directory itself.
           after="$(git rev-parse HEAD)"
           if [ "$after" != "$EXPECTED_SHA" ]; then
             echo "REVIEW UNAVAILABLE / FAILED: reviewed checkout changed during inspection ($EXPECTED_SHA -> $after)" >&2
             exit 1
           fi
-          if [ -n "$(git status --porcelain)" ]; then
+          if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
             echo "REVIEW UNAVAILABLE / FAILED: reviewer modified the reviewed checkout" >&2
-            git status --porcelain >&2
+            git status --porcelain --untracked-files=no >&2
             exit 1
           fi
           if [ "$status" -ne 0 ]; then

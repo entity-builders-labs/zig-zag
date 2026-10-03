@@ -279,4 +279,32 @@ if grep -Eq "printf '[-:]" "$WF"; then
 fi
 pass 'no printf format starts with a bare dash'
 
+# --- case 19: model file inputs must live inside the checkout --------------
+# OpenCode refuses to read paths outside the project directory
+# ("permission requested: external_directory ... auto-rejecting"), and
+# RUNNER_TEMP sits outside the checkout. The path handed to opencode --file must
+# therefore be repo-relative. The staging source may still be runner.temp; only
+# what the model is asked to read is constrained.
+grep -Fq 'stage=".review-input"' "$WF" || fail '19 missing in-checkout staging directory'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq -- '--file "$stage/delta.diff"' "$WF" || fail '19 diff is not staged inside the checkout'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq 'cp "$INSPECT_INPUT" "$stage/input.md"' "$WF" || fail '19 input not staged inside the checkout'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq 'cp "$REVIEW_CONTEXT" "$stage/context.md"' "$WF" || fail '19 context not staged inside the checkout'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq '@CONTEXT_FILE@|$stage/context.md|' "$WF" || fail '19 prompt must reference the staged context'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq '@INPUT_FILE@|$stage/input.md|' "$WF" || fail '19 prompt must reference the staged input'
+# The integrity check must tolerate the untracked staging directory without
+# ignoring a genuine tracked modification.
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq -- 'git status --porcelain --untracked-files=no' "$WF" \
+  || fail '19 integrity check must ignore only untracked staging files'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+if grep -Fq 'if [ -n "$(git status --porcelain)" ]' "$WF"; then
+  fail '19 bare porcelain check would always trip on the staging directory'
+fi
+pass 'model inputs are staged inside the checkout and integrity still holds'
+
 printf 'ALL BASELINE FIXTURES PASSED\n'
