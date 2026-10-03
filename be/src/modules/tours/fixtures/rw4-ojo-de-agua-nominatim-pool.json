@@ -1,0 +1,666 @@
+{
+  "capturedAt": "2026-10-03T06:16:30.509Z",
+  "source": "local Nominatim (zigzag-nominatim-argentina) /search format=jsonv2 addressdetails=1 countrycodes=ar q=\"Ojo de Agua\"",
+  "note": "RW4 Ojo de Agua replay pool. DEFAULT = limit 5 (pre-fix window); PROVIDER_MAXIMUM = limit 40. Provider order preserved.",
+  "DEFAULT": [
+    {
+      "osmType": "node",
+      "osmId": 198407364,
+      "addresstype": "hamlet",
+      "placeRank": 20,
+      "class": "place",
+      "type": "hamlet",
+      "displayName": "Ojo de Agua, Pedanía San Carlos, Departamento Minas, Córdoba, X5291, Argentina",
+      "importance": 0.1333433333333333,
+      "latitude": -31.2168064,
+      "longitude": -65.2463275,
+      "address": {
+        "state": "Córdoba",
+        "county": "Pedanía San Carlos",
+        "stateDistrict": "Departamento Minas",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 6348417568,
+      "addresstype": "hamlet",
+      "placeRank": 20,
+      "class": "place",
+      "type": "hamlet",
+      "displayName": "Ojo de Agua, Departamento Catán Lil, Neuquén, Argentina",
+      "importance": 0.1333433333333333,
+      "latitude": -39.6322868,
+      "longitude": -70.0019147,
+      "address": {
+        "state": "Neuquén",
+        "stateDistrict": "Departamento Catán Lil",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5138938937,
+      "addresstype": "hamlet",
+      "placeRank": 20,
+      "class": "place",
+      "type": "hamlet",
+      "displayName": "Ojo de Agua, Municipio de Tafí del Valle, Departamento Tafí del Valle, Tucumán, T4137, Argentina",
+      "importance": 0.1333433333333333,
+      "latitude": -26.8962286,
+      "longitude": -65.7082525,
+      "address": {
+        "state": "Tucumán",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5128388825,
+      "addresstype": "hamlet",
+      "placeRank": 20,
+      "class": "place",
+      "type": "hamlet",
+      "displayName": "Ojo de Agua, Municipio de General Güemes, General Güemes, Salta, Argentina",
+      "importance": 0.1333433333333333,
+      "latitude": -24.6200586,
+      "longitude": -64.9801895,
+      "address": {
+        "state": "Salta",
+        "stateDistrict": "General Güemes",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5110696301,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Municipio de Abdón Castro Tolay, Departamento Cochinoca, Jujuy, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -23.4584412,
+      "longitude": -65.9867325,
+      "address": {
+        "state": "Jujuy",
+        "stateDistrict": "Departamento Cochinoca",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    }
+  ],
+  "PROVIDER_MAXIMUM": [
+    {
+      "osmType": "node",
+      "osmId": 5128388825,
+      "addresstype": "hamlet",
+      "placeRank": 20,
+      "class": "place",
+      "type": "hamlet",
+      "displayName": "Ojo de Agua, Municipio de General Güemes, General Güemes, Salta, Argentina",
+      "importance": 0.1333433333333333,
+      "latitude": -24.6200586,
+      "longitude": -64.9801895,
+      "address": {
+        "state": "Salta",
+        "stateDistrict": "General Güemes",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5138938937,
+      "addresstype": "hamlet",
+      "placeRank": 20,
+      "class": "place",
+      "type": "hamlet",
+      "displayName": "Ojo de Agua, Municipio de Tafí del Valle, Departamento Tafí del Valle, Tucumán, T4137, Argentina",
+      "importance": 0.1333433333333333,
+      "latitude": -26.8962286,
+      "longitude": -65.7082525,
+      "address": {
+        "state": "Tucumán",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 6348417568,
+      "addresstype": "hamlet",
+      "placeRank": 20,
+      "class": "place",
+      "type": "hamlet",
+      "displayName": "Ojo de Agua, Departamento Catán Lil, Neuquén, Argentina",
+      "importance": 0.1333433333333333,
+      "latitude": -39.6322868,
+      "longitude": -70.0019147,
+      "address": {
+        "state": "Neuquén",
+        "stateDistrict": "Departamento Catán Lil",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 198407364,
+      "addresstype": "hamlet",
+      "placeRank": 20,
+      "class": "place",
+      "type": "hamlet",
+      "displayName": "Ojo de Agua, Pedanía San Carlos, Departamento Minas, Córdoba, X5291, Argentina",
+      "importance": 0.1333433333333333,
+      "latitude": -31.2168064,
+      "longitude": -65.2463275,
+      "address": {
+        "state": "Córdoba",
+        "county": "Pedanía San Carlos",
+        "stateDistrict": "Departamento Minas",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5112503863,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Municipio de Tumbaya, Municipio de El Moreno, Departamento Tumbaya, Jujuy, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -23.8773874,
+      "longitude": -65.8072056,
+      "address": {
+        "state": "Jujuy",
+        "stateDistrict": "Departamento Tumbaya",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5110696301,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Municipio de Abdón Castro Tolay, Departamento Cochinoca, Jujuy, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -23.4584412,
+      "longitude": -65.9867325,
+      "address": {
+        "state": "Jujuy",
+        "stateDistrict": "Departamento Cochinoca",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 198407348,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Pedanía Candelaria, Departamento Cruz del Eje, Córdoba, X5280, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -31.0706796,
+      "longitude": -65.0671236,
+      "address": {
+        "state": "Córdoba",
+        "county": "Pedanía Candelaria",
+        "stateDistrict": "Departamento Cruz del Eje",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 198407304,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Municipio de El Alto, Departamento El Alto, Catamarca, K4235, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -28.4733633,
+      "longitude": -65.4403387,
+      "address": {
+        "state": "Catamarca",
+        "stateDistrict": "Departamento El Alto",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5196316248,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Municipio de Rosario de la Frontera, Rosario de la Frontera, Salta, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -25.8972033,
+      "longitude": -64.9614643,
+      "address": {
+        "state": "Salta",
+        "stateDistrict": "Rosario de la Frontera",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 198407330,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Pedanía Parroquia, Departamento Ischilín, Córdoba, X5200, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -30.6141061,
+      "longitude": -64.3969723,
+      "address": {
+        "state": "Córdoba",
+        "county": "Pedanía Parroquia",
+        "stateDistrict": "Departamento Ischilín",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 198407318,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Pedanía Parroquia, Departamento Tulumba, Córdoba, X5203, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -30.4543932,
+      "longitude": -64.1374207,
+      "address": {
+        "state": "Córdoba",
+        "county": "Pedanía Parroquia",
+        "stateDistrict": "Departamento Tulumba",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5631071229,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Cuartel XII, Partido de Coronel Pringles, Buenos Aires, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -38.3804385,
+      "longitude": -61.4056885,
+      "address": {
+        "state": "Buenos Aires",
+        "county": "Cuartel XII",
+        "stateDistrict": "Partido de Coronel Pringles",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5113635431,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Municipio de Palma Sola, Departamento Santa Bárbara, Jujuy, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -24.2569089,
+      "longitude": -64.3103262,
+      "address": {
+        "state": "Jujuy",
+        "stateDistrict": "Departamento Santa Bárbara",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5592198666,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Güer Aike, Santa Cruz, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -51.7408725,
+      "longitude": -72.0800366,
+      "address": {
+        "state": "Santa Cruz",
+        "stateDistrict": "Güer Aike",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5213772211,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Coronel Felipe Varela, La Rioja, F5350, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -29.6104645,
+      "longitude": -68.957584,
+      "address": {
+        "state": "La Rioja",
+        "stateDistrict": "Coronel Felipe Varela",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 198407384,
+      "addresstype": "isolated_dwelling",
+      "placeRank": 22,
+      "class": "place",
+      "type": "isolated_dwelling",
+      "displayName": "Ojo de Agua, Comisión Municipal de Las Chacras, Departamento Libertador General San Martín, San Luis, Argentina",
+      "importance": 0.10667666666666664,
+      "latitude": -32.6127178,
+      "longitude": -65.8272154,
+      "address": {
+        "state": "San Luis",
+        "stateDistrict": "Departamento Libertador General San Martín",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 2821458392,
+      "addresstype": "locality",
+      "placeRank": 25,
+      "class": "place",
+      "type": "locality",
+      "displayName": "Ojo de Agua, Municipio de Santa Catalina, Departamento Santa Catalina, Jujuy, Argentina",
+      "importance": 0.06667666666666666,
+      "latitude": -22.1617527,
+      "longitude": -66.2373874,
+      "address": {
+        "state": "Jujuy",
+        "stateDistrict": "Departamento Santa Catalina",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 4780182653,
+      "addresstype": "locality",
+      "placeRank": 25,
+      "class": "place",
+      "type": "locality",
+      "displayName": "Ojo de agua, Iglesia, San Juan, Argentina",
+      "importance": 0.06667666666666666,
+      "latitude": -30.3568019,
+      "longitude": -69.6922182,
+      "address": {
+        "state": "San Juan",
+        "stateDistrict": "Iglesia",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "way",
+      "osmId": 287415563,
+      "addresstype": "road",
+      "placeRank": 26,
+      "class": "highway",
+      "type": "residential",
+      "displayName": "Ojo de Agua, Juan Felipe Ibarra, Santiago del Estero, Municipio de Santiago del Estero, Departamento Juan Francisco Borges, Santiago del Estero, G4200, Argentina",
+      "importance": 0.0533433333333333,
+      "latitude": -27.7839602,
+      "longitude": -64.2821881,
+      "address": {
+        "state": "Santiago del Estero",
+        "stateDistrict": "Departamento Juan Francisco Borges",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "way",
+      "osmId": 166490724,
+      "addresstype": "road",
+      "placeRank": 26,
+      "class": "highway",
+      "type": "residential",
+      "displayName": "Ojo de Agua, Agua de Oro, Municipio de Agua de Oro, Pedanía San Vicente, Departamento Colón, Córdoba, X5111, Argentina",
+      "importance": 0.0533433333333333,
+      "latitude": -31.0724331,
+      "longitude": -64.2971781,
+      "address": {
+        "state": "Córdoba",
+        "county": "Pedanía San Vicente",
+        "stateDistrict": "Departamento Colón",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "way",
+      "osmId": 65719843,
+      "addresstype": "road",
+      "placeRank": 26,
+      "class": "highway",
+      "type": "residential",
+      "displayName": "Ojo de Agua, Villa Don Orione, San Carlos de Bariloche, Municipio de San Carlos de Bariloche, Departamento Bariloche, Río Negro, 8400, Argentina",
+      "importance": 0.0533433333333333,
+      "latitude": -41.086214,
+      "longitude": -71.4599656,
+      "address": {
+        "state": "Río Negro",
+        "stateDistrict": "Departamento Bariloche",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "way",
+      "osmId": 47855395,
+      "addresstype": "road",
+      "placeRank": 26,
+      "class": "highway",
+      "type": "residential",
+      "displayName": "Ojo de Agua, El Palomar, Delegacion Municipal Villa Urquiza, Posadas, Municipio de Posadas, Departamento Capital, Misiones, N3300BSP, Argentina",
+      "importance": 0.0533433333333333,
+      "latitude": -27.3765972,
+      "longitude": -55.8933976,
+      "address": {
+        "state": "Misiones",
+        "stateDistrict": "Departamento Capital",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "way",
+      "osmId": 1312101460,
+      "addresstype": "tourism",
+      "placeRank": 30,
+      "class": "tourism",
+      "type": "chalet",
+      "displayName": "Ojo de Agua, Los Paraisos, El Dique, Sierra de la Ventana, Cuartel IX, Partido de Tornquist, Buenos Aires, 8168, Argentina",
+      "importance": 0.00000999999999995449,
+      "latitude": -38.1352388,
+      "longitude": -61.796437,
+      "address": {
+        "state": "Buenos Aires",
+        "county": "Cuartel IX",
+        "stateDistrict": "Partido de Tornquist",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "way",
+      "osmId": 1127539585,
+      "addresstype": "highway",
+      "placeRank": 30,
+      "class": "highway",
+      "type": "proposed",
+      "displayName": "Ojo de Agua, Rosario Burgos, Ñirihuau, Municipio de Dina Huapi, Departamento Pilcaniyeu, Río Negro, 8402, Argentina",
+      "importance": 0.00000999999999995449,
+      "latitude": -41.0904618,
+      "longitude": -71.1418572,
+      "address": {
+        "state": "Río Negro",
+        "stateDistrict": "Departamento Pilcaniyeu",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 7079831786,
+      "addresstype": "shop",
+      "placeRank": 30,
+      "class": "shop",
+      "type": "florist",
+      "displayName": "Ojo de Agua, Avenida Ojo de Agua, Barrio La Cancha, Villa General Belgrano, Municipio de Villa General Belgrano, Pedanía Los Reartes, Departamento Calamuchita, Córdoba, X5194, Argentina",
+      "importance": 0.00000999999999995449,
+      "latitude": -31.9796776,
+      "longitude": -64.5533293,
+      "address": {
+        "state": "Córdoba",
+        "county": "Pedanía Los Reartes",
+        "stateDistrict": "Departamento Calamuchita",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 7882386403,
+      "addresstype": "tourism",
+      "placeRank": 30,
+      "class": "tourism",
+      "type": "chalet",
+      "displayName": "Ojo de Agua, Avenida Ojo de Agua, Villa General Belgrano, Municipio de Villa General Belgrano, Pedanía Los Reartes, Departamento Calamuchita, Córdoba, X5194, Argentina",
+      "importance": 0.00000999999999995449,
+      "latitude": -31.9779961,
+      "longitude": -64.5582216,
+      "address": {
+        "state": "Córdoba",
+        "county": "Pedanía Los Reartes",
+        "stateDistrict": "Departamento Calamuchita",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 10087932517,
+      "addresstype": "tourism",
+      "placeRank": 30,
+      "class": "tourism",
+      "type": "hotel",
+      "displayName": "Ojo de Agua, Municipio de Doblas, Departamento Guatraché, La Pampa, Argentina",
+      "importance": 0.00000999999999995449,
+      "latitude": -37.2605272,
+      "longitude": -64.0421208,
+      "address": {
+        "state": "La Pampa",
+        "stateDistrict": "Departamento Guatraché",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 7818396585,
+      "addresstype": "historic",
+      "placeRank": 30,
+      "class": "historic",
+      "type": "archaeological_site",
+      "displayName": "Ojo de Agua, RP127s, Municipio de Campo Quijano, Rosario de Lerma, Salta, Argentina",
+      "importance": 0.00000999999999995449,
+      "latitude": -24.3650293,
+      "longitude": -65.7956803,
+      "address": {
+        "state": "Salta",
+        "stateDistrict": "Rosario de Lerma",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 4797394430,
+      "addresstype": "amenity",
+      "placeRank": 30,
+      "class": "amenity",
+      "type": "restaurant",
+      "displayName": "Ojo de Agua, Funes, Colonia 9 De Julio, Distrito Agrelo, Departamento Luján de Cuyo, Mendoza, 5509, Argentina",
+      "importance": 0.00000999999999995449,
+      "latitude": -33.1300868,
+      "longitude": -68.9641048,
+      "address": {
+        "state": "Mendoza",
+        "county": "Departamento Luján de Cuyo",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 1318699906,
+      "addresstype": "railway",
+      "placeRank": 30,
+      "class": "railway",
+      "type": "halt",
+      "displayName": "Ojo de Agua, Ruta Provincial 6, Departamento Ñorquincó, Río Negro, Argentina",
+      "importance": 0.00000999999999995449,
+      "latitude": -41.5569913,
+      "longitude": -69.8688505,
+      "address": {
+        "state": "Río Negro",
+        "stateDistrict": "Departamento Ñorquincó",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    },
+    {
+      "osmType": "node",
+      "osmId": 5325786728,
+      "addresstype": "natural",
+      "placeRank": 30,
+      "class": "natural",
+      "type": "spring",
+      "displayName": "Ojo de Agua, Sendero Los Hornillos – Cerro la Ventana, Los Hornillos, Comuna de Las Rabonas, Pedanía Rosas, Departamento San Javier, Córdoba, X5870, Argentina",
+      "importance": 0.00000999999999995449,
+      "latitude": -31.9303378,
+      "longitude": -64.9540724,
+      "address": {
+        "state": "Córdoba",
+        "county": "Pedanía Rosas",
+        "stateDistrict": "Departamento San Javier",
+        "country": "Argentina",
+        "countryCode": "AR"
+      }
+    }
+  ]
+}

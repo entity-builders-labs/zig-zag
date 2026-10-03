@@ -179,6 +179,38 @@ describeIfRun('RW4 IdentityVerifier characterization (diagnostic)', () => {
       });
     }
 
+    // 2b. Raw Nominatim pools for the member hints, in the default and the
+    // provider-maximum window, so the observed candidate pool is recorded
+    // rather than reconstructed (the audit keeps only the selected member).
+    const nominatim = moduleRef.get('NominatimApiService');
+    const nominatimPools: Record<string, unknown> = {};
+    for (const hint of [...UCO.componentHints, ...LUJAN.componentHints]) {
+      nominatimPools[hint.name] = {};
+      for (const resultWindow of ['DEFAULT', 'PROVIDER_MAXIMUM'] as const) {
+        const results = await nominatim.search(hint.name, {
+          countryCode: destination.countryCode,
+          resultWindow,
+        });
+        (nominatimPools[hint.name] as Record<string, unknown>)[resultWindow] =
+          results.map((r: any) => ({
+            id: `osm:${r.osmType}:${r.osmId}`,
+            class: r.class,
+            type: r.type,
+            addresstype: r.addresstype,
+            importance: r.importance,
+            state: r.address?.state,
+            exactName:
+              normalizeGeoName(r.displayName) === normalizeGeoName(hint.name) ||
+              normalizeGeoName(r.displayName).startsWith(
+                `${normalizeGeoName(hint.name)} `,
+              ),
+            displayName: r.displayName,
+            latitude: r.latitude,
+            longitude: r.longitude,
+          }));
+      }
+    }
+
     // 3. Production resolver replay (COLD #11 ROUTE_LIKE grant).
     const writes: Array<{ op: string; args: unknown }> = [];
     const resolver = new ExperienceProposalResolverService(
@@ -219,6 +251,7 @@ describeIfRun('RW4 IdentityVerifier characterization (diagnostic)', () => {
           overtureSnapshots: snapshots,
           overtureIndexRows: indexRows,
           overtureLookups: lookups,
+          nominatimPools,
           wouldPersistCalls: writes.map((write) => ({
             op: write.op,
             args: write.args,

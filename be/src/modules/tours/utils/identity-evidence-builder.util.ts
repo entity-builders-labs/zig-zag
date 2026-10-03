@@ -2,6 +2,7 @@ import {
   EntityCandidate,
   IdentityEvidence,
 } from '../interfaces/experience-resolution.interface';
+import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import {
   normalizeGeoName,
   hasSpecificNameOverlap,
@@ -18,10 +19,26 @@ import {
  * IdentityEvidenceCollector.
  */
 export function buildLocalIdentityEvidence(
-  hint: { name: string },
+  hint: { name: string; evidenceKeys?: string[] },
   candidate: EntityCandidate,
+  observations: SourceObservation[] = [],
 ): IdentityEvidence[] {
   const evidence: IdentityEvidence[] = [];
+
+  const sourceQid = sourceDeclaredWikidataQid(hint, observations);
+  const candidateQid = candidate.wikidataQid;
+  if (
+    sourceQid &&
+    candidateQid &&
+    sourceQid.toUpperCase() !== candidateQid.toUpperCase()
+  ) {
+    evidence.push({
+      type: 'IDENTITY_CONTRADICTION',
+      fact: 'WIKIDATA_QID',
+      sourceQid,
+      candidateQid,
+    });
+  }
   const nameMultiplicity = candidate.nameEvidenceMultiplicity;
 
   if (
@@ -57,4 +74,23 @@ export function buildLocalIdentityEvidence(
   }
 
   return evidence;
+}
+
+/**
+ * The Wikidata QID the source itself declares for this hint: the typed
+ * `canonicalIdentity` of the first observation the hint cites that carries
+ * one (e.g. a Wikivoyage listing's own `wikidata=`). Shared by local
+ * contradiction detection and Wikidata corroboration so both read the same
+ * source fact.
+ */
+export function sourceDeclaredWikidataQid(
+  hint: { evidenceKeys?: string[] },
+  observations: SourceObservation[],
+): string | undefined {
+  for (const key of hint.evidenceKeys ?? []) {
+    const qid = observations.find((item) => item.evidenceKey === key)
+      ?.canonicalIdentity?.wikidataQid;
+    if (qid) return qid;
+  }
+  return undefined;
 }

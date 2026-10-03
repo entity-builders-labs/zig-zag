@@ -1,6 +1,7 @@
 import { EntityCandidate } from '../interfaces/experience-resolution.interface';
 import { GeoEntityKind } from '@prisma/client';
 import { buildLocalIdentityEvidence } from './identity-evidence-builder.util';
+import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 
 const candidate = (
   overrides: {
@@ -11,6 +12,7 @@ const candidate = (
     };
     nameAliasCandidates?: string[];
     addressConfirmed?: boolean;
+    wikidataQid?: string;
   } = {},
 ): EntityCandidate => ({
   hintKey: 'test',
@@ -207,5 +209,51 @@ describe('buildLocalIdentityEvidence', () => {
     expect(evidence).toEqual([
       { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'UNKNOWN' },
     ]);
+  });
+
+  describe('IDENTITY_CONTRADICTION (source-declared vs candidate-declared QID)', () => {
+    const hint = { name: 'Test Place', evidenceKeys: ['ev-1'] };
+    const observation = (qid: string) =>
+      ({
+        evidenceKey: 'ev-1',
+        canonicalIdentity: { wikidataQid: qid },
+      }) as unknown as SourceObservation;
+
+    it('emits a contradiction when the cited source and the candidate declare different QIDs', () => {
+      expect(
+        buildLocalIdentityEvidence(hint, candidate({ wikidataQid: 'Q2' }), [
+          observation('Q1'),
+        ]),
+      ).toContainEqual({
+        type: 'IDENTITY_CONTRADICTION',
+        fact: 'WIKIDATA_QID',
+        sourceQid: 'Q1',
+        candidateQid: 'Q2',
+      });
+    });
+
+    it.each([
+      ['equal QIDs (case-insensitive)', 'q1', [observation('Q1')]],
+      ['no candidate QID', undefined, [observation('Q1')]],
+      ['no source QID', 'Q2', []],
+    ])('emits nothing for %s', (_label, wikidataQid, observations) => {
+      expect(
+        buildLocalIdentityEvidence(
+          hint,
+          candidate({ wikidataQid }),
+          observations as SourceObservation[],
+        ).some((item) => item.type === 'IDENTITY_CONTRADICTION'),
+      ).toBe(false);
+    });
+
+    it('ignores a QID on an observation the hint does not cite', () => {
+      expect(
+        buildLocalIdentityEvidence(
+          { name: 'Test Place', evidenceKeys: ['ev-2'] },
+          candidate({ wikidataQid: 'Q2' }),
+          [observation('Q1')],
+        ).some((item) => item.type === 'IDENTITY_CONTRADICTION'),
+      ).toBe(false);
+    });
   });
 });

@@ -8,6 +8,7 @@ import {
   hasSpecificNameOverlap,
   normalizeGeoName,
 } from '../utils/nominatim-match.util';
+import { sourceDeclaredWikidataQid } from '../utils/identity-evidence-builder.util';
 
 const CONFIRMATION_RADIUS_METERS = 200;
 
@@ -27,7 +28,7 @@ export class IdentityEvidenceCollector {
     if (!this.wikidata) return [];
 
     const ownQid = candidate.wikidataQid;
-    const qid = ownQid ?? this.observationQid(hint, observations);
+    const qid = ownQid ?? sourceDeclaredWikidataQid(hint, observations);
     if (qid) {
       try {
         const summaries = await this.wikidata.getEntitySummaries([qid]);
@@ -126,18 +127,6 @@ export class IdentityEvidenceCollector {
     } catch {
       return [{ type: 'WIKIDATA_UNAVAILABLE' }];
     }
-  }
-
-  private observationQid(
-    hint: { evidenceKeys?: string[] },
-    observations: SourceObservation[],
-  ): string | undefined {
-    for (const key of hint.evidenceKeys ?? []) {
-      const qid = observations.find((item) => item.evidenceKey === key)
-        ?.canonicalIdentity?.wikidataQid;
-      if (qid) return qid;
-    }
-    return undefined;
   }
 
   private matchesAny(name: string, identities: string[]): boolean {

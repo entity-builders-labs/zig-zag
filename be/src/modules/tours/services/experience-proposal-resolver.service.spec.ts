@@ -618,6 +618,7 @@ describe('ExperienceProposalResolverService', () => {
     });
 
     expect(nominatim.search).toHaveBeenCalledWith('Tigre', {
+      resultWindow: 'PROVIDER_MAXIMUM',
       bias: destinationWindowBias(boundary),
     });
     expect(result.acceptedCount).toBe(0);
@@ -721,7 +722,10 @@ describe('ExperienceProposalResolverService', () => {
 
     expect(nominatim.search).toHaveBeenCalledWith(
       'Ischigualasto Provincial Park',
-      { bias: destinationWindowBias(boundary) },
+      {
+        resultWindow: 'PROVIDER_MAXIMUM',
+        bias: destinationWindowBias(boundary),
+      },
     );
     expect(result.acceptedCount).toBe(0);
     expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
@@ -793,6 +797,7 @@ describe('ExperienceProposalResolverService', () => {
     });
 
     expect(nominatim.search).toHaveBeenCalledWith('Cerro Alcázar', {
+      resultWindow: 'PROVIDER_MAXIMUM',
       countryCode: 'AR',
       bias: destinationWindowBias(boundary),
     });
@@ -3843,6 +3848,7 @@ describe('ExperienceProposalResolverService', () => {
       // Proves the global path was actually attempted (not short-circuited
       // before it, the way the local-only test above never even calls it).
       expect(nominatim.search).toHaveBeenCalledWith('San Ignacio Church', {
+        resultWindow: 'PROVIDER_MAXIMUM',
         bias: destinationWindowBias(boundary),
       });
       expect(result.acceptedCount).toBe(0);
@@ -4906,7 +4912,10 @@ describe('ExperienceProposalResolverService', () => {
       expect(result.acceptedCount).toBe(1);
     });
 
-    it("prefers the OSM candidate's own wikidata tag over an observation QID when both are present", async () => {
+    // RW4-ID-CONTRADICTION-1: two declared QIDs that differ name two
+    // different entities. The candidate's own tag used to win silently over
+    // the source's QID; the disagreement is now a typed contradiction.
+    it("rejects the candidate when its own wikidata tag contradicts the source observation's QID, without a Wikidata round trip", async () => {
       const wikidata = {
         findNearbyPlaces: jest.fn().mockResolvedValue([]),
         getEntitySummaries: jest.fn().mockResolvedValue(
@@ -4961,7 +4970,7 @@ describe('ExperienceProposalResolverService', () => {
       );
       museumCandidate.componentHints[0].evidenceKeys = ['wv-1'];
 
-      await service.resolve({
+      const result = await service.resolve({
         geographicScope: { kind: 'AREA_BOUNDARY', boundary },
         candidates: withDefaultGeographicAuthorization([museumCandidate]),
         observations: [
@@ -4976,7 +4985,20 @@ describe('ExperienceProposalResolverService', () => {
         ],
       });
 
-      expect(wikidata.getEntitySummaries).toHaveBeenCalledWith(['Q999']);
+      const attempt =
+        result.entityResolution.forensicAudit[0].componentAudits[0].attempts.find(
+          (item) => item.strategy === 'LOCAL_OSM_POOL',
+        );
+      expect(attempt?.identityEvidence).toContainEqual({
+        type: 'IDENTITY_CONTRADICTION',
+        fact: 'WIKIDATA_QID',
+        sourceQid: 'Q-from-observation',
+        candidateQid: 'Q999',
+      });
+      expect(attempt?.verificationDecision).toBe('REJECTED');
+      expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(result.acceptedCount).toBe(0);
     });
 
     it('does NOT confirm — and does not fall back to geo-proximity — when the observation QID describes the HINT but the matcher picked the WRONG local candidate (an observation QID proves hint==Q831322, never that the actually-matched OSM entity==Q831322; real case "Recoleta Cemetery" -> "Hotel Urban Suites Recoleta", where the hotel has no wikidata tag of its own)', async () => {

@@ -17,6 +17,14 @@ export class IdentityVerifier {
     const exactName = this.evidenceOf(evidence, 'EXACT_NAME');
     const alias = this.evidenceOf(evidence, 'DECLARED_ALIAS_MATCH');
 
+    // -1. An explicit identity contradiction precedes every positive rule.
+    // Convergence, a unique name, an address or an alias each establish
+    // that a record matches the hint text; none of them can outweigh the
+    // source having identified the component as a different entity.
+    if (this.evidenceOf(evidence, 'IDENTITY_CONTRADICTION')) {
+      return { status: 'REJECTED' };
+    }
+
     // 0. IDENTITY_CONVERGENCE -> VERIFIED immediately. A different,
     // structurally independent acquisition strategy already found this
     // exact same (provider, externalId) for this hint -- pure ID equality

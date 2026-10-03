@@ -68,6 +68,18 @@ export interface NominatimSearchOptions {
     center: { latitude: number; longitude: number };
     radiusMeters: number;
   };
+  /**
+   * `PROVIDER_MAXIMUM` asks for the largest result window Nominatim serves
+   * instead of the default top few. Identity acquisition needs the whole
+   * same-name pool: the default window is ranked by global `importance`,
+   * which the soft `bias` above does not override, so a venue with no
+   * importance can sit below every same-named settlement and never come
+   * back (live, RW4: "Ojo de Agua" in Lujan de Cuyo ranked 30th of 31
+   * homonyms; the top 5 were hamlets in other provinces). The exact-name
+   * count is also measured over the returned window, so a truncated window
+   * understates multiplicity.
+   */
+  resultWindow?: 'DEFAULT' | 'PROVIDER_MAXIMUM';
 }
 
 /**

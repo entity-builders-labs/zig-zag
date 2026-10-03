@@ -124,6 +124,22 @@ describe('NominatimApiService', () => {
     );
   });
 
+  it("asks for Nominatim's documented maximum window (40) when the caller needs the whole same-name pool", async () => {
+    mockedAxios.get.mockResolvedValue({ data: [] });
+
+    await service.search('Ojo de Agua', {
+      countryCode: 'AR',
+      resultWindow: 'PROVIDER_MAXIMUM',
+    });
+
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      expect.stringContaining('nominatim.openstreetmap.org/search'),
+      expect.objectContaining({
+        params: expect.objectContaining({ q: 'Ojo de Agua', limit: 40 }),
+      }),
+    );
+  });
+
   it('sends countrycodes when a countryCode option is passed', async () => {
     mockedAxios.get.mockResolvedValue({ data: [] });
 

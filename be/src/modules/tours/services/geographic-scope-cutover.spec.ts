@@ -730,6 +730,7 @@ describe('Part II geographic scope — two-phase resolution & identity search (S
 
     // Phase 1: country-bounded, never destination- or radius-biased.
     expect(nominatim.search).toHaveBeenCalledWith('Fixture Valley', {
+      resultWindow: 'PROVIDER_MAXIMUM',
       countryCode: 'FX',
     });
     const audit = result.entityResolution.forensicAudit[0];

@@ -90,6 +90,23 @@ export type IdentityEvidence =
   | { type: 'WIKIDATA_UNAVAILABLE' }
   | {
       /**
+       * An explicit, structural conflict between what the SOURCE declares
+       * this component to be and what the candidate record declares itself
+       * to be: the source observation cited by the hint carries a Wikidata
+       * QID and the candidate carries a different own QID. Two declared
+       * identifiers that differ name two different entities -- no label,
+       * name, distance or count is compared. It overrides every positive
+       * rule: a unique name, an address, an alias or two providers
+       * converging on one record never establish that the SOURCE meant the
+       * entity it has explicitly identified as something else.
+       */
+      type: 'IDENTITY_CONTRADICTION';
+      fact: 'WIKIDATA_QID';
+      sourceQid: string;
+      candidateQid: string;
+    }
+  | {
+      /**
        * A DIFFERENT, structurally independent acquisition strategy already
        * acquired, for this same hint, a candidate sharing at least one
        * exact strong identity (namespace + canonical id) with this one --

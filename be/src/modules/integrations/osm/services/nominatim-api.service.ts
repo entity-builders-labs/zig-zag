@@ -12,6 +12,8 @@ const DEFAULT_API_URL = 'https://nominatim.openstreetmap.org/search';
 const DEFAULT_REVERSE_API_URL = 'https://nominatim.openstreetmap.org/reverse';
 const DEFAULT_TIMEOUT_MS = 10000;
 const RESULT_LIMIT = 5;
+// Nominatim's documented cap for `limit` ("cannot be more than 40").
+const PROVIDER_MAXIMUM_RESULT_LIMIT = 40;
 // Same self-identification requirement as Overpass's public instance — see
 // overpass-api.service.ts's USER_AGENT comment.
 const USER_AGENT = 'ZigZagApp/1.0 (+https://github.com/jiseruk/zig-zag)';
@@ -131,7 +133,10 @@ export class NominatimApiService implements INominatimApiService {
   ): Record<string, string | number> {
     return {
       format: 'jsonv2',
-      limit: RESULT_LIMIT,
+      limit:
+        options?.resultWindow === 'PROVIDER_MAXIMUM'
+          ? PROVIDER_MAXIMUM_RESULT_LIMIT
+          : RESULT_LIMIT,
       addressdetails: 1,
       // Restricting to a known destination country avoids a
       // generic/common place name (e.g. "Cerro Alcázar") winning on

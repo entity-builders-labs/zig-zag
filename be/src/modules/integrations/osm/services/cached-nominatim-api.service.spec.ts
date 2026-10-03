@@ -229,6 +229,44 @@ describe('CachedNominatimApiService', () => {
     );
   });
 
+  it('caches the provider-maximum window separately from the default window', async () => {
+    realService.search
+      .mockResolvedValueOnce([
+        {
+          osmType: 'node',
+          osmId: 198407364,
+          addresstype: 'hamlet',
+          displayName: 'Ojo de Agua, Córdoba, Argentina',
+          importance: 0.13,
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          osmType: 'node',
+          osmId: 4797394430,
+          addresstype: 'amenity',
+          displayName: 'Ojo de Agua, Luján de Cuyo, Mendoza, Argentina',
+          importance: 0,
+        },
+      ]);
+    const service = await setup('write');
+
+    const truncated = await service.search('Ojo de Agua', {
+      countryCode: 'ar',
+    });
+    const whole = await service.search('Ojo de Agua', {
+      countryCode: 'ar',
+      resultWindow: 'PROVIDER_MAXIMUM',
+    });
+
+    expect(truncated).toMatchObject([{ osmId: 198407364 }]);
+    expect(whole).toMatchObject([{ osmId: 4797394430 }]);
+    expect(realService.search).toHaveBeenCalledTimes(2);
+    expect(fs.readdirSync(path.join(tempDir, 'nominatim-cache'))).toHaveLength(
+      2,
+    );
+  });
+
   it('strict mode throws on a cache miss instead of calling the real service', async () => {
     const service = await setup('strict');
 

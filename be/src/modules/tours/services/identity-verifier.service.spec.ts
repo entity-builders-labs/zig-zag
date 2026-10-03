@@ -795,4 +795,78 @@ describe('IdentityVerifier', () => {
       ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
     });
   });
+
+  /**
+   * RW4-ID-CONTRADICTION-1: an explicit contradiction (the source declares
+   * the component to be a different Wikidata entity than the candidate
+   * record declares itself to be) overrides every terminal positive rule.
+   */
+  describe('explicit identity contradiction precedes positive rules', () => {
+    const verifier = new IdentityVerifier();
+    const contradiction = {
+      type: 'IDENTITY_CONTRADICTION' as const,
+      fact: 'WIKIDATA_QID' as const,
+      sourceQid: 'Q1',
+      candidateQid: 'Q2',
+    };
+
+    it.each<[string, ResolutionAttempt['evidence']]>([
+      [
+        'EXACT_NAME + SINGLE',
+        [{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }],
+      ],
+      ['ADDRESS_MATCH', [{ type: 'ADDRESS_MATCH' }]],
+      [
+        'DECLARED_ALIAS_MATCH + SINGLE',
+        [{ type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'SINGLE' }],
+      ],
+      [
+        'IDENTITY_CONVERGENCE',
+        [
+          {
+            type: 'IDENTITY_CONVERGENCE',
+            priorStrategy: 'NOMINATIM',
+            identity: { provider: 'openstreetmap', externalId: 'osm:node:1' },
+          },
+        ],
+      ],
+      [
+        'CATALOG_VERIFIED_HINT_MATCH + SINGLE',
+        [
+          {
+            type: 'CATALOG_VERIFIED_HINT_MATCH',
+            verifiedHintKey: 'recoleta cemetery',
+            identityMultiplicity: 'SINGLE',
+          },
+        ],
+      ],
+      [
+        'a corroborating OWN_QID match',
+        [
+          {
+            type: 'WIKIDATA_IDENTITY_MATCH',
+            source: 'OWN_QID',
+            hintMatched: true,
+            candidateMatched: true,
+          },
+        ],
+      ],
+    ])('%s with a contradiction is REJECTED', (_label, positive) => {
+      expect(
+        verifier.verify(
+          { name: 'Recoleta Cemetery' },
+          attempt([...positive, contradiction]),
+        ),
+      ).toEqual({ status: 'REJECTED' });
+    });
+
+    it('the same EXACT_NAME + SINGLE without a contradiction still VERIFIES', () => {
+      expect(
+        verifier.verify(
+          { name: 'Recoleta Cemetery' },
+          attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }]),
+        ),
+      ).toEqual({ status: 'VERIFIED' });
+    });
+  });
 });

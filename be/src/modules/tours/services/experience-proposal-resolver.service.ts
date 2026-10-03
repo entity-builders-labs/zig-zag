@@ -5,7 +5,10 @@ import {
   OsmLookupResult,
   OsmPlacesService,
 } from '@integrations/osm/services/osm-places.service';
-import { INominatimApiService } from '@integrations/osm/interfaces/nominatim.interface';
+import {
+  INominatimApiService,
+  NominatimSearchOptions,
+} from '@integrations/osm/interfaces/nominatim.interface';
 import {
   IPlacesApiService,
   PlaceData,
@@ -1719,7 +1722,7 @@ export class ExperienceProposalResolverService
     acquisitionEvidence: IdentityEvidence[] = [],
   ): Promise<VerificationResult> {
     const evidence = [
-      ...buildLocalIdentityEvidence(hint, entity),
+      ...buildLocalIdentityEvidence(hint, entity, observations),
       ...acquisitionEvidence,
     ];
     if (seenIdentities) {
@@ -1755,7 +1758,12 @@ export class ExperienceProposalResolverService
       evidence,
     };
     const directDecision = this.identityVerifier.verify(hint, attempt);
-    if (directDecision.status === 'VERIFIED') {
+    // Local evidence is already terminal: VERIFIED, or REJECTED by an
+    // explicit contradiction no corroboration can outweigh.
+    if (
+      directDecision.status === 'VERIFIED' ||
+      directDecision.status === 'REJECTED'
+    ) {
       return { decision: directDecision, evidence: [...attempt.evidence] };
     }
     attempt.evidence.push(
@@ -2176,22 +2184,24 @@ export class ExperienceProposalResolverService
       const window = componentScope.countryBoundedAreaSearch
         ? undefined
         : componentScope.window;
-      const searchOptions =
-        destinationCountryCode || window
+      // Identity acquisition asks for the provider's whole result window:
+      // the default window is ranked by global importance, so it can drop
+      // the only contextually plausible same-name member before selection
+      // and understate the exact-name multiplicity the verifier relies on.
+      const searchOptions: NominatimSearchOptions = {
+        resultWindow: 'PROVIDER_MAXIMUM',
+        ...(destinationCountryCode
+          ? { countryCode: destinationCountryCode }
+          : {}),
+        ...(window
           ? {
-              ...(destinationCountryCode
-                ? { countryCode: destinationCountryCode }
-                : {}),
-              ...(window
-                ? {
-                    bias: {
-                      center: window.center,
-                      radiusMeters: window.radiusMeters,
-                    },
-                  }
-                : {}),
+              bias: {
+                center: window.center,
+                radiusMeters: window.radiusMeters,
+              },
             }
-          : undefined;
+          : {}),
+      };
       const results = await this.nominatim.search(hint.name, searchOptions);
       const match = bestNominatimMatch(hint.name, results, window?.center);
       const exactNameCount = countNominatimExactMatches(hint.name, results);
