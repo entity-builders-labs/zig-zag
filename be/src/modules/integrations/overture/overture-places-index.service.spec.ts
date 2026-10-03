@@ -26,7 +26,9 @@ describe('OverturePlacesIndexService', () => {
   it('keeps exact-name multiplicity UNKNOWN for a partial index', async () => {
     const prisma = {
       overturePlaceIndex: { findMany: jest.fn().mockResolvedValue([row()]) },
-      overturePlacesImportSession: { findFirst: jest.fn().mockResolvedValue(published()) },
+      overturePlacesImportSession: {
+        findFirst: jest.fn().mockResolvedValue(published()),
+      },
     };
     const result = await new OverturePlacesIndexService(
       prisma as any,
@@ -46,7 +48,9 @@ describe('OverturePlacesIndexService', () => {
     const prisma = {
       overturePlaceIndex: { findMany: jest.fn().mockResolvedValue([row()]) },
       overturePlacesImportSession: {
-        findFirst: jest.fn().mockResolvedValue(published({ completeness: 'COMPLETE_COUNTRY' })),
+        findFirst: jest
+          .fn()
+          .mockResolvedValue(published({ completeness: 'COMPLETE_COUNTRY' })),
       },
     };
     const result = await new OverturePlacesIndexService(
@@ -69,7 +73,9 @@ describe('OverturePlacesIndexService', () => {
           .fn()
           .mockResolvedValue([row(), row({ featureId: 'gers-2' })]),
       },
-      overturePlacesImportSession: { findFirst: jest.fn().mockResolvedValue(published()) },
+      overturePlacesImportSession: {
+        findFirst: jest.fn().mockResolvedValue(published()),
+      },
     };
     const result = await new OverturePlacesIndexService(
       prisma as any,
@@ -88,7 +94,9 @@ describe('OverturePlacesIndexService', () => {
     const findMany = jest.fn().mockResolvedValue([]);
     const service = new OverturePlacesIndexService({
       overturePlaceIndex: { findMany },
-      overturePlacesImportSession: { findFirst: jest.fn().mockResolvedValue(published()) },
+      overturePlacesImportSession: {
+        findFirst: jest.fn().mockResolvedValue(published()),
+      },
     } as any);
     await service.lookupExactPlace({
       hintKey: 'x',

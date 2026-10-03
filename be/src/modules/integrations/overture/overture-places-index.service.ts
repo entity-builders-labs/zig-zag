@@ -57,7 +57,9 @@ export class OverturePlacesIndexService {
       input.completeness === 'COMPLETE_COUNTRY' &&
       input.expectedSourceCoverage !== 'COUNTRY_ENUMERATED'
     )
-      throw new Error('Country completeness requires COUNTRY_ENUMERATED evidence');
+      throw new Error(
+        'Country completeness requires COUNTRY_ENUMERATED evidence',
+      );
     await this.prisma.overturePlacesImportSession.create({
       data: { ...input, status: 'IMPORTING' },
     });
@@ -73,12 +75,15 @@ export class OverturePlacesIndexService {
       const session = await tx.overturePlacesImportSession.findUniqueOrThrow({
         where: { id: batch.sessionId },
       });
-      if (session.status !== 'IMPORTING') throw new Error('Import is not active');
+      if (session.status !== 'IMPORTING')
+        throw new Error('Import is not active');
       if (!session.expectedPageKeys.includes(batch.pageKey))
         throw new Error(`Unexpected import page: ${batch.pageKey}`);
       for (const record of batch.records) {
         if (record.countryCode !== session.countryCode)
-          throw new Error('Imported record country differs from import session');
+          throw new Error(
+            'Imported record country differs from import session',
+          );
         await tx.overturePlaceIndex.upsert({
           where: {
             importSessionId_featureId: {
@@ -140,11 +145,15 @@ export class OverturePlacesIndexService {
 
   async abortImport(sessionId: string): Promise<void> {
     await this.prisma.overturePlacesImportSession.update({
-      where: { id: sessionId }, data: { status: 'ABORTED' },
+      where: { id: sessionId },
+      data: { status: 'ABORTED' },
     });
   }
 
-  async finalizeImport(sessionId: string, manifest: Prisma.InputJsonValue): Promise<void> {
+  async finalizeImport(
+    sessionId: string,
+    manifest: Prisma.InputJsonValue,
+  ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       const session = await tx.overturePlacesImportSession.findUniqueOrThrow({
         where: { id: sessionId },
@@ -152,7 +161,11 @@ export class OverturePlacesIndexService {
       const missing = session.expectedPageKeys.filter(
         (page) => !session.completedPageKeys.includes(page),
       );
-      if (session.status !== 'IMPORTING' || missing.length || session.failedPartitionKeys.length)
+      if (
+        session.status !== 'IMPORTING' ||
+        missing.length ||
+        session.failedPartitionKeys.length
+      )
         throw new Error('Import cannot publish with missing or failed pages');
       const now = new Date();
       await tx.overturePlacesImportSession.updateMany({
@@ -161,7 +174,12 @@ export class OverturePlacesIndexService {
       });
       await tx.overturePlacesImportSession.update({
         where: { id: session.id },
-        data: { status: 'PUBLISHED', manifest, finalizedAt: now, publishedAt: now },
+        data: {
+          status: 'PUBLISHED',
+          manifest,
+          finalizedAt: now,
+          publishedAt: now,
+        },
       });
     });
   }
