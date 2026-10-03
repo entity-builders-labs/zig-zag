@@ -14,6 +14,36 @@ permissions:
   contents: read
 
 jobs:
+  agent-governance:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The canonical preflight reasons about declared base snapshots and
+          # active integration branches, so CI needs full branch history.
+          # Check out the actual PR head SHA, not the synthetic merge commit,
+          # so base ancestry is validated against the real head.
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: ShellCheck governance scripts
+        run: shellcheck scripts/agent-track scripts/agent-preflight scripts/agent-progress-gate scripts/agent-governance.spec.sh
+      - name: Governance fixture suite
+        run: bash scripts/agent-governance.spec.sh
+      - name: Agent collaboration preflight
+        run: bash scripts/agent-preflight --ci
+
+  track-progress-freshness:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Track progress freshness
+        run: bash scripts/agent-progress-gate
+
   backend:
     runs-on: ubuntu-latest
     steps:

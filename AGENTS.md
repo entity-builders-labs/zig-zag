@@ -20,6 +20,140 @@ When an architectural rule can be checked mechanically, prefer enforcing it
 with lint/architecture tests/CI in addition to documenting it. A green test
 suite does not justify violating documented architectural boundaries.
 
+## Multi-agent collaboration workflow
+
+Zig-Zag supports multiple human and AI collaborators working concurrently.
+Isolation is mandatory: collaboration must not depend on agents remembering
+which checkout is safe.
+
+### Current worktree authority
+
+- The current Git worktree is the authoritative checkout for the task.
+- Do not `cd` to another checkout, repository root, or sibling worktree to
+  perform the task.
+- Every concurrently-written initiative must use its own branch and worktree.
+- Two writing agents must never mutate the same worktree concurrently.
+- Sequential agents may reuse an initiative worktree only after the previous
+  writer has stopped and the incoming agent has inspected the existing state.
+- Parallel work inside one larger initiative must use separate sub-branches /
+  worktrees and converge through an explicit integration step.
+
+### Required collaboration preflight
+
+Before modifying source code or durable documentation, run:
+
+```bash
+bash scripts/agent-preflight
+```
+
+The preflight may fetch remote refs, but it must not modify tracked files, the
+index, commits, or branch history. Its local result distinguishes **WRITE
+READY** from **INTEGRATION READY**: a conflict with a moving integration target
+blocks integration but does not by itself block isolated writes. A local
+non-zero result means the current checkout is unsafe or invalid; **STOP before
+writing** and report that failed gate.
+
+Run `scripts/agent-track context` first when asked to continue work. It
+deterministically identifies the current ACTIVE track, its progress and plan,
+current gate, branch/worktree, integration target, Git state and any locally
+discoverable PR context. Read the referenced plan/progress/specs, then run
+`bash scripts/agent-preflight` before modifying source or durable docs.
+
+When asked to continue a named track from another checkout, run
+`scripts/agent-track locate <track-id>` first. It discovers the ACTIVE track
+and its registered worktree without switching checkouts; the agent then
+uses/opens that worktree, runs `agent-track context`, reads plan/progress, runs
+preflight, and executes the next authorized action. Do not add shell-level
+switch or resume behavior to `agent-track`.
+
+Each writing branch must have exactly one ACTIVE `agent-track` header in its
+progress document. The header declares its ID, branch, integration target,
+base snapshot and plan reference. `docs/superpowers/README.md` is navigation,
+not a second track registry.
+
+A track owns its own `agent-track` declaration. Introduce and maintain an
+ACTIVE header only on that track's branch; another track must not patch a
+foreign progress document merely to make it discoverable. Bootstrap a
+legacy/pre-governance track with a metadata-only commit on its own branch.
+Discovery continues through registered worktrees and fetched refs, without a
+central registry, aliases, inferred branch identity, fallback discovery, or
+duplicated track metadata.
+
+For resumability, the progress document also owns the current execution delta:
+`Current execution verdict`, `Current checkpoint`, `Next authorized action`,
+and `Open findings / blockers`. Keep these sections short and current.
+`scripts/agent-track context` surfaces them for a fresh session. The plan still
+owns intended gates/acceptance; do not duplicate a step-by-step project plan in
+progress.
+
+Use anti-fractal execution: a changing blocker/finding does not create a new
+milestone. Keep the checkpoint stable, fix the bounded blocker, rerun
+verification, and record the next blocker inside the same checkpoint if needed.
+
+Treat the checks as follows:
+
+- declared base-snapshot mismatch: local write hard stop;
+- non-mutating merge conflict with the current integration target: visible
+  integration blocker; it is a hard failure at the CI/PR boundary, not a local
+  write failure;
+- the lineage base branch advancing after initiative creation: warning; do not
+  auto-rebase/merge solely to silence it;
+- same-file overlap with another active track: pairwise divergent Git deltas
+  since the current and peer branches' common merge base; a warning requiring
+  explicit review before integration;
+- being behind `origin/main`: visible warning, not by itself permission to
+  rebase/merge or switch checkouts.
+
+Do not resolve a real conflict by changing another branch or weakening a
+canonical product/architecture contract.
+
+### Git safety
+
+- Never push directly to `main`.
+- Never force-push or rewrite shared history unless the human owner explicitly
+  authorizes that exact operation.
+- Never modify another initiative's worktree.
+- Do not change repository remotes as part of feature work.
+- Use the initiative's declared integration target; do not assume every branch
+  integrates directly into `main`.
+
+### Pull request integration contract
+
+Pull requests are the integration boundary for initiative work.
+
+- Target the `integration=` branch declared by the track progress header; do not
+  default mechanically to `main`.
+- Fill the track contract in `.github/pull_request_template.md` from the
+  branch's ACTIVE progress header.
+- Keep `scripts/agent-preflight` as the single collaboration-policy primitive.
+  Local agents run it directly for write safety and integration visibility; CI
+  runs the same script with `--ci` to enforce integration readiness.
+- A CI failure in the `agent-governance` job is a hard integration stop. Do
+  not duplicate or weaken the policy inside workflow YAML to make the check
+  pass.
+- `CODEOWNERS` is human review routing only. It does not assign track or domain
+  authority and must never be used to resolve a change-overlap warning.
+
+### Architecture-drift review contract
+
+Governance-aware PR review is an AI/human review responsibility, not a bash
+or CI heuristic. The reviewer must load `/AGENTS.md`, engineering principles,
+the track progress and plan, relevant canonical specs/architecture for changed
+files, the PR diff, and any unresolved review findings.
+
+It reports either **ARCHITECTURE PASS** or **ARCHITECTURE DRIFT WARNING**. A
+warning identifies the changed implementation, the canonical definition it may
+contradict, why they conflict, and requires the author to correct the code or
+deliberately update the canonical documentation. This remains a review warning
+until a future approved automation can establish it deterministically.
+
+Review findings/fix briefs record the track, reviewed HEAD, plan/progress
+context, finding IDs, required fixes, forbidden scope expansion, and
+verification so a later coding pass can reconnect without an autonomous
+reviewer-to-coder loop. Keep detailed review feedback at the PR boundary rather
+than committing it into the reviewed branch solely for persistence: such a
+commit would change HEAD and stale the review anchor.
+
 ### Superpowers documentation navigation
 
 Before using a dated file under `docs/superpowers/` to determine current

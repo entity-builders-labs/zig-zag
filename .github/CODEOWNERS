@@ -1,0 +1,13 @@
+# Human review routing only.
+#
+# Track identity is declared by ACTIVE progress-track headers and checked by
+# scripts/agent-preflight. CODEOWNERS is never a domain-policy authority.
+
+/AGENTS.md @jiseruk
+/docs/architecture/ @jiseruk
+/docs/superpowers/ @jiseruk
+/scripts/agent-preflight @jiseruk
+/scripts/agent-track @jiseruk
+/.github/workflows/ @jiseruk
+/.github/CODEOWNERS @jiseruk
+/.github/pull_request_template.md @jiseruk

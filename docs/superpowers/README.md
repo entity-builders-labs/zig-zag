@@ -3,7 +3,7 @@
 Status: **canonical navigation index; not an execution log**.  
 Updated: 2026-10-02.\
 Active tour-engine branch: `feat/preference-first-selection`.  
-Repository remotes: upstream canonical `origin` is `entity-builders-labs/zig-zag`, development `fork` is `jiseruk/zig-zag`.
+Canonical repository: `entity-builders-labs/zig-zag`. A personal fork may exist as a backup, but it is not the active development authority.
 
 This file answers four questions before an engineer or agent reads the large
 historical document set:
@@ -49,7 +49,45 @@ evidence, not execution authority.
 
 ---
 
-## 2. Current authority set
+## 2. Active tracks
+
+Track state is declared once, in the active track's progress document. Its
+machine-readable `agent-track` header carries the track ID, status, branch,
+integration target, base snapshot, and plan reference. The progress document
+owns execution state; its plan owns intended gates and acceptance.
+
+Use `scripts/agent-track list` to discover active tracks and registered
+worktrees, or `scripts/agent-track context` from a track worktree to resume
+work. This README remains navigation, not a manually synchronized track
+registry.
+
+Rules:
+
+- Every branch receiving concurrent human/agent writes needs exactly one ACTIVE
+  progress-track header before ordinary implementation begins.
+- `base` is the immutable lineage snapshot and must remain an ancestor of the
+  track branch. `integration` is the moving branch where it converges next.
+- Actual branch diffs—not manually predicted ownership labels—produce overlap
+  warnings. Same-file overlap requires review but is not a write prohibition.
+- Closing a track changes its progress header status and records the result in
+  that progress document.
+
+GitHub enforcement rules:
+
+- `scripts/agent-preflight` is the single collaboration-policy primitive.
+  Local execution and CI must call the same script; workflow YAML may prepare
+  the checkout but must not reimplement initiative semantics.
+- `.github/CODEOWNERS` routes human review for critical governance and
+  architecture surfaces. It is not a track or domain-policy authority.
+- Pull requests target the initiative's declared `integration=` branch and
+  carry the registry contract in the repository PR template.
+- Repository rulesets / required checks are activated only after the
+  corresponding CI status has run successfully at least once; do not create a
+  required check that cannot yet execute.
+
+---
+
+## 3. Current authority set
 
 | Role | Document | Authority |
 | --- | --- | --- |
@@ -68,7 +106,7 @@ explicitly demoting the old pointer.
 
 ---
 
-## 3. Canonical forward sequence
+## 4. Canonical forward sequence
 
 ```text
 RW3 final acceptance CLOSED (2026-09-29)
@@ -101,7 +139,7 @@ canonical convergence roadmap.
 
 ---
 
-## 4. Document lifecycle rules
+## 5. Document lifecycle rules
 
 Every `docs/superpowers/` document should be interpreted as one of these
 classes:
@@ -149,7 +187,7 @@ Rules:
 
 ---
 
-## 5. Progress-file inventory
+## 6. Progress-file inventory
 
 Only one of the existing files below is the current execution pointer.
 
@@ -173,7 +211,7 @@ document; do not promote the old file itself back to current authority.
 
 ---
 
-## 6. How to navigate by task
+## 7. How to navigate by task
 
 ### "Where are we?"
 
@@ -232,7 +270,7 @@ supporting evidence. Do not let them silently override current authority.
 
 ---
 
-## 7. Plan completion and status discipline
+## 8. Plan completion and status discipline
 
 A plan being present in `plans/` does not mean it is pending. A plan may be:
 
@@ -257,7 +295,7 @@ tracks independent and identifies one pointer per track.
 
 ---
 
-## 8. Generation Trace v5: COMPLETE / ACTIVE TRACE AUTHORITY
+## 9. Generation Trace v5: COMPLETE / ACTIVE TRACE AUTHORITY
 
 Generation Trace v5 is the single canonical trace authority across the backend
 and frontend. Legacy Trace v4 has been completely removed: `generation-trace.interface.ts`,
@@ -296,7 +334,7 @@ during RW1–RW6.
 
 ---
 
-## 9. Directory semantics
+## 10. Directory semantics
 
 ```text
 specs/
