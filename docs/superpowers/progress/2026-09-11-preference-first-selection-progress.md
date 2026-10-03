@@ -2204,6 +2204,20 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   cases, all REJECTED → INSUFFICIENT_EVIDENCE, and left 201 identical.
   El Zanjón, Farmacia, Ojo de Agua and `COMPETITOR_EXAMINATION` are
   unchanged.
+- Geographic scope vs. identity coverage (2026-10-03, at `1ec18b9e`,
+  characterization only). Verdict `UNKNOWN_IS_JUSTIFIED`. Dossier:
+  `identity-characterization/geographic-scope-coverage-2026-10-03/assessment.md`.
+  - Alfa Crux and SuperUco have admission scope AR (§P2-18, ROUTE_LIKE with
+    no strict anchor). The authority is propagated correctly. The
+    "Valle de Uco" heading creates no scope or locality. OSM holds no such
+    AREA, and if it did, it would be DESCRIPTIVE.
+  - The index holds the operational AOI only (`PARTIAL_PARTITION`), so the
+    result is `UNKNOWN`. A read-only country-wide scan of release
+    `2026-09-23.1` finds exactly one AR exact-name record for each, so a
+    verifiable country-complete snapshot would verify them with the policy
+    unchanged. That is a data gap, not a contract defect.
+  - Typed AOI extent (RW4-ID-OVERTURE-COVERAGE-1) would not fix these two,
+    because the AOI does not contain AR.
 
 ## Next authorized action
 
@@ -2218,6 +2232,10 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 
 COLD #12 is NOT ready: the Uco composition requires Alfa Crux, SuperUco and
 Bodega Azul, and the source states no discriminating fact for any of them.
+A country-complete Overture snapshot would not change that: the release holds
+no "Bodega Azul" record, and "Bodega La Azul" is MULTIPLE. Publishing such a
+snapshot is not authorized. It is gated on Overture storage finding (3), an
+authorized importer, and RW4-ID-OVERTURE-SINGLE-DATASET-1.
 
 The draft pull request for `feat/preference-first-selection` -> `main` exists
 for review only. Do not merge to `main`, do not change RW4 conclusions, and do
@@ -2320,6 +2338,16 @@ before RW4 COLD #12. That review does not block the extractor work above.
   only in the untyped `manifest` JSON, so an Overture pool is never a
   complete comparison for a locality. A typed coverage geometry is a
   storage change.
+- RW4-ID-OVERTURE-SINGLE-DATASET-1: OPEN, MEDIUM, blocks publishing a
+  country-complete Overture snapshot. Release `2026-09-23.1` holds exactly
+  one AR "Ojo de Agua", a Neuquén cabin, which is not the source's Luján
+  restaurant. On a country-complete snapshot, Overture alone would report
+  `SINGLE` for the wrong homonym. Today it stays AMBIGUOUS only because
+  Nominatim's earlier untruncated pool exposes the homonyms (rule 4
+  precedes rule 6). If Nominatim fails and no other pool exposes a homonym,
+  the cabin would VERIFY. Required tests are listed in the
+  geographic-scope-coverage dossier, Q6 (a)–(e). A policy decision is
+  needed before shipping.
 - RW4-ID-ADDRESS-1: OPEN, LOW. `addressConfirmed` (ADDRESS_MATCH) is still
   computed only on LOCAL_OSM_POOL.
 - Overture storage findings: OPEN, separate from identity, untouched here.

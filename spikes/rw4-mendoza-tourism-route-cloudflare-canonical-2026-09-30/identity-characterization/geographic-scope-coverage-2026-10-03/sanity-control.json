@@ -1,0 +1,230 @@
+{
+ "release": "2026-09-23.1",
+ "country": "AR",
+ "pruningBbox": [
+  -73.6,
+  -55.2,
+  -53.5,
+  -21.7
+ ],
+ "nameField": "names.primary (normalizeGeoName mirror)",
+ "scanSeconds": 40.8,
+ "byName": {
+  "YPF": {
+   "normalized": "ypf",
+   "inCountry": 1495,
+   "countryUndeclared": 0,
+   "otherCountry": 0,
+   "records": [
+    {
+     "id": "0049cde6-1fb0-4827-98c4-408f6cc2ea10",
+     "primary_name": "YPF",
+     "n": "ypf",
+     "lat": -24.82732588,
+     "lon": -65.40982866,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "Salta"
+     ],
+     "category": "gas_station",
+     "datasets": [
+      "AllThePlaces",
+      "Overture"
+     ]
+    },
+    {
+     "id": "004de27c-68b6-44a9-889f-3300545f873e",
+     "primary_name": "YPF",
+     "n": "ypf",
+     "lat": -34.6187,
+     "lon": -58.40384,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "Capital Federal"
+     ],
+     "category": "gas_station",
+     "datasets": [
+      "AllThePlaces",
+      "Overture"
+     ]
+    },
+    {
+     "id": "00799762-feb3-4f5c-81c5-92f4b45886e0",
+     "primary_name": "YPF",
+     "n": "ypf",
+     "lat": -34.43995566,
+     "lon": -58.70646302,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "El Tri\u00e1ngulo"
+     ],
+     "category": "gas_station",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    }
+   ],
+   "recordsTruncatedTo": 3
+  },
+  "Farmacia": {
+   "normalized": "farmacia",
+   "inCountry": 46,
+   "countryUndeclared": 0,
+   "otherCountry": 12,
+   "records": [
+    {
+     "id": "00c5685a-c018-4a6c-8403-c2e564391f7b",
+     "primary_name": "Farmacia",
+     "n": "farmacia",
+     "lat": -34.77035452,
+     "lon": -58.65096532,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "Gonz\u00e1lez Cat\u00e1n"
+     ],
+     "category": "pharmacy",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    },
+    {
+     "id": "04e1b1b3-5704-4737-acab-c18382353829",
+     "primary_name": "Farmacia",
+     "n": "farmacia",
+     "lat": -33.39824994,
+     "lon": -70.7500036,
+     "countries": [
+      "CL"
+     ],
+     "localities": [
+      "Renca"
+     ],
+     "category": "pharmacy",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    },
+    {
+     "id": "0560f9c1-518f-4774-a539-0ce1b6938382",
+     "primary_name": "Farmacia",
+     "n": "farmacia",
+     "lat": -34.69515534,
+     "lon": -58.51089103,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "Tapiales"
+     ],
+     "category": "pharmacy",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    }
+   ],
+   "recordsTruncatedTo": 3
+  },
+  "Plaza San Martin": {
+   "normalized": "plaza san martin",
+   "inCountry": 143,
+   "countryUndeclared": 0,
+   "otherCountry": 2,
+   "records": [
+    {
+     "id": "011770be-300f-42bf-bb99-689b4c58e9a8",
+     "primary_name": "Plaza San Mart\u00edn",
+     "n": "plaza san martin",
+     "lat": -32.6694142,
+     "lon": -60.8748672,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "Andino"
+     ],
+     "category": "park",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    },
+    {
+     "id": "014a13ff-c100-409a-8ed3-dbb5c4db7f3e",
+     "primary_name": "Plaza San Martin",
+     "n": "plaza san martin",
+     "lat": -34.87575370017745,
+     "lon": -56.19844499967759,
+     "countries": [
+      "UY"
+     ],
+     "localities": [
+      "Montevideo"
+     ],
+     "category": null,
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    },
+    {
+     "id": "02020f04-b336-4619-b259-c678bdf5f632",
+     "primary_name": "Plaza San Mart\u00edn",
+     "n": "plaza san martin",
+     "lat": -33.49382896,
+     "lon": -60.51083807,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "Juan Bernab\u00e9 Molina"
+     ],
+     "category": "park",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    }
+   ],
+   "recordsTruncatedTo": 3
+  },
+  "Cafe Tortoni": {
+   "normalized": "cafe tortoni",
+   "inCountry": 1,
+   "countryUndeclared": 0,
+   "otherCountry": 0,
+   "records": [
+    {
+     "id": "dcb4536c-7c49-4c81-8020-b6f9f39031e3",
+     "primary_name": "Caf\u00e9 Tortoni",
+     "n": "cafe tortoni",
+     "lat": -34.60872633,
+     "lon": -58.37820734,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "Ciudad de Buenos Aires"
+     ],
+     "category": "coffee_shop",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    }
+   ],
+   "recordsTruncatedTo": 3
+  }
+ }
+}

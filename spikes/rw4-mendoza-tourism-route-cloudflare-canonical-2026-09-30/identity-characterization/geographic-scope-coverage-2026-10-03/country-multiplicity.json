@@ -1,0 +1,161 @@
+{
+ "release": "2026-09-23.1",
+ "country": "AR",
+ "pruningBbox": [
+  -73.6,
+  -55.2,
+  -53.5,
+  -21.7
+ ],
+ "nameField": "names.primary (normalizeGeoName mirror)",
+ "scanSeconds": 28.3,
+ "byName": {
+  "Alfa Crux": {
+   "normalized": "alfa crux",
+   "inCountry": 1,
+   "countryUndeclared": 0,
+   "otherCountry": 0,
+   "records": [
+    {
+     "id": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+     "primary_name": "Alfa Crux",
+     "n": "alfa crux",
+     "lat": -33.8040574593,
+     "lon": -69.119154850671,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "Villa San Carlos"
+     ],
+     "category": "winery",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    }
+   ]
+  },
+  "SuperUco": {
+   "normalized": "superuco",
+   "inCountry": 1,
+   "countryUndeclared": 0,
+   "otherCountry": 0,
+   "records": [
+    {
+     "id": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+     "primary_name": "SuperUco",
+     "n": "superuco",
+     "lat": -33.60353978,
+     "lon": -69.22870399,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "El Manzano Hist\u00f3rico"
+     ],
+     "category": "restaurant",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    }
+   ]
+  },
+  "Ojo de Agua": {
+   "normalized": "ojo de agua",
+   "inCountry": 1,
+   "countryUndeclared": 0,
+   "otherCountry": 0,
+   "records": [
+    {
+     "id": "c4b741f2-8098-4a02-abb9-4e41c88a6d3c",
+     "primary_name": "Ojo de Agua",
+     "n": "ojo de agua",
+     "lat": -40.16058331,
+     "lon": -71.35070608,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "San Mart\u00edn de los Andes"
+     ],
+     "category": "cabin",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    }
+   ]
+  },
+  "Bodega Azul": {
+   "normalized": "bodega azul",
+   "inCountry": 0,
+   "countryUndeclared": 0,
+   "otherCountry": 0,
+   "records": []
+  },
+  "Bodega La Azul": {
+   "normalized": "bodega la azul",
+   "inCountry": 3,
+   "countryUndeclared": 0,
+   "otherCountry": 0,
+   "records": [
+    {
+     "id": "62f80ec2-6c8a-4ba7-91f4-0dd6fff2a47c",
+     "primary_name": "Bodega la Azul",
+     "n": "bodega la azul",
+     "lat": -32.940898,
+     "lon": -68.872209,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "Godoy Cruz"
+     ],
+     "category": "winery",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    },
+    {
+     "id": "673c6cb8-b314-4650-a5c1-ef10d59be7c0",
+     "primary_name": "Bodega la Azul",
+     "n": "bodega la azul",
+     "lat": -33.57818742,
+     "lon": -69.01609022,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "Tunuy\u00e1n"
+     ],
+     "category": "grocery_store",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    },
+    {
+     "id": "d97a65d2-7613-41eb-ab26-fc577699f26d",
+     "primary_name": "Bodega La Azul",
+     "n": "bodega la azul",
+     "lat": -33.46941806,
+     "lon": -69.22094381,
+     "countries": [
+      "AR"
+     ],
+     "localities": [
+      "Tupungato"
+     ],
+     "category": "winery",
+     "datasets": [
+      "meta",
+      "Overture"
+     ]
+    }
+   ]
+  }
+ }
+}
