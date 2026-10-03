@@ -89,10 +89,23 @@ export interface ContextualPoolMember {
  * locality. `PROVIDER_WINDOW_NOT_REACHED` means the provider returned fewer
  * results than requested: the request limit did not truncate the pool. It
  * is NOT proof of global completeness, only that the provider's own answer
- * was not cut off. `NOT_ESTABLISHED` covers a pool bounded to another area,
- * a saturated window, or a partial snapshot that does not cover the
- * locality.
+ * was not cut off. `COVERS_ASSERTED_LOCALITY` means a snapshot enumerated
+ * an extent (or the country) containing the locality's boundary.
+ * `NOT_ESTABLISHED` covers a pool bounded to another area, a saturated
+ * window, or a partial snapshot that does not cover the locality.
  */
+/**
+ * A WGS84 bounding box inside which a provider snapshot holds EVERY record
+ * of its release (an operational import by extent, not a sample). It is
+ * what a partial snapshot can claim completeness over.
+ */
+export interface EnumeratedExtent {
+  west: number;
+  south: number;
+  east: number;
+  north: number;
+}
+
 export type ContextualPoolCoverage =
   | 'PROVIDER_WINDOW_NOT_REACHED'
   | 'COVERS_ASSERTED_LOCALITY'

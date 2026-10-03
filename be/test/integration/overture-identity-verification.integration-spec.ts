@@ -86,6 +86,20 @@ const A16_MICROSOFT: OverturePlaceImportRecord = {
   upstreamRecordId: '1407374888439853',
   license: 'CDLA-Permissive-2.0',
 };
+// Overture's only AR "Ojo de Agua" in release 2026-09-23.1: a cabin in San
+// Martin de los Andes (Neuquen), not the source's Lujan de Cuyo restaurant
+// (geographic-scope-coverage-2026-10-03/country-multiplicity.json).
+const OJO_DE_AGUA_NEUQUEN_CABIN: OverturePlaceImportRecord = {
+  featureId: 'c4b741f2-8098-4a02-abb9-4e41c88a6d3c',
+  countryCode: 'AR',
+  name: 'Ojo de Agua',
+  latitude: -40.16058331,
+  longitude: -71.35070608,
+  upstreamDataset: 'meta',
+  license: 'CDLA-Permissive-2.0',
+};
+// The real RW4 operational AOI (session rw4-uco-aoi-20261003).
+const RW4_AOI_EXTENT = { west: -69.5, south: -34, east: -68.5, north: -33 };
 const AOI_RECORDS = [
   ALFA_CRUX,
   SUPERUCO,
@@ -126,17 +140,23 @@ describe('Overture identity lookup -> IdentityVerifier (real Postgres)', () => {
       countryCode,
       partitionKey: id,
       completeness,
-      expectedSourceCoverage:
-        completeness === 'COMPLETE_COUNTRY'
-          ? 'COUNTRY_ENUMERATED'
-          : 'OPERATIONAL_AOI',
+      ...(completeness === 'COMPLETE_COUNTRY'
+        ? { expectedSourceCoverage: 'COUNTRY_ENUMERATED' as const }
+        : {
+            expectedSourceCoverage: 'OPERATIONAL_AOI' as const,
+            enumeratedExtent: RW4_AOI_EXTENT,
+          }),
       expectedPageKeys: ['page-1'],
     });
     await index.importBatch({ sessionId: id, pageKey: 'page-1', records });
     await index.finalizeImport(id, { release: RELEASE });
   }
 
-  async function decide(hintName: string, countryCode = 'AR') {
+  async function decide(
+    hintName: string,
+    countryCode = 'AR',
+    correspondence?: IdentityEvidence,
+  ) {
     const lookup = await index.lookupExactPlace({
       hintKey: hintName,
       hintName,
@@ -154,7 +174,10 @@ describe('Overture identity lookup -> IdentityVerifier (real Postgres)', () => {
         decision: undefined as VerificationDecision | undefined,
       };
     }
-    const evidence = buildLocalIdentityEvidence({ name: hintName }, candidate);
+    const evidence = [
+      ...buildLocalIdentityEvidence({ name: hintName }, candidate),
+      ...(correspondence ? [correspondence] : []),
+    ];
     const decision = verifier.verify(
       { name: hintName },
       { strategy: 'OVERTURE_IDENTITY', candidate, evidence },
@@ -170,6 +193,7 @@ describe('Overture identity lookup -> IdentityVerifier (real Postgres)', () => {
         record.name,
       );
       expect(lookup.coverage).toBe('PARTIAL_OR_UNKNOWN');
+      expect(lookup.enumeratedExtent).toEqual(RW4_AOI_EXTENT);
       expect(candidate?.externalId).toBe(record.featureId);
       expect(candidate?.upstreamDatasets).toEqual(['meta']);
       expect(candidate?.structuralKind).toBe('UNKNOWN');
@@ -188,14 +212,56 @@ describe('Overture identity lookup -> IdentityVerifier (real Postgres)', () => {
     }
   });
 
-  it('a complete-country snapshot establishes uniqueness: the same Alfa Crux record verifies on EXACT_NAME + SINGLE', async () => {
+  // Superseded 2026-10-03 (RW4-ID-CORRESPONDENCE-1): this asserted that a
+  // complete-country SINGLE verifies Alfa Crux on its own. The identical
+  // evidence verifies the real Neuquen cabin below for a Lujan de Cuyo
+  // source. Country uniqueness decides only inside a grounded geography.
+  it('a complete-country snapshot establishes SINGLE, which is identity only inside a grounded geography', async () => {
     await publish('ar-complete', 'AR', 'COMPLETE_COUNTRY', AOI_RECORDS);
 
-    const { evidence, decision } = await decide('Alfa Crux');
-    expect(evidence).toEqual([
-      { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+    const countryOnly = await decide('Alfa Crux', 'AR', {
+      type: 'GEOGRAPHIC_CORRESPONDENCE',
+      basis: 'ADMISSION_SCOPE_ONLY',
+    });
+    expect(countryOnly.evidence).toContainEqual({
+      type: 'EXACT_NAME',
+      identityMultiplicity: 'SINGLE',
+    });
+    expect(countryOnly.decision).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+
+    const located = await decide('Alfa Crux', 'AR', {
+      type: 'GEOGRAPHIC_CORRESPONDENCE',
+      basis: 'SOURCE_LOCALITY',
+    });
+    expect(located.decision).toEqual({ status: 'VERIFIED' });
+  });
+
+  it('real false-positive shape: the only AR "Ojo de Agua" in a complete-country snapshot is a Neuquen cabin, and country uniqueness does not make it the source\'s place', async () => {
+    await publish('ar-complete', 'AR', 'COMPLETE_COUNTRY', [
+      ...AOI_RECORDS,
+      OJO_DE_AGUA_NEUQUEN_CABIN,
     ]);
-    expect(decision).toEqual({ status: 'VERIFIED' });
+
+    const { lookup, evidence, decision } = await decide('Ojo de Agua', 'AR', {
+      type: 'GEOGRAPHIC_CORRESPONDENCE',
+      basis: 'ADMISSION_SCOPE_ONLY',
+    });
+    expect(lookup.coverage).toBe('COMPLETE_COUNTRY');
+    expect(lookup.candidates.map((candidate) => candidate.externalId)).toEqual([
+      OJO_DE_AGUA_NEUQUEN_CABIN.featureId,
+    ]);
+    expect(evidence).toContainEqual({
+      type: 'EXACT_NAME',
+      identityMultiplicity: 'SINGLE',
+    });
+    expect(decision).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+  });
+
+  it('a complete-country snapshot declares no partial extent', async () => {
+    await publish('ar-complete', 'AR', 'COMPLETE_COUNTRY', AOI_RECORDS);
+
+    const { lookup } = await decide('Alfa Crux');
+    expect(lookup).not.toHaveProperty('enumeratedExtent');
   });
 
   it('same brand, different physical facility: "Bodega La Azul" winery + store stay AMBIGUOUS even in a complete snapshot', async () => {

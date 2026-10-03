@@ -731,6 +731,19 @@ describe.each(WORLDS)('§P2-18 source-grounded geography — $label', (world) =>
       const nominatim = {
         search: jest.fn(async (query: string) => nominatimByQuery[query] ?? []),
       };
+      // Grounds any source-stated locality in the fixture region polygon.
+      const localityGrounder = {
+        groundLocality: jest.fn(async (assertion: any) => ({
+          status: 'GROUNDED' as const,
+          assertion,
+          boundary: {
+            provider: 'openstreetmap' as const,
+            externalId: `osm:relation:${world.countryCode}-region`,
+            name: world.regionName,
+            geometry: world.region,
+          },
+        })),
+      };
       const service = new ExperienceProposalResolverService(
         {
           lookupPoisWithin: jest
@@ -768,12 +781,29 @@ describe.each(WORLDS)('§P2-18 source-grounded geography — $label', (world) =>
         } as any,
         undefined,
         nominatim as any,
+        undefined,
+        undefined,
+        undefined,
+        localityGrounder,
       );
       return { service, nominatim };
     };
+    // A component the source places "in <region>" (a grounded locality).
+    const inRegion = (component: ReturnType<typeof hint>) => ({
+      ...component,
+      localityAssertion: {
+        locality: world.regionName,
+        evidenceKey: 'ev-1',
+        supportSpan: `${component.name} in ${world.regionName}`,
+      },
+    });
     const resolve = (
       service: ExperienceProposalResolverService,
       authorization: GeographicValidationAuthorization,
+      hints: Array<ReturnType<typeof hint>> = [
+        hint('a', world.poiNames[0]),
+        hint('b', world.poiNames[1]),
+      ],
     ) =>
       service.resolve({
         destinationName: world.destinationName,
@@ -781,10 +811,7 @@ describe.each(WORLDS)('§P2-18 source-grounded geography — $label', (world) =>
         geographicScope: world.destination,
         candidates: [
           {
-            candidate: candidateOf(world, [
-              hint('a', world.poiNames[0]),
-              hint('b', world.poiNames[1]),
-            ]),
+            candidate: candidateOf(world, hints),
             geographicAuthorization: authorization,
           },
         ],
@@ -793,7 +820,7 @@ describe.each(WORLDS)('§P2-18 source-grounded geography — $label', (world) =>
             key: 'ev-1',
             source: 'web',
             title: `${world.destinationName} day trips`,
-            snippet: `From ${world.destinationName}: ${world.poiNames[0]}, then ${world.poiNames[1]}.`,
+            snippet: `From ${world.destinationName}: ${world.poiNames[0]} in ${world.regionName}, then ${world.poiNames[1]} in ${world.regionName}.`,
           },
         ],
       });
@@ -802,7 +829,15 @@ describe.each(WORLDS)('§P2-18 source-grounded geography — $label', (world) =>
         (component: any) => component.hintKey === key,
       );
 
-    it('ROUTE_LIKE: a unique exact-name match from the COUNTRY-bounded query beyond the destination is acquired and verified; the query is never global or radius-bounded', async () => {
+    // Superseded 2026-10-03 (RW4-ID-CORRESPONDENCE-1). This test asserted
+    // that a lone exact-name record in the country-bounded response is
+    // identity for a component beyond the destination. Country-wide
+    // uniqueness is dataset-relative: when the dataset lacks the source's
+    // place, its lone record is a homonym (real: Overture's only AR "Ojo de
+    // Agua" is a Neuquén cabin; OSM lacks Alfa Crux and SuperUco). The
+    // record is still acquired from a country-bounded query; it is not
+    // identity without a grounded source geography.
+    it('ROUTE_LIKE: a unique exact-name match from the COUNTRY-bounded query beyond the destination is acquired but not identity without a grounded source geography; the query is never global or radius-bounded', async () => {
       const { service, nominatim } = build({
         [world.poiNames[0]]: [nominatimPlace(world.poiNames[0], p1, 1)],
         [world.poiNames[1]]: [nominatimPlace(world.poiNames[1], p2, 2)],
@@ -814,8 +849,68 @@ describe.each(WORLDS)('§P2-18 source-grounded geography — $label', (world) =>
           expect.objectContaining({ countryCode: world.countryCode }),
         );
       }
+      const attempt = audit(result, 'a').attempts.find(
+        (candidate: any) => candidate.strategy === 'NOMINATIM',
+      );
+      expect(attempt.selectedCandidate.externalId).toBe('osm:node:1');
+      expect(attempt.identityEvidence).toEqual(
+        expect.arrayContaining([
+          { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+          {
+            type: 'GEOGRAPHIC_CORRESPONDENCE',
+            basis: 'ADMISSION_SCOPE_ONLY',
+          },
+        ]),
+      );
+      expect(attempt.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+      expect(audit(result, 'a').finalStatus).toBe('unresolved');
+      expect(audit(result, 'b').finalStatus).toBe('unresolved');
+      expect(result.resolved[0].status).toBe('rejected');
+    });
+
+    it('ROUTE_LIKE: the same match beyond the destination verifies when the source places it in a grounded locality that contains it', async () => {
+      const { service } = build({
+        [world.poiNames[0]]: [nominatimPlace(world.poiNames[0], p1, 1)],
+        [world.poiNames[1]]: [nominatimPlace(world.poiNames[1], p2, 2)],
+      });
+      const result = await resolve(service, ownedAuthorization('route_like'), [
+        inRegion(hint('a', world.poiNames[0])),
+        inRegion(hint('b', world.poiNames[1])),
+      ]);
+      const attempt = audit(result, 'a').attempts.find(
+        (candidate: any) => candidate.strategy === 'NOMINATIM',
+      );
+      expect(attempt.identityEvidence).toContainEqual({
+        type: 'GEOGRAPHIC_CORRESPONDENCE',
+        basis: 'SOURCE_LOCALITY',
+      });
+      expect(attempt.verificationDecision).toBe('VERIFIED');
       expect(audit(result, 'a').finalStatus).toBe('resolved');
       expect(audit(result, 'b').finalStatus).toBe('resolved');
+    });
+
+    it("ROUTE_LIKE: a lone country-wide match outside the source's grounded locality is REJECTED, never admitted as the component", async () => {
+      const { service } = build({
+        [world.poiNames[0]]: [
+          nominatimPlace(world.poiNames[0], world.farOutside[0], 1),
+        ],
+        [world.poiNames[1]]: [nominatimPlace(world.poiNames[1], p2, 2)],
+      });
+      const result = await resolve(service, ownedAuthorization('route_like'), [
+        inRegion(hint('a', world.poiNames[0])),
+        inRegion(hint('b', world.poiNames[1])),
+      ]);
+      const attempt = audit(result, 'a').attempts.find(
+        (candidate: any) => candidate.strategy === 'NOMINATIM',
+      );
+      expect(attempt.identityEvidence).toContainEqual(
+        expect.objectContaining({
+          type: 'IDENTITY_CONTRADICTION',
+          fact: 'LOCALITY',
+        }),
+      );
+      expect(attempt.verificationDecision).toBe('REJECTED');
+      expect(audit(result, 'a').finalStatus).toBe('unresolved');
     });
 
     it('DEFAULT: the same country-bounded match beyond the destination is never admitted (authorization ceiling)', async () => {
@@ -836,8 +931,14 @@ describe.each(WORLDS)('§P2-18 source-grounded geography — $label', (world) =>
         ],
         [world.poiNames[1]]: [nominatimPlace(world.poiNames[1], p2, 2)],
       });
-      const result = await resolve(service, ownedAuthorization('route_like'));
+      // b is placed in a grounded locality and verifies; a names two
+      // homonyms with nothing stated to tell them apart.
+      const result = await resolve(service, ownedAuthorization('route_like'), [
+        hint('a', world.poiNames[0]),
+        inRegion(hint('b', world.poiNames[1])),
+      ]);
       expect(audit(result, 'a').finalStatus).toBe('unresolved');
+      expect(audit(result, 'b').finalStatus).toBe('resolved');
       expect(result.resolved[0].status).toBe('rejected');
       expect(result.resolved[0].rejectionReasons).toEqual([
         'INCOMPLETE_SOURCE_COMPOSITION',

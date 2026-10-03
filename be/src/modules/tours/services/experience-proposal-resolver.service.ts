@@ -115,7 +115,9 @@ import {
   candidateIdentityKey,
   contextualIdentityEvidence,
   contextuallyDistinguishedKey,
+  enumeratedSnapshotLocalityCoverage,
   evaluateContextualPool,
+  geographicCorrespondence,
 } from '../utils/contextual-identity.policy';
 import {
   structuralKindFromNominatim,
@@ -126,6 +128,7 @@ import {
   COMPONENT_LOCALITY_GROUNDER,
   ComponentIdentityContext,
   ComponentLocalityGrounder,
+  ContextualPoolCoverage,
   ContextualPoolMember,
 } from '../interfaces/component-identity-context.interface';
 import { evaluatePlaceStructuralCompatibility } from '../utils/place-structural-compatibility.policy';
@@ -220,6 +223,14 @@ type SeenIdentities = Map<
 interface HintCompetition {
   pools: CompetitorPool[];
   admits: (member: CompetitorPoolMember) => boolean;
+  /**
+   * Whether the component's admission scope is bounded (the destination,
+   * an anchor, an owned area) or extends to the destination country
+   * (§P2-18). It decides where name uniqueness is grounded.
+   */
+  admission: 'BOUNDED' | 'BEYOND_DESTINATION';
+  /** The verified source-named composition AREA (S-b), when there is one. */
+  sourceArea?: GeoJsonGeometry;
 }
 
 /**
@@ -838,6 +849,14 @@ export class ExperienceProposalResolverService
       // exposed (whichever member that strategy selected).
       const competition: HintCompetition = {
         pools: [],
+        admission:
+          this.destinationPoolCoverage(componentScope) === 'COMPLETE'
+            ? 'BOUNDED'
+            : 'BEYOND_DESTINATION',
+        ...(componentScope.scope?.kind === 'AREA' &&
+        componentScope.scope.provenance === 'CANDIDATE_AREA'
+          ? { sourceArea: componentScope.scope.geometry }
+          : {}),
         admits: (member) =>
           this.admitsCompetitor(
             member,
@@ -1479,6 +1498,10 @@ export class ExperienceProposalResolverService
           const overture = this.selectPoolCandidate(
             lookup.candidates,
             identityContext,
+            enumeratedSnapshotLocalityCoverage(identityContext, {
+              completeCountry: lookup.coverage === 'COMPLETE_COUNTRY',
+              extent: lookup.enumeratedExtent,
+            }),
             componentScope,
             destinationScope,
             destinationCountryCode,
@@ -1975,6 +1998,18 @@ export class ExperienceProposalResolverService
               context,
               admits: competition.admits,
             }),
+          ]
+        : []),
+      // Where this candidate's name uniqueness is grounded. Without a
+      // competition (a structural route) no uniqueness rule applies.
+      ...(competition
+        ? [
+            geographicCorrespondence(
+              context,
+              entity,
+              competition.admission,
+              competition.sourceArea,
+            ),
           ]
         : []),
     ];
@@ -2526,6 +2561,7 @@ export class ExperienceProposalResolverService
   private selectPoolCandidate(
     pool: EntityCandidate[],
     context: ComponentIdentityContext,
+    contextualCoverage: ContextualPoolCoverage,
     componentScope: ComponentAcquisitionScope,
     destinationScope: GeographicScope,
     destinationCountryCode: string | undefined,
@@ -2544,7 +2580,7 @@ export class ExperienceProposalResolverService
           structuralKind: member.structuralKind ?? 'UNKNOWN',
         }),
       ),
-      'NOT_ESTABLISHED',
+      contextualCoverage,
     );
     const distinguished = contextuallyDistinguishedKey(contextualPool);
     const center = componentScope.window?.center;

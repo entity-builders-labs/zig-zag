@@ -101,6 +101,12 @@ model OverturePlacesImportSession {
   completedPageKeys String[] @default([])
   failedPartitionKeys String[] @default([])
   status         String
+  /// WGS84 extent inside which an OPERATIONAL_AOI import holds every
+  /// release record (RW4-ID-CORRESPONDENCE-1). Null for a country import.
+  extentWest     Float?
+  extentSouth    Float?
+  extentEast     Float?
+  extentNorth    Float?
   manifest       Json?
   startedAt      DateTime @default(now())
   finalizedAt    DateTime?

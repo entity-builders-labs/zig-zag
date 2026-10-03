@@ -76,6 +76,11 @@ The primary flow when a user creates a tour from the mobile app wizard:
      record (`SOURCE_DEFINED_COMPONENTS`, `utils/source-composition-support.policy.ts`),
      with members acquired by a country-bounded provider query — a missing
      AREA is never `GEOGRAPHIC_SCOPE_UNKNOWN`; identity stays fail-closed.
+     Beyond the destination, a unique name is identity only inside a
+     geography the source states (the component's grounded locality or a
+     verified source-named AREA); country-wide uniqueness alone is not
+     (`GEOGRAPHIC_CORRESPONDENCE`, amendment §19.2 of
+     `docs/superpowers/specs/2026-09-22-component-resolution-geographic-validation-and-enrichment-amendment.md`).
      Only `ROUTE_LIKE` (without a strict anchor) may extend beyond the destination; the
      trip-destination relation is a fact, and only Experiences WITHIN the
      destination are tour-eligible from the destination window

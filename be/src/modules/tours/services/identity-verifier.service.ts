@@ -30,6 +30,13 @@ import {
  *  7. Wikidata corroboration (NEARBY never decides a name collision, and
  *     a NEARBY non-match is NOT_CORROBORATED, never a contradiction).
  *  8. Missing evidence -> INSUFFICIENT_EVIDENCE / AMBIGUOUS.
+ *
+ * Rules 5, 6 and the NEARBY confirmation in 7 rest on uniqueness, not on
+ * a fact that singles the candidate out. They decide only when
+ * GEOGRAPHIC_CORRESPONDENCE grounds the geography that uniqueness was
+ * counted in (a bounded admission scope, the source's grounded locality,
+ * or a verified source-named composition AREA). Absent or
+ * ADMISSION_SCOPE_ONLY, they are not decisive (RW4-ID-CORRESPONDENCE-1).
  */
 export class IdentityVerifier {
   verify(
@@ -145,6 +152,18 @@ export class IdentityVerifier {
       return { status: 'AMBIGUOUS' };
     }
 
+    // Uniqueness identifies the source's place only inside a grounded
+    // geography. Country-wide uniqueness is dataset-relative: real data
+    // holds a lone wrong homonym whenever the true place is missing from
+    // the dataset, and nothing in a name count tells the two apart.
+    const correspondence = this.evidenceOf(
+      evidence,
+      'GEOGRAPHIC_CORRESPONDENCE',
+    );
+    const uniquenessIsGrounded =
+      correspondence !== undefined &&
+      correspondence.basis !== 'ADMISSION_SCOPE_ONLY';
+
     // 5. IDENTITY_CONVERGENCE: two acquisition strategies reached the same
     // strong identity (pure ID equality). Whatever the upstream relation,
     // it establishes that the record matches the hint, not that no other
@@ -153,6 +172,7 @@ export class IdentityVerifier {
     // Absent or partial examination is UNKNOWN uniqueness, never "no
     // collision" -- it falls through to the remaining evidence.
     if (
+      uniquenessIsGrounded &&
       this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE') &&
       competitors?.outcome === 'NO_MATERIAL_COMPETITOR'
     ) {
@@ -162,12 +182,20 @@ export class IdentityVerifier {
     // 6. EXACT_NAME + SINGLE -> VERIFIED. SINGLE is the producer's claim
     // that its pool examined the admission scope (a pool that cannot cover
     // it reports UNKNOWN for a lone member).
-    if (exactName && exactName.identityMultiplicity === 'SINGLE') {
+    if (
+      uniquenessIsGrounded &&
+      exactName &&
+      exactName.identityMultiplicity === 'SINGLE'
+    ) {
       return { status: 'VERIFIED' };
     }
 
     // 6b. DECLARED_ALIAS_MATCH + SINGLE -> VERIFIED
-    if (alias && alias.identityMultiplicity === 'SINGLE') {
+    if (
+      uniquenessIsGrounded &&
+      alias &&
+      alias.identityMultiplicity === 'SINGLE'
+    ) {
       return { status: 'VERIFIED' };
     }
 
@@ -187,7 +215,9 @@ export class IdentityVerifier {
         wikidataMatch.hintMatched && wikidataMatch.candidateMatched;
       const disambiguates =
         !namePoolHasCollision || wikidataMatch.source !== 'NEARBY';
-      if (corroborated && disambiguates) {
+      // A NEARBY item confirms a unique record; uniqueness itself must be
+      // grounded (rules 5-6). Structural QID links decided at rule 3d.
+      if (corroborated && disambiguates && uniquenessIsGrounded) {
         return { status: 'VERIFIED' };
       }
       // A non-corroborating (or non-disambiguating) match over a real name

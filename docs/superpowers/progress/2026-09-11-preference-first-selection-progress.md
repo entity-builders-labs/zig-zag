@@ -2218,6 +2218,33 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
     unchanged. That is a data gap, not a contract defect.
   - Typed AOI extent (RW4-ID-OVERTURE-COVERAGE-1) would not fix these two,
     because the AOI does not contain AR.
+  - SUPERSEDED by the reassessment below: the contract itself was the
+    defect. A country-complete snapshot no longer verifies them.
+- Identity policy reassessment (2026-10-03, after `f8735a09`, amendment
+  §19.2, RW4-ID-CORRESPONDENCE-1). Dossier:
+  `identity-characterization/identity-policy-reassessment-2026-10-03/assessment.md`.
+  - Name uniqueness, convergence over an examined set and NEARBY
+    confirmation now decide only inside a grounded geography, carried as
+    the typed fact `GEOGRAPHIC_CORRESPONDENCE`. Grounded means one of: a
+    bounded admission scope, the component's grounded source locality, or
+    a verified source-named AREA.
+  - Country-wide uniqueness alone is not identity. At `f8735a09` the real
+    Neuquén "Ojo de Agua" cabin VERIFIED from a complete-country snapshot
+    when Nominatim failed. It is now INSUFFICIENT_EVIDENCE.
+  - Overture AOI imports declare a typed enumerated extent (migration
+    `20261003120000`, with a backfill of the real AOI). A partial snapshot
+    is complete for a grounded locality its extent contains. No
+    country-wide import is needed.
+  - 10 adversarial resolver scenarios, with before/after verdicts on
+    `f8735a09`; non-wine synthetic worlds included.
+  - Real-provider replay (`replay-gemini-7` hints, no LLM, stub catalog, 0
+    rows): Ojo de Agua VERIFIED (`SOURCE_LOCALITY`, Luján restaurant).
+    Alfa Crux and SuperUco are INSUFFICIENT_EVIDENCE even with the
+    full-article captions, because "Uco Valley" has no boundary
+    (`NO_BOUNDARY`). Bodega Azul is the Azul supermarket,
+    INSUFFICIENT_EVIDENCE.
+  - Unit 2674/2674, integration 115/115, e2e 41/41; typecheck, lint and
+    build green. No COLD/WARM run.
 
 ## Next authorized action
 
@@ -2230,20 +2257,27 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
    (RW4-EXTRACT-CANDIDATE-1). Do not fabricate the candidate or
    compensate in recovery, the gate or the verifier.
 
-COLD #12 is NOT ready: the Uco composition requires Alfa Crux, SuperUco and
-Bodega Azul, and the source states no discriminating fact for any of them.
-A country-complete Overture snapshot would not change that: the release holds
-no "Bodega Azul" record, and "Bodega La Azul" is MULTIPLE. Publishing such a
-snapshot is not authorized. It is gated on Overture storage finding (3), an
-authorized importer, and RW4-ID-OVERTURE-SINGLE-DATASET-1.
+COLD #12 is NOT ready. The Uco composition requires Alfa Crux, SuperUco
+and Bodega Azul, and all three are blocked:
+
+- No geography reaches the resolver for Alfa Crux or SuperUco. The full
+  article locates both "in the Uco Valley", but extraction never sees
+  those sections (RW4-EXTRACT-SECTIONS-1), and "Uco Valley" has no
+  groundable boundary (RW4-ID-REGION-GROUNDING-1).
+- The release holds no "Bodega Azul" record, and "Bodega La Azul" is
+  ambiguous.
+
+Since §19.2, a country-complete Overture snapshot is neither required nor
+sufficient. Do not import one for RW4. A regional boundary source would be
+a new data capability and needs its own authorization.
 
 The draft pull request for `feat/preference-first-selection` -> `main` exists
 for review only. Do not merge to `main`, do not change RW4 conclusions, and do
 not start an autonomous reviewer/fixer loop.
 
 Independent review is requested for the 2026-10-03 ambiguity-policy
-decisions recorded under RW4-ID-COMPETITOR-1 and RW4-ID-DEST-UNIQUENESS-1
-before RW4 COLD #12. That review does not block the extractor work above.
+decisions recorded under RW4-ID-COMPETITOR-1, RW4-ID-DEST-UNIQUENESS-1 and
+RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extractor work above.
 
 ## Open findings / blockers
 
@@ -2334,10 +2368,12 @@ before RW4 COLD #12. That review does not block the extractor work above.
   `shared-component-identity` "A vs [B] ... AMBIGUOUS" fails with `NEW`. It
   fails identically at `1f48c462` without this change (checked on
   2026-10-03). It belongs to Experience dedupe and is untouched here.
-- RW4-ID-OVERTURE-COVERAGE-1: OPEN, LOW. A snapshot's spatial extent exists
-  only in the untyped `manifest` JSON, so an Overture pool is never a
-  complete comparison for a locality. A typed coverage geometry is a
-  storage change.
+- RW4-ID-OVERTURE-COVERAGE-1: CLOSED (2026-10-03, §19.2). AOI imports
+  declare typed `extentWest/South/East/North`, which `beginImport`
+  requires and validates. A partial snapshot is a complete comparison
+  for a grounded locality its extent contains. The real AOI's extent was
+  backfilled from its manifest by the migration; no code reads the
+  manifest.
 - RW4-ID-OVERTURE-SINGLE-DATASET-1: OPEN, MEDIUM, blocks publishing a
   country-complete Overture snapshot. Release `2026-09-23.1` holds exactly
   one AR "Ojo de Agua", a Neuquén cabin, which is not the source's Luján
@@ -2348,6 +2384,28 @@ before RW4 COLD #12. That review does not block the extractor work above.
   the cabin would VERIFY. Required tests are listed in the
   geographic-scope-coverage dossier, Q6 (a)–(e). A policy decision is
   needed before shipping.
+  CLOSED (2026-10-03) by RW4-ID-CORRESPONDENCE-1. Country-wide `SINGLE`
+  with no grounded geography is INSUFFICIENT_EVIDENCE (resolver scenario
+  6; integration test "real false-positive shape"). With a Luján
+  locality, the cabin is REJECTED (scenario 5).
+- RW4-ID-CORRESPONDENCE-1: CLOSED (2026-10-03), independent review
+  requested. Uniqueness decides only inside a grounded geography (§19.2).
+  - Changed expectations: tests that encoded country-wide uniqueness as
+    identity, listed in the dossier §6.
+  - Residual risks: a homonym inside the stated geography, and a source
+    listing a place outside the AREA it names.
+- RW4-ID-REGION-GROUNDING-1: OPEN, BLOCKING for the Uco composition.
+  "Uco Valley" / "Valle de Uco" is a wine region, not an administrative
+  unit, so the OSM grounder returns `NO_BOUNDARY`. No configured provider
+  grounds it, and a regional boundary source would be a new capability.
+- RW4-EXTRACT-SECTIONS-1: OPEN. The extraction window holds the itinerary
+  only. The full SolSalute article locates Alfa Crux and SuperUco in other
+  sections, which recovery never sees.
+- RW4-ID-EXAMINATION-ORDER-1: OPEN, LOW. A decision by an earlier strategy
+  ends examination, so a later pool's homonyms are never seen. Real
+  shape: Nominatim holds one "Bodega La Azul" winery, while Overture holds
+  two wineries and a store. Examining every cheap local pool before a
+  uniqueness decision is a candidate fix; it is not done here.
 - RW4-ID-ADDRESS-1: OPEN, LOW. `addressConfirmed` (ADDRESS_MATCH) is still
   computed only on LOCAL_OSM_POOL.
 - Overture storage findings: OPEN, separate from identity, untouched here.

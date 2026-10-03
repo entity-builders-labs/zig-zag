@@ -211,6 +211,23 @@ describe('tour-generation integration · regional catalog reuse (Part II G/H)', 
     const cold = await resolveCold();
     const accepted = cold.resolved[0];
     expect(accepted.status).toBe('accepted');
+    // Each estate's country-wide uniqueness is grounded by the verified
+    // source-named AREA it lies in (RW4-ID-CORRESPONDENCE-1), not by the
+    // country admission scope.
+    for (const key of ['one', 'two']) {
+      const component = (
+        cold as any
+      ).entityResolution.forensicAudit[0].componentAudits.find(
+        (audit: any) => audit.hintKey === key,
+      );
+      const decisive = component.attempts.find(
+        (attempt: any) => attempt.verificationDecision === 'VERIFIED',
+      );
+      expect(decisive.identityEvidence).toContainEqual({
+        type: 'GEOGRAPHIC_CORRESPONDENCE',
+        basis: 'SOURCE_AREA',
+      });
+    }
     expect(accepted.experienceId).toEqual(expect.any(String));
     const validation = cold.geographicValidation.results[0];
     expect(validation.experienceScope).toEqual(
@@ -282,17 +299,47 @@ describe('tour-generation integration · regional catalog reuse (Part II G/H)', 
     expect(await prisma.experience.count()).toBe(1);
   });
 
+  // RW4-ID-CORRESPONDENCE-1: beyond the destination, a lone country-wide
+  // record is identity only inside a geography the source states. The
+  // source therefore places each estate in Fixture Valley: a component
+  // locality grounded to its real boundary, which creates no AREA
+  // component and no canonical polygon.
+  const valleyLocality = (name: string) => ({
+    localityAssertion: {
+      locality: 'Fixture Valley',
+      evidenceKey: 'ev-1',
+      supportSpan: `${name} in Fixture Valley`,
+    },
+  });
+  const valleyGrounder = {
+    groundLocality: jest.fn(async (assertion: any) => ({
+      status: 'GROUNDED' as const,
+      assertion,
+      boundary: {
+        provider: 'openstreetmap' as const,
+        externalId: VALLEY_BOUNDARY.id,
+        name: VALLEY_BOUNDARY.name,
+        geometry: VALLEY_BOUNDARY.geometry,
+      },
+    })),
+  };
+
   it('§P2-18 J: a SOURCE-DEFINED Experience (no source-named AREA, no canonical polygon) is persisted COLD and retrieved WARM through a grounded regional request scope — no AREA is fabricated, no area-role component is required', async () => {
     const prisma = await getPrisma();
-    // --- COLD: the source names only the two estates; nothing names or
-    // resolves an enclosing AREA. Identities come from the country-bounded
-    // query (destinationCountryCode FX), never a radius.
+    // --- COLD: the source names the two estates and states each one's
+    // locality; no AREA component is named or resolved. Identities come
+    // from the country-bounded query (destinationCountryCode FX), never a
+    // radius.
     const cold = await new ExperienceProposalResolverService(
       osmPlaces as any,
       catalog,
       new CompositeGeographicValidationService(),
       undefined,
       nominatim as any,
+      undefined,
+      undefined,
+      undefined,
+      valleyGrounder,
     ).resolve({
       destinationName: 'Fixture City',
       destinationCountryCode: 'FX',
@@ -311,6 +358,7 @@ describe('tour-generation integration · regional catalog reuse (Part II G/H)', 
                 role: 'venue',
                 expectedKind: 'PLACE',
                 evidenceKeys: ['ev-1'],
+                ...valleyLocality('Estate One'),
               },
               {
                 key: 'two',
@@ -318,6 +366,7 @@ describe('tour-generation integration · regional catalog reuse (Part II G/H)', 
                 role: 'venue',
                 expectedKind: 'PLACE',
                 evidenceKeys: ['ev-1'],
+                ...valleyLocality('Estate Two'),
               },
             ],
             evidenceKeys: ['ev-1'],
@@ -332,7 +381,8 @@ describe('tour-generation integration · regional catalog reuse (Part II G/H)', 
           source: 'web',
           url: 'https://example.test/two-estates',
           title: 'Fixture City day trips',
-          snippet: 'From Fixture City: Estate One, then Estate Two.',
+          snippet:
+            'From Fixture City: Estate One in Fixture Valley, then Estate Two in Fixture Valley.',
         },
       ],
     });

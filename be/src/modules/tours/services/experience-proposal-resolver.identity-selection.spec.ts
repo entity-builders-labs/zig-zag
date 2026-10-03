@@ -56,6 +56,31 @@ const MENDOZA: GeographicScope = {
   },
 };
 
+// Simplified Luján de Cuyo department: contains the Agrelo restaurant
+// (-33.13, -68.96) and none of the other 30 homonyms. The REAL OSM
+// boundary is grounded by the production grounder (milestone 2).
+const LUJAN: GeoJsonGeometry = {
+  type: 'Polygon',
+  coordinates: [
+    [
+      [-69.3, -33.45],
+      [-68.75, -33.45],
+      [-68.75, -32.95],
+      [-69.3, -32.95],
+      [-69.3, -33.45],
+    ],
+  ],
+};
+// The SolSalute caption that states the component's locality.
+const CAPTION = 'Wine and lunch at Ojo de Agua in Lujan de Cuyo';
+const lujanAssertion = {
+  localityAssertion: {
+    locality: 'Lujan de Cuyo',
+    evidenceKey: 'ev-1',
+    supportSpan: CAPTION,
+  },
+};
+
 function build(options: {
   nominatimResults?: NominatimResult[];
   osmPool?: unknown[];
@@ -68,6 +93,10 @@ function build(options: {
   nominatimFailure?: Error;
   catalogCandidates?: unknown[];
   overtureCandidates?: unknown[];
+  /** Coverage the (faked) Overture snapshot declares; default partial. */
+  overtureCoverage?: 'COMPLETE_COUNTRY' | 'PARTIAL_OR_UNKNOWN';
+  /** Extent a partial Overture snapshot enumerated completely. */
+  overtureExtent?: { west: number; south: number; east: number; north: number };
   /** A Geoapify result whose Place Details declares this OSM identity. */
   placesDeclaringOsm?: {
     name: string;
@@ -219,7 +248,10 @@ function build(options: {
           lookupExactPlace: jest.fn().mockResolvedValue({
             candidates: options.overtureCandidates,
             resultCount: options.overtureCandidates.length,
-            coverage: 'PARTIAL_OR_UNKNOWN',
+            coverage: options.overtureCoverage ?? 'PARTIAL_OR_UNKNOWN',
+            ...(options.overtureExtent
+              ? { enumeratedExtent: options.overtureExtent }
+              : {}),
           }),
         } as any)
       : undefined,
@@ -427,7 +459,33 @@ describe('ExperienceProposalResolverService -- RW4 candidate selection before ve
     expectNoIdentityWrites(catalog);
   });
 
-  it('a unique exact-name member in the right area still verifies (selection widening does not weaken a genuine SINGLE)', async () => {
+  it('a unique exact-name member inside the stated locality still verifies (selection widening does not weaken a genuine SINGLE)', async () => {
+    const restaurant = POOL.PROVIDER_MAXIMUM.find(
+      (result) => `osm:${result.osmType}:${result.osmId}` === LUJAN_RESTAURANT,
+    )!;
+    const { service, catalog } = build({
+      nominatimResults: [restaurant],
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Ojo de Agua',
+      undefined,
+      lujanAssertion,
+    );
+
+    expect(attemptOf(result, 'NOMINATIM').verificationDecision).toBe(
+      'VERIFIED',
+    );
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+  });
+
+  // Superseded half of the test above (RW4-ID-CORRESPONDENCE-1): it fed
+  // the same lone record with NO stated locality and expected VERIFIED.
+  // Then nothing ties the record to the source: the identical evidence
+  // shape verifies Overture's only AR "Ojo de Agua" (a Neuquén cabin).
+  it('the same lone country-wide record with no stated locality is not identity beyond the destination', async () => {
     const restaurant = POOL.PROVIDER_MAXIMUM.find(
       (result) => `osm:${result.osmType}:${result.osmId}` === LUJAN_RESTAURANT,
     )!;
@@ -435,10 +493,15 @@ describe('ExperienceProposalResolverService -- RW4 candidate selection before ve
 
     const result = await resolveRouteLike(service, 'Ojo de Agua');
 
-    expect(attemptOf(result, 'NOMINATIM').verificationDecision).toBe(
-      'VERIFIED',
+    const nominatim = attemptOf(result, 'NOMINATIM');
+    expect(nominatim.identityEvidence).toEqual(
+      expect.arrayContaining([
+        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+        { type: 'GEOGRAPHIC_CORRESPONDENCE', basis: 'ADMISSION_SCOPE_ONLY' },
+      ]),
     );
-    expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+    expect(nominatim.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+    expectNoIdentityWrites(catalog);
   });
 });
 
@@ -506,21 +569,6 @@ describe('ExperienceProposalResolverService -- explicit identity contradiction',
 });
 
 describe('ExperienceProposalResolverService -- contextual identity on the real Ojo de Agua pool', () => {
-  // Simplified Luján de Cuyo department: contains the Agrelo restaurant
-  // (-33.13, -68.96) and none of the other 30 homonyms. The REAL OSM
-  // boundary is grounded by the production grounder (milestone 2).
-  const LUJAN: GeoJsonGeometry = {
-    type: 'Polygon',
-    coordinates: [
-      [
-        [-69.3, -33.45],
-        [-68.75, -33.45],
-        [-68.75, -32.95],
-        [-69.3, -32.95],
-        [-69.3, -33.45],
-      ],
-    ],
-  };
   // Elsewhere in Mendoza (Valle de Uco), holding no homonym.
   const TUNUYAN: GeoJsonGeometry = {
     type: 'Polygon',
@@ -533,14 +581,6 @@ describe('ExperienceProposalResolverService -- contextual identity on the real O
         [-69.4, -33.7],
       ],
     ],
-  };
-  const CAPTION = 'Wine and lunch at Ojo de Agua in Lujan de Cuyo';
-  const lujanAssertion = {
-    localityAssertion: {
-      locality: 'Lujan de Cuyo',
-      evidenceKey: 'ev-1',
-      supportSpan: CAPTION,
-    },
   };
   const establishment = {
     physicalKindAssertion: {
@@ -1395,10 +1435,21 @@ describe('ExperienceProposalResolverService -- hint-level competitor examination
     expect(catalog.upsertGeoEntityWithIdentities).toHaveBeenCalledTimes(1);
   });
 
+  // RW4-ID-CORRESPONDENCE-1: the source's caption locality grounds where
+  // uniqueness is counted; without it see "the same lone country-wide
+  // record with no stated locality is not identity beyond the destination".
   it('one provider is enough: an untruncated country-bounded pool holding only the candidate verifies with no second dataset', async () => {
-    const { service, catalog } = build({ nominatimResults: [RESTAURANT] });
+    const { service, catalog } = build({
+      nominatimResults: [RESTAURANT],
+      localityBoundary: LUJAN,
+    });
 
-    const result = await resolveRouteLike(service, 'Ojo de Agua');
+    const result = await resolveRouteLike(
+      service,
+      'Ojo de Agua',
+      undefined,
+      lujanAssertion,
+    );
 
     const nominatim = attemptOf(result, 'NOMINATIM');
     expect(examinationOf(nominatim)).toMatchObject({
@@ -1437,5 +1488,435 @@ describe('ExperienceProposalResolverService -- hint-level competitor examination
     expect(examinationOf(nominatim).outcome).toBe('MATERIAL_COMPETITOR_KNOWN');
     expect(nominatim.verificationDecision).toBe('AMBIGUOUS');
     expectNoIdentityWrites(catalog);
+  });
+});
+
+/**
+ * RW4 identity policy reassessment (2026-10-03): adversarial scenarios.
+ *
+ * Real records are the Overture release 2026-09-23.1 rows captured in
+ * `geographic-scope-coverage-2026-10-03/country-multiplicity.json` and
+ * the real RW4 operational AOI extent [-69.5, -34, -68.5, -33]. Every
+ * locality polygon and every second record marked "constructed" is
+ * synthetic. Each test asserts the evidence the decision rests on, not
+ * only the verdict.
+ */
+describe('ExperienceProposalResolverService -- identity policy reassessment scenarios (RW4-ID-CORRESPONDENCE-1)', () => {
+  const RW4_AOI = { west: -69.5, south: -34, east: -68.5, north: -33 };
+  const row = (
+    hintName: string,
+    featureId: string,
+    latitude: number,
+    longitude: number,
+    exactName: 'MULTIPLE' | 'UNKNOWN' | 'SINGLE',
+  ) => ({
+    hintKey: 'component',
+    hintName,
+    provider: 'overture',
+    externalId: featureId,
+    canonicalName: hintName,
+    kind: 'PLACE',
+    latitude,
+    longitude,
+    geometry: { type: 'Point', coordinates: [longitude, latitude] },
+    role: 'venue',
+    nameEvidenceMultiplicity: { exactName, declaredAlias: 'UNKNOWN' },
+    structuralKind: 'UNKNOWN',
+    upstreamDatasets: ['meta'],
+  });
+  // Real Overture rows.
+  const alfaCrux = (multiplicity: 'UNKNOWN' | 'SINGLE') =>
+    row(
+      'Alfa Crux',
+      '79eb9ee4-0591-49f3-a077-51a7926a3ada',
+      -33.8040574593,
+      -69.119154850671,
+      multiplicity,
+    );
+  const neuquenCabin = row(
+    'Ojo de Agua',
+    'c4b741f2-8098-4a02-abb9-4e41c88a6d3c',
+    -40.16058331,
+    -71.35070608,
+    'SINGLE',
+  );
+  const laAzulGodoyCruz = row(
+    'Bodega La Azul',
+    '62f80ec2-6c8a-4ba7-91f4-0dd6fff2a47c',
+    -32.940898,
+    -68.872209,
+    'MULTIPLE',
+  );
+  const laAzulTupungato = row(
+    'Bodega La Azul',
+    'd97a65d2-7613-41eb-ab26-fc577699f26d',
+    -33.46941806,
+    -69.22094381,
+    'MULTIPLE',
+  );
+  // Constructed locality around Alfa Crux, inside the real AOI.
+  const SAN_CARLOS_INSIDE_AOI: GeoJsonGeometry = {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [-69.4, -33.95],
+        [-68.9, -33.95],
+        [-68.9, -33.6],
+        [-69.4, -33.6],
+        [-69.4, -33.95],
+      ],
+    ],
+  };
+  // Constructed locality around Alfa Crux reaching beyond the AOI's south.
+  const SAN_CARLOS_BEYOND_AOI: GeoJsonGeometry = {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [-69.4, -34.6],
+        [-68.9, -34.6],
+        [-68.9, -33.6],
+        [-69.4, -33.6],
+        [-69.4, -34.6],
+      ],
+    ],
+  };
+  // Constructed province-sized locality holding both La Azul wineries.
+  const MENDOZA_PROVINCE: GeoJsonGeometry = {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [-70.6, -37.6],
+        [-66.5, -37.6],
+        [-66.5, -32.0],
+        [-70.6, -32.0],
+        [-70.6, -37.6],
+      ],
+    ],
+  };
+  const stated = (locality: string, span: string) => ({
+    localityAssertion: { locality, evidenceKey: 'ev-1', supportSpan: span },
+  });
+  const ALFA_CRUX_CAPTION = stated(
+    'Uco Valley',
+    'Alfa Crux in the Uco Valley is an architectural masterpiece.',
+  );
+  const verdict = (result: any, strategy: string) =>
+    attemptOf(result, strategy).verificationDecision;
+
+  it('1. explicit source locality inside the enumerated AOI: the Overture-only record verifies without any country import', async () => {
+    const { service, catalog } = build({
+      overtureCandidates: [alfaCrux('UNKNOWN')],
+      overtureExtent: RW4_AOI,
+      localityBoundary: SAN_CARLOS_INSIDE_AOI,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Alfa Crux',
+      undefined,
+      ALFA_CRUX_CAPTION,
+    );
+
+    const overture = attemptOf(result, 'OVERTURE_IDENTITY');
+    expect(overture.identityEvidence).toEqual(
+      expect.arrayContaining([
+        { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
+        expect.objectContaining({
+          type: 'CONTEXTUAL_CORRESPONDENCE',
+          coverage: 'COVERS_ASSERTED_LOCALITY',
+          consistentCount: 1,
+          outcome: 'DISTINGUISHED',
+        }),
+        { type: 'GEOGRAPHIC_CORRESPONDENCE', basis: 'SOURCE_LOCALITY' },
+      ]),
+    );
+    expect(overture.verificationDecision).toBe('VERIFIED');
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+  });
+
+  it('1b. the same locality reaching beyond the enumerated AOI: the snapshot cannot exclude a homonym there, INSUFFICIENT_EVIDENCE', async () => {
+    const { service, catalog } = build({
+      overtureCandidates: [alfaCrux('UNKNOWN')],
+      overtureExtent: RW4_AOI,
+      localityBoundary: SAN_CARLOS_BEYOND_AOI,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Alfa Crux',
+      undefined,
+      ALFA_CRUX_CAPTION,
+    );
+
+    const overture = attemptOf(result, 'OVERTURE_IDENTITY');
+    expect(overture.identityEvidence).toContainEqual(
+      expect.objectContaining({
+        type: 'CONTEXTUAL_CORRESPONDENCE',
+        coverage: 'NOT_ESTABLISHED',
+        outcome: 'INCOMPLETE_COMPARISON',
+      }),
+    );
+    expect(overture.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('2. one exact-name record with only country-level compatibility (complete-country snapshot, no stated locality): not identity', async () => {
+    const { service, catalog } = build({
+      overtureCandidates: [alfaCrux('SINGLE')],
+      overtureCoverage: 'COMPLETE_COUNTRY',
+    });
+
+    const result = await resolveRouteLike(service, 'Alfa Crux');
+
+    const overture = attemptOf(result, 'OVERTURE_IDENTITY');
+    expect(overture.identityEvidence).toEqual(
+      expect.arrayContaining([
+        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+        { type: 'GEOGRAPHIC_CORRESPONDENCE', basis: 'ADMISSION_SCOPE_ONLY' },
+      ]),
+    );
+    expect(overture.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('3. two real same-name wineries, both inside the stated locality: AMBIGUOUS, never a proximity or rank winner', async () => {
+    const { service, catalog } = build({
+      overtureCandidates: [laAzulGodoyCruz, laAzulTupungato],
+      overtureCoverage: 'COMPLETE_COUNTRY',
+      localityBoundary: MENDOZA_PROVINCE,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Bodega La Azul',
+      undefined,
+      stated(
+        'Mendoza',
+        'Bodega La Azul is my absolute favorite winery and restaurant in all of Mendoza.',
+      ),
+    );
+
+    const overture = attemptOf(result, 'OVERTURE_IDENTITY');
+    expect(overture.identityEvidence).toContainEqual(
+      expect.objectContaining({
+        type: 'CONTEXTUAL_CORRESPONDENCE',
+        consistentCount: 2,
+        outcome: 'AMBIGUOUS',
+      }),
+    );
+    expect(overture.verificationDecision).toBe('AMBIGUOUS');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('4. two homonyms, only one inside the explicit locality (synthetic museum): the stated locality distinguishes it', async () => {
+    const museum = (osmId: number, latitude: number, longitude: number) =>
+      ({
+        ...POOL.PROVIDER_MAXIMUM[0],
+        osmType: 'node',
+        osmId,
+        class: 'tourism',
+        type: 'museum',
+        addresstype: 'tourism',
+        displayName: 'Museo del Puerto, Argentina',
+        latitude,
+        longitude,
+      }) as NominatimResult;
+    const { service, catalog } = build({
+      nominatimResults: [
+        museum(9001, -33.13, -68.96), // inside the Luján polygon
+        museum(9002, -38.0, -57.55), // constructed homonym far away
+      ],
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Museo del Puerto',
+      undefined,
+      stated('Lujan de Cuyo', 'the Museo del Puerto in Lujan de Cuyo'),
+    );
+
+    const nominatim = attemptOf(result, 'NOMINATIM');
+    expect(nominatim.selectedCandidate.externalId).toBe('osm:node:9001');
+    expect(nominatim.identityEvidence).toContainEqual(
+      expect.objectContaining({
+        type: 'CONTEXTUAL_CORRESPONDENCE',
+        outcome: 'DISTINGUISHED',
+      }),
+    );
+    expect(nominatim.verificationDecision).toBe('VERIFIED');
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
+  });
+
+  it('5. a geographically incompatible lone record from a complete provider is REJECTED by the stated locality', async () => {
+    const { service, catalog } = build({
+      overtureCandidates: [neuquenCabin],
+      overtureCoverage: 'COMPLETE_COUNTRY',
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Ojo de Agua',
+      undefined,
+      lujanAssertion,
+    );
+
+    const overture = attemptOf(result, 'OVERTURE_IDENTITY');
+    expect(overture.identityEvidence).toContainEqual(
+      expect.objectContaining({
+        type: 'IDENTITY_CONTRADICTION',
+        fact: 'LOCALITY',
+      }),
+    );
+    expect(overture.verificationDecision).toBe('REJECTED');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('6. Nominatim fails and the only complete-country record is the wrong homonym (real Neuquén cabin): not VERIFIED', async () => {
+    const { service, catalog } = build({
+      nominatimFailure: new Error('timeout'),
+      overtureCandidates: [neuquenCabin],
+      overtureCoverage: 'COMPLETE_COUNTRY',
+    });
+
+    const result = await resolveRouteLike(service, 'Ojo de Agua');
+
+    expect(attemptOf(result, 'NOMINATIM').executionStatus).toBe('failed');
+    const overture = attemptOf(result, 'OVERTURE_IDENTITY');
+    // The evidence the pre-reassessment policy verified on.
+    expect(overture.identityEvidence).toEqual(
+      expect.arrayContaining([
+        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+        expect.objectContaining({
+          type: 'COMPETITOR_EXAMINATION',
+          outcome: 'NO_MATERIAL_COMPETITOR',
+        }),
+        { type: 'GEOGRAPHIC_CORRESPONDENCE', basis: 'ADMISSION_SCOPE_ONLY' },
+      ]),
+    );
+    expect(overture.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('7. partial provider coverage and no known competitor (the real RW4 AOI, no stated locality): INSUFFICIENT_EVIDENCE', async () => {
+    const { service, catalog } = build({
+      overtureCandidates: [alfaCrux('UNKNOWN')],
+      overtureExtent: RW4_AOI,
+    });
+
+    const result = await resolveRouteLike(service, 'Alfa Crux');
+
+    const overture = attemptOf(result, 'OVERTURE_IDENTITY');
+    expect(overture.identityEvidence).toEqual(
+      expect.arrayContaining([
+        { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
+        expect.objectContaining({
+          type: 'COMPETITOR_EXAMINATION',
+          outcome: 'NO_COMPETITOR_OBSERVED',
+        }),
+      ]),
+    );
+    expect(overture.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('8. two provider IDs 40 m apart that may be one facility (constructed duplicate): never merged by proximity, AMBIGUOUS', async () => {
+    const duplicate = row(
+      'Alfa Crux',
+      'constructed-duplicate',
+      -33.8043,
+      -69.1192,
+      'MULTIPLE',
+    );
+    const { service, catalog } = build({
+      overtureCandidates: [
+        {
+          ...alfaCrux('UNKNOWN'),
+          nameEvidenceMultiplicity: {
+            exactName: 'MULTIPLE',
+            declaredAlias: 'UNKNOWN',
+          },
+        },
+        duplicate,
+      ],
+      overtureExtent: RW4_AOI,
+      localityBoundary: SAN_CARLOS_INSIDE_AOI,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Alfa Crux',
+      undefined,
+      ALFA_CRUX_CAPTION,
+    );
+
+    expect(verdict(result, 'OVERTURE_IDENTITY')).toBe('AMBIGUOUS');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('9. same-brand branches at different addresses (synthetic bookstore chain): AMBIGUOUS without a stated locality, VERIFIED with one', async () => {
+    const branch = (osmId: number, latitude: number, longitude: number) =>
+      ({
+        ...POOL.PROVIDER_MAXIMUM[0],
+        osmType: 'node',
+        osmId,
+        class: 'shop',
+        type: 'books',
+        addresstype: 'shop',
+        displayName: 'Libreria del Sol, Mendoza, Argentina',
+        latitude,
+        longitude,
+      }) as NominatimResult;
+    const branches = [
+      branch(9101, -33.13, -68.96), // inside the Luján polygon
+      branch(9102, -32.6, -68.4), // constructed second branch elsewhere
+    ];
+
+    const ambiguous = build({ nominatimResults: branches });
+    const withoutLocality = await resolveRouteLike(
+      ambiguous.service,
+      'Libreria del Sol',
+    );
+    expect(verdict(withoutLocality, 'NOMINATIM')).toBe('AMBIGUOUS');
+    expectNoIdentityWrites(ambiguous.catalog);
+
+    const located = build({
+      nominatimResults: branches,
+      localityBoundary: LUJAN,
+    });
+    const withLocality = await resolveRouteLike(
+      located.service,
+      'Libreria del Sol',
+      undefined,
+      stated('Lujan de Cuyo', 'the Libreria del Sol branch in Lujan de Cuyo'),
+    );
+    expect(
+      attemptOf(withLocality, 'NOMINATIM').selectedCandidate.externalId,
+    ).toBe('osm:node:9101');
+    expect(verdict(withLocality, 'NOMINATIM')).toBe('VERIFIED');
+  });
+
+  it('10. a real component beyond the destination stays supported: the Luján restaurant, 29 km outside Ciudad de Mendoza, verifies on its stated locality', async () => {
+    const restaurant = POOL.PROVIDER_MAXIMUM.find(
+      (result) => `osm:${result.osmType}:${result.osmId}` === LUJAN_RESTAURANT,
+    )!;
+    const { service, catalog } = build({
+      nominatimResults: POOL.PROVIDER_MAXIMUM,
+      localityBoundary: LUJAN,
+    });
+
+    const result = await resolveRouteLike(
+      service,
+      'Ojo de Agua',
+      undefined,
+      lujanAssertion,
+    );
+
+    const nominatim = attemptOf(result, 'NOMINATIM');
+    expect(nominatim.selectedCandidate.externalId).toBe(LUJAN_RESTAURANT);
+    expect(restaurant.latitude).toBeLessThan(-33);
+    expect(nominatim.verificationDecision).toBe('VERIFIED');
+    expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
   });
 });

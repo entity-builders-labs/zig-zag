@@ -44,6 +44,24 @@ function collectAllPoints(
   return points;
 }
 
+/** The WGS84 bounding box of a geometry's own coordinates. */
+export function geometryBoundingBox(geometry: GeoJsonGeometry): {
+  west: number;
+  south: number;
+  east: number;
+  north: number;
+} {
+  const points = collectAllPoints(geometry);
+  const lats = points.map((p) => p.lat);
+  const lons = points.map((p) => p.lon);
+  return {
+    west: Math.min(...lons),
+    south: Math.min(...lats),
+    east: Math.max(...lons),
+    north: Math.max(...lats),
+  };
+}
+
 /**
  * Derives a center+radius that fully covers a real boundary's own geometry —
  * used to bound ActivitiesService.findAll (still a center+radius query) by

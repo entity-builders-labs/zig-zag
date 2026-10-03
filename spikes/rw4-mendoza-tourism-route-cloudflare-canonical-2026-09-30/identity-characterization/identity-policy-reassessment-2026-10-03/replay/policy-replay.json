@@ -1,0 +1,1197 @@
+{
+  "generatedAt": "2026-10-03T21:35:24.260Z",
+  "input": "spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/locality-recovery-2026-10-03/replay-gemini-7 (real extractor hints; no LLM call)",
+  "destination": {
+    "name": "Ciudad de Mendoza",
+    "countryCode": "AR"
+  },
+  "catalog": "STUB (empty; no reads of canonical state, no writes)",
+  "overtureSnapshot": {
+    "coverage": "PARTIAL_OR_UNKNOWN",
+    "enumeratedExtent": {
+      "west": -69.5,
+      "south": -34,
+      "east": -68.5,
+      "north": -33
+    }
+  },
+  "groundingProbe": {
+    "Uco Valley": {
+      "status": "UNGROUNDED",
+      "reason": "NO_BOUNDARY"
+    },
+    "Valle de Uco": {
+      "status": "UNGROUNDED",
+      "reason": "NO_BOUNDARY"
+    },
+    "Lujan de Cuyo": {
+      "status": "GROUNDED",
+      "boundaryId": "osm:relation:2989830",
+      "boundaryName": "Departamento Luján de Cuyo"
+    },
+    "Mendoza": {
+      "status": "GROUNDED",
+      "boundaryId": "osm:relation:153540",
+      "boundaryName": "Mendoza"
+    },
+    "Tupungato": {
+      "status": "GROUNDED",
+      "boundaryId": "osm:relation:3005417",
+      "boundaryName": "Distrito Ciudad de Tupungato"
+    }
+  },
+  "passes": {
+    "AS_EXTRACTED": {
+      "candidates": [
+        {
+          "name": "Uco Valley Winery Itinerary",
+          "status": "rejected",
+          "rejectionReasons": [
+            "DESTINATION_INCOMPATIBLE",
+            "UNCONFIRMED_MATCH"
+          ]
+        },
+        {
+          "name": "Lujan de Cuyo Winery Itinerary",
+          "status": "rejected",
+          "rejectionReasons": [
+            "INCOMPLETE_SOURCE_COMPOSITION"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "candidate": "Uco Valley Winery Itinerary",
+          "component": "Valle de Uco",
+          "identityContext": null,
+          "finalStatus": "unresolved",
+          "finalReason": "DESTINATION_INCOMPATIBLE",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 2,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "AREA_TO_PLACE_CORRECTION",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            }
+          ]
+        },
+        {
+          "candidate": "Uco Valley Winery Itinerary",
+          "component": "Alfa Crux",
+          "identityContext": {
+            "sourceLink": {
+              "url": "https://www.agostinowinegroup.com/alfa-crux-wines",
+              "evidenceKey": "ev-1",
+              "linkText": "Alfa Crux"
+            }
+          },
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "providerResultCount": 1,
+              "failureReason": null,
+              "selectedCandidate": {
+                "externalId": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+                "name": "Alfa Crux",
+                "latitude": -33.8040574593,
+                "longitude": -69.119154850671
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "COMPETITOR_EXAMINATION",
+                  "outcome": "NO_COMPETITOR_OBSERVED",
+                  "examinedStrategies": [
+                    "LOCAL_OSM_POOL",
+                    "NOMINATIM",
+                    "PLACES",
+                    "OVERTURE_IDENTITY"
+                  ],
+                  "competitorCount": 0
+                },
+                {
+                  "type": "GEOGRAPHIC_CORRESPONDENCE",
+                  "basis": "ADMISSION_SCOPE_ONLY"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            }
+          ]
+        },
+        {
+          "candidate": "Uco Valley Winery Itinerary",
+          "component": "SuperUco",
+          "identityContext": {
+            "sourceLink": {
+              "url": "https://superuco.com/",
+              "evidenceKey": "ev-1",
+              "linkText": "SuperUco"
+            }
+          },
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "providerResultCount": 1,
+              "failureReason": null,
+              "selectedCandidate": {
+                "externalId": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+                "name": "SuperUco",
+                "latitude": -33.60353978,
+                "longitude": -69.22870399
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "COMPETITOR_EXAMINATION",
+                  "outcome": "NO_COMPETITOR_OBSERVED",
+                  "examinedStrategies": [
+                    "LOCAL_OSM_POOL",
+                    "NOMINATIM",
+                    "PLACES",
+                    "OVERTURE_IDENTITY"
+                  ],
+                  "competitorCount": 0
+                },
+                {
+                  "type": "GEOGRAPHIC_CORRESPONDENCE",
+                  "basis": "ADMISSION_SCOPE_ONLY"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            }
+          ]
+        },
+        {
+          "candidate": "Uco Valley Winery Itinerary",
+          "component": "Bodega Azul",
+          "identityContext": {
+            "sourceLink": {
+              "url": "https://bodegalaazul.com/",
+              "evidenceKey": "ev-1",
+              "linkText": "Bodega Azul"
+            }
+          },
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 1,
+              "failureReason": null,
+              "selectedCandidate": {
+                "externalId": "osm:node:4082354791",
+                "name": "Supermercado del Vino \"La Bodega de Azul\"",
+                "latitude": -36.7868206,
+                "longitude": -59.8591456
+              },
+              "identityEvidence": [
+                {
+                  "type": "COMPETITOR_EXAMINATION",
+                  "outcome": "NO_MATERIAL_COMPETITOR",
+                  "examinedStrategies": [
+                    "LOCAL_OSM_POOL",
+                    "NOMINATIM"
+                  ],
+                  "competitorCount": 0
+                },
+                {
+                  "type": "GEOGRAPHIC_CORRESPONDENCE",
+                  "basis": "ADMISSION_SCOPE_ONLY"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            },
+            {
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "providerResultCount": 7,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            }
+          ]
+        },
+        {
+          "candidate": "Lujan de Cuyo Winery Itinerary",
+          "component": "Luján de Cuyo",
+          "identityContext": null,
+          "finalStatus": "unresolved",
+          "finalReason": "NO_OSM_MATCH",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 2,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "AREA_TO_PLACE_CORRECTION",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            }
+          ]
+        },
+        {
+          "candidate": "Lujan de Cuyo Winery Itinerary",
+          "component": "A16",
+          "identityContext": {
+            "sourceLink": {
+              "url": "http://a16sa.com/en/",
+              "evidenceKey": "ev-1",
+              "linkText": "A16"
+            }
+          },
+          "finalStatus": "unresolved",
+          "finalReason": "NO_OSM_MATCH",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 6,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            }
+          ]
+        },
+        {
+          "candidate": "Lujan de Cuyo Winery Itinerary",
+          "component": "Ojo de Agua",
+          "identityContext": {
+            "locality": {
+              "locality": "Lujan de Cuyo",
+              "evidenceKey": "ev-1",
+              "supportSpan": "Wine and lunch at Ojo de Agua in Lujan de Cuyo",
+              "grounding": "GROUNDED",
+              "boundaryId": "osm:relation:2989830",
+              "boundaryName": "Departamento Luján de Cuyo"
+            },
+            "sourceLink": {
+              "url": "https://ojodeagua.ch/",
+              "evidenceKey": "ev-1",
+              "linkText": "Ojo de Agua"
+            }
+          },
+          "finalStatus": "resolved",
+          "finalReason": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 31,
+              "failureReason": null,
+              "selectedCandidate": {
+                "externalId": "osm:node:4797394430",
+                "name": "Ojo de Agua",
+                "latitude": -33.1300868,
+                "longitude": -68.9641048
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "MULTIPLE"
+                },
+                {
+                  "type": "CONTEXTUAL_CORRESPONDENCE",
+                  "assertion": "LOCALITY",
+                  "locality": "Lujan de Cuyo",
+                  "coverage": "PROVIDER_WINDOW_NOT_REACHED",
+                  "memberCount": 31,
+                  "consistentCount": 1,
+                  "outcome": "DISTINGUISHED"
+                },
+                {
+                  "type": "COMPETITOR_EXAMINATION",
+                  "outcome": "NO_MATERIAL_COMPETITOR",
+                  "examinedStrategies": [
+                    "LOCAL_OSM_POOL",
+                    "NOMINATIM"
+                  ],
+                  "competitorCount": 0
+                },
+                {
+                  "type": "GEOGRAPHIC_CORRESPONDENCE",
+                  "basis": "SOURCE_LOCALITY"
+                }
+              ],
+              "verificationDecision": "VERIFIED"
+            }
+          ]
+        }
+      ],
+      "wouldPersistCalls": [
+        "upsertGeoEntity",
+        "rememberVerifiedHintName"
+      ]
+    },
+    "WHAT_IF_FULL_SOURCE_CAPTIONS": {
+      "candidates": [
+        {
+          "name": "Uco Valley Winery Itinerary",
+          "status": "rejected",
+          "rejectionReasons": [
+            "DESTINATION_INCOMPATIBLE",
+            "UNCONFIRMED_MATCH"
+          ]
+        },
+        {
+          "name": "Lujan de Cuyo Winery Itinerary",
+          "status": "rejected",
+          "rejectionReasons": [
+            "INCOMPLETE_SOURCE_COMPOSITION"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "candidate": "Uco Valley Winery Itinerary",
+          "component": "Valle de Uco",
+          "identityContext": null,
+          "finalStatus": "unresolved",
+          "finalReason": "DESTINATION_INCOMPATIBLE",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 2,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "AREA_TO_PLACE_CORRECTION",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            }
+          ]
+        },
+        {
+          "candidate": "Uco Valley Winery Itinerary",
+          "component": "Alfa Crux",
+          "identityContext": {
+            "locality": {
+              "locality": "Uco Valley",
+              "evidenceKey": "ev-1",
+              "supportSpan": "Alfa Crux in the Uco Valley is an architectural masterpiece.",
+              "grounding": "UNGROUNDED",
+              "ungroundedReason": "NO_BOUNDARY"
+            },
+            "sourceLink": {
+              "url": "https://www.agostinowinegroup.com/alfa-crux-wines",
+              "evidenceKey": "ev-1",
+              "linkText": "Alfa Crux"
+            }
+          },
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "providerResultCount": 1,
+              "failureReason": null,
+              "selectedCandidate": {
+                "externalId": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+                "name": "Alfa Crux",
+                "latitude": -33.8040574593,
+                "longitude": -69.119154850671
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "COMPETITOR_EXAMINATION",
+                  "outcome": "NO_COMPETITOR_OBSERVED",
+                  "examinedStrategies": [
+                    "LOCAL_OSM_POOL",
+                    "NOMINATIM",
+                    "PLACES",
+                    "OVERTURE_IDENTITY"
+                  ],
+                  "competitorCount": 0
+                },
+                {
+                  "type": "GEOGRAPHIC_CORRESPONDENCE",
+                  "basis": "ADMISSION_SCOPE_ONLY"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            }
+          ]
+        },
+        {
+          "candidate": "Uco Valley Winery Itinerary",
+          "component": "SuperUco",
+          "identityContext": {
+            "locality": {
+              "locality": "Uco Valley",
+              "evidenceKey": "ev-1",
+              "supportSpan": "This Uco Valley winery is owned by the four Michelini brothers and is a family passion project.",
+              "grounding": "UNGROUNDED",
+              "ungroundedReason": "NO_BOUNDARY"
+            },
+            "sourceLink": {
+              "url": "https://superuco.com/",
+              "evidenceKey": "ev-1",
+              "linkText": "SuperUco"
+            }
+          },
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "providerResultCount": 1,
+              "failureReason": null,
+              "selectedCandidate": {
+                "externalId": "753ed444-8e83-4178-8ad3-a05e9a28b7c5",
+                "name": "SuperUco",
+                "latitude": -33.60353978,
+                "longitude": -69.22870399
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "UNKNOWN"
+                },
+                {
+                  "type": "COMPETITOR_EXAMINATION",
+                  "outcome": "NO_COMPETITOR_OBSERVED",
+                  "examinedStrategies": [
+                    "LOCAL_OSM_POOL",
+                    "NOMINATIM",
+                    "PLACES",
+                    "OVERTURE_IDENTITY"
+                  ],
+                  "competitorCount": 0
+                },
+                {
+                  "type": "GEOGRAPHIC_CORRESPONDENCE",
+                  "basis": "ADMISSION_SCOPE_ONLY"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            }
+          ]
+        },
+        {
+          "candidate": "Uco Valley Winery Itinerary",
+          "component": "Bodega Azul",
+          "identityContext": {
+            "sourceLink": {
+              "url": "https://bodegalaazul.com/",
+              "evidenceKey": "ev-1",
+              "linkText": "Bodega Azul"
+            }
+          },
+          "finalStatus": "unresolved",
+          "finalReason": "UNCONFIRMED_MATCH",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 1,
+              "failureReason": null,
+              "selectedCandidate": {
+                "externalId": "osm:node:4082354791",
+                "name": "Supermercado del Vino \"La Bodega de Azul\"",
+                "latitude": -36.7868206,
+                "longitude": -59.8591456
+              },
+              "identityEvidence": [
+                {
+                  "type": "COMPETITOR_EXAMINATION",
+                  "outcome": "NO_MATERIAL_COMPETITOR",
+                  "examinedStrategies": [
+                    "LOCAL_OSM_POOL",
+                    "NOMINATIM"
+                  ],
+                  "competitorCount": 0
+                },
+                {
+                  "type": "GEOGRAPHIC_CORRESPONDENCE",
+                  "basis": "ADMISSION_SCOPE_ONLY"
+                },
+                {
+                  "type": "WIKIDATA_IDENTITY_MATCH",
+                  "source": "NEARBY",
+                  "hintMatched": false,
+                  "candidateMatched": false
+                }
+              ],
+              "verificationDecision": "INSUFFICIENT_EVIDENCE"
+            },
+            {
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "providerResultCount": 7,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            }
+          ]
+        },
+        {
+          "candidate": "Lujan de Cuyo Winery Itinerary",
+          "component": "Luján de Cuyo",
+          "identityContext": null,
+          "finalStatus": "unresolved",
+          "finalReason": "NO_OSM_MATCH",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 2,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "AREA_TO_PLACE_CORRECTION",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            }
+          ]
+        },
+        {
+          "candidate": "Lujan de Cuyo Winery Itinerary",
+          "component": "A16",
+          "identityContext": {
+            "sourceLink": {
+              "url": "http://a16sa.com/en/",
+              "evidenceKey": "ev-1",
+              "linkText": "A16"
+            }
+          },
+          "finalStatus": "unresolved",
+          "finalReason": "NO_OSM_MATCH",
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 6,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "PLACES",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "OVERTURE_IDENTITY",
+              "executionStatus": "completed",
+              "providerResultCount": 0,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            }
+          ]
+        },
+        {
+          "candidate": "Lujan de Cuyo Winery Itinerary",
+          "component": "Ojo de Agua",
+          "identityContext": {
+            "locality": {
+              "locality": "Lujan de Cuyo",
+              "evidenceKey": "ev-1",
+              "supportSpan": "Wine and lunch at Ojo de Agua in Lujan de Cuyo",
+              "grounding": "GROUNDED",
+              "boundaryId": "osm:relation:2989830",
+              "boundaryName": "Departamento Luján de Cuyo"
+            },
+            "sourceLink": {
+              "url": "https://ojodeagua.ch/",
+              "evidenceKey": "ev-1",
+              "linkText": "Ojo de Agua"
+            }
+          },
+          "finalStatus": "resolved",
+          "finalReason": null,
+          "attempts": [
+            {
+              "strategy": "CATALOG_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "TRUSTED_OBSERVATION_REUSE",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "LOCAL_OSM_POOL",
+              "executionStatus": "completed",
+              "providerResultCount": null,
+              "failureReason": null,
+              "selectedCandidate": null,
+              "identityEvidence": [],
+              "verificationDecision": null
+            },
+            {
+              "strategy": "NOMINATIM",
+              "executionStatus": "completed",
+              "providerResultCount": 31,
+              "failureReason": null,
+              "selectedCandidate": {
+                "externalId": "osm:node:4797394430",
+                "name": "Ojo de Agua",
+                "latitude": -33.1300868,
+                "longitude": -68.9641048
+              },
+              "identityEvidence": [
+                {
+                  "type": "EXACT_NAME",
+                  "identityMultiplicity": "MULTIPLE"
+                },
+                {
+                  "type": "CONTEXTUAL_CORRESPONDENCE",
+                  "assertion": "LOCALITY",
+                  "locality": "Lujan de Cuyo",
+                  "coverage": "PROVIDER_WINDOW_NOT_REACHED",
+                  "memberCount": 31,
+                  "consistentCount": 1,
+                  "outcome": "DISTINGUISHED"
+                },
+                {
+                  "type": "COMPETITOR_EXAMINATION",
+                  "outcome": "NO_MATERIAL_COMPETITOR",
+                  "examinedStrategies": [
+                    "LOCAL_OSM_POOL",
+                    "NOMINATIM"
+                  ],
+                  "competitorCount": 0
+                },
+                {
+                  "type": "GEOGRAPHIC_CORRESPONDENCE",
+                  "basis": "SOURCE_LOCALITY"
+                }
+              ],
+              "verificationDecision": "VERIFIED"
+            }
+          ]
+        }
+      ],
+      "wouldPersistCalls": [
+        "upsertGeoEntity",
+        "rememberVerifiedHintName"
+      ]
+    }
+  }
+}

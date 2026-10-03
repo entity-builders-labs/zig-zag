@@ -29,6 +29,17 @@ const attempt = (
   evidence,
 });
 
+/**
+ * Destination-bounded admission (P0.2): the geography the RW1 and earlier
+ * Buenos Aires cases (Recoleta, Defensa, El Zanjón, Farmacia la Estrella)
+ * were decided in. RW4-ID-CORRESPONDENCE-1 turned that implicit premise
+ * into an explicit fact; their verdicts are unchanged.
+ */
+const destinationBounded = {
+  type: 'GEOGRAPHIC_CORRESPONDENCE' as const,
+  basis: 'BOUNDED_ADMISSION_SCOPE' as const,
+};
+
 describe('IdentityVerifier', () => {
   /**
    * ID-based identity evidence, not string matching: a different,
@@ -128,6 +139,7 @@ describe('IdentityVerifier', () => {
         examinedStrategies: ['LOCAL_OSM_POOL' as const, 'NOMINATIM' as const],
         competitorCount: 0,
       },
+      destinationBounded,
     ];
 
     it('VERIFIES with no other evidence needed', () => {
@@ -248,7 +260,10 @@ describe('IdentityVerifier', () => {
     const verifier = new IdentityVerifier();
     const result = await verifier.verify(
       { name: 'Recoleta Cemetery' },
-      attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }]),
+      attempt([
+        { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+        destinationBounded,
+      ]),
     );
     expect(result).toEqual({ status: 'VERIFIED' });
   });
@@ -311,6 +326,7 @@ describe('IdentityVerifier', () => {
       { name: 'Defensa Street' },
       attempt([
         { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'SINGLE' },
+        destinationBounded,
       ]),
     );
     expect(result).toEqual({ status: 'VERIFIED' });
@@ -353,6 +369,7 @@ describe('IdentityVerifier', () => {
           hintMatched: true,
           candidateMatched: false,
         },
+        destinationBounded,
       ]),
     );
     expect(result).toEqual({ status: 'VERIFIED' });
@@ -441,7 +458,10 @@ describe('IdentityVerifier', () => {
       const verifier = new IdentityVerifier();
       const result = await verifier.verify(
         { name: 'El Zanjón de Granados (historic ruins)' },
-        attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }]),
+        attempt([
+          { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+          destinationBounded,
+        ]),
       );
       expect(result).toEqual({ status: 'VERIFIED' });
     });
@@ -720,20 +740,33 @@ describe('IdentityVerifier', () => {
       },
     );
 
-    // Only a published COMPLETE_COUNTRY snapshot may establish uniqueness;
-    // then the existing EXACT_NAME + SINGLE rule applies unchanged.
-    it('Alfa Crux verifies only once complete-country uniqueness is established', () => {
-      expect(
-        verifier.verify(
-          { name: 'Alfa Crux' },
-          overtureAttempt(
-            'Alfa Crux',
-            [{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }],
-            'SINGLE',
+    // Superseded 2026-10-03 (RW4-ID-CORRESPONDENCE-1). This test asserted
+    // that a COMPLETE_COUNTRY snapshot's SINGLE verifies Alfa Crux on its
+    // own. The same evidence verifies Overture's only AR "Ojo de Agua", a
+    // Neuquén cabin, when the source meant a Luján de Cuyo restaurant the
+    // dataset lacks: country uniqueness cannot tell the two apart. It
+    // decides only inside a grounded geography.
+    it.each([
+      ['ADMISSION_SCOPE_ONLY' as const, 'INSUFFICIENT_EVIDENCE'],
+      ['SOURCE_LOCALITY' as const, 'VERIFIED'],
+    ])(
+      'complete-country uniqueness for Alfa Crux with correspondence %s -> %s',
+      (basis, status) => {
+        expect(
+          verifier.verify(
+            { name: 'Alfa Crux' },
+            overtureAttempt(
+              'Alfa Crux',
+              [
+                { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+                { type: 'GEOGRAPHIC_CORRESPONDENCE', basis },
+              ],
+              'SINGLE',
+            ),
           ),
-        ),
-      ).toEqual({ status: 'VERIFIED' });
-    });
+        ).toEqual({ status });
+      },
+    );
 
     // Two distinct establishments with one name, and an exact-name match
     // whose location contradicts the source: the real "Ojo de Agua" case
@@ -942,7 +975,10 @@ describe('IdentityVerifier', () => {
       expect(
         verifier.verify(
           { name: 'Recoleta Cemetery' },
-          attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }]),
+          attempt([
+            { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+            destinationBounded,
+          ]),
         ),
       ).toEqual({ status: 'VERIFIED' });
     });
@@ -1139,6 +1175,7 @@ describe('IdentityVerifier', () => {
               convergence,
               provenance(upstream),
               examination('NO_MATERIAL_COMPETITOR'),
+              destinationBounded,
             ]),
           ),
         ).toEqual({ status: 'VERIFIED' });
@@ -1273,6 +1310,7 @@ describe('IdentityVerifier', () => {
           attempt([
             { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
             examination('NO_MATERIAL_COMPETITOR'),
+            destinationBounded,
           ]),
         ),
       ).toEqual({ status: 'VERIFIED' });
@@ -1413,6 +1451,7 @@ describe('IdentityVerifier', () => {
             convergence,
             nearby(true, false),
             examination('NO_MATERIAL_COMPETITOR'),
+            destinationBounded,
           ]),
         ),
       ).toEqual({ status: 'VERIFIED' });
@@ -1446,6 +1485,7 @@ describe('IdentityVerifier', () => {
           attempt([
             { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
             nearby(true, false),
+            destinationBounded,
           ]),
         ),
       ).toEqual({ status: 'VERIFIED' });
@@ -1469,7 +1509,11 @@ describe('IdentityVerifier', () => {
       expect(
         verifier.verify(
           hint,
-          attempt([...positive, { type: 'WIKIDATA_UNAVAILABLE' }]),
+          attempt([
+            ...positive,
+            { type: 'WIKIDATA_UNAVAILABLE' },
+            destinationBounded,
+          ]),
         ),
       ).toEqual({ status: 'VERIFIED' });
     });
@@ -1544,5 +1588,228 @@ describe('IdentityVerifier', () => {
         ).toEqual({ status: 'REJECTED' });
       },
     );
+  });
+
+  /**
+   * RW4-ID-CORRESPONDENCE-1 (2026-10-03 identity policy reassessment).
+   *
+   * Name uniqueness says that one record in an examined pool answers to the
+   * hint text. It identifies the place the source meant only inside a
+   * geography that is itself grounded: a bounded admission scope (the
+   * request contract, P0.2) or the component's grounded source locality.
+   * Uniqueness counted over a whole-country admission scope (§P2-18) is not
+   * grounded: real data holds a lone wrong homonym when the true place is
+   * missing (Overture's only AR "Ojo de Agua" is a Neuquén cabin; OSM has
+   * no Alfa Crux, SuperUco or Luján restaurant record).
+   */
+  describe('geographic correspondence bounds name uniqueness (RW4-ID-CORRESPONDENCE-1)', () => {
+    const verifier = new IdentityVerifier();
+    const hint = { name: 'Ojo de Agua' };
+    const correspondence = (
+      basis:
+        | 'BOUNDED_ADMISSION_SCOPE'
+        | 'SOURCE_LOCALITY'
+        | 'SOURCE_AREA'
+        | 'ADMISSION_SCOPE_ONLY',
+    ) => ({ type: 'GEOGRAPHIC_CORRESPONDENCE' as const, basis });
+    const examined = {
+      type: 'COMPETITOR_EXAMINATION' as const,
+      outcome: 'NO_MATERIAL_COMPETITOR' as const,
+      examinedStrategies: ['NOMINATIM' as const],
+      competitorCount: 0,
+    };
+    const convergence = {
+      type: 'IDENTITY_CONVERGENCE' as const,
+      priorStrategy: 'NOMINATIM' as const,
+      identity: { provider: 'openstreetmap', externalId: 'osm:node:1' },
+    };
+
+    it.each([
+      ['BOUNDED_ADMISSION_SCOPE' as const, 'VERIFIED'],
+      ['SOURCE_LOCALITY' as const, 'VERIFIED'],
+      ['SOURCE_AREA' as const, 'VERIFIED'],
+      ['ADMISSION_SCOPE_ONLY' as const, 'INSUFFICIENT_EVIDENCE'],
+    ])('EXACT_NAME SINGLE with correspondence %s -> %s', (basis, status) => {
+      expect(
+        verifier.verify(
+          hint,
+          attempt([
+            { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+            correspondence(basis),
+          ]),
+        ),
+      ).toEqual({ status });
+    });
+
+    it('EXACT_NAME SINGLE with no correspondence fact is not decisive (fails closed, like defect A)', () => {
+      expect(
+        verifier.verify(
+          hint,
+          attempt([{ type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' }]),
+        ),
+      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+    });
+
+    it.each([
+      ['BOUNDED_ADMISSION_SCOPE' as const, 'VERIFIED'],
+      ['SOURCE_LOCALITY' as const, 'VERIFIED'],
+      ['SOURCE_AREA' as const, 'VERIFIED'],
+      ['ADMISSION_SCOPE_ONLY' as const, 'INSUFFICIENT_EVIDENCE'],
+    ])(
+      'convergence over an examined competitor set with correspondence %s -> %s',
+      (basis, status) => {
+        expect(
+          verifier.verify(
+            hint,
+            attempt(
+              [convergence, examined, correspondence(basis)],
+              'UNKNOWN',
+              'UNKNOWN',
+            ),
+          ),
+        ).toEqual({ status });
+      },
+    );
+
+    it('a declared alias SINGLE over the country admission scope is not decisive', () => {
+      expect(
+        verifier.verify(
+          hint,
+          attempt(
+            [
+              { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'SINGLE' },
+              correspondence('ADMISSION_SCOPE_ONLY'),
+            ],
+            'UNKNOWN',
+          ),
+        ),
+      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+    });
+
+    it('a corroborating NEARBY item does not turn country-wide uniqueness into identity', () => {
+      expect(
+        verifier.verify(
+          hint,
+          attempt([
+            { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+            {
+              type: 'WIKIDATA_IDENTITY_MATCH',
+              source: 'NEARBY',
+              hintMatched: true,
+              candidateMatched: true,
+            },
+            correspondence('ADMISSION_SCOPE_ONLY'),
+          ]),
+        ),
+      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
+    });
+
+    it.each([
+      [
+        'a contextual locality that distinguishes the candidate',
+        {
+          type: 'CONTEXTUAL_CORRESPONDENCE' as const,
+          assertion: 'LOCALITY' as const,
+          locality: 'Luján de Cuyo',
+          coverage: 'PROVIDER_WINDOW_NOT_REACHED' as const,
+          memberCount: 31,
+          consistentCount: 1,
+          outcome: 'DISTINGUISHED' as const,
+        },
+      ],
+      [
+        'a source-declared QID the candidate carries',
+        {
+          type: 'SOURCE_DECLARED_IDENTITY_MATCH' as const,
+          identity: { provider: 'wikidata', externalId: 'Q1' },
+        },
+      ],
+      [
+        'a source address the candidate matches',
+        { type: 'ADDRESS_MATCH' as const },
+      ],
+      [
+        "the candidate's own QID naming both sides",
+        {
+          type: 'WIKIDATA_IDENTITY_MATCH' as const,
+          source: 'OWN_QID' as const,
+          hintMatched: true,
+          candidateMatched: true,
+        },
+      ],
+      [
+        'a verified hint memory',
+        {
+          type: 'CATALOG_VERIFIED_HINT_MATCH' as const,
+          verifiedHintKey: 'ojo de agua',
+          identityMultiplicity: 'SINGLE' as const,
+        },
+      ],
+    ])(
+      'discriminating evidence still decides beyond the destination: %s',
+      (_label, fact) => {
+        expect(
+          verifier.verify(
+            hint,
+            attempt(
+              [
+                { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
+                fact as ResolutionAttempt['evidence'][number],
+                correspondence('ADMISSION_SCOPE_ONLY'),
+              ],
+              'UNKNOWN',
+            ),
+          ),
+        ).toEqual({ status: 'VERIFIED' });
+      },
+    );
+
+    it('a known competitor stays AMBIGUOUS and a contradiction stays REJECTED whatever the correspondence', () => {
+      expect(
+        verifier.verify(
+          hint,
+          attempt([
+            { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+            {
+              type: 'COMPETITOR_EXAMINATION',
+              outcome: 'MATERIAL_COMPETITOR_KNOWN',
+              examinedStrategies: ['NOMINATIM'],
+              competitorCount: 1,
+            },
+            correspondence('SOURCE_LOCALITY'),
+          ]),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+      expect(
+        verifier.verify(
+          hint,
+          attempt([
+            { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+            {
+              type: 'IDENTITY_CONTRADICTION',
+              fact: 'LOCALITY',
+              assertedLocality: 'Luján de Cuyo',
+              boundaryId: 'osm:relation:1',
+            },
+            correspondence('BOUNDED_ADMISSION_SCOPE'),
+          ]),
+        ),
+      ).toEqual({ status: 'REJECTED' });
+    });
+
+    it('EXACT_NAME MULTIPLE stays AMBIGUOUS over the country admission scope', () => {
+      expect(
+        verifier.verify(
+          hint,
+          attempt(
+            [
+              { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
+              correspondence('ADMISSION_SCOPE_ONLY'),
+            ],
+            'MULTIPLE',
+          ),
+        ),
+      ).toEqual({ status: 'AMBIGUOUS' });
+    });
   });
 });

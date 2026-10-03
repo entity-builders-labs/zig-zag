@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { GeoEntityKind, Prisma } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
+import { EnumeratedExtent } from '@tours/interfaces/component-identity-context.interface';
 import { EntityCandidate } from '@tours/interfaces/experience-resolution.interface';
 import { normalizeGeoName } from '@tours/utils/nominatim-match.util';
 
@@ -37,6 +38,11 @@ export interface OverturePlacesImportSession {
   partitionKey: string;
   completeness: OvertureCoverageCompleteness;
   expectedSourceCoverage: 'COUNTRY_ENUMERATED' | 'OPERATIONAL_AOI';
+  /**
+   * Required for OPERATIONAL_AOI: the extent inside which the import holds
+   * every release record (an extent-filtered scan, never a sample).
+   */
+  enumeratedExtent?: EnumeratedExtent;
   expectedPageKeys: string[];
   licenseNotice?: string;
 }
@@ -51,6 +57,8 @@ export interface OvertureIdentityLookup {
   resultCount: number;
   /** The population supporting exact-name multiplicity. */
   coverage: 'COMPLETE_COUNTRY' | 'PARTIAL_OR_UNKNOWN';
+  /** A partial snapshot's completely enumerated extent, when declared. */
+  enumeratedExtent?: EnumeratedExtent;
 }
 
 @Injectable()
@@ -65,8 +73,37 @@ export class OverturePlacesIndexService {
       throw new Error(
         'Country completeness requires COUNTRY_ENUMERATED evidence',
       );
+    const extent = input.enumeratedExtent;
+    if (input.expectedSourceCoverage === 'OPERATIONAL_AOI' && !extent)
+      throw new Error(
+        'An operational AOI import requires its enumerated extent',
+      );
+    if (
+      extent &&
+      !(
+        extent.west >= -180 &&
+        extent.west < extent.east &&
+        extent.east <= 180 &&
+        extent.south >= -90 &&
+        extent.south < extent.north &&
+        extent.north <= 90
+      )
+    )
+      throw new Error('Invalid enumerated extent');
+    const { enumeratedExtent, ...session } = input;
     await this.prisma.overturePlacesImportSession.create({
-      data: { ...input, status: 'IMPORTING' },
+      data: {
+        ...session,
+        ...(enumeratedExtent
+          ? {
+              extentWest: enumeratedExtent.west,
+              extentSouth: enumeratedExtent.south,
+              extentEast: enumeratedExtent.east,
+              extentNorth: enumeratedExtent.north,
+            }
+          : {}),
+        status: 'IMPORTING',
+      },
     });
   }
 
@@ -213,7 +250,21 @@ export class OverturePlacesIndexService {
       snapshot.completeness === 'COMPLETE_COUNTRY'
         ? 'COMPLETE_COUNTRY'
         : 'PARTIAL_OR_UNKNOWN';
-    if (!rows.length) return { candidates: [], resultCount: 0, coverage };
+    const enumeratedExtent =
+      typeof snapshot.extentWest === 'number' &&
+      typeof snapshot.extentSouth === 'number' &&
+      typeof snapshot.extentEast === 'number' &&
+      typeof snapshot.extentNorth === 'number'
+        ? {
+            west: snapshot.extentWest,
+            south: snapshot.extentSouth,
+            east: snapshot.extentEast,
+            north: snapshot.extentNorth,
+          }
+        : undefined;
+    const extentFact = enumeratedExtent ? { enumeratedExtent } : {};
+    if (!rows.length)
+      return { candidates: [], resultCount: 0, coverage, ...extentFact };
     const multiplicity =
       rows.length > 1
         ? 'MULTIPLE'
@@ -223,6 +274,7 @@ export class OverturePlacesIndexService {
     return {
       resultCount: rows.length,
       coverage,
+      ...extentFact,
       candidates: rows.map((row) => ({
         hintKey: input.hintKey,
         hintName: input.hintName,

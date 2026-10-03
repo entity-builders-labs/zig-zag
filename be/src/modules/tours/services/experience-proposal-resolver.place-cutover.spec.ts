@@ -1084,6 +1084,7 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
           verifiedHintKey: 'farmacia la estrella',
           identityMultiplicity: 'SINGLE',
         },
+        { type: 'GEOGRAPHIC_CORRESPONDENCE', basis: 'BOUNDED_ADMISSION_SCOPE' },
       ]);
       expect(audit.resolvedGeoEntity).toMatchObject({
         geoEntityId: 'geo-farmacia',
@@ -1149,6 +1150,8 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
       expect(audit.attempts).toHaveLength(1);
       expect(audit.attempts[0].identityEvidence).toEqual([
         { type: 'EXACT_NAME', identityMultiplicity: 'SINGLE' },
+        // Buenos Aires is a bounded admission scope (P0.2).
+        { type: 'GEOGRAPHIC_CORRESPONDENCE', basis: 'BOUNDED_ADMISSION_SCOPE' },
       ]);
       expect(audit.attempts[0].verificationDecision).toBe('VERIFIED');
       expect(audit.resolvedGeoEntity.geoEntityId).toBe('geo-casa');

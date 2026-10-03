@@ -433,6 +433,8 @@ describe('tour-generation integration · verified hint memory', () => {
           verifiedHintKey: 'farmacia la estrella',
           identityMultiplicity: 'SINGLE',
         },
+        // Buenos Aires is a bounded admission scope (P0.2).
+        { type: 'GEOGRAPHIC_CORRESPONDENCE', basis: 'BOUNDED_ADMISSION_SCOPE' },
       ]);
       expect(warmAudit.resolvedGeoEntity).toMatchObject({
         geoEntityId,

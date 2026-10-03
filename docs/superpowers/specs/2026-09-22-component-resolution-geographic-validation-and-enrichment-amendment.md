@@ -1102,7 +1102,9 @@ order has no score and no threshold:
 6. **Name, address and alias evidence** with its own multiplicity. A pool
    can claim `SINGLE` only when it covered the admission scope. A saturated
    window, or a destination-bounded pool for an Experience admitted beyond
-   the destination, reports `UNKNOWN` for a lone member.
+   the destination, reports `UNKNOWN` for a lone member. Rules 5, 6 and
+   the NEARBY confirmation of rule 7 decide only inside a grounded
+   geography (§19.2).
 7. **Wikidata corroboration.** NEARBY never decides a name collision. A
    NEARBY result other than one item naming both the hint and the
    candidate is NOT_CORROBORATED (§6), never a contradiction. The decision
@@ -1162,10 +1164,11 @@ scope and its answer was not cut off. Three kinds qualify:
   the examined pool already established.
 
 Overture participates on the same terms. The index returns every
-exact-name record, and the resolver chooses which one to try. A snapshot's
-spatial extent is not a typed fact, so a partial Overture pool is never a
-complete comparison for a locality. Records carry their upstream dataset
-(`meta`, for example) for the convergence rule.
+exact-name record, and the resolver chooses which one to try. A partial
+snapshot is a complete comparison for a locality only when its typed
+enumerated extent contains the locality's boundary (§19.2; superseded the
+earlier "extent is not a typed fact" rule). Records carry their upstream
+dataset (`meta`, for example) for the convergence rule.
 
 Geography used here distinguishes physical identities. It is not the
 geography that decides whether a source-defined Experience is valid
@@ -1254,3 +1257,135 @@ deterministic, and grounding and verifier contradictions still apply.
 - `normalizeGeoName` also folds every non-Latin name to an empty string in
   identity matching (RW4-I18N-NAME-1). Identity outside Latin-script
   geographies is therefore **not** claimed by this amendment.
+
+
+### 19.2 Uniqueness decides only inside a grounded geography (2026-10-03, RW4-ID-CORRESPONDENCE-1)
+
+**Why.** Rules 5 and 6 treated name uniqueness over the admission scope as
+identity. For an Experience admitted beyond the destination (§P2-18) that
+scope is the whole destination country, so "one record in a complete
+country pool" was enough. Real data falsifies that premise:
+
+- Uniqueness is relative to one dataset, and the datasets routinely miss
+  the source's place. Of 22 SolSalute venue names, 12 have no exact record
+  in OSM (country-bounded local Nominatim; Alfa Crux, SuperUco and the
+  Luján Ojo de Agua restaurant among them). Overture lacks the Ojo de Agua
+  restaurant and any "Bodega Azul".
+- When the true place is missing, the lone record is a homonym. Overture's
+  only AR "Ojo de Agua" is a cabin in San Martín de los Andes (Neuquén).
+  With a country-complete snapshot and Nominatim unavailable, the old rule
+  VERIFIED it for a Luján de Cuyo source (pinned before and after the
+  change by resolver scenario 6).
+- Nothing in a name count distinguishes that case from Alfa Crux's lone,
+  correct record. A rule that cannot tell them apart must stay uncertain.
+
+The requirement was also disproportionate: it demanded a country-wide
+import to verify a place the source locates in one valley, while a
+snapshot that enumerated that valley completely could never count.
+
+**Rule.** Every identity decision carries a typed
+`GEOGRAPHIC_CORRESPONDENCE` fact naming where uniqueness was counted:
+
+| Basis | When | Grounded |
+| --- | --- | --- |
+| `BOUNDED_ADMISSION_SCOPE` | The component may be admitted only inside a bounded scope: the destination, a work-unit anchor, a candidate-owned area. The request grounds it (P0.2 contract, unchanged). | yes |
+| `SOURCE_LOCALITY` | Admission extends beyond the destination, and the candidate lies inside the component's grounded source locality (§19). | yes |
+| `SOURCE_AREA` | Admission extends beyond the destination, and the candidate lies inside the AREA the source names for the whole composition, once that AREA is itself resolved and verified (S-b). | yes |
+| `ADMISSION_SCOPE_ONLY` | Anything else, including a candidate inside the destination of a regional Experience. | no |
+
+`IdentityVerifier` applies rules 5 (convergence over an examined set), 6
+and 6b (`SINGLE` name or alias) and the NEARBY confirmation of rule 7 only
+when the basis is grounded. An absent fact is not grounded: the verifier
+fails closed, as for defect A. The resolver and the anchor resolver always
+emit it. The pure owner is `geographicCorrespondence`
+(`contextual-identity.policy.ts`).
+
+Unchanged and still decisive whatever the basis:
+
+- contradictions (rule 1), structural identity and verified hint memory
+  (rule 2);
+- discriminating correspondence (rule 3): `DISTINGUISHED`, a matching
+  source QID, an address match, a corroborating own or observation QID;
+- a known material competitor (rule 4), which stays AMBIGUOUS.
+
+**Source geography, not candidate geography.** The basis compares the
+candidate with a geography the source or the request states. The
+candidate's own position never grounds a geography for itself, and a
+component's unverified position never grounds a sibling.
+
+**`SOURCE_AREA` is descriptive.** A source-named composition AREA grounds
+uniqueness for candidates inside it, and nothing else:
+
+- it is not a component locality: it creates no contradiction for a
+  candidate outside it, and it excludes no competitor from rule 4;
+- it does not narrow admission (§P2-18 is unchanged);
+- an itinerary heading or Experience name that does not resolve to a
+  verified AREA component grounds nothing.
+
+**Locality coverage of an enumerated snapshot.** A partial Overture
+snapshot declares, as typed columns (`extentWest/South/East/North`), the
+extent inside which it holds every release record. An operational-AOI
+import must declare it (`beginImport` rejects one without it). The snapshot
+is a complete comparison for a grounded locality
+(`COVERS_ASSERTED_LOCALITY`) when that extent contains the locality's
+bounding box, or when the snapshot is `COMPLETE_COUNTRY`. The pure owner is
+`enumeratedSnapshotLocalityCoverage`. Migration
+`20261003120000_add_overture_enumerated_extent` translates the extent of a
+published AOI session whose manifest records every scanned record as
+imported; no code reads the manifest for it.
+
+**Consequences.**
+
+- A country-wide Overture import is no longer required, and no longer
+  sufficient on its own. A source-stated locality plus a snapshot that
+  enumerated it is.
+- A component beyond the destination with no source-stated geography is
+  INSUFFICIENT_EVIDENCE even when its name is unique in the country.
+
+**Rules retained, and why.**
+
+| Rule | Protects against | Kept because |
+| --- | --- | --- |
+| Known competitor -> AMBIGUOUS (rule 4) | Choosing between real homonyms | Real: 31 Nominatim "Ojo de Agua", 2 Overture "Bodega La Azul" wineries. |
+| Partial pool never claims `SINGLE` | A lone member of a partial view read as unique | Real: the RW4 AOI holds one Alfa Crux; it says nothing outside its extent. |
+| Locality contradiction (rule 1) | Accepting a place the source locates elsewhere | Real: the Córdoba hamlet and the Neuquén cabin. |
+| Exact name only | Partial-name matches | Real: "Bodega Azul" returns a supermarket in Azul, Buenos Aires province, ~1,000 km away. |
+| Destination-bounded `SINGLE` (P0.2) | n/a | The request bounds admission; recorded as `BOUNDED_ADMISSION_SCOPE`, verdicts unchanged. |
+
+**Rules replaced, and why.**
+
+| Old rule | Replacement | Evidence |
+| --- | --- | --- |
+| Country-complete `SINGLE` verifies a regional component | Uniqueness needs a grounded basis | Neuquén cabin (scenario 6); synthetic G cases in two worlds. |
+| A partial Overture pool is never a locality comparison | Typed extent containing the locality covers it | Scenario 1 (real Alfa Crux row, real AOI extent). |
+| Convergence over `NO_MATERIAL_COMPETITOR` verifies regardless of geography | Same grounding requirement | A complete country pool proves only that its dataset has no second record. |
+
+**Known limitations.**
+
+- **Wine regions are not administrative units.** "Valle de Uco" / "Uco
+  Valley" has no OSM boundary (`NO_BOUNDARY`, real grounder), so Alfa Crux
+  and SuperUco stay INSUFFICIENT_EVIDENCE even with the full article's
+  captions ("Alfa Crux in the Uco Valley …").
+- **Extraction misses article sections.** The extraction window holds the
+  itinerary only. The captions that locate Alfa Crux and SuperUco are in
+  other sections and never reach recovery.
+- **Overture has no structural kind.** Its records stay `UNKNOWN`, so a
+  stated physical kind yields `KIND_UNESTABLISHED`, never `DISTINGUISHED`.
+- **Overture matches only the primary name.** Lookup uses
+  `names.primary`; alternate names are not matched.
+- **The first decisive strategy ends examination.** A later pool is never
+  examined after a decision. Real case: Nominatim holds one "Bodega La
+  Azul" winery (Tupungato); Overture holds two wineries and a store.
+
+**Accepted residual risks.**
+
+- **Homonym inside the grounded geography.** A homonym inside the grounded
+  locality or area, while the dataset lacks the source's place, verifies
+  the homonym. The window is the stated geography, not the country.
+- **Descriptive area misused.** A source can list a place outside the AREA
+  it names. A same-name record inside that AREA would then verify.
+- **Unindexed names.** A homonym the dataset does not hold at all is
+  undetectable by any dataset-relative rule.
+
+Dossier:
+`spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/identity-policy-reassessment-2026-10-03/`.

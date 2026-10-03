@@ -6,7 +6,9 @@ import {
 import { EntityCandidate } from '../interfaces/experience-resolution.interface';
 import {
   contextualIdentityEvidence,
+  enumeratedSnapshotLocalityCoverage,
   evaluateContextualPool,
+  geographicCorrespondence,
   kindCompatibility,
 } from './contextual-identity.policy';
 
@@ -268,6 +270,123 @@ describe('contextual identity policy', () => {
           outcome: 'DISTINGUISHED',
         },
       ]);
+    });
+  });
+
+  describe('geographicCorrespondence (RW4-ID-CORRESPONDENCE-1)', () => {
+    it('a bounded admission scope grounds uniqueness whatever the locality', () => {
+      expect(geographicCorrespondence({}, outside, 'BOUNDED')).toEqual({
+        type: 'GEOGRAPHIC_CORRESPONDENCE',
+        basis: 'BOUNDED_ADMISSION_SCOPE',
+      });
+    });
+
+    it('beyond the destination, only a candidate inside the grounded source locality is grounded', () => {
+      const context = { locality: LOCALITY };
+      expect(
+        geographicCorrespondence(context, inside, 'BEYOND_DESTINATION').basis,
+      ).toBe('SOURCE_LOCALITY');
+      expect(
+        geographicCorrespondence(context, outside, 'BEYOND_DESTINATION').basis,
+      ).toBe('ADMISSION_SCOPE_ONLY');
+      expect(
+        geographicCorrespondence(context, {}, 'BEYOND_DESTINATION').basis,
+      ).toBe('ADMISSION_SCOPE_ONLY');
+    });
+
+    it('beyond the destination, a verified source-named composition AREA grounds uniqueness for a candidate inside it only', () => {
+      const area =
+        LOCALITY!.status === 'GROUNDED'
+          ? LOCALITY!.boundary.geometry
+          : undefined;
+      expect(
+        geographicCorrespondence({}, inside, 'BEYOND_DESTINATION', area).basis,
+      ).toBe('SOURCE_AREA');
+      expect(
+        geographicCorrespondence({}, outside, 'BEYOND_DESTINATION', area).basis,
+      ).toBe('ADMISSION_SCOPE_ONLY');
+      expect(
+        geographicCorrespondence({}, {}, 'BEYOND_DESTINATION', area).basis,
+      ).toBe('ADMISSION_SCOPE_ONLY');
+    });
+
+    it('a component locality takes precedence over the composition AREA', () => {
+      const area =
+        LOCALITY!.status === 'GROUNDED'
+          ? LOCALITY!.boundary.geometry
+          : undefined;
+      expect(
+        geographicCorrespondence(
+          { locality: LOCALITY },
+          inside,
+          'BEYOND_DESTINATION',
+          area,
+        ).basis,
+      ).toBe('SOURCE_LOCALITY');
+    });
+
+    it('an ungrounded or absent locality never grounds uniqueness beyond the destination', () => {
+      const ungrounded: ComponentIdentityContext = {
+        locality: {
+          status: 'UNGROUNDED',
+          assertion: LOCALITY!.assertion,
+          reason: 'NO_BOUNDARY',
+        },
+      };
+      expect(
+        geographicCorrespondence(ungrounded, inside, 'BEYOND_DESTINATION')
+          .basis,
+      ).toBe('ADMISSION_SCOPE_ONLY');
+      expect(
+        geographicCorrespondence({}, inside, 'BEYOND_DESTINATION').basis,
+      ).toBe('ADMISSION_SCOPE_ONLY');
+    });
+  });
+
+  describe('enumeratedSnapshotLocalityCoverage', () => {
+    // LOCALITY spans lon -69.2..-68.8, lat -33.4..-33.0.
+    const context = { locality: LOCALITY };
+
+    it('a snapshot enumerating an extent that contains the locality covers it', () => {
+      expect(
+        enumeratedSnapshotLocalityCoverage(context, {
+          completeCountry: false,
+          extent: { west: -69.5, south: -34, east: -68.5, north: -33 },
+        }),
+      ).toBe('COVERS_ASSERTED_LOCALITY');
+    });
+
+    it('an extent that only overlaps the locality does not cover it', () => {
+      expect(
+        enumeratedSnapshotLocalityCoverage(context, {
+          completeCountry: false,
+          extent: { west: -69.5, south: -34, east: -68.9, north: -33 },
+        }),
+      ).toBe('NOT_ESTABLISHED');
+    });
+
+    it('a partial snapshot without a typed extent never covers a locality', () => {
+      expect(
+        enumeratedSnapshotLocalityCoverage(context, { completeCountry: false }),
+      ).toBe('NOT_ESTABLISHED');
+    });
+
+    it('a complete-country snapshot covers any grounded locality in that country', () => {
+      expect(
+        enumeratedSnapshotLocalityCoverage(context, { completeCountry: true }),
+      ).toBe('COVERS_ASSERTED_LOCALITY');
+    });
+
+    it('without a grounded locality there is nothing to cover', () => {
+      expect(
+        enumeratedSnapshotLocalityCoverage(
+          {},
+          {
+            completeCountry: true,
+            extent: { west: -180, south: -90, east: 180, north: 90 },
+          },
+        ),
+      ).toBe('NOT_ESTABLISHED');
     });
   });
 });

@@ -47,6 +47,7 @@ import {
   rankNominatimCandidates,
   countExactNormalizedMatches,
 } from '../utils/nominatim-match.util';
+import { geographicCorrespondence } from '../utils/contextual-identity.policy';
 import {
   placesAcquisitionLabel,
   canonicalPlacesExternalId,
@@ -927,9 +928,13 @@ export class AreaRouteAnchorResolverService {
     entity: EntityCandidate,
     acquisitionEvidence: IdentityEvidence[] = [],
   ): Promise<VerificationDecision> {
-    const evidence = [
+    const evidence: IdentityEvidence[] = [
       ...buildLocalIdentityEvidence({ name: entity.hintName }, entity),
       ...acquisitionEvidence,
+      // Anchor multiplicity is counted over the destination-compatible
+      // pool only (`compatibleNominatimExactNameCount`): a bounded
+      // admission scope, where uniqueness is grounded by the request.
+      geographicCorrespondence({}, entity, 'BOUNDED'),
     ];
     const attempt = {
       strategy: 'ANCHOR_RESOLUTION' as const,

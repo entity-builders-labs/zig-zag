@@ -217,6 +217,36 @@ export type IdentityEvidence =
     }
   | {
       /**
+       * The geography in which this candidate's name uniqueness was
+       * counted, and whether that geography is grounded. Uniqueness says
+       * one examined record answers to the hint text; it identifies the
+       * place the source meant only inside a grounded geography
+       * (RW4-ID-CORRESPONDENCE-1):
+       *  - BOUNDED_ADMISSION_SCOPE: the component may be admitted only
+       *    inside a bounded scope (the destination, a work-unit anchor, a
+       *    candidate-owned area). The request grounds it (P0.2 contract).
+       *  - SOURCE_LOCALITY: the candidate lies inside the component's
+       *    grounded source locality.
+       *  - SOURCE_AREA: the candidate lies inside the AREA the source names
+       *    for the whole composition, resolved and verified as its own
+       *    component (S-b). DESCRIPTIVE: it grounds uniqueness only; it
+       *    never contradicts or excludes a record outside it.
+       *  - ADMISSION_SCOPE_ONLY: the component may be admitted anywhere in
+       *    the destination country (§P2-18) and no grounded source
+       *    geography contains the candidate. A lone country-wide record
+       *    may be a homonym of a place the dataset is missing.
+       * It never excludes a candidate and never decides alone: it only
+       * qualifies uniqueness, convergence and NEARBY corroboration.
+       */
+      type: 'GEOGRAPHIC_CORRESPONDENCE';
+      basis:
+        | 'BOUNDED_ADMISSION_SCOPE'
+        | 'SOURCE_LOCALITY'
+        | 'SOURCE_AREA'
+        | 'ADMISSION_SCOPE_ONLY';
+    }
+  | {
+      /**
        * The source declares a strong identity for THIS component (a cited
        * listing's own `wikidata=`) and the candidate's record carries the
        * same one: discriminating correspondence, the positive counterpart of

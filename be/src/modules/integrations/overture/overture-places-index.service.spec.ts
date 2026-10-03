@@ -112,4 +112,110 @@ describe('OverturePlacesIndexService', () => {
       }),
     );
   });
+
+  describe('enumerated extent (RW4-ID-CORRESPONDENCE-1)', () => {
+    const session = (overrides: Record<string, unknown> = {}) => ({
+      id: 'aoi-1',
+      release: '2026-09-23.1',
+      sourceUri: 's3://overturemaps/release',
+      countryCode: 'AR',
+      partitionKey: 'aoi',
+      completeness: 'PARTIAL_PARTITION' as const,
+      expectedSourceCoverage: 'OPERATIONAL_AOI' as const,
+      expectedPageKeys: ['aoi-00001'],
+      ...overrides,
+    });
+    const lookup = (snapshot: Record<string, unknown>) =>
+      new OverturePlacesIndexService({
+        overturePlaceIndex: { findMany: jest.fn().mockResolvedValue([row()]) },
+        overturePlacesImportSession: {
+          findFirst: jest.fn().mockResolvedValue(published(snapshot)),
+        },
+      } as any).lookupExactPlace({
+        hintKey: 'alfa',
+        hintName: 'Alfa Crux',
+        countryCode: 'AR',
+        role: 'venue',
+      });
+
+    it('an operational AOI import must declare the extent it enumerated', async () => {
+      const create = jest.fn();
+      const service = new OverturePlacesIndexService({
+        overturePlacesImportSession: { create },
+      } as any);
+      await expect(service.beginImport(session())).rejects.toThrow(
+        'enumerated extent',
+      );
+      await expect(
+        service.beginImport(
+          session({
+            enumeratedExtent: {
+              west: -68.5,
+              south: -34,
+              east: -69.5,
+              north: -33,
+            },
+          }),
+        ),
+      ).rejects.toThrow('Invalid enumerated extent');
+      expect(create).not.toHaveBeenCalled();
+    });
+
+    it('stores the extent as typed columns, never in the manifest', async () => {
+      const create = jest.fn();
+      await new OverturePlacesIndexService({
+        overturePlacesImportSession: { create },
+      } as any).beginImport(
+        session({
+          enumeratedExtent: {
+            west: -69.5,
+            south: -34,
+            east: -68.5,
+            north: -33,
+          },
+        }),
+      );
+      expect(create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          extentWest: -69.5,
+          extentSouth: -34,
+          extentEast: -68.5,
+          extentNorth: -33,
+          status: 'IMPORTING',
+        }),
+      });
+      expect(create.mock.calls[0][0].data).not.toHaveProperty(
+        'enumeratedExtent',
+      );
+    });
+
+    it('a lookup exposes the published extent; multiplicity stays UNKNOWN', async () => {
+      const result = await lookup({
+        extentWest: -69.5,
+        extentSouth: -34,
+        extentEast: -68.5,
+        extentNorth: -33,
+      });
+      expect(result.coverage).toBe('PARTIAL_OR_UNKNOWN');
+      expect(result.enumeratedExtent).toEqual({
+        west: -69.5,
+        south: -34,
+        east: -68.5,
+        north: -33,
+      });
+      expect(result.candidates[0]?.nameEvidenceMultiplicity.exactName).toBe(
+        'UNKNOWN',
+      );
+    });
+
+    it('a snapshot with no typed extent claims none', async () => {
+      const result = await lookup({
+        extentWest: null,
+        extentSouth: null,
+        extentEast: null,
+        extentNorth: null,
+      });
+      expect(result).not.toHaveProperty('enumeratedExtent');
+    });
+  });
 });
