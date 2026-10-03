@@ -85,6 +85,8 @@ pass 'REVIEW is namespaced and delegates retry to the canonical workflow'
 
 REVIEW_WORKFLOW="$ROOT/.github/workflows/zig-zag-contextual-review.yml"
 REVIEW_PROMPT="$ROOT/.github/codex/track-review-prompt.md"
+REVIEW_INSPECT_PROMPT="$ROOT/.github/codex/track-review-inspect-prompt.md"
+REVIEW_NORMALIZE_PROMPT="$ROOT/.github/codex/track-review-normalize-prompt.md"
 REVIEW_SCHEMA="$ROOT/.github/codex/track-review-schema.json"
 REVIEW_CONTRACT="$ROOT/.github/codex/track-review-contract.md"
 test -f "$REVIEW_WORKFLOW" && test -f "$REVIEW_PROMPT" && \
@@ -107,10 +109,9 @@ for required in \
   'checks: read' \
   'contents: read' \
   'pull-requests: write' \
-  'permission-profile: :read-only' \
   'without persisted credentials' \
   'head_repo != github.repository' \
-  'No GROQ_API_KEY is exposed to untrusted fork code.'; do
+  'is exposed to untrusted fork code.'; do
   grep -Fq "$required" "$REVIEW_WORKFLOW"
 done
 for forbidden in 'contents: write' 'actions: write' 'issues: write' 'pull_request_target'; do
@@ -119,17 +120,48 @@ for forbidden in 'contents: write' 'actions: write' 'issues: write' 'pull_reques
     exit 1
   fi
 done
-pass 'contextual workflow has read-only Codex and fork-secret trust boundary'
+pass 'contextual workflow has read-only reviewer and fork-secret trust boundary'
 
-grep -Fq 'openai/codex-action@86365089eb2b84e0a8fb0717b304f8bdcb13b20e' "$REVIEW_WORKFLOW"
-grep -Fq '# openai/codex-action v1' "$REVIEW_WORKFLOW"
+# The model process must be read-only by construction, not by prompt wording.
+REVIEWER_AGENT="$ROOT/.opencode/agent/reviewer.md"
+NORMALIZER_AGENT="$ROOT/.opencode/agent/reviewer-normalize.md"
+for denied in 'edit: deny' 'bash: deny' 'write: deny' 'webfetch: deny' 'task: deny'; do
+  grep -Fq "$denied" "$REVIEWER_AGENT"
+done
+grep -Fq 'bash: false' "$REVIEWER_AGENT"
+grep -Fq 'edit: false' "$REVIEWER_AGENT"
+grep -Fq 'write: false' "$REVIEWER_AGENT"
+# The normalizer must have no tools at all, because strict structured output and
+# tool use cannot be combined on this provider.
+grep -Fq 'bash: false' "$NORMALIZER_AGENT"
+grep -Fq 'read: false' "$NORMALIZER_AGENT"
+# The reviewer must not receive GitHub write credentials.
+if sed -n '/id: inspect/,/id: normalize/p' "$REVIEW_WORKFLOW" | grep -Fq 'GH_TOKEN'; then
+  echo 'GH_TOKEN must not be exposed to the model inspection process' >&2
+  exit 1
+fi
+pass 'reviewer is deny-by-default and the model never receives GH_TOKEN'
+
+# The provider harness is pinned by version and checksum.
+grep -Fq 'OPENCODE_VERSION: 2.0.21' "$REVIEW_WORKFLOW"
+grep -Fq 'OPENCODE_SHA256: 8ef5c24debedefbb7b5e13b807699c8b2b8097d5ca703184188cefd64e5f3472' "$REVIEW_WORKFLOW"
+grep -Fq 'sha256sum -c -' "$REVIEW_WORKFLOW"
+if grep -Fq 'openai/codex-action' "$REVIEW_WORKFLOW"; then
+  echo 'the retired Codex harness must not return' >&2
+  exit 1
+fi
 # shellcheck disable=SC2016 # These are literal workflow expressions/snippets.
 grep -Fq 'test "$(git rev-parse HEAD)" = "$HEAD_SHA"' "$REVIEW_WORKFLOW"
-# shellcheck disable=SC2016 # These are literal workflow expressions/snippets.
-grep -Fq 'git merge-base HEAD "origin/$BASE_REF"' "$REVIEW_WORKFLOW"
-grep -Fq 'integration_diff=git diff --find-renames --find-copies' "$REVIEW_WORKFLOW"
+# The reviewed delta must come from the selected incremental range, not from an
+# inline full-history range.
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+# shellcheck disable=SC2016 # literal workflow expression, not a shell expansion
+grep -Fq 'DIFF_RANGE="$REV_RANGE"' "$REVIEW_WORKFLOW"
 grep -Fq "git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*'" "$REVIEW_WORKFLOW"
-pass 'review is pinned, exact-HEAD anchored, and uses merge-base semantics'
+# The reviewed checkout must be proven unchanged after the model runs.
+grep -Fq 'reviewed checkout changed during inspection' "$REVIEW_WORKFLOW"
+grep -Fq 'reviewer modified the reviewed checkout' "$REVIEW_WORKFLOW"
+pass 'review is pinned, exact-HEAD anchored, and reviewed over an incremental range'
 
 for required in \
   'scripts/agent-track context' \
@@ -144,6 +176,33 @@ for required in \
   'reviewed_head'; do
   grep -Fq "$required" "$REVIEW_PROMPT"
 done
+
+# The two-phase reviewer must load canonical context in the documented order and
+# must not be asked to emit a verdict during the agentic inspection phase.
+for required in \
+  'NORTH STAR' \
+  'PLAN' \
+  'PROGRESS' \
+  'CURRENT COMMIT DELTA' \
+  'Do not output JSON in this phase' \
+  'Never claim a command, test, or CI result'; do
+  grep -Fq "$required" "$REVIEW_INSPECT_PROMPT"
+done
+# The canonical context bundle is assembled deterministically, not by the model.
+grep -Fq 'scripts/agent-review-context' "$REVIEW_WORKFLOW"
+grep -Fq 'scripts/agent-review-baseline' "$REVIEW_WORKFLOW"
+grep -Fq 'track-review-schema.json' "$REVIEW_WORKFLOW"
+
+# Normalization must not invent findings or verification, and must map an
+# unresolved finding to CHANGES_REQUIRED rather than softening it.
+# shellcheck disable=SC2016 # markdown backticks, not shell expansion
+for required in \
+  'Do not invent findings' \
+  'Do not invent verification' \
+  'Return only the JSON object' \
+  'is `PASS` only when there are zero findings'; do
+  grep -Fq "$required" "$REVIEW_NORMALIZE_PROMPT"
+done
 grep -Fq '<!-- zig-zag-contextual-review' "$REVIEW_CONTRACT"
 grep -Fq 'reviewed_head == current PR HEAD' "$REVIEW_CONTRACT"
 if rg -q 'reviewStatus=|reviewedHead=|reviewVerdict=' docs/superpowers/progress; then
@@ -153,10 +212,21 @@ fi
 pass 'canonical context, structured output, marker, and stale semantics are explicit'
 
 for required in \
-  'configure repository secret GROQ_API_KEY' \
+  'CLOUDFLARE_ACCOUNT_ID' \
+  'CLOUDFLARE_API_TOKEN' \
   'Validate structured review output' \
   'gh api' \
-  'Avoid duplicate review for the same head'; do
+  'Avoid duplicate review for the same head' \
+  'REVIEW UNAVAILABLE / FAILED'; do
+  grep -Fq "$required" "$REVIEW_WORKFLOW"
+done
+# Fabrication guards: a failed provider phase must not become a PASS.
+for required in \
+  'normalization produced no JSON' \
+  'normalization output is not valid JSON' \
+  'no repository read tool call was observed' \
+  'inspection produced no evidence' \
+  'not present in the reviewed checkout'; do
   grep -Fq "$required" "$REVIEW_WORKFLOW"
 done
 for forbidden in 'git commit' 'git push' 'gh pr merge' 'git merge ' 'git rebase'; do

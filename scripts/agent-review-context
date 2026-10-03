@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2016 # markdown backticks in single-quoted printf formats
+# Assemble the canonical context bundle for the contextual reviewer.
+#
+# The reviewer must reconstruct project context in a fixed order rather than
+# dumping the repository's whole historical document set into a prompt:
+#
+#   1. AGENTS.md
+#   2. docs/superpowers/README.md  (canonical authority index)
+#   3. North Star / convergence roadmap named by that index
+#   4. current ACTIVE track declaration
+#   5. track implementation plan
+#   6. current track progress
+#   7. current checkpoint and authorized next action
+#   8. open findings / blockers
+#   9. canonical specs applicable to the changed area
+#  10. relevant CI/test evidence
+#
+# Every section is bounded. Excerpts are cut at heading boundaries with explicit
+# truncation markers so the model can tell "absent" from "not included".
+#
+# Usage:
+#   TRACK=<id> CHANGED_FILES=<path-list-file> agent-review-context <out.md>
+
+set -euo pipefail
+
+out="${1:-}"
+[ -n "$out" ] || { echo 'usage: agent-review-context <out.md>' >&2; exit 2; }
+TRACK="${TRACK:-}"
+CHANGED_FILES="${CHANGED_FILES:-}"
+[ -n "$TRACK" ] || { echo 'TRACK is required' >&2; exit 2; }
+
+# Bound any single excerpt. Beyond this the model gets the path and is expected
+# to read it with its own read tool.
+MAX_SECTION_LINES="${MAX_SECTION_LINES:-220}"
+
+context="$(scripts/agent-track context "$TRACK" 2>/dev/null)" || {
+  echo 'REVIEW UNAVAILABLE / FAILED: cannot resolve the ACTIVE track context' >&2
+  exit 1
+}
+
+field() { sed -n "s/^$1: //p" <<<"$context" | head -1; }
+progress_rel="$(field Progress)"
+plan_rel="$(field Plan)"
+
+emit_section() { # heading path
+  local heading="$1" path="$2"
+  printf '\n---\n\n## %s\n\n' "$heading"
+  if [ ! -f "$path" ]; then
+    printf '_Not present in this checkout: `%s`_\n' "$path"
+    return
+  fi
+  local total
+  total="$(wc -l < "$path" | tr -d ' ')"
+  if [ "$total" -le "$MAX_SECTION_LINES" ]; then
+    cat "$path"
+  else
+    sed -n "1,${MAX_SECTION_LINES}p" "$path"
+    printf '\n_[truncated: %s of %s lines. Read the rest with the read tool if this section is decisive.]_\n' "$MAX_SECTION_LINES" "$total"
+  fi
+}
+
+{
+  printf '# Canonical project context\n\n'
+  printf 'track=%s\n' "$TRACK"
+  printf 'integration=%s\n' "$(field 'Integration target')"
+  printf 'base_snapshot=%s\n' "$(field 'Base snapshot')"
+
+  emit_section '1. AGENTS.md (repository engineering contract)' AGENTS.md
+  emit_section '2. Canonical authority index' docs/superpowers/README.md
+
+  # 3. North Star: the roadmap the authority index names as canonical. Read the
+  # index's own table rather than guessing a filename.
+  north_star='docs/superpowers/plans/2026-09-09-travel-content-agentic-planning-convergence-roadmap.md'
+  if [ -f docs/superpowers/README.md ]; then
+    discovered="$(grep -oE '[a-z0-9-]+/[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]*roadmap[a-z0-9-]*\.md' docs/superpowers/README.md | head -1)"
+    [ -n "$discovered" ] && [ -f "$discovered" ] && north_star="$discovered"
+  fi
+  emit_section "3. NORTH STAR / canonical convergence roadmap ($north_star)" "$north_star"
+
+  printf '\n---\n\n## 4. Current ACTIVE track declaration\n\n```\n%s\n```\n' \
+    "$(grep -m1 '^<!-- agent-track:' "$progress_rel" 2>/dev/null || echo 'NOT FOUND')"
+
+  emit_section "5. Track implementation plan" "$plan_rel"
+
+  # 6/7/8. Progress, then its three execution-delta sections verbatim. These
+  # are short by contract and must not be truncated away.
+  printf '\n---\n\n## 6. PROGRESS — current track progress (full document)\n\n'
+  if [ -f "$progress_rel" ]; then cat "$progress_rel"; else printf '_missing: `%s`_\n' "$progress_rel"; fi
+
+  printf '\n---\n\n## 7. Current checkpoint and authorized next action\n\n'
+  awk '/^## Current checkpoint$/{f=1} f' "$progress_rel" 2>/dev/null | awk '/^## /&&!/^## Current checkpoint$/{exit} {print}' | sed '/^[[:space:]]*$/d'
+
+  printf '\n---\n\n## 8. Open findings / blockers\n\n'
+  awk '/^## Open findings \/ blockers$/{f=1} f' "$progress_rel" 2>/dev/null | sed '/^[[:space:]]*$/d'
+
+  printf '\n---\n\n## 9. Canonical architecture documents applicable to the changed area\n\n'
+  printf '_Select by changed area; do not read the whole historical set._\n\n'
+  if [ -n "$CHANGED_FILES" ] && [ -f "$CHANGED_FILES" ]; then
+    printf '```text\n'
+    sed '/^$/d' "$CHANGED_FILES"
+    printf '```\n\n'
+  fi
+  for doc in docs/architecture/engineering-principles.md \
+             docs/architecture/activity-discovery-and-tour-generation.md; do
+    [ -f "$doc" ] && printf -- '- `%s` (%s lines)\n' "$doc" "$(wc -l < "$doc" | tr -d ' ')"
+  done
+} > "$out"
+
+printf 'context_written=%s\n' "$out"

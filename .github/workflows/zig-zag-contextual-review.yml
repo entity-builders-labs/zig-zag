@@ -52,7 +52,7 @@ jobs:
     steps:
       - run: |
           echo "Contextual review skipped: PR head repository is not entity-builders-labs/zig-zag."
-          echo "No GROQ_API_KEY is exposed to untrusted fork code."
+          echo "No CLOUDFLARE_API_TOKEN is exposed to untrusted fork code."
 
   review:
     needs: resolve-pr
@@ -73,9 +73,6 @@ jobs:
       - id: track
         name: Reconstruct canonical track context
         env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ needs.resolve-pr.outputs.number }}
-          HEAD_SHA: ${{ needs.resolve-pr.outputs.head_sha }}
           BASE_REF: ${{ needs.resolve-pr.outputs.base_ref }}
         run: |
           set -euo pipefail
@@ -85,24 +82,6 @@ jobs:
           test -n "$track"
           integration="$(sed -n 's/^Integration target: //p' <<<"$context")"
           test "$integration" = "$BASE_REF"
-          merge_base="$(git merge-base HEAD "origin/$BASE_REF")"
-          pr_metadata="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" | jq '{title, url, draft, state, head: .head.sha, base: .base.ref}')"
-          check_evidence="$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA/check-runs" 2>/dev/null | jq '[.check_runs[] | {name, status, conclusion}]' || printf '%s' '"UNAVAILABLE"')"
-          cat > "$RUNNER_TEMP/track-review-input.md" <<EOF
-          # Runtime review input
-
-          track=$track
-          pr_number=$PR_NUMBER
-          reviewed_head=$HEAD_SHA
-          base_branch=$BASE_REF
-          integration_diff=git diff --find-renames --find-copies "$merge_base"..."$HEAD_SHA"
-
-          ## PR metadata
-          $pr_metadata
-
-          ## Available check evidence at review start
-          $check_evidence
-          EOF
           echo "track=$track" >> "$GITHUB_OUTPUT"
       - id: existing
         name: Avoid duplicate review for the same head
@@ -131,46 +110,272 @@ jobs:
       - name: Report already-current review
         if: steps.existing.outputs.current == 'true'
         run: echo "A contextual review is already anchored to this exact PR head."
-      - name: Require review provider configuration
-        if: steps.existing.outputs.current != 'true'
+      - id: range
+        name: Select the incremental review range
         env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ needs.resolve-pr.outputs.number }}
+          HEAD_SHA: ${{ needs.resolve-pr.outputs.head_sha }}
+          TRACK: ${{ steps.track.outputs.track }}
+          EVENT_SHA: ${{ github.event.pull_request.before }}
         run: |
-          if [ -z "$GROQ_API_KEY" ]; then
-            echo "REVIEW UNAVAILABLE / FAILED: configure repository secret GROQ_API_KEY." >&2
-            exit 1
-          fi
-      - id: codex
-        if: steps.existing.outputs.current != 'true'
-        # openai/codex-action v1 with Groq provider override
-        uses: openai/codex-action@86365089eb2b84e0a8fb0717b304f8bdcb13b20e
-        with:
-          openai-api-key: ${{ secrets.GROQ_API_KEY }}
-          responses-api-endpoint: https://api.groq.com/openai/v1/responses
-          model: qwen/qwen3.8-27b
-          effort: high
-          prompt-file: .github/codex/track-review-prompt.md
-          output-file: .github/codex/track-review-output.json
-          output-schema-file: .github/codex/track-review-schema.json
-          permission-profile: :read-only
-        env:
-          REVIEW_INPUT_FILE: ${{ runner.temp }}/track-review-input.md
-      - name: Validate structured review output
-        if: steps.existing.outputs.current != 'true'
+          set -euo pipefail
+          gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" > "$RUNNER_TEMP/reviews.json"
+          # The event's `before` SHA is only a usable baseline when it is not
+          # the all-zero placeholder GitHub sends on first push or force-push.
+          EVENT_BASELINE=""
+          case "${EVENT_SHA:-}" in
+            ""|0000000000000000000000000000000000000000) EVENT_BASELINE="" ;;
+            *) git cat-file -e "${EVENT_SHA}^{commit}" 2>/dev/null && EVENT_BASELINE="$EVENT_SHA" ;;
+          esac
+          REVIEW_HEAD_SHA="$HEAD_SHA" TRACK="$TRACK" PR_EVENT_SHA="$EVENT_BASELINE" \
+            bash scripts/agent-review-baseline "$RUNNER_TEMP/reviews.json" > "$RUNNER_TEMP/range.env"
+          cat "$RUNNER_TEMP/range.env"
+          {
+            printf '%s\n' '<!-- zig-zag-contextual-review-range'
+            sed -n 's/^\(BASELINE_SHA\|REVIEWED_SHA\|COVERAGE\|COMMIT_COUNT\|REVIEW_KIND\|DOCS_ONLY\)=/'"$TRACK"':\1=/p' "$RUNNER_TEMP/range.env"
+            printf '-->'
+          } > "$RUNNER_TEMP/range-marker.txt"
+          cat "$RUNNER_TEMP/range-marker.txt"
+          {
+            printf 'baseline_sha=%s\n' "$(sed -n 's/^BASELINE_SHA=//p' "$RUNNER_TEMP/range.env")"
+            printf 'reviewed_sha=%s\n' "$(sed -n 's/^REVIEWED_SHA=//p' "$RUNNER_TEMP/range.env")"
+            printf 'coverage=%s\n' "$(sed -n 's/^COVERAGE=//p' "$RUNNER_TEMP/range.env")"
+            printf 'commit_count=%s\n' "$(sed -n 's/^COMMIT_COUNT=//p' "$RUNNER_TEMP/range.env")"
+            printf 'docs_only=%s\n' "$(sed -n 's/^DOCS_ONLY=//p' "$RUNNER_TEMP/range.env")"
+          } >> "$GITHUB_OUTPUT"
+          printf 'limitation=%s\n' "$(sed -n 's/^COVERAGE_LIMITATION=//p' "$RUNNER_TEMP/range.env")" >> "$GITHUB_OUTPUT"
+          printf 'marker=%s\n' "$(tr '\n' ' ' < "$RUNNER_TEMP/range-marker.txt")" >> "$GITHUB_OUTPUT"
+      - name: Prepare the reviewed delta and canonical context
+        id: prepare
         env:
           TRACK: ${{ steps.track.outputs.track }}
           PR_NUMBER: ${{ needs.resolve-pr.outputs.number }}
           HEAD_SHA: ${{ needs.resolve-pr.outputs.head_sha }}
           BASE_REF: ${{ needs.resolve-pr.outputs.base_ref }}
+          BASELINE_SHA: ${{ steps.range.outputs.baseline_sha }}
+          COVERAGE: ${{ steps.range.outputs.coverage }}
+          DOCS_ONLY: ${{ steps.range.outputs.docs_only }}
+          LIMITATION: ${{ steps.range.outputs.limitation }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          range="$RUNNER_TEMP/range.env"
+          # An empty baseline means the head is a root commit. Passing `..HEAD`
+          # to git silently yields an empty delta, so the empty-tree root commit
+          # must be named explicitly.
+          if [ -n "$BASELINE_SHA" ]; then
+            REV_RANGE="$BASELINE_SHA..$HEAD_SHA"
+            DIFF_RANGE="$REV_RANGE"
+          else
+            git cat-file -e "$HEAD_SHA^{commit}"
+            root_tree="$(git rev-parse "$HEAD_SHA^{tree}")"
+            REV_RANGE="$HEAD_SHA --not $HEAD_SHA^"
+            DIFF_RANGE="$root_tree $HEAD_SHA"
+          fi
+          commits="$(git rev-list --reverse $REV_RANGE)"
+          [ -n "$commits" ] || { echo "REVIEW UNAVAILABLE / FAILED: resolved range selected no commits" >&2; exit 1; }
+          if [ -n "$BASELINE_SHA" ]; then
+            git diff --find-renames --find-copies "$DIFF_RANGE" > "$RUNNER_TEMP/delta.diff"
+          else
+            git diff-tree --root -r --no-commit-id -p --find-renames --find-copies "$HEAD_SHA" > "$RUNNER_TEMP/delta.diff"
+          fi
+          [ -s "$RUNNER_TEMP/delta.diff" ] || { echo "REVIEW UNAVAILABLE / FAILED: resolved range produced an empty diff" >&2; exit 1; }
+          sed -n '/^CHANGED_FILES<<EOF$/,/^EOF$/p' "$range" | sed '1d;$d' > "$RUNNER_TEMP/changed-files.txt"
+          [ -s "$RUNNER_TEMP/changed-files.txt" ] || { echo "REVIEW UNAVAILABLE / FAILED: resolved range produced no changed files" >&2; exit 1; }
+          pr_metadata="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" | jq '{title, url, draft, state, head: .head.sha, base: .base.ref}')"
+          check_evidence="$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA/check-runs" 2>/dev/null | jq '[.check_runs[] | {name, status, conclusion}]' || printf '%s' '"UNAVAILABLE"')'
+          {
+            printf '%s\n' '# Runtime review input'
+            printf '\ntrack=%s\npr_number=%s\nreviewed_head=%s\nbase_branch=%s\n' "$TRACK" "$PR_NUMBER" "$HEAD_SHA" "$BASE_REF"
+            printf '\n## Incremental review scope\n\n'
+            printf 'baseline_sha=%s\ncoverage=%s\ncommit_count=%s\ndocs_only=%s\n' \
+              "$BASELINE_SHA" "$COVERAGE" "$(sed -n 's/^COMMIT_COUNT=//p' "$range")" "$DOCS_ONLY"
+            printf '\ncoverage_limitation=%s\n' "$LIMITATION"
+            printf '\n### Commits in scope\n\n```text\n%s\n```\n' "$commits"
+            printf '\n### Changed files\n\n```text\n%s\n```\n' "$(cat "$RUNNER_TEMP/changed-files.txt")"
+            printf '\n### Diff already applied to delta.diff; do not rerun git\n\n```text\ngit diff --find-renames --find-copies %s\n```\n' "$DIFF_RANGE"
+            printf '\n## PR metadata\n\n%s\n' "$pr_metadata"
+            printf '\n## CI evidence at review start\n\n%s\n' "$check_evidence"
+            printf '\nThe complete diff is attached to this request as delta.diff. Read it with your read tool.\n'
+          } > "$RUNNER_TEMP/track-review-input.md"
+          TRACK="$TRACK" CHANGED_FILES="$RUNNER_TEMP/changed-files.txt" \
+            bash scripts/agent-review-context "$RUNNER_TEMP/track-review-context.md"
+          # The reviewer must not be able to alter the checkout it reviews.
+          echo "reviewed_checkout_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Require review provider configuration
+        if: steps.existing.outputs.current != 'true'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: configure repository secrets CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN." >&2
+            exit 1
+          fi
+      - name: Install pinned OpenCode
+        if: steps.existing.outputs.current != 'true'
+        env:
+          OPENCODE_VERSION: 2.0.21
+          OPENCODE_SHA256: 8ef5c24debedefbb7b5e13b807699c8b2b8097d5ca703184188cefd64e5f3472
+        run: |
+          set -euo pipefail
+          curl -fsSL -o "$RUNNER_TEMP/opencode.tar.gz" \
+            "https://opencode.ai/files/bin/$OPENCODE_VERSION/opencode-linux-x64-baseline.tar.gz"
+          echo "$OPENCODE_SHA256  $RUNNER_TEMP/opencode.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/opencode.tar.gz" -C /usr/local/bin opencode
+          chmod +x /usr/local/bin/opencode
+          opencode --version
+      - name: Inspect the delta with the read-only reviewer
+        id: inspect
+        if: steps.existing.outputs.current != 'true'
+        env:
+          # Provider credentials only. No GitHub token is passed to this step so
+          # the model process cannot read or write anything on GitHub.
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          REVIEW_MODEL: cloudflare-workers-ai/@cf/qwen/qwen3.8-27b
+          INSPECT_INPUT: ${{ runner.temp }}/track-review-input.md
+          REVIEW_CONTEXT: ${{ runner.temp }}/track-review-context.md
+          REVIEW_DIFF: ${{ runner.temp }}/delta.diff
+          EXPECTED_SHA: ${{ steps.prepare.outputs.reviewed_checkout_sha }}
+        run: |
+          set -euo pipefail
+          inspect_prompt="$(sed "s|@CONTEXT_FILE@|$REVIEW_CONTEXT|; s|@INPUT_FILE@|$INSPECT_INPUT|" \
+            .github/codex/track-review-inspect-prompt.md)"
+          set +e
+          opencode run --standalone \
+            --agent reviewer \
+            --model "$REVIEW_MODEL" \
+            --format json \
+            --file "$REVIEW_DIFF" \
+            "$inspect_prompt" > "$RUNNER_TEMP/inspect.jsonl" 2> "$RUNNER_TEMP/inspect.err"
+          status=$?
+          set -e
+          after="$(git rev-parse HEAD)"
+          if [ "$after" != "$EXPECTED_SHA" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: reviewed checkout changed during inspection ($EXPECTED_SHA -> $after)" >&2
+            exit 1
+          fi
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: reviewer modified the reviewed checkout" >&2
+            git status --porcelain >&2
+            exit 1
+          fi
+          if [ "$status" -ne 0 ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: OpenCode inspection exited $status" >&2
+            tail -20 "$RUNNER_TEMP/inspect.err" >&2
+            exit 1
+          fi
+          # Prove tool use happened rather than trusting a prose summary.
+          tool_calls="$(jq -r 'select(.type=="tool_use") | .part.tool' "$RUNNER_TEMP/inspect.jsonl" | sort | uniq -c || true)"
+          printf '%s\n' "$tool_calls"
+          if ! jq -e 'select(.type=="tool_use" and .part.tool=="read")' "$RUNNER_TEMP/inspect.jsonl" > /dev/null 2>&1; then
+            echo "REVIEW UNAVAILABLE / FAILED: no repository read tool call was observed" >&2
+            exit 1
+          fi
+          jq -r 'select(.type=="text") | .part.text' "$RUNNER_TEMP/inspect.jsonl" > "$RUNNER_TEMP/inspect-evidence.txt"
+          if [ ! -s "$RUNNER_TEMP/inspect-evidence.txt" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: inspection produced no evidence" >&2
+            exit 1
+          fi
+      - name: Normalize evidence into the canonical schema
+        id: normalize
+        if: steps.existing.outputs.current != 'true'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          REVIEW_MODEL: cloudflare-workers-ai/@cf/qwen/qwen3.8-27b
+          TRACK: ${{ steps.track.outputs.track }}
+          PR_NUMBER: ${{ needs.resolve-pr.outputs.number }}
+          HEAD_SHA: ${{ needs.resolve-pr.outputs.head_sha }}
+          BASE_REF: ${{ needs.resolve-pr.outputs.base_ref }}
+          EVIDENCE: ${{ runner.temp }}/inspect-evidence.txt
+        run: |
+          set -euo pipefail
+          # Deliberately tool-free: strict structured output and repository tool
+          # use cannot be combined on this provider, so they are separate calls.
+          {
+            cat .github/codex/track-review-normalize-prompt.md
+            printf '\n\nRuntime facts to copy exactly:\n'
+            printf 'track=%s\n' "$TRACK"
+            printf 'pr_number=%s\n' "$PR_NUMBER"
+            printf 'reviewed_head=%s\n' "$HEAD_SHA"
+            printf 'base_branch=%s\n' "$BASE_REF"
+          } > "$RUNNER_TEMP/normalize-prompt.txt"
+          set +e
+          opencode run --standalone \
+            --agent reviewer-normalize \
+            --model "$REVIEW_MODEL" \
+            --format json \
+            --file "$EVIDENCE" \
+            "$(cat "$RUNNER_TEMP/normalize-prompt.txt")" \
+            > "$RUNNER_TEMP/normalize.jsonl" 2> "$RUNNER_TEMP/normalize.err"
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: normalization exited $status" >&2
+            tail -20 "$RUNNER_TEMP/normalize.err" >&2
+            exit 1
+          fi
+          jq -r 'select(.type=="text") | .part.text' "$RUNNER_TEMP/normalize.jsonl" \
+            | sed -e 's/^[[:space:]]*```json[[:space:]]*$//' -e 's/^[[:space:]]*```[[:space:]]*$//' \
+            > "$RUNNER_TEMP/review.raw"
+          # Take the outermost JSON object only, discarding stray prose.
+          sed -n '/^{/,/^}/p' "$RUNNER_TEMP/review.raw" > "$RUNNER_TEMP/review.json"
+          if [ ! -s "$RUNNER_TEMP/review.json" ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: normalization produced no JSON" >&2
+            exit 1
+          fi
+          if ! jq -e . "$RUNNER_TEMP/review.json" > /dev/null 2>&1; then
+            echo "REVIEW UNAVAILABLE / FAILED: normalization output is not valid JSON" >&2
+            exit 1
+          fi
+      - name: Verify finding paths exist in the reviewed checkout
+        if: steps.existing.outputs.current != 'true'
+        env:
+          REVIEW_JSON: ${{ runner.temp }}/review.json
+        run: |
+          set -euo pipefail
+          # Normalization must not invent paths. A finding about a file that does
+          # not exist at the reviewed head is a fabricated finding.
+          missing=0
+          while IFS=$'\t' read -r path line; do
+            [ -n "$path" ] || continue
+            case "$path" in
+              ./*|docs/*|scripts/*|.github/*|be/*|fe/*|spikes/*) ;;
+              *) echo "finding path outside the repository: $path" >&2; missing=$((missing+1)); continue ;;
+            esac
+            [ -e "$path" ] || { echo "finding references a path absent at the reviewed head: $path" >&2; missing=$((missing+1)); }
+          done < <(jq -r '.findings[] | "\(.file)\t\(.line // "")"' "$REVIEW_JSON")
+          if [ "$missing" -gt 0 ]; then
+            echo "REVIEW UNAVAILABLE / FAILED: $missing finding path(s) are not present in the reviewed checkout" >&2
+            exit 1
+          fi
+      - name: Validate structured review output
+        if: steps.existing.outputs.current != 'true'
+        run: |
+          set -euo pipefail
+          # The canonical schema is unchanged; validate against it rather than
+          # reimplementing its constraints here.
+          npx --yes --package ajv-cli@5.0.0 ajv validate \
+            -s .github/codex/track-review-schema.json -d "$REVIEW_JSON" --spec=draft2020
           jq -e --arg track "$TRACK" --arg head "$HEAD_SHA" --arg base "$BASE_REF" \
             --argjson pr "$PR_NUMBER" '
               .track == $track and .pr_number == $pr and .reviewed_head == $head and
               .base_branch == $base and (.findings | type == "array") and
               (.code_review_verdict == "PASS" or .code_review_verdict == "CHANGES_REQUIRED") and
-              (.architecture_verdict == "ARCHITECTURE_PASS" or .architecture_verdict == "ARCHITECTURE_DRIFT_WARNING")
-            ' .github/codex/track-review-output.json >/dev/null
+              (.architecture_verdict == "ARCHITECTURE_PASS" or .architecture_verdict == "ARCHITECTURE_DRIFT_WARNING") and
+              (.code_review_verdict == "PASS" or (.findings | length) > 0)
+            ' "$REVIEW_JSON" >/dev/null
+        env:
+          TRACK: ${{ steps.track.outputs.track }}
+          PR_NUMBER: ${{ needs.resolve-pr.outputs.number }}
+          HEAD_SHA: ${{ needs.resolve-pr.outputs.head_sha }}
+          BASE_REF: ${{ needs.resolve-pr.outputs.base_ref }}
+          REVIEW_JSON: ${{ runner.temp }}/review.json
       - name: Publish contextual review
         if: steps.existing.outputs.current != 'true'
         env:
@@ -179,19 +384,30 @@ jobs:
           PR_NUMBER: ${{ needs.resolve-pr.outputs.number }}
           HEAD_SHA: ${{ needs.resolve-pr.outputs.head_sha }}
           BASE_REF: ${{ needs.resolve-pr.outputs.base_ref }}
+          BASELINE_SHA: ${{ steps.range.outputs.baseline_sha }}
+          COVERAGE: ${{ steps.range.outputs.coverage }}
+          COMMIT_COUNT: ${{ steps.range.outputs.commit_count }}
+          LIMITATION: ${{ steps.range.outputs.limitation }}
+          RANGE_MARKER: ${{ steps.range.outputs.marker }}
+          REVIEW_JSON: ${{ runner.temp }}/review.json
         run: |
           set -euo pipefail
           {
             printf '%s\n' '<!-- zig-zag-contextual-review'
             printf 'track=%s\nreviewed_head=%s\n-->\n\n' "$TRACK" "$HEAD_SHA"
-            printf '# Contextual Agent Review\n\nTrack: %s\nReviewed HEAD: %s\nBase: %s\n\n' "$TRACK" "$HEAD_SHA" "$BASE_REF"
-            jq -r '"CODE REVIEW: " + (.code_review_verdict | if . == "CHANGES_REQUIRED" then "CHANGES REQUIRED" else . end), .architecture_verdict, "", "Findings:"' .github/codex/track-review-output.json
-            jq -r 'if length == 0 then "- None." else .findings[] | "- [\(.severity)] \(.id): \(.title) (\(.file)\(if .line then ":" + .line else "" end))\n  Reason: \(.reason)\n  Required fix: \(.required_fix)" end' .github/codex/track-review-output.json
+            printf '%s\n' "$RANGE_MARKER"
+            printf '\n# Contextual Agent Review (incremental)\n\nTrack: %s\nReviewed HEAD: %s\nBase: %s\n\n' "$TRACK" "$HEAD_SHA" "$BASE_REF"
+            printf 'Baseline: %s\nCoverage: %s\nCommits in scope: %s\nCoverage limitation: %s\n\n' \
+              "$BASELINE_SHA" "$COVERAGE" "$COMMIT_COUNT" "$LIMITATION"
+            jq -r '"CODE REVIEW: " + (.code_review_verdict | if . == "CHANGES_REQUIRED" then "CHANGES REQUIRED" else . end), .architecture_verdict, "", "Findings:"' "$REVIEW_JSON"
+            jq -r 'if length == 0 then "- None." else .findings[] | "- [\(.severity)] \(.id): \(.title) (\(.file)\(if .line then ":" + .line else "" end))\n  Reason: \(.reason)\n  Required fix: \(.required_fix)" end' "$REVIEW_JSON"
             printf '\nVerification:\n'
-            jq -r .verification_summary .github/codex/track-review-output.json
-          } > .github/codex/track-review-body.md
+            jq -r .verification_summary "$REVIEW_JSON"
+          } > "$RUNNER_TEMP/track-review-body.md"
+          # commit_id must equal the exact reviewed head so the artifact binds.
           gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" \
             -X POST \
             -f commit_id="$HEAD_SHA" \
             -f event="COMMENT" \
-            -F body=@.github/codex/track-review-body.md
+            -F body=@"$RUNNER_TEMP/track-review-body.md" \
+            --jq '{id, commit_id, user: .user.login, state}'
