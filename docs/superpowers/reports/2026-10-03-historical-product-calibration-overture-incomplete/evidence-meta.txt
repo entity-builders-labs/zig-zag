@@ -1,0 +1,2 @@
+checkout_unchanged=true
+inspect_exit=1

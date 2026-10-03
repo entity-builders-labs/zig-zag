@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+# Fail closed when the review evidence cannot justify a canonical PASS.
+#
+# The pipeline's guarantee is that a published review means the reviewer actually
+# inspected the delta. Without a deterministic check on the evidence, that
+# guarantee is only a prompt request: the normalizer is instructed to return
+# `findings: []` plus `PASS` when the evidence is "empty or unusable", and an
+# empty `findings` array already satisfies the published invariant
+# `PASS or (findings | length) > 0`. A truncated, degraded, or hallucinated
+# inspection report could therefore be normalized into a clean, canonical,
+# permanently-recorded `PASS` that asserts the delta is correct.
+#
+# This script is the deterministic half of that contract. It is the single
+# authority for whether the collected evidence supports publishing a PASS:
+#
+#   1. Evidence with no usable INSPECTED PATHS record is unusable and must fail
+#      closed, whatever verdict the normalizer chose.
+#   2. A canonical PASS additionally requires positive proof that the reviewer
+#      inspected at least one path that this run's incremental range actually
+#      changed. A PASS that never touched the delta under review is a PASS about
+#      nothing.
+#
+# A failure here is reported as `REVIEW UNAVAILABLE / FAILED` and nothing is
+# published. The gate never downgrades a PASS into a CHANGES_REQUIRED: doing so
+# would invent a finding the reviewer did not make. It refuses instead.
+#
+# Usage (env in, files on disk):
+#   EVIDENCE=<inspect-evidence.txt>  REVIEW_JSON=<review.json>
+#   CHANGED_FILES=<changed-files.txt>  agent-review-evidence-gate
+#
+# Performs no network call and never writes to the repository.
+
+set -euo pipefail
+
+EVIDENCE="${EVIDENCE:-}"
+REVIEW_JSON="${REVIEW_JSON:-}"
+CHANGED_FILES="${CHANGED_FILES:-}"
+
+[ -n "$EVIDENCE" ] || { echo 'REVIEW UNAVAILABLE / FAILED: EVIDENCE is required' >&2; exit 2; }
+[ -n "$REVIEW_JSON" ] || { echo 'REVIEW UNAVAILABLE / FAILED: REVIEW_JSON is required' >&2; exit 2; }
+[ -f "$EVIDENCE" ] || { echo "REVIEW UNAVAILABLE / FAILED: missing evidence file: $EVIDENCE" >&2; exit 2; }
+[ -f "$REVIEW_JSON" ] || { echo "REVIEW UNAVAILABLE / FAILED: missing review file: $REVIEW_JSON" >&2; exit 2; }
+
+verdict="$(jq -r '.code_review_verdict // ""' "$REVIEW_JSON" 2>/dev/null || true)"
+
+# Normalize a reported path to a comparable repository-relative form: strip
+# quoting, bullets, and a leading "./", and drop trailing whitespace.
+normalize_path() {
+  printf '%s' "$1" \
+    | tr -d '\r' \
+    | sed -e 's/^[[:space:]]*[-*][[:space:]]*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
+          -e 's/^`//' -e 's/`$//' -e 's/^\.\///'
+}
+
+# The inspection report is plain text with a declared shape. INSPECTED PATHS is
+# the auditable record of what was read; the next declared heading closes it.
+# Anything the model writes before or after the section is not evidence.
+inspected_paths="$(
+  sed -n '/^INSPECTED PATHS[[:space:]]*$/,/^OBSERVATIONS[[:space:]]*$/p' "$EVIDENCE" \
+    | sed -e '1d' -e '$d' \
+    | while IFS= read -r line; do
+        [ -n "$(printf '%s' "$line" | tr -d '[:space:]')" ] || continue
+        printf '%s\n' "$(normalize_path "$line")"
+      done \
+    | sed '/^$/d'
+)"
+
+if [ -z "$inspected_paths" ]; then
+  echo "REVIEW UNAVAILABLE / FAILED: inspection evidence carries no usable INSPECTED PATHS record; a review cannot be published from it (verdict='${verdict:-unknown}')" >&2
+  exit 1
+fi
+
+# Unknown states stay unknown. A verdict outside the canonical enum must not be
+# treated as a clean review, and must not slip through the non-PASS branch below.
+case "$verdict" in
+  PASS | CHANGES_REQUIRED) ;;
+  *)
+    echo "REVIEW UNAVAILABLE / FAILED: unrecognized code_review_verdict '${verdict:-missing}'; no review can be published from an unknown verdict" >&2
+    exit 1
+    ;;
+esac
+
+inspected_count="$(printf '%s\n' "$inspected_paths" | sed '/^$/d' | wc -l | tr -d ' ')"
+printf 'inspected_path_count=%s\n' "$inspected_count"
+
+if [ "$verdict" != 'PASS' ]; then
+  # CHANGES_REQUIRED is already a non-PASS artifact: its findings are verified
+  # against the reviewed checkout by the separate finding-path gate.
+  exit 0
+fi
+
+if [ -z "${CHANGED_FILES:-}" ] || [ ! -f "$CHANGED_FILES" ]; then
+  echo "REVIEW UNAVAILABLE / FAILED: CHANGED_FILES is required to justify a canonical PASS" >&2
+  exit 1
+fi
+
+covered=0
+missing_outside=0
+while IFS= read -r changed; do
+  [ -n "$changed" ] || continue
+  changed="$(normalize_path "$changed")"
+  if printf '%s\n' "$inspected_paths" | grep -qxF -- "$changed"; then
+    covered=$((covered + 1))
+  else
+    printf 'changed_path_not_inspected=%s\n' "$changed"
+    missing_outside=$((missing_outside + 1))
+  fi
+done < "$CHANGED_FILES"
+
+printf 'changed_paths_covered_by_inspection=%s\n' "$covered"
+printf 'changed_paths_not_inspected=%s\n' "$missing_outside"
+
+if [ "$covered" -eq 0 ]; then
+  echo "REVIEW UNAVAILABLE / FAILED: a canonical PASS requires the inspection to cover at least one changed path in the reviewed range; this evidence covers none, so PASS would assert a conclusion no evidence supports" >&2
+  exit 1
+fi
+
+exit 0

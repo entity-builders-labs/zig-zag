@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+# Select the incremental review range for the canonical contextual review.
+#
+# The review must cover newly published commits, not a recurring audit of a
+# whole historical PR. This script is the single deterministic authority for
+# that choice. It performs no network call and never writes to the repository.
+#
+# Usage (env in, GitHub review JSON on stdin):
+#   REVIEW_HEAD_SHA=<pr head>  TRACK=<track id>  PR_EVENT_SHA=<event sha, opt>
+#   agent-review-baseline <reviews.json>
+#
+# Emits shell-evaluable KEY=VALUE lines on stdout.
+
+set -euo pipefail
+
+reviews_file="${1:-}"
+[ -n "$reviews_file" ] || { echo 'usage: agent-review-baseline <reviews.json>' >&2; exit 2; }
+[ -f "$reviews_file" ] || { echo "missing reviews file: $reviews_file" >&2; exit 2; }
+
+REVIEW_HEAD_SHA="${REVIEW_HEAD_SHA:-}"
+TRACK="${TRACK:-}"
+PR_EVENT_SHA="${PR_EVENT_SHA:-}"
+
+[ -n "$REVIEW_HEAD_SHA" ] || { echo 'REVIEW_HEAD_SHA is required' >&2; exit 2; }
+[ -n "$TRACK" ] || { echo 'TRACK is required' >&2; exit 2; }
+
+# A review is authentic only when the publisher, the eligible state, the marker
+# track/reviewed_head, and the GitHub commit_id all agree. A copied marker from
+# another author is not evidence of a prior review.
+previous_sha="$(jq -r --arg track "$TRACK" '
+  [ .[]
+    | select(.user.login == "github-actions[bot]")
+    | select(.state == "COMMENTED" or .state == "APPROVED" or .state == "CHANGES_REQUESTED")
+    | select(.body | contains("<!-- zig-zag-contextual-review"))
+    | select(.body | contains("track=" + $track + "\n"))
+    | select(.body | contains("CODE REVIEW:"))
+    | select(.body | contains("ARCHITECTURE_"))
+    | . as $r
+    | ($r.body | capture("reviewed_head=(?<sha>[0-9a-f]{40})").sha) as $marker_sha
+    # The marker and the GitHub commit_id must agree with each other. A correct
+    # marker bolted onto a review of a different commit is a spoof.
+    | select($marker_sha == $r.commit_id)
+    | $r.commit_id
+  ] | .[0] // empty
+' "$reviews_file")"
+
+is_ancestor() {
+  git merge-base --is-ancestor "$1" "$2" 2>/dev/null
+}
+
+coverage='no-baseline'
+baseline_sha=''
+limitation=''
+
+if [ -n "$previous_sha" ]; then
+  if is_ancestor "$previous_sha" "$REVIEW_HEAD_SHA"; then
+    baseline_sha="$previous_sha"
+    coverage='incremental'
+  else
+    # History was rewritten or the baseline left this line of development. This
+    # reason is preserved even if a fallback baseline is later selected, because
+    # the loss of a canonical baseline is itself a coverage limitation.
+    limitation="previous canonical review $previous_sha is not an ancestor of $REVIEW_HEAD_SHA; history was rewritten or the review does not apply to this head"
+  fi
+else
+  limitation='no previous canonical review for this PR and track'
+fi
+
+# Fallback 1: a verified previous PR head from the triggering event.
+if [ -z "$baseline_sha" ] && [ -n "$PR_EVENT_SHA" ] && is_ancestor "$PR_EVENT_SHA" "$REVIEW_HEAD_SHA"; then
+  baseline_sha="$PR_EVENT_SHA"
+  coverage='since-event-head'
+  limitation="${limitation:+$limitation; }no previous canonical review; range starts from the triggering event's previous PR head $PR_EVENT_SHA, not from the branch point"
+fi
+
+# Fallback 2: the latest first-parent commit delta, explicitly not full history.
+if [ -z "$baseline_sha" ]; then
+  # `--verify --quiet` is required: on a root commit `git rev-parse SHA^` fails
+  # but still prints the unresolved revision literal to stdout, which would
+  # otherwise be captured as a non-empty baseline SHA.
+  baseline_sha="$(git rev-parse --verify --quiet "$REVIEW_HEAD_SHA^" || true)"
+  [ "${#baseline_sha}" -eq 40 ] || baseline_sha=''
+  if [ -n "$baseline_sha" ]; then
+    coverage='latest-commit-only'
+    limitation="${limitation:+$limitation; }LATEST-COMMIT-ONLY: no previous canonical review was found, so this review covers only the newest first-parent commit delta and does NOT claim complete historical PR coverage"
+  fi
+fi
+
+if [ -z "$baseline_sha" ]; then
+  # A root commit has no parent. Review the whole tree, but say so plainly.
+  coverage='entire-history-root'
+  baseline_sha=''
+  limitation='ROOT COMMIT: this head has no parent, so the review covers the entire history of this PR'
+fi
+
+# `..HEAD` silently yields nothing when the baseline is empty, so the root-commit
+# case must compare against the empty tree explicitly. Otherwise a root-commit PR
+# would report zero commits while claiming entire-history coverage.
+if [ -n "$baseline_sha" ]; then
+  rev_range="$baseline_sha..$REVIEW_HEAD_SHA"
+  changed_files="$(git diff --name-only "$rev_range" 2>/dev/null || true)"
+else
+  rev_range="$REVIEW_HEAD_SHA"
+  changed_files="$(git diff-tree --root -r --no-commit-id --name-only "$REVIEW_HEAD_SHA" 2>/dev/null || true)"
+fi
+
+commit_count="$(git rev-list --count "$rev_range" 2>/dev/null || echo 0)"
+changed_file_count="$(printf '%s\n' "$changed_files" | sed '/^$/d' | wc -l | tr -d ' ')"
+
+# A merge commit is reviewed with first-parent semantics unless a verified
+# previous review head supplied the baseline.
+review_kind='code'
+if [ "$(git rev-list --count --merges "$rev_range" 2>/dev/null || echo 0)" -gt 0 ]; then
+  review_kind='merge-aware'
+fi
+
+printf 'BASELINE_SHA=%s\n' "$baseline_sha"
+printf 'REVIEWED_SHA=%s\n' "$REVIEW_HEAD_SHA"
+printf 'COVERAGE=%s\n' "$coverage"
+printf 'COMMIT_COUNT=%s\n' "$commit_count"
+printf 'CHANGED_FILE_COUNT=%s\n' "$changed_file_count"
+printf 'REVIEW_KIND=%s\n' "$review_kind"
+# A documentation-only delta contains no production or workflow source file.
+# Unknown states stay unknown: an empty range is not documentation-only.
+if [ "$changed_file_count" -eq 0 ]; then
+  docs_only=false
+elif printf '%s\n' "$changed_files" | sed '/^$/d' | grep -qE '\.(ts|tsx|js|jsx|mjs|cjs|json|prisma|sql|sh|yml|yaml)$'; then
+  docs_only=false
+else
+  docs_only=true
+fi
+printf 'DOCS_ONLY=%s\n' "$docs_only"
+printf 'COVERAGE_LIMITATION=%s\n' "$limitation"
+printf 'CHANGED_FILES<<EOF\n%s\nEOF\n' "$changed_files"

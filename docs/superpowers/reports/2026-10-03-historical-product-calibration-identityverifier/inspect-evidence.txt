@@ -1,0 +1,324 @@
+The delta.diff is already attached to the task. Now let me inspect the canonical contracts the changed code depends on.
+
+
+Now let me inspect the consumers and supporting contracts: the resolver's use of the decision, the Overture index service, the evidence builder, and test support.
+
+
+This is an important observation: the new fall-through also changes the verdict on *fuzzy* candidates (no EXACT_NAME evidence) that have a NEARBY both-false match, going from REJECTED to INSUFFICIENT_EVIDENCE. Let's check the existing resolver's spec that references that behavior.
+
+
+The diff to the deficit mapping is significant. Next, I'll read through the current full text of the verifier's unit spec and check all assertions related to the REJECTED/INSUFFICIENT behavior.
+
+
+Now let me verify the live-spec dependencies: the resolver constructor signature, the DI tokens, the live test helpers, and the Prisma model names for the overture tables.
+
+
+Let me check the anchor-resolver spec expectations that mention the NEARBY → REJECTED flow, to assess regression exposure in that consumer.
+
+
+Let me verify the on-disk progress document and spike artifacts match the post-diff state.
+
+
+All inspections complete. I have read the two runtime files, every changed file on disk, and the canonical contracts they depend on (amendment §6, the identity-evidence interface, the resolver consumers, the Overture index service, the deficit-mapping util, DI modules, Prisma schema/migration, test support). I cannot execute anything; all claims below are read-only observations.
+
+```text
+INSPECTED PATHS
+.review-input/context.md
+.review-input/input.md
+be/src/modules/tours/services/identity-verifier.service.ts
+be/src/modules/tours/services/identity-verifier.service.spec.ts
+be/src/modules/tours/interfaces/experience-resolution.interface.ts
+be/src/modules/tours/services/experience-proposal-resolver.service.ts
+be/src/modules/tours/services/experience-proposal-resolver.service.spec.ts
+be/src/modules/tours/services/identity-evidence-collector.service.ts
+be/src/modules/tours/utils/identity-evidence-builder.util.ts
+be/src/modules/tours/utils/nominatim-match.util.ts
+be/src/modules/tours/utils/component-resolution-facts.util.ts
+be/src/modules/tours/services/area-route-anchor-resolver.service.spec.ts
+be/src/modules/tours/services/destination-resolution.service.ts
+be/src/modules/integrations/overture/overture-places-index.service.ts
+be/src/modules/integrations/overture/overture.module.ts
+be/src/modules/integrations/osm/osm.module.ts
+be/src/modules/integrations/integrations.module.ts
+be/src/modules/tours/utils/geographic-validation-authorization.util.ts
+be/src/modules/tours/interfaces/experience-discovery.interface.ts
+be/prisma/schema.prisma
+be/prisma/migrations/20261002120000_add_overture_places_index/migration.sql
+be/test/integration/support/test-db.ts
+be/test/support/assert-disposable-database.ts
+be/test/jest-live.json
+be/test/live/discovery/discovery-live.helper.ts
+docs/superpowers/specs/2026-09-22-component-resolution-geographic-validation-and-enrichment-amendment.md
+docs/superpowers/progress/2026-09-11-preference-first-selection-progress.md
+spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/verifier-characterization-2026-10-03/ (directory listing; resolver-replay.post-fix.json spot-checked)
+spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/db-snapshot.sh
+(the attached delta.diff for the declared range 18420047..15af1ccb)
+
+OBSERVATIONS
+O1. identity-verifier.service.ts:91-128 (rule 4 rewrite, the only production change):
+    - `namePoolHasCollision` = EXACT_NAME or DECLARED_ALIAS_MATCH multiplicity MULTIPLE (L91-93).
+    - VERIFIED requires corroborated (both flags true) AND disambiguates
+      (`!namePoolHasCollision || source !== 'NEARBY'`) (L103-108).
+    - collision -> AMBIGUOUS (L113-114).
+    - `nothingFoundNearby` (source NEARBY && both flags false) no longer returns
+      REJECTED; it falls through to the multiplicity fallback (L121-127, L135-153),
+      i.e. UNKNOWN/no name evidence -> INSUFFICIENT_EVIDENCE.
+    - All other shapes are unchanged: partial NEARBY (one flag true) and
+      failing OWN_QID/OBSERVATION_QID still return REJECTED (L125-127).
+    - Net behavior delta vs the old code is exactly two shapes:
+      (a) NEARBY both-true over a MULTIPLE pool: VERIFIED -> AMBIGUOUS;
+      (b) NEARBY both-false without a MULTIPLE pool: REJECTED ->
+          AMBIGUOUS (if a MULTIPLE pool exists, previously AMBIGUOUS already) or
+          INSUFFICIENT_EVIDENCE (otherwise). Rule 4 cannot produce any VERIFIED
+          that the old code did not already produce (case analysis of the four
+          corroborated/source/multiplicity combinations).
+O2. The canonical rule being enforced: amendment 2026-09-22 §6
+    (docs/.../2026-09-22-...amendment.md:288) "NOT_CORROBORATED must not be
+    collapsed into CONTRADICTED". The change implements this for the
+    both-false NEARBY shape.
+O3. The downstream consumer codifies the same policy:
+    component-resolution-facts.util.ts:221-234 maps deficit
+    CANDIDATE_REJECTED only when every acquired candidate's verdict is REJECTED
+    ("Contradicted only when IdentityVerifier REJECTED every acquired candidate
+    it judged; any not-corroborated verdict keeps the component UNCONFIRMED");
+    otherwise CANDIDATE_UNCONFIRMED. Pre-fix replay shows the old verifier
+    produced the contradictory label (Bodega Azul deficit CANDIDATE_REJECTED);
+    post-fix replay shows CANDIDATE_UNCONFIRMED (resolver-replay.pre-fix.json
+    vs .post-fix.json). All consumers treat non-VERIFIED uniformly fail-closed
+    (resolver L893/964/1095/1163/1226/1281/1379/2091; anchor resolver L967
+    `if (decision.status !== 'VERIFIED') return null;`), so no persistence path
+    is opened by the label change.
+O4. identity-evidence-collector.service.ts:63-86 substantiates the delta's
+    central claim: NEARBY is `findNearbyPlaces(candidate.lat, candidate.lng,
+    200m)` — centered on the SELECTED candidate, name-only comparison;
+    corroborated=true requires one nearby item matching both hint and candidate
+    names. A same-named pool member with its own Wikidata item therefore
+    "corroborates" itself; NEARBY is not independent of the candidate.
+O5. overture-places-index.service.ts:206-216 (pre-existing, not changed by the
+    delta) derives exact-name multiplicity from the PUBLISHED snapshot's
+    completeness: PARTIAL_PARTITION single row -> UNKNOWN; COMPLETE_COUNTRY
+    single row -> SINGLE; >1 rows -> MULTIPLE. This is why the Overture AOI
+    snapshot makes Alfa Crux/SuperUco INSUFFICIENT_EVIDENCE and why no repo
+    importer exists (be/src has no Overture parquet importer; the 4,328-row
+    AOI snapshot was imported out-of-repo, per the replay manifest "DuckDB bbox
+    pushdown").
+O6. New integration spec (be/test/integration/overture-identity-verification.integration-spec.ts):
+    real Postgres + real OverturePlacesIndexService; pins (i) AOI snapshot:
+    EXACT_NAME/UNKNOWN -> INSUFFICIENT_EVIDENCE with coverage
+    PARTIAL_OR_UNKNOWN and overture provenance metadata carried on the
+    candidate; (ii) COMPLETE_COUNTRY: same record -> EXACT_NAME/SINGLE ->
+    VERIFIED; (iii) two same-normalized-name records (Bodega La Azul winery +
+    store; two unconflated Bodega A16 rows) -> MULTIPLE -> AMBIGUOUS even in a
+    complete snapshot; (iv) "Bodega Azul"/"A16" source names never match ->
+    no candidate, no decision; (v) cross-country isolation: a CL complete
+    snapshot record neither resolves nor counts toward AR multiplicity, and a
+    UY lookup returns no candidate. All expectations match the service code I
+    read (lookupExactPlace country filter L197-200, multiplicity L211-216,
+    metadata shape L236-244; buildLocalIdentityEvidence L27-35).
+O7. be/test/integration/support/test-db.ts:83-84 adds `overture_place_index`
+    and `overture_places_import_session` to the RESET_TABLES allowlist.
+    Names match Prisma @@map (schema.prisma L86, L113) and migration
+    20261002120000; child-first order respects the FK cascade. resetTablesWith
+    (L93-95) refuses non-allowlisted tables, so the addition is sandboxed.
+O8. New live spec (be/test/live/rw4-identity-verifier-characterization.live-spec.ts):
+    env-gated (RUN_RW4_VERIFIER_PROBE=1, otherwise describe.skip), boots the
+    real AppModule (real local Nominatim/Geoapify/live Wikidata/real Overture
+    index; DI tokens 'NominatimApiService'/'PlacesApiService'/
+    'WikidataApiService' verified in osm.module.ts:51, integrations.module.ts:72,
+    wikidata.module.ts:17), stub catalog recording would-be writes, replays the
+    COLD #11 Uco/Lujan composites under the COLD #11 ROUTE_LIKE grant
+    (ownedIntentGrant/authorizeCandidates exist at
+    geographic-validation-authorization.util.ts:36,87), writes
+    resolver-replay.json. Only assertion: `response.resolved` has length 2
+    (both composites still rejected — by design, it is a recorder, not a gate).
+    run.sh builds a disposable DB seeded ONLY from the two overture tables via
+    pg_dump and asserts no canonical rows persisted (node -e check over
+    db-snapshot.sh output). jest-live.json (testRegex live/.*.live-spec.ts)
+    picks it up.
+O9. Evidence artifacts on disk match the progress claims: pre-fix replay shows
+    Ojo de Agua VERIFIED with wouldPersistCalls [upsertGeoEntity (Cordoba
+    hamlet, Pedanía San Carlos, Departamento Minas), rememberVerifiedHintName]
+    and distanceToBoundaryMeters ~383,331 m; post-fix replay shows
+    wouldPersistCalls [] with Ojo de Agua AMBIGUOUS (deficit
+    AMBIGUOUS_CANDIDATES/KNOWLEDGE_DEFICIT, openResearchDeficits ['ojo-de-agua'])
+    and Alfa Crux/SuperUco/Bodega Azul INSUFFICIENT_EVIDENCE
+    (resolver-replay.post-fix.json L267, L380/480/549, L827). Both
+    db-after-probe JSONs: all counts 0. Assessment.md states transparently that
+    in the post-fix live run Wikidata NEARBY for Ojo de Agua returned
+    both-false (run variance), so the both-true -> AMBIGUOUS path is pinned by
+    the deterministic unit tests (spec L414-432, L665-684) rather than by the
+    post-fix replay.
+O10. Unit spec: Case F revised (L406-432) now expects AMBIGUOUS for
+    EXACT_NAME MULTIPLE + NEARBY both-true; new describe block (L590-797) pins
+    the live evidence shapes with the real featureIds/OSM node ids. The
+    pre-existing tests that could be affected were checked against the new
+    rule: Case A Zanjón (partial NEARBY, no exact-name evidence because
+    "(historic ruins)" suffix breaks exact equality — normalizeGeoName at
+    nominatim-match.util.ts:13-20 keeps parentheses tokens) stays REJECTED
+    under both old and new code; "San Ignacio Church" tests assert only
+    acceptedCount 0 / UNCONFIRMED_MATCH, which both old (REJECTED ->
+    CANDIDATE_REJECTED) and new (INSUFFICIENT_EVIDENCE -> CANDIDATE_UNCONFIRMED)
+    paths satisfy; anchor-resolver spec "malformed QID" case is EXACT_NAME
+    MULTIPLE + both-false NEARBY -> AMBIGUOUS under both old and new code.
+    I found no existing test asserting the old REJECTED outcome for the
+    both-false NEARBY shape at attempt level (the only attempt-level REJECTED
+    assertion is experience-proposal-resolver.service.spec.ts:7304, a partial
+    match, unaffected).
+O11. Progress doc: agent-track header unchanged; new "RW4 IdentityVerifier
+    evidence-driven characterization — 2026-10-03" section (context L1128-1154 /
+    on-disk L1128ff), "Current checkpoint" and "Next authorized action"
+    rewritten (on-disk L2093-2113: next action = repo-owned Overture
+    COMPLETE_COUNTRY importer, then Bodega Azul evidence decision; COLD #12 not
+    ready), three new open findings added (L2134-2145). RW4 exit criteria
+    remain unchecked: [ ] multi-component persisted; [ ] WARM.
+
+FINDING CANDIDATES
+F1 | MEDIUM | be/src/modules/tours/services/identity-verifier.service.ts:103-109 |
+    EXACT_NAME/UNKNOWN multiplicity + corroborating NEARBY still VERIFIES
+  reason: Pre-existing (the old code verified on any corroborated match), but
+    directly exposed by this delta: Overture partial snapshots are the only
+    production source of exactName=UNKNOWN (overture-places-index.service.ts:
+    211-216), and the delta's own rationale (L95-102; identity-evidence-
+    collector.service.ts:64-68) establishes that NEARBY is centered on the
+    selected candidate and cannot decide which same-named facility the source
+    meant. The same argument applies to uniqueness: a Wikidata item within 200m
+    of the candidate cannot rule out another same-named facility outside the
+    non-exhaustive AOI. A false VERIFIED here would persist a GeoEntity plus
+    hint memory on the strength of a single record in a non-exhaustive dataset
+    — the mirror image of the Ojo de Agua failure this delta fixes. Not
+    demonstrated live (no matching item near the fixtures in either replay).
+    The delta's comment "It can confirm a unique candidate" (L97) is inaccurate
+    for UNKNOWN multiplicity, and no test pins this shape either way.
+  required_fix: Either extend the disambiguation guard so that a NEARBY
+    corroboration cannot VERIFY when an EXACT_NAME/DECLARED_ALIAS evidence of
+    multiplicity UNKNOWN is present (treat unproven uniqueness like a collision
+    for NEARBY-driven verification only), or deliberately document the retained
+    semantics in the 2026-09-22 amendment / verifier header and pin it with a
+    test. Record the decision in the open-findings section of the progress doc.
+
+F2 | LOW | spikes/.../verifier-characterization-2026-10-03/run.sh:24-27 and
+    be/test/live/rw4-identity-verifier-characterization.live-spec.ts (outDir) |
+    committed evidence not reproducible under its own harness filenames
+  reason: run.sh/spec write `resolver-replay.json` and `db-after-probe.json`,
+    while the committed evidence is `resolver-replay.pre-fix.json`/
+    `.post-fix.json` and `db-after-probe.pre-fix.json`/`.post-fix.json`; the
+    pre/post distinction (verifier at f3910172 vs post-fix) is not encoded in
+    run.sh. A reviewer re-running the committed harness cannot regenerate the
+    committed artifact names. Diagnostic-only, not a gate.
+  required_fix: Have the harness name outputs with build provenance (e.g.
+    include the HEAD/BUILD_COMMIT in the filename or copy to the
+    .pre-fix/.post-fix names in run.sh), so committed evidence is regenerable.
+
+F3 | LOW | be/test/live/rw4-identity-verifier-characterization.live-spec.ts:145-146 |
+    non-null assertion on destination.countryCode
+  reason: resolveDestination degrades to point-scale on provider failure
+    (destination-resolution.service.ts:99-104, "never throws"); in that case
+    countryCode is undefined and `destination.countryCode!` would crash the
+    diagnostic probe instead of recording the failure. Diagnostic-only.
+  required_fix: Fail the probe with a recorded error when destination.countryCode
+    is undefined (or when scale !== 'area', which the spec already checks for
+    `scale` but not for countryCode).
+
+ANSWERS
+1. What was the agent supposed to accomplish? The prior checkpoint's open
+   blocker was RW4 component IDENTITY coverage/corroboration; the 2026-10-02
+   characterization had recorded two secondary verifier defects (non-matching
+   NEARBY encoded as REJECTED; NEARBY disambiguating a MULTIPLE same-name pool,
+   demonstrated by Ojo de Agua verifying to a Cordoba hamlet in COLD #11). This
+   run: characterize the four RW4 fixtures through the real resolver + real
+   Overture index on a disposable DB, fix the demonstrated defects generically,
+   record dossier + progress, and leave RW4 exit criteria open.
+2. What did this delta actually change? Exactly one production rule (Identity
+   Verifier rule 4, two behavior changes), plus: revised + new deterministic
+   tests pinning the observed evidence shapes; a new real-Postgres integration
+   spec for Overture index -> evidence -> verifier; two tables added to the
+   integration RESET_TABLES allowlist; a new env-gated live diagnostic spec +
+   run.sh + replay/DB artifacts + assessment; progress-doc updates. The
+   Overture index service, resolver OVERTURE_IDENTITY wiring, Prisma schema,
+   and evidence types are untouched.
+3. Does it advance the authorized checkpoint? Yes, in the bounded sense: both
+   demonstrated defects are fixed (no more false VERIFIED for same-name pools;
+   absence of corroboration no longer labeled contradiction), the deficit-label
+   inconsistency between verifier and component-resolution-facts.util.ts is
+   repaired, and the remaining evidence gaps (no repo importer, Bodega Azul
+   alias gap, A16 no record) are recorded as the next authorized actions. RW4
+   exit criteria correctly remain open.
+4. Consistent with the North Star? Yes. Fail-closed identity is preserved and
+   strengthened; the change enforces amendment 2026-09-22 §6 (NOT_CORROBORATED
+   != CONTRADICTED); the verifier still branches only on typed evidence
+   (WIKIDATA_IDENTITY_MATCH.source is an evidence property, not a provider
+   name) — no provider-name or destination-specific branching was added;
+   Overture multiplicity semantics live in the provider boundary.
+5. Does it preserve canonical architecture and domain contracts? Yes, with one
+   residual: IdentityVerifier remains the single interpretation authority;
+   evidence stays typed; multiplicity derives from published-snapshot coverage
+   (no invented uniqueness); the "no new VERIFIED" claim is verifiable from the
+   diff. Residual hole F1 (UNKNOWN multiplicity + corroborating NEARBY still
+   VERIFIES) is pre-existing and is not closed nor documented by this delta.
+   Open findings RW4-ID-CONTRADICTION-1 (rule 1 EXACT_NAME/SINGLE returns
+   before any contradiction can be seen; no contradiction evidence type exists)
+   and RW4-ID-QID-HOMONYM-1 (retained QID disambiguation of MULTIPLE pools)
+   are accurately recorded in the progress doc and match the code.
+6. Can it introduce a regression? Only the two intended label changes; all
+   consumers treat non-VERIFIED fail-closed identically, and the final
+   component outcomes (unresolved / UNCONFIRMED_MATCH / AMBIGUOUS + open
+   research deficit) are unchanged in direction — the pre-fix replay's false
+   persistence (upsertGeoEntity + hint memory for Ojo de Agua) is gone
+   post-fix (wouldPersistCalls []). I statically checked the at-risk existing
+   tests (resolver Case A at L7304, "San Ignacio Church" at L3751ff, anchor
+   resolver QID cases at L1841-2051): all remain consistent. I could not
+   execute the suites, so this is analysis, not proof.
+7. Are the tests and fixtures meaningful? Yes, unusually so: unit tests pin
+   the exact evidence shapes recorded live (real featureIds, osm:node ids,
+   200m NEARBY semantics); the integration test exercises the real index
+   service on real Postgres and pins the coverage->multiplicity contract
+   including cross-country isolation and unconflated duplicate upstream rows;
+   fixtures use real Overture record ids/coordinates with one explicitly
+   labeled SYNTHETIC negative control. The live spec's single assertion is weak
+   by design (it is an artifact recorder), and run.sh adds a no-persistence
+   guard.
+8. Are progress claims consistent with code and evidence? Yes. Pre/post replay
+   JSONs, db-after-probe counts (all 0), assessment table, and progress bullets
+   match the code and the on-disk artifacts; "neither change can produce a new
+   VERIFIED" holds by case analysis; the RW4-ID-* findings match the code; the
+   "383 km" figure matches distanceToBoundaryMeters 383,330.99 in the pre-fix
+   replay. The e2e flake claim (RW4-E2E-FLAKE-1) and all prior-suite green
+   claims are author-reported; no CI evidence was provided in input.md and I
+   cannot verify them.
+9. Did it leave an authorized acceptance condition unproven? Yes, by design:
+   RW4 exit criteria remain open (multi-component Experience persisted; WARM
+   reuse). Also unproven for this delta itself: that the full unit/integration
+   /e2e suites pass at this HEAD, and that the live probe is re-runnable under
+   the committed harness as-is (F2).
+
+VERIFICATION STATUS
+Inspected (read-only): all 11 changed files on disk; the canonical amendment §6;
+the IdentityEvidence/ResolutionAttempt contracts; the resolver's two call sites
+of verify() and its decision handling; the deficit-mapping util; the Overture
+index service + module + Prisma model/migration; the evidence collector
+(NEARBY = 200m search centered on the candidate); the DI tokens and
+interfaces used by the live spec; the jest-live config and test support;
+pre/post replay JSONs and db-after-probe JSONs on disk.
+Unproven: I cannot execute any command — no unit tests, integration tests
+(needs a disposable Postgres), e2e, the live probe (needs docker containers
+zigzag-postgres, Nominatim, Overpass, Geoapify, live Wikidata), typecheck,
+lint, or Git range verification. No CI evidence section was present in
+input.md, so the CI state of this head is unknown to me. All test/CI results
+cited in the progress document are author-reported and unverified here.
+
+COVERAGE
+Covered by this delta: IdentityVerifier rule 4 semantics for NEARBY
+corroboration/absence; deterministic pins for all five observed RW4 fixture
+evidence shapes; Overture index -> evidence -> verifier on real Postgres
+(PARTIAL vs COMPLETE completeness, multi-row multiplicity, cross-country
+isolation, no-candidate source names); integration test hygiene (allowlisted
+table reset); a gated live diagnostic replay with no-persistence guard;
+progress/checkpoint/next-action bookkeeping with three honest open findings.
+Not covered (recorded as remaining work, correctly not attempted here):
+EXACT_NAME/SINGLE-vs-contradiction gap (no contradiction evidence type;
+RW4-ID-CONTRADICTION-1); QID homonym false-positive risk (RW4-ID-QID-HOMONYM-1);
+the UNKNOWN-multiplicity + corroborating-NEARBY hole (F1 above, neither fixed
+nor recorded); the repo-owned Overture importer for a COMPLETE_COUNTRY AR
+snapshot; Bodega Azul evidence acquisition (declared alias or component-bound
+fact); A16 coverage; COLD #12 and WARM; the e2e flake (RW4-E2E-FLAKE-1).
+```

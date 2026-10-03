@@ -6,6 +6,7 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 pass() { printf 'PASS %s\n' "$1"; }
+fail() { printf 'FAIL %s\n' "$1" >&2; exit 1; }
 expect_ok() { "$@" >/dev/null; }
 expect_fail() { if "$@" >/dev/null 2>&1; then echo "expected failure: $*" >&2; exit 1; fi; }
 
@@ -85,6 +86,8 @@ pass 'REVIEW is namespaced and delegates retry to the canonical workflow'
 
 REVIEW_WORKFLOW="$ROOT/.github/workflows/zig-zag-contextual-review.yml"
 REVIEW_PROMPT="$ROOT/.github/codex/track-review-prompt.md"
+REVIEW_INSPECT_PROMPT="$ROOT/.github/codex/track-review-inspect-prompt.md"
+REVIEW_NORMALIZE_PROMPT="$ROOT/.github/codex/track-review-normalize-prompt.md"
 REVIEW_SCHEMA="$ROOT/.github/codex/track-review-schema.json"
 REVIEW_CONTRACT="$ROOT/.github/codex/track-review-contract.md"
 test -f "$REVIEW_WORKFLOW" && test -f "$REVIEW_PROMPT" && \
@@ -107,10 +110,9 @@ for required in \
   'checks: read' \
   'contents: read' \
   'pull-requests: write' \
-  'permission-profile: :read-only' \
   'without persisted credentials' \
   'head_repo != github.repository' \
-  'No GROQ_API_KEY is exposed to untrusted fork code.'; do
+  'is exposed to untrusted fork code.'; do
   grep -Fq "$required" "$REVIEW_WORKFLOW"
 done
 for forbidden in 'contents: write' 'actions: write' 'issues: write' 'pull_request_target'; do
@@ -119,17 +121,52 @@ for forbidden in 'contents: write' 'actions: write' 'issues: write' 'pull_reques
     exit 1
   fi
 done
-pass 'contextual workflow has read-only Codex and fork-secret trust boundary'
+pass 'contextual workflow has read-only reviewer and fork-secret trust boundary'
 
-grep -Fq 'openai/codex-action@86365089eb2b84e0a8fb0717b304f8bdcb13b20e' "$REVIEW_WORKFLOW"
-grep -Fq '# openai/codex-action v1' "$REVIEW_WORKFLOW"
+# The model process must be read-only by construction, not by prompt wording.
+REVIEWER_AGENT="$ROOT/.opencode/agent/reviewer.md"
+NORMALIZER_AGENT="$ROOT/.opencode/agent/reviewer-normalize.md"
+for denied in 'edit: deny' 'bash: deny' 'write: deny' 'webfetch: deny' 'task: deny'; do
+  grep -Fq "$denied" "$REVIEWER_AGENT"
+done
+grep -Fq 'bash: false' "$REVIEWER_AGENT"
+grep -Fq 'edit: false' "$REVIEWER_AGENT"
+grep -Fq 'write: false' "$REVIEWER_AGENT"
+# The normalizer must have no tools at all, because strict structured output and
+# tool use cannot be combined on this provider.
+grep -Fq 'bash: false' "$NORMALIZER_AGENT"
+grep -Fq 'read: false' "$NORMALIZER_AGENT"
+# The reviewer must not receive GitHub write credentials.
+if sed -n '/id: inspect/,/id: normalize/p' "$REVIEW_WORKFLOW" | grep -Fq 'GH_TOKEN'; then
+  echo 'GH_TOKEN must not be exposed to the model inspection process' >&2
+  exit 1
+fi
+pass 'reviewer is deny-by-default and the model never receives GH_TOKEN'
+
+# The provider harness is pinned by version and checksum.
+grep -Fq 'OPENCODE_VERSION: 2.0.21' "$REVIEW_WORKFLOW"
+grep -Fq 'OPENCODE_SHA256: 8ef5c24debedefbb7b5e13b807699c8b2b8097d5ca703184188cefd64e5f3472' "$REVIEW_WORKFLOW"
+grep -Fq 'sha256sum -c -' "$REVIEW_WORKFLOW"
+if grep -Fq 'openai/codex-action' "$REVIEW_WORKFLOW"; then
+  echo 'the retired Codex harness must not return' >&2
+  exit 1
+fi
 # shellcheck disable=SC2016 # These are literal workflow expressions/snippets.
 grep -Fq 'test "$(git rev-parse HEAD)" = "$HEAD_SHA"' "$REVIEW_WORKFLOW"
-# shellcheck disable=SC2016 # These are literal workflow expressions/snippets.
-grep -Fq 'git merge-base HEAD "origin/$BASE_REF"' "$REVIEW_WORKFLOW"
-grep -Fq 'integration_diff=git diff --find-renames --find-copies' "$REVIEW_WORKFLOW"
+# The reviewed delta must come from the selected incremental range, not from an
+# inline full-history range.
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+# shellcheck disable=SC2016 # literal workflow expression, not a shell expansion
+grep -Fq 'DIFF_RANGE="$REV_RANGE"' "$REVIEW_WORKFLOW"
 grep -Fq "git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*'" "$REVIEW_WORKFLOW"
-pass 'review is pinned, exact-HEAD anchored, and uses merge-base semantics'
+# The reviewed checkout must be proven unchanged after the model runs. Both the
+# HEAD anchor and the tracked working-tree content are checked; the content check
+# is what makes the proof independent of file timestamps.
+grep -Fq 'reviewed checkout HEAD changed during inspection' "$REVIEW_WORKFLOW"
+grep -Fq 'reviewer modified tracked files in the reviewed checkout' "$REVIEW_WORKFLOW"
+grep -Fq 'normalization modified tracked files in the reviewed checkout' "$REVIEW_WORKFLOW"
+grep -Fq 'not present in the reviewed checkout' "$REVIEW_WORKFLOW"
+pass 'review is pinned, exact-HEAD anchored, and reviewed over an incremental range'
 
 for required in \
   'scripts/agent-track context' \
@@ -144,6 +181,33 @@ for required in \
   'reviewed_head'; do
   grep -Fq "$required" "$REVIEW_PROMPT"
 done
+
+# The two-phase reviewer must load canonical context in the documented order and
+# must not be asked to emit a verdict during the agentic inspection phase.
+for required in \
+  'NORTH STAR' \
+  'PLAN' \
+  'PROGRESS' \
+  'CURRENT COMMIT DELTA' \
+  'Do not output JSON in this phase' \
+  'Never claim a command, test, or CI result'; do
+  grep -Fq "$required" "$REVIEW_INSPECT_PROMPT"
+done
+# The canonical context bundle is assembled deterministically, not by the model.
+grep -Fq 'scripts/agent-review-context' "$REVIEW_WORKFLOW"
+grep -Fq 'scripts/agent-review-baseline' "$REVIEW_WORKFLOW"
+grep -Fq 'track-review-schema.json' "$REVIEW_WORKFLOW"
+
+# Normalization must not invent findings or verification, and must map an
+# unresolved finding to CHANGES_REQUIRED rather than softening it.
+# shellcheck disable=SC2016 # markdown backticks, not shell expansion
+for required in \
+  'Do not invent findings' \
+  'Do not invent verification' \
+  'Return only the JSON object' \
+  'is `PASS` only when there are zero findings'; do
+  grep -Fq "$required" "$REVIEW_NORMALIZE_PROMPT"
+done
 grep -Fq '<!-- zig-zag-contextual-review' "$REVIEW_CONTRACT"
 grep -Fq 'reviewed_head == current PR HEAD' "$REVIEW_CONTRACT"
 if rg -q 'reviewStatus=|reviewedHead=|reviewVerdict=' docs/superpowers/progress; then
@@ -153,12 +217,72 @@ fi
 pass 'canonical context, structured output, marker, and stale semantics are explicit'
 
 for required in \
-  'configure repository secret GROQ_API_KEY' \
+  'OPENROUTER_API_KEY' \
+  'openrouter/qwen/qwen3.8-27b:free' \
   'Validate structured review output' \
   'gh api' \
-  'Avoid duplicate review for the same head'; do
+  'Avoid duplicate review for the same head' \
+  'REVIEW UNAVAILABLE / FAILED'; do
   grep -Fq "$required" "$REVIEW_WORKFLOW"
 done
+# The retired providers must be gone entirely. A leftover reference is either a
+# dead credential or an accidental paid fallback, both of which breach the cost
+# contract this track is operating under.
+for retired in 'CLOUDFLARE' 'cloudflare' 'workers-ai' 'GROQ' 'groq'; do
+  if grep -Fq "$retired" "$REVIEW_WORKFLOW"; then
+    fail "retired provider reference '$retired' remains in the review workflow"
+  fi
+done
+# The paid sibling of the free model must never be reachable. Every model-driven
+# phase asserts the :free suffix before issuing its request, so a misconfigured
+# identifier fails closed instead of billing a paid endpoint.
+[ "$(grep -Fc "REVIEW_MODEL must name a :free endpoint" "$REVIEW_WORKFLOW")" -eq 2 ] \
+  || fail 'both model-driven phases must fail closed on a non-free model id'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+[ "$(grep -Fc 'REVIEW_MODEL: openrouter/qwen/qwen3.8-27b:free' "$REVIEW_WORKFLOW")" -eq 2 ] \
+  || fail 'both model-driven phases must pin the explicitly free model id'
+# Reasoning must be off for both phases. Reasoning tokens share the output
+# budget, so an unbudgeted reasoning pass can consume the whole completion
+# allowance and return an empty body.
+for agent in "$ROOT/.opencode/agent/reviewer.md" "$ROOT/.opencode/agent/reviewer-normalize.md"; do
+  grep -Fq 'effort: none' "$agent" || fail "reasoning must be disabled in $agent"
+done
+# An HTTP success with no visible body is not a review.
+# Assert the inspection phase's own diagnostic site rather than a total count: a
+# count over both phases protected dead code, because normalization's emptiness
+# is structurally impossible once `review.json` exists (it is the output of
+# `sed -n '/^{/,/^}/p'`, so it is either empty or starts with `{`). The real
+# normalization emptiness guards are the no-JSON and invalid-JSON checks.
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq 'inspection returned no visible content' "$REVIEW_WORKFLOW" \
+  || fail 'inspection must reject an empty visible response'
+grep -Fq "tr -d '[:space:]' < \"\$RUNNER_TEMP/inspect-evidence.txt\"" "$REVIEW_WORKFLOW" \
+  || fail 'inspection emptiness must be tested against the visible evidence text'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+[ "$(grep -Fc 'returned no visible content' "$REVIEW_WORKFLOW")" -eq 1 ] \
+  || fail 'normalization must not carry a whitespace guard that can never fire'
+# Fabrication guards: a failed provider phase must not become a PASS.
+for required in \
+  'normalization produced no JSON' \
+  'normalization output is not valid JSON' \
+  'no repository read tool call was observed' \
+  'inspection produced no evidence' \
+  'not present in the reviewed checkout'; do
+  grep -Fq "$required" "$REVIEW_WORKFLOW"
+done
+
+# A provider failure must report the provider's own reason. OpenCode surfaces
+# rate limits and auth failures as a JSON error event on stdout, so a stderr-only
+# tail reports nothing and hides the cause of the failure.
+# Assert each phase's own diagnostic site rather than a total count: a count
+# breaks whenever an additional legitimate diagnostic is added, and the
+# invariant is that each failure path reports the provider's reason.
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq 'inspect.jsonl" >&2 || true' "$REVIEW_WORKFLOW" \
+  || fail 'inspection failure must surface the provider error object'
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq 'normalize.jsonl" >&2 || true' "$REVIEW_WORKFLOW" \
+  || fail 'normalization failure must surface the provider error object'
 for forbidden in 'git commit' 'git push' 'gh pr merge' 'git merge ' 'git rebase'; do
   if grep -Fq "$forbidden" "$REVIEW_WORKFLOW"; then
     echo "forbidden autonomous mutation: $forbidden" >&2
@@ -621,3 +745,121 @@ pass 'published review request binds commit_id and event'
 grep -Fq 'commit_id="$HEAD_SHA"' "$REVIEW_WORKFLOW"
 grep -Fq 'event="COMMENT"' "$REVIEW_WORKFLOW"
 pass 'workflow publishes review with commit_id binding'
+
+# ---------------------------------------------------------------------------
+# Evidence sufficiency must fail closed, not merely be requested in a prompt.
+#
+# The normalizer is told to return `findings: []` plus PASS when the evidence is
+# empty or unusable, and the published invariant already accepts `PASS` with zero
+# findings. Without a deterministic gate, a truncated or hallucinated inspection
+# report becomes a clean, permanently recorded PASS that nobody ever earned.
+# These are behavioral cases, not greps: the gate must actually refuse.
+# ---------------------------------------------------------------------------
+EVIDENCE_GATE="$ROOT/scripts/agent-review-evidence-gate"
+[ -x "$EVIDENCE_GATE" ] && [ ! -L "$EVIDENCE_GATE" ]
+# shellcheck disable=SC2016 # literal workflow expressions, not shell expansions
+grep -Fq 'bash scripts/agent-review-evidence-gate' "$REVIEW_WORKFLOW" \
+  || fail 'the workflow must run the evidence sufficiency gate before publishing'
+grep -Fq 'a canonical PASS requires the inspection to cover at least one changed path' "$EVIDENCE_GATE" \
+  || fail 'the gate must refuse a PASS whose evidence covers no changed path'
+
+EG="$TMP/evidence-gate"
+mkdir -p "$EG"
+printf '%s\n' 'a.txt' 'b.txt' >"$EG/changed.txt"
+
+evidence() { printf '%s\n' "$@" >"$EG/evidence.txt"; }
+verdict() { printf '{"code_review_verdict":"%s","findings":%s}\n' "$1" "$2" >"$EG/review.json"; }
+gate() {
+  EVIDENCE="$EG/evidence.txt" REVIEW_JSON="$EG/review.json" \
+    CHANGED_FILES="$EG/changed.txt" bash "$EVIDENCE_GATE"
+}
+
+# PASS with genuine coverage of a changed path is allowed.
+evidence 'INSPECTED PATHS' 'a.txt' 'be/src/x.ts' '' 'OBSERVATIONS' 'inspected'
+verdict PASS '[]'
+expect_ok gate
+# A verdict that is not PASS stays publishable; its findings are gated separately.
+evidence 'INSPECTED PATHS' 'a.txt' '' 'OBSERVATIONS' 'found a defect'
+verdict CHANGES_REQUIRED '[{"id":"F1"}]'
+expect_ok gate
+
+# The regression this gate exists for: insufficient evidence must not become PASS.
+evidence 'INSPECTED PATHS' 'docs/superpowers/README.md' '' 'OBSERVATIONS' 'read something'
+verdict PASS '[]'
+expect_fail gate
+evidence 'INSPECTED PATHS' '' 'OBSERVATIONS' 'I could not read the delta.'
+verdict PASS '[]'
+expect_fail gate
+# A report with no INSPECTED PATHS section at all is unusable evidence.
+evidence 'OBSERVATIONS' 'I could not read the delta.'
+verdict PASS '[]'
+expect_fail gate
+# An unrecognized verdict is an unknown state, never a clean review.
+evidence 'INSPECTED PATHS' 'a.txt' '' 'OBSERVATIONS' 'x'
+verdict LATER_APPROVED '[]'
+expect_fail gate
+pass 'insufficient or non-covering evidence cannot produce a canonical PASS'
+
+# The refusal must be explicit, so an operator can tell a gate refusal from a
+# provider failure instead of seeing a silent missing review.
+evidence 'OBSERVATIONS' 'no paths'
+verdict PASS '[]'
+GATE_MSG="$(EVIDENCE="$EG/evidence.txt" REVIEW_JSON="$EG/review.json" \
+  CHANGED_FILES="$EG/changed.txt" bash "$EVIDENCE_GATE" 2>&1)" || true
+printf '%s\n' "$GATE_MSG" | grep -q 'REVIEW UNAVAILABLE / FAILED'
+pass 'evidence refusal is reported as an explicit unavailable review'
+
+# A gate failure must not be silent in the workflow: the gate runs as its own
+# step so the job fails closed instead of publishing an unjustified verdict.
+grep -Fq 'Require evidence sufficient to justify the verdict' "$REVIEW_WORKFLOW" \
+  || fail 'the evidence sufficiency gate must be a named workflow step'
+pass 'workflow enforces evidence sufficiency as a named step'
+
+# ---------------------------------------------------------------------------
+# Canonical North Star discovery must follow the authority index.
+#
+# The index declares the canonical roadmap relative to its own directory, so a
+# repo-root existence test silently failed and a hardcoded filename took over.
+# The result was that discovery could never take effect and a changed canonical
+# declaration was ignored with no signal.
+# ---------------------------------------------------------------------------
+CTX="$TMP/context-northstar"
+mkdir -p "$CTX/scripts" "$CTX/docs/superpowers/plans" "$CTX/docs/superpowers/progress"
+cp "$ROOT/scripts/agent-track" "$ROOT/scripts/agent-review-context" "$CTX/scripts/"
+chmod +x "$CTX/scripts/agent-track" "$CTX/scripts/agent-review-context"
+printf '# Plan\n' >"$CTX/docs/superpowers/plans/track-plan.md"
+printf '# Old North Star\n' >"$CTX/docs/superpowers/plans/2001-01-01-old-roadmap.md"
+printf '# New North Star\n' >"$CTX/docs/superpowers/plans/2099-01-01-new-canonical-roadmap.md"
+declare_ctx() { printf '%s\n' "$@" >"$CTX/docs/superpowers/README.md"; }
+git -C "$CTX" init -q -b main
+git -C "$CTX" config user.email governance@example.test
+git -C "$CTX" config user.name Governance
+git -C "$CTX" add . >/dev/null && git -C "$CTX" commit -qm base
+CTX_BASE="$(git -C "$CTX" rev-parse HEAD)"
+git -C "$CTX" checkout -qb feat/ctx
+printf '# P\n<!-- agent-track: id=ctx; status=ACTIVE; branch=feat/ctx; integration=main; base=%s; plan=docs/superpowers/plans/track-plan.md -->\n## Current checkpoint\nc\n' \
+  "$CTX_BASE" >"$CTX/docs/superpowers/progress/track.md"
+# shellcheck disable=SC2016 # literal index declaration, not a shell expansion
+declare_ctx '# Index' '| Product | `plans/2001-01-01-old-roadmap.md` | **CANONICAL ROADMAP** |'
+git -C "$CTX" add . >/dev/null && git -C "$CTX" commit -qm ctx
+
+# A changed canonical declaration must be followed, not silently ignored.
+# shellcheck disable=SC2016 # literal index declaration, not a shell expansion
+declare_ctx '# Index' '| Product | `plans/2099-01-01-new-canonical-roadmap.md` | **CANONICAL ROADMAP** |'
+expect_ok bash -c "cd '$CTX' && TRACK=ctx scripts/agent-review-context out.md"
+grep -q '2099-01-01-new-canonical-roadmap.md' "$CTX/out.md"
+grep -q 'New North Star' "$CTX/out.md"
+pass 'North Star discovery follows the changed canonical index declaration'
+
+# An unresolvable authoritative reference must fail explicitly, never fall back.
+# shellcheck disable=SC2016 # literal index declaration, not a shell expansion
+declare_ctx '# Index' '| Product | `plans/2099-12-31-absent-roadmap.md` | **CANONICAL ROADMAP** |'
+expect_fail bash -c "cd '$CTX' && TRACK=ctx scripts/agent-review-context out.md"
+declare_ctx '# Index' 'no roadmap is declared here'
+expect_fail bash -c "cd '$CTX' && TRACK=ctx scripts/agent-review-context out.md"
+rm -f "$CTX/docs/superpowers/README.md"
+expect_fail bash -c "cd '$CTX' && TRACK=ctx scripts/agent-review-context out.md"
+# No hardcoded North Star filename may survive as a silent fallback.
+grep -Fq '2026-09-09-travel-content-agentic-planning-convergence-roadmap.md' "$ROOT/scripts/agent-review-context" \
+  && { echo 'hardcoded North Star filename must not survive discovery' >&2; exit 1; }
+pass 'an unresolvable canonical roadmap reference fails explicitly with no fallback'
