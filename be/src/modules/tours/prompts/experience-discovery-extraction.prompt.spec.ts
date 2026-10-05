@@ -179,6 +179,9 @@ describe('experience discovery extraction prompt (shared contract)', () => {
       );
       // Completeness never licenses invention or flattening alternatives.
       expect(text).toMatch(/never add a stop the evidence does not name/);
+      expect(text).toMatch(
+        /a place mentioned only in passing .* is not a stop: do not emit it/,
+      );
       expect(text).toMatch(/follows the alternatives rule and is not a member/);
       expect(text).toMatch(
         /A place recommended only for eating or drinking .* is a suggestion, not a stop/,

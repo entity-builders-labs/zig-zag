@@ -1,0 +1,36 @@
+{
+  "secretsofbuenosaires-day1": {
+    "scan": [
+      {
+        "pass": "planner_capacity",
+        "window": 1,
+        "strategy": "SECTION_UNIT",
+        "sectionComplete": true,
+        "chars": 14926,
+        "status": "completed",
+        "emitted": [
+          "Buenos Aires Day 1 Self-Guided Walking Tour Part 1 [Plaza de Mayo > Casa Rosada > Catedral Metropolitana > Museo del Cabildo > Defensa > Estados Unidos > Bar Sur > Paseo de Colon > Mercado de San Telmo > Plaza Dorrego > Avenida San Juan > Parque Lezama]"
+        ],
+        "validationErrors": []
+      }
+    ],
+    "persisted": []
+  },
+  "agusyornet-san-telmo": {
+    "scan": [
+      {
+        "pass": "generic",
+        "window": 1,
+        "strategy": "SECTION_UNIT",
+        "sectionComplete": true,
+        "chars": 13309,
+        "status": "completed",
+        "emitted": [
+          "Self-Guided Walking Tour of San Telmo and Historic Landmarks [Farmacia La Estrella > La Librería de Ávila > Monumento de Mafalda > Casa Mínima > Mercado de San Telmo > El Patio de los Ezeiza]"
+        ],
+        "validationErrors": []
+      }
+    ],
+    "persisted": []
+  }
+}

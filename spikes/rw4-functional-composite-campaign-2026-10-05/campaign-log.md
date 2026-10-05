@@ -160,3 +160,28 @@ no booking marketplace, no sandbox source.
   Two of three persisted composites in C1/C2 came from such pages. Whether
   they are admissible sources is a product decision; this campaign excluded
   them.
+
+## C3 re-run after RW4-EXTRACT-COMPLETENESS-1 fix (COLD) — 2026-10-05
+
+- Run: `c3fix-gemini-cold/`, DB `zigzag_spike_rw4_c3fix_gemini` (fresh),
+  HEAD `635ea6f0` (fix `ebfe0ed9`), canonical provenance verified.
+  Extractor: **Gemini `gemini-3.5-flash-lite`** (owner decision: Cloudflare
+  daily allocation exhausted, Groq output capped at 1000 tokens/minute,
+  stronger Gemini models answered 503). Content: Tavily.
+- An earlier launch of the same label aborted at the harness provider
+  preflight (Gemini not yet admitted), before any DB or provider call.
+- COLD counts `geoEntity 0→31`, `experience 0→18`,
+  `experienceComponent 0→18`; 0 duplicates; **0 multi-component rows**.
+- Windowing fix confirmed live: both sources reached the extractor as one
+  complete unit (`SECTION_UNIT`, `sectionComplete=true`, 14926 and 13309
+  characters). No truncated composite was persisted.
+- secretsofbuenosaires: one candidate with 12 ordered stops (Plaza de Mayo …
+  Parque Lezama). Museo Histórico Nacional was omitted by the model, and the
+  La Boca part was not emitted. It was REJECTED `INCOMPLETE_SOURCE_COMPOSITION`
+  10/12: every oracle-mandatory stop resolved INSIDE, but the passing streets
+  the model also emitted failed identity ("Estados Unidos" AMBIGUOUS,
+  "Paseo de Colon" NO_CANDIDATE).
+- agusyornet: one candidate with stops 5–10 in order (it omitted Teatro
+  Colón, Obelisco and Plaza de Mayo). REJECTED 4/6: Monumento de Mafalda and
+  El Patio de los Ezeiza `CANDIDATE_REJECTED` (identity; out of scope).
+- WARM not run: no composite persisted (brief: WARM only if it persists).
