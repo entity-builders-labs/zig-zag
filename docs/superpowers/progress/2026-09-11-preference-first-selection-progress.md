@@ -2269,8 +2269,54 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   acquisition. Do not use cached/sandbox material as RW4 evidence or add a
   booking-site exception without separate product/provider authorization.
 
+### RW4 functional composite campaign — 2026-10-05
+
+- Evidence: `spikes/rw4-functional-composite-campaign-2026-10-05/`
+  (`campaign-log.md` records every run). HEAD `672bf231`, canonical
+  provenance verified on all four runs; identity policy unchanged.
+- Correction to the 2026-10-03 attempt above: both of its web extraction
+  attempts failed with Cloudflare Workers AI HTTP 429 (daily allocation).
+  All nine singletons came from structured Geoapify results, so that run
+  never exercised composite extraction.
+- Bounded campaign: C1 Buenos Aires San Telmo walk, C2 Mendoza city-centre
+  walk, C3 San Telmo self-guided walk (COLD + WARM). Destination-bounded
+  walking shapes, `enjoys_walking` preset, fresh DB per COLD.
+- C1 and C2 each persisted one composite, from free-tour operator or
+  marketplace pages (guruwalk 5/5, walkingtoursmendoza 3/3). The campaign
+  excluded these as sources. Editorial candidates in C1 and C2 failed
+  closed (`INCOMPLETE_SOURCE_COMPOSITION`, `AMBIGUOUS_DEDUPE`), or were lost
+  to a Browser Rendering 429.
+- C3 persisted two **editorial** composites. Every hint the extractor
+  emitted was VERIFIED:
+  - `ca18c700-…` "Self-Guided Historical Walk in San Telmo"
+    (secretsofbuenosaires.com Day 1): 7/7 components, evidence-ordered.
+  - `177a2ae7-…` (agusyornet.com): 3/3 components.
+- WARM on the same DB: 0 new rows of any kind, `coverage.analysis`
+  SUFFICIENT, no walk/GENERIC acquisition, one PLANNER_CAPACITY backfill
+  pass. `ca18c700` was retrieved from the catalog and planned day 1
+  position 1, with the same 7 GeoEntity IDs. No PD1 defect surfaced.
+- **Fidelity fails.** An independent fetch of each source shows both
+  composites are subsets of what the source defines:
+  - secretsofbuenosaires: windowing elided the day's continuation (national
+    history museum, Caminito, La Bombonera).
+  - agusyornet: the extractor's own window contained Farmacia la Estrella,
+    Librería del Ávila, Mafalda and Plaza de Mayo, but only 3 stops were
+    emitted, and a re-extraction emitted a different set.
+- **RW4_FUNCTIONAL_MILESTONE_PASSED: NO.** Persistence and WARM reuse are
+  proven for an editorial composite. The generic blocker is extraction
+  completeness (RW4-EXTRACT-COMPLETENESS-1), not identity.
+
 ## Next authorized action
 
+0. (2026-10-05, supersedes the order below for the functional milestone)
+   Characterize RW4-EXTRACT-COMPLETENESS-1 on the C3 sources. Inputs: the
+   recorded windows in
+   `spikes/rw4-functional-composite-campaign-2026-10-05/c3-cold/` and the
+   live agusyornet and secretsofbuenosaires pages. Measure emitted-vs-
+   enumerated stops per extractor and replay. Do not compensate downstream
+   (resolver, gate or verifier), and do not persist a subset as the
+   source's composite. After the extractor fix, re-run C3 COLD/WARM with
+   `run.sh` from that directory.
 1. Re-run the contextual replay with the COLD #11 extractor (Cloudflare
    `@cf/qwen/qwen3.8-27b`) once its daily allocation resets (`EXTRACTOR=cloudflare
    RUN_SUFFIX=../locality-recovery-2026-10-03/replay-cloudflare-N bash
@@ -2424,6 +2470,24 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
 - RW4-EXTRACT-SECTIONS-1: OPEN. The extraction window holds the itinerary
   only. The full SolSalute article locates Alfa Crux and SuperUco in other
   sections, which recovery never sees.
+  2026-10-05: reproduced on a destination-bounded editorial source. The
+  secretsofbuenosaires Day 1 window kept 644–3536 and 4667–7593 of 17027
+  chars, and the persisted composite ends before the day's last three
+  stops.
+- RW4-EXTRACT-COMPLETENESS-1: OPEN, BLOCKING for the RW4 functional
+  milestone (2026-10-05). The discovery extractor emits a non-deterministic
+  subset of a source's explicitly enumerated stops. Example: agusyornet,
+  3 emitted of at least 8 present in the same window. The resolver
+  resolves what it is given, so a truncated composite persists as
+  VERIFIED. Evidence: `rw4-functional-composite-campaign-2026-10-05/campaign-log.md`.
+- RW4-FUNC-TRANSPORT-1: OPEN, LOW. Cloudflare Browser Rendering free tier
+  answers 429 `Rate limit exceeded` to the second sequential deep fetch,
+  with no retry, so an editorial source is lost (C1).
+- RW4-SOURCE-CLASS-1: OPEN, product decision. Deep selection treats
+  free-tour operator and marketplace pages (guruwalk, buenosairesfreewalks,
+  walkingtoursmendoza) as editorial-eligible, and `intent:walk` queries
+  rank them first. The RW4 functional campaign excluded them; admissibility
+  is not decided here.
 - RW4-ID-EXAMINATION-ORDER-1: OPEN, LOW. A decision by an earlier strategy
   ends examination, so a later pool's homonyms are never seen. Real
   shape: Nominatim holds one "Bodega La Azul" winery, while Overture holds

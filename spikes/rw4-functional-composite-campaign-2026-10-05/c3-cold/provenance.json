@@ -1,0 +1,11 @@
+{
+  "sourceHead": "672bf231d7c0b3dbf1d0f2a8de6315b96659a3db",
+  "sourceBranch": "feat/preference-first-selection",
+  "buildCommand": "cd be && yarn build",
+  "buildStartedAt": "2026-10-05T13:05:44Z",
+  "buildFinishedAt": "2026-10-05T13:05:53Z",
+  "runtimeEntry": "be/dist/src/main.js",
+  "distSha256": "6f7ad24a8df8415a33353e5f1f993405429d6fcf686dea6579c3fdc20ca8511b",
+  "canonical": true,
+  "failures": []
+}

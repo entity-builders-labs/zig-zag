@@ -1,0 +1,64 @@
+{
+  "id": "49ab9622-4421-4b64-92b6-79be63cb694b",
+  "name": "Buenos Aires, Argentina",
+  "description": "Tour personalizado",
+  "ownerId": "7d59366f-9213-43af-a485-a20c05fdab9c",
+  "price": null,
+  "duration": null,
+  "maxGroupSize": null,
+  "startDates": [],
+  "totalDays": 1,
+  "totalDistance": null,
+  "estimatedBudget": null,
+  "recommendedGroupSize": null,
+  "coverImage": null,
+  "prompt": "Create a tour from this canonical wizard intent:\nDestination: Buenos Aires, Argentina\nNumber of days: 1\nBudget level: medium\nGroup type: solo\nInterests: history, architecture\nExploration style: balanced\nAllowed transportation modes: walking\nTravel pace: moderate\nWalking limits captured (deterministic enforcement arrives in the spatial-feasibility stage): 10000 meters per day; 3000 meters maximum continuous leg\nAdditional preferences: Quiero hacer un recorrido a pie por San Telmo y conocer sus lugares históricos más emblemáticos.",
+  "query": null,
+  "categories": [],
+  "metadata": {
+    "generatedAt": "2026-10-05T12:51:23.358Z",
+    "generationStatus": "pending",
+    "generationRequest": {
+      "days": 1,
+      "intent": {
+        "intents": [
+          "walk"
+        ],
+        "interests": [
+          "history",
+          "architecture"
+        ],
+        "explorationStyle": "balanced",
+        "additionalPreferences": "Quiero hacer un recorrido a pie por San Telmo y conocer sus lugares históricos más emblemáticos."
+      },
+      "mobility": {
+        "travelPace": "moderate",
+        "accessibilityNeeds": [],
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 10000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "groupType": "solo",
+      "categories": [],
+      "startDates": [],
+      "budgetLevel": "medium",
+      "destination": {
+        "label": "Buenos Aires, Argentina",
+        "latitude": -34.6037,
+        "longitude": -58.3816,
+        "scaleHint": "settlement"
+      },
+      "excludeTours": [],
+      "contractVersion": 1,
+      "dietaryRestrictions": [],
+      "skipImageGeneration": true,
+      "includeExistingExperiences": true
+    }
+  },
+  "createdAt": "2026-10-05T12:51:23.370Z",
+  "updatedAt": "2026-10-05T12:51:23.370Z",
+  "experiences": [],
+  "dayTotals": []
+}

@@ -1,0 +1,162 @@
+# RW4 functional composite campaign — run log
+
+Every attempted run, favorable or not. Source qualification rule (task brief):
+a real **editorial** source that explicitly defines the multi-stop experience;
+no booking marketplace, no sandbox source.
+
+## C1 — Buenos Aires, San Telmo walk (COLD)
+
+- Run: `c1-cold/`, DB `zigzag_spike_rw4_composite_c1` (fresh), HEAD
+  `672bf231`, canonical provenance verified. Providers: serper, Cloudflare
+  `@cf/qwen/qwen3.8-27b` extractor, Cloudflare Browser Rendering content,
+  geoapify, local Nominatim/Overpass (Argentina), Gemini classification.
+- Request: `requests/c1-buenos-aires-san-telmo-walk.json` (history +
+  architecture, `intent:walk`, `enjoys_walking` 10000/3000).
+- Completed in 367 s. COLD counts `geoEntity 0→21`, `experience 0→19`,
+  `experienceComponent 0→23`; 0 duplicate identity rows, 0 duplicate names.
+- **One multi-component Experience persisted**:
+  `801dcda6-25ae-448a-8b25-deaf8b4b8837` "San Telmo and Monserrat Free
+  Walking Tour", 5/5 components resolved and ordered (Cabildo museum
+  `osm:node:767690911`, Manzana de las Luces `osm:relation:3228119`, Plaza de
+  Mayo `osm:relation:17076039`+wikidata `Q1126357`, Mercado de San Telmo
+  `osm:way:158893271`, Plaza Dorrego `osm:way:31364659`).
+  - **Source does not qualify**: `guruwalk.com/walks/63551-…`, a free-tour
+    booking marketplace listing. Recorded as functional evidence only; it is
+    NOT the RW4 milestone source.
+- Sources attempted and outcome:
+  | Source | Kind | Outcome |
+  |---|---|---|
+  | buenosairesfreewalks.com/tour-san-telmo | free-tour operator page | extracted "San Telmo & Market Tour"; REJECTED `INCOMPLETE_SOURCE_COMPOSITION` 1/4 (San Ignacio Church, Minimal House `CANDIDATE_UNCONFIRMED`; Santo Domingo `AMBIGUOUS`) — fail-closed, correct |
+  | agusyornet.com self-guided San Telmo walk | **editorial** | selected for deep retrieval, never extracted: Cloudflare Browser Rendering `429 Rate limit exceeded` (code 2001) on the second sequential fetch |
+  | tangol.com/blog free walking tour of San Telmo | tour-agency blog (editorial article on an operator site) | GENERIC pass: 6 windows, no qualifying candidate; PLANNER_CAPACITY pass: extracted "Free Walking Tour of San Telmo" with only 2 stops (Mercado, Plaza Dorrego) of an article route that names more; 2/2 resolved, then REJECTED `AMBIGUOUS_DEDUPE` against the GuruWalk composite (shared components) — fail-closed |
+  | guruwalk.com/walks/63551 | booking marketplace | persisted 5/5 (above), non-qualifying |
+  | secretsofbuenosaires.com self-guided day 1 | editorial | in search results, not selected (deep selection limit 2) |
+- Findings:
+  - **RW4-FUNC-TRANSPORT-1**: Cloudflare Browser Rendering free tier rate
+    limits the second sequential deep fetch; an editorial source is lost
+    with no retry. Next run uses the other configured content provider
+    (Tavily). Not fixed here (out of the authorized scope).
+  - The 2-of-N tangol extraction is an extraction-fidelity observation
+    (same family as RW4-EXTRACT-SECTIONS-1), not a resolver defect.
+
+## C2 — Mendoza city centre walk (COLD)
+
+- Run: `c2-cold/`, DB `zigzag_spike_rw4_composite_c2` (fresh), HEAD
+  `672bf231`, canonical provenance verified. Same providers as C1 except
+  content retrieval = **Tavily** (avoids RW4-FUNC-TRANSPORT-1).
+- Request: `requests/c2-mendoza-city-centre-walk.json`.
+- COLD counts `geoEntity 0→15`, `experience 0→10`,
+  `experienceComponent 0→12`; 0 duplicates.
+- **One multi-component Experience persisted**:
+  `f68fc15b-6440-4aef-8cfa-32f020b6c7f0` "Mendoza City Walking Tour", 3/3
+  resolved (Plaza España `osm:way:556096055`, Plaza San Martín
+  `osm:way:556096059`, Plaza Independencia `osm:way:556096060`), order null
+  (not evidence-ordered).
+  - **Source does not qualify**: `walkingtoursmendoza.com.ar` homepage, a
+    guided free-walking-tour operator's product listing. The snippet also
+    names "Banco Hipotecario", which the extractor did not emit — a mandatory
+    stop silently missing at extraction, so composite fidelity is unproven.
+- Other composites reaching the resolver (all editorial-ish, all fail-closed):
+  | Candidate | Source | Outcome |
+  |---|---|---|
+  | Historic Mendoza City Tour | grounded snippets (generic pass) | `INCOMPLETE_SOURCE_COMPOSITION` 2/4: Franciscan Ruins `NO_CANDIDATE_ACQUIRED`, Central Market `CANDIDATE_UNCONFIRMED` |
+  | Mendoza City Historic Walking Tour | timeout.com (deep content) | `INCOMPLETE_SOURCE_COMPOSITION` 2/3: Casa de San Martín `CANDIDATE_UNCONFIRMED` |
+- Not reached: wander-argentina.com Mendoza city walking tour (editorial) —
+  in search results, not selected for deep retrieval (limit 2).
+- Observation: `intent:walk` queries ("walking tours walks …") rank
+  tour-operator/marketplace pages first; editorial itineraries are present
+  but lose deep selection.
+
+## C3 — Buenos Aires, self-guided San Telmo walk (COLD + WARM)
+
+- Request: `requests/c3-buenos-aires-san-telmo-self-guided.json` — C1 with the
+  free text phrased as a self-guided traveller ("por mi cuenta, sin guía,
+  siguiendo un itinerario autoguiado"); names no target place.
+- COLD run `c3-cold/`, DB `zigzag_spike_rw4_composite_c3` (fresh), HEAD
+  `672bf231`, canonical provenance verified, content = Tavily, 0 HTTP 429.
+- COLD counts `geoEntity 0→26`, `geoEntityIdentity 0→56`,
+  `experience 0→20`, `experienceComponent 0→28`; 0 duplicate identity rows,
+  0 duplicate names.
+- Search now ranks editorial self-guided itineraries first (agusyornet,
+  secretsofbuenosaires, solsalute, gpsmycity).
+
+### Persisted editorial composites
+
+| | A | B |
+|---|---|---|
+| Experience | `ca18c700-7434-4f1a-99bd-31690846e290` "Self-Guided Historical Walk in San Telmo" | `177a2ae7-654f-4568-bc26-3138c2b727fb` "Self Guided Walking Tour San Telmo" |
+| Source | secretsofbuenosaires.com/day-1-self-guided-walking-tour-in-buenos-aires (editorial blog) | agusyornet.com/2020/03/self-guided-walking-tour-san-telmo.html (editorial blog) |
+| Components | 7/7 VERIFIED, `orderedByEvidence=true`, order 1–7 | 3/3 VERIFIED, ordered |
+| GeoEntities | Plaza de Mayo `e33ad258` (osm:relation:17076039, wikidata Q1126357, geoapify); Casa Rosada `7dff94fe` (osm:way:185738988); Catedral Metropolitana `d9fdcf89` (osm:way:265344159); Museo del Cabildo `96781b8c` (osm:node:767690911); Mercado de San Telmo `958781bf` (osm:way:158893271); Plaza Dorrego `8f9bf4fe` (osm:way:31364659); Parque Lezama `e4eab251` (osm:way:17441757) | Mercado de San Telmo `958781bf` (same row as A); Casa Mínima `34f100f3` (osm:node:4440588689); Defensa `e0da3551` (ROUTE, 14 osm ways) |
+| Geography | all `RESOLVED/INSIDE` | INSIDE ×2, Defensa `INTERSECTS` |
+| COLD selection | candidate pool, not planned | planned day 1 position 2 (`FEASIBLE_AND_SELECTED`) |
+
+### Fidelity check against the live source (independent fetch)
+
+- **A — truncated by windowing.** The article states "Start: Plaza de Mayo /
+  End: La Boca". After Parque Lezama it continues: "Make a stop at the
+  national history museum", bus to Caminito, "Visit La Bombonera". Window 1
+  kept excerpts 644–3536 and 4667–7593 of 17027 chars and elided the rest;
+  the persisted composite ends at Parque Lezama. Three explicit stops are
+  missing. Same family as RW4-EXTRACT-SECTIONS-1.
+- **B — selective extractor omission.** The article numbers its stops
+  (Stop 5 Farmacia la Estrella, 6 Librería del Ávila, 7 Monumento de
+  Mafalda, 8 Casa Mínima, 9 San Telmo Market, 10 Patio de los Ezeiza, plus
+  Plaza de Mayo / Defensa). The extracted window **contained** Farmacia,
+  Librería, Mafalda and Plaza de Mayo, yet the extractor emitted three hints.
+  The WARM backfill pass re-extracted the same source differently (with
+  Mafalda) and that version failed closed `INCOMPLETE_SOURCE_COMPOSITION`
+  2/3, so the emitted stop set is also non-deterministic.
+- Neither omission happened at identity resolution: every hint the extractor
+  emitted for A and B resolved. The resolver did not drop anything.
+
+### WARM
+
+- Run `c3-warm/`, same DB, same request, no reset; canonical provenance
+  verified.
+- Counts unchanged: `geoEntity 26→26`, `geoEntityIdentity 56→56`,
+  `experience 20→20`, `experienceComponent 28→28`; 0 duplicates.
+- `coverage.analysis` = `SUFFICIENT` (history 5 strong, architecture 3,
+  walk 1); `catalog.search` = `CATALOG_POOL_AVAILABLE`. No AREA_ROUTE_WALK or
+  GENERIC acquisition. One `PLANNER_CAPACITY` backfill pass ran (20
+  eligible vs 21 required); it materialized nothing new.
+- Composite A retrieved from `db`, `SELECTED`, planned **day 1 position 1**,
+  with its 7 component GeoEntities unchanged (same IDs as COLD). B was
+  retrieved into the reservoir.
+- Provider requests WARM vs COLD: serper 1/3, tavily 1/3, cloudflare
+  workers-ai 3/13, gemini classification 0/20, wikidata 4/45,
+  geoapify place-details 0/20, nominatim 4/10.
+- No PD1 catalog-query defect surfaced; no catalog fix was needed.
+
+## Verdict
+
+- Mechanics PASS: an editorial source-defined composite with ≥2 verified
+  components (7) was persisted COLD and reused WARM through the real HTTP
+  pipeline, with no seeding, no identity change and no duplicate rows.
+- Fidelity FAIL: both editorial composites are subsets of what the source
+  defines (A truncated by windowing, B selectively omitted by the
+  extractor). Under the brief's fidelity rule neither is an authentic
+  materialization of the source-defined experience.
+- **RW4_FUNCTIONAL_MILESTONE_PASSED: NO** — the generic blocker is
+  extraction fidelity (RW4-EXTRACT-COMPLETENESS-1, below), not identity.
+  Every editorial composite in the campaign that reached the resolver
+  either resolved every emitted stop or failed closed on a genuinely
+  unconfirmed one.
+
+## New findings
+
+- **RW4-EXTRACT-COMPLETENESS-1**: the discovery extractor emits a subset of
+  a source's explicitly enumerated stops (agusyornet: 3 of ≥8 visible in the
+  window), non-deterministically. Nothing downstream can detect it because
+  the resolver only sees what was emitted.
+- **RW4-EXTRACT-SECTIONS-1 (reconfirmed on a destination-bounded source)**:
+  windowing elides the continuation of a single-day itinerary
+  (secretsofbuenosaires) and the scan stops once a candidate qualifies.
+- **RW4-FUNC-TRANSPORT-1**: Cloudflare Browser Rendering free tier returns
+  429 on the second sequential deep fetch (C1).
+- Source-class observation: `intent:walk` queries favour free-tour
+  operator/marketplace pages (guruwalk, walkingtoursmendoza,
+  buenosairesfreewalks), which deep selection treats as editorial-eligible.
+  Two of three persisted composites in C1/C2 came from such pages. Whether
+  they are admissible sources is a product decision; this campaign excluded
+  them.

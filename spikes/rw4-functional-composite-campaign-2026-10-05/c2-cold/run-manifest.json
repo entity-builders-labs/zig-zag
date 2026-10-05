@@ -1,0 +1,35 @@
+{
+  "runLabel": "rw4-composite-c2-cold",
+  "tourId": "23a7cfb8-2615-4398-967f-b15ebb64312d",
+  "email": "rw3-spike-rw4-composite-c2-cold-1791205169877@example.com",
+  "baseUrl": "http://localhost:4131",
+  "requestFile": "c2-mendoza-city-centre-walk.json",
+  "createHttpMs": 50,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 327997,
+  "startedAt": "2026-10-05T12:59:30.166Z",
+  "finishedAt": "2026-10-05T13:04:58.181Z",
+  "provenance": {
+    "sourceHead": "672bf231d7c0b3dbf1d0f2a8de6315b96659a3db",
+    "sourceBranch": "feat/preference-first-selection",
+    "buildCommit": "672bf231d7c0b3dbf1d0f2a8de6315b96659a3db",
+    "buildTimestamp": "2026-10-05T12:59:21Z",
+    "distSha256": "6f7ad24a8df8415a33353e5f1f993405429d6fcf686dea6579c3fdc20ca8511b",
+    "runtimeBuildCommit": "672bf231d7c0b3dbf1d0f2a8de6315b96659a3db",
+    "runtimeBuildTimestamp": "2026-10-05T12:59:21Z"
+  },
+  "effectiveConfig": {
+    "groundedSearchProvider": "serper",
+    "webSourceContentProvider": "tavily",
+    "discoveryExtractorProvider": "cloudflare",
+    "cloudflareDiscoveryModel": "@cf/qwen/qwen3.8-27b",
+    "cloudflareDiscoveryMaxCompletionTokens": 4096,
+    "classificationProvider": "gemini",
+    "geminiClassificationModel": "gemini-3.5-flash-lite",
+    "placesProvider": "geoapify",
+    "aiCacheMode": "off"
+  }
+}
