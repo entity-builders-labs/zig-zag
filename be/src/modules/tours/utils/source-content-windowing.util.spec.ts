@@ -90,8 +90,10 @@ describe('windowSourceContentSequence — window 1', () => {
     expect(window.content).toContain(
       'Finish the day at Bodega Azul for a sunset tasting.',
     );
+    // The advertised section is an editorial unit: window 1 carries it whole.
     expect(window.audit).toMatchObject({
-      selectionStrategy: 'RELEVANCE_WINDOWS',
+      selectionStrategy: 'SECTION_UNIT',
+      sectionComplete: true,
       originalContentChars: LATE_SECTION_DOCUMENT.length,
       retainedContentChars: window.content.length,
       maxChars: BUDGET,
@@ -199,17 +201,13 @@ describe('windowSourceContentSequence — window 1', () => {
     }
   });
 
-  it('emits selected excerpts in original document order, not score order', () => {
+  it('emits relevance-fallback excerpts in original document order, not score order', () => {
+    // Headless text longer than one unit fits no editorial unit, so window 1
+    // falls back to the relevance-ranked selection.
     const document = [
-      '## Alpha',
-      '',
       'The lighthouse opens at dawn.',
       '',
-      '## Filler',
-      '',
       fillerParagraphs(40, 'Middle'),
-      '',
-      '## Omega',
       '',
       'The lighthouse and the fish market and the customs house form the loop.',
     ].join('\n');
@@ -220,6 +218,8 @@ describe('windowSourceContentSequence — window 1', () => {
       BUDGET,
     );
 
+    expect(window.audit.selectionStrategy).toBe('RELEVANCE_WINDOWS');
+    expect(window.audit.sectionComplete).toBe(false);
     const alpha = window.content.indexOf('The lighthouse opens at dawn.');
     const omega = window.content.indexOf(
       'The lighthouse and the fish market and the customs house form the loop.',
@@ -271,7 +271,7 @@ describe('windowSourceContentSequence — progressive windows', () => {
     );
 
     expect(windows.length).toBeGreaterThan(1);
-    expect(windows[0].audit.selectionStrategy).toBe('RELEVANCE_WINDOWS');
+    expect(windows[0].audit.selectionStrategy).toBe('SECTION_UNIT');
     expect(windows[0].content).toContain('Alfa Crux');
     for (const [i, w] of windows.entries()) {
       expect(w.audit.windowOrdinal).toBe(i + 1);
@@ -333,7 +333,7 @@ describe('windowSourceContentSequence — progressive windows', () => {
     ).toBeDefined();
   });
 
-  it('keeps a coherent section whole in one later window when ranking split it', () => {
+  it('keeps a coherent section whole in window 1 instead of the ranked half', () => {
     const document = [
       '# Guide',
       '',
@@ -355,20 +355,15 @@ describe('windowSourceContentSequence — progressive windows', () => {
       BUDGET,
     );
 
-    // Ranking keeps only the matching half of the section in window 1.
-    expect(windows[0].content).toContain('ROUTE-START');
-    expect(windows[0].content).not.toContain('ROUTE-END');
-    // A later window re-includes the examined half so the whole section
-    // reaches one extraction as ONE contiguous excerpt.
-    const whole = windows
-      .slice(1)
-      .find((w) =>
-        excerpts(w.content).some(
-          (e) => e.includes('ROUTE-START') && e.includes('ROUTE-END'),
-        ),
-      );
-    expect(whole).toBeDefined();
-    expect(whole!.audit.overlapChunkCount).toBeGreaterThan(0);
+    // Ranking only finds the head of the section; the unit reaches window 1
+    // whole, as ONE contiguous excerpt, tail included.
+    expect(windows[0].audit.selectionStrategy).toBe('SECTION_UNIT');
+    expect(windows[0].audit.sectionComplete).toBe(true);
+    expect(
+      excerpts(windows[0].content).some(
+        (e) => e.includes('ROUTE-START') && e.includes('ROUTE-END'),
+      ),
+    ).toBe(true);
   });
 
   it('walks an oversized unstructured section with one shared boundary chunk and terminates', () => {
@@ -414,5 +409,184 @@ describe('windowSourceContentSequence — progressive windows', () => {
       BUDGET,
     );
     expect(b).toEqual(a);
+  });
+});
+
+/**
+ * RW4-EXTRACT-COMPLETENESS-1 regression A. Shaped like the real failure: a
+ * page-title heading, a short summary, ONE itinerary section longer than the
+ * per-window budget whose last stops sit beyond it, then unrelated blog
+ * chrome. The previous policy cut that section into budget-sized runs, and
+ * the extractor turned the first run into a "complete" 7-stop walk.
+ */
+describe('windowSourceContentSequence — editorial units (RW4-EXTRACT-COMPLETENESS-1)', () => {
+  const UNIT_BUDGET = 24000;
+  const STOPS = [
+    'Alpha Square',
+    'Bravo Palace',
+    'Charlie Cathedral',
+    'Delta Market',
+    'Echo Plaza',
+    'Foxtrot Park',
+    'Golf Museum',
+    'Hotel Quay',
+    'India Stadium',
+  ];
+  const ITINERARY = [
+    '## Walking tour – Day 1',
+    '',
+    ...STOPS.flatMap((stop, i) => [
+      `Next, walk to ${stop} and take your time there.`,
+      '',
+      longParagraph(`Leg-${i}`, `Leg ${i} notes:`),
+      '',
+      longParagraph(`Leg-${i}-more`, `More on leg ${i}:`),
+      '',
+    ]),
+  ].join('\n');
+  const PAGE = [
+    '[Home](https://example.test/) [Blog](https://example.test/blog)',
+    '',
+    '# Day 1 self guided walking tour',
+    '',
+    'Start: Alpha Square / End: India Stadium. A full day on foot.',
+    '',
+    ITINERARY,
+    '#### Related Posts',
+    '',
+    fillerParagraphs(6, 'Related'),
+    '',
+    '### Write A Comment',
+    '',
+    fillerParagraphs(6, 'Comment'),
+  ].join('\n');
+  // Like the real search snippets, the context describes the walk's
+  // content, not the page's one-line summary.
+  const CONTEXT = {
+    titles: ['Day 1 self guided walking tour'],
+    snippets: [
+      'Walk to the palace and the cathedral, then the market, the park and the museum.',
+    ],
+    queries: ['self-guided walk historic places'],
+  };
+
+  function windowsHolding(
+    windows: ReturnType<typeof windowSourceContentSequence>,
+    text: string,
+  ) {
+    return windows.filter((w) => w.content.includes(text));
+  }
+
+  it('fixture: the itinerary is longer than one window and its last stops lie beyond it', () => {
+    expect(ITINERARY.length).toBeGreaterThan(BUDGET);
+    expect(ITINERARY.length).toBeLessThan(UNIT_BUDGET);
+    expect(ITINERARY.indexOf(STOPS[8])).toBeGreaterThan(BUDGET);
+  });
+
+  it('hands the whole itinerary to ONE extraction, every stop in source order', () => {
+    const windows = windowSourceContentSequence(
+      PAGE,
+      CONTEXT,
+      BUDGET,
+      UNIT_BUDGET,
+    );
+    const first = windows[0];
+
+    expect(first.audit).toMatchObject({
+      selectionStrategy: 'SECTION_UNIT',
+      sectionComplete: true,
+      unitMaxChars: UNIT_BUDGET,
+    });
+    expect(first.content.length).toBeGreaterThan(BUDGET);
+    expect(first.content.length).toBeLessThanOrEqual(UNIT_BUDGET);
+    const [only] = excerpts(first.content);
+    expect(excerpts(first.content)).toHaveLength(1);
+    const positions = STOPS.map((stop) => only.indexOf(stop));
+    expect(positions.every((p) => p >= 0)).toBe(true);
+    expect(positions).toEqual([...positions].sort((a, b) => a - b));
+  });
+
+  it('never presents a prefix of an editorial unit as complete', () => {
+    // Every window of every budget combination: a window that holds the
+    // first stop but not the last can never report sectionComplete.
+    for (const unitBudget of [BUDGET, UNIT_BUDGET]) {
+      for (const context of [
+        CONTEXT,
+        {},
+        { snippets: ['Related paragraph'] },
+      ]) {
+        const windows = windowSourceContentSequence(
+          PAGE,
+          context,
+          BUDGET,
+          unitBudget,
+        );
+        for (const w of windowsHolding(windows, STOPS[0])) {
+          if (!w.content.includes(STOPS[8])) {
+            expect(w.audit.sectionComplete).toBe(false);
+          }
+        }
+      }
+    }
+  });
+
+  it('marks every window of an itinerary longer than the unit budget incomplete', () => {
+    const windows = windowSourceContentSequence(PAGE, CONTEXT, BUDGET, BUDGET);
+    const holding = windowsHolding(windows, 'Leg 4 notes:');
+    expect(holding.length).toBeGreaterThan(0);
+    for (const w of holding) expect(w.audit.sectionComplete).toBe(false);
+  });
+
+  it('keeps the unit whole in a continuation window when ranking points elsewhere', () => {
+    const windows = windowSourceContentSequence(
+      PAGE,
+      { snippets: ['Related paragraph weather sunny hotels plentiful'] },
+      BUDGET,
+      UNIT_BUDGET,
+    );
+    const whole = windows.find((w) =>
+      excerpts(w.content).some(
+        (e) => e.includes(STOPS[0]) && e.includes(STOPS[8]),
+      ),
+    );
+    expect(whole).toBeDefined();
+    expect(whole!.audit.sectionComplete).toBe(true);
+    expect(windows[windows.length - 1].audit.unexaminedChunkCountAfter).toBe(0);
+  });
+
+  it('does not let the page title heading swallow the whole page as one unit', () => {
+    const windows = windowSourceContentSequence(
+      PAGE,
+      CONTEXT,
+      BUDGET,
+      10 * PAGE.length,
+    );
+    expect(windows[0].audit.selectionStrategy).toBe('SECTION_UNIT');
+    expect(windows[0].content).toContain(STOPS[8]);
+    // The title's own lead text and the site navigation stay outside the
+    // unit. (A deeper heading the page nests under the itinerary heading,
+    // like this fixture's "#### Related Posts", belongs to that unit.)
+    expect(windows[0].content).not.toContain('Start: Alpha Square / End');
+    expect(windows[0].content).not.toContain('[Home](https://example.test/)');
+  });
+
+  it('a short summary unit ranked first still leaves the itinerary whole for a later window', () => {
+    const windows = windowSourceContentSequence(
+      PAGE,
+      {
+        snippets: [
+          'Start: Alpha Square / End: India Stadium. A full day on foot.',
+        ],
+      },
+      BUDGET,
+      UNIT_BUDGET,
+    );
+    expect(windows[0].content).toContain('Start: Alpha Square / End');
+    const whole = windows.find((w) =>
+      excerpts(w.content).some(
+        (e) => e.includes(`walk to ${STOPS[0]}`) && e.includes(STOPS[8]),
+      ),
+    );
+    expect(whole?.audit.sectionComplete).toBe(true);
   });
 });

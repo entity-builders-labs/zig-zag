@@ -19,7 +19,16 @@ import type { LocalityRecoveryAudit } from './component-locality-recovery.util';
 
 const ROLES = new Set(['area', 'waypoint', 'route', 'venue']);
 const KINDS = new Set(['PLACE', 'AREA', 'ROUTE']);
-const MAX_HINTS = 8;
+/**
+ * Cost bound on one candidate's componentHints (each hint is resolved against
+ * the geographic providers). It is a REJECTION bound, never a truncation: a
+ * candidate that exceeds it fails validation as a whole. Keeping only the
+ * first N hints would let a positional cut rewrite a source-defined
+ * composition — the same authority the source-support gate below refuses to
+ * grant for an unsupported sibling (RW4-EXTRACT-COMPLETENESS-1: a 14-stop
+ * self-guided walk was silently cut to its first 8 stops).
+ */
+export const MAX_COMPONENT_HINTS = 24;
 const VALID_NORMALIZATION_KINDS = new Set<string>([
   'TYPO_CORRECTION',
   'TRANSLATION',
@@ -244,10 +253,15 @@ export function extractExperienceCandidates(
       typeof candidate?.name === 'string' ? candidate.name.trim() : '';
     const hints: GeoEntityHint[] = [];
     const componentAudits: ComponentSourceSupportAudit[] = [];
-    if (Array.isArray(candidate?.componentHints)) {
-      for (const [hintIndex, hint] of candidate.componentHints
-        .slice(0, MAX_HINTS)
-        .entries()) {
+    if (
+      Array.isArray(candidate?.componentHints) &&
+      candidate.componentHints.length > MAX_COMPONENT_HINTS
+    ) {
+      errors.push(
+        `componentHints exceeds ${MAX_COMPONENT_HINTS} (${candidate.componentHints.length} emitted; the candidate is rejected, never truncated)`,
+      );
+    } else if (Array.isArray(candidate?.componentHints)) {
+      for (const [hintIndex, hint] of candidate.componentHints.entries()) {
         if (!hint || typeof hint.name !== 'string' || !hint.name.trim()) {
           errors.push(`component ${hintIndex + 1} name is required`);
           continue;

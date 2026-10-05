@@ -9,7 +9,10 @@ import { StructuredExperienceCandidateSynthesizerService } from './structured-ex
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
 import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-plan.interface';
 import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fingerprint.util';
-import { DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS } from '../interfaces/web-source-content.interface';
+import {
+  DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+  DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS,
+} from '../interfaces/web-source-content.interface';
 import { windowSourceContentSequence } from '../utils/source-content-windowing.util';
 import { extractExperienceCandidates } from '../utils/experience-candidate-extraction.util';
 
@@ -1190,6 +1193,7 @@ describe('ExperienceAcquisitionService', () => {
                   queries: ['Buenos Aires historic walk'],
                 },
                 DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+                DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS,
               );
               // Nothing qualifies, so every window is examined exactly once.
               expect(extractExperiences).toHaveBeenCalledTimes(
@@ -1200,7 +1204,7 @@ describe('ExperienceAcquisitionService', () => {
                   (e: any) => e.key === 'ev-1',
                 );
               expect(enriched.snippet.length).toBeLessThanOrEqual(
-                DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+                DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS,
               );
               expect(enriched.snippet).toContain(
                 'Start at Plaza Dorrego, then walk down Defensa to Parque Lezama.',
@@ -1214,11 +1218,14 @@ describe('ExperienceAcquisitionService', () => {
               expect(traceItem?.windowSequence).toEqual(
                 windows.map((w) => w.audit),
               );
+              // Window 1 is the advertised itinerary section, whole.
               expect(traceItem?.windowSequence?.[0]).toMatchObject({
-                selectionStrategy: 'RELEVANCE_WINDOWS',
+                selectionStrategy: 'SECTION_UNIT',
+                sectionComplete: true,
                 originalContentChars: fullContent.length,
                 retainedContentChars: enriched.snippet.length,
                 maxChars: DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+                unitMaxChars: DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS,
                 truncated: true,
               });
             });
@@ -1251,7 +1258,8 @@ describe('ExperienceAcquisitionService', () => {
             '',
             '## Notes',
             '',
-            Array.from({ length: 32 }, (_, i) =>
+            // Longer than one editorial unit: walked in runs, never whole.
+            Array.from({ length: 80 }, (_, i) =>
               paragraph(`Notes-${i}`, 'zebra quokka'),
             ).join('\n\n'),
           ].join('\n');
@@ -1355,7 +1363,7 @@ describe('ExperienceAcquisitionService', () => {
             });
 
           it('fast path: window 1 satisfies the requirement — one fetch, one deep attempt', async () => {
-            const page = `# Guide\n\n${composition}\n\n${'filler text. '.repeat(800)}`;
+            const page = `# Guide\n\n## Walk\n\n${composition}\n\n## Other\n\n${'filler text. '.repeat(2400)}`;
             const extractExperiences = findsCompositionWhenVisible(() =>
               extraction([]),
             );
@@ -1390,6 +1398,74 @@ describe('ExperienceAcquisitionService', () => {
             ]);
           });
 
+          it('never accepts a composition from a window that cuts its editorial unit (RW4-EXTRACT-COMPLETENESS-1)', async () => {
+            // The walk sits inside one section longer than the unit budget,
+            // so every window that shows it holds only part of the section.
+            const oversized = [
+              '# Guide',
+              '',
+              '## Day 1',
+              '',
+              composition,
+              '',
+              Array.from({ length: 80 }, (_, i) =>
+                paragraph(`Day-${i}`, 'then continue walking'),
+              ).join('\n\n'),
+            ].join('\n');
+            const windows = windowSourceContentSequence(
+              oversized,
+              { snippets: ['Plaza Dorrego Parque Lezama Caminito'] },
+              DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+              DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS,
+            );
+            const showing = windows.filter((w) =>
+              w.content.includes(composition),
+            );
+            expect(showing.length).toBeGreaterThan(0);
+            expect(showing.every((w) => !w.audit.sectionComplete)).toBe(true);
+
+            const extractExperiences = findsCompositionWhenVisible(() =>
+              extraction([]),
+            );
+            const { service, plan } = serviceFor(
+              { [URL_A]: oversized },
+              extractExperiences,
+              {
+                ...groundedWithUrls,
+                evidence: groundedWithUrls.evidence.map((e) =>
+                  e.key === 'ev-1'
+                    ? { ...e, snippet: 'Plaza Dorrego Parque Lezama Caminito' }
+                    : e,
+                ),
+              },
+            );
+
+            const result = await service.executePlan(plan);
+
+            const web = result.webResults![0];
+            const deep = web.extractionAttempts.filter(
+              (a) => a.inputKind === 'deep_source_content',
+            );
+            // Every window is examined; none may stand in for the whole day.
+            expect(deep).toHaveLength(windows.length);
+            const refused = deep.filter((a) =>
+              a.sourceWindow!.content.includes(composition),
+            );
+            expect(refused.length).toBeGreaterThan(0);
+            for (const attempt of refused) {
+              expect([
+                'CONTINUE_SOURCE_UNIT_INCOMPLETE',
+                'STOP_SOURCES_EXHAUSTED',
+              ]).toContain(attempt.scanDecision);
+            }
+            expect(web.sourceContentRetrieval?.scan?.outcome).toBe(
+              'SOURCES_EXHAUSTED',
+            );
+            expect(result.candidates.map((c) => c.name)).not.toContain(
+              'San Telmo walk',
+            );
+          });
+
           it('recovers a composition the ranked window missed from window 2, then stops', async () => {
             const windows = windowSourceContentSequence(
               pageWithLateWindowComposition,
@@ -1399,6 +1475,7 @@ describe('ExperienceAcquisitionService', () => {
                 queries: ['Buenos Aires historic walk'],
               },
               DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+              DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS,
             );
             expect(windows[0].content).not.toContain(composition);
             expect(windows[1].content).toContain(composition);

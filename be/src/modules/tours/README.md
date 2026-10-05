@@ -60,6 +60,16 @@ The primary flow when a user creates a tour from the mobile app wizard:
      `intent:walk` / `intent:route_like` deficit has its own unit
      (`AREA_ROUTE_WALK` or `DEDICATED_INTENT`); everything else is one
      `GENERIC` unit; planner backfill is `PLANNER_CAPACITY`
+   - When a multi-component gap remains, re-extracts from the full text of
+     selected sources (`utils/source-content-windowing.util.ts`). A heading
+     section up to `DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS` is an editorial unit
+     that always reaches one extraction whole. A window that cuts a unit
+     (`sectionComplete: false`) can never close the gap, so a prefix of a
+     source-defined itinerary is never persisted as the whole of it. An
+     extracted itinerary is enumerated exhaustively and in order. It is split
+     only where the source states a motorized transfer, and it is never
+     truncated: `MAX_COMPONENT_HINTS` rejects an oversized candidate instead
+     (RW4-EXTRACT-COMPLETENESS-1).
    - Resolves component hints against Places/OSM and validates geographic coherence.
      A policy class (`DEFAULT` / `WALK` / `ROUTE_LIKE`) is granted per candidate,
      only by the unit that owns that walk/route_like deficit and only to its

@@ -1,5 +1,8 @@
 import { NO_GEOGRAPHIC_GRANT } from './geographic-validation-authorization.util';
-import { extractExperienceCandidates } from './experience-candidate-extraction.util';
+import {
+  MAX_COMPONENT_HINTS,
+  extractExperienceCandidates,
+} from './experience-candidate-extraction.util';
 import { GenerationTraceRecorder } from './generation-trace-recorder.util';
 import { recordAcquisitionLifecycle } from './generation-trace/acquisition-audit';
 
@@ -1562,5 +1565,86 @@ describe('extractExperienceCandidates', () => {
     expect(
       facts?.sourceSupportAudits[0].components[0].verifiedEvidenceKeys,
     ).toEqual(['ev-2']);
+  });
+});
+
+/**
+ * RW4-EXTRACT-COMPLETENESS-1 regression B (parse boundary). The extractor
+ * returned a 14-stop self-guided walk and the parser kept only its first 8
+ * hints, silently: the persisted walk ended mid-route while every kept stop
+ * still verified. A source-defined composition is never cut by position.
+ */
+describe('extractExperienceCandidates -- itinerary completeness (RW4-EXTRACT-COMPLETENESS-1)', () => {
+  const stops = Array.from(
+    { length: 12 },
+    (_, i) => `Stop Number ${i + 1} Plaza`,
+  );
+  const text = `Start the walk. ${stops.map((s) => `Then visit ${s}.`).join(' ')} End of the walk.`;
+  const raw = (names: string[]) => ({
+    candidates: [
+      {
+        name: 'Self-guided walk',
+        themes: ['history'],
+        traits: [] as string[],
+        intents: ['walk'],
+        componentHints: names.map((name, i) => ({
+          key: `stop-${i + 1}`,
+          name,
+          role: 'venue',
+          expectedKind: 'PLACE',
+          evidenceKeys: ['ev-1'],
+          supportSpan: `Then visit ${name}.`,
+        })),
+        evidenceKeys: ['ev-1'],
+        shortReason: 'source itinerary',
+        orderedByEvidence: true,
+      },
+    ],
+  });
+
+  it('keeps every stop of an itinerary longer than 8 stops, in source order', () => {
+    const result = extractExperienceCandidates(
+      raw(stops),
+      [ev('ev-1', text)],
+      8,
+    );
+    expect(result.validationErrors).toEqual([]);
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].componentHints.map((h) => h.name)).toEqual(
+      stops,
+    );
+    expect(result.candidates[0].orderedByEvidence).toBe(true);
+  });
+
+  it('rejects, never truncates, a candidate over the component bound', () => {
+    const many = Array.from(
+      { length: MAX_COMPONENT_HINTS + 1 },
+      (_, i) => `Stop Number ${i + 1} Plaza`,
+    );
+    const longText = many.map((s) => `Then visit ${s}.`).join(' ');
+    const result = extractExperienceCandidates(
+      raw(many),
+      [ev('ev-1', longText)],
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors.join(' ')).toMatch(
+      new RegExp(
+        `componentHints exceeds ${MAX_COMPONENT_HINTS} .*never truncated`,
+      ),
+    );
+  });
+
+  it('still emits nothing the evidence does not name', () => {
+    const invented = [...stops.slice(0, 3), 'Invented Tower'];
+    const result = extractExperienceCandidates(
+      raw(invented),
+      [ev('ev-1', text)],
+      8,
+    );
+    expect(result.candidates).toHaveLength(0);
+    expect(result.validationErrors.join(' ')).toMatch(
+      /SOURCE_CONTRACT_VIOLATION/,
+    );
   });
 });

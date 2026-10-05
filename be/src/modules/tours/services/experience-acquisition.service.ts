@@ -31,6 +31,7 @@ import {
 } from '../interfaces/experience-grounding.interface';
 import {
   DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+  DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS,
   EXPERIENCE_WEB_SOURCE_CONTENT_PROVIDER,
   WebSourceContentProvider,
   WebSourceContentProviderName,
@@ -140,6 +141,10 @@ export type WebDeepSourceScanDecision =
   | 'STOP_REQUIREMENT_SATISFIED'
   /** No admitted candidate closed the gap; an unexamined window remains. */
   | 'CONTINUE_NO_QUALIFYING_CANDIDATE'
+  /** A candidate would close the gap, but the window holds only part of an
+   * editorial unit (`sectionComplete: false`): a prefix of a source-defined
+   * itinerary is never accepted as the whole of it. */
+  | 'CONTINUE_SOURCE_UNIT_INCOMPLETE'
   /** No admitted candidate closed the gap and no window remains. */
   | 'STOP_SOURCES_EXHAUSTED'
   /** The extractor response as a whole was unusable (fail-closed). */
@@ -1089,6 +1094,7 @@ export class ExperienceAcquisitionService {
                   queries,
                 },
                 DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
+                DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS,
               );
               windowsByUrl.set(item.requestedUrl, windows);
               return { ...item, windowSequence: windows.map((w) => w.audit) };
@@ -1171,7 +1177,17 @@ export class ExperienceAcquisitionService {
                   content: window.content,
                 },
               );
-              if (closesCompositionGap(deep.decisions)) {
+              const closesGap = closesCompositionGap(deep.decisions);
+              if (closesGap && !window.audit.sectionComplete) {
+                // Fail closed on fidelity, not on the source: keep scanning
+                // for a window that carries the whole unit.
+                deep.audit.scanDecision =
+                  index === schedule.length - 1
+                    ? 'STOP_SOURCES_EXHAUSTED'
+                    : 'CONTINUE_SOURCE_UNIT_INCOMPLETE';
+                continue;
+              }
+              if (closesGap) {
                 deep.audit.scanDecision = 'STOP_REQUIREMENT_SATISFIED';
                 outcome = 'REQUIREMENT_SATISFIED';
                 satisfied = {

@@ -594,7 +594,8 @@ export function recordAcquisitionLifecycle(
               ? 'FAIL'
               : attempt.scanDecision === 'STOP_REQUIREMENT_SATISFIED'
                 ? 'PASS'
-                : attempt.scanDecision === 'STOP_SOURCES_EXHAUSTED'
+                : attempt.scanDecision === 'STOP_SOURCES_EXHAUSTED' ||
+                    attempt.scanDecision === 'CONTINUE_SOURCE_UNIT_INCOMPLETE'
                   ? 'WARN'
                   : 'INFO',
           outcome: attempt.scanDecision ?? 'FAILED',

@@ -217,6 +217,55 @@ describe('verifyTextualComponentSourceSupport', () => {
     }
   });
 
+  it('verifies a faithful quote of a bold name wrapped in quotation marks (RW4-EXTRACT-COMPLETENESS-1)', () => {
+    // Real source markup: the emphasis opens after the opening quote and
+    // closes after the closing one. The visible text, and the extractor's
+    // faithful quote of it, has no space inside the quotation marks.
+    const evidence = new Map([
+      [
+        'ev-1',
+        {
+          text: '- Stop 10: Last stop, this is "**El Patio de los Ezeiza"**. This is a house that was built around 1876.',
+        },
+      ],
+    ]);
+    const result = verifyTextualComponentSourceSupport(
+      'Stop 10: Last stop, this is "El Patio de los Ezeiza".',
+      ['ev-1'],
+      evidence,
+    );
+    expect(result.supported).toBe(true);
+    const nested = verifyTextualComponentSourceSupport(
+      'maybe check the "Fundación Proa" sometimes',
+      ['ev-1'],
+      new Map([
+        [
+          'ev-1',
+          {
+            text: 'wander around **Caminito Street**, and maybe check the "**Fundación Proa**" sometimes they have exhibitions',
+          },
+        ],
+      ]),
+    );
+    expect(nested.supported).toBe(true);
+  });
+
+  it('still rejects a paraphrase of the same quoted name', () => {
+    const result = verifyTextualComponentSourceSupport(
+      'Stop 10: The last stop is "El Patio de los Ezeiza".',
+      ['ev-1'],
+      new Map([
+        [
+          'ev-1',
+          {
+            text: '- Stop 10: Last stop, this is "**El Patio de los Ezeiza"**. This is a house.',
+          },
+        ],
+      ]),
+    );
+    expect(result.supported).toBe(false);
+  });
+
   it('verifies support spans when markdown delimiter directly touches punctuation like bold followed by colon', () => {
     const result = verifyTextualComponentSourceSupport(
       'Featured wineries: López (1898), Trapiche, Familia Zuccardi, Norton, Rutini, Tempus Alba',

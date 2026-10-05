@@ -23,6 +23,19 @@
  *   -> windows 2..N: every chunk window 1 left out, in DOCUMENT ORDER,
  *      packed under the same `maxChars`
  *
+ * Editorial units (RW4-EXTRACT-COMPLETENESS-1). A heading section is the
+ * source's own boundary for one coherent piece of content — e.g. a whole
+ * self-guided walk. The text is partitioned into units: the outermost
+ * heading section (never the page's sole title heading) whose text fits
+ * `unitMaxChars`; a section that does not fit is split into its own lead
+ * text and child sections, recursively. A unit is NEVER split across
+ * windows: window 1 is the most relevant unit, and a
+ * continuation window carries each unit whole (alone when it exceeds
+ * `maxChars`). Only text that fits no unit — a lead text or headless
+ * document longer than `unitMaxChars` — is walked in `maxChars` runs, and
+ * any window that cuts a unit reports `sectionComplete: false`, so a caller
+ * can refuse to treat a prefix of an editorial unit as the whole of it.
+ *
  * Ranking decides which source text is examined FIRST; it never decides
  * which source text gets its ONLY chance to be examined. The sequence is
  * finite and covers every chunk of the normalized text, so retrieved source
@@ -66,7 +79,10 @@ export interface SourceContentRelevanceContext {
 export type SourceContentSelectionStrategy =
   /** The payload-free source text fits the budget and is kept whole. */
   | 'WHOLE_DOCUMENT'
-  /** Window 1: the highest-ranked chunks that fit, in document order. */
+  /** Window 1: the whole editorial unit holding the top-ranked chunk. */
+  | 'SECTION_UNIT'
+  /** Window 1 when the top-ranked chunk is in no unit: the highest-ranked
+   * chunks that fit `maxChars`, in document order. */
   | 'RELEVANCE_WINDOWS'
   /** Windows 2..N: chunks window 1 left out, in document order, with whole
    * sections kept together when they fit. */
@@ -92,6 +108,12 @@ export interface SourceContentWindowingAudit {
   /** Characters handed to extraction, including excerpt separators. */
   retainedContentChars: number;
   maxChars: number;
+  /** Largest editorial unit kept whole, possibly above `maxChars`. */
+  unitMaxChars: number;
+  /** True when every editorial unit this window touches is in it whole. A
+   * window that holds only part of a unit (a ranked excerpt, or one run of
+   * text larger than `unitMaxChars`) is false: it may end mid-itinerary. */
+  sectionComplete: boolean;
   /** True when some source TEXT (not just payload) is outside this window. */
   truncated: boolean;
   /** Candidate chunks the normalized text was split into. */
@@ -140,6 +162,8 @@ interface Chunk {
   index: number;
   /** Index of the section this chunk belongs to (chunks never span two). */
   section: number;
+  /** Index of the editorial unit this chunk belongs to. */
+  unit: number;
   start: number;
   end: number;
   headings: string[];
@@ -237,6 +261,7 @@ function splitChunks(
         chunks.push({
           index: chunks.length,
           section: sectionIndex,
+          unit: -1,
           start: packStart,
           end: packEnd,
           headings: section.headings,
@@ -254,6 +279,77 @@ function splitChunks(
   return chunks;
 }
 
+/** A contiguous [start,end) range of the text: either one editorial unit
+ * (`complete`, kept whole) or text that fits no unit (walked in runs). */
+interface Unit {
+  start: number;
+  end: number;
+  complete: boolean;
+}
+
+interface HeadingNode {
+  start: number;
+  end: number;
+  level: number;
+  children: HeadingNode[];
+}
+
+/**
+ * Partitions the text into editorial units (see the file header). Headings
+ * form a tree by level; a node whose whole subtree fits `unitMaxChars` is
+ * one unit. The sole heading at the document's shallowest level is its
+ * title and never a unit by itself, so a page title does not swallow the
+ * page; its lead text and children are partitioned instead.
+ */
+function partitionUnits(text: string, unitMaxChars: number): Unit[] {
+  const headings: HeadingNode[] = [];
+  for (const match of text.matchAll(HEADING_LINE_PATTERN)) {
+    headings.push({
+      start: match.index ?? 0,
+      end: text.length,
+      level: match[1].length,
+      children: [],
+    });
+  }
+  const root: HeadingNode = {
+    start: 0,
+    end: text.length,
+    level: 0,
+    children: [],
+  };
+  const stack: HeadingNode[] = [root];
+  for (const node of headings) {
+    while (stack.length > 1 && stack[stack.length - 1].level >= node.level) {
+      stack.pop()!.end = node.start;
+    }
+    stack[stack.length - 1].children.push(node);
+    stack.push(node);
+  }
+  const minLevel = Math.min(...headings.map((h) => h.level));
+  const atMin = headings.filter((h) => h.level === minLevel);
+  const title = atMin.length === 1 ? atMin[0] : undefined;
+
+  const units: Unit[] = [];
+  const pushRange = (start: number, end: number) => {
+    if (end <= start || !text.slice(start, end).trim()) return;
+    units.push({ start, end, complete: end - start <= unitMaxChars });
+  };
+  const visit = (node: HeadingNode) => {
+    if (
+      node !== root &&
+      node !== title &&
+      node.end - node.start <= unitMaxChars
+    ) {
+      units.push({ start: node.start, end: node.end, complete: true });
+      return;
+    }
+    pushRange(node.start, node.children[0]?.start ?? node.end);
+    for (const child of node.children) visit(child);
+  };
+  visit(root);
+  return units;
+}
+
 function relevanceTerms(context: SourceContentRelevanceContext): Set<string> {
   return terms(
     [
@@ -264,11 +360,15 @@ function relevanceTerms(context: SourceContentRelevanceContext): Set<string> {
   );
 }
 
-function scoreChunks(
+/** Scores ranges of the text (chunks, or whole units) against the query
+ * terms: distinct-term presence weighted by inverse document frequency over
+ * the same set of ranges. */
+function scoreRanges(
   text: string,
-  chunks: Chunk[],
+  ranges: Array<{ start: number; end: number; headings: string[] }>,
   queryTerms: Set<string>,
 ): number[] {
+  const chunks = ranges;
   const bodyTerms = chunks.map((c) => terms(text.slice(c.start, c.end)));
   const headingTerms = chunks.map((c) => terms(c.headings.join(' ')));
   // Inverse document frequency over this document's own chunks: a term that
@@ -363,45 +463,51 @@ function selectRankedChunks(
 
 /**
  * Windows 2..N over every chunk `examined` does not contain, in document
- * order. Each section with an unexamined chunk becomes one segment when the
- * whole section fits the budget; an oversized section becomes budget-sized
- * runs of consecutive chunks, consecutive runs sharing one boundary chunk.
- * Segments are packed into windows in document order without splitting a
- * segment.
+ * order. Each complete editorial unit with an unexamined chunk becomes one
+ * segment, whole (re-including chunks window 1 already examined). Text that
+ * fits no unit becomes budget-sized runs of consecutive chunks, consecutive
+ * runs sharing one boundary chunk. Whole units are packed into windows in
+ * document order without splitting one; a unit larger than `maxChars` (up
+ * to `unitMaxChars`) and every run of oversized text is a window of its own.
  */
 function continuationWindows(
   text: string,
   chunks: Chunk[],
+  units: Unit[],
   examined: ReadonlySet<number>,
   maxChars: number,
 ): Chunk[][] {
-  const bySection = new Map<number, Chunk[]>();
+  const byUnit = new Map<number, Chunk[]>();
   for (const chunk of chunks) {
-    const list = bySection.get(chunk.section) ?? [];
+    const list = byUnit.get(chunk.unit) ?? [];
     list.push(chunk);
-    bySection.set(chunk.section, list);
+    byUnit.set(chunk.unit, list);
   }
 
-  const segments: Chunk[][] = [];
-  for (const sectionChunks of bySection.values()) {
-    if (sectionChunks.every((c) => examined.has(c.index))) continue;
-    if (chunkSetCost(text, sectionChunks) <= maxChars) {
-      segments.push(sectionChunks);
+  // `whole` segments may share a window; a run of oversized text is always
+  // a window of its own, so a whole unit never shares a window with a cut.
+  const segments: Array<{ chunks: Chunk[]; whole: boolean }> = [];
+  for (const [unitIndex, unitChunks] of byUnit) {
+    if (unitChunks.every((c) => examined.has(c.index))) continue;
+    if (units[unitIndex].complete) {
+      segments.push({ chunks: unitChunks, whole: true });
       continue;
     }
     let from = 0;
-    while (from < sectionChunks.length) {
+    while (from < unitChunks.length) {
       // A single chunk always fits: chunks are a fraction of the budget.
       let to = from + 1;
       while (
-        to < sectionChunks.length &&
-        chunkSetCost(text, sectionChunks.slice(from, to + 1)) <= maxChars
+        to < unitChunks.length &&
+        chunkSetCost(text, unitChunks.slice(from, to + 1)) <= maxChars
       ) {
         to++;
       }
-      const run = sectionChunks.slice(from, to);
-      if (run.some((c) => !examined.has(c.index))) segments.push(run);
-      if (to >= sectionChunks.length) break;
+      const run = unitChunks.slice(from, to);
+      if (run.some((c) => !examined.has(c.index))) {
+        segments.push({ chunks: run, whole: false });
+      }
+      if (to >= unitChunks.length) break;
       // Share the run's last chunk with the next run when that still makes
       // progress, so text spanning the cut reaches one window intact.
       from = to - 1 > from ? to - 1 : to;
@@ -410,7 +516,13 @@ function continuationWindows(
 
   const windows: Chunk[][] = [];
   let current: Chunk[] = [];
-  for (const segment of segments) {
+  for (const { chunks: segment, whole } of segments) {
+    if (!whole || chunkSetCost(text, segment) > maxChars) {
+      if (current.length) windows.push(current);
+      windows.push(segment);
+      current = [];
+      continue;
+    }
     const merged = [
       ...current,
       ...segment.filter((c) => !current.some((k) => k.index === c.index)),
@@ -426,18 +538,36 @@ function continuationWindows(
   return windows;
 }
 
+/** True when every unit `windowChunks` touches is complete and wholly in it. */
+function coversWholeUnits(
+  chunks: Chunk[],
+  units: Unit[],
+  windowChunks: Chunk[],
+): boolean {
+  const inWindow = new Set(windowChunks.map((c) => c.index));
+  const touched = new Set(windowChunks.map((c) => c.unit));
+  return [...touched].every(
+    (unit) =>
+      units[unit].complete &&
+      chunks.filter((c) => c.unit === unit).every((c) => inWindow.has(c.index)),
+  );
+}
+
 /**
  * The finite, deterministic sequence of source windows for ONE retrieved
- * source. Window 1 is the relevance-ranked selection (the fast path);
- * windows 2..N cover everything else in document order. Each window stays
- * within `maxChars`, and together they examine every chunk of the
- * normalized source text at least once. Identical input always yields an
- * identical sequence.
+ * source. Window 1 is the most relevant editorial unit (or, when that text
+ * fits no unit, the relevance-ranked selection); windows
+ * 2..N cover everything else in document order. A window stays within
+ * `maxChars` unless it carries one whole unit, which stays within
+ * `unitMaxChars`. Together they examine every chunk of the normalized
+ * source text at least once. Identical input always yields an identical
+ * sequence.
  */
 export function windowSourceContentSequence(
   rawContent: string,
   context: SourceContentRelevanceContext,
   maxChars: number,
+  unitMaxChars: number = maxChars,
 ): SourceContentWindow[] {
   const text = removePayload(rawContent);
   const base = {
@@ -445,6 +575,7 @@ export function windowSourceContentSequence(
     removedPayloadChars: rawContent.length - text.length,
     normalizedContentChars: text.length,
     maxChars,
+    unitMaxChars,
   };
 
   if (text.length <= maxChars) {
@@ -456,6 +587,7 @@ export function windowSourceContentSequence(
           selectionStrategy: 'WHOLE_DOCUMENT',
           retainedContentChars: text.length,
           truncated: false,
+          sectionComplete: true,
           chunkCount: 1,
           selectedExcerpts: [{ start: 0, end: text.length, headings: [] }],
           windowOrdinal: 1,
@@ -471,17 +603,67 @@ export function windowSourceContentSequence(
   const sections = splitSections(text);
   const chunkMax = Math.max(1, Math.floor(maxChars / CHUNKS_PER_BUDGET));
   const chunks = splitChunks(text, sections, chunkMax);
-  const scores = scoreChunks(text, chunks, relevanceTerms(context));
+  const units = partitionUnits(text, unitMaxChars);
+  for (const chunk of chunks) {
+    chunk.unit = units.findIndex(
+      (u) => chunk.start >= u.start && chunk.start < u.end,
+    );
+  }
+  const queryTerms = relevanceTerms(context);
+  const scores = scoreRanges(text, chunks, queryTerms);
 
-  const first = selectRankedChunks(text, chunks, scores, maxChars);
+  // Window 1: the most relevant unit, scored as one range (distinct query
+  // terms, IDF over units; ties keep document order), whole. Scoring the
+  // unit itself, rather than its single best chunk or the sum of its
+  // chunks, neither lets a one-line title summary outrank the section that
+  // holds the content nor lets sheer length win. The relevance selection is
+  // used only when that unit is text that fits no unit.
+  const unitScores = scoreRanges(
+    text,
+    units.map((u) => ({
+      start: u.start,
+      end: u.end,
+      headings: [
+        ...new Set(
+          sections
+            .filter((sec) => sec.start >= u.start && sec.start < u.end)
+            .flatMap((sec) => sec.headings),
+        ),
+      ],
+    })),
+    queryTerms,
+  );
+  const best = unitScores.reduce(
+    (bestIndex, score, i) => (score > unitScores[bestIndex] ? i : bestIndex),
+    0,
+  );
+  const unitWindow = units[best].complete;
+  // A window never mixes a whole unit with part of another: the relevance
+  // fallback ranks only within the oversized text it falls back for, so
+  // every other unit stays unexamined and reaches a continuation window
+  // whole.
+  const first = unitWindow
+    ? chunks.filter((c) => c.unit === best)
+    : selectRankedChunks(
+        text,
+        chunks.filter((c) => c.unit === best),
+        scores,
+        maxChars,
+      );
   const plan: Array<{
     strategy: SourceContentSelectionStrategy;
     chunks: Chunk[];
-  }> = [{ strategy: 'RELEVANCE_WINDOWS', chunks: first }];
+  }> = [
+    {
+      strategy: unitWindow ? 'SECTION_UNIT' : 'RELEVANCE_WINDOWS',
+      chunks: first,
+    },
+  ];
   const firstExamined = new Set(first.map((c) => c.index));
   for (const window of continuationWindows(
     text,
     chunks,
+    units,
     firstExamined,
     maxChars,
   )) {
@@ -502,6 +684,7 @@ export function windowSourceContentSequence(
         selectionStrategy: strategy,
         retainedContentChars: content.length,
         truncated: true,
+        sectionComplete: coversWholeUnits(chunks, units, windowChunks),
         chunkCount: chunks.length,
         selectedExcerpts: excerpts,
         windowOrdinal: i + 1,

@@ -128,3 +128,16 @@ export const EXPERIENCE_WEB_SOURCE_CONTENT_PROVIDER =
  * pre-capability Tavily search enrichment used.
  */
 export const DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS = 6000;
+
+/**
+ * Largest editorial unit (one heading section of the source, e.g. a whole
+ * self-guided walk) that `windowSourceContentSequence` hands to ONE
+ * extraction whole, above the per-window budget (RW4-EXTRACT-COMPLETENESS-1).
+ * It bounds the extractor prompt: 24 000 source characters is about 6–8k
+ * tokens, which with the ~14k-character shared instructions and the other
+ * grounded snippets keeps a deep-source prompt near 12k tokens, inside every
+ * supported extractor's context. It is never a silent cut: a unit larger
+ * than this is walked in runs whose windows report `sectionComplete: false`,
+ * and such a window cannot close a multi-component composition gap.
+ */
+export const DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS = 24000;

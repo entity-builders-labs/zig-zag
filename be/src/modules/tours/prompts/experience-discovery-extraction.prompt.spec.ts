@@ -165,6 +165,56 @@ describe('experience discovery extraction prompt (shared contract)', () => {
       );
     });
 
+    it('F: a source-defined itinerary is an exhaustive ordered sequence (RW4-EXTRACT-COMPLETENESS-1)', () => {
+      expect(text).toMatch(/Source-defined itinerary completeness/);
+      expect(text).toMatch(/extract it EXHAUSTIVELY/);
+      expect(text).toMatch(
+        /including every numbered stop, from its first stop to its last, in the source's own order/,
+      );
+      expect(text).toMatch(
+        /not a selection of highlights or representative places/,
+      );
+      expect(text).toMatch(
+        /never drop a directed stop because it is close to another stop, similar to another stop/,
+      );
+      // Completeness never licenses invention or flattening alternatives.
+      expect(text).toMatch(/never add a stop the evidence does not name/);
+      expect(text).toMatch(/follows the alternatives rule and is not a member/);
+      expect(text).toMatch(
+        /A place recommended only for eating or drinking .* is a suggestion, not a stop/,
+      );
+      expect(text).toMatch(
+        /A place the source numbers as a stop or directs the traveller to visit stays a stop/,
+      );
+    });
+
+    it('G: a source-stated motorized transfer splits the itinerary into parts, none dropped', () => {
+      expect(text).toMatch(
+        /take motorized transport \(bus, taxi, train, ferry, car\)/,
+      );
+      expect(text).toMatch(/Itinerary parts come first/);
+      expect(text).toMatch(
+        /Each part is a separate candidate with its own componentHints, and the place the transfer reaches starts the next part/,
+      );
+      expect(text).toMatch(
+        /Never put stops from both sides of such a transfer into one candidate/,
+      );
+      expect(text).toMatch(/never drop a later part/);
+    });
+
+    it('H: consecutive parts of one itinerary are not variants and are never trimmed', () => {
+      expect(text).toMatch(
+        /a morning tour vs an afternoon tour offered as alternatives/,
+      );
+      expect(text).not.toMatch(/a morning vs an afternoon itinerary/);
+      expect(text).toMatch(
+        /Consecutive parts of ONE itinerary .* are not alternative variants/,
+      );
+      expect(text).toMatch(
+        /the stops of one itinerary are never trimmed to keep extraction small/,
+      );
+    });
+
     it('MULTI_COMPONENT_EXPERIENCE never licenses self-duplication, fake ROUTEs or variant unions', () => {
       expect(text).toMatch(
         /Never duplicate the Experience identity, invent a geographic ROUTE, or merge different variants\/options merely to reach the component count required by MULTI_COMPONENT_EXPERIENCE/,

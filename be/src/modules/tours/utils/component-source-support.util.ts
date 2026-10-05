@@ -123,11 +123,18 @@ function stripMarkdownFormatting(value: string): string {
 }
 
 function normalize(value: string): string {
-  return stripMarkdownFormatting(value)
-    .toLowerCase()
-    .replace(/\s+([,.:;?!])/g, '$1')
-    .replace(/\s+/g, ' ')
-    .trim();
+  return (
+    stripMarkdownFormatting(value)
+      .toLowerCase()
+      .replace(/\s+([,.:;?!])/g, '$1')
+      // Emphasis delimiters become whitespace above, so `"**Name"**` reads as
+      // `" Name" ` while the visible text, and a faithful quote of it, is
+      // `"Name"`. Whitespace touching a quote mark carries no visible text,
+      // so it is dropped on both sides of the comparison.
+      .replace(/\s*(["“”«»])\s*/g, '$1')
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
 }
 
 function toTokenPattern(token: string): string {
