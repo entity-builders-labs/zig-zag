@@ -1,0 +1,24 @@
+{
+  "destination": {
+    "label": "Mendoza, Argentina",
+    "latitude": -32.8895,
+    "longitude": -68.8458,
+    "scaleHint": "settlement"
+  },
+  "days": 1,
+  "budgetLevel": "medium",
+  "groupType": "solo",
+  "intent": {
+    "interests": ["history", "architecture"],
+    "intents": ["walk"],
+    "explorationStyle": "balanced",
+    "additionalPreferences": "Quiero hacer un recorrido a pie por el centro de la Ciudad de Mendoza, sus plazas y lugares históricos."
+  },
+  "mobility": {
+    "allowedTransportationModes": ["walking"],
+    "maxWalkingDistancePerDayMeters": 10000,
+    "maxContinuousWalkingDistanceMeters": 3000,
+    "travelPace": "moderate"
+  },
+  "skipImageGeneration": true
+}
