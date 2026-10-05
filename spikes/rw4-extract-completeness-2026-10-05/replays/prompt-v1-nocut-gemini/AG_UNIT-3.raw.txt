@@ -1,0 +1,145 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walking Tour of San Telmo, Center, and La Boca",
+      "description": "A comprehensive 24-hour self-guided walking itinerary covering the historic center, San Telmo, La Boca, and Puerto Madero, featuring architectural landmarks, traditional cafés, and cultural sights.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture",
+        "food",
+        "gastronomy"
+      ],
+      "traits": [
+        "self-guided",
+        "24-hour tour",
+        "historical tour",
+        "walking itinerary"
+      ],
+      "intents": [
+        "walk",
+        "route_like",
+        "visit",
+        "food"
+      ],
+      "componentHints": [
+        {
+          "key": "teatro-colon",
+          "name": "Teatro Colón",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "From there you can cross the park to see the stunning Teatro Colón from outside."
+        },
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Once you arrive to Plaza de Mayo you can walk through Av. de Mayo (which is really beautiful avenue) at the end of this avenue you can see the Congress building."
+        },
+        {
+          "key": "defensa-street",
+          "name": "Calle Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Defensa Street is the main street and on Sunday there is a huge street fair that starts from Plaza de Mayo and continues to Plaza Dorrego."
+        },
+        {
+          "key": "farmacia-la-estrella",
+          "name": "Farmacia La Estrella",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 5: is a really old Pharmacy call \"Farmacia la Estrella\", from 1834."
+        },
+        {
+          "key": "la-libreria-del-avila",
+          "name": "La Librería de Ávila",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Oldest library in town, \"La Librería del Avila\"!, this is the library it has more than 100.000 books and it has been witness of big part of our history."
+        },
+        {
+          "key": "monumento-de-mafalda",
+          "name": "Monumento de Mafalda",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 7: Monumento de Mafalda, this is one of our most loved cartoon characters created by Quino."
+        },
+        {
+          "key": "casa-minima",
+          "name": "Casa Mínima",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Casa Mínima, this is known to be the narrowest house in Buenos Aires, not sure if this is true but is cute and the street as well ;)"
+        },
+        {
+          "key": "san-telmo-market",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 9: The San Telmo Market!! My favorite place in the neighborhood, the oldest market in Buenos Aires and recently remodeled with a lot of restaurants"
+        },
+        {
+          "key": "patio-de-los-ezeiza",
+          "name": "El Patio de los Ezeiza",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 10: Last stop, this is \"El Patio de los Ezeiza\"."
+        },
+        {
+          "key": "caminito",
+          "name": "Caminito",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "After this, you can wander around Caminito Street, and maybe check the \"Fundación Proa\" sometimes they have interesting exhibitions."
+        },
+        {
+          "key": "puente-de-la-mujer",
+          "name": "Puente de la Mujer",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "The starting point here is the Puente de la Mujer, this is beautiful day or night."
+        }
+      ],
+      "suggestedDurationMinutes": 1440,
+      "shortReason": "A detailed multi-stop self-guided walking itinerary starting from the Center through San Telmo to La Boca and Puerto Madero.",
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

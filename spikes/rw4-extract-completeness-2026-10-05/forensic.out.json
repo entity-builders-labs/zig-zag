@@ -1,0 +1,876 @@
+{
+  "secretsofbuenosaires-day1": {
+    "attempts": [
+      {
+        "run": "c3-cold",
+        "pass": "planner_capacity",
+        "window": 1,
+        "excerpts": "644-3536,4667-7593,12079-12213",
+        "status": "completed",
+        "emitted": []
+      },
+      {
+        "run": "c3-cold",
+        "pass": "planner_capacity",
+        "window": 2,
+        "excerpts": "0-641",
+        "status": "completed",
+        "emitted": []
+      },
+      {
+        "run": "c3-cold",
+        "pass": "planner_capacity",
+        "window": 3,
+        "excerpts": "2098-7593",
+        "status": "completed",
+        "emitted": [
+          "Plaza de Mayo",
+          "Casa Rosada",
+          "Catedral Metropolitana",
+          "Museo del Cabildo",
+          "Mercado de San Telmo",
+          "Plaza Dorrego",
+          "Parque Lezama"
+        ]
+      }
+    ],
+    "persistedComponents": [
+      "Plaza de Mayo",
+      "Casa Rosada",
+      "Catedral Metropolitana",
+      "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+      "Mercado de San Telmo",
+      "Plaza Dorrego",
+      "Parque Lezama"
+    ],
+    "rows": [
+      {
+        "segment": "S1-walk",
+        "item": "Plaza de Mayo",
+        "role": "MANDATORY",
+        "lostAt": "EMITTED_VERIFIED_PERSISTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN+EMIT"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Casa Rosada",
+        "role": "MANDATORY",
+        "lostAt": "EMITTED_VERIFIED_PERSISTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN+EMIT"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Cabildo",
+        "role": "MANDATORY",
+        "lostAt": "EMITTED_VERIFIED_PERSISTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN+EMIT"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Catedral Metropolitana",
+        "role": "MANDATORY",
+        "lostAt": "EMITTED_VERIFIED_PERSISTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN+EMIT"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Banco de la Nación Argentina",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Defensa",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Estados Unidos",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Bar Sur",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Paseo Colón",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Facultad de Ingeniería (UBA)",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Mercado de San Telmo",
+        "role": "MANDATORY",
+        "lostAt": "EMITTED_VERIFIED_PERSISTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN+EMIT"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Plaza Dorrego",
+        "role": "MANDATORY",
+        "lostAt": "EMITTED_VERIFIED_PERSISTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN+EMIT"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Avenida San Juan",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Museo de Arte Moderno de Buenos Aires",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Ex Centro Clandestino Club Atlético",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Parque Lezama",
+        "role": "MANDATORY",
+        "lostAt": "EMITTED_VERIFIED_PERSISTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN+EMIT"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Monumento a Pedro de Mendoza",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Museo Histórico Nacional",
+        "role": "MANDATORY",
+        "lostAt": "RETRIEVED_BUT_EXCLUDED_BY_WINDOW",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Avenida Caseros",
+        "role": "ACCEPTABLE",
+        "lostAt": "RETRIEVED_BUT_EXCLUDED_BY_WINDOW",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "item": "La Boca",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "item": "Caminito",
+        "role": "MANDATORY",
+        "lostAt": "RETRIEVED_BUT_EXCLUDED_BY_WINDOW",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "item": "La Bombonera",
+        "role": "MANDATORY",
+        "lostAt": "RETRIEVED_BUT_EXCLUDED_BY_WINDOW",
+        "perAttempt": [
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--"
+        ]
+      }
+    ]
+  },
+  "agusyornet-san-telmo": {
+    "attempts": [
+      {
+        "run": "c3-cold",
+        "pass": "area_route_walk-san-telmo",
+        "window": 1,
+        "excerpts": "667-1619,3111-6097,7585-9084,10546-10868,11520-11563,21153-21189",
+        "status": "completed",
+        "emitted": [
+          "San Telmo Market",
+          "Casa Mínima",
+          "Defensa Street"
+        ]
+      },
+      {
+        "run": "c3-cold",
+        "pass": "generic",
+        "window": 1,
+        "excerpts": "3478-7798,12698-14158,16789-16832",
+        "status": "failed",
+        "emitted": []
+      },
+      {
+        "run": "c3-cold",
+        "pass": "planner_capacity",
+        "window": 1,
+        "excerpts": "3478-9231,16789-16832",
+        "status": "completed",
+        "emitted": []
+      },
+      {
+        "run": "c3-cold",
+        "pass": "planner_capacity",
+        "window": 2,
+        "excerpts": "0-3476",
+        "status": "completed",
+        "emitted": []
+      },
+      {
+        "run": "c3-cold",
+        "pass": "planner_capacity",
+        "window": 3,
+        "excerpts": "7799-12697",
+        "status": "completed",
+        "emitted": []
+      },
+      {
+        "run": "c3-warm",
+        "pass": "planner_capacity",
+        "window": 1,
+        "excerpts": "3478-6299,7799-9231,11198-12697,16789-16832",
+        "status": "completed",
+        "emitted": [
+          "Monumento de Mafalda",
+          "Casa Mínima",
+          "San Telmo Market"
+        ]
+      }
+    ],
+    "persistedComponents": [
+      "Mercado de San Telmo",
+      "Casa Mínima",
+      "Defensa"
+    ],
+    "rows": [
+      {
+        "segment": "S1-walk",
+        "item": "Teatro Colón",
+        "role": "MANDATORY",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Obelisco",
+        "role": "MANDATORY",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Avenida Roque Sáenz Peña",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Plaza de Mayo",
+        "role": "MANDATORY",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Avenida de Mayo",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Congreso de la Nación Argentina",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Café Tortoni",
+        "role": "ALTERNATIVE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "London City",
+        "role": "ALTERNATIVE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Casa Rosada",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Catedral Metropolitana",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Cabildo",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Defensa",
+        "role": "ACCEPTABLE",
+        "lostAt": "EMITTED_VERIFIED_PERSISTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN+EMIT",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Farmacia La Estrella",
+        "role": "MANDATORY",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Museo de la Ciudad",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Librería de Ávila",
+        "role": "MANDATORY",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Colegio Nacional de Buenos Aires",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Alfonso",
+        "role": "ALTERNATIVE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Monumento de Mafalda",
+        "role": "MANDATORY",
+        "lostAt": "EMITTED_NOT_PERSISTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN+EMIT"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Casa Mínima",
+        "role": "MANDATORY",
+        "lostAt": "EMITTED_VERIFIED_PERSISTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN+EMIT",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN+EMIT"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Mercado de San Telmo",
+        "role": "MANDATORY",
+        "lostAt": "EMITTED_VERIFIED_PERSISTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN+EMIT",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:IN",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN+EMIT"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Nuestra Parrilla",
+        "role": "ALTERNATIVE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Coffee Town",
+        "role": "ALTERNATIVE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Saigón",
+        "role": "ALTERNATIVE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Desnivel",
+        "role": "ALTERNATIVE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Café Rivas",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "Galería Solar",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S1-walk",
+        "item": "El Patio de los Ezeiza",
+        "role": "MANDATORY",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "item": "Caminito",
+        "role": "MANDATORY",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "item": "Don Carlos",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "item": "La Bombonera",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "item": "Fundación Proa",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "item": "Puente de la Mujer",
+        "role": "MANDATORY",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:--",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "item": "Puerto Madero",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:IN",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:IN",
+          "c3-warm/planner_capacity/w1:IN"
+        ]
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "item": "Dársena Sur",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "item": "Avenida Ingeniero Huergo / Hernán Giralt",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "item": "Centro Cultural Kirchner",
+        "role": "ACCEPTABLE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "item": "Trade Sky Bar",
+        "role": "ALTERNATIVE",
+        "lostAt": "IN_EXTRACTOR_INPUT_NOT_EMITTED",
+        "perAttempt": [
+          "c3-cold/area_route_walk-san-telmo/w1:--",
+          "c3-cold/generic/w1:IN",
+          "c3-cold/planner_capacity/w1:--",
+          "c3-cold/planner_capacity/w2:--",
+          "c3-cold/planner_capacity/w3:--",
+          "c3-warm/planner_capacity/w1:--"
+        ]
+      }
+    ]
+  }
+}

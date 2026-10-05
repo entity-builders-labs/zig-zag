@@ -1,0 +1,351 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 5492,
+    "inputChars": 8453,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walking Tour: Plaza de Mayo to San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana de Buenos Aires=Catedral Metropolitana[MANDATORY]",
+          "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo=Cabildo[MANDATORY]",
+          "Calle Defensa=Defensa[ACCEPTABLE]",
+          "Calle Estados Unidos=Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Avenida Paseo Colón=Paseo Colón[ACCEPTABLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]",
+          "Club Atlético=Ex Centro Clandestino Club Atlético[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]",
+          "Museo Histórico Nacional[MANDATORY]",
+          "Avenida Caseros[ACCEPTABLE]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "8/8",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 4797,
+    "inputChars": 8453,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walking Tour: Plaza de Mayo to San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Museo del Cabildo=Cabildo[MANDATORY]",
+          "Calle Defensa=Defensa[ACCEPTABLE]",
+          "Calle Estados Unidos=Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Avenida Paseo Colón=Paseo Colón[ACCEPTABLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "7/8",
+            "missingMandatory": [
+              "Museo Histórico Nacional"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 3,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 5118,
+    "inputChars": 8453,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Buenos Aires Day 1 Self-Guided Walking Tour: Plaza de Mayo to San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Museo del Cabildo=Cabildo[MANDATORY]",
+          "Calle Defensa=Defensa[ACCEPTABLE]",
+          "Calle Estados Unidos=Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Avenida Paseo Colón=Paseo Colón[ACCEPTABLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]",
+          "Club Atlético=Ex Centro Clandestino Club Atlético[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]",
+          "Museo Histórico Nacional[MANDATORY]",
+          "Avenida Caseros[ACCEPTABLE]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "8/8",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 5689,
+    "inputChars": 11005,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 15 (Patio de los Ezeiza) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE; component 16 (Caminito) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 4672,
+    "inputChars": 11005,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 3 (Plaza de Mayo) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE; component 9 (El Patio de los Ezeiza) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE; component 10 (Caminito) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 3,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 4642,
+    "inputChars": 11005,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 9 (El Patio de los Ezeiza) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE; component 10 (Caminito) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_W3",
+    "run": 1,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 5312,
+    "inputChars": 5493,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 12 (Museo de Arte Moderno de Buenos Aires) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_W3",
+    "run": 2,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 4632,
+    "inputChars": 5493,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 12 (Museo de Arte Moderno de Buenos Aires) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_W3",
+    "run": 3,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 4797,
+    "inputChars": 5493,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Day 1 Self-Guided Walking Tour in Buenos Aires",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Cabildo[MANDATORY]",
+          "Defensa[ACCEPTABLE]",
+          "Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Paseo de Colon[NOT_IN_ORACLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "7/8",
+            "missingMandatory": [
+              "Museo Histórico Nacional"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Paseo de Colon"
+        ],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 1,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 28600,
+    "inputChars": 5873,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self Guided Walking Tour San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Defensa Street=Defensa[ACCEPTABLE]",
+          "Farmacia la Estrella=Farmacia La Estrella[MANDATORY]",
+          "La Librería del Avila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "Mercado de San Telmo[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "5/9",
+            "missingMandatory": [
+              "Teatro Colón",
+              "Obelisco",
+              "Plaza de Mayo",
+              "El Patio de los Ezeiza"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 2,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 4195,
+    "inputChars": 5873,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self Guided Walking Tour San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Defensa Street=Defensa[ACCEPTABLE]",
+          "Farmacia La Estrella[MANDATORY]",
+          "La Librería del Avila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "Mercado de San Telmo[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "5/9",
+            "missingMandatory": [
+              "Teatro Colón",
+              "Obelisco",
+              "Plaza de Mayo",
+              "El Patio de los Ezeiza"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 3,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 3673,
+    "inputChars": 5873,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 6 (Mercado de San Telmo) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "input": "SOB_W3",
+    "run": 1,
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "ms": 3799,
+    "inputChars": 5493,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walk Through San Telmo Historic Sites",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Museo del Cabildo=Cabildo[MANDATORY]",
+          "Calle Defensa=Defensa[ACCEPTABLE]",
+          "Feria de San Telmo[NOT_IN_ORACLE]",
+          "Calle Estados Unidos=Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Paseo de Colón[NOT_IN_ORACLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Museo de Arte Moderno=Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "7/8",
+            "missingMandatory": [
+              "Museo Histórico Nacional"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Feria de San Telmo",
+          "Paseo de Colón"
+        ],
+        "alternatives": []
+      }
+    ]
+  }
+]

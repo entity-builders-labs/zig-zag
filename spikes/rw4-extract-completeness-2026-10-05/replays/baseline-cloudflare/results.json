@@ -1,0 +1,182 @@
+[
+  {
+    "input": "SOB_W3",
+    "run": 1,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 11190,
+    "inputChars": 5493,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_W3",
+    "run": 2,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 1602,
+    "inputChars": 5493,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 5674,
+    "inputChars": 8453,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 15962,
+    "inputChars": 8453,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Historical Walk in San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza Dorrego[MANDATORY]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Parque Lezama[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "3/8",
+            "missingMandatory": [
+              "Plaza de Mayo",
+              "Casa Rosada",
+              "Cabildo",
+              "Catedral Metropolitana",
+              "Museo Histórico Nacional"
+            ],
+            "ordered": false
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 1,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 34966,
+    "inputChars": 5873,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self Guided Walking Tour San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Defensa Street=Defensa[ACCEPTABLE]",
+          "San Telmo Market=Mercado de San Telmo[MANDATORY]",
+          "Farmacia la Estrella=Farmacia La Estrella[MANDATORY]",
+          "La Librería del Avila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "5/9",
+            "missingMandatory": [
+              "Teatro Colón",
+              "Obelisco",
+              "Plaza de Mayo",
+              "El Patio de los Ezeiza"
+            ],
+            "ordered": false
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 2,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 57799,
+    "inputChars": 5873,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self Guided Walking Tour San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Mercado de San Telmo[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Farmacia la Estrella=Farmacia La Estrella[MANDATORY]",
+          "La Librería del Avila=Librería de Ávila[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "5/9",
+            "missingMandatory": [
+              "Teatro Colón",
+              "Obelisco",
+              "Plaza de Mayo",
+              "El Patio de los Ezeiza"
+            ],
+            "ordered": false
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 1614,
+    "inputChars": 11005,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 1442,
+    "inputChars": 11005,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  }
+]

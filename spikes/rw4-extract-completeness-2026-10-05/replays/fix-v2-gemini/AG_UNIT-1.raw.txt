@@ -1,0 +1,101 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walking Tour San Telmo and Historic Center",
+      "description": "A self-guided walking tour through the center of Buenos Aires and San Telmo starting from Teatro Colón, visiting Plaza de Mayo, walking down Defensa Street, stopping at historic spots like Farmacia la Estrella, Monasterio de Mafalda, Casa Mínima, and ending at El Patio de los Ezeiza.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture"
+      ],
+      "traits": [
+        "self-guided",
+        "historic",
+        "walking itinerary"
+      ],
+      "intents": [
+        "walk",
+        "route_like",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "teatro-colon",
+          "name": "Teatro Colón",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "From there you can cross the park to see the stunning Teatro Colón from outside."
+        },
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Once you arrive to Plaza de Mayo you can walk through Av. de Mayo"
+        },
+        {
+          "key": "defensa-street",
+          "name": "Calle Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Now you are entering San Telmo. Defensa Street is the main street"
+        },
+        {
+          "key": "farmacia-la-estrella",
+          "name": "Farmacia la Estrella",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 5: is a really old Pharmacy call \"Farmacia la Estrella\", from 1834."
+        },
+        {
+          "key": "monumento-de-mafalda",
+          "name": "Monumento de Mafalda",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 7: Monumento de Mafalda, this is one of our most loved cartoon characters created by Quino."
+        },
+        {
+          "key": "casa-minima",
+          "name": "Casa Mínima",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 8: Casa Mínima, this is known to be the narrowest house in Buenos Aires"
+        },
+        {
+          "key": "el-patio-de-los-ezeiza",
+          "name": "El Patio de los Ezeiza",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 10: Last stop, this is \"El Patio de los Ezeiza\"."
+        }
+      ],
+      "suggestedDurationMinutes": 360,
+      "shortReason": "A comprehensive self-guided walking tour covering major historic highlights in San Telmo and the center as outlined in the grounded evidence.",
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

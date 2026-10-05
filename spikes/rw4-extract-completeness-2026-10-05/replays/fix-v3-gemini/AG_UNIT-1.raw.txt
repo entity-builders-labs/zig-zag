@@ -1,0 +1,138 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walking Tour from Teatro Colón to San Telmo",
+      "description": "A comprehensive self-guided walking tour starting from Teatro Colón, passing through Plaza de Mayo, and exploring the historic streets and landmarks of San Telmo including Defensa Street, Farmacia la Estrella, La Librería del Avila, Monumento de Mafalda, Casa Mínima, Mercado de San Telmo, and El Patio de los Ezeiza.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture"
+      ],
+      "traits": [
+        "self-guided",
+        "historic sights",
+        "walking itinerary"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "teatro-colon",
+          "name": "Teatro Colón",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Teatro Colón",
+          "normalizationKind": "CANONICAL_NAME",
+          "sourceName": "Teatro Colón"
+        },
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Plaza de Mayo",
+          "normalizationKind": "CANONICAL_NAME",
+          "sourceName": "Plaza de Mayo"
+        },
+        {
+          "key": "defensa-street",
+          "name": "Calle Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Defensa Street",
+          "normalizationKind": "TRANSLATION",
+          "sourceName": "Defensa Street"
+        },
+        {
+          "key": "farmacia-la-estrella",
+          "name": "Farmacia La Estrella",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Farmacia la Estrella",
+          "normalizationKind": "CANONICAL_NAME",
+          "sourceName": "Farmacia la Estrella"
+        },
+        {
+          "key": "libreria-del-avila",
+          "name": "La Librería de Ávila",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "La Librería del Avila",
+          "normalizationKind": "CANONICAL_NAME",
+          "sourceName": "La Librería del Avila"
+        },
+        {
+          "key": "monumento-de-mafalda",
+          "name": "Monumento a Mafalda",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Monumento de Mafalda",
+          "normalizationKind": "CANONICAL_NAME",
+          "sourceName": "Monumento de Mafalda"
+        },
+        {
+          "key": "casa-minima",
+          "name": "Casa Mínima",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Casa Mínima",
+          "normalizationKind": "CANONICAL_NAME",
+          "sourceName": "Casa Mínima"
+        },
+        {
+          "key": "san-telmo-market",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "The San Telmo Market",
+          "normalizationKind": "TRANSLATION",
+          "sourceName": "The San Telmo Market"
+        },
+        {
+          "key": "patio-de-los-ezeiza",
+          "name": "El Patio de los Ezeiza",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "El Patio de los Ezeiza",
+          "normalizationKind": "CANONICAL_NAME",
+          "sourceName": "El Patio de los Ezeiza"
+        }
+      ],
+      "suggestedDurationMinutes": 360,
+      "shortReason": "A comprehensive self-guided walking itinerary covering historic landmarks from Teatro Colón through Plaza de Mayo and across San Telmo.",
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

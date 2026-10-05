@@ -1,0 +1,160 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walk: Plaza de Mayo to San Telmo",
+      "description": "A self-guided walking itinerary starting at Plaza de Mayo, moving through the historic center along Defensa Street, and exploring key landmarks in San Telmo including the market, plazas, and parks.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture"
+      ],
+      "traits": [
+        "self-guided",
+        "historic district",
+        "cobblestone streets"
+      ],
+      "intents": [
+        "walk",
+        "route_like"
+      ],
+      "suggestedDurationMinutes": 240,
+      "componentHints": [
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "START AT PLAZA DE MAYO:"
+        },
+        {
+          "key": "casa-rosada",
+          "name": "Casa Rosada",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "surrounded by **Casa Rosada** (presidential palace)"
+        },
+        {
+          "key": "catedral-metropolitana",
+          "name": "Catedral Metropolitana",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "**Catedral Metropolitana**"
+        },
+        {
+          "key": "museo-del-cabildo",
+          "name": "Museo del Cabildo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "**Museo del Cabildo**"
+        },
+        {
+          "key": "calle-defensa",
+          "name": "Calle Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Go to the street Defensa."
+        },
+        {
+          "key": "calle-estados-unidos",
+          "name": "Calle Estados Unidos",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "go to the street Estados Unidos."
+        },
+        {
+          "key": "bar-sur",
+          "name": "Bar Sur",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "On the corner, you will see Bar Sur."
+        },
+        {
+          "key": "paseo-de-colon",
+          "name": "Paseo de Colón",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "cross the street Paseo de Colon."
+        },
+        {
+          "key": "mercado-de-san-telmo",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "pass the entrance of Mercado de San Telmo."
+        },
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Not far from Mercado de San Telmo is Plaza Dorrego."
+        },
+        {
+          "key": "avenida-san-juan",
+          "name": "Avenida San Juan",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "let’s walk on the street “Avenida San Juan”."
+        },
+        {
+          "key": "museo-de-arte-moderno",
+          "name": "Museo de Arte Moderno",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "there is the Museum of Modern Arts."
+        },
+        {
+          "key": "parque-lezama",
+          "name": "Parque Lezama",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "you will see Parque Lezama."
+        }
+      ],
+      "evidenceKeys": [
+        "ev-2"
+      ],
+      "shortReason": "Evidence ev-2 provides a step-by-step self-guided walking itinerary starting at Plaza de Mayo and ending at Parque Lezama, explicitly naming each stop and street in sequence.",
+      "orderedByEvidence": true
+    }
+  ]
+}

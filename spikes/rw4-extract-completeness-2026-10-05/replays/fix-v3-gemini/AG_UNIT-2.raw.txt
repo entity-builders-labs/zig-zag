@@ -1,0 +1,156 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walking Tour from Teatro Colón to Plaza de Mayo",
+      "description": "An introductory self-guided walking itinerary starting from the Subte station Tribunales, passing the Teatro Colón, the Obelisco, walking through Avenida Roque Sáenz Peña, and arriving at Plaza de Mayo.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture"
+      ],
+      "traits": [
+        "self-guided",
+        "landmark tour",
+        "urban walk"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "teatro-colon",
+          "name": "Teatro Colón",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "The itinerary starts from the  Subte station \"Tribunales\".  From there you can cross the park  to see the stunning Teatro Colón from outside."
+        },
+        {
+          "key": "obelisco",
+          "name": "Obelisco",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Then you can walk a few streets to  see the Obelisco and then walkthrough  Av. Roque Saenz Peña directly  to Plaza de Mayo."
+        },
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Then you can walk a few streets to  see the Obelisco and then walkthrough  Av. Roque Saenz Peña directly  to Plaza de Mayo."
+        }
+      ],
+      "suggestedDurationMinutes": 180,
+      "shortReason": "An initial source-defined walking route segment covering central landmarks from Teatro Colón to Plaza de Mayo.",
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "orderedByEvidence": true
+    },
+    {
+      "name": "San Telmo Historic Walk along Defensa Street",
+      "description": "A self-guided historic walk along Defensa Street in San Telmo, featuring stops at historic pharmacies, libraries, landmarks, and markets.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture"
+      ],
+      "traits": [
+        "historic street",
+        "cobblestone",
+        "self-guided"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "defensa-street",
+          "name": "Calle Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Walk through Defensa Street"
+        },
+        {
+          "key": "farmacia-la-estrella",
+          "name": "Farmacia La Estrella",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 5: is a really old Pharmacy call \"Farmacia la Estrella\", from 1834."
+        },
+        {
+          "key": "libreria-del-avila",
+          "name": "La Librería del Avila",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 6: Oldest library in town, \"La Librería del Avila\"!"
+        },
+        {
+          "key": "monumento-de-mafalda",
+          "name": "Monumento de Mafalda",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 7: Monumento de Mafalda, this is one of our most loved cartoon characters created by Quino."
+        },
+        {
+          "key": "casa-minima",
+          "name": "Casa Mínima",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 8: Casa Mínima, this is known to be the narrowest house in Buenos Aires"
+        },
+        {
+          "key": "san-telmo-market",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 9: The San Telmo Market!!"
+        },
+        {
+          "key": "patio-de-los-ezeiza",
+          "name": "El Patio de los Ezeiza",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 10: Last stop, this is \"El Patio de los Ezeiza\"."
+        }
+      ],
+      "suggestedDurationMinutes": 180,
+      "shortReason": "A detailed self-guided walking itinerary through historic San Telmo along Defensa Street with sequential stops.",
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

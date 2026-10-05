@@ -1,0 +1,175 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walking Tour in Buenos Aires: Day 1",
+      "description": "A comprehensive self-guided walking tour starting at Plaza de Mayo, meandering through San Telmo's historic streets, markets, and squares, and continuing onward to La Boca and El Caminito.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture",
+        "tango",
+        "food"
+      ],
+      "traits": [
+        "self-guided",
+        "historic",
+        "landmarks",
+        "local food"
+      ],
+      "intents": [
+        "walk",
+        "route_like",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Let’s start your Buenos Aires adventure at the center of the capital city: Plaza de Mayo."
+        },
+        {
+          "key": "casa-rosada",
+          "name": "Casa Rosada",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "This historic place is surrounded by Casa Rosada (presidential palace), Catedral Metropolitana, Museo del Cabildo, and the headquarters of the National Bank."
+        },
+        {
+          "key": "catedral-metropolitana",
+          "name": "Catedral Metropolitana",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Close to the Cabildo is Catedral Metropolitana."
+        },
+        {
+          "key": "cabildo",
+          "name": "Museo del Cabildo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "In front of Casa Rosada you will see a white building: Cabildo."
+        },
+        {
+          "key": "defensa-street",
+          "name": "Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Go to the street Defensa."
+        },
+        {
+          "key": "estados-unidos-street",
+          "name": "Estados Unidos",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "We going to make a small detour and go to the street Estados Unidos."
+        },
+        {
+          "key": "bar-sur",
+          "name": "Bar Sur",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "On the corner, you will see Bar Sur."
+        },
+        {
+          "key": "paseo-de-colon",
+          "name": "Paseo de Colon",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Continue and cross the street Paseo de Colon."
+        },
+        {
+          "key": "mercado-de-san-telmo",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "While walking you will pass the entrance of Mercado de San Telmo."
+        },
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Not far from Mercado de San Telmo is Plaza Dorrego."
+        },
+        {
+          "key": "avenida-san-juan",
+          "name": "Avenida San Juan",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Further, let’s walk on the street “Avenida San Juan”."
+        },
+        {
+          "key": "parque-lezama",
+          "name": "Parque Lezama",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "On your left side, you will see Parque Lezama."
+        },
+        {
+          "key": "el-caminito",
+          "name": "El Caminito",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Arrive at “El Caminito“."
+        },
+        {
+          "key": "la-bombonera",
+          "name": "La Bombonera",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Visit La Bombonera, the stadium of the football club.",
+          "sourceName": "La Bombonera"
+        }
+      ],
+      "suggestedDurationMinutes": 360,
+      "shortReason": "An exhaustive self-guided walking itinerary covering major historic highlights of Buenos Aires from Plaza de Mayo through San Telmo and down to La Boca.",
+      "evidenceKeys": [
+        "ev-2"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

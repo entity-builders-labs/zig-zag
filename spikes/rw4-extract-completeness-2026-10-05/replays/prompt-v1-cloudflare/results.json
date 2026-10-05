@@ -1,0 +1,230 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 37431,
+    "inputChars": 8453,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walk: San Telmo Historic Itinerary",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Museo del Cabildo=Cabildo[MANDATORY]",
+          "Calle Defensa=Defensa[ACCEPTABLE]",
+          "Calle Estados Unidos=Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Paseo de Colón[NOT_IN_ORACLE]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "4/8",
+            "missingMandatory": [
+              "Mercado de San Telmo",
+              "Plaza Dorrego",
+              "Parque Lezama",
+              "Museo Histórico Nacional"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Paseo de Colón"
+        ],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 30715,
+    "inputChars": 8453,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walk: San Telmo Historic Itinerary",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Museo del Cabildo=Cabildo[MANDATORY]",
+          "Calle Defensa=Defensa[ACCEPTABLE]",
+          "Calle Estados Unidos=Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Paseo de Colón[NOT_IN_ORACLE]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "4/8",
+            "missingMandatory": [
+              "Mercado de San Telmo",
+              "Plaza Dorrego",
+              "Parque Lezama",
+              "Museo Histórico Nacional"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Paseo de Colón"
+        ],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 17623,
+    "inputChars": 11005,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 1769,
+    "inputChars": 11005,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_W3",
+    "run": 1,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 53799,
+    "inputChars": 5493,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walk: Plaza de Mayo to San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Museo del Cabildo=Cabildo[MANDATORY]",
+          "Calle Defensa=Defensa[ACCEPTABLE]",
+          "Calle Estados Unidos=Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Paseo de Colón[NOT_IN_ORACLE]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "4/8",
+            "missingMandatory": [
+              "Mercado de San Telmo",
+              "Plaza Dorrego",
+              "Parque Lezama",
+              "Museo Histórico Nacional"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Paseo de Colón"
+        ],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "SOB_W3",
+    "run": 2,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 48810,
+    "inputChars": 5493,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walk: Plaza de Mayo to San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Museo del Cabildo=Cabildo[MANDATORY]",
+          "Calle Defensa=Defensa[ACCEPTABLE]",
+          "Calle Estados Unidos=Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Paseo de Colón[NOT_IN_ORACLE]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "4/8",
+            "missingMandatory": [
+              "Mercado de San Telmo",
+              "Plaza Dorrego",
+              "Parque Lezama",
+              "Museo Histórico Nacional"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Paseo de Colón"
+        ],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 1,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 1640,
+    "inputChars": 5873,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 2,
+    "provider": "cloudflare",
+    "model": "@cf/qwen/qwen3.8-27b",
+    "ms": 52043,
+    "inputChars": 5873,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  }
+]
