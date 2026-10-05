@@ -1,0 +1,14 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "ms": 478,
+    "inputChars": 14926,
+    "failures": [
+      "THROWN: Error: Gemini error 404: {\"error\":{\"message\":\"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements.\",\"code\":\"not_found\"}}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  }
+]

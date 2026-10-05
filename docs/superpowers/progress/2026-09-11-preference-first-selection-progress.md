@@ -2306,17 +2306,56 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   proven for an editorial composite. The generic blocker is extraction
   completeness (RW4-EXTRACT-COMPLETENESS-1), not identity.
 
+### RW4-EXTRACT-COMPLETENESS-1 fix — 2026-10-05
+
+- Evidence: `spikes/rw4-extract-completeness-2026-10-05/` (frozen oracle,
+  per-stop forensic loss table, real-extractor replays) and
+  `spikes/rw4-functional-composite-campaign-2026-10-05/c3fix-gemini-cold/`.
+- Root causes, all generic, fixed in `ebfe0ed9` and a follow-up prompt
+  commit:
+  1. Windowing cut heading sections into runs or ranked excerpts, and the
+     scan accepted the first window whose candidate closed the gap.
+     Windows now carry whole editorial units (heading sections up to
+     `DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS`). A window that cuts a unit reports
+     `sectionComplete: false` and cannot close the gap
+     (`CONTINUE_SOURCE_UNIT_INCOMPLETE`).
+  2. The parser kept only the first 8 `componentHints` (`MAX_HINTS`). It is
+     now `MAX_COMPONENT_HINTS` (24), which rejects and never truncates.
+  3. The prompt had no exhaustive-itinerary contract and treated
+     "morning vs afternoon itinerary" as variants. It now requires
+     exhaustive ordered extraction, a split at source-stated motorized
+     transfers, no eat/drink suggestions and no passing mentions as stops,
+     and a required `normalizationKind` with `sourceName`.
+  4. The support gate turned `"**Name"**` into `" name" `; whitespace
+     touching a quotation mark is now ignored on both sides.
+- Unit 2690/2690, integration 115/115, e2e 41/41, typecheck, lint green;
+  new guard, span and windowing tests proven red without the fix.
+- Live C3 COLD (Gemini `gemini-3.5-flash-lite`, owner decision): both
+  sources reached extraction as one complete unit, and no truncated
+  composite was persisted. **0 composites persisted**:
+  - secretsofbuenosaires: every oracle-mandatory stop that was emitted
+    resolved INSIDE, but the model omitted Museo Histórico Nacional and also
+    emitted passing streets that failed identity ("Estados Unidos",
+    "Paseo de Colon"), so the candidate was rejected 10/12.
+  - agusyornet: two mandatory stops (Mafalda, Patio de los Ezeiza) failed
+    identity, so it was correctly rejected.
+  - WARM not run, because nothing persisted.
+- Status: the deterministic loss paths (window prefix, parser cut, span
+  normalization) are CLOSED. Extractor recall/compliance remains OPEN and
+  model-dependent: flash-lite still omits mandatory stops, emits passing
+  mentions and drops `normalizationKind` run to run (`replays/fix-v*`).
+
 ## Next authorized action
 
 0. (2026-10-05, supersedes the order below for the functional milestone)
-   Characterize RW4-EXTRACT-COMPLETENESS-1 on the C3 sources. Inputs: the
-   recorded windows in
-   `spikes/rw4-functional-composite-campaign-2026-10-05/c3-cold/` and the
-   live agusyornet and secretsofbuenosaires pages. Measure emitted-vs-
-   enumerated stops per extractor and replay. Do not compensate downstream
-   (resolver, gate or verifier), and do not persist a subset as the
-   source's composite. After the extractor fix, re-run C3 COLD/WARM with
-   `run.sh` from that directory.
+   Re-run C3 COLD/WARM with the C3 production extractor (Cloudflare
+   `@cf/qwen/qwen3.8-27b`) after its daily reset, using
+   `spikes/rw4-functional-composite-campaign-2026-10-05/run.sh`. Score it
+   with `spikes/rw4-extract-completeness-2026-10-05/score-live.cjs`. If the
+   extractor still omits mandatory stops or emits passing mentions, the
+   remaining lever is extractor capability (model choice), not windowing,
+   the parser or identity. Do not relax `INCOMPLETE_SOURCE_COMPOSITION` to
+   persist a composite.
 1. Re-run the contextual replay with the COLD #11 extractor (Cloudflare
    `@cf/qwen/qwen3.8-27b`) once its daily allocation resets (`EXTRACTOR=cloudflare
    RUN_SUFFIX=../locality-recovery-2026-10-03/replay-cloudflare-N bash
@@ -2474,8 +2513,11 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   secretsofbuenosaires Day 1 window kept 644–3536 and 4667–7593 of 17027
   chars, and the persisted composite ends before the day's last three
   stops.
-- RW4-EXTRACT-COMPLETENESS-1: OPEN, BLOCKING for the RW4 functional
-  milestone (2026-10-05). The discovery extractor emits a non-deterministic
+- RW4-EXTRACT-COMPLETENESS-1: PARTIALLY CLOSED (2026-10-05, later the
+  same day). Window prefixes, the 8-hint parser cut and the quoted-span
+  normalization are fixed. Extractor recall/compliance is still OPEN,
+  BLOCKING, and model-dependent; see "RW4-EXTRACT-COMPLETENESS-1 fix" above.
+  Original finding (2026-10-05). The discovery extractor emits a non-deterministic
   subset of a source's explicitly enumerated stops. Example: agusyornet,
   3 emitted of at least 8 present in the same window. The resolver
   resolves what it is given, so a truncated composite persists as

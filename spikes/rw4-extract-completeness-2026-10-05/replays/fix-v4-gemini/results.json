@@ -1,0 +1,227 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 5432,
+    "inputChars": 14926,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 3 (Catedral Metropolitana de Buenos Aires) unsupported: MISSING_NORMALIZATION_KIND; component 4 (Cabildo de Buenos Aires) unsupported: MISSING_NORMALIZATION_KIND; component 11 (Museo de Arte Moderno de Buenos Aires) unsupported: MISSING_NORMALIZATION_KIND; component 14 (Museo Histórico Nacional) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 6924,
+    "inputChars": 14926,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 4 (Museo Histórico Nacional del Cabildo y de la Revolución de Mayo) unsupported: MISSING_NORMALIZATION_KIND; component 8 (Avenida Paseo Colón) unsupported: MISSING_NORMALIZATION_KIND; component 11 (Museo de Arte Moderno de Buenos Aires) unsupported: MISSING_NORMALIZATION_KIND",
+      "Candidate 2: SOURCE_CONTRACT_VIOLATION: component 1 (Caminito) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 3,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 5780,
+    "inputChars": 14926,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walking Tour of San Telmo and Plaza de Mayo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Museo del Cabildo=Cabildo[MANDATORY]",
+          "Calle Defensa=Defensa[ACCEPTABLE]",
+          "Calle Estados Unidos=Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Avenida Paseo Colón=Paseo Colón[ACCEPTABLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]",
+          "Museo Histórico Nacional[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "8/8",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 3457,
+    "inputChars": 13309,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "San Telmo Self-Guided Walk",
+        "orderedByEvidence": true,
+        "hints": [
+          "Farmacia la Estrella=Farmacia La Estrella[MANDATORY]",
+          "La Librería del Ávila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "El Patio de los Ezeiza[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "5/9",
+            "missingMandatory": [
+              "Teatro Colón",
+              "Obelisco",
+              "Plaza de Mayo",
+              "Mercado de San Telmo"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 3821,
+    "inputChars": 13309,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walking Tour through San Telmo and Historic Center",
+        "orderedByEvidence": true,
+        "hints": [
+          "Teatro Colón[MANDATORY]",
+          "Obelisco[MANDATORY]",
+          "Plaza de Mayo[MANDATORY]",
+          "Café Tortoni[ALTERNATIVE]",
+          "London City[ALTERNATIVE]",
+          "Farmacia La Estrella[MANDATORY]",
+          "La Librería del Avila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "El Patio de los Ezeiza[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "8/9",
+            "missingMandatory": [
+              "Mercado de San Telmo"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": [
+          "Café Tortoni",
+          "London City"
+        ]
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 3,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 4588,
+    "inputChars": 13309,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 2,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walking Tour Part 1: Teatro Colón to Plaza de Mayo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Teatro Colón[MANDATORY]",
+          "Plaza de Mayo[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "2/9",
+            "missingMandatory": [
+              "Obelisco",
+              "Farmacia La Estrella",
+              "Librería de Ávila",
+              "Monumento de Mafalda",
+              "Casa Mínima",
+              "Mercado de San Telmo",
+              "El Patio de los Ezeiza"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      },
+      {
+        "candidate": "Self-Guided Walking Tour Part 2: San Telmo Historic Walk through Defensa Street",
+        "orderedByEvidence": true,
+        "hints": [
+          "Farmacia la Estrella=Farmacia La Estrella[MANDATORY]",
+          "Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "Mercado de San Telmo[MANDATORY]",
+          "El Patio de los Ezeiza[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "6/9",
+            "missingMandatory": [
+              "Teatro Colón",
+              "Obelisco",
+              "Plaza de Mayo"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  }
+]

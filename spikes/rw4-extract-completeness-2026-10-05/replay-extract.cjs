@@ -26,6 +26,7 @@ const { CloudflareDiscoveryProvider } = require(`${DIST}/modules/tours/services/
 const { GeminiDiscoveryProvider } = require(`${DIST}/modules/tours/services/gemini-discovery.provider`);
 const { GroqDiscoveryProvider } = require(`${DIST}/modules/tours/services/groq-discovery.provider`);
 const { LangChainService } = require(`${DIST}/shared/ai/langchain.service`);
+const { OllamaDiscoveryProvider } = require(`${DIST}/modules/tours/services/ollama-discovery.provider`);
 const windowing = require(`${DIST}/modules/tours/utils/source-content-windowing.util`);
 
 const oracle = JSON.parse(fs.readFileSync(path.join(HERE, 'oracle.json'), 'utf8'));
@@ -141,7 +142,9 @@ async function main() {
   const provider =
     name === 'gemini'
       ? new GeminiDiscoveryProvider(config)
-      : name === 'groq'
+      : name === 'ollama'
+        ? new OllamaDiscoveryProvider(config)
+        : name === 'groq'
         ? new GroqDiscoveryProvider(new LangChainService(config, noCache), config)
         : new CloudflareDiscoveryProvider(config);
   const runs = Number(process.env.RUNS || 2);

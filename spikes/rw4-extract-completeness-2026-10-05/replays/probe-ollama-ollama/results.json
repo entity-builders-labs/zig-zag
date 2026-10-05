@@ -1,0 +1,16 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "provider": "ollama",
+    "model": "qwen2.5:7b-instruct",
+    "ms": 99440,
+    "inputChars": 14926,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 1 (Plaza de Mayo) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  }
+]
