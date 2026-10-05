@@ -30,7 +30,9 @@ if (expectedContentProvider) {
 const activeExtractorModel =
   extractor === 'groq'
     ? config.discoveryExtractor.groq?.model
-    : config.discoveryExtractor.cloudflare?.model;
+    : extractor === 'gemini'
+      ? config.discoveryExtractor.gemini?.model
+      : config.discoveryExtractor.cloudflare?.model;
 
 const out = {
   resolvedAt: new Date().toISOString(),
@@ -63,7 +65,11 @@ out.canonicalSelection =
   ((extractor === 'cloudflare' &&
     activeExtractorModel === '@cf/qwen/qwen3.8-27b' &&
     out.discoveryExtractorMaxCompletionTokens === 4096) ||
-   (extractor === 'groq' && activeExtractorModel === 'qwen/qwen3.8-27b')) &&
+   (extractor === 'groq' && activeExtractorModel === 'qwen/qwen3.8-27b') ||
+   // 2026-10-05, owner decision: Cloudflare's daily allocation was exhausted
+   // and Groq caps output at 1000 tokens/minute, so the C3 re-run after the
+   // RW4-EXTRACT-COMPLETENESS-1 fix uses the configured Gemini extractor.
+   (extractor === 'gemini' && activeExtractorModel === 'gemini-3.5-flash-lite')) &&
   (!expectedContentProvider || contentProvider === expectedContentProvider);
 
 console.log(JSON.stringify(out, null, 2));
