@@ -467,6 +467,10 @@ Before creating a non-trivial commit, review the complete message against this
 section. A technically correct change with a non-conforming commit message is
 not complete.
 
+Run `scripts/install-git-hooks` once per worktree before writing. The tracked
+`commit-msg` hook rejects a literal `\\n`; pass a real multiline body (for
+example with a second `-m $'...'` argument) so every bullet is a real line.
+
 ## Frontend responsive layout convention
 
 Zig-Zag targets web, iOS, and Android from the same frontend. Preserve a

@@ -184,6 +184,13 @@ printf '# Plan\n' >"$TMP/docs/superpowers/plans/other.md"
 git -C "$TMP" add . && git -C "$TMP" commit -qm base
 BASE="$(git -C "$TMP" rev-parse HEAD)"
 
+printf '%s\n' 'subject' '' '- first' '- second' >"$TMP/message-ok"
+expect_ok "$ROOT/.githooks/commit-msg" "$TMP/message-ok"
+printf '%s\n' 'subject' '' '- first\\n- second' >"$TMP/message-literal-backslash-n"
+expect_fail "$ROOT/.githooks/commit-msg" "$TMP/message-literal-backslash-n"
+pass 'commit-message hook requires real line breaks rather than escaped literals'
+rm "$TMP/message-ok" "$TMP/message-literal-backslash-n"
+
 git -C "$TMP" checkout -qb feat/current
 printf '%s\n' \
   '# Current' \

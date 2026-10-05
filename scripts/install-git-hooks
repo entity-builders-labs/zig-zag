@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+test -x "$ROOT/.githooks/commit-msg" || {
+  echo 'Missing executable .githooks/commit-msg.' >&2
+  exit 1
+}
+
+git -C "$ROOT" config --local core.hooksPath .githooks
+echo 'Installed repository Git hooks (.githooks).'

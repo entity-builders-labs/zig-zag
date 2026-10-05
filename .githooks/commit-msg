@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+message_file="${1:?Git must pass the commit-message file}"
+
+# Shell double quotes do not turn \n into a line break. Reject it so a body
+# remains a real sequence of commit-message lines rather than one escaped line.
+if LC_ALL=C grep -Fq '\n' "$message_file"; then
+  printf '%s\n' 'Commit message contains a literal \n; use real line breaks.' >&2
+  printf '%s\n' "Example: git commit -m \"subject\" -m \$'- bullet one\n- bullet two'" >&2
+  exit 1
+fi
