@@ -17,7 +17,11 @@ const SOURCES = {
   AG_UNIT: { sourceId: 'agusyornet-san-telmo', url: 'http://www.agusyornet.com/2020/03/self-guided-walking-tour-san-telmo.html' },
 };
 
+// Milestone A regression fixtures (frozen files, see milestone-a-gate.json).
+const REGRESSION = JSON.parse(fs.readFileSync(path.join(HERE, 'milestone-a-gate.json'), 'utf8')).regressionFixtures;
+
 function unitText(input) {
+  if (REGRESSION[input]) return fs.readFileSync(path.join(HERE, REGRESSION[input].file), 'utf8');
   const { sourceId, url } = SOURCES[input];
   const windowing = require(`${DIST}/modules/tours/utils/source-content-windowing.util`);
   const { DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS, DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS } = require(`${DIST}/modules/tours/interfaces/web-source-content.interface`);
@@ -36,4 +40,4 @@ function unitText(input) {
   return first.content;
 }
 
-module.exports = { oracle, SOURCES, unitText, FROZEN };
+module.exports = { oracle, SOURCES, REGRESSION, unitText, FROZEN };

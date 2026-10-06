@@ -1491,8 +1491,9 @@ system defects and stay outside the research-agent loop.
 
 ## Experience Domain V2 — exhaustive source-atom labelling amendment (2026-10-06)
 
-**Status: PROPOSED target contract. Spike only; not implemented in the
-production extractor.** The production path still asks the extractor to
+**Status: APPROVED for productization (owner, 2026-10-06), gated by
+milestones A → B → C below. Not yet implemented in the production
+extractor.** The production path still asks the extractor to
 generate `ExperienceCandidate`s from prose. This amendment defines the
 replacement contract for editorial itinerary units (`SECTION_UNIT`,
 `sectionComplete=true`) and the evidence a later cutover must meet. Spike:
@@ -1567,12 +1568,35 @@ Every atom receives exactly one classification:
 
 | Classification | Meaning | Membership effect |
 |---|---|---|
-| `ITINERARY_STOP` | directs the traveller to a named place in the itinerary (start, visit, stop, enter, arrive, numbered stop) | mandatory |
+| `ITINERARY_STOP` | a place the source directs the traveller to visit, stop at, enter, experience, or otherwise treat as a destination of the itinerary | mandatory |
+| `ROUTE_LEG` | a real geographic entity the traveller is told to follow, walk or ride along, cross, traverse or use as the path, which is not itself a visit | route provenance, never membership |
 | `OPTIONAL_STOP` | a named place presented as optional or extra | optional, never mandatory |
 | `ALTERNATIVE` | a choice among places, or a recommendation among options (for example where to eat) | a choice group, never flattened |
 | `TRANSFER` | describes or announces a motorized or public-transport move to the next part of the itinerary | segment boundary |
-| `PASS_BY` | named places only seen or passed (streets walked, buildings seen, orientation) | context, never membership |
+| `PASS_BY` | a place merely seen, passed, referenced or used as context, with no instruction to visit it or use it as the path | context, never membership |
 | `NON_ITINERARY` | description, history, tips, captions, ads, navigation, author notes | none |
+
+Boundaries between the classes:
+
+- **`ROUTE_LEG` vs `ITINERARY_STOP`.** A street, promenade or corridor
+  that is itself the destination or the experience ("walk the length of
+  the pedestrian street X, the city's most famous") is an
+  `ITINERARY_STOP`. A street or avenue walked to get between stops is a
+  `ROUTE_LEG`. `ROUTE_LEG` must never empty an Experience whose identity is
+  travelling that corridor. RW3 Caminito is the regression case.
+- **`ROUTE_LEG` vs `PASS_BY`.** `ROUTE_LEG` is the path the traveller is
+  told to use. `PASS_BY` is something only seen or mentioned on the way.
+- **Areas and generic descriptions.** A neighbourhood or district that is
+  only entered, crossed, used as a transfer direction or named as context
+  ("now you are entering X", "bus to X") is `ROUTE_LEG` or `PASS_BY`, not
+  membership. An area is an `ITINERARY_STOP` only when the source treats
+  the area itself as a destination to explore. A generic description
+  without its own geographic identity ("a big building with columns", "the
+  oldest neighbourhood") is not an entity. A description that identifies
+  one specific place ("the national history museum") is an entity.
+
+These are semantic distinctions for the LLM. Production code must not
+implement them with phrase lists.
 
 Walking between places is never a `TRANSFER`. `transferMode`
 (`BUS | TAXI | METRO | TRAIN | TRAM | FERRY | CAR | OTHER_MOTORIZED |
@@ -1615,11 +1639,11 @@ with its own role:
   - an `ITINERARY_STOP` atom without an `ITINERARY_STOP` entity
     (`STOP_WITHOUT_ENTITY`);
   - an entity role stronger than its atom's classification
-    (`ITINERARY_STOP > OPTIONAL_STOP > ALTERNATIVE > PASS_BY`);
+    (`ITINERARY_STOP > ROUTE_LEG > OPTIONAL_STOP > ALTERNATIVE > PASS_BY`);
   - a `NON_ITINERARY` atom with entities.
 
-  An `OPTIONAL_STOP`, `ALTERNATIVE` or `PASS_BY` atom whose option is
-  unnamed ("two ice-cream shops") adds no membership. It is recorded as an
+  A `ROUTE_LEG`, `OPTIONAL_STOP`, `ALTERNATIVE` or `PASS_BY` atom whose
+  place is unnamed ("two ice-cream shops") adds no membership. It is recorded as an
   audit note, not a failure. A `TRANSFER` atom may name its destination:
   `ITINERARY_STOP` when visited next, otherwise `PASS_BY`.
 - `reason` is audit only and never authority. No canonical entity IDs, and
@@ -1663,14 +1687,19 @@ The backend derives every fact that needs no further interpretation:
 - **Membership:** only `ITINERARY_STOP` entities are mandatory.
   `OPTIONAL_STOP` stays optional. `ALTERNATIVE` entities form choice
   groups: consecutive alternative-bearing atoms (atoms with no entities do
-  not interrupt). `A or B` never becomes `A + B`. `PASS_BY` keeps
-  provenance only. `NON_ITINERARY` contributes nothing.
+  not interrupt). `A or B` never becomes `A + B`. `ROUTE_LEG` entities are
+  kept per segment, in source order, as route provenance. They are never
+  component membership, so they never trigger the all-components identity
+  rule. `PASS_BY` keeps provenance only. `NON_ITINERARY` contributes
+  nothing.
 - An exact repeat of a folded name inside one segment is one member with
   all of its provenance. A mandatory occurrence absorbs weaker ones. This
   is string equality, not identity.
 
 Each segment with mandatory membership is a source-defined composition
-candidate. Its members carry `sourceName`, `supportSpan` and source offsets
+candidate. Optional, alternative and route-leg members are not flattened
+into it. Until the candidate model can represent them, they live only in
+extraction provenance (the trace), never as components. Its members carry `sourceName`, `supportSpan` and source offsets
 into the existing source-support → identity → geography →
 `INCOMPLETE_SOURCE_COMPOSITION` path, which is unchanged.
 
@@ -1679,8 +1708,53 @@ into the existing source-support → identity → geography →
 Incomplete or structurally inconsistent labelling FAILS CLOSED for that
 unit and records the issue list (atom IDs and codes). Never fall back to
 accepting a generative candidate, never repair labels by guessing, and
-never relax a downstream gate to compensate. A provider or transport
-failure is an operational failure, not a semantic one.
+never relax a downstream gate to compensate.
+
+Outcomes are reported separately and are never conflated:
+
+- `ASSEMBLED`: the labelling is valid and the segments are built.
+- `CONTRACT_FAIL_CLOSED`: the labelling still breaks the technical
+  contract after the relabel round (span, name, reference or consistency
+  issues with atom IDs). This is not a semantic-fidelity finding.
+- Semantic-fidelity failure: an assembled result whose explicit atom
+  labels disagree with the source (for example a required stop labelled
+  `PASS_BY`).
+- `INVALID_RUN`: a provider or transport failure, which is operational.
+
+### Production observability (required before any cutover acceptance)
+
+For every atomized unit, the generation trace must record:
+
+- atom count and the batch and relabel activity, with issue codes and atom
+  IDs;
+- the final label of every atom that carries an entity;
+- the assembled segments, with their opening transfers;
+- mandatory membership as `sourceName` and `supportSpan`, in source order,
+  before identity resolution;
+- route-leg, optional, alternative and pass-by members per segment;
+- the outcome class above.
+
+Without this, extraction fidelity cannot be judged when identity later
+rejects a candidate, and RW4-EXTRACT-COMPLETENESS-1 cannot be closed.
+
+### Productization milestones
+
+- **A. Taxonomy gate (spike).** Add `ROUTE_LEG` and re-run the frozen
+  SOB/AG units (at least 5 runs each) plus the RW3 route-as-experience
+  regression. Stop if mandatory recall, transfer detection, alternative
+  handling or the fail-closed rate get worse, or if route-leg and area
+  promotion does not improve.
+- **B. Production port.** Only after A passes. Cutover only for
+  `SECTION_UNIT` windows with `sectionComplete=true`, with one composition
+  authority per unit. Verify first that a hint whose name equals the
+  source wording does not require `normalizationKind`, and measure the
+  real batching cost, plus the behaviour when a batch exceeds the
+  transport timeout.
+- **C. C3.** COLD first. WARM only if COLD persists a qualifying
+  composite.
+
+A provider or transport failure is an operational failure, not a semantic
+one.
 
 ### What this changes and what it does not
 

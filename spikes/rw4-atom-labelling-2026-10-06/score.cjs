@@ -7,6 +7,7 @@ const { fold, present } = require('./atom-labelling.cjs');
 const { oracle } = require('./units.cjs');
 
 const aliases = JSON.parse(fs.readFileSync(path.join(__dirname, 'scoring-aliases.json'), 'utf8')).sources;
+const gate = JSON.parse(fs.readFileSync(path.join(__dirname, 'milestone-a-gate.json'), 'utf8'));
 const bare = (s) => fold(s).replace(/^(the|el|la|los|las) /u, '');
 
 function oracleItems(sourceId) {
@@ -88,7 +89,36 @@ function scoreSource(sourceId, segments, atoms, labels) {
   };
   const alternatives = items.filter((i) => i.role === 'ALTERNATIVE').map((i) => ({ name: i.name, emittedRole: roleOf(i) }));
   const mandatoryDecisions = Object.fromEntries(items.filter((i) => i.role === 'MANDATORY').map((i) => [i.name, atomDecisions(i, atoms, labels)]));
-  return { verdicts, alternatives, mandatoryDecisions };
+  // Route/area promotion (milestone A gate): frozen route/area items found
+  // in any segment's mandatory list.
+  const routeAreaItems = (gate.routeOrAreaItems[sourceId] ?? []).map((name) => {
+    const item = items.find((i) => i.name === name);
+    return { name, wordings: item ? item.wordings : [name, ...(gate.extraWordings[name] ?? [])] };
+  });
+  const mandatoryNames = segments.flatMap((s) => s.mandatory);
+  const routeAreaPromoted = routeAreaItems.filter((ri) => mandatoryNames.some((n) => ri.wordings.some((w) => bare(w) === bare(n)))).map((ri) => ri.name);
+  const routeLegRoles = Object.fromEntries(routeAreaItems.map((ri) => [ri.name, roleOf(ri)]));
+  return { verdicts, alternatives, mandatoryDecisions, routeAreaPromoted, routeLegRoles };
 }
 
-module.exports = { scoreSource, oracleItems };
+// Regression fixtures (RW3 route-as-experience): expected mandatory present,
+// forbidden names not mandatory, expected route legs.
+function scoreRegression(input, segments) {
+  const spec = gate.regressionFixtures[input];
+  const has = (group, list) => list.some((n) => group.some((w) => bare(w) === bare(n)));
+  const mandatory = segments.flatMap((s) => s.mandatory);
+  const routeLegs = segments.flatMap((s) => s.routeLegs ?? []);
+  const missing = spec.mandatory.filter((g) => !has(g, mandatory)).map((g) => g[0]);
+  const forbidden = spec.mustNotBeMandatory.filter((g) => has(g, mandatory)).map((g) => g[0]);
+  const routeLegMissing = (spec.expectedRouteLeg ?? []).filter((g) => !has(g, routeLegs)).map((g) => g[0]);
+  const reasons = [...missing.map((m) => `MISSING_MANDATORY:${m}`), ...forbidden.map((f) => `PROMOTED:${f}`)];
+  return {
+    verdicts: [{ segment: 'ALL', success: reasons.length === 0, mandatoryRecall: `${spec.mandatory.length - missing.length}/${spec.mandatory.length}`, reasons, acceptablePromoted: [], notInOracleMandatory: [], missingAtomDecisions: {} }],
+    alternatives: [],
+    mandatoryDecisions: {},
+    routeAreaPromoted: forbidden,
+    routeLegMissing,
+  };
+}
+
+module.exports = { scoreSource, scoreRegression, oracleItems };

@@ -229,6 +229,43 @@ test('anaphora: an entity may name a place written in an earlier atom, verified 
   assert.deepEqual(codes(wrong), ['NAME_NOT_IN_MENTION_ATOM']);
 });
 
+test('ROUTE_LEG is route provenance, never mandatory membership, and does not hold a segment open', () => {
+  const text = ['Start at the Old Square.', 'Walk along Harbour Road to the Fish Market.', 'Take the tram.', 'Ride along the Coast Avenue.', 'Then take a ferry.', 'Arrive at the Island.'].join('\n');
+  const z = L.atomize(text);
+  const ids = z.atoms.map((a) => a.atomId);
+  const v = L.validateLabelling(ids, new Map(z.atoms.map((a) => [a.atomId, a])), {
+    atoms: [
+      { atomId: ids[0], classification: 'ITINERARY_STOP', entities: [ent('Old Square', 'Start at the Old Square', 'ITINERARY_STOP')] },
+      { atomId: ids[1], classification: 'ITINERARY_STOP', entities: [ent('Harbour Road', 'Walk along Harbour Road', 'ROUTE_LEG'), ent('Fish Market', 'to the Fish Market', 'ITINERARY_STOP')] },
+      { atomId: ids[2], classification: 'TRANSFER', entities: [], transferMode: 'TRAM' },
+      { atomId: ids[3], classification: 'ROUTE_LEG', entities: [ent('Coast Avenue', 'Ride along the Coast Avenue', 'ROUTE_LEG')] },
+      { atomId: ids[4], classification: 'TRANSFER', entities: [], transferMode: 'FERRY' },
+      { atomId: ids[5], classification: 'ITINERARY_STOP', entities: [ent('Island', 'Arrive at the Island', 'ITINERARY_STOP')] },
+    ],
+  });
+  assert.equal(v.valid, true);
+  const segs = L.assemble(z.atoms, v);
+  // A route-leg-only stretch between two transfers is not an empty segment.
+  assert.deepEqual(segs.map((s) => s.mandatory), [['Old Square', 'Fish Market'], ['Island']]);
+  assert.deepEqual(segs.map((s) => s.routeLegs), [['Harbour Road'], ['Coast Avenue']]);
+  assert.deepEqual(segs[1].openedBy.map((o) => o.transferMode), ['TRAM', 'FERRY']);
+  // A ROUTE_LEG entity cannot sit in a weaker-classified atom.
+  const bad = L.validateLabelling([ids[3]], new Map(z.atoms.map((a) => [a.atomId, a])), {
+    atoms: [{ atomId: ids[3], classification: 'PASS_BY', entities: [ent('Coast Avenue', 'Ride along the Coast Avenue', 'ROUTE_LEG')] }],
+  });
+  assert.deepEqual(bad.issues.map((x) => x.code), ['ROLE_INCONSISTENT']);
+});
+
+test('a corridor that is itself the experience stays mandatory when labelled ITINERARY_STOP', () => {
+  const z = L.atomize('Walk the whole Painted Lane, the most famous pedestrian street of the port.');
+  const v = L.validateLabelling(['a-001'], new Map(z.atoms.map((a) => [a.atomId, a])), {
+    atoms: [{ atomId: 'a-001', classification: 'ITINERARY_STOP', entities: [ent('Painted Lane', 'Walk the whole Painted Lane', 'ITINERARY_STOP')] }],
+  });
+  const [seg] = L.assemble(z.atoms, v);
+  assert.deepEqual(seg.mandatory, ['Painted Lane']);
+  assert.deepEqual(seg.routeLegs, []);
+});
+
 test('8. one atom may carry several entities with distinct roles', () => {
   const z = L.atomize('Visit the Old Mill, then walk down Long Lane to the Clock Tower.');
   const byId = new Map(z.atoms.map((a) => [a.atomId, a]));

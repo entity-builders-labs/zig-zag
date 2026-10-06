@@ -16,8 +16,8 @@
 const fs = require('fs');
 const path = require('path');
 const L = require('./atom-labelling.cjs');
-const { unitText, SOURCES } = require('./units.cjs');
-const { scoreSource } = require('./score.cjs');
+const { unitText, SOURCES, REGRESSION } = require('./units.cjs');
+const { scoreSource, scoreRegression } = require('./score.cjs');
 
 const HERE = __dirname;
 const DIST = path.resolve(HERE, '../../be/dist/src');
@@ -140,7 +140,7 @@ async function main() {
       const count = (code) => merged.issues.filter((x) => x.code === code).map((x) => x.atomId);
       const segments = merged.valid ? L.assemble(atoms, merged) : null;
       const shadow = merged.valid ? null : shadowAssemble(atoms, merged);
-      const score = scoreSource(SOURCES[input].sourceId, segments ?? shadow, atoms, merged.labels);
+      const score = REGRESSION[input] ? scoreRegression(input, segments ?? shadow) : scoreSource(SOURCES[input].sourceId, segments ?? shadow, atoms, merged.labels);
       const histogram = {};
       for (const l of merged.labels.values()) histogram[l.classification] = (histogram[l.classification] ?? 0) + 1;
       const row = {
@@ -162,7 +162,7 @@ async function main() {
         spanIssues: merged.issues.filter((x) => ['SPAN_NOT_IN_ATOM', 'NAME_NOT_IN_SPAN', 'BAD_MENTION_ATOM', 'NAME_NOT_IN_MENTION_ATOM'].includes(x.code)),
         notes: merged.notes,
         labellingValid: merged.valid,
-        outcome: merged.valid ? 'ASSEMBLED' : 'FAIL_CLOSED',
+        outcome: merged.valid ? 'ASSEMBLED' : 'CONTRACT_FAIL_CLOSED',
         histogram,
         segments: (segments ?? shadow).map((s) => ({
           segmentIndex: s.segmentIndex,
@@ -170,6 +170,7 @@ async function main() {
           mandatory: s.mandatory,
           optional: s.optional,
           alternativeGroups: s.alternativeGroups,
+          routeLegs: s.routeLegs,
           passBy: s.passBy,
         })),
         segmentsAreDiagnosticShadow: !merged.valid,
@@ -188,6 +189,7 @@ async function main() {
           firstPass: first.valid ? 'VALID' : `${first.issues.length} issues`,
           relabel: relabel ? (relabel.scope ? relabel.scope.length + ' atoms' : 'NOT_REPAIRABLE') : undefined,
           issues: merged.issues.map((x) => `${x.code}:${x.atomId}`),
+          routeAreaPromoted: score.routeAreaPromoted,
           verdicts: score.verdicts.map((v) => `${v.segment}:${v.mandatoryRecall}${v.success ? ' OK' : ' ' + v.reasons.join(',')}`),
         }),
       );

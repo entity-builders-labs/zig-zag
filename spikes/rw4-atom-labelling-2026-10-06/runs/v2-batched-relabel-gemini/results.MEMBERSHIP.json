@@ -66,6 +66,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "Museo del Cabildo",
           "National Bank",
@@ -89,6 +90,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": []
       },
       {
@@ -103,6 +105,7 @@
             "beer bars or restaurants"
           ]
         ],
+        "routeLegs": [],
         "passBy": [
           "San Telmo"
         ]
@@ -314,6 +317,20 @@
           "entityRole": "ITINERARY_STOP"
         }
       ]
+    },
+    "routeAreaPromoted": [
+      "Defensa",
+      "Estados Unidos",
+      "La Boca"
+    ],
+    "routeLegRoles": {
+      "Defensa": "ITINERARY_STOP",
+      "Estados Unidos": "ITINERARY_STOP",
+      "Paseo Colón": "PASS_BY",
+      "Avenida San Juan": "PASS_BY",
+      "Avenida Caseros": "PASS_BY",
+      "La Boca": "ITINERARY_STOP",
+      "San Telmo": "PASS_BY"
     }
   },
   {
@@ -364,7 +381,7 @@
       }
     ],
     "labellingValid": false,
-    "outcome": "FAIL_CLOSED",
+    "outcome": "CONTRACT_FAIL_CLOSED",
     "histogram": {
       "NON_ITINERARY": 144,
       "ITINERARY_STOP": 20,
@@ -397,6 +414,7 @@
           "Museum of Modern Arts"
         ],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "Museo del Cabildo",
           "National Bank",
@@ -419,6 +437,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": []
       },
       {
@@ -433,6 +452,7 @@
             "beer bars or restaurants"
           ]
         ],
+        "routeLegs": [],
         "passBy": [
           "San Telmo"
         ]
@@ -640,6 +660,20 @@
           "entityRole": "ITINERARY_STOP"
         }
       ]
+    },
+    "routeAreaPromoted": [
+      "Defensa",
+      "Estados Unidos",
+      "Paseo Colón"
+    ],
+    "routeLegRoles": {
+      "Defensa": "ITINERARY_STOP",
+      "Estados Unidos": "ITINERARY_STOP",
+      "Paseo Colón": "ITINERARY_STOP",
+      "Avenida San Juan": "PASS_BY",
+      "Avenida Caseros": "PASS_BY",
+      "La Boca": null,
+      "San Telmo": "PASS_BY"
     }
   },
   {
@@ -675,7 +709,7 @@
     ],
     "notes": [],
     "labellingValid": false,
-    "outcome": "FAIL_CLOSED",
+    "outcome": "CONTRACT_FAIL_CLOSED",
     "histogram": {
       "NON_ITINERARY": 145,
       "ITINERARY_STOP": 22,
@@ -707,6 +741,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "Museo del Cabildo",
           "National Bank",
@@ -732,6 +767,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": []
       },
       {
@@ -746,6 +782,7 @@
             "beer bars or restaurants"
           ]
         ],
+        "routeLegs": [],
         "passBy": [
           "San Telmo"
         ]
@@ -957,6 +994,20 @@
           "entityRole": "ITINERARY_STOP"
         }
       ]
+    },
+    "routeAreaPromoted": [
+      "Defensa",
+      "Estados Unidos",
+      "La Boca"
+    ],
+    "routeLegRoles": {
+      "Defensa": "ITINERARY_STOP",
+      "Estados Unidos": "ITINERARY_STOP",
+      "Paseo Colón": "PASS_BY",
+      "Avenida San Juan": "PASS_BY",
+      "Avenida Caseros": "PASS_BY",
+      "La Boca": "ITINERARY_STOP",
+      "San Telmo": "PASS_BY"
     }
   },
   {
@@ -1026,6 +1077,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "Museo del Cabildo",
           "National Bank",
@@ -1049,6 +1101,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": []
       },
       {
@@ -1059,6 +1112,7 @@
         "mandatory": [],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "San Telmo"
         ]
@@ -1271,6 +1325,20 @@
           "entityRole": "ITINERARY_STOP"
         }
       ]
+    },
+    "routeAreaPromoted": [
+      "Defensa",
+      "Estados Unidos",
+      "La Boca"
+    ],
+    "routeLegRoles": {
+      "Defensa": "ITINERARY_STOP",
+      "Estados Unidos": "ITINERARY_STOP",
+      "Paseo Colón": "PASS_BY",
+      "Avenida San Juan": "PASS_BY",
+      "Avenida Caseros": "PASS_BY",
+      "La Boca": "ITINERARY_STOP",
+      "San Telmo": "PASS_BY"
     }
   },
   {
@@ -1350,6 +1418,7 @@
             "empanadas"
           ]
         ],
+        "routeLegs": [],
         "passBy": [
           "Museo del Cabildo",
           "National Bank",
@@ -1373,6 +1442,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": []
       },
       {
@@ -1387,6 +1457,7 @@
             "beer bars or restaurants"
           ]
         ],
+        "routeLegs": [],
         "passBy": [
           "San Telmo"
         ]
@@ -1601,6 +1672,21 @@
           "entityRole": "ITINERARY_STOP"
         }
       ]
+    },
+    "routeAreaPromoted": [
+      "Defensa",
+      "Estados Unidos",
+      "Paseo Colón",
+      "La Boca"
+    ],
+    "routeLegRoles": {
+      "Defensa": "ITINERARY_STOP",
+      "Estados Unidos": "ITINERARY_STOP",
+      "Paseo Colón": "ITINERARY_STOP",
+      "Avenida San Juan": "PASS_BY",
+      "Avenida Caseros": "PASS_BY",
+      "La Boca": "ITINERARY_STOP",
+      "San Telmo": "PASS_BY"
     }
   },
   {
@@ -1694,6 +1780,7 @@
             "Desnivel"
           ]
         ],
+        "routeLegs": [],
         "passBy": [
           "Defensa Street",
           "Plaza Dorrego",
@@ -1718,6 +1805,7 @@
           "Fundación Proa"
         ],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "El Patio de los Ezeiza",
           "La Boca"
@@ -1734,6 +1822,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "Darsena Sur",
           "Av. Int. Hernan Giralt"
@@ -1749,6 +1838,7 @@
           "Trade Sky Bar"
         ],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "Centro Cultural Kirchner"
         ]
@@ -1990,6 +2080,20 @@
           "entityRole": "ITINERARY_STOP"
         }
       ]
+    },
+    "routeAreaPromoted": [
+      "Puerto Madero",
+      "San Telmo"
+    ],
+    "routeLegRoles": {
+      "Avenida Roque Sáenz Peña": null,
+      "Avenida de Mayo": null,
+      "Defensa": "PASS_BY",
+      "Dársena Sur": "PASS_BY",
+      "Avenida Ingeniero Huergo / Hernán Giralt": "PASS_BY",
+      "Puerto Madero": "ITINERARY_STOP",
+      "San Telmo": "ITINERARY_STOP",
+      "La Boca": "PASS_BY"
     }
   },
   {
@@ -2079,6 +2183,7 @@
             "Desnivel"
           ]
         ],
+        "routeLegs": [],
         "passBy": [
           "Obelisco",
           "Av. Roque Saenz Peña",
@@ -2101,6 +2206,7 @@
           "Fundación Proa"
         ],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "\"El Patio de los Ezeiza\""
         ]
@@ -2116,6 +2222,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "Darsena Sur",
           "Av. Int. Hernan Giralt"
@@ -2131,6 +2238,7 @@
           "Centro Cultural Kirchner"
         ],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": []
       },
       {
@@ -2145,6 +2253,7 @@
             "Trade Sky Bar"
           ]
         ],
+        "routeLegs": [],
         "passBy": []
       }
     ],
@@ -2397,6 +2506,21 @@
           "entityRole": "ITINERARY_STOP"
         }
       ]
+    },
+    "routeAreaPromoted": [
+      "Defensa",
+      "Puerto Madero",
+      "San Telmo"
+    ],
+    "routeLegRoles": {
+      "Avenida Roque Sáenz Peña": "PASS_BY",
+      "Avenida de Mayo": "PASS_BY",
+      "Defensa": "ITINERARY_STOP",
+      "Dársena Sur": "PASS_BY",
+      "Avenida Ingeniero Huergo / Hernán Giralt": "PASS_BY",
+      "Puerto Madero": "ITINERARY_STOP",
+      "San Telmo": "ITINERARY_STOP",
+      "La Boca": "ALTERNATIVE"
     }
   },
   {
@@ -2490,6 +2614,7 @@
             "Desnivel"
           ]
         ],
+        "routeLegs": [],
         "passBy": [
           "Av. Roque Saenz Peña",
           "Av. de Mayo",
@@ -2514,6 +2639,7 @@
           "\"Fundación Proa\""
         ],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "\"El Patio de los Ezeiza\""
         ]
@@ -2533,6 +2659,7 @@
             "Av. Int. Hernan Giralt"
           ]
         ],
+        "routeLegs": [],
         "passBy": [
           "San Telmo",
           "\"Darsena Sur\""
@@ -2548,6 +2675,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "\"Centro Cultural Kirchner\""
         ]
@@ -2564,6 +2692,7 @@
             "Trade Sky Bar"
           ]
         ],
+        "routeLegs": [],
         "passBy": []
       }
     ],
@@ -2806,6 +2935,21 @@
           "entityRole": "ITINERARY_STOP"
         }
       ]
+    },
+    "routeAreaPromoted": [
+      "Defensa",
+      "Puerto Madero",
+      "San Telmo"
+    ],
+    "routeLegRoles": {
+      "Avenida Roque Sáenz Peña": "PASS_BY",
+      "Avenida de Mayo": "PASS_BY",
+      "Defensa": "ITINERARY_STOP",
+      "Dársena Sur": "PASS_BY",
+      "Avenida Ingeniero Huergo / Hernán Giralt": "ALTERNATIVE",
+      "Puerto Madero": "ITINERARY_STOP",
+      "San Telmo": "ITINERARY_STOP",
+      "La Boca": "ALTERNATIVE"
     }
   },
   {
@@ -2850,7 +2994,7 @@
       }
     ],
     "labellingValid": false,
-    "outcome": "FAIL_CLOSED",
+    "outcome": "CONTRACT_FAIL_CLOSED",
     "histogram": {
       "NON_ITINERARY": 53,
       "ITINERARY_STOP": 22,
@@ -2903,6 +3047,7 @@
             "Desnivel"
           ]
         ],
+        "routeLegs": [],
         "passBy": [
           "Av. Roque Saenz Peña",
           "Av. de Mayo",
@@ -2925,6 +3070,7 @@
           "Fundación Proa"
         ],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "\"El Patio de los Ezeiza\""
         ]
@@ -2940,6 +3086,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "Darsena Sur",
           "Av. Int. Hernan Giralt"
@@ -2957,6 +3104,7 @@
             "Trade Sky Bar"
           ]
         ],
+        "routeLegs": [],
         "passBy": []
       }
     ],
@@ -3200,6 +3348,21 @@
           "entityRole": "ITINERARY_STOP"
         }
       ]
+    },
+    "routeAreaPromoted": [
+      "Defensa",
+      "Puerto Madero",
+      "San Telmo"
+    ],
+    "routeLegRoles": {
+      "Avenida Roque Sáenz Peña": "PASS_BY",
+      "Avenida de Mayo": "PASS_BY",
+      "Defensa": "ITINERARY_STOP",
+      "Dársena Sur": "PASS_BY",
+      "Avenida Ingeniero Huergo / Hernán Giralt": "PASS_BY",
+      "Puerto Madero": "ITINERARY_STOP",
+      "San Telmo": "ITINERARY_STOP",
+      "La Boca": null
     }
   },
   {
@@ -3293,6 +3456,7 @@
             "Desnivel"
           ]
         ],
+        "routeLegs": [],
         "passBy": [
           "Av. Roque Saenz Peña",
           "Av. de Mayo",
@@ -3318,6 +3482,7 @@
           "Fundación Proa"
         ],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "El Patio de los Ezeiza"
         ]
@@ -3333,6 +3498,7 @@
         ],
         "optional": [],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "Darsena Sur",
           "Av. Int. Hernan Giralt"
@@ -3348,6 +3514,7 @@
           "Trade Sky Bar"
         ],
         "alternativeGroups": [],
+        "routeLegs": [],
         "passBy": [
           "Centro Cultural Kirchner"
         ]
@@ -3590,6 +3757,20 @@
           "entityRole": "ITINERARY_STOP"
         }
       ]
+    },
+    "routeAreaPromoted": [
+      "Puerto Madero",
+      "San Telmo"
+    ],
+    "routeLegRoles": {
+      "Avenida Roque Sáenz Peña": "PASS_BY",
+      "Avenida de Mayo": "PASS_BY",
+      "Defensa": "PASS_BY",
+      "Dársena Sur": "PASS_BY",
+      "Avenida Ingeniero Huergo / Hernán Giralt": "PASS_BY",
+      "Puerto Madero": "ITINERARY_STOP",
+      "San Telmo": "ITINERARY_STOP",
+      "La Boca": null
     }
   }
 ]

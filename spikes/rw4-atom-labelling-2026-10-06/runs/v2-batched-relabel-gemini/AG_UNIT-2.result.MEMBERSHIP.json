@@ -85,6 +85,7 @@
           "Desnivel"
         ]
       ],
+      "routeLegs": [],
       "passBy": [
         "Obelisco",
         "Av. Roque Saenz Peña",
@@ -107,6 +108,7 @@
         "Fundación Proa"
       ],
       "alternativeGroups": [],
+      "routeLegs": [],
       "passBy": [
         "\"El Patio de los Ezeiza\""
       ]
@@ -122,6 +124,7 @@
       ],
       "optional": [],
       "alternativeGroups": [],
+      "routeLegs": [],
       "passBy": [
         "Darsena Sur",
         "Av. Int. Hernan Giralt"
@@ -137,6 +140,7 @@
         "Centro Cultural Kirchner"
       ],
       "alternativeGroups": [],
+      "routeLegs": [],
       "passBy": []
     },
     {
@@ -151,6 +155,7 @@
           "Trade Sky Bar"
         ]
       ],
+      "routeLegs": [],
       "passBy": []
     }
   ],
@@ -403,6 +408,21 @@
         "entityRole": "ITINERARY_STOP"
       }
     ]
+  },
+  "routeAreaPromoted": [
+    "Defensa",
+    "Puerto Madero",
+    "San Telmo"
+  ],
+  "routeLegRoles": {
+    "Avenida Roque Sáenz Peña": "PASS_BY",
+    "Avenida de Mayo": "PASS_BY",
+    "Defensa": "ITINERARY_STOP",
+    "Dársena Sur": "PASS_BY",
+    "Avenida Ingeniero Huergo / Hernán Giralt": "PASS_BY",
+    "Puerto Madero": "ITINERARY_STOP",
+    "San Telmo": "ITINERARY_STOP",
+    "La Boca": "ALTERNATIVE"
   },
   "labels": [
     {

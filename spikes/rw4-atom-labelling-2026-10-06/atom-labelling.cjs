@@ -22,14 +22,19 @@ const crypto = require('crypto');
 const ATOMIZER_VERSION = 'atomizer-v1';
 // v1: smoke run only (runs/smoke-gemini). v2: anaphoric mentionAtomId,
 // identifying descriptions, overview/return-transfer/sight guidance.
-const PROMPT_VERSION = 'labelling-prompt-v2';
+// v3: ROUTE_LEG; areas entered/crossed and generic descriptions are not
+// membership; a street that is itself the experience stays a stop.
+const PROMPT_VERSION = 'labelling-prompt-v3';
 const DEFAULT_MAX_ATOM_CHARS = 600;
 
-const CLASSIFICATIONS = ['ITINERARY_STOP', 'OPTIONAL_STOP', 'ALTERNATIVE', 'TRANSFER', 'PASS_BY', 'NON_ITINERARY'];
-const ENTITY_ROLES = ['ITINERARY_STOP', 'OPTIONAL_STOP', 'ALTERNATIVE', 'PASS_BY'];
+const CLASSIFICATIONS = ['ITINERARY_STOP', 'ROUTE_LEG', 'OPTIONAL_STOP', 'ALTERNATIVE', 'TRANSFER', 'PASS_BY', 'NON_ITINERARY'];
+const ENTITY_ROLES = ['ITINERARY_STOP', 'ROUTE_LEG', 'OPTIONAL_STOP', 'ALTERNATIVE', 'PASS_BY'];
 // Strongest first. A non-TRANSFER, non-NON_ITINERARY atom's classification
 // must equal the strongest role among its entities.
-const ROLE_PRECEDENCE = ['ITINERARY_STOP', 'OPTIONAL_STOP', 'ALTERNATIVE', 'PASS_BY'];
+const ROLE_PRECEDENCE = ['ITINERARY_STOP', 'ROUTE_LEG', 'OPTIONAL_STOP', 'ALTERNATIVE', 'PASS_BY'];
+// Roles that never count as a segment's own membership for transfer
+// boundaries (a segment holding only these is not closed by a transfer).
+const CONTEXT_ROLES = new Set(['ROUTE_LEG', 'PASS_BY']);
 const TRANSFER_MODES = ['BUS', 'TAXI', 'METRO', 'TRAIN', 'TRAM', 'FERRY', 'CAR', 'OTHER_MOTORIZED', 'UNSPECIFIED'];
 
 const LETTER_OR_NUMBER = /[\p{L}\p{N}]/u;
@@ -323,25 +328,28 @@ function buildPrompt(batch, atomsById) {
     batch.contextAtomIds.length ? 'Atoms under CONTEXT precede this part of the text. Read them for context only; do not label them.' : '',
     '',
     'classification (what the atom does in the itinerary):',
-    '- ITINERARY_STOP: directs the traveller to a named place that is part of the itinerary: start at, visit, stop at, enter, go and see, arrive at, or a numbered stop.',
+    '- ITINERARY_STOP: directs the traveller to a place that is a destination of the itinerary: start at, visit, stop at, enter, go and see, arrive at, experience, or a numbered stop.',
+    '- ROUTE_LEG: tells the traveller to follow, walk or ride along, cross, traverse or use a real street, avenue, path, bridge or area as the route, when that path is not itself a place to visit.',
     '- OPTIONAL_STOP: presents a named place as optional or extra ("if you have time", "you can also"), outside the main sequence.',
     '- ALTERNATIVE: offers a choice among places ("A or B", "if you prefer X, go to Y"), or recommends one of several options, such as where to eat or drink.',
     '- TRANSFER: describes or announces moving to the next part of the itinerary by motorized or public transport (bus, taxi, metro, train, ferry, car), including a heading that announces that move. Walking from place to place is never a TRANSFER.',
-    '- PASS_BY: only mentions named places seen or passed along the way (a street walked or crossed, a building seen in passing, a landmark for orientation), without directing a visit.',
+    '- PASS_BY: only mentions places seen, passed, referenced or used for orientation along the way, without directing a visit and without telling the traveller to use them as the route.',
     '- NON_ITINERARY: everything else: description, history, tips, prices, opening hours, navigation, captions, ads, author notes. Also an atom that only describes a place labelled in another atom.',
     '',
     'Guidance:',
-    '- A place the text points out to the traveller as a sight of the route ("you will see X", "in front is X", "X is on your left", then describing it) is an ITINERARY_STOP. PASS_BY is for places only walked, crossed, passed or used for orientation.',
+    '- A place the text points out to the traveller as a sight of the route ("you will see X", "in front is X", "X is on your left", then describing it) is an ITINERARY_STOP. PASS_BY is for places only passed, glimpsed or used for orientation.',
+    '- A street or corridor walked to get between stops is a ROUTE_LEG. A street, promenade or corridor that is itself the attraction or the experience (the source presents walking it as the thing to do) is an ITINERARY_STOP.',
+    '- A neighbourhood or district that is only entered, crossed, used as a transport direction, or named as context is a ROUTE_LEG or PASS_BY. It is an ITINERARY_STOP only when the source presents the area itself as a destination to explore.',
     '- An overview that lists what the whole itinerary covers, or a title, is NON_ITINERARY; label each place where the text actually directs the traveller to it.',
     '- A heading or sentence that announces going to the next part of the itinerary is a TRANSFER when the text says that part is reached by transport, even if the transport is named in the next atom.',
     '- A transfer back to the start, home or the hotel at the end is a TRANSFER whose destination is PASS_BY.',
     '',
-    'entities: every real place the atom refers to, with its role; zero, one or several per atom. A place counts when it has a proper name or a description that identifies one specific place (for example "the city museum"). An unnamed generic option ("two bakeries") is not an entity.',
+    'entities: every real place the atom refers to, with its role; zero, one or several per atom. A place counts when it has a proper name or a description that identifies one specific place (for example "the city museum"). An unnamed generic option ("two bakeries") or a generic description without its own identity ("a big building", "the oldest part of town") is not an entity.',
     '- sourceName: the name or description exactly as the source writes it. Do not translate, expand or complete it.',
     '- supportSpan: a short phrase copied verbatim from this atom that shows the role. It contains sourceName unless mentionAtomId is set.',
-    '- role: ITINERARY_STOP, OPTIONAL_STOP, ALTERNATIVE or PASS_BY, with the meanings above.',
+    '- role: ITINERARY_STOP, ROUTE_LEG, OPTIONAL_STOP, ALTERNATIVE or PASS_BY, with the meanings above.',
     '- mentionAtomId: only when this atom refers back to a place that is named in an EARLIER atom (for example "Jump inside." or "enjoy the park"): the atomId of the earlier atom whose text contains sourceName.',
-    'Consistency: a NON_ITINERARY atom has no entities. Any other non-TRANSFER atom has at least one entity, and its classification equals its strongest entity role (ITINERARY_STOP > OPTIONAL_STOP > ALTERNATIVE > PASS_BY). A TRANSFER atom may list the place it travels to: role ITINERARY_STOP when the traveller visits that place next, otherwise PASS_BY.',
+    'Consistency: a NON_ITINERARY atom has no entities. Any other non-TRANSFER atom has at least one entity, and its classification equals its strongest entity role (ITINERARY_STOP > ROUTE_LEG > OPTIONAL_STOP > ALTERNATIVE > PASS_BY). A TRANSFER atom may list the place it travels to: role ITINERARY_STOP when the traveller visits that place next, otherwise ROUTE_LEG or PASS_BY.',
     'transferMode (TRANSFER atoms only): BUS, TAXI, METRO, TRAIN, TRAM, FERRY, CAR, OTHER_MOTORIZED or UNSPECIFIED; the first one the source offers.',
     'reason: at most 12 words; audit only.',
     '',
@@ -411,7 +419,7 @@ function locateSpan(atom, span) {
  *   that can hide or invent membership: an ITINERARY_STOP atom without an
  *   ITINERARY_STOP entity, an entity role stronger than its atom's
  *   classification, a NON_ITINERARY atom with entities. An OPTIONAL_STOP,
- *   ALTERNATIVE or PASS_BY atom whose option is unnamed adds no membership
+ *   ALTERNATIVE, ROUTE_LEG or PASS_BY atom whose place is unnamed adds no membership
  *   and is recorded as an UNNAMED_* note.
  * - 'STRICT' (contract v1): classification must equal the strongest entity
  *   role. Kept to rescore runs under the first rule.
@@ -602,7 +610,7 @@ function applyRelabel(atoms, first, scopeIds, second) {
  *   membership from a non-TRANSFER atom; adjacent TRANSFER atoms (with no
  *   membership-bearing atom between them) form one boundary.
  * - ITINERARY_STOP entities are mandatory membership; OPTIONAL_STOP,
- *   ALTERNATIVE and PASS_BY entities are kept with their roles and are never
+ *   ALTERNATIVE, ROUTE_LEG and PASS_BY entities are kept with their roles and are never
  *   mandatory.
  * - Consecutive alternative-bearing atoms (atoms without entities between
  *   them do not interrupt) form one choice group.
@@ -626,7 +634,7 @@ function assemble(atoms, validation) {
       current.altRun = null;
     }
     if (!label.entities.length) continue;
-    if (label.classification !== 'TRANSFER' && label.entities.some((e) => e.role !== 'PASS_BY')) current.hasOwnMembership = true;
+    if (label.classification !== 'TRANSFER' && label.entities.some((e) => !CONTEXT_ROLES.has(e.role))) current.hasOwnMembership = true;
     const hasAlt = label.entities.some((e) => e.role === 'ALTERNATIVE');
     const hasOther = label.entities.some((e) => e.role !== 'ALTERNATIVE');
     if (hasOther || !hasAlt) current.altRun = null;
@@ -671,6 +679,7 @@ function assemble(atoms, validation) {
       mandatory: members.filter((m) => m.role === 'ITINERARY_STOP').map((m) => m.sourceName),
       optional: members.filter((m) => m.role === 'OPTIONAL_STOP').map((m) => m.sourceName),
       alternativeGroups: [...groups.values()],
+      routeLegs: members.filter((m) => m.role === 'ROUTE_LEG').map((m) => m.sourceName),
       passBy: members.filter((m) => m.role === 'PASS_BY').map((m) => m.sourceName),
       members,
     };

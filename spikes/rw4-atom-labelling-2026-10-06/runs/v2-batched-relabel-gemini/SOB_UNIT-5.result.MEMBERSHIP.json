@@ -75,6 +75,7 @@
           "empanadas"
         ]
       ],
+      "routeLegs": [],
       "passBy": [
         "Museo del Cabildo",
         "National Bank",
@@ -98,6 +99,7 @@
       ],
       "optional": [],
       "alternativeGroups": [],
+      "routeLegs": [],
       "passBy": []
     },
     {
@@ -112,6 +114,7 @@
           "beer bars or restaurants"
         ]
       ],
+      "routeLegs": [],
       "passBy": [
         "San Telmo"
       ]
@@ -326,6 +329,21 @@
         "entityRole": "ITINERARY_STOP"
       }
     ]
+  },
+  "routeAreaPromoted": [
+    "Defensa",
+    "Estados Unidos",
+    "Paseo Colón",
+    "La Boca"
+  ],
+  "routeLegRoles": {
+    "Defensa": "ITINERARY_STOP",
+    "Estados Unidos": "ITINERARY_STOP",
+    "Paseo Colón": "ITINERARY_STOP",
+    "Avenida San Juan": "PASS_BY",
+    "Avenida Caseros": "PASS_BY",
+    "La Boca": "ITINERARY_STOP",
+    "San Telmo": "PASS_BY"
   },
   "labels": [
     {
