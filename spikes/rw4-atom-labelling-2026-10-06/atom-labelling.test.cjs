@@ -256,6 +256,25 @@ test('ROUTE_LEG is route provenance, never mandatory membership, and does not ho
   assert.deepEqual(bad.issues.map((x) => x.code), ['ROLE_INCONSISTENT']);
 });
 
+test('ROLE_CONFLICT: ROUTE_LEG and ITINERARY_STOP for one name stays mandatory and is made visible', () => {
+  const text = ['Go to Long Street.', 'Visit the Fort.', 'Walk back along Long Street.', 'You pass the Mill.', 'Jump inside.'].join('\n');
+  const z = L.atomize(text);
+  const ids = z.atoms.map((a) => a.atomId);
+  const v = L.validateLabelling(ids, new Map(z.atoms.map((a) => [a.atomId, a])), {
+    atoms: [
+      { atomId: ids[0], classification: 'ITINERARY_STOP', entities: [ent('Long Street', 'Go to Long Street', 'ITINERARY_STOP')] },
+      { atomId: ids[1], classification: 'ITINERARY_STOP', entities: [ent('Fort', 'Visit the Fort', 'ITINERARY_STOP')] },
+      { atomId: ids[2], classification: 'ROUTE_LEG', entities: [ent('Long Street', 'along Long Street', 'ROUTE_LEG')] },
+      { atomId: ids[3], classification: 'PASS_BY', entities: [ent('Mill', 'pass the Mill', 'PASS_BY')] },
+      { atomId: ids[4], classification: 'ITINERARY_STOP', entities: [{ ...ent('Mill', 'Jump inside', 'ITINERARY_STOP'), mentionAtomId: ids[3] }] },
+    ],
+  });
+  const [seg] = L.assemble(z.atoms, v);
+  assert.deepEqual(seg.mandatory, ['Long Street', 'Fort', 'Mill']);
+  // Anaphoric PASS_BY -> ITINERARY_STOP is not a conflict.
+  assert.deepEqual(seg.conflicts, [{ code: 'ROLE_CONFLICT', sourceName: 'Long Street', routeLegAtoms: [ids[2]], stopAtoms: [ids[0]] }]);
+});
+
 test('a corridor that is itself the experience stays mandatory when labelled ITINERARY_STOP', () => {
   const z = L.atomize('Walk the whole Painted Lane, the most famous pedestrian street of the port.');
   const v = L.validateLabelling(['a-001'], new Map(z.atoms.map((a) => [a.atomId, a])), {

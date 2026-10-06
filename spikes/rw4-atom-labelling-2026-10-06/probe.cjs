@@ -172,6 +172,7 @@ async function main() {
           alternativeGroups: s.alternativeGroups,
           routeLegs: s.routeLegs,
           passBy: s.passBy,
+          conflicts: s.conflicts,
         })),
         segmentsAreDiagnosticShadow: !merged.valid,
         ...score,
