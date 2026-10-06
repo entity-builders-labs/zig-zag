@@ -1,0 +1,98 @@
+{
+  "1_streets": {
+    "pass": true,
+    "mandatoryRuns": {
+      "Defensa": 1,
+      "Estados Unidos": 0
+    },
+    "validSobRuns": 5
+  },
+  "2_areas_as_direction": {
+    "pass": false,
+    "atomLevel": {
+      "SOB_UNIT": [
+        [],
+        [],
+        [],
+        [
+          "a-041:San Telmo"
+        ],
+        []
+      ],
+      "AG_UNIT": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ]
+    },
+    "notMandatory": {
+      "SOB_UNIT:San Telmo": 2,
+      "AG_UNIT:Puerto Madero": 0,
+      "AG_UNIT:San Telmo": 0
+    }
+  },
+  "3_sight_street": {
+    "pass": false,
+    "mandatoryRuns": 3
+  },
+  "4_role_conflict": {
+    "pass": true,
+    "onGateEntities": 0,
+    "all": []
+  },
+  "5_recall": {
+    "pass": false,
+    "hits": 102,
+    "total": 105,
+    "segmentsNotFull": {
+      "SOB_UNIT:S1-walk": 0,
+      "SOB_UNIT:S2-la-boca": 0,
+      "AG_UNIT:S1-walk": 3,
+      "AG_UNIT:S2-la-boca": 0,
+      "AG_UNIT:S3-puerto-madero": 0
+    }
+  },
+  "6_rw3": {
+    "pass": true,
+    "RW3_EV3": {
+      "valid": 3,
+      "success": 3,
+      "outcomes": [
+        "ASSEMBLED",
+        "ASSEMBLED",
+        "ASSEMBLED"
+      ]
+    },
+    "ROUTE_EXPERIENCE": {
+      "valid": 3,
+      "success": 3,
+      "outcomes": [
+        "ASSEMBLED",
+        "ASSEMBLED",
+        "ASSEMBLED"
+      ]
+    }
+  },
+  "7_transfers": {
+    "pass": true,
+    "violations": []
+  },
+  "8_alternatives": {
+    "pass": true,
+    "violations": []
+  },
+  "9_contract": {
+    "pass": false,
+    "contractFailClosed": 3,
+    "valid": 10
+  },
+  "10_operational": {
+    "pass": true,
+    "invalidRuns": 0,
+    "validRunRate": "10/10"
+  },
+  "semanticSuccess": "7/10 valid runs oracle-exact on every segment",
+  "verdict": "FAIL"
+}

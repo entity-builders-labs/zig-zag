@@ -2439,10 +2439,27 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
     authority). An offline counterfactual over 23 recorded runs shows no
     recall cost.
 
+- Last A re-gate v5 (R1 `TRANSFER_DESTINATION` + R2 entity-role
+  authority, prompt unchanged, frozen `5aca6242`): **FAIL** on criteria
+  2, 3, 5 and 9.
+  - R1 and R2 worked: Puerto Madero 0/5, `ROLE_CONFLICT` 0,
+    ROUTE_EXPERIENCE 3/3, operational 10/10.
+  - Residual failures are label variance on borderline atoms, which v4 and
+    v5 label identically by construction (Obelisco a-012 18/25 stop across
+    batched runs; Avenida Caseros 1/4 vs 3/5); a navigation link a-172
+    labelled a stop; and one systematic anaphora slip (a-078 "park")
+    causing 3/10 contract fail-closed.
+  - Stopped for owner review of the criteria (no v6). Questions are in the
+    spike README.
+
 ## Next authorized action
 
-0. (2026-10-06, milestone A v4 FAILED; prompt tuning stopped) Owner
-   decision on the v5 representation revision in
+0. (2026-10-06, milestone A v5 FAILED; no v6) Owner review of the
+   frozen A criteria against the v5 evidence (spike README, "Questions for
+   review"): semantic-recall threshold on borderline atoms vs explicit
+   misses, ACCEPTABLE street promotion as an extraction vs an identity
+   concern, navigation-chrome stop labels, and the anaphora contract. B
+   stays unauthorized. Superseded: decision on the v5 representation revision in
    `spikes/rw4-atom-labelling-2026-10-06/README.md`, to be re-gated with
    the same frozen v4 criteria. B stays unauthorized. Superseded: decision on the v4 re-gate
    proposed in `spikes/rw4-atom-labelling-2026-10-06/README.md` (transfer

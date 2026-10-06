@@ -1,0 +1,136 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-166",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Travel tip about money."
+    },
+    {
+      "atomId": "a-167",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General planning tip."
+    },
+    {
+      "atomId": "a-168",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Practical travel tip."
+    },
+    {
+      "atomId": "a-169",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Section heading."
+    },
+    {
+      "atomId": "a-170",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Accommodation advice."
+    },
+    {
+      "atomId": "a-171",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "Buenos Aires",
+          "supportSpan": "Buenos Aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Hotel listing overview for a city."
+    },
+    {
+      "atomId": "a-172",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Hotel listing overview for a neighborhood."
+    },
+    {
+      "atomId": "a-173",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "Palermo",
+          "supportSpan": "Palermo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Hotel listing overview for a neighborhood."
+    },
+    {
+      "atomId": "a-174",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Section heading."
+    },
+    {
+      "atomId": "a-175",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Transport tip."
+    },
+    {
+      "atomId": "a-176",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical information."
+    },
+    {
+      "atomId": "a-177",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "Buenos Aires",
+          "supportSpan": "Buenos Aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Activity description and tips."
+    },
+    {
+      "atomId": "a-178",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Holiday information."
+    },
+    {
+      "atomId": "a-179",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "Patagonia",
+          "supportSpan": "Patagonia",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Regional travel tips."
+    },
+    {
+      "atomId": "a-180",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language switch button."
+    },
+    {
+      "atomId": "a-181",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language switch button."
+    },
+    {
+      "atomId": "a-182",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language switch button."
+    }
+  ]
+}

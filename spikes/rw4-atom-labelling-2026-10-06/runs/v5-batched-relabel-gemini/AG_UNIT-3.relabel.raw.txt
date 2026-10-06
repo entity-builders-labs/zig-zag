@@ -1,0 +1,16 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-041",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the market mentioned previously without new directions."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides tips and description of the area."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-078",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "park",
+          "supportSpan": "enjoy the park",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-077"
+        }
+      ],
+      "reason": "Directs the traveller to enjoy the park mentioned earlier."
+    },
+    {
+      "atomId": "a-084",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "red walkway",
+          "supportSpan": "red walkway",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Instructs the traveller to walk on the red walkway."
+    }
+  ]
+}

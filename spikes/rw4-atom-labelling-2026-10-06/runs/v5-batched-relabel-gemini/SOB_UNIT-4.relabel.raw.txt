@@ -1,0 +1,47 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-078",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "park",
+          "supportSpan": "the park",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-077"
+        }
+      ],
+      "reason": "Directs traveler to enjoy the park"
+    },
+    {
+      "atomId": "a-171",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Hotel recommendation link"
+    },
+    {
+      "atomId": "a-172",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Hotel recommendation link"
+    },
+    {
+      "atomId": "a-173",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Hotel recommendation link"
+    },
+    {
+      "atomId": "a-177",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Cycling link"
+    },
+    {
+      "atomId": "a-179",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Patagonia travel tips link"
+    }
+  ]
+}

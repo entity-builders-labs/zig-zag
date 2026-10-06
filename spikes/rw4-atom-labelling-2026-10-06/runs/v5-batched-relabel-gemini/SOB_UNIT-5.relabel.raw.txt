@@ -1,0 +1,29 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-041",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Descriptive comment about the neighborhood character."
+    },
+    {
+      "atomId": "a-050",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides historical background information about the building."
+    },
+    {
+      "atomId": "a-078",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "park",
+          "supportSpan": "enjoy the park",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-077"
+        }
+      ],
+      "reason": "Tells the traveler to enjoy the previously mentioned park."
+    }
+  ]
+}

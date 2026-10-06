@@ -462,3 +462,78 @@ contract slip.
   that section, and the oracle allows it (ACCEPTABLE). Defensa resolved as
   a ROUTE in C3 COLD (14 OSM ways), so it may pass identity.
 - Obelisco was missed once (a-012 `PASS_BY`, visible).
+
+## Milestone A last re-gate v5 (R1 + R2, prompt unchanged), 2026-10-06. Verdict: **FAIL; stopped for owner review (no v6)**
+
+The criteria were frozen before the runs (`milestone-a-gate-v5.json`,
+commit `5aca6242`). v5 implements R1 and R2 as a deterministic
+projection of the unchanged v4 prompt output (`CONSISTENCY=ENTITY_ROLES`):
+
+- the prompt text sent is byte-identical to v4;
+- **R1:** every entity of a TRANSFER atom becomes `TRANSFER_DESTINATION`
+  provenance, never membership;
+- **R2:** atom kind is CONTENT, TRANSFER or NON_ITINERARY, and entity roles
+  are the only role authority. `STOP_WITHOUT_ENTITY` and a
+  NON_ITINERARY-with-entities failure stay fail-closed.
+
+Results: `runs/gate-v5-result.json`, `runs/summary-v5.md`.
+
+| # | Criterion | v5 | Result |
+|---|---|---|---|
+| 1 | Defensa/Estados Unidos (SOB) | 1/5 and 0/5 | PASS |
+| 2 | Undue membership from direction/entry atoms | AG clean (Puerto Madero 0/5, San Telmo 0/5). SOB San Telmo mandatory 2/5: a-041 "It gives just that special character to San Telmo" (run 4) and a-172, a **navigation link** "Best hotels in San Telmo" (run 5) | **FAIL** |
+| 3 | Avenida Caseros mandatory ≤ 1 | 3/5 (a-082 "you will see Avenida Caseros" or a-084) | **FAIL** |
+| 4 | `ROLE_CONFLICT` on gate entities | 0 | PASS |
+| 5 | Recall | 102/105: Obelisco labelled `PASS_BY` at a-012 in 3/5 AG runs | **FAIL** |
+| 6 | RW3 route-as-experience | 3/3 and 3/3, all ASSEMBLED | PASS |
+| 7 | Transfers and mixing | 0 | PASS |
+| 8 | Alternatives promoted | 0 | PASS |
+| 9 | CONTRACT_FAIL_CLOSED ≤ 12.5% | 3/10, all the same slip: SOB a-078 "Take your time and enjoy the park." with sourceName "park" and mentionAtomId a-077, which says "Parque Lezama", not "park" | **FAIL** |
+| 10 | Operational | 10/10 valid (2500-char batches, 25 s timeout unchanged) | PASS |
+
+- Semantic success: 7/10 valid runs exact on every oracle segment.
+- Operational valid-run rate: 10/10.
+
+### What R1 + R2 fixed, and what they cannot touch
+
+- **R1 fixed transfer promotion.** Puerto Madero went from 5/5 mandatory
+  to 0/5, and `ROLE_CONFLICT` from 4 to 0. Caminito and the other S2/S3
+  stops were never lost.
+- **R2 fixed the duplicated-authority failures.** Every v4
+  `ROLE_INCONSISTENT` class is gone: ROUTE_EXPERIENCE now assembles 3/3
+  (it was 1/3). No museum signal was lost: a-079 is a stop with its entity
+  in 5/5 SOB runs.
+- **The remaining failures come from label variance on borderline atoms,
+  which the representation does not touch.** v4 and v5 send the same prompt
+  and label a-012 and a-082 independently of R1 and R2, yet:
+  - Obelisco was `ITINERARY_STOP` in 4/5 (v4) and 2/5 (v5); across all
+    batched runs, 18/25;
+  - Avenida Caseros was mandatory in 1/4 (v4) and 3/5 (v5).
+
+  At n = 5, thresholds such as "≤ 1 of 5" cannot separate a representation
+  effect from sampling noise for atoms whose true labelling rate is around
+  50%.
+
+### Questions for review (decision rule: no automatic v6)
+
+1. **Criterion 5 (Obelisco).** "Then you can walk a few streets to see the
+   Obelisco and then walkthrough Av. Roque Saenz Peña directly to Plaza de
+   Mayo" is borderline between a sight and passing. Each miss is an
+   explicit `PASS_BY` on a-012, never silent. RW4's closure condition is
+   "no silently omitted mandatory stop", which this meets. Should the gate
+   require about 99% semantic recall on borderline atoms, or require that
+   every miss be explicit?
+2. **Criterion 3 (Avenida Caseros).** The oracle marks it ACCEPTABLE
+   (faithful either way). Its only cost is downstream identity risk if it
+   becomes mandatory. Is that an extraction-gate requirement, or a C3
+   identity question?
+3. **Criterion 2 (SOB San Telmo).** These are real semantic errors at low
+   frequency. a-172 is a navigation link labelled a stop, so a return
+   segment can get a one-member mandatory set from page chrome. This is the
+   finding with the most production risk; the trace makes it visible.
+4. **Criterion 9 (contract).** A single systematic anaphora slip: the model
+   writes the anaphor ("park") instead of the antecedent's wording. The
+   fail-closed rule is correct; the referent cannot be verified by name. At
+   about 30% unit fail-closed, a C3 run with two sources has about a 50%
+   chance that both units assemble. Whether the anaphora contract should
+   change is a design decision, not a tuning step.

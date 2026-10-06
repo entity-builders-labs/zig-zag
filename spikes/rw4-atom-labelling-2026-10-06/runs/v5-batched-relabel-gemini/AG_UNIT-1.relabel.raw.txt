@@ -1,0 +1,10 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-072",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the area without directing a visit."
+    }
+  ]
+}
