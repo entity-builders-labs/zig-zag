@@ -1,13 +1,14 @@
 // Mechanical evaluator of the frozen milestone A v4 gate
 // (milestone-a-gate-v4.json). Evaluation only.
-//   node gate-v4.cjs runs/<main-batch> [runs/<regression-batch>]
+//   [GATE_FILE=milestone-a-gate-v5.json RULE=ENTITY_ROLES] node gate-v4.cjs runs/<main-batch> [runs/<regression-batch>]
 'use strict';
 const fs = require('fs');
 const path = require('path');
 const { fold } = require('./atom-labelling.cjs');
 const { oracleItems } = require('./score.cjs');
 
-const gate = JSON.parse(fs.readFileSync(path.join(__dirname, 'milestone-a-gate-v4.json'), 'utf8'));
+const gate = JSON.parse(fs.readFileSync(path.join(__dirname, process.env.GATE_FILE || 'milestone-a-gate-v4.json'), 'utf8'));
+const RULE = process.env.RULE || 'MEMBERSHIP';
 const extra = JSON.parse(fs.readFileSync(path.join(__dirname, 'milestone-a-gate.json'), 'utf8')).extraWordings;
 const SOURCE = { SOB_UNIT: 'secretsofbuenosaires-day1', AG_UNIT: 'agusyornet-san-telmo' };
 const bare = (s) => fold(s).replace(/^(the|el|la|los|las) /u, '').replace(/^street /u, '').replace(/ street$/u, '');
@@ -20,8 +21,8 @@ const is = (sourceId, name, sourceName) => wordingsFor(sourceId, name).some((w) 
 
 function load(dir) {
   const full = path.join(__dirname, dir);
-  const summary = JSON.parse(fs.readFileSync(path.join(full, 'results.MEMBERSHIP.json'), 'utf8'));
-  return summary.map((row) => (row.validity === 'VALID' ? JSON.parse(fs.readFileSync(path.join(full, `${row.input}-${row.run}.result.MEMBERSHIP.json`), 'utf8')) : row));
+  const summary = JSON.parse(fs.readFileSync(path.join(full, `results.${RULE}.json`), 'utf8'));
+  return summary.map((row) => (row.validity === 'VALID' ? JSON.parse(fs.readFileSync(path.join(full, `${row.input}-${row.run}.result.${RULE}.json`), 'utf8')) : row));
 }
 
 function evaluate(mainDir, regressionDir) {

@@ -426,6 +426,16 @@ function locateSpan(atom, span) {
  *   and is recorded as an UNNAMED_* note.
  * - 'STRICT' (contract v1): classification must equal the strongest entity
  *   role. Kept to rescore runs under the first rule.
+ * - 'ENTITY_ROLES' (contract v5, representation revision R1 + R2): a
+ *   deterministic projection of the same model output, with no prompt change.
+ *   R2: the atom kind is structural (CONTENT | TRANSFER | NON_ITINERARY) and
+ *   entity roles are the only role authority, so a role stronger than the
+ *   atom's fine classification is no longer an inconsistency. A CONTENT atom
+ *   the model claims is a stop must still carry an ITINERARY_STOP entity
+ *   (STOP_WITHOUT_ENTITY: the missing-museum signal), and a NON_ITINERARY
+ *   atom may not carry entities. R1: every entity of a TRANSFER atom becomes
+ *   TRANSFER_DESTINATION (transition provenance, never membership); the
+ *   model's role is kept as modelRole for audit.
  */
 function validateLabelling(scopeAtomIds, atomsById, response, { consistency = 'MEMBERSHIP' } = {}) {
   const issues = [];
@@ -505,6 +515,9 @@ function validateLabelling(scopeAtomIds, atomsById, response, { consistency = 'M
         const strongest = ROLE_PRECEDENCE.find((r) => entities.some((e) => e.role === r));
         if (consistency === 'STRICT') {
           if (strongest !== c) issue('ROLE_INCONSISTENT', atomId, `classification ${c}, strongest entity role ${strongest ?? 'none'}`);
+        } else if (consistency === 'ENTITY_ROLES') {
+          if (c === 'ITINERARY_STOP' && strongest !== c) issue('STOP_WITHOUT_ENTITY', atomId, `stop claim, strongest entity role ${strongest ?? 'none'}`);
+          else if (!entities.length) notes.push({ code: `UNNAMED_${c}`, atomId });
         } else if (strongest && ROLE_PRECEDENCE.indexOf(strongest) < ROLE_PRECEDENCE.indexOf(c)) {
           issue('ROLE_INCONSISTENT', atomId, `entity role ${strongest} exceeds classification ${c}`);
         } else if (c === 'ITINERARY_STOP' && strongest !== c) {
@@ -514,10 +527,15 @@ function validateLabelling(scopeAtomIds, atomsById, response, { consistency = 'M
         }
       }
     }
+    const projected =
+      consistency === 'ENTITY_ROLES' && raw.classification === 'TRANSFER'
+        ? entities.map((e) => ({ ...e, modelRole: e.role, role: 'TRANSFER_DESTINATION' }))
+        : entities;
     labels.set(atomId, {
       atomId,
       classification: raw.classification,
-      entities: entities.sort((a, b) => a.sourceStart - b.sourceStart),
+      ...(consistency === 'ENTITY_ROLES' ? { kind: raw.classification === 'TRANSFER' || raw.classification === 'NON_ITINERARY' ? raw.classification : 'CONTENT' } : {}),
+      entities: projected.sort((a, b) => a.sourceStart - b.sourceStart),
       ...(raw.transferMode ? { transferMode: raw.transferMode } : {}),
       ...(typeof raw.reason === 'string' ? { reason: raw.reason } : {}),
     });
@@ -624,7 +642,7 @@ function assemble(atoms, validation) {
   if (!validation.valid) throw new Error('ASSEMBLY_REFUSED: labelling is invalid (fail closed)');
   const segments = [];
   const open = (transferAtomId, transferMode) => {
-    const s = { segmentIndex: segments.length + 1, openedBy: transferAtomId ? [{ atomId: transferAtomId, transferMode: transferMode ?? 'UNSPECIFIED' }] : [], members: [], hasOwnMembership: false, altRun: null };
+    const s = { segmentIndex: segments.length + 1, openedBy: transferAtomId ? [{ atomId: transferAtomId, transferMode: transferMode ?? 'UNSPECIFIED' }] : [], transferDestinations: [], members: [], hasOwnMembership: false, altRun: null };
     segments.push(s);
     return s;
   };
@@ -636,13 +654,18 @@ function assemble(atoms, validation) {
       else current.openedBy.push({ atomId: atom.atomId, transferMode: label.transferMode ?? 'UNSPECIFIED' });
       current.altRun = null;
     }
-    if (!label.entities.length) continue;
+    // R1: a transfer's destination is transition provenance of the segment
+    // it opens, never membership; a later atom may still make it a stop.
+    for (const e of label.entities.filter((x) => x.role === 'TRANSFER_DESTINATION')) {
+      current.transferDestinations.push({ sourceName: e.sourceName, atomId: atom.atomId, supportSpan: e.supportSpan, modelRole: e.modelRole });
+    }
+    if (!label.entities.some((x) => x.role !== 'TRANSFER_DESTINATION')) continue;
     if (label.classification !== 'TRANSFER' && label.entities.some((e) => !CONTEXT_ROLES.has(e.role))) current.hasOwnMembership = true;
     const hasAlt = label.entities.some((e) => e.role === 'ALTERNATIVE');
     const hasOther = label.entities.some((e) => e.role !== 'ALTERNATIVE');
     if (hasOther || !hasAlt) current.altRun = null;
     if (hasAlt && !current.altRun) current.altRun = { groupId: `${current.segmentIndex}.${atom.atomId}` };
-    for (const e of label.entities) {
+    for (const e of label.entities.filter((x) => x.role !== 'TRANSFER_DESTINATION')) {
       const key = fold(e.sourceName);
       const provenance = {
         atomId: atom.atomId,
@@ -691,6 +714,7 @@ function assemble(atoms, validation) {
     return {
       segmentIndex: s.segmentIndex,
       openedBy: s.openedBy,
+      transferDestinations: s.transferDestinations,
       conflicts,
       mandatory: members.filter((m) => m.role === 'ITINERARY_STOP').map((m) => m.sourceName),
       optional: members.filter((m) => m.role === 'OPTIONAL_STOP').map((m) => m.sourceName),

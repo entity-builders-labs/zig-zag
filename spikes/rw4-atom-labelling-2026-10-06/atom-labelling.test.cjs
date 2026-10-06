@@ -275,6 +275,54 @@ test('ROLE_CONFLICT: ROUTE_LEG and ITINERARY_STOP for one name stays mandatory a
   assert.deepEqual(seg.conflicts, [{ code: 'ROLE_CONFLICT', sourceName: 'Long Street', routeLegAtoms: [ids[2]], stopAtoms: [ids[0]] }]);
 });
 
+test('v5 R1: a TRANSFER entity is TRANSFER_DESTINATION provenance; a later stop label still counts', () => {
+  const text = ['Visit the Fort.', 'Take the bus to the Harbour District.', 'Take a taxi to the Lighthouse.', 'Arrive at the Lighthouse.'].join('\n');
+  const z = L.atomize(text);
+  const ids = z.atoms.map((a) => a.atomId);
+  const v = L.validateLabelling(ids, new Map(z.atoms.map((a) => [a.atomId, a])), {
+    atoms: [
+      { atomId: ids[0], classification: 'ITINERARY_STOP', entities: [ent('Fort', 'Visit the Fort', 'ITINERARY_STOP')] },
+      { atomId: ids[1], classification: 'TRANSFER', entities: [ent('Harbour District', 'bus to the Harbour District', 'ITINERARY_STOP')], transferMode: 'BUS' },
+      { atomId: ids[2], classification: 'TRANSFER', entities: [ent('Lighthouse', 'taxi to the Lighthouse', 'ROUTE_LEG')], transferMode: 'TAXI' },
+      { atomId: ids[3], classification: 'ITINERARY_STOP', entities: [ent('Lighthouse', 'Arrive at the Lighthouse', 'ITINERARY_STOP')] },
+    ],
+  }, { consistency: 'ENTITY_ROLES' });
+  assert.equal(v.valid, true);
+  assert.deepEqual(v.labels.get(ids[1]).entities.map((e) => [e.role, e.modelRole]), [['TRANSFER_DESTINATION', 'ITINERARY_STOP']]);
+  const segs = L.assemble(z.atoms, v);
+  assert.deepEqual(segs.map((s) => s.mandatory), [['Fort'], ['Lighthouse']]);
+  assert.deepEqual(segs[1].transferDestinations.map((d) => d.sourceName), ['Harbour District', 'Lighthouse']);
+  assert.ok(!segs.some((s) => s.mandatory.includes('Harbour District')));
+  // A destination is never a party to ROLE_CONFLICT.
+  assert.deepEqual(segs[1].conflicts, []);
+});
+
+test('v5 R2: entity roles are the role authority; the stop-without-entity signal stays fail-closed', () => {
+  const z = L.atomize(['Walk down Mill Street to reach the Painted Lane.', 'Make a stop at the city museum.', 'It is free.'].join('\n'));
+  const ids = z.atoms.map((a) => a.atomId);
+  const byId = new Map(z.atoms.map((a) => [a.atomId, a]));
+  const resp = (museumEntities) => ({
+    atoms: [
+      { atomId: ids[0], classification: 'ROUTE_LEG', entities: [ent('Mill Street', 'Walk down Mill Street', 'ROUTE_LEG'), ent('Painted Lane', 'reach the Painted Lane', 'ITINERARY_STOP')] },
+      { atomId: ids[1], classification: 'ITINERARY_STOP', entities: museumEntities },
+      { atomId: ids[2], classification: 'NON_ITINERARY', entities: [] },
+    ],
+  });
+  // Under MEMBERSHIP the duplicated role authority rejects a correct labelling.
+  assert.deepEqual(L.validateLabelling(ids, byId, resp([ent('city museum', 'stop at the city museum', 'ITINERARY_STOP')])).issues.map((x) => x.code), ['ROLE_INCONSISTENT']);
+  const ok = L.validateLabelling(ids, byId, resp([ent('city museum', 'stop at the city museum', 'ITINERARY_STOP')]), { consistency: 'ENTITY_ROLES' });
+  assert.equal(ok.valid, true);
+  assert.equal(ok.labels.get(ids[0]).kind, 'CONTENT');
+  assert.deepEqual(L.assemble(z.atoms, ok)[0].mandatory, ['Painted Lane', 'city museum']);
+  assert.deepEqual(L.assemble(z.atoms, ok)[0].routeLegs, ['Mill Street']);
+  // The museum signal: a stop claim without a stop entity fails closed.
+  assert.deepEqual(L.validateLabelling(ids, byId, resp([]), { consistency: 'ENTITY_ROLES' }).issues.map((x) => x.code), ['STOP_WITHOUT_ENTITY']);
+  // A NON_ITINERARY atom still may not carry entities.
+  const bad = resp([ent('city museum', 'stop at the city museum', 'ITINERARY_STOP')]);
+  bad.atoms[2].entities = [ent('free', 'It is free', 'PASS_BY')];
+  assert.deepEqual(L.validateLabelling(ids, byId, bad, { consistency: 'ENTITY_ROLES' }).issues.map((x) => x.code), ['ROLE_INCONSISTENT']);
+});
+
 test('a corridor that is itself the experience stays mandatory when labelled ITINERARY_STOP', () => {
   const z = L.atomize('Walk the whole Painted Lane, the most famous pedestrian street of the port.');
   const v = L.validateLabelling(['a-001'], new Map(z.atoms.map((a) => [a.atomId, a])), {

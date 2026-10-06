@@ -1,0 +1,115 @@
+{
+  "frozenAt": "2026-10-06, before the first v5 run (owner authorization: last milestone A re-gate, R1 + R2, no prompt change)",
+  "evaluator": "gate-v4.cjs with GATE_FILE=milestone-a-gate-v5.json RULE=ENTITY_ROLES",
+  "candidate": {
+    "main": "runs/v5-batched-relabel-gemini: SOB_UNIT and AG_UNIT, 5 runs each, prompt labelling-prompt-v4 sent verbatim (no prompt change), CONSISTENCY=ENTITY_ROLES (R1 + R2 deterministic projection), MAX_BATCH_CHARS=2500, RELABEL=1, transport timeout unchanged (25 s)",
+    "regression": "runs/v5-regression-gemini: RW3_EV3 and ROUTE_EXPERIENCE, 3 runs each, same settings"
+  },
+  "references": {
+    "v2": "runs/v2-batched-relabel-gemini",
+    "v3": "runs/v3-batched-relabel-gemini",
+    "v4": "runs/v4-batched-relabel-gemini"
+  },
+  "reporting": "Semantic metrics use VALID runs only (shadow assembly for CONTRACT_FAIL_CLOSED runs, never for INVALID_RUN). The operational valid-run rate is reported and gated separately.",
+  "criteria": {
+    "1_streets": {
+      "rule": "Each of Defensa and Estados Unidos is mandatory in at most 1 valid SOB run, and the valid SOB run count is at least 4.",
+      "entities": {
+        "secretsofbuenosaires-day1": [
+          "Defensa",
+          "Estados Unidos"
+        ]
+      }
+    },
+    "2_areas_as_direction": {
+      "rule": "Undue membership from direction/entry atoms: on the listed atoms, the listed area entity never ends with role ITINERARY_STOP after the v5 projection, in at least 4/5 valid runs per source. Entities of TRANSFER atoms are TRANSFER_DESTINATION by construction and are correctly not penalized. Additionally, on AG Puerto Madero and San Telmo are mandatory in at most 1 valid run, and on SOB San Telmo is mandatory in at most 1 valid run. A separate visit instruction (SOB a-104) may make La Boca a stop and is not counted.",
+      "directionOrEntryAtoms": {
+        "secretsofbuenosaires-day1": {
+          "a-041": [
+            "San Telmo"
+          ],
+          "a-085": [
+            "Boca",
+            "La Boca"
+          ],
+          "a-087": [
+            "La Boca",
+            "Boca"
+          ],
+          "a-105": [
+            "San Telmo"
+          ]
+        },
+        "agusyornet-san-telmo": {
+          "a-026": [
+            "San Telmo"
+          ],
+          "a-058": [
+            "La Boca"
+          ],
+          "a-061": [
+            "La Boca"
+          ],
+          "a-069": [
+            "Puerto Madero"
+          ],
+          "a-071": [
+            "Puerto Madero"
+          ]
+        }
+      },
+      "atomTextPrefixes": {
+        "secretsofbuenosaires-day1": {
+          "a-041": "It gives just that special character to San Telmo",
+          "a-085": "Get on the public bus now",
+          "a-087": "(I prefer to take a bus or taxi",
+          "a-105": "Take a bus or taxi back to San Telmo"
+        },
+        "agusyornet-san-telmo": {
+          "a-026": "**12 am - Walk through Defensa Street**",
+          "a-058": "**15hs - Go to Caminito en La Boca**",
+          "a-061": "**CAMINITO, LA BOCA**",
+          "a-069": "**17 / 18hs - Go to Puerto Madero**",
+          "a-071": "By crossing this bridge you are officially in Puerto Madero"
+        }
+      },
+      "notMandatory": {
+        "agusyornet-san-telmo": [
+          "Puerto Madero",
+          "San Telmo"
+        ],
+        "secretsofbuenosaires-day1": [
+          "San Telmo"
+        ]
+      }
+    },
+    "3_sight_street": {
+      "rule": "Avenida Caseros is mandatory in at most 1 valid SOB run."
+    },
+    "4_role_conflict": {
+      "rule": "ROLE_CONFLICT (same folded name labelled ROUTE_LEG and ITINERARY_STOP in one segment) on any criterion 1-3 entity: at most 1 occurrence across all valid SOB+AG runs. All ROLE_CONFLICTs are reported. A conflicted entity stays mandatory, so it never counts as success for criteria 1-3."
+    },
+    "5_recall": {
+      "rule": "Over valid SOB+AG runs, oracle-mandatory items present in their owning segment >= 99% (at most 1 missing item in total), and every oracle segment fully recalled in all valid runs but at most one."
+    },
+    "6_rw3": {
+      "rule": "RW3_EV3 and ROUTE_EXPERIENCE: semantic success (all expected mandatory present, Mill Street not mandatory) in every valid run, with at least 3 valid runs per fixture, each. Painted Lane is never ROUTE_LEG only."
+    },
+    "7_transfers": {
+      "rule": "In every valid run: SOB S2, AG S2 and AG S3 owned by their own assembled segments; SEGMENT_MIXED = 0; TRANSFER_BOUNDARY_MISSED = 0."
+    },
+    "8_alternatives": {
+      "rule": "ALTERNATIVE_PROMOTED = 0 in every valid run."
+    },
+    "9_contract": {
+      "rule": "CONTRACT_FAIL_CLOSED / valid SOB+AG runs <= 12.5% (v3: 1/8)."
+    },
+    "10_operational": {
+      "rule": "INVALID_RUN <= 1 of 10 SOB+AG runs (v3: 2/10), with the transport timeout unchanged; operational valid-run rate >= 90%."
+    }
+  },
+  "decisionRule": "All 10 criteria pass -> milestone B is authorized. Any failure -> no automatic v6: stop and review whether the frozen criterion asks for something the domain does not need, or whether a conceptual defect remains.",
+  "notes": [
+    "Defensa promotion from AG a-026 (\"Walk through Defensa Street\") is outside this change and does not block A (owner decision); criterion 1 measures SOB only, as frozen in v4."
+  ]
+}
