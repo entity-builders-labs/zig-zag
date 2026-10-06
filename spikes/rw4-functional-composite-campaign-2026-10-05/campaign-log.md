@@ -196,3 +196,15 @@ no booking marketplace, no sandbox source.
   `../rw4-extract-completeness-2026-10-05/determination-2026-10-06.md`.
 - C3 COLD prerequisites (extractor reliability, or generic completeness
   protection) are not met; WARM is not applicable.
+
+## Exhaustive atom-labelling spike — 2026-10-06
+
+- No C3 run. The architecture is amended (PROPOSED). Bounded spike:
+  `../rw4-atom-labelling-2026-10-06/README.md`.
+- Gemini flash-lite, batched + relabel, 10 runs, every atom labelled
+  exactly once:
+  - 7/10 units assembled, 6/10 oracle-exact;
+  - 0 segment mixing; AG S2/S3 always assembled; the SOB museum is always
+    an explicit `ITINERARY_STOP`.
+- Recommendation: PROCEED_TO_PRODUCTIZATION, pending owner authorization.
+  Walked streets and areas are promoted to mandatory and remain a C3 risk.

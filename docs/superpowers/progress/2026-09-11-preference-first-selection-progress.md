@@ -2376,16 +2376,51 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   It was reverted. No production change in this checkpoint.
 - C3 COLD not run: neither acceptance path is met. WARM is not applicable.
 
+### RW4-EXTRACT-COMPLETENESS-1 exhaustive atom-labelling spike — 2026-10-06
+
+- Owner direction: atomized exhaustive source labelling. Amend the
+  architecture first, then run a bounded spike. No production cutover and
+  no model search.
+- Architecture amended (PROPOSED):
+  `docs/architecture/activity-discovery-and-tour-generation.md`, section
+  "exhaustive source-atom labelling amendment (2026-10-06)".
+- Spike `spikes/rw4-atom-labelling-2026-10-06/` (README carries every
+  run):
+  - deterministic atomizer with exact unit coverage;
+  - 6-way taxonomy; 0..n entities per atom with verbatim names, contained
+    spans and verified anaphora (`mentionAtomId`);
+  - exactly-once invariant, global-ID batching and one bounded relabel
+    round, all fail closed;
+  - deterministic segment/role assembly;
+  - 16 deterministic tests pass.
+- Gemini flash-lite, batched + relabel, 10 runs, 0 INVALID_RUN:
+  - every atom labelled exactly once in every valid run;
+  - 7/10 units ASSEMBLED, 6/10 oracle-exact on every segment, 3/10 fail
+    closed on non-mandatory atoms;
+  - SOB S1 8/8 and S2 2/2 in 5/5; AG S1 9/9 in 4/5 (Obelisco labelled
+    `PASS_BY` once, visibly); AG S2/S3 in 5/5;
+  - 0 segment mixing, 0 alternatives promoted;
+  - the museum atom `a-079` was `ITINERARY_STOP` in 8/8 valid SOB runs.
+- Residual: systematic promotion of walked streets and areas to mandatory
+  (Defensa and Estados Unidos 5/5). The all-components identity gate would
+  likely still reject SOB in C3. ~30% of units fail closed on contract
+  slips.
+- Recommendation: PROCEED_TO_PRODUCTIZATION (smallest cutover step in the
+  spike README). Not implemented; production is unchanged.
+
 ## Next authorized action
 
-0. (2026-10-06, supersedes the 2026-10-05 item 0) Owner decision on the
-   RW4-EXTRACT-COMPLETENESS-1 mechanism recommended in
-   `spikes/rw4-extract-completeness-2026-10-05/determination-2026-10-06.md`
-   (exhaustive evidence-atom labelling). If approved, amend
-   `docs/architecture/activity-discovery-and-tour-generation.md` first,
-   then implement it for `SECTION_UNIT` editorial itinerary units, then run
-   C3 COLD (WARM only if COLD persists a qualifying composite). Model
-   choice is no longer the remaining lever. The optional Cloudflare replay
+0. (2026-10-06, supersedes the earlier 2026-10-06 item 0) Owner
+   authorization of the atom-labelling cutover recommended in
+   `spikes/rw4-atom-labelling-2026-10-06/README.md`
+   (PROCEED_TO_PRODUCTIZATION): port the spike contract into `be/src` for
+   `SECTION_UNIT` editorial units, map segments with mandatory members to
+   candidates through the unchanged downstream gates, fail closed per unit,
+   and delete the generative path for those units. Then run C3 COLD (WARM
+   only if COLD persists a qualifying composite). Decide first how walked
+   streets and areas promoted to mandatory are handled: a taxonomy or
+   prompt decision, never a downstream relaxation. Model choice is no
+   longer the remaining lever. The optional Cloudflare replay
    after the 00:00 UTC reset (`EXTRACTOR=cloudflare RUNS=3
    INPUTS=SOB_UNIT,AG_UNIT LABEL=verify-qwen38b node
    spikes/rw4-extract-completeness-2026-10-05/replay-extract.cjs`) is
@@ -2553,8 +2588,11 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   quoted-span normalization) are fixed. The remaining defect is not
   model-dependent in a way model choice can close: an extractor can omit a
   source-defined stop silently, and no gate sees omissions. The
-  recommended mechanism awaits an owner decision; see "extractor
-  reliability determination — 2026-10-06" above.
+  atom-labelling mechanism is specified (PROPOSED amendment) and
+  demonstrated in a spike: omissions become explicit atom decisions and
+  segments are assembled deterministically. It stays OPEN until the
+  production cutover and C3; see "exhaustive atom-labelling spike —
+  2026-10-06" above.
 - RW4-ID-C3-AGUS-1: OPEN, separate from extraction. In C3 COLD the
   faithfully emitted agusyornet stops Monumento de Mafalda and El Patio de
   los Ezeiza were `CANDIDATE_REJECTED` by identity. Thresholds untouched.
