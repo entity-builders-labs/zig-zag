@@ -31,8 +31,9 @@ Contract: `docs/architecture/activity-discovery-and-tour-generation.md`,
 
 | File | Role |
 |---|---|
-| `atom-labelling.cjs` | Pure contract: `atomize`, `checkCoverage`, `planBatches`, `buildPrompt`, `validateLabelling`, `mergeBatches`, relabel helpers, `assemble`. No provider and no domain vocabulary. |
-| `atom-labelling.test.cjs` | 16 deterministic tests (`node --test spikes/rw4-atom-labelling-2026-10-06/atom-labelling.test.cjs`). |
+| `atom-labelling.cjs` | Pure contract: `atomize`, `checkCoverage`, `markEditorialStructure` (A.1), `planBatches`, `buildPrompt`, `validateLabelling`, `mergeBatches`, `resolveMentions` (A.2), relabel helpers, `assemble`, `labelUnit` (A.3 orchestration, `TransportFailure` → `INVALID_RUN`), `unitTrace`. No provider and no domain vocabulary. |
+| `atom-labelling.test.cjs` | 32 deterministic tests (`node --test spikes/rw4-atom-labelling-2026-10-06/atom-labelling.test.cjs`). |
+| `replay-recorded.cjs`, `counterfactual-a1-a2.cjs` → `runs/counterfactual-a1-a2.md` | Offline replay of recorded model answers under the current contract. No provider calls. |
 | `units.cjs` | Rebuilds the frozen `SECTION_UNIT`s through the production windowing in `be/dist`. |
 | `probe.cjs` | Live harness over the real extractor transport (`completeStructured`), with wire capture. A transport failure is `INVALID_RUN`. |
 | `score.cjs`, `scoring-aliases.json` | Oracle scoring (evaluation only). The aliases are the source's own wordings for oracle items (for example "national history museum"). They were frozen **before** the first live run and are read from the unit text, never from model output. |
@@ -287,6 +288,10 @@ authorization):**
 ```bash
 cd be && yarn build && cd ..
 node --test spikes/rw4-atom-labelling-2026-10-06/atom-labelling.test.cjs
+node spikes/rw4-atom-labelling-2026-10-06/counterfactual-a1-a2.cjs   # offline, no provider
+# probe.cjs now runs labelUnit at HEAD (editorial structure, ENTITY_ROLES,
+# 2500-char batches). Batches recorded before A.1 are replayed with
+# replay-recorded.cjs; earlier probe settings live in git history.
 set -a; . ./.env; set +a
 EXTRACTOR=gemini RUNS=5 RELABEL=1 MAX_BATCH_CHARS=4000 LABEL=v2-batched-relabel \
   node spikes/rw4-atom-labelling-2026-10-06/probe.cjs
@@ -537,3 +542,226 @@ Results: `runs/gate-v5-result.json`, `runs/summary-v5.md`.
    about 30% unit fail-closed, a C3 run with two sources has about a 50%
    chance that both units assemble. Whether the anaphora contract should
    change is a design decision, not a tuning step.
+
+## Milestone A closure, 2026-10-06: **COMPLETED_WITH_FINDINGS** (owner decision)
+
+The owner closed exploratory milestone A on the v5 evidence. Its status
+is **COMPLETED_WITH_FINDINGS**. The frozen semantic-accuracy gate is
+**not** marked PASS:
+
+- v5 failed the old gate (criteria 2, 3, 5 and 9 above);
+- no further prompt or taxonomy tuning is authorized (no v6/v7);
+- the architectural value of atomization is accepted: every atom is
+  accounted for, missing atoms are visible, segment assembly is
+  deterministic, transfer destinations cannot become membership,
+  alternatives stay non-mandatory, and semantic errors such as
+  `PASS_BY` vs `ITINERARY_STOP` sit on named atoms;
+- what remains is boundary hardening (A.1–A.3 below) and
+  productionization (B, not authorized).
+
+The acceptance model changes from near-perfect oracle classification to
+**observable fidelity plus fail-safe processing**. The definition is in
+the architecture amendment ("Fidelity acceptance model"). An explicit
+wrong label is still a semantic disagreement with the frozen oracle.
+`Obelisco → PASS_BY` at `a-012` is a `SEMANTIC_FIDELITY_ERROR`. It is no
+longer equivalent to "Obelisco silently omitted", and it is reported
+differently.
+
+### A.1 Source-noise boundary
+
+**Root cause.** The SOB `SECTION_UNIT` is the page's walk section. It
+ends at the next heading of the same or a shallower level, and the page
+has none. The unit therefore runs to the end of the extracted markdown
+and includes the page tail:
+
+- tags, author box and social links (`a-110`..`a-121`);
+- "Related Posts" (`a-122`..`a-130`);
+- the comment form (`a-131`);
+- two copies of the header menu, plus the full site menu
+  (`a-132`..`a-182`).
+
+`a-172` "+ [Best hotels in San Telmo](…)" is one item of that menu. v5
+SOB run 5 labelled it `ITINERARY_STOP` San Telmo, which opened the
+return segment with a one-member mandatory set. Tavily extract and
+Cloudflare browser-rendering both return markdown, so no DOM role,
+`<nav>` or article subtree survives. The structural evidence that does
+survive is link density.
+
+**Generic fix (`editorial-structure-v1`).** `markEditorialStructure`
+runs before batching:
+
+- An atom is *link-only* when every letter or number lies inside a
+  markdown link or image construct, after a list or heading marker.
+- A run of at least 3 consecutive link-only atoms is a
+  `NAVIGATION_BLOCK`. Its atoms are marked `editorial: false`.
+
+These atoms keep their IDs, offsets and text. They get a structural
+`NON_EDITORIAL` label, which goes through the same exactly-once merge
+check. They are never presented to the model, and a model label on one is
+`UNKNOWN_ATOM`. A lone link-only atom ("Read more about La Boca") and a
+prose line that contains a link ("**[Visit La Bombonera](…)**, the
+stadium…") stay editorial. No word list is involved.
+
+**Regression evidence.**
+
+- SOB blocks: `a-118..a-121`, `a-123..a-130` and `a-132..a-182`
+  (63 atoms, `a-172` in `nav-3`). AG: `a-084..a-088` (comment count,
+  share icons, label link).
+- Every atom that carries an oracle-mandatory wording stays editorial
+  (deterministic test). So do the last walk prose (`a-104`, `a-105`,
+  `a-109`) and the author note.
+- Recorded v5 SOB run 5, replayed offline: San Telmo is no longer
+  mandatory and recall stays 8/8 and 2/2. Run 4's San Telmo still
+  comes from `a-041`, a prose atom ("special character to San Telmo").
+  That is a visible semantic error, not chrome.
+- Live SOB run 1: `a-172` is `NON_EDITORIAL`; ASSEMBLED, 8/8 and 2/2,
+  with no route or area promoted.
+
+Known limit: an itinerary written only as three or more consecutive bare
+links, with no prose, would be marked non-editorial. It stays visible in
+the trace (`nonEditorialBlocks`), never silent.
+
+### A.2 Anaphora contract
+
+**Before.** A `mentionAtomId` entity was accepted when its `sourceName`
+was found anywhere in the cited atom's text. That rule had two defects:
+
+- A valid anaphor failed closed. In `a-078` "enjoy the park", the
+  sourceName "park" is not in `a-077` ("Parque Lezama"). This caused
+  3/10 v5 fail-closed units.
+- A partial word was accepted silently and created a duplicate member.
+  "This Plaza" cited `a-020` ("Plaza de Mayo"), which minted a separate
+  mandatory "Plaza". "Catedral" was minted next to "Catedral
+  Metropolitana" the same way.
+
+**Now.** Every mention is a reference to an entity that the cited atom
+carries. The LLM names the antecedent; code verifies the explicit
+reference:
+
+1. The cited atom must exist, precede this atom, be editorial, and have
+   been presented in the same request (LABEL or CONTEXT). Otherwise:
+   `BAD_MENTION_ATOM`.
+2. The surface form must be written either in this atom's span
+   (`surfaceIn: SPAN`, "enjoy the park") or in the cited atom
+   (`surfaceIn: MENTION_ATOM`, zero anaphora: "Jump inside.").
+   Otherwise: `NAME_NOT_IN_MENTION_ATOM`.
+3. `resolveMentions` runs at unit level after the batches merge, in source
+   order, and again after the relabel round. It picks the cited atom's
+   entity with the exact canonical name. Failing that, it picks the only
+   entity whose name contains the surface form as whole words. Failing
+   that, it picks the cited atom's only entity. Otherwise the unit fails
+   closed with `MENTION_ANTECEDENT_AMBIGUOUS` or
+   `MENTION_ANTECEDENT_MISSING`.
+
+   An unresolved anaphor is never a candidate, and a chain resolves hop
+   by hop. `assemble` refuses any unresolved anaphor.
+4. A resolved entity takes the antecedent's canonical `sourceName`. It
+   keeps its own `supportSpan` and offsets, and adds `mention` (the
+   antecedent span offsets) and `anaphor` (`surfaceForm`, `surfaceIn`,
+   `antecedent`).
+
+There is no pronoun or noun heuristic. Whole-word containment is the
+same containment the contract already used, scoped to the cited atom's
+entities instead of its whole text.
+
+**Regression evidence.**
+
+- Recorded v5 SOB runs 2, 4 and 5 (the three `NAME_NOT_IN_MENTION_ATOM
+  a-078` fail-closed units) replay as ASSEMBLED. The first-pass answer
+  cited `a-073` "you will see Parque Lezama", whose only entity is
+  Parque Lezama, so "park" resolves to it.
+- The recorded relabel answer cited `a-077` instead, which carries
+  Parque Lezama **and** Defensa. That is correctly
+  `MENTION_ANTECEDENT_AMBIGUOUS` (deterministic test).
+- AG "Plaza" → Plaza de Mayo and SOB "Catedral" → Catedral
+  Metropolitana now merge into the canonical member instead of
+  duplicating it.
+- Live SOB run 1: `a-078` resolved to Parque Lezama through `a-073`.
+
+### A.3 Batching
+
+- **Settings.** Batches of 2500 presented chars and 4 context atoms
+  (`DEFAULT_MAX_BATCH_CHARS`) are kept, with no evidence for a better
+  structural bound. Excluding non-editorial atoms shrinks SOB from 5
+  batches (34/38/39/54/17 atoms) to 4 (34/38/39/8) and AG from
+  23/20/20/19/13 to 23/20/20/19/8. The 25 s Gemini timeout is unchanged.
+- **Deterministic guarantees** (`labelUnit` tests):
+  - global atom IDs survive batching;
+  - the model is asked about exactly the editorial atoms, once each;
+  - the union with the structural labels covers every atom exactly once;
+  - there is at most one relabel round, and a second invalid answer fails
+    closed;
+  - a malformed response is not repairable;
+  - a `TransportFailure` in a batch or in the relabel is `INVALID_RUN`
+    with `{kind, batchIndex}`, never a contract or semantic outcome;
+  - a programming error is not masked as `INVALID_RUN`.
+- **Live timing** (`runs/a1a2-regression-*`, per-call `elapsedMs` in
+  `*.wire.json`):
+  - AG: 5 batches in 2.3–6.4 s, one relabel in 16.0 s.
+  - SOB run 1: 10.8, 32.9, 14.0 and 12.3 s. The 32.9 s call is one
+    25 s provider timeout plus the provider's own internal retry.
+  - SOB run 2: `INVALID_RUN`, because batch 1 (34 atoms, 7107 prompt
+    chars) timed out twice.
+  - Batching is operationally viable, but SOB latency sits near the
+    timeout. That is an operational risk for B (measure, then decide on
+    an explicit atom-labelling timeout or a smaller bound), not a
+    semantic one.
+
+### Small regression replay (live, 2026-10-06)
+
+Purpose, as authorized: verify that source trimming removed no mandatory
+content, that the known anaphora case no longer fails closed, and that
+atom accounting holds. It is not a gate and not a basis for prompt
+changes. The prompt is byte-identical to v4/v5.
+
+| Unit | Run | Outcome | Notes |
+|---|---|---|---|
+| SOB | 1 | ASSEMBLED, first pass valid | S1 8/8, S2 2/2. `a-172` NON_EDITORIAL. `a-078` → Parque Lezama via `a-073`. No route or area promoted. |
+| SOB | 2 | INVALID_RUN | batch 1 timed out twice (operational) |
+| AG | 1 | ASSEMBLED after relabelling 1 atom (`a-072`) | S1 9/9 (Obelisco a stop at `a-012`), S2 1/1, S3 1/1. Visible semantic disagreements: Defensa (oracle ACCEPTABLE) and La Boca at `a-043` (an "eat in La Boca" option labelled `ITINERARY_STOP` inside an `ALTERNATIVE` atom). |
+| RW3_EV3 | 1 | ASSEMBLED | 4/4 |
+| ROUTE_EXPERIENCE | 1 | ASSEMBLED | 3/3. Mill Street not mandatory. |
+
+Offline counterfactual over all 16 recorded v5 units
+(`runs/counterfactual-a1-a2.md`): 16/16 ASSEMBLED, against 13/16 recorded,
+with oracle recall identical to the recorded runs in every unit and 0
+alternatives promoted.
+
+### Remaining semantic disagreements (visible, not silent)
+
+- **Obelisco `a-012`:** `PASS_BY` in 3/5 v5 AG runs; `ITINERARY_STOP`
+  in the live run.
+- **Avenida Caseros `a-082`/`a-084`:** mandatory in 3/5 v5 SOB runs
+  (oracle ACCEPTABLE).
+- **San Telmo `a-041`:** SOB v5 run 4.
+- **La Boca `a-043`:** AG live run.
+- **Defensa:** promoted to mandatory in every recorded v5 AG run and in
+  the live AG run (oracle ACCEPTABLE). The source frames walking it as the
+  activity of that section (`a-026` heading).
+- **Generic descriptions:** "oldest neighborhood of the capital city",
+  "big building with columns".
+
+Each one is an explicit label on a named atom, in the trace, with its
+`supportSpan`. A reviewer can say "atom `a-012` was labelled `PASS_BY`"
+and nothing else. None of them is an omission. Downstream, a wrong
+`ITINERARY_STOP` still has to pass identity and the all-components rule.
+Those gates are unchanged, and a rejection there is reported as
+`FIDELITY_PASS_IDENTITY_BLOCKED`, not as an extraction loss.
+
+### Structural readiness for B
+
+| # | Property | Result | Evidence |
+|---|---|---|---|
+| 1 | Full atom accounting | PASS | 0 missing, duplicate or unknown atoms in every valid run; structural labels merge under the same exactly-once check |
+| 2 | No silent mandatory loss | PASS | every oracle-mandatory item has an atom decision in every valid run; `STOP_WITHOUT_ENTITY` and the mention issues fail closed |
+| 3 | Deterministic ordering | PASS | order = atom order, then span (tests 7/11/12) |
+| 4 | Deterministic segment assembly | PASS | 0 mixing and 0 missed boundaries in v5, counterfactual and live runs |
+| 5 | Transfer destination never membership | PASS | R1 `TRANSFER_DESTINATION` (test); Puerto Madero 0/5 |
+| 6 | Alternatives not promoted | PASS | 0 `ALTERNATIVE_PROMOTED` (v5, counterfactual, live) |
+| 7 | Chrome does not create membership (frozen regression) | PASS | `a-172` NON_EDITORIAL (test + live) |
+| 8 | Valid anaphora does not fail closed unnecessarily | PASS | `a-078` resolves (recorded replay, test, live); ambiguous references still fail closed |
+| 9 | Batching operationally viable | PASS, with risk | 2500-char batches; 1/5 live units INVALID_RUN on the 25 s timeout. To measure in B. |
+| 10 | Semantic disagreements traceable | PASS | per-atom label, entity role, span and anaphor in `unitTrace` |
+
+Recommendation: **READY_FOR_B**. B is not started and needs a separate
+owner authorization.

@@ -2452,36 +2452,58 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   - Stopped for owner review of the criteria (no v6). Questions are in the
     spike README.
 
+### RW4 atom labelling milestone A closure + boundary hardening — 2026-10-06
+
+- Owner decision: A is **COMPLETED_WITH_FINDINGS**. The frozen
+  semantic-accuracy gate is not PASS. No v6/v7 prompt or taxonomy tuning.
+- The acceptance model is now observable fidelity plus fail-safe
+  processing. The ten-point definition, the outcome taxonomy and the
+  minimum B trace contract are in the architecture amendment.
+- **A.1 source-noise boundary:** the SOB unit runs to the page end, so
+  its tail is site chrome. `a-172` "Best hotels in San Telmo" is a menu
+  link. A generic rule now marks runs of ≥3 link-only atoms as
+  `NON_EDITORIAL` before labelling. They are still accounted for exactly
+  once and never presented to the model. No keyword list.
+- **A.2 anaphora:** every `mentionAtomId` now resolves to an entity the
+  cited atom carries: exact name, else the one whole-word match, else
+  the sole entity. Otherwise it fails closed (`MENTION_ANTECEDENT_*`).
+  This fixes the a-078 "park" fail-closed and the old silent "Plaza" and
+  "Catedral" duplicate members.
+- **A.3 batching:** 2500-char batches with a typed `TransportFailure` →
+  `INVALID_RUN`, at most one relabel round.
+- **Evidence:**
+  - 32 deterministic spike tests pass.
+  - Offline replay of all 16 recorded v5 units: 16/16 ASSEMBLED
+    (recorded 13/16), with oracle recall unchanged.
+  - Small live replay: SOB 8/8 + 2/2, AG 9/9 + 1/1 + 1/1, RW3 4/4,
+    route 3/3.
+  - 1 SOB `INVALID_RUN`: batch 1 timed out twice at 25 s.
+- Remaining semantic disagreements stay visible on named atoms: Obelisco
+  `a-012`, Avenida Caseros, San Telmo `a-041`, La Boca `a-043`, Defensa.
+- All ten structural readiness properties hold, with batching near the
+  25 s timeout as a measured B risk.
+- Recommendation: **READY_FOR_B**. B is not started. Details are in the
+  spike README, "Milestone A closure".
+
 ## Next authorized action
 
-0. (2026-10-06, milestone A v5 FAILED; no v6) Owner review of the
-   frozen A criteria against the v5 evidence (spike README, "Questions for
-   review"): semantic-recall threshold on borderline atoms vs explicit
-   misses, ACCEPTABLE street promotion as an extraction vs an identity
-   concern, navigation-chrome stop labels, and the anaphora contract. B
-   stays unauthorized. Superseded: decision on the v5 representation revision in
-   `spikes/rw4-atom-labelling-2026-10-06/README.md`, to be re-gated with
-   the same frozen v4 criteria. B stays unauthorized. Superseded: decision on the v4 re-gate
-   proposed in `spikes/rw4-atom-labelling-2026-10-06/README.md` (transfer
-   destinations and areas, a narrowed sight rule, streets reached by "go to"
-   are `ROUTE_LEG`, visible `ROLE_CONFLICT`, smaller batches). Milestone B
-   stays unauthorized until A passes its frozen criteria. The superseded
-   item follows, kept as the B/C plan. Earlier: owner
-   authorization of the atom-labelling cutover recommended in
-   `spikes/rw4-atom-labelling-2026-10-06/README.md`
-   (PROCEED_TO_PRODUCTIZATION): port the spike contract into `be/src` for
-   `SECTION_UNIT` editorial units, map segments with mandatory members to
-   candidates through the unchanged downstream gates, fail closed per unit,
-   and delete the generative path for those units. Then run C3 COLD (WARM
-   only if COLD persists a qualifying composite). Decide first how walked
-   streets and areas promoted to mandatory are handled: a taxonomy or
-   prompt decision, never a downstream relaxation. Model choice is no
-   longer the remaining lever. The optional Cloudflare replay
-   after the 00:00 UTC reset (`EXTRACTOR=cloudflare RUNS=3
-   INPUTS=SOB_UNIT,AG_UNIT LABEL=verify-qwen38b node
-   spikes/rw4-extract-completeness-2026-10-05/replay-extract.cjs`) is
-   characterization only. Do not relax `INCOMPLETE_SOURCE_COMPOSITION`,
-   source support, identity or `MISSING_NORMALIZATION_KIND`.
+0. (2026-10-06, A COMPLETED_WITH_FINDINGS, READY_FOR_B) Owner
+   authorization of milestone B. Its scope is in the architecture
+   amendment, "Productization milestones":
+   - port atomization, editorial structure, validation, anaphora
+     resolution and assembly into `be/src`;
+   - typed semantic result and roles, and the complete per-unit trace;
+   - only `SECTION_UNIT` with `sectionComplete=true`;
+   - the generative composition path disabled for the same unit;
+   - downstream source support, identity, geography, dedupe and
+     persistence unchanged.
+
+   Then run C3 COLD, and WARM only if COLD persists a qualifying
+   composite. Do not start B without that authorization. No prompt
+   tuning. Do not relax `INCOMPLETE_SOURCE_COMPOSITION`, source support,
+   identity thresholds or `MISSING_NORMALIZATION_KIND`. A correctly
+   extracted mandatory stop that fails identity (Mafalda, Patio de los
+   Ezeiza) is a downstream blocker, never a reason to drop the stop.
 1. Re-run the contextual replay with the COLD #11 extractor (Cloudflare
    `@cf/qwen/qwen3.8-27b`) once its daily allocation resets (`EXTRACTOR=cloudflare
    RUN_SUFFIX=../locality-recovery-2026-10-03/replay-cloudflare-N bash
@@ -2644,10 +2666,13 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   quoted-span normalization) are fixed. The remaining defect is not
   model-dependent in a way model choice can close: an extractor can omit a
   source-defined stop silently, and no gate sees omissions. The
-  atom-labelling mechanism is specified (PROPOSED amendment) and
+  atom-labelling mechanism is specified (APPROVED amendment) and
   demonstrated in a spike: omissions become explicit atom decisions and
-  segments are assembled deterministically. It stays OPEN until the
-  production cutover and C3; see "exhaustive atom-labelling spike —
+  segments are assembled deterministically. Milestone A is
+  COMPLETED_WITH_FINDINGS (2026-10-06), and the A.1 chrome boundary, the
+  A.2 anaphora contract and A.3 batching have landed in the spike.
+  Recommendation: READY_FOR_B. It stays OPEN until the authorized B
+  cutover and C3; see "milestone A closure + boundary hardening —
   2026-10-06" above.
 - RW4-ID-C3-AGUS-1: OPEN, separate from extraction. In C3 COLD the
   faithfully emitted agusyornet stops Monumento de Mafalda and El Patio de

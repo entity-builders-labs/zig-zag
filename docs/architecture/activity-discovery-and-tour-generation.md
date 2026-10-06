@@ -1492,8 +1492,10 @@ system defects and stay outside the research-agent loop.
 ## Experience Domain V2 — exhaustive source-atom labelling amendment (2026-10-06)
 
 **Status: APPROVED for productization (owner, 2026-10-06), gated by
-milestones A → B → C below. Not yet implemented in the production
-extractor.** The production path still asks the extractor to
+milestones A → B → C below. Milestone A is closed as
+COMPLETED_WITH_FINDINGS (owner, 2026-10-06), and its boundary hardening
+(A.1–A.3) has landed in the spike. B is not yet authorized. Not yet
+implemented in the production extractor.** The production path still asks the extractor to
 generate `ExperienceCandidate`s from prose. This amendment defines the
 replacement contract for editorial itinerary units (`SECTION_UNIT`,
 `sectionComplete=true`) and the evidence a later cutover must meet. Spike:
@@ -1562,6 +1564,26 @@ of a token budget: a unit too large for one request is batched (below).
 The model sees each atom with markdown link and image targets and bare URLs
 replaced by `…`. Every presented character maps back to a source offset.
 
+**Editorial structure (source-noise boundary, A.1).** A heading-bounded
+unit can run past the article into page chrome: site menus, share bars,
+tag lists, related posts. Web source content arrives as markdown (Tavily
+extract, Cloudflare browser-rendering), so no DOM role or article subtree
+survives. The deterministic, semantic-neutral evidence that does survive
+is link structure:
+
+- an atom is *link-only* when every letter or number lies inside a
+  markdown link or image construct (after a list or heading marker);
+- a run of at least 3 consecutive link-only atoms is a
+  `NAVIGATION_BLOCK`, and its atoms are marked non-editorial before
+  labelling.
+
+They stay atoms, with the same IDs, offsets and text. Each one gets a
+structural `NON_EDITORIAL` label that goes through the same exactly-once
+check, and the trace records the block. They are never presented to the
+model and never carry membership. A lone link-only atom and a prose line
+that contains a link stay editorial. Tourism or keyword lists (hotels,
+booking, related, subscribe) are forbidden as noise rules.
+
 #### 2. Semantic classification
 
 Every atom receives exactly one classification:
@@ -1628,24 +1650,45 @@ with its own role:
   is mapped back to source offsets.
 - `sourceName` must be inside its `supportSpan`. A name that is not in the
   atom is an invented entity and makes the response invalid.
-- Anaphora (`mentionAtomId`): an atom may direct a visit to a place named
-  only in an earlier atom ("Jump inside.", "enjoy the park"). The entity
-  then cites that earlier atom. `supportSpan` must be in this atom, and
-  `sourceName` must be in the cited atom, which must precede it in the
-  unit. Assembly merges it with the earlier mention, so source order is
-  kept.
-- Role consistency fails closed on every inconsistency that can hide or
-  invent membership:
-  - an `ITINERARY_STOP` atom without an `ITINERARY_STOP` entity
-    (`STOP_WITHOUT_ENTITY`);
-  - an entity role stronger than its atom's classification
-    (`ITINERARY_STOP > ROUTE_LEG > OPTIONAL_STOP > ALTERNATIVE > PASS_BY`);
+- Anaphora (`mentionAtomId`, contract A.2): an atom may direct a visit to
+  a place named in an earlier atom ("Jump inside.", "enjoy the park"). The
+  LLM identifies the antecedent atom; code verifies the explicit
+  reference and never resolves pronouns or nouns itself.
+  - The cited atom must exist, precede this atom, be editorial, and have
+    been presented in the same request. Otherwise: `BAD_MENTION_ATOM`.
+  - The surface form must be written in this atom's `supportSpan` ("the
+    park") or in the cited atom (zero anaphora). Otherwise:
+    `NAME_NOT_IN_MENTION_ATOM`.
+  - After batches merge, the reference resolves to an entity the cited
+    atom itself carries. In order: the exact canonical name; else the only
+    entity whose name contains the surface form as whole words; else the
+    cited atom's only entity.
+  - Otherwise the unit fails closed with `MENTION_ANTECEDENT_AMBIGUOUS`
+    (several candidates) or `MENTION_ANTECEDENT_MISSING` (none, or the
+    antecedent is unresolved).
+  - The resolved entity takes the antecedent's `sourceName`. It keeps its
+    own `supportSpan` and offsets plus the antecedent's atom and span, so
+    provenance holds both.
+  - Assembly refuses an unresolved anaphor and merges a resolved one with
+    the earlier mention, so source order is kept.
+- Role authority (accepted v5 representation, R2): an atom's structural
+  kind is `CONTENT`, `TRANSFER` or `NON_ITINERARY`, and entity roles are
+  the only role authority. The model's fine classification is kept for
+  audit. Consistency fails closed only where membership can be hidden or
+  invented:
+  - an atom the model calls `ITINERARY_STOP` without an
+    `ITINERARY_STOP` entity (`STOP_WITHOUT_ENTITY`, the missing-stop
+    signal);
   - a `NON_ITINERARY` atom with entities.
 
-  A `ROUTE_LEG`, `OPTIONAL_STOP`, `ALTERNATIVE` or `PASS_BY` atom whose
-  place is unnamed ("two ice-cream shops") adds no membership. It is recorded as an
-  audit note, not a failure. A `TRANSFER` atom may name its destination:
-  `ITINERARY_STOP` when visited next, otherwise `PASS_BY`.
+  A content atom whose place is unnamed ("two ice-cream shops") adds no
+  membership. It is recorded as an audit note, not a failure.
+- Transfer destinations (R1): every entity on a `TRANSFER` atom becomes
+  `TRANSFER_DESTINATION` provenance of the segment the transfer opens,
+  whatever role the model wrote (kept as `modelRole`). It is never
+  membership, structurally. Membership of the next segment comes only
+  from non-transfer atoms; a later atom may still make the same place a
+  stop.
 - `reason` is audit only and never authority. No canonical entity IDs, and
   no model-authored ordinals.
 
@@ -1667,8 +1710,11 @@ a malformed response is not repairable, and a second invalid answer fails
 closed.
 
 When the atoms do not fit one request, they are batched under their global
-IDs. Batching is also the default, because a single response labelling
-~180 atoms exceeded the extractor transport's fixed 25 s timeout. Each atom belongs to exactly one batch. Preceding atoms may be shown
+IDs, at about 2500 presented characters per batch. Batching is also the
+default, because a single response labelling ~180 atoms exceeded the
+extractor transport's fixed 25 s timeout. Only editorial atoms are
+batched. Non-editorial atoms are accounted for by their structural labels
+in the same exactly-once merge. Each atom belongs to exactly one batch. Preceding atoms may be shown
 as read-only context. A batched result is valid only if each batch is valid
 for its own scope and the union labels every unit atom exactly once.
 
@@ -1681,9 +1727,9 @@ The backend derives every fact that needs no further interpretation:
 - **Segments:** a `TRANSFER` atom closes the current segment once that
   segment has membership from a non-`TRANSFER` atom. Adjacent `TRANSFER`
   atoms, such as a heading and the sentence that follows it, form one
-  boundary. A transfer destination labelled `ITINERARY_STOP` opens the new
-  segment. The model is never asked to remember to emit a separate
-  candidate per segment.
+  boundary. A transfer's destination is provenance of the segment it
+  opens, never membership. The model is never asked to remember to emit a
+  separate candidate per segment.
 - **Membership:** only `ITINERARY_STOP` entities are mandatory.
   `OPTIONAL_STOP` stays optional. `ALTERNATIVE` entities form choice
   groups: consecutive alternative-bearing atoms (atoms with no entities do
@@ -1710,46 +1756,131 @@ unit and records the issue list (atom IDs and codes). Never fall back to
 accepting a generative candidate, never repair labels by guessing, and
 never relax a downstream gate to compensate.
 
-Outcomes are reported separately and are never conflated:
+Outcomes are reported separately and are never conflated.
+
+Extraction outcome per unit, known at runtime:
 
 - `ASSEMBLED`: the labelling is valid and the segments are built.
 - `CONTRACT_FAIL_CLOSED`: the labelling still breaks the technical
-  contract after the relabel round (span, name, reference or consistency
-  issues with atom IDs). This is not a semantic-fidelity finding.
-- Semantic-fidelity failure: an assembled result whose explicit atom
-  labels disagree with the source (for example a required stop labelled
-  `PASS_BY`).
-- `INVALID_RUN`: a provider or transport failure, which is operational.
+  contract after the relabel round (span, name, reference, anaphora or
+  consistency issues with atom IDs). This is not a semantic-fidelity
+  finding.
+- `INVALID_RUN`: a provider or transport failure in any batch or in the
+  relabel call (for example the 25 s timeout). It is operational, never
+  semantic.
+
+Semantic outcome of an `ASSEMBLED` unit, known only by evaluation against
+an oracle or by review, never computed at runtime:
+
+- fidelity pass: the structural fidelity properties below hold, and every
+  source-required stop is mandatory;
+- `SEMANTIC_FIDELITY_ERROR`: an explicit atom label disagrees with the
+  source (for example `Obelisco → PASS_BY` at a named atom). It is a real
+  disagreement and is never relabelled "correct". It is also not an
+  omission: the decision is on a named atom, in the trace.
+
+Downstream outcome of a fidelity pass:
+
+- `FIDELITY_PASS_IDENTITY_PASS`: every mandatory member verified, and the
+  composition proceeds through the unchanged gates;
+- `FIDELITY_PASS_IDENTITY_BLOCKED`: extraction produced the expected
+  mandatory structure, but identity, geography or
+  `INCOMPLETE_SOURCE_COMPOSITION` rejected a named entity. This is a
+  downstream blocker. A mandatory stop is never deleted or downgraded to
+  make identity pass, and thresholds and source-support rules stay
+  unchanged.
+
+### Fidelity acceptance model (owner, 2026-10-06)
+
+RW4 extraction fidelity no longer requires near-perfect oracle
+classification of every ambiguous atom. Semantic labels are probabilistic
+on borderline atoms ("you will see X", walked streets, areas). The goal is
+**observable fidelity plus fail-safe processing**. A source unit meets
+the extraction-fidelity requirement when:
+
+1. every source atom is accounted for exactly once (labelled, or
+   structurally `NON_EDITORIAL`);
+2. no source atom silently disappears;
+3. every mandatory itinerary fact the semantic pass represents leaves an
+   auditable atom and entity decision;
+4. source order is deterministic;
+5. source-defined segment boundaries are deterministic;
+6. transfer destinations do not become membership, structurally;
+7. alternatives are not flattened into mandatory membership;
+8. non-membership roles never silently become mandatory components;
+9. ambiguous semantic decisions remain visible in the trace;
+10. semantic fidelity errors, contract fail-closed, provider failures and
+    downstream identity failures are reported as distinct outcomes.
+
+An explicit wrong label remains a semantic disagreement with the oracle
+and is reported as one. What this model rejects is treating such a
+disagreement as equivalent to a silent omission.
 
 ### Production observability (required before any cutover acceptance)
 
-For every atomized unit, the generation trace must record:
+For every atomized unit, the generation trace must record at least the
+following (the spike's `unitTrace` is the reference shape):
 
-- atom count and the batch and relabel activity, with issue codes and atom
-  IDs;
-- the final label of every atom that carries an entity;
-- the assembled segments, with their opening transfers;
-- mandatory membership as `sourceName` and `supportSpan`, in source order,
-  before identity resolution;
-- route-leg, optional, alternative and pass-by members per segment;
-- the outcome class above.
+- source unit ID and source URL;
+- source completeness state (`sectionComplete`);
+- atomizer, editorial-structure and prompt versions;
+- atom count, and the atom IDs with their source offsets and editorial
+  flag;
+- non-editorial blocks (first and last atom, reason);
+- the semantic label of every atom;
+- each entity's role, `sourceName`, `supportSpan` and source span;
+- `mentionAtomId` and the resolved antecedent, when used;
+- transfer boundaries (opening transfer atoms, mode) and transfer
+  destinations as provenance;
+- the assembled segment count;
+- mandatory membership before identity, as `sourceName`, `supportSpan`
+  and provenance atom IDs, in source order;
+- route-leg, optional, alternative-group and pass-by members per segment;
+- batch and relabel activity, with issue codes and atom IDs;
+- the contract outcome (`ASSEMBLED | CONTRACT_FAIL_CLOSED |
+  INVALID_RUN`);
+- the provider or batch failure, if any (`kind`, `batchIndex`, message).
 
-Without this, extraction fidelity cannot be judged when identity later
-rejects a candidate, and RW4-EXTRACT-COMPLETENESS-1 cannot be closed.
+The semantic outcome is attached by evaluation or review. The trace must
+be enough to prove the statement "extraction faithfully produced the
+expected mandatory structure, but identity rejected entity X", even when
+no Experience row is persisted. Without it, extraction fidelity cannot be
+judged when identity later rejects a candidate, and
+RW4-EXTRACT-COMPLETENESS-1 cannot be closed.
 
 ### Productization milestones
 
-- **A. Taxonomy gate (spike).** Add `ROUTE_LEG` and re-run the frozen
-  SOB/AG units (at least 5 runs each) plus the RW3 route-as-experience
-  regression. Stop if mandatory recall, transfer detection, alternative
-  handling or the fail-closed rate get worse, or if route-leg and area
-  promotion does not improve.
-- **B. Production port.** Only after A passes. Cutover only for
-  `SECTION_UNIT` windows with `sectionComplete=true`, with one composition
-  authority per unit. Verify first that a hint whose name equals the
-  source wording does not require `normalizationKind`, and measure the
-  real batching cost, plus the behaviour when a batch exceeds the
-  transport timeout.
+- **A. Taxonomy gate (spike). CLOSED: COMPLETED_WITH_FINDINGS
+  (2026-10-06).** `ROUTE_LEG` (v3), prompt v4, and the representation
+  revision v5 (`TRANSFER_DESTINATION` provenance, entity roles as the
+  only role authority) all failed the frozen semantic-accuracy gate, and
+  that gate is not marked PASS. No further prompt or taxonomy tuning is
+  authorized. The architectural value (observability, deterministic
+  structure) is accepted under the fidelity acceptance model above.
+  Boundary hardening landed in the spike:
+  - A.1 editorial structure (navigation blocks);
+  - A.2 verified anaphora;
+  - A.3 bounded, typed batching with `INVALID_RUN` for transport
+    failures.
+
+  All ten structural readiness properties hold (spike README). The
+  recommendation is READY_FOR_B.
+- **B. Production port.** Needs separate owner authorization. Scope:
+  - port atomization, editorial structure, validation, anaphora
+    resolution and assembly into `be/src` as a provider-neutral utility;
+  - a typed semantic result contract and typed roles;
+  - deterministic assembly and the complete per-unit trace above;
+  - only for `SECTION_UNIT` windows with `sectionComplete=true`;
+  - the free-form generative composition path disabled for the same
+    complete unit (one composition authority per unit);
+  - all downstream source support, identity, geography, dedupe and
+    persistence behaviour preserved.
+
+  Verify first that a hint whose name equals the source wording does not
+  require `normalizationKind`. Measure the real batching cost and the
+  timeout rate: in the spike, SOB batches ran close to the 25 s transport
+  timeout, so decide on an explicit atom-labelling timeout or a smaller
+  bound from measurements.
 - **C. C3.** COLD first. WARM only if COLD persists a qualifying
   composite.
 
