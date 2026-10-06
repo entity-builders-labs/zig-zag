@@ -185,3 +185,14 @@ no booking marketplace, no sandbox source.
   Colón, Obelisco and Plaza de Mayo). REJECTED 4/6: Monumento de Mafalda and
   El Patio de los Ezeiza `CANDIDATE_REJECTED` (identity; out of scope).
 - WARM not run: no composite persisted (brief: WARM only if it persists).
+
+## Extractor reliability determination — 2026-10-06
+
+- No C3 run. Cloudflare `qwen3.8-27b` replay: 0 valid / 6 INVALID_RUN
+  (daily allocation already exhausted, HTTP 429 code 4006).
+- Same-input Gemini replays, a deterministic-guard probe and an
+  atom-labelling probe show that model selection cannot close the defect.
+  Recommended mechanism (owner decision pending):
+  `../rw4-extract-completeness-2026-10-05/determination-2026-10-06.md`.
+- C3 COLD prerequisites (extractor reliability, or generic completeness
+  protection) are not met; WARM is not applicable.

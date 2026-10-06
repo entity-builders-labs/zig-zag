@@ -1,0 +1,136 @@
+{
+  "candidates": [
+    {
+      "name": "San Telmo Self-Guided Walking Tour Part 1",
+      "description": "An independent self-guided walking tour starting at Plaza de Mayo and exploring the historic streets, landmarks, and markets of San Telmo.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture"
+      ],
+      "traits": [
+        "self-guided",
+        "historic sights",
+        "cobblestone streets"
+      ],
+      "intents": [
+        "walk",
+        "route_like",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Let’s start your Buenos Aires adventure at the center of the capital city: Plaza de Mayo."
+        },
+        {
+          "key": "casa-rosada",
+          "name": "Casa Rosada",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "This historic place is surrounded by Casa Rosada (presidential palace), Catedral Metropolitana, Museo del Cabildo, and the headquarters of the National Bank.",
+          "physicalKindAssertion": {
+            "kind": "ESTABLISHMENT",
+            "term": "presidential palace",
+            "supportSpan": "This historic place is surrounded by Casa Rosada (presidential palace), Catedral Metropolitana, Museo del Cabildo, and the headquarters of the National Bank."
+          }
+        },
+        {
+          "key": "catedral-metropolitana",
+          "name": "Catedral Metropolitana",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "This historic place is surrounded by Casa Rosada (presidential palace), Catedral Metropolitana, Museo del Cabildo, and the headquarters of the National Bank."
+        },
+        {
+          "key": "cabildo",
+          "name": "Cabildo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "In front of Casa Rosada you will see a white building: Cabildo."
+        },
+        {
+          "key": "defensa",
+          "name": "Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Go to the street Defensa."
+        },
+        {
+          "key": "estados-unidos",
+          "name": "Estados Unidos",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "We going to make a small detour and go to the street Estados Unidos."
+        },
+        {
+          "key": "bar-sur",
+          "name": "Bar Sur",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "On the corner, you will see Bar Sur."
+        },
+        {
+          "key": "mercado-de-san-telmo",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "While walking you will pass the entrance of Mercado de San Telmo."
+        },
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Not far from Mercado de San Telmo is Plaza Dorrego."
+        },
+        {
+          "key": "parque-lezama",
+          "name": "Parque Lezama",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "On your left side, you will see Parque Lezama."
+        }
+      ],
+      "suggestedDurationMinutes": 240,
+      "shortReason": "A comprehensive self-guided walking itinerary covering key historical landmarks and streets from Plaza de Mayo through San Telmo.",
+      "evidenceKeys": [
+        "ev-2"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

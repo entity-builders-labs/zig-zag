@@ -29,6 +29,37 @@ const { LangChainService } = require(`${DIST}/shared/ai/langchain.service`);
 const { OllamaDiscoveryProvider } = require(`${DIST}/modules/tours/services/ollama-discovery.provider`);
 const windowing = require(`${DIST}/modules/tours/utils/source-content-windowing.util`);
 
+// Transport capture (spike only): the providers do not surface finish
+// reason, token usage or the effective request settings, so record them
+// from the wire. Production code is not touched.
+const transport = [];
+const realFetch = globalThis.fetch;
+globalThis.fetch = async (url, init) => {
+  const entry = { url: String(url).replace(/accounts\/[^/]+/, 'accounts/<id>').replace(/([?&]key=)[^&]+/, '$1<redacted>') };
+  try {
+    const body = JSON.parse(init?.body ?? '{}');
+    entry.request = {
+      model: body.model,
+      temperature: body.temperature ?? body.generationConfig?.temperature ?? null,
+      maxCompletionTokens: body.max_completion_tokens ?? body.max_tokens ?? body.generationConfig?.maxOutputTokens ?? null,
+      chatTemplateKwargs: body.chat_template_kwargs ?? null,
+      responseFormat: body.response_format?.type ?? body.generationConfig?.responseMimeType ?? null,
+    };
+  } catch {}
+  transport.push(entry);
+  const resp = await realFetch(url, init);
+  entry.status = resp.status;
+  try {
+    const data = await resp.clone().json();
+    const choice = data.choices?.[0];
+    entry.finishReason = choice?.finish_reason ?? data.candidates?.[0]?.finishReason ?? null;
+    entry.usage = data.usage ?? data.usageMetadata ?? null;
+    entry.rawContent = choice?.message?.content ?? data.candidates?.[0]?.content?.parts?.map((x) => x.text).join('') ?? null;
+    entry.reasoningChars = typeof choice?.message?.reasoning === 'string' ? choice.message.reasoning.length : choice?.message?.reasoning_content?.length ?? 0;
+  } catch {}
+  return resp;
+};
+
 const oracle = JSON.parse(fs.readFileSync(path.join(HERE, 'oracle.json'), 'utf8'));
 const trace = JSON.parse(fs.readFileSync(path.join(CAMPAIGN, 'c3-cold/generation-trace.json'), 'utf8'));
 const request = JSON.parse(fs.readFileSync(path.join(CAMPAIGN, 'requests/c3-buenos-aires-san-telmo-self-guided.json'), 'utf8'));
@@ -130,9 +161,45 @@ function score(sourceId, candidates) {
       // passing mention (reported, never counted as recall).
       notInOracle: hints.filter((h) => h.oracleRole === 'NOT_IN_ORACLE').map((h) => `${h.name}${inSource(sourceId, h) ? '' : '(INVENTED?)'}`),
       alternatives: hints.filter((h) => h.oracleRole === 'ALTERNATIVE').map((h) => h.name),
+      // MANDATORY stops of a segment other than the one this candidate
+      // mostly covers (segment mixing across a motorized transfer).
+      mandatoryFromOtherSegment: (() => {
+        const counts = {};
+        for (const h of hints) if (h.segment) counts[h.segment] = (counts[h.segment] ?? 0) + 1;
+        const main = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
+        return hints.filter((h) => h.segment && h.segment !== main && h.oracleRole === 'MANDATORY').map((h) => h.name);
+      })(),
     };
   });
 }
+
+// The brief's per-segment acceptance: one emitted, VALIDATED candidate holds
+// every MANDATORY stop of the segment, in source order, with no MANDATORY
+// stop of another segment, no ALTERNATIVE, no invented component, and no
+// validation rejection.
+function segmentVerdicts(sourceId, scoredValid, scoredRaw, validationErrors) {
+  return oracle.sources[sourceId].segments.map((seg) => {
+    const owner = scoredValid.find((s) => s.perSegment.some((p) => p.segment === seg.id));
+    const rawOwner = scoredRaw.find((s) => s.perSegment.some((p) => p.segment === seg.id));
+    const reasons = [];
+    if (!owner) reasons.push(rawOwner ? 'PROPOSED_BUT_REJECTED_BY_VALIDATION' : 'SEGMENT_NOT_EMITTED');
+    const s = owner ?? rawOwner;
+    const p = s?.perSegment.find((x) => x.segment === seg.id);
+    if (p?.missingMandatory.length) reasons.push(`MISSING_MANDATORY:${p.missingMandatory.join('|')}`);
+    if (p && !p.ordered) reasons.push('ORDER_VIOLATED');
+    if (s?.mandatoryFromOtherSegment.length) reasons.push(`SEGMENT_MIXED:${s.mandatoryFromOtherSegment.join('|')}`);
+    if (s?.alternatives.length) reasons.push(`ALTERNATIVE_FLATTENED:${s.alternatives.join('|')}`);
+    if (s?.notInOracle.some((n) => n.endsWith('(INVENTED?)'))) reasons.push('INVENTED_COMPONENT');
+    return {
+      segment: seg.id,
+      success: reasons.length === 0,
+      mandatoryRecall: p?.mandatoryRecall ?? `0/${seg.orderGroups.flat().filter((i) => i.role === 'MANDATORY').length}`,
+      reasons,
+      emittedPassBy: s ? s.hints.filter((h) => h.includes('[ACCEPTABLE]')) : [],
+    };
+  });
+}
+const INVALID = /HTTP (429|5\d\d)|fetch failed|TimeoutError|aborted|ECONNRESET|Request too large|\b413\b/i;
 
 async function main() {
   const config = aiConfig();
@@ -160,6 +227,7 @@ async function main() {
     const evidence = p.evidence.map((e) => (e.url === input.url ? { ...e, snippet: content, evidenceQuality: 'original_content' } : e));
     for (let r = 1; r <= runs; r++) {
       const started = Date.now();
+      const t0 = transport.length;
       let out;
       try {
         out = await provider.extractExperiences(p.request, { provider: 'replay', evidence, groundingStatus: 'applied' });
@@ -168,21 +236,40 @@ async function main() {
       }
       const targetKey = evidence.find((e) => e.url === input.url).key;
       const fromTarget = (out.candidates ?? []).filter((c) => (c.evidenceKeys ?? []).includes(targetKey) || c.componentHints.some((h) => (h.evidenceKeys ?? []).includes(targetKey)));
+      const failureText = (out.extractionFailures ?? []).join(' ');
+      const invalid = INVALID.test(failureText);
+      let rawCandidates = [];
+      try {
+        const parsed = JSON.parse(String(out.rawOutput ?? ''));
+        rawCandidates = (Array.isArray(parsed) ? parsed : parsed.candidates ?? []).filter((c) => Array.isArray(c.componentHints));
+      } catch {}
+      const rawFromTarget = rawCandidates.filter((c) => (c.evidenceKeys ?? []).includes(targetKey) || c.componentHints.some((h) => (h.evidenceKeys ?? []).includes(targetKey)));
+      const scoredValid = score(input.source, fromTarget);
+      const scoredRaw = score(input.source, rawFromTarget);
+      const wire = transport.slice(t0).map(({ rawContent, ...rest }) => rest);
       const row = {
         input: inputId,
         run: r,
+        validity: invalid ? 'INVALID_RUN' : 'VALID',
+        wire,
+        rawCandidateCount: rawCandidates.length,
+        normalizationViolations: (out.validationErrors ?? []).flatMap((e) => e.match(/component \d+ \([^)]*\) unsupported: (MISSING|INVALID)_NORMALIZATION_KIND/g) ?? []),
+        segmentVerdicts: invalid ? null : segmentVerdicts(input.source, scoredValid, scoredRaw, out.validationErrors ?? []),
+        rawScored: scoredRaw,
         provider: out.provider,
         model: out.model,
         ms: Date.now() - started,
         inputChars: content.length,
         failures: out.extractionFailures ?? [],
-        validationErrors: (out.validationErrors ?? []).slice(0, 5),
+        validationErrors: out.validationErrors ?? [],
         candidatesTotal: (out.candidates ?? []).length,
-        scored: score(input.source, fromTarget),
+        scored: scoredValid,
       };
       results.push(row);
       fs.writeFileSync(path.join(outDir, `${inputId}-${r}.raw.txt`), String(out.rawOutput ?? ''));
-      console.log(JSON.stringify({ input: inputId, run: r, ms: row.ms, failures: row.failures, scored: row.scored.map((s) => ({ c: s.candidate, seg: s.perSegment, mixed: s.segmentsMixed, notInOracle: s.notInOracle, alt: s.alternatives, hints: s.hints })) }));
+      fs.writeFileSync(path.join(outDir, `${inputId}-${r}.wire.json`), JSON.stringify(transport.slice(t0), null, 2) + '\n');
+      console.log(JSON.stringify({ input: inputId, run: r, validity: row.validity, wire: wire.map((w) => ({ s: w.status, f: w.finishReason, u: w.usage })), verdicts: row.segmentVerdicts }));
+      if (false) console.log(JSON.stringify({ input: inputId, run: r, ms: row.ms, failures: row.failures, scored: row.scored.map((s) => ({ c: s.candidate, seg: s.perSegment, mixed: s.segmentsMixed, notInOracle: s.notInOracle, alt: s.alternatives, hints: s.hints })) }));
     }
   }
   fs.writeFileSync(path.join(outDir, 'results.json'), JSON.stringify(results, null, 2) + '\n');

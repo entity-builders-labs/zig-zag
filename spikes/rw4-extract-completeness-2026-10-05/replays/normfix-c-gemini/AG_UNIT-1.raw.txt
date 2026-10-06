@@ -1,0 +1,84 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walking Tour through San Telmo and Defensa Street",
+      "description": "A self-guided walking tour exploring Defensa Street and San Telmo's historic landmarks such as Farmacia la Estrella, Monasterio de Mafalda, Casa Mínima, and The San Telmo Market.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture",
+        "food"
+      ],
+      "traits": [
+        "self-guided",
+        "historic architecture",
+        "cobblestone streets"
+      ],
+      "intents": [
+        "walk",
+        "route_like",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "farmacia-la-estrella",
+          "name": "Farmacia la Estrella",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 5: is a really old Pharmacy call \"Farmacia la Estrella\", from 1834."
+        },
+        {
+          "key": "monumento-de-mafalda",
+          "name": "Monumento de Mafalda",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 7: Monumento de Mafalda, this is one of our most loved cartoon characters created by Quino."
+        },
+        {
+          "key": "casa-minima",
+          "name": "Casa Mínima",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 8: Casa Mínima, this is known to be the narrowest house in Buenos Aires"
+        },
+        {
+          "key": "san-telmo-market",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 9: The San Telmo Market!!",
+          "normalizationKind": "TRANSLATION",
+          "sourceName": "The San Telmo Market"
+        },
+        {
+          "key": "patio-de-los-ezeiza",
+          "name": "El Patio de los Ezeiza",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 10: Last stop, this is \"El Patio de los Ezeiza\"."
+        }
+      ],
+      "suggestedDurationMinutes": 180,
+      "shortReason": "An evidence-backed self-guided walking tour along Defensa Street and San Telmo highlighting its historic pharmacy, monuments, architecture, and market.",
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

@@ -1,0 +1,600 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "validity": "VALID",
+    "atoms": 126,
+    "labelled": 126,
+    "unlabelled": [],
+    "problems": [
+      "SPAN_NOT_IN_ATOM:A40:San Telmo",
+      "SPAN_NOT_IN_ATOM:A57:Mercado de San Telmo"
+    ],
+    "segments": [
+      [
+        "Plaza de Mayo@A2",
+        "Cabildo@A19",
+        "Catedral Metropolitana@A22",
+        "Catedral@A25",
+        "Defensa@A33",
+        "Feria San Telmo@A36",
+        "Estados Unidos@A43",
+        "Bar Sur@A46",
+        "Mercado de San Telmo@A56",
+        "Plaza Dorrego@A62",
+        "Avenida San Juan@A65",
+        "Museum of Modern Arts@A66",
+        "Avenida Paseo Colon@A67",
+        "Club Atlético@A68",
+        "Parque Lezama@A74",
+        "national history museum@A81",
+        "Avenida Caseros@A84"
+      ],
+      [
+        "El Caminito@A93",
+        "La Boca@A101",
+        "La Bombonera@A102"
+      ]
+    ],
+    "verdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "6/8",
+        "reasons": [
+          "MISSING_MANDATORY:Casa Rosada|Museo Histórico Nacional"
+        ],
+        "passBy": [
+          "Defensa",
+          "Estados Unidos",
+          "Bar Sur",
+          "Avenida San Juan",
+          "Museum of Modern Arts",
+          "Avenida Paseo Colon",
+          "Club Atlético",
+          "Avenida Caseros"
+        ],
+        "notInOracle": [
+          "Catedral",
+          "Feria San Telmo",
+          "national history museum"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": true,
+        "mandatoryRecall": "2/2",
+        "reasons": [],
+        "passBy": [
+          "La Boca"
+        ],
+        "notInOracle": []
+      }
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "validity": "VALID",
+    "atoms": 126,
+    "labelled": 126,
+    "unlabelled": [],
+    "problems": [
+      "SPAN_NOT_IN_ATOM:A40:San Telmo",
+      "SPAN_NOT_IN_ATOM:A57:Mercado de San Telmo"
+    ],
+    "segments": [
+      [
+        "Plaza de Mayo@A2",
+        "Casa Rosada@A9",
+        "Cabildo@A19",
+        "Catedral Metropolitana@A22",
+        "Catedral@A25",
+        "Defensa@A33",
+        "Feria San Telmo@A36",
+        "Estados Unidos@A43",
+        "Bar Sur@A46",
+        "Mercado de San Telmo@A56",
+        "Plaza Dorrego@A62",
+        "Avenida San Juan@A65",
+        "Museum of Modern Arts@A66",
+        "Avenida Paseo Colon@A67",
+        "Club Atlético@A68",
+        "Parque Lezama@A74",
+        "national history museum@A81",
+        "Avenida Caseros@A84"
+      ],
+      [
+        "El Caminito@A93",
+        "La Bombonera@A102",
+        "La Boca@A108"
+      ]
+    ],
+    "verdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "7/8",
+        "reasons": [
+          "MISSING_MANDATORY:Museo Histórico Nacional"
+        ],
+        "passBy": [
+          "Defensa",
+          "Estados Unidos",
+          "Bar Sur",
+          "Avenida San Juan",
+          "Museum of Modern Arts",
+          "Avenida Paseo Colon",
+          "Club Atlético",
+          "Avenida Caseros"
+        ],
+        "notInOracle": [
+          "Catedral",
+          "Feria San Telmo",
+          "national history museum"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": true,
+        "mandatoryRecall": "2/2",
+        "reasons": [],
+        "passBy": [
+          "La Boca"
+        ],
+        "notInOracle": []
+      }
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 3,
+    "validity": "VALID",
+    "atoms": 126,
+    "labelled": 126,
+    "unlabelled": [],
+    "problems": [
+      "SPAN_NOT_IN_ATOM:A57:Mercado de San Telmo"
+    ],
+    "segments": [
+      [
+        "Plaza de Mayo@A2",
+        "Defensa@A33",
+        "Feria San Telmo@A36",
+        "San Telmo@A40",
+        "Estados Unidos@A43",
+        "Bar Sur@A46",
+        "Mercado de San Telmo@A56",
+        "Plaza Dorrego@A62",
+        "Avenida San Juan@A65",
+        "Museum of Modern Arts@A66",
+        "Club Atlético@A68",
+        "Parque Lezama@A74",
+        "national history museum@A81",
+        "Avenida Caseros@A84"
+      ],
+      [
+        "El Caminito@A93",
+        "La Bombonera@A102",
+        "La Boca@A108"
+      ]
+    ],
+    "verdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "4/8",
+        "reasons": [
+          "MISSING_MANDATORY:Casa Rosada|Cabildo|Catedral Metropolitana|Museo Histórico Nacional"
+        ],
+        "passBy": [
+          "Defensa",
+          "Estados Unidos",
+          "Bar Sur",
+          "Avenida San Juan",
+          "Museum of Modern Arts",
+          "Club Atlético",
+          "Avenida Caseros"
+        ],
+        "notInOracle": [
+          "Feria San Telmo",
+          "San Telmo",
+          "national history museum"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": true,
+        "mandatoryRecall": "2/2",
+        "reasons": [],
+        "passBy": [
+          "La Boca"
+        ],
+        "notInOracle": []
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "validity": "VALID",
+    "atoms": 88,
+    "labelled": 88,
+    "unlabelled": [],
+    "problems": [],
+    "segments": [
+      [
+        "Center@A5",
+        "San Telmo@A5",
+        "La Boca@A5",
+        "Defensa@A5",
+        "Teatro Colón@A10",
+        "Tribunales@A10",
+        "Obelisco@A12",
+        "Roque Saenz Peña@A13",
+        "Plaza de Mayo@A13",
+        "Av. de Mayo@A16",
+        "Congress building@A16",
+        "Café Tortoni@A17",
+        "Tortoni@A18",
+        "London City Coffee@A19",
+        "Tortoni Café@A20",
+        "Casa Rosada@A22",
+        "Cathedral@A22",
+        "Cabildo@A22",
+        "Defensa Street@A27",
+        "Plaza Dorrego@A28",
+        "Farmacia la Estrella@A29",
+        "Museum of the city@A31",
+        "La Librería del Avila@A32",
+        "National School of Buenos Aires@A33",
+        "Alfonso@A34",
+        "Av. Belgrano 782@A35",
+        "Monumento de Mafalda@A36",
+        "Chile 371@A38",
+        "Casa Mínima@A39",
+        "The San Telmo Market@A42",
+        "Nuestra Parrilla@A46",
+        "Bolivar street@A46",
+        "Coffee Town@A48",
+        "Saigón@A49",
+        "Desnivel@A50",
+        "Café Rivas@A51",
+        "Café Rivas y Galería Solar@A52",
+        "Galería Solar@A54",
+        "El Patio de los Ezeiza@A55",
+        "Barrio Norte@A57",
+        "Patio Ezeiza@A59",
+        "Caminito@A60"
+      ],
+      [
+        "CAMINITO, LA BOCA@A64",
+        "La Boca@A64",
+        "Caminito@A65",
+        "Don Carlos@A68",
+        "Estadio La Boca@A69",
+        "Caminito Street@A71",
+        "Fundación Proa@A71"
+      ],
+      [
+        "Puente de la Mujer@A73",
+        "Puerto Madero@A74",
+        "San Telmo@A75",
+        "Darsena Sur@A76",
+        "Hernan Giralt@A78",
+        "Av. Int. Hernan Giralt@A79",
+        "Centro Cultural Kirchner@A82",
+        "Trade Sky Bar@A84"
+      ]
+    ],
+    "verdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "9/9",
+        "reasons": [
+          "SEGMENT_MIXED:Caminito",
+          "ALTERNATIVE_FLATTENED:Café Tortoni|Alfonso|Nuestra Parrilla|Coffee Town|Saigón|Desnivel"
+        ],
+        "passBy": [
+          "Defensa",
+          "Congress building",
+          "Casa Rosada",
+          "Cathedral",
+          "Cabildo",
+          "Defensa Street",
+          "Café Rivas",
+          "Galería Solar"
+        ],
+        "notInOracle": [
+          "Center",
+          "San Telmo",
+          "La Boca",
+          "Tribunales",
+          "Roque Saenz Peña",
+          "Av. de Mayo",
+          "Tortoni",
+          "London City Coffee",
+          "Tortoni Café",
+          "Plaza Dorrego",
+          "Museum of the city",
+          "National School of Buenos Aires",
+          "Av. Belgrano 782",
+          "Chile 371",
+          "Bolivar street",
+          "Café Rivas y Galería Solar",
+          "Barrio Norte",
+          "Patio Ezeiza"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": true,
+        "mandatoryRecall": "1/1",
+        "reasons": [],
+        "passBy": [
+          "Don Carlos",
+          "Estadio La Boca",
+          "Fundación Proa"
+        ],
+        "notInOracle": [
+          "CAMINITO, LA BOCA",
+          "La Boca",
+          "Caminito Street"
+        ]
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "success": false,
+        "mandatoryRecall": "1/1",
+        "reasons": [
+          "ALTERNATIVE_FLATTENED:Trade Sky Bar"
+        ],
+        "passBy": [
+          "Puerto Madero",
+          "Darsena Sur",
+          "Av. Int. Hernan Giralt",
+          "Centro Cultural Kirchner"
+        ],
+        "notInOracle": [
+          "San Telmo",
+          "Hernan Giralt"
+        ]
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "validity": "VALID",
+    "atoms": 88,
+    "labelled": 88,
+    "unlabelled": [],
+    "problems": [],
+    "segments": [
+      [
+        "Center@A5",
+        "San Telmo@A5",
+        "La Boca@A5",
+        "Defensa@A5",
+        "Teatro Colón@A10",
+        "Tribunales@A10",
+        "Obelisco@A12",
+        "Plaza de Mayo@A13",
+        "Congress building@A16",
+        "Café Tortoni@A17",
+        "Tortoni@A18",
+        "London City Coffee@A19",
+        "Casa Rosada@A22",
+        "Cathedral@A22",
+        "Cabildo@A22",
+        "Defensa Street@A27",
+        "Plaza Dorrego@A28",
+        "Farmacia la Estrella@A29",
+        "Museum of the city@A31",
+        "La Librería del Avila@A32",
+        "National School of Buenos Aires@A33",
+        "Alfonso@A34",
+        "Monumento de Mafalda@A36",
+        "Chile 371@A38",
+        "Casa Mínima@A40",
+        "The San Telmo Market@A42",
+        "Nuestra Parrilla@A46",
+        "Coffee Town@A48",
+        "Saigón@A49",
+        "Desnivel@A50",
+        "Café Rivas@A52",
+        "Galería Solar@A52",
+        "El Patio de los Ezeiza@A55",
+        "Caminito@A60"
+      ],
+      [
+        "CAMINITO@A64",
+        "LA BOCA@A64",
+        "Don Carlos@A68",
+        "Estadio La Boca@A69",
+        "Caminito Street@A71",
+        "Fundación Proa@A71"
+      ],
+      [
+        "Puente de la Mujer@A73",
+        "Puerto Madero@A74",
+        "San Telmo@A75",
+        "Darsena Sur@A76",
+        "Hernan Giralt@A78",
+        "Centro Cultural Kirchner@A82",
+        "Trade Sky Bar@A84"
+      ]
+    ],
+    "verdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "9/9",
+        "reasons": [
+          "SEGMENT_MIXED:Caminito",
+          "ALTERNATIVE_FLATTENED:Café Tortoni|Alfonso|Nuestra Parrilla|Coffee Town|Saigón|Desnivel"
+        ],
+        "passBy": [
+          "Defensa",
+          "Congress building",
+          "Casa Rosada",
+          "Cathedral",
+          "Cabildo",
+          "Defensa Street",
+          "Café Rivas",
+          "Galería Solar"
+        ],
+        "notInOracle": [
+          "Center",
+          "San Telmo",
+          "La Boca",
+          "Tribunales",
+          "Tortoni",
+          "London City Coffee",
+          "Plaza Dorrego",
+          "Museum of the city",
+          "National School of Buenos Aires",
+          "Chile 371"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": true,
+        "mandatoryRecall": "1/1",
+        "reasons": [],
+        "passBy": [
+          "Don Carlos",
+          "Estadio La Boca",
+          "Fundación Proa"
+        ],
+        "notInOracle": [
+          "LA BOCA",
+          "Caminito Street"
+        ]
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "success": false,
+        "mandatoryRecall": "1/1",
+        "reasons": [
+          "ALTERNATIVE_FLATTENED:Trade Sky Bar"
+        ],
+        "passBy": [
+          "Puerto Madero",
+          "Darsena Sur",
+          "Centro Cultural Kirchner"
+        ],
+        "notInOracle": [
+          "San Telmo",
+          "Hernan Giralt"
+        ]
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 3,
+    "validity": "VALID",
+    "atoms": 88,
+    "labelled": 88,
+    "unlabelled": [],
+    "problems": [
+      "SPAN_NOT_IN_ATOM:A79:Av. Int. Hernan Giralt"
+    ],
+    "segments": [
+      [
+        "Teatro Colón@A10",
+        "Subte station \"Tribunales\"@A10",
+        "Plaza de Mayo@A14",
+        "Café Tortoni@A17",
+        "London City Coffee@A19",
+        "Casa Rosada@A22",
+        "Cathedral@A22",
+        "Cabildo@A22",
+        "Defensa Street@A27",
+        "Farmacia la Estrella@A29",
+        "Museum of the city@A31",
+        "La Librería del Avila@A32",
+        "Alfonso@A34",
+        "Monumento de Mafalda@A36",
+        "house in Chile 371@A38",
+        "Casa Mínima@A40",
+        "The San Telmo Market@A42",
+        "Nuestra Parrilla@A46",
+        "Coffee Town@A48",
+        "Saigón@A49",
+        "Desnivel@A50",
+        "Café Rivas@A52",
+        "Galería Solar@A52",
+        "El Patio de los Ezeiza@A55",
+        "Caminito en La Boca@A60"
+      ],
+      [
+        "Don Carlos@A68",
+        "Estadio La Boca@A69",
+        "Caminito Street@A71",
+        "Fundación Proa@A71"
+      ],
+      [
+        "Puente de la Mujer@A73",
+        "Centro Cultural Kirchner@A82",
+        "Trade Sky Bar@A84"
+      ]
+    ],
+    "verdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "8/9",
+        "reasons": [
+          "MISSING_MANDATORY:Obelisco",
+          "ALTERNATIVE_FLATTENED:Café Tortoni|Alfonso|Nuestra Parrilla|Coffee Town|Saigón|Desnivel"
+        ],
+        "passBy": [
+          "Casa Rosada",
+          "Cathedral",
+          "Cabildo",
+          "Defensa Street",
+          "Café Rivas",
+          "Galería Solar"
+        ],
+        "notInOracle": [
+          "Subte station \"Tribunales\"",
+          "London City Coffee",
+          "Museum of the city",
+          "house in Chile 371",
+          "Caminito en La Boca"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": false,
+        "mandatoryRecall": "0/1",
+        "reasons": [
+          "MISSING_MANDATORY:Caminito"
+        ],
+        "passBy": [
+          "Don Carlos",
+          "Estadio La Boca",
+          "Fundación Proa"
+        ],
+        "notInOracle": [
+          "Caminito Street"
+        ]
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "success": false,
+        "mandatoryRecall": "1/1",
+        "reasons": [
+          "ALTERNATIVE_FLATTENED:Trade Sky Bar"
+        ],
+        "passBy": [
+          "Centro Cultural Kirchner"
+        ],
+        "notInOracle": []
+      }
+    ]
+  }
+]

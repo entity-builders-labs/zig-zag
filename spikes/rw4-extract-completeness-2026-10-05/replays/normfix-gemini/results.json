@@ -1,0 +1,1031 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "validity": "VALID",
+    "wire": [
+      {
+        "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+        "request": {
+          "model": "models/gemini-3.5-flash-lite",
+          "temperature": null,
+          "maxCompletionTokens": null,
+          "chatTemplateKwargs": null,
+          "responseFormat": "object"
+        },
+        "status": 200,
+        "finishReason": null,
+        "usage": {
+          "total_tokens": 9527,
+          "total_input_tokens": 8422,
+          "input_tokens_by_modality": [
+            {
+              "modality": "text",
+              "tokens": 8422
+            }
+          ],
+          "total_cached_tokens": 0,
+          "total_output_tokens": 1105,
+          "total_tool_use_tokens": 0,
+          "total_thought_tokens": 0,
+          "raw_prompt_token": 9645,
+          "model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9645
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 1124
+                }
+              ]
+            }
+          ],
+          "non_grounding_model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9645
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 1124
+                }
+              ]
+            }
+          ]
+        },
+        "reasoningChars": 0
+      }
+    ],
+    "rawCandidateCount": 1,
+    "normalizationViolations": [
+      "component 9 (Museo de Arte Moderno de Buenos Aires) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "segmentVerdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "7/8",
+        "reasons": [
+          "PROPOSED_BUT_REJECTED_BY_VALIDATION",
+          "MISSING_MANDATORY:Museo Histórico Nacional"
+        ],
+        "emittedPassBy": [
+          "Defensa[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": false,
+        "mandatoryRecall": "0/2",
+        "reasons": [
+          "SEGMENT_NOT_EMITTED"
+        ],
+        "emittedPassBy": []
+      }
+    ],
+    "rawScored": [
+      {
+        "candidate": "Self-Guided Walking Tour Buenos Aires Day 1: Plaza de Mayo to Parque Lezama",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Cabildo[MANDATORY]",
+          "Defensa[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "7/8",
+            "missingMandatory": [
+              "Museo Histórico Nacional"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": [],
+        "mandatoryFromOtherSegment": []
+      }
+    ],
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 5263,
+    "inputChars": 14926,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 9 (Museo de Arte Moderno de Buenos Aires) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "validity": "VALID",
+    "wire": [
+      {
+        "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+        "request": {
+          "model": "models/gemini-3.5-flash-lite",
+          "temperature": null,
+          "maxCompletionTokens": null,
+          "chatTemplateKwargs": null,
+          "responseFormat": "object"
+        },
+        "status": 200,
+        "finishReason": null,
+        "usage": {
+          "total_tokens": 10340,
+          "total_input_tokens": 8422,
+          "input_tokens_by_modality": [
+            {
+              "modality": "text",
+              "tokens": 8422
+            }
+          ],
+          "total_cached_tokens": 3576,
+          "cached_tokens_by_modality": [
+            {
+              "modality": "text",
+              "tokens": 3576
+            }
+          ],
+          "total_output_tokens": 1918,
+          "total_tool_use_tokens": 0,
+          "total_thought_tokens": 0,
+          "raw_prompt_token": 9645,
+          "model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9645
+                }
+              ],
+              "cache_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 4096
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 1936
+                }
+              ]
+            }
+          ],
+          "non_grounding_model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9645
+                }
+              ],
+              "cache_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 4096
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 1936
+                }
+              ]
+            }
+          ]
+        },
+        "reasoningChars": 0
+      }
+    ],
+    "rawCandidateCount": 2,
+    "normalizationViolations": [
+      "component 8 (Paseo de Colón) unsupported: MISSING_NORMALIZATION_KIND",
+      "component 12 (Museo de Arte Moderno de Buenos Aires) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "segmentVerdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "7/8",
+        "reasons": [
+          "PROPOSED_BUT_REJECTED_BY_VALIDATION",
+          "MISSING_MANDATORY:Museo Histórico Nacional"
+        ],
+        "emittedPassBy": [
+          "Defensa[ACCEPTABLE]",
+          "Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": true,
+        "mandatoryRecall": "2/2",
+        "reasons": [],
+        "emittedPassBy": []
+      }
+    ],
+    "rawScored": [
+      {
+        "candidate": "Buenos Aires Day 1 Self-Guided Walking Tour - Part 1",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Cabildo[MANDATORY]",
+          "Defensa[ACCEPTABLE]",
+          "Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Paseo de Colón[NOT_IN_ORACLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "7/8",
+            "missingMandatory": [
+              "Museo Histórico Nacional"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Paseo de Colón"
+        ],
+        "alternatives": [],
+        "mandatoryFromOtherSegment": []
+      },
+      {
+        "candidate": "Buenos Aires Day 1 Self-Guided Walking Tour - Part 2",
+        "orderedByEvidence": true,
+        "hints": [
+          "El Caminito=Caminito[MANDATORY]",
+          "La Bombonera[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S2-la-boca",
+            "mandatoryRecall": "2/2",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": [],
+        "mandatoryFromOtherSegment": []
+      }
+    ],
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 6170,
+    "inputChars": 14926,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 8 (Paseo de Colón) unsupported: MISSING_NORMALIZATION_KIND; component 12 (Museo de Arte Moderno de Buenos Aires) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Buenos Aires Day 1 Self-Guided Walking Tour - Part 2",
+        "orderedByEvidence": true,
+        "hints": [
+          "El Caminito=Caminito[MANDATORY]",
+          "La Bombonera[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S2-la-boca",
+            "mandatoryRecall": "2/2",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": [],
+        "mandatoryFromOtherSegment": []
+      }
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 3,
+    "validity": "VALID",
+    "wire": [
+      {
+        "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+        "request": {
+          "model": "models/gemini-3.5-flash-lite",
+          "temperature": null,
+          "maxCompletionTokens": null,
+          "chatTemplateKwargs": null,
+          "responseFormat": "object"
+        },
+        "status": 200,
+        "finishReason": null,
+        "usage": {
+          "total_tokens": 10103,
+          "total_input_tokens": 8422,
+          "input_tokens_by_modality": [
+            {
+              "modality": "text",
+              "tokens": 8422
+            }
+          ],
+          "total_cached_tokens": 3576,
+          "cached_tokens_by_modality": [
+            {
+              "modality": "text",
+              "tokens": 3576
+            }
+          ],
+          "total_output_tokens": 1681,
+          "total_tool_use_tokens": 0,
+          "total_thought_tokens": 0,
+          "raw_prompt_token": 9645,
+          "model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9645
+                }
+              ],
+              "cache_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 4096
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 1699
+                }
+              ]
+            }
+          ],
+          "non_grounding_model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9645
+                }
+              ],
+              "cache_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 4096
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 1699
+                }
+              ]
+            }
+          ]
+        },
+        "reasoningChars": 0
+      }
+    ],
+    "rawCandidateCount": 1,
+    "normalizationViolations": [
+      "component 4 (Museo del Cabildo) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "segmentVerdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "8/8",
+        "reasons": [
+          "PROPOSED_BUT_REJECTED_BY_VALIDATION"
+        ],
+        "emittedPassBy": [
+          "Defensa[ACCEPTABLE]",
+          "Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]",
+          "Avenida Caseros[ACCEPTABLE]"
+        ]
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": false,
+        "mandatoryRecall": "0/2",
+        "reasons": [
+          "SEGMENT_NOT_EMITTED"
+        ],
+        "emittedPassBy": []
+      }
+    ],
+    "rawScored": [
+      {
+        "candidate": "Self-Guided Walking Tour of San Telmo and Historic Buenos Aires",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Museo del Cabildo=Cabildo[MANDATORY]",
+          "Defensa[ACCEPTABLE]",
+          "Feria San Telmo[NOT_IN_ORACLE]",
+          "Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]",
+          "Museo Histórico Nacional[MANDATORY]",
+          "Avenida Caseros[ACCEPTABLE]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "8/8",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Feria San Telmo"
+        ],
+        "alternatives": [],
+        "mandatoryFromOtherSegment": []
+      }
+    ],
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 5715,
+    "inputChars": 14926,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 4 (Museo del Cabildo) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "validity": "VALID",
+    "wire": [
+      {
+        "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+        "request": {
+          "model": "models/gemini-3.5-flash-lite",
+          "temperature": null,
+          "maxCompletionTokens": null,
+          "chatTemplateKwargs": null,
+          "responseFormat": "object"
+        },
+        "status": 200,
+        "finishReason": null,
+        "usage": {
+          "total_tokens": 9145,
+          "total_input_tokens": 8339,
+          "input_tokens_by_modality": [
+            {
+              "modality": "text",
+              "tokens": 8339
+            }
+          ],
+          "total_cached_tokens": 3571,
+          "cached_tokens_by_modality": [
+            {
+              "modality": "text",
+              "tokens": 3571
+            }
+          ],
+          "total_output_tokens": 806,
+          "total_tool_use_tokens": 0,
+          "total_thought_tokens": 0,
+          "raw_prompt_token": 9562,
+          "model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9562
+                }
+              ],
+              "cache_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 4096
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 825
+                }
+              ]
+            }
+          ],
+          "non_grounding_model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9562
+                }
+              ],
+              "cache_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 4096
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 825
+                }
+              ]
+            }
+          ]
+        },
+        "reasoningChars": 0
+      }
+    ],
+    "rawCandidateCount": 1,
+    "normalizationViolations": [
+      "component 5 (Mercado de San Telmo) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "segmentVerdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "6/9",
+        "reasons": [
+          "PROPOSED_BUT_REJECTED_BY_VALIDATION",
+          "MISSING_MANDATORY:Teatro Colón|Obelisco|Plaza de Mayo"
+        ],
+        "emittedPassBy": []
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": false,
+        "mandatoryRecall": "0/1",
+        "reasons": [
+          "SEGMENT_NOT_EMITTED"
+        ],
+        "emittedPassBy": []
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "success": false,
+        "mandatoryRecall": "0/1",
+        "reasons": [
+          "SEGMENT_NOT_EMITTED"
+        ],
+        "emittedPassBy": []
+      }
+    ],
+    "rawScored": [
+      {
+        "candidate": "Self-Guided Walking Tour San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Farmacia la Estrella=Farmacia La Estrella[MANDATORY]",
+          "La Librería del Avila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "Mercado de San Telmo[MANDATORY]",
+          "El Patio de los Ezeiza[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "6/9",
+            "missingMandatory": [
+              "Teatro Colón",
+              "Obelisco",
+              "Plaza de Mayo"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": [],
+        "mandatoryFromOtherSegment": []
+      }
+    ],
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 3756,
+    "inputChars": 13309,
+    "failures": [],
+    "validationErrors": [
+      "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 5 (Mercado de San Telmo) unsupported: MISSING_NORMALIZATION_KIND"
+    ],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "validity": "VALID",
+    "wire": [
+      {
+        "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+        "request": {
+          "model": "models/gemini-3.5-flash-lite",
+          "temperature": null,
+          "maxCompletionTokens": null,
+          "chatTemplateKwargs": null,
+          "responseFormat": "object"
+        },
+        "status": 200,
+        "finishReason": null,
+        "usage": {
+          "total_tokens": 9083,
+          "total_input_tokens": 8339,
+          "input_tokens_by_modality": [
+            {
+              "modality": "text",
+              "tokens": 8339
+            }
+          ],
+          "total_cached_tokens": 3571,
+          "cached_tokens_by_modality": [
+            {
+              "modality": "text",
+              "tokens": 3571
+            }
+          ],
+          "total_output_tokens": 744,
+          "total_tool_use_tokens": 0,
+          "total_thought_tokens": 0,
+          "raw_prompt_token": 9562,
+          "model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9562
+                }
+              ],
+              "cache_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 4096
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 763
+                }
+              ]
+            }
+          ],
+          "non_grounding_model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9562
+                }
+              ],
+              "cache_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 4096
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 763
+                }
+              ]
+            }
+          ]
+        },
+        "reasoningChars": 0
+      }
+    ],
+    "rawCandidateCount": 1,
+    "normalizationViolations": [],
+    "segmentVerdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "6/9",
+        "reasons": [
+          "MISSING_MANDATORY:Teatro Colón|Obelisco|Plaza de Mayo"
+        ],
+        "emittedPassBy": []
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": false,
+        "mandatoryRecall": "0/1",
+        "reasons": [
+          "SEGMENT_NOT_EMITTED"
+        ],
+        "emittedPassBy": []
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "success": false,
+        "mandatoryRecall": "0/1",
+        "reasons": [
+          "SEGMENT_NOT_EMITTED"
+        ],
+        "emittedPassBy": []
+      }
+    ],
+    "rawScored": [
+      {
+        "candidate": "Self-Guided Walking Tour San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Farmacia la Estrella=Farmacia La Estrella[MANDATORY]",
+          "La Librería del Ávila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "The San Telmo Market=Mercado de San Telmo[MANDATORY]",
+          "El Patio de los Ezeiza[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "6/9",
+            "missingMandatory": [
+              "Teatro Colón",
+              "Obelisco",
+              "Plaza de Mayo"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": [],
+        "mandatoryFromOtherSegment": []
+      }
+    ],
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 3290,
+    "inputChars": 13309,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walking Tour San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Farmacia la Estrella=Farmacia La Estrella[MANDATORY]",
+          "La Librería del Ávila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "The San Telmo Market=Mercado de San Telmo[MANDATORY]",
+          "El Patio de los Ezeiza[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "6/9",
+            "missingMandatory": [
+              "Teatro Colón",
+              "Obelisco",
+              "Plaza de Mayo"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": [],
+        "mandatoryFromOtherSegment": []
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 3,
+    "validity": "VALID",
+    "wire": [
+      {
+        "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+        "request": {
+          "model": "models/gemini-3.5-flash-lite",
+          "temperature": null,
+          "maxCompletionTokens": null,
+          "chatTemplateKwargs": null,
+          "responseFormat": "object"
+        },
+        "status": 200,
+        "finishReason": null,
+        "usage": {
+          "total_tokens": 9009,
+          "total_input_tokens": 8339,
+          "input_tokens_by_modality": [
+            {
+              "modality": "text",
+              "tokens": 8339
+            }
+          ],
+          "total_cached_tokens": 3571,
+          "cached_tokens_by_modality": [
+            {
+              "modality": "text",
+              "tokens": 3571
+            }
+          ],
+          "total_output_tokens": 670,
+          "total_tool_use_tokens": 0,
+          "total_thought_tokens": 0,
+          "raw_prompt_token": 9562,
+          "model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9562
+                }
+              ],
+              "cache_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 4096
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 689
+                }
+              ]
+            }
+          ],
+          "non_grounding_model_invocation_token_counts": [
+            {
+              "prompt_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 9562
+                }
+              ],
+              "cache_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 4096
+                }
+              ],
+              "candidates_tokens_details": [
+                {
+                  "modality": "text",
+                  "tokens": 689
+                }
+              ]
+            }
+          ]
+        },
+        "reasoningChars": 0
+      }
+    ],
+    "rawCandidateCount": 1,
+    "normalizationViolations": [],
+    "segmentVerdicts": [
+      {
+        "segment": "S1-walk",
+        "success": false,
+        "mandatoryRecall": "5/9",
+        "reasons": [
+          "MISSING_MANDATORY:Teatro Colón|Obelisco|Plaza de Mayo|Mercado de San Telmo"
+        ],
+        "emittedPassBy": []
+      },
+      {
+        "segment": "S2-la-boca",
+        "success": false,
+        "mandatoryRecall": "0/1",
+        "reasons": [
+          "SEGMENT_NOT_EMITTED"
+        ],
+        "emittedPassBy": []
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "success": false,
+        "mandatoryRecall": "0/1",
+        "reasons": [
+          "SEGMENT_NOT_EMITTED"
+        ],
+        "emittedPassBy": []
+      }
+    ],
+    "rawScored": [
+      {
+        "candidate": "Self-Guided Walking Tour San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Farmacia La Estrella[MANDATORY]",
+          "La Librería del Avila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "El Patio de los Ezeiza[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "5/9",
+            "missingMandatory": [
+              "Teatro Colón",
+              "Obelisco",
+              "Plaza de Mayo",
+              "Mercado de San Telmo"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": [],
+        "mandatoryFromOtherSegment": []
+      }
+    ],
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 3072,
+    "inputChars": 13309,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walking Tour San Telmo",
+        "orderedByEvidence": true,
+        "hints": [
+          "Farmacia La Estrella[MANDATORY]",
+          "La Librería del Avila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "El Patio de los Ezeiza[MANDATORY]"
+        ],
+        "segmentsMixed": false,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "5/9",
+            "missingMandatory": [
+              "Teatro Colón",
+              "Obelisco",
+              "Plaza de Mayo",
+              "Mercado de San Telmo"
+            ],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": [],
+        "mandatoryFromOtherSegment": []
+      }
+    ]
+  }
+]

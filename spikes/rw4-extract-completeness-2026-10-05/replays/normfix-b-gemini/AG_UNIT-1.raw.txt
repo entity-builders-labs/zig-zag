@@ -1,0 +1,91 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walking Tour San Telmo",
+      "description": "A self-guided walking itinerary covering the historic San Telmo neighborhood and Defensa Street, featuring stops at Farmacia la Estrella, La Librería del Avila, Monumento de Mafalda, Casa Mínima, The San Telmo Market, and El Patio de los Ezeiza.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture"
+      ],
+      "traits": [
+        "self-guided",
+        "historic stops",
+        "walking itinerary"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "farmacia-la-estrella",
+          "name": "Farmacia la Estrella",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 5: is a really old Pharmacy call \"Farmacia la Estrella\", from 1834."
+        },
+        {
+          "key": "la-libreria-del-avila",
+          "name": "La Librería del Avila",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Oldest library in town, \"La Librería del Avila\"!"
+        },
+        {
+          "key": "monumento-de-mafalda",
+          "name": "Monumento de Mafalda",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 7: Monumento de Mafalda, this is one of our most loved cartoon characters created by Quino."
+        },
+        {
+          "key": "casa-minima",
+          "name": "Casa Mínima",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 8: Casa Mínima, this is known to be the narrowest house in Buenos Aires"
+        },
+        {
+          "key": "el-san-telmo-market",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 9: The San Telmo Market!!",
+          "sourceName": "The San Telmo Market pecuniary update placeholder / The San Telmo Market!! text verbatim match placeholder: Stop 9: The San Telmo Market!! My favorite place in the neighborhood, the oldest market in Buenos Aires and recently remodeled with a lot of restaurants (before there were antiquities and fruit and and vegetable stores). Here there are also a lot of tourist traps, so be careful. Here you have 2 choices, have lunch in the market, or grab something small and wait to eat some big meal in La Boca."
+        },
+        {
+          "key": "el-patio-de-los-ezeiza",
+          "name": "El Patio de los Ezeiza",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 10: Last stop, this is \"El Patio de los Ezeiza\"."
+        }
+      ],
+      "suggestedDurationMinutes": 180,
+      "shortReason": "An evidence-backed self-guided walking itinerary covering the essential historic spots and landmarks along Defensa Street and San Telmo.",
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

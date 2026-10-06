@@ -2345,17 +2345,52 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   model-dependent: flash-lite still omits mandatory stops, emits passing
   mentions and drops `normalizationKind` run to run (`replays/fix-v*`).
 
+### RW4-EXTRACT-COMPLETENESS-1 extractor reliability determination — 2026-10-06
+
+- Evidence: `spikes/rw4-extract-completeness-2026-10-05/determination-2026-10-06.md`
+  (frozen units, unchanged oracle, every run kept).
+- Cloudflare `qwen3.8-27b`: 0 valid / 6 INVALID_RUN (daily allocation
+  already exhausted, HTTP 429 code 4006); its reliability is undetermined.
+- Gemini flash-lite on identical input: per-segment success is at most 1/6
+  on any S1. The same input and prompt yield incompatible compositions.
+  Some omissions are systematic (Obelisco 6/6). One unrelated
+  naming-rule edit flipped AG's leading stops from 6/6 present to 9/9
+  omitted.
+- **Determination: model selection is not sufficient.** Every existing gate
+  judges only emitted members, so an omission leaves no trace. A
+  deterministic structural guard catches 0/12 incomplete SOB runs (a prose
+  unit with no markers). On AG every numbered-stop rule flags the
+  oracle-correct extraction.
+- Recommended smallest mechanism (owner decision, needs a spec amendment,
+  NOT implemented): exhaustive evidence-atom labelling. The unit is
+  atomized deterministically, and the LLM must label every atom (STOP,
+  TRANSFER, or OTHER with a reason). A missing label fails closed;
+  membership, order and segments are assembled deterministically; names
+  stay as evidenced, for the resolver. Probe: complete label coverage
+  6/6. The SOB museum was STOP and the bus was TRANSFER in 3/3 runs. AG
+  S2/S3 were emitted 3/3, against 1/15 for list extraction (that one
+  mixed into S1). The STOP-vs-PASSING call stays semantic but becomes
+  explicit.
+- Normalization pressure (Part D): a corrected prompt reduced
+  `MISSING_NORMALIZATION_KIND` from 2.0 to 0.7 per run but lowered recall.
+  It was reverted. No production change in this checkpoint.
+- C3 COLD not run: neither acceptance path is met. WARM is not applicable.
+
 ## Next authorized action
 
-0. (2026-10-05, supersedes the order below for the functional milestone)
-   Re-run C3 COLD/WARM with the C3 production extractor (Cloudflare
-   `@cf/qwen/qwen3.8-27b`) after its daily reset, using
-   `spikes/rw4-functional-composite-campaign-2026-10-05/run.sh`. Score it
-   with `spikes/rw4-extract-completeness-2026-10-05/score-live.cjs`. If the
-   extractor still omits mandatory stops or emits passing mentions, the
-   remaining lever is extractor capability (model choice), not windowing,
-   the parser or identity. Do not relax `INCOMPLETE_SOURCE_COMPOSITION` to
-   persist a composite.
+0. (2026-10-06, supersedes the 2026-10-05 item 0) Owner decision on the
+   RW4-EXTRACT-COMPLETENESS-1 mechanism recommended in
+   `spikes/rw4-extract-completeness-2026-10-05/determination-2026-10-06.md`
+   (exhaustive evidence-atom labelling). If approved, amend
+   `docs/architecture/activity-discovery-and-tour-generation.md` first,
+   then implement it for `SECTION_UNIT` editorial itinerary units, then run
+   C3 COLD (WARM only if COLD persists a qualifying composite). Model
+   choice is no longer the remaining lever. The optional Cloudflare replay
+   after the 00:00 UTC reset (`EXTRACTOR=cloudflare RUNS=3
+   INPUTS=SOB_UNIT,AG_UNIT LABEL=verify-qwen38b node
+   spikes/rw4-extract-completeness-2026-10-05/replay-extract.cjs`) is
+   characterization only. Do not relax `INCOMPLETE_SOURCE_COMPOSITION`,
+   source support, identity or `MISSING_NORMALIZATION_KIND`.
 1. Re-run the contextual replay with the COLD #11 extractor (Cloudflare
    `@cf/qwen/qwen3.8-27b`) once its daily allocation resets (`EXTRACTOR=cloudflare
    RUN_SUFFIX=../locality-recovery-2026-10-03/replay-cloudflare-N bash
@@ -2513,10 +2548,27 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   secretsofbuenosaires Day 1 window kept 644–3536 and 4667–7593 of 17027
   chars, and the persisted composite ends before the day's last three
   stops.
-- RW4-EXTRACT-COMPLETENESS-1: PARTIALLY CLOSED (2026-10-05, later the
-  same day). Window prefixes, the 8-hint parser cut and the quoted-span
-  normalization are fixed. Extractor recall/compliance is still OPEN,
-  BLOCKING, and model-dependent; see "RW4-EXTRACT-COMPLETENESS-1 fix" above.
+- RW4-EXTRACT-COMPLETENESS-1: OPEN, BLOCKING (2026-10-06). The
+  deterministic loss paths (window prefixes, the 8-hint parser cut, the
+  quoted-span normalization) are fixed. The remaining defect is not
+  model-dependent in a way model choice can close: an extractor can omit a
+  source-defined stop silently, and no gate sees omissions. The
+  recommended mechanism awaits an owner decision; see "extractor
+  reliability determination — 2026-10-06" above.
+- RW4-ID-C3-AGUS-1: OPEN, separate from extraction. In C3 COLD the
+  faithfully emitted agusyornet stops Monumento de Mafalda and El Patio de
+  los Ezeiza were `CANDIDATE_REJECTED` by identity. Thresholds untouched.
+- RW4-EXTRACT-NORMALIZATION-1: OPEN, MEDIUM. The prompt mandates
+  normalization ("SHOULD translate or normalize"), and the schema calls
+  `normalizationKind` "Optional". Gemini expands names already in the
+  local language without the kind, so 5/6 SOB candidates with complete
+  recall were rejected. A corrected wording lowered recall and was
+  reverted (`normfix-prompt.diff`). The validator stays strict.
+- RW4-EXTRACT-GEMINI-TRANSPORT-1: OPEN, MEDIUM. The Gemini extractor sends
+  no temperature and no output budget, and it reads no finish status
+  (`gemini-discovery.provider.ts`), unlike Cloudflare (temperature 0,
+  rejects `finish_reason: length`). Gemini runs sample at the provider
+  default, and truncation surfaces only as a JSON parse failure.
   Original finding (2026-10-05). The discovery extractor emits a non-deterministic
   subset of a source's explicitly enumerated stops. Example: agusyornet,
   3 emitted of at least 8 present in the same window. The resolver

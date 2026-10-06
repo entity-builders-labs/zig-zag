@@ -20,6 +20,19 @@ Input: the C3 editorial composites from
   in `replays/<label>-<provider>/`. Every run is kept, including provider
   errors (Cloudflare daily allocation 429, Groq 1000-token/minute output
   cap).
+  Since 2026-10-06 each run also records the effective request settings and
+  the response finish reason/usage (`*.wire.json`), the raw proposals
+  scored before validation, normalization violations and a per-segment
+  verdict (`segmentVerdicts`); a 429/5xx/transport failure is
+  `INVALID_RUN` and never enters the denominator.
+- `summarize.cjs`: per-run, per-segment table of replay batches.
+- `guard-probe.cjs` → `guard-probe.out.json`: what generic structural
+  marker rules detect on the oracle-correct emission and on every observed
+  proposal (Part C of the 2026-10-06 determination).
+- `atom-probe.cjs` → `replays/atoms-gemini/`: exhaustive atom-labelling
+  probe (spike only).
+- `determination-2026-10-06.md`: model selection vs a completeness
+  mechanism; the current verdict for this finding.
 
 ## Forensic loss table (MANDATORY stops)
 
