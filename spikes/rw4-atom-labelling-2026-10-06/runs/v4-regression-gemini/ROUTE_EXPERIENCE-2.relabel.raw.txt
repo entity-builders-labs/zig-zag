@@ -1,0 +1,21 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-003",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Mill Street",
+          "supportSpan": "Walk down Mill Street",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Painted Lane",
+          "supportSpan": "reach the Painted Lane",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Walk down Mill Street to reach the Painted Lane."
+    }
+  ]
+}

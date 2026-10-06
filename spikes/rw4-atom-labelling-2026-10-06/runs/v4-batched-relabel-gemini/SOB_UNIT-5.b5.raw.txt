@@ -1,0 +1,106 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-166",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Travel tip about money."
+    },
+    {
+      "atomId": "a-167",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Travel tip about timing."
+    },
+    {
+      "atomId": "a-168",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Travel tip about sim cards."
+    },
+    {
+      "atomId": "a-169",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Heading for accommodation section."
+    },
+    {
+      "atomId": "a-170",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Accommodation overview."
+    },
+    {
+      "atomId": "a-171",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "List of hotels."
+    },
+    {
+      "atomId": "a-172",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "List of hotels."
+    },
+    {
+      "atomId": "a-173",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "List of hotels."
+    },
+    {
+      "atomId": "a-174",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Heading for tips."
+    },
+    {
+      "atomId": "a-175",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Transport tip."
+    },
+    {
+      "atomId": "a-176",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General history information."
+    },
+    {
+      "atomId": "a-177",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Cycling activity info."
+    },
+    {
+      "atomId": "a-178",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Holiday information."
+    },
+    {
+      "atomId": "a-179",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Patagonia travel tips heading."
+    },
+    {
+      "atomId": "a-180",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language selection."
+    },
+    {
+      "atomId": "a-181",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language selection."
+    },
+    {
+      "atomId": "a-182",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language selection."
+    }
+  ]
+}

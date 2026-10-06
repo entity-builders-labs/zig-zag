@@ -1,0 +1,1688 @@
+{
+  "input": "AG_UNIT",
+  "run": 1,
+  "validity": "VALID",
+  "promptVersion": "labelling-prompt-v4",
+  "consistency": "MEMBERSHIP",
+  "batches": 5,
+  "atoms": 95,
+  "classified": 95,
+  "firstPassValid": false,
+  "firstPassIssueCount": 5,
+  "relabel": {
+    "scope": [
+      "a-032",
+      "a-036",
+      "a-041",
+      "a-068",
+      "a-072"
+    ],
+    "firstPassIssues": [
+      "STOP_WITHOUT_ENTITY:a-032",
+      "ROLE_INCONSISTENT:a-036",
+      "SPAN_NOT_IN_ATOM:a-041",
+      "ROLE_INCONSISTENT:a-068",
+      "NAME_NOT_IN_SPAN:a-072"
+    ]
+  },
+  "missingAtomIds": [],
+  "duplicateAtomIds": [],
+  "unknownAtomIds": [],
+  "malformed": [
+    {
+      "relabel": true,
+      "code": "ROLE_INCONSISTENT",
+      "atomId": "a-068",
+      "detail": "entity role ITINERARY_STOP exceeds classification OPTIONAL_STOP"
+    }
+  ],
+  "spanIssues": [],
+  "notes": [
+    {
+      "code": "UNNAMED_ALTERNATIVE",
+      "atomId": "a-074"
+    }
+  ],
+  "labellingValid": false,
+  "outcome": "CONTRACT_FAIL_CLOSED",
+  "histogram": {
+    "NON_ITINERARY": 46,
+    "ITINERARY_STOP": 21,
+    "ALTERNATIVE": 11,
+    "PASS_BY": 6,
+    "OPTIONAL_STOP": 4,
+    "TRANSFER": 5,
+    "ROUTE_LEG": 2
+  },
+  "segments": [
+    {
+      "segmentIndex": 1,
+      "openedBy": [],
+      "mandatory": [
+        "Teatro Colón",
+        "Obelisco",
+        "Plaza de Mayo",
+        "Congress building",
+        "Defensa Street",
+        "\"Farmacia la Estrella\"",
+        "Museum of the city",
+        "\"La Librería del Avila\"",
+        "Monumento de Mafalda",
+        "Casa Mínima",
+        "The San Telmo Market",
+        "\"El Patio de los Ezeiza\""
+      ],
+      "optional": [
+        "house in Chile 371",
+        "Café Rivas y Galería Solar",
+        "Galería Solar"
+      ],
+      "alternativeGroups": [
+        [
+          "Café Tortoni",
+          "London City Coffee"
+        ],
+        [
+          "Alfonso",
+          "Av. Belgrano 782"
+        ],
+        [
+          "La Boca"
+        ],
+        [
+          "Nuestra Parrilla"
+        ],
+        [
+          "Coffee Town",
+          "Saigón",
+          "Desnivel"
+        ]
+      ],
+      "routeLegs": [
+        "Av. Roque Saenz Peña",
+        "Av. de Mayo",
+        "San Telmo"
+      ],
+      "passBy": [
+        "Plaza",
+        "Casa Rosada",
+        "Cathedral",
+        "Cabildo",
+        "Plaza Dorrego",
+        "National School of Buenos Aires",
+        "Bolivar street",
+        "San Telmo Market"
+      ],
+      "conflicts": []
+    },
+    {
+      "segmentIndex": 2,
+      "openedBy": [
+        "a-058:UNSPECIFIED",
+        "a-059:BUS"
+      ],
+      "mandatory": [
+        "Caminito en La Boca",
+        "Caminito",
+        "\"Don Carlos\""
+      ],
+      "optional": [],
+      "alternativeGroups": [],
+      "routeLegs": [],
+      "passBy": [
+        "El Patio de los Ezeiza",
+        "colorful houses",
+        "\"Estadio La Boca\""
+      ],
+      "conflicts": []
+    },
+    {
+      "segmentIndex": 3,
+      "openedBy": [
+        "a-069:BUS"
+      ],
+      "mandatory": [
+        "Puerto Madero",
+        "Puente de la Mujer"
+      ],
+      "optional": [],
+      "alternativeGroups": [],
+      "routeLegs": [
+        "Darsena Sur",
+        "Av. Int. Hernan Giralt"
+      ],
+      "passBy": [
+        "San Telmo"
+      ],
+      "conflicts": [
+        {
+          "code": "ROLE_CONFLICT",
+          "sourceName": "Puerto Madero",
+          "routeLegAtoms": [
+            "a-071"
+          ],
+          "stopAtoms": [
+            "a-069"
+          ]
+        }
+      ]
+    },
+    {
+      "segmentIndex": 4,
+      "openedBy": [
+        "a-075:UNSPECIFIED"
+      ],
+      "mandatory": [
+        "Centro Cultural Kirchner"
+      ],
+      "optional": [],
+      "alternativeGroups": [],
+      "routeLegs": [],
+      "passBy": [],
+      "conflicts": []
+    },
+    {
+      "segmentIndex": 5,
+      "openedBy": [
+        "a-077:TAXI"
+      ],
+      "mandatory": [],
+      "optional": [],
+      "alternativeGroups": [
+        [
+          "Trade Sky Bar"
+        ]
+      ],
+      "routeLegs": [],
+      "passBy": [
+        "Metrobus",
+        "Puerto madero"
+      ],
+      "conflicts": []
+    }
+  ],
+  "segmentsAreDiagnosticShadow": true,
+  "verdicts": [
+    {
+      "segment": "S1-walk",
+      "assembledSegment": 1,
+      "success": true,
+      "mandatoryRecall": "9/9",
+      "reasons": [],
+      "acceptablePromoted": [
+        "Congress building",
+        "Defensa Street",
+        "Museum of the city"
+      ],
+      "notInOracleMandatory": [],
+      "missingAtomDecisions": {}
+    },
+    {
+      "segment": "S2-la-boca",
+      "assembledSegment": 2,
+      "success": true,
+      "mandatoryRecall": "1/1",
+      "reasons": [],
+      "acceptablePromoted": [
+        "\"Don Carlos\""
+      ],
+      "notInOracleMandatory": [],
+      "missingAtomDecisions": {}
+    },
+    {
+      "segment": "S3-puerto-madero",
+      "assembledSegment": 3,
+      "success": true,
+      "mandatoryRecall": "1/1",
+      "reasons": [],
+      "acceptablePromoted": [
+        "Puerto Madero"
+      ],
+      "notInOracleMandatory": [],
+      "missingAtomDecisions": {}
+    }
+  ],
+  "alternatives": [
+    {
+      "name": "Café Tortoni",
+      "emittedRole": "ALTERNATIVE"
+    },
+    {
+      "name": "London City",
+      "emittedRole": "ALTERNATIVE"
+    },
+    {
+      "name": "Alfonso",
+      "emittedRole": "ALTERNATIVE"
+    },
+    {
+      "name": "Nuestra Parrilla",
+      "emittedRole": "ALTERNATIVE"
+    },
+    {
+      "name": "Coffee Town",
+      "emittedRole": "ALTERNATIVE"
+    },
+    {
+      "name": "Saigón",
+      "emittedRole": "ALTERNATIVE"
+    },
+    {
+      "name": "Desnivel",
+      "emittedRole": "ALTERNATIVE"
+    },
+    {
+      "name": "Trade Sky Bar",
+      "emittedRole": "ALTERNATIVE"
+    }
+  ],
+  "mandatoryDecisions": {
+    "Teatro Colón": [
+      {
+        "atomId": "a-010",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      },
+      {
+        "atomId": "a-011",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      }
+    ],
+    "Obelisco": [
+      {
+        "atomId": "a-012",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      }
+    ],
+    "Plaza de Mayo": [
+      {
+        "atomId": "a-012",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      },
+      {
+        "atomId": "a-013",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      },
+      {
+        "atomId": "a-015",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      },
+      {
+        "atomId": "a-020",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      },
+      {
+        "atomId": "a-023",
+        "classification": "PASS_BY",
+        "entityRole": "PASS_BY"
+      },
+      {
+        "atomId": "a-027",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "PASS_BY"
+      }
+    ],
+    "Farmacia La Estrella": [
+      {
+        "atomId": "a-028",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      }
+    ],
+    "Librería de Ávila": [
+      {
+        "atomId": "a-031",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      }
+    ],
+    "Monumento de Mafalda": [
+      {
+        "atomId": "a-034",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      },
+      {
+        "atomId": "a-036",
+        "classification": "OPTIONAL_STOP",
+        "entityRole": null
+      }
+    ],
+    "Casa Mínima": [
+      {
+        "atomId": "a-037",
+        "classification": "NON_ITINERARY",
+        "entityRole": null
+      },
+      {
+        "atomId": "a-038",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      }
+    ],
+    "Mercado de San Telmo": [
+      {
+        "atomId": "a-040",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      },
+      {
+        "atomId": "a-052",
+        "classification": "OPTIONAL_STOP",
+        "entityRole": "PASS_BY"
+      }
+    ],
+    "El Patio de los Ezeiza": [
+      {
+        "atomId": "a-053",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      },
+      {
+        "atomId": "a-057",
+        "classification": "NON_ITINERARY",
+        "entityRole": null
+      },
+      {
+        "atomId": "a-059",
+        "classification": "TRANSFER",
+        "entityRole": "PASS_BY"
+      }
+    ],
+    "Caminito": [
+      {
+        "atomId": "a-058",
+        "classification": "TRANSFER",
+        "entityRole": "ITINERARY_STOP"
+      },
+      {
+        "atomId": "a-059",
+        "classification": "TRANSFER",
+        "entityRole": "ITINERARY_STOP"
+      },
+      {
+        "atomId": "a-061",
+        "classification": "NON_ITINERARY",
+        "entityRole": null
+      },
+      {
+        "atomId": "a-062",
+        "classification": "NON_ITINERARY",
+        "entityRole": null
+      },
+      {
+        "atomId": "a-063",
+        "classification": "NON_ITINERARY",
+        "entityRole": null
+      },
+      {
+        "atomId": "a-068",
+        "classification": "OPTIONAL_STOP",
+        "entityRole": "ITINERARY_STOP"
+      }
+    ],
+    "Puente de la Mujer": [
+      {
+        "atomId": "a-070",
+        "classification": "ITINERARY_STOP",
+        "entityRole": "ITINERARY_STOP"
+      }
+    ]
+  },
+  "routeAreaPromoted": [
+    "Defensa",
+    "Puerto Madero"
+  ],
+  "routeLegRoles": {
+    "Avenida Roque Sáenz Peña": "ROUTE_LEG",
+    "Avenida de Mayo": "ROUTE_LEG",
+    "Defensa": "ITINERARY_STOP",
+    "Dársena Sur": "ROUTE_LEG",
+    "Avenida Ingeniero Huergo / Hernán Giralt": "ROUTE_LEG",
+    "Puerto Madero": "ITINERARY_STOP",
+    "San Telmo": "ROUTE_LEG",
+    "La Boca": "ALTERNATIVE"
+  },
+  "labels": [
+    {
+      "text": "### [Self Guided Walking Tour San Telmo](…)",
+      "atomId": "a-001",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "I'm the type of person that do Excel sheet for each travel itinerary and like to plan ahead everything.",
+      "atomId": "a-002",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "That's how I come across for the first time to a Self-Guided Walking Tour post in Edinburgh, and I was like, wow this is amazing.",
+      "atomId": "a-003",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "After living 8 years in San Telmo, Buenos Aires I kind of feel ready to do a Guide myself.",
+      "atomId": "a-004",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "So here is a 24hs tour to the Center, San Telmo, La Boca and Defensa.",
+      "atomId": "a-005",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "Be ready to walk around 15km and eat delicious food in the way :) I hope you enjoy it!",
+      "atomId": "a-006",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "\\* Note: this tour was though to be done not on Sunday.",
+      "atomId": "a-007",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "Since San Telmo has a HUGE street fair during Sundays and is a bit crowded, but it can be done anyway maybe we a bit more time.",
+      "atomId": "a-008",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "\\* *There is a map at the end with all the stops mentioned!*",
+      "atomId": "a-009",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "**9am - Teatro Colón**  The itinerary starts from the   Subte station \"Tribunales\".",
+      "atomId": "a-010",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Teatro Colón",
+          "supportSpan": "Teatro Colón",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 1466,
+          "sourceEnd": 1478
+        }
+      ],
+      "reason": "Starts at Tribunales and visits Teatro Colón."
+    },
+    {
+      "text": "From there you can cross the park   to see the stunning Teatro Colón from outside.",
+      "atomId": "a-011",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Teatro Colón",
+          "supportSpan": "Teatro Colón",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 1600,
+          "sourceEnd": 1612
+        }
+      ],
+      "reason": "Directs traveler to see Teatro Colón."
+    },
+    {
+      "text": "Then you can walk a few streets to  see the Obelisco and then walkthrough  Av. Roque Saenz Peña directly  to Plaza de Mayo.",
+      "atomId": "a-012",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Obelisco",
+          "supportSpan": "Obelisco",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 1672,
+          "sourceEnd": 1680
+        },
+        {
+          "sourceName": "Av. Roque Saenz Peña",
+          "supportSpan": "Av. Roque Saenz Peña",
+          "role": "ROUTE_LEG",
+          "sourceStart": 1703,
+          "sourceEnd": 1723
+        },
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 1737,
+          "sourceEnd": 1750
+        }
+      ],
+      "reason": "Visits Obelisco and Plaza de Mayo via avenue."
+    },
+    {
+      "text": "**10am - Have Breakfast and visit Plaza de Mayo**",
+      "atomId": "a-013",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 1795,
+          "sourceEnd": 1808
+        }
+      ],
+      "reason": "Heading and stop at Plaza de Mayo."
+    },
+    {
+      "text": "Picture by[@andregrevex](…)",
+      "atomId": "a-014",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "Once you arrive to Plaza de Mayo you can walk through Av. de Mayo (which is really beautiful avenue) at the end of this avenue you can see the Congress building.",
+      "atomId": "a-015",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 1920,
+          "sourceEnd": 1933
+        },
+        {
+          "sourceName": "Av. de Mayo",
+          "supportSpan": "Av. de Mayo",
+          "role": "ROUTE_LEG",
+          "sourceStart": 1955,
+          "sourceEnd": 1966
+        },
+        {
+          "sourceName": "Congress building",
+          "supportSpan": "Congress building",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 2044,
+          "sourceEnd": 2061
+        }
+      ],
+      "reason": "Walks along Av. de Mayo to Congress building."
+    },
+    {
+      "text": "Here I recommend you 2 coffees shop:  **-** the first is the iconic **Café** **Tortoni**, you can enjoy some \"Cafe con medialunas\" this is our typical breakfast.",
+      "atomId": "a-016",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Café Tortoni",
+          "supportSpan": "Café Tortoni",
+          "role": "ALTERNATIVE",
+          "sourceStart": 2134,
+          "sourceEnd": 2150
+        }
+      ],
+      "reason": "Recommends Café Tortoni as a breakfast option."
+    },
+    {
+      "text": "However Tortoni has also nice \"Churros con Chocolate\".",
+      "atomId": "a-017",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "**-**In case Tortoni is too crowded you can walk back to **London City Coffee** where multiple famous writers and iconic figures of Buenos Aires spent time there, such as our writer Cortázar.",
+      "atomId": "a-018",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "London City Coffee",
+          "supportSpan": "London City Coffee",
+          "role": "ALTERNATIVE",
+          "sourceStart": 2341,
+          "sourceEnd": 2359
+        }
+      ],
+      "reason": "Offers London City Coffee as an alternative."
+    },
+    {
+      "text": "Counter of Tortoni Café, Buenos Aires",
+      "atomId": "a-019",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "Then you can walk back through Av. de Mayo and reach Plaza de Mayo again.",
+      "atomId": "a-020",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Av. de Mayo",
+          "supportSpan": "Av. de Mayo",
+          "role": "ROUTE_LEG",
+          "sourceStart": 2568,
+          "sourceEnd": 2579
+        },
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 2590,
+          "sourceEnd": 2603
+        }
+      ],
+      "reason": "Returns to Plaza de Mayo via Av. de Mayo."
+    },
+    {
+      "text": "This Plaza is quite important here we have the Casa Rosada, the Cathedral (where the Pope use to give mass) and the Cabildo.",
+      "atomId": "a-021",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Plaza",
+          "supportSpan": "Plaza",
+          "role": "PASS_BY",
+          "sourceStart": 2616,
+          "sourceEnd": 2621
+        },
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "PASS_BY",
+          "sourceStart": 2658,
+          "sourceEnd": 2669
+        },
+        {
+          "sourceName": "Cathedral",
+          "supportSpan": "Cathedral",
+          "role": "PASS_BY",
+          "sourceStart": 2675,
+          "sourceEnd": 2684
+        },
+        {
+          "sourceName": "Cabildo",
+          "supportSpan": "Cabildo",
+          "role": "PASS_BY",
+          "sourceStart": 2727,
+          "sourceEnd": 2734
+        }
+      ],
+      "reason": "Describes features located in the plaza."
+    },
+    {
+      "text": "Is a place where most of the manifestation take place since is connected to Congress.",
+      "atomId": "a-022",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "[TEXTALT](…)        You can see in the floor of Plaza de Mayo some white Scarfs draw in the floor, this represents the \"Grandmother of Plaza de Mayo\", this are grandmothers you ask until today for their missing grandchildren during the dictatorship.",
+      "atomId": "a-023",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "PASS_BY",
+          "sourceStart": 3099,
+          "sourceEnd": 3112
+        }
+      ],
+      "reason": "Mentions features seen on the floor of Plaza de Mayo."
+    },
+    {
+      "text": "\\*\\* If you want to enter Casa Rosada, you have to book a visit in advance, they are free.",
+      "atomId": "a-024",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides tips and booking information for entering Casa Rosada."
+    },
+    {
+      "text": "Stunning picture by [@aguspiluso](…)",
+      "atomId": "a-025",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Photo credit caption."
+    },
+    {
+      "text": "**12 am - Walk through Defensa Street**  Now you are entering San Telmo.",
+      "atomId": "a-026",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Defensa Street",
+          "supportSpan": "Walk through Defensa Street",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 3526,
+          "sourceEnd": 3553
+        },
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "ROUTE_LEG",
+          "sourceStart": 3578,
+          "sourceEnd": 3587
+        }
+      ],
+      "reason": "Directs the traveller to walk through Defensa Street."
+    },
+    {
+      "text": "Defensa Street is the main street and on Sunday there is a huge street fair that starts from Plaza de Mayo and continues to Plaza Dorrego.",
+      "atomId": "a-027",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Defensa Street",
+          "supportSpan": "Defensa Street",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 3589,
+          "sourceEnd": 3603
+        },
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "PASS_BY",
+          "sourceStart": 3682,
+          "sourceEnd": 3695
+        },
+        {
+          "sourceName": "Plaza Dorrego",
+          "supportSpan": "Plaza Dorrego",
+          "role": "PASS_BY",
+          "sourceStart": 3713,
+          "sourceEnd": 3726
+        }
+      ],
+      "reason": "Describes Defensa Street and the street fair."
+    },
+    {
+      "text": "-  Stop 5: is a really old Pharmacy call **\"Farmacia la Estrella\"**, from 1834.",
+      "atomId": "a-028",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Farmacia la Estrella\"",
+          "supportSpan": "\"Farmacia la Estrella\"",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 3775,
+          "sourceEnd": 3795
+        }
+      ],
+      "reason": "Presents Stop 5: Farmacia la Estrella."
+    },
+    {
+      "text": "Take a look inside and to its beautiful sealing!.",
+      "atomId": "a-029",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Farmacia la Estrella\"",
+          "supportSpan": "inside",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 3823,
+          "sourceEnd": 3829,
+          "mention": {
+            "atomId": "a-028",
+            "sourceStart": 3775,
+            "sourceEnd": 3795
+          }
+        }
+      ],
+      "reason": "Directs the traveller to look inside the pharmacy."
+    },
+    {
+      "text": "Just in from is a small Museum of the city, sometimes they have exhibitions about local products or traditions, is free to enter so feel free to give it a look.",
+      "atomId": "a-030",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Museum of the city",
+          "supportSpan": "Museum of the city",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 3885,
+          "sourceEnd": 3903
+        }
+      ],
+      "reason": "Presents the small museum in front."
+    },
+    {
+      "text": "- Stop 6: Oldest library in town, **\"La Librería del Avila\"**!, this is the library it has more than 100.000 books and it has been witness of big part of our history.",
+      "atomId": "a-031",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"La Librería del Avila\"",
+          "supportSpan": "\"La Librería del Avila\"",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 4062,
+          "sourceEnd": 4083
+        }
+      ],
+      "reason": "Presents Stop 6: La Librería del Avila."
+    },
+    {
+      "text": "Is used to be call the \"School Library\" because if you look just in front, you can see the prestigious National School of Buenos Aires.",
+      "atomId": "a-032",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "National School of Buenos Aires",
+          "supportSpan": "National School of Buenos Aires",
+          "role": "PASS_BY",
+          "sourceStart": 4295,
+          "sourceEnd": 4326
+        }
+      ],
+      "reason": "Mentions National School of Buenos Aires as a pass by sight."
+    },
+    {
+      "text": "🥩 If you are hungry at this point and want to have launch, I highly recommend having lunch at [Alfonso](…) (in Av. Belgrano 782) cozy place with comfort food and very nice selection of wines and vermouth.",
+      "atomId": "a-033",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Alfonso",
+          "supportSpan": "Alfonso",
+          "role": "ALTERNATIVE",
+          "sourceStart": 4427,
+          "sourceEnd": 4434
+        },
+        {
+          "sourceName": "Av. Belgrano 782",
+          "supportSpan": "Av. Belgrano 782",
+          "role": "ALTERNATIVE",
+          "sourceStart": 4489,
+          "sourceEnd": 4505
+        }
+      ],
+      "reason": "Recommends a place for lunch."
+    },
+    {
+      "text": "- Stop 7: **Monumento de Mafalda**, this is one of our most loved cartoon characters created by Quino.",
+      "atomId": "a-034",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Monumento de Mafalda",
+          "supportSpan": "Monumento de Mafalda",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 4598,
+          "sourceEnd": 4618
+        }
+      ],
+      "reason": "Presents Stop 7: Monumento de Mafalda."
+    },
+    {
+      "text": "If you never heard of it, it was translated in almost any language and although it looks like a cartoon for kids it talks about world issues about politics and economics that is almost as relevant for adults.",
+      "atomId": "a-035",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Background information about Mafalda."
+    },
+    {
+      "text": "Mafalda use to live in San Telmo exactly in a house in Chile 371 that actually exists, so you can check it out!",
+      "atomId": "a-036",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "house in Chile 371",
+          "supportSpan": "house in Chile 371",
+          "role": "OPTIONAL_STOP",
+          "sourceStart": 4944,
+          "sourceEnd": 4962
+        }
+      ],
+      "reason": "Recommends checking out a house as an optional stop."
+    },
+    {
+      "text": "Casa Mínima, San Telmo, Buenos Aires",
+      "atomId": "a-037",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Location description header or caption."
+    },
+    {
+      "text": "- Stop 8: **Casa Mínima**, this is known to be the narrowest house in Buenos Aires, not sure if this is true but is cute and the street as well ;)",
+      "atomId": "a-038",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Casa Mínima",
+          "supportSpan": "Casa Mínima",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 5084,
+          "sourceEnd": 5095
+        }
+      ],
+      "reason": "Presents Stop 8: Casa Mínima."
+    },
+    {
+      "text": "4 días en Mendoza, Argentina - Itinerario completo día por día de que hacer.",
+      "atomId": "a-039",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Irrelevant advertisement or external itinerary mention."
+    },
+    {
+      "text": "Stop 9: **The San Telmo Market**!!",
+      "atomId": "a-040",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "The San Telmo Market",
+          "supportSpan": "The San Telmo Market",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 5348,
+          "sourceEnd": 5368
+        }
+      ],
+      "reason": "Presents Stop 9: The San Telmo Market."
+    },
+    {
+      "text": "My favorite place in the neighborhood, the oldest market in Buenos Aires and recently  remodeled with a lot of restaurants  (before there were antiquities  and fruit and and vegetable stores).",
+      "atomId": "a-041",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "The San Telmo Market",
+          "supportSpan": "oldest market in Buenos Aires",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 5417,
+          "sourceEnd": 5446,
+          "mention": {
+            "atomId": "a-040",
+            "sourceStart": 5348,
+            "sourceEnd": 5368
+          }
+        }
+      ],
+      "reason": "Describes the San Telmo Market mentioned earlier."
+    },
+    {
+      "text": "Here there are also a lot of  tourist traps, so be careful.",
+      "atomId": "a-042",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Warning tip about tourist traps."
+    },
+    {
+      "text": "Here you have 2 choices, have lunch in the market, or grab something  small and wait to eat some  big meal in La Boca.",
+      "atomId": "a-043",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "The San Telmo Market",
+          "supportSpan": "market",
+          "role": "ALTERNATIVE",
+          "sourceStart": 5674,
+          "sourceEnd": 5680,
+          "mention": {
+            "atomId": "a-040",
+            "sourceStart": 5348,
+            "sourceEnd": 5368
+          }
+        },
+        {
+          "sourceName": "La Boca",
+          "supportSpan": "La Boca",
+          "role": "ALTERNATIVE",
+          "sourceStart": 5741,
+          "sourceEnd": 5748
+        }
+      ],
+      "reason": "Offers a choice of where to have lunch."
+    },
+    {
+      "text": "🌭If you go for the small bite, I recommend eating *1 choripan* en **Nuestra Parrilla** (stop 10), is on the outside (over Bolivar street) of the market and not a tourist trap.",
+      "atomId": "a-044",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Nuestra Parrilla",
+          "supportSpan": "Nuestra Parrilla",
+          "role": "ALTERNATIVE",
+          "sourceStart": 5832,
+          "sourceEnd": 5848
+        },
+        {
+          "sourceName": "Bolivar street",
+          "supportSpan": "Bolivar street",
+          "role": "PASS_BY",
+          "sourceStart": 5886,
+          "sourceEnd": 5900
+        }
+      ],
+      "reason": "Offers an alternative eating spot recommendation."
+    },
+    {
+      "text": "🍦Exactly on the opposite side, also on the outside side, in Defensa street you have 2 icecream shops ( if you didn't notice we love ice cream here and we eat a lot of it!)",
+      "atomId": "a-045",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes ice cream shops without specific names."
+    },
+    {
+      "text": "☕️If you are craving for some coffee, go to **Coffee Town**, just in the middle of the market, is the best in area!",
+      "atomId": "a-046",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Coffee Town",
+          "supportSpan": "Coffee Town",
+          "role": "ALTERNATIVE",
+          "sourceStart": 6163,
+          "sourceEnd": 6174
+        }
+      ],
+      "reason": "Recommends a coffee spot as an alternative."
+    },
+    {
+      "text": "🥩 If you for the BIG meal, my favorite restaurant is **Saigón** is kind of Vietnamese - Argentine, I highly recommend trying the Bo Lu Lac (Is meat with rice).",
+      "atomId": "a-047",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Saigón",
+          "supportSpan": "Saigón",
+          "role": "ALTERNATIVE",
+          "sourceStart": 6290,
+          "sourceEnd": 6296
+        }
+      ],
+      "reason": "Recommends a restaurant for a big meal."
+    },
+    {
+      "text": "But I understand if you want to eat asado, so here I would recommend to go to **Desnivel**, is not fancy but you eat really good!",
+      "atomId": "a-048",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Desnivel",
+          "supportSpan": "Desnivel",
+          "role": "ALTERNATIVE",
+          "sourceStart": 6475,
+          "sourceEnd": 6483
+        }
+      ],
+      "reason": "Offers an alternative restaurant option."
+    },
+    {
+      "text": "Café Rivas, San Telmo, Bueos Aires",
+      "atomId": "a-049",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Photo caption or location credit."
+    },
+    {
+      "text": "**Café Rivas y Galería Solar**    This are two other places you can  visit while you are around.",
+      "atomId": "a-050",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Café Rivas y Galería Solar",
+          "supportSpan": "Café Rivas y Galería Solar",
+          "role": "OPTIONAL_STOP",
+          "sourceStart": 6631,
+          "sourceEnd": 6657
+        }
+      ],
+      "reason": "Presents places as optional to visit."
+    },
+    {
+      "text": "The first  one is Café Rivas, a beautiful café.",
+      "atomId": "a-051",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes Café Rivas."
+    },
+    {
+      "text": "Just one block from the San Telmo Market you can find the Galería Solar, this use  to be an old house that is now full of shops.",
+      "atomId": "a-052",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "San Telmo Market",
+          "supportSpan": "San Telmo Market",
+          "role": "PASS_BY",
+          "sourceStart": 6801,
+          "sourceEnd": 6817
+        },
+        {
+          "sourceName": "Galería Solar",
+          "supportSpan": "Galería Solar",
+          "role": "OPTIONAL_STOP",
+          "sourceStart": 6835,
+          "sourceEnd": 6848
+        }
+      ],
+      "reason": "Suggests visiting Galería Solar nearby."
+    },
+    {
+      "text": "- Stop 10: Last stop, this is \"**El Patio de los Ezeiza\"**.",
+      "atomId": "a-053",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"El Patio de los Ezeiza\"",
+          "supportSpan": "\"El Patio de los Ezeiza\"",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 6945,
+          "sourceEnd": 6967
+        }
+      ],
+      "reason": "Directs traveler to stop 10."
+    },
+    {
+      "text": "This is a house that was built around 1876 to house the Ezeiza family, an aristocratic family.",
+      "atomId": "a-054",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides historical context."
+    },
+    {
+      "text": "Later, the Ezeiza would leave the house to move to Barrio Norte, like many other upper class families in Buenos Aires during the Yellow Fever Epidemic of 1871.",
+      "atomId": "a-055",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides historical background information."
+    },
+    {
+      "text": "After this is become a school, later a *conventillo* and right now is full of shop so you can just wonder around!",
+      "atomId": "a-056",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides history and a tip."
+    },
+    {
+      "text": "Patio Ezeiza, San Telmo, Buenos Aires, Argentina",
+      "atomId": "a-057",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Location reference string."
+    },
+    {
+      "text": "**15hs - Go to Caminito en La Boca**",
+      "atomId": "a-058",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Caminito en La Boca",
+          "supportSpan": "Caminito en La Boca",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 7446,
+          "sourceEnd": 7465
+        }
+      ],
+      "transferMode": "UNSPECIFIED",
+      "reason": "Heading announcing transfer to next stop."
+    },
+    {
+      "text": "From \"El Patio de los Ezeiza\" you can take bus 29 to Caminito or take a taxi.",
+      "atomId": "a-059",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "El Patio de los Ezeiza",
+          "supportSpan": "\"El Patio de los Ezeiza\"",
+          "role": "PASS_BY",
+          "sourceStart": 7477,
+          "sourceEnd": 7499,
+          "mention": {
+            "atomId": "a-053",
+            "sourceStart": 6945,
+            "sourceEnd": 6967
+          }
+        },
+        {
+          "sourceName": "Caminito",
+          "supportSpan": "Caminito",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 7524,
+          "sourceEnd": 7532
+        }
+      ],
+      "transferMode": "BUS",
+      "reason": "Describes transport to the next stop."
+    },
+    {
+      "text": "The taxi should cost about 3usd max (official USD, not the blue USD). You can use Google Maps to get here, it works pretty ok with the buses.",
+      "atomId": "a-060",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Gives transport costs and navigation tips."
+    },
+    {
+      "text": "**CAMINITO, LA BOCA**  An important note here, La Boca is the  neighborhood and is not the type   of neighborhood you want to be at night.",
+      "atomId": "a-061",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides neighborhood safety advice."
+    },
+    {
+      "text": "However, Caminito is the tourist street   of this neighborhood.",
+      "atomId": "a-062",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes Caminito as a tourist street."
+    },
+    {
+      "text": "My advice  here is: first, if it is getting darker   rather leave this for another day,  if you choose to go to Caminito, wonder  only where you see tourists, don't go  go beyond this, because as I said,  is not the most friendly  neighborhood out there.",
+      "atomId": "a-063",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Gives safety advice and precautions."
+    },
+    {
+      "text": "The tourist part you will notice  is the one with colorful houses  and is about 3-4 blocks.",
+      "atomId": "a-064",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "colorful houses",
+          "supportSpan": "colorful houses",
+          "role": "PASS_BY",
+          "sourceStart": 8251,
+          "sourceEnd": 8266
+        }
+      ],
+      "reason": "Descriptive passing mention of colorful houses."
+    },
+    {
+      "text": "You might be hungry by this point, so:   - 🥩 Stop 13: **\"Don Carlos\"** also recommended by Anthony Bourdain in his episode of Parts Unknown in Buenos Aires.",
+      "atomId": "a-065",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "\"Don Carlos\"",
+          "role": "ALTERNATIVE",
+          "sourceStart": 8358,
+          "sourceEnd": 8368
+        }
+      ],
+      "reason": "Recommends a restaurant for food."
+    },
+    {
+      "text": "A small restaurant run by a family in front of the \"Estadio La Boca\".",
+      "atomId": "a-066",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "A small restaurant",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 8458,
+          "sourceEnd": 8476,
+          "mention": {
+            "atomId": "a-065",
+            "sourceStart": 8358,
+            "sourceEnd": 8368
+          }
+        },
+        {
+          "sourceName": "\"Estadio La Boca\"",
+          "supportSpan": "\"Estadio La Boca\"",
+          "role": "PASS_BY",
+          "sourceStart": 8510,
+          "sourceEnd": 8525
+        }
+      ],
+      "reason": "Describes the previously mentioned restaurant stop."
+    },
+    {
+      "text": "You sit here and the owner will bring you food, no question ask, until you cant not walk anymore and decide to stop eating what it will become one of your best food memories.",
+      "atomId": "a-067",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "You sit here",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 8528,
+          "sourceEnd": 8540,
+          "mention": {
+            "atomId": "a-065",
+            "sourceStart": 8358,
+            "sourceEnd": 8368
+          }
+        }
+      ],
+      "reason": "Describes the dining experience at the stop."
+    },
+    {
+      "text": "-  Stop 12: After this, you can wander around **Caminito Street**, and maybe check the \"**Fundación Proa**\" sometimes they have interesting exhibitions.",
+      "atomId": "a-068",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Street",
+          "supportSpan": "Caminito Street",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 8754,
+          "sourceEnd": 8769
+        },
+        {
+          "sourceName": "\"Fundación Proa\"",
+          "supportSpan": "\"Fundación Proa\"",
+          "role": "OPTIONAL_STOP",
+          "sourceStart": 8796,
+          "sourceEnd": 8810
+        }
+      ],
+      "reason": "Presents Caminito Street and Fundación Proa as stops."
+    },
+    {
+      "text": "**17 / 18hs - Go to Puerto Madero**  Here as well you can take a bus or a taxi for around 3,8usd.",
+      "atomId": "a-069",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 8882,
+          "sourceEnd": 8895
+        }
+      ],
+      "transferMode": "BUS"
+    },
+    {
+      "text": "The starting point here is the **Puente de la Mujer**, this is beautiful day or night.",
+      "atomId": "a-070",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Puente de la Mujer",
+          "supportSpan": "Puente de la Mujer",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 8993,
+          "sourceEnd": 9011
+        }
+      ],
+      "reason": "Highlights the starting point bridge."
+    },
+    {
+      "text": "By crossing this bridge you are officially in Puerto Madero, and no wonder that you will see that all streets have suddenly women names.",
+      "atomId": "a-071",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ROUTE_LEG",
+          "sourceStart": 9093,
+          "sourceEnd": 9106
+        }
+      ],
+      "reason": "Describes crossing the bridge into Puerto Madero."
+    },
+    {
+      "text": "Here is there is not much to do more than walking and seeing the contrast of such a new architecture just in from of the oldest neighborhood such as San Telmo.",
+      "atomId": "a-072",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Here",
+          "role": "PASS_BY",
+          "sourceStart": 9191,
+          "sourceEnd": 9195,
+          "mention": {
+            "atomId": "a-069",
+            "sourceStart": 8882,
+            "sourceEnd": 8895
+          }
+        },
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY",
+          "sourceStart": 9340,
+          "sourceEnd": 9349
+        }
+      ],
+      "reason": "Mentions seeing contrast with San Telmo."
+    },
+    {
+      "text": "I like to walk next to the \"Darsena Sur\" and then through Av. Int. Hernan Giralt that is close to an ecological park.",
+      "atomId": "a-073",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Darsena Sur",
+          "supportSpan": "Darsena Sur",
+          "role": "ROUTE_LEG",
+          "sourceStart": 9379,
+          "sourceEnd": 9390
+        },
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "ROUTE_LEG",
+          "sourceStart": 9409,
+          "sourceEnd": 9431
+        }
+      ],
+      "reason": "Directs walking along specific streets."
+    },
+    {
+      "text": "If you are hungry at this point I can recommend:  - 🌭 Salad: eat *a choripan* in some of the kiosk over  Av. Int. Hernan Giralt.",
+      "atomId": "a-074",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "PASS_BY",
+          "sourceStart": 9578,
+          "sourceEnd": 9600
+        }
+      ],
+      "reason": "Recommends a snack kiosk as an alternative food option."
+    },
+    {
+      "text": "**20hs - Return home / hotel**    If you return through the marked path, you can see the \"Centro Cultural Kirchner\" that used to be our old Central Post Office.",
+      "atomId": "a-075",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Centro Cultural Kirchner",
+          "supportSpan": "Centro Cultural Kirchner",
+          "role": "PASS_BY",
+          "sourceStart": 9697,
+          "sourceEnd": 9721
+        }
+      ],
+      "transferMode": "UNSPECIFIED"
+    },
+    {
+      "text": "They offer guided tours and maybe you can enter to see a part of the building.",
+      "atomId": "a-076",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Centro Cultural Kirchner",
+          "supportSpan": "building",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 9837,
+          "sourceEnd": 9845,
+          "mention": {
+            "atomId": "a-075",
+            "sourceStart": 9697,
+            "sourceEnd": 9721
+          }
+        }
+      ],
+      "reason": "Suggests entering to see the building."
+    },
+    {
+      "text": "From here you will see the Metrobus with the main buses or it is quite a busy street so you can take a taxi!",
+      "atomId": "a-077",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Metrobus",
+          "supportSpan": "Metrobus",
+          "role": "PASS_BY",
+          "sourceStart": 9877,
+          "sourceEnd": 9885
+        }
+      ],
+      "transferMode": "TAXI"
+    },
+    {
+      "text": "🍹 Stop 16: Or if you feel like continuing and having a little celebration drink, I highly recommend one of our few sky bars in town: [Trade Sky Bar](…).",
+      "atomId": "a-078",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Trade Sky Bar",
+          "supportSpan": "Trade Sky Bar",
+          "role": "ALTERNATIVE",
+          "sourceStart": 10097,
+          "sourceEnd": 10110
+        }
+      ],
+      "reason": "Recommends an alternative bar stop."
+    },
+    {
+      "text": "Is better to book in advance!",
+      "atomId": "a-079",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Booking tip."
+    },
+    {
+      "text": "It has an amazing view of Puerto madero.",
+      "atomId": "a-080",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Puerto madero",
+          "supportSpan": "Puerto madero",
+          "role": "PASS_BY",
+          "sourceStart": 10210,
+          "sourceEnd": 10223
+        }
+      ],
+      "reason": "Mentions the view of Puerto Madero."
+    },
+    {
+      "text": "I also recommend this [36hs in Buenos Aires New York Times Guide](…).",
+      "atomId": "a-081",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recommends an external guide."
+    },
+    {
+      "text": "Totally love it an agree in all the places and you can have a taste of the other neighborhoods in Buenos Aires :)    I really hope you liked this self-guided tour in San Telmo!",
+      "atomId": "a-082",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Concluding author note."
+    },
+    {
+      "text": "and I would LOVE to know if you did it :)  Follow me on Instagram for more pictures of Buenos Aires:    [View this post on Instagram](…)        [A post shared by Agus Yornet (@agusyornet)](…) on   Please if you like this post feel free to share in Pinterest ;) here are some banners:",
+      "atomId": "a-083",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social media call to action and sharing prompts."
+    },
+    {
+      "text": "#### [0 comentarios](…)",
+      "atomId": "a-084",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comment count link."
+    },
+    {
+      "text": "[![](…)](… \"Share to Facebook\")   [![](…)](… \"Share to X\")",
+      "atomId": "a-085",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social share buttons."
+    },
+    {
+      "text": "[![](…)](… Guided Walking Tour San Telmo&media=…)",
+      "atomId": "a-086",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social share widget."
+    },
+    {
+      "text": "[![](…)](…)",
+      "atomId": "a-087",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social share widget."
+    },
+    {
+      "text": "[buenos aires](…)",
+      "atomId": "a-088",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Website tag or footer link."
+    },
+    {
+      "text": "Thanks for the comment (:",
+      "atomId": "a-089",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comment acknowledgment."
+    },
+    {
+      "text": "You can write my and email to at: agustinayornet@gmail.com",
+      "atomId": "a-090",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Contact email address."
+    },
+    {
+      "text": "[← Next](… \"Newer Post\")     [Previous →](… \"Older Post\")",
+      "atomId": "a-091",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Pagination navigation links."
+    },
+    {
+      "text": "Photography lover, crafter and blogger.",
+      "atomId": "a-092",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author biography."
+    },
+    {
+      "text": "From Argentina, currently living in Buenos Aires.",
+      "atomId": "a-093",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author biography location detail."
+    },
+    {
+      "text": "Welcome to my blog!",
+      "atomId": "a-094",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Welcome message."
+    },
+    {
+      "text": "![Redes sociales Agus Yornet](…)",
+      "atomId": "a-095",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author social media image."
+    }
+  ],
+  "issues": [
+    {
+      "relabel": true,
+      "code": "ROLE_INCONSISTENT",
+      "atomId": "a-068",
+      "detail": "entity role ITINERARY_STOP exceeds classification OPTIONAL_STOP"
+    }
+  ]
+}

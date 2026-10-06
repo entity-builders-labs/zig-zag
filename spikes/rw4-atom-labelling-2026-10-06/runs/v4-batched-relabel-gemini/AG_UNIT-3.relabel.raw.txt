@@ -1,0 +1,22 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-043",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "the market",
+          "supportSpan": "have lunch in the market",
+          "role": "ALTERNATIVE",
+          "mentionAtomId": "a-040"
+        },
+        {
+          "sourceName": "La Boca",
+          "supportSpan": "wait to eat some  big meal in La Boca",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Offers a choice between two dining options."
+    }
+  ]
+}

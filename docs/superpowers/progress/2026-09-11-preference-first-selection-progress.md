@@ -2427,9 +2427,24 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   Details and the proposed v4 are in
   `spikes/rw4-atom-labelling-2026-10-06/README.md`.
 
+- Re-gate v4 (frozen criteria and evaluator, `474b929a`): **FAIL** on
+  criteria 2, 4, 5 and 9.
+  - Streets are solved: SOB Defensa and Estados Unidos 0/4.
+  - Puerto Madero is still promoted, 5/5, through its own TRANSFER atom.
+  - Recall 94/95; contract fail-closed 2/9; operational 9/10.
+  - Prompt tuning stopped by the stop rule.
+  - Representation revision proposed (v5: a provenance-only
+    `TRANSFER_DESTINATION` role; atom kind collapsed to
+    content/transfer/non-itinerary with entity roles as the only role
+    authority). An offline counterfactual over 23 recorded runs shows no
+    recall cost.
+
 ## Next authorized action
 
-0. (2026-10-06, milestone A FAILED) Owner decision on the v4 re-gate
+0. (2026-10-06, milestone A v4 FAILED; prompt tuning stopped) Owner
+   decision on the v5 representation revision in
+   `spikes/rw4-atom-labelling-2026-10-06/README.md`, to be re-gated with
+   the same frozen v4 criteria. B stays unauthorized. Superseded: decision on the v4 re-gate
    proposed in `spikes/rw4-atom-labelling-2026-10-06/README.md` (transfer
    destinations and areas, a narrowed sight rule, streets reached by "go to"
    are `ROUTE_LEG`, visible `ROLE_CONFLICT`, smaller batches). Milestone B

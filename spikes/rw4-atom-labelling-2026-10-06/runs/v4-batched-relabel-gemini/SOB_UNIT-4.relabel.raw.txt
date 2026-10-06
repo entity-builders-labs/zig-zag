@@ -1,0 +1,52 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-041",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Descriptive comment about San Telmo's character."
+    },
+    {
+      "atomId": "a-043",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General atmosphere description."
+    },
+    {
+      "atomId": "a-050",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical fact about the building."
+    },
+    {
+      "atomId": "a-062",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of Plaza Dorrego."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical context of the memorial."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Editorial reflection."
+    },
+    {
+      "atomId": "a-084",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "typical red walkway",
+          "supportSpan": "typical red walkway",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to walk on the pathway."
+    }
+  ]
+}

@@ -366,3 +366,99 @@ All are generic and keep the LLM as the only semantic authority:
 Over-fitting risk: these come from the same two fixtures. The re-gate must
 keep the frozen criteria, and the RW3 fixtures guard the opposite failure
 (a corridor that is itself the experience).
+
+## Milestone A re-gate v4, 2026-10-06. Verdict: **FAIL; prompt tuning stopped, representation revision proposed**
+
+The criteria were frozen before the v4 runs (`milestone-a-gate-v4.json` and
+its evaluator `gate-v4.cjs`, commit `474b929a`). The evaluator reproduced
+the v3 FAIL before use.
+
+Settings: prompt v4, batch 2500 chars, one relabel, transport timeout
+unchanged at 25 s. Results: `runs/gate-v4-result.json`,
+`runs/summary-v4.md`, `runs/analysis-v4.md`.
+
+| # | Criterion | v4 | Result |
+|---|---|---|---|
+| 1 | Defensa/Estados Unidos (SOB) mandatory in ≤ 1 valid run | 0/4 and 0/4 | PASS |
+| 2 | Areas used only as direction or entry are never `ITINERARY_STOP` | SOB 4/4 clean. AG a-069 "Go to Puerto Madero … bus or taxi" labelled the destination `ITINERARY_STOP` 5/5, so Puerto Madero was mandatory 5/5. San Telmo 0/5 | **FAIL** |
+| 3 | Avenida Caseros mandatory in ≤ 1 valid run | 1/4 | PASS |
+| 4 | `ROLE_CONFLICT` on gate entities ≤ 1 | 4 (Puerto Madero: a-069 STOP vs a-071 ROUTE_LEG) | **FAIL** |
+| 5 | Recall ≥ 99% and ≤ 1 item missing | 94/95 (98.9%): Obelisco labelled `PASS_BY` at a-012 in AG run 3, a contract fail-closed run | **FAIL** (narrowly) |
+| 6 | RW3 route-as-experience | semantic 3/3 and 3/3. ROUTE_EXPERIENCE failed closed on the contract in 2/3 runs (see below) | PASS |
+| 7 | Transfers and mixing | 0 violations | PASS |
+| 8 | Alternatives promoted | 0 | PASS |
+| 9 | CONTRACT_FAIL_CLOSED ≤ 12.5% | 2/9 | **FAIL** |
+| 10 | INVALID_RUN ≤ 1/10 | 1/10 (SOB run 3; v3 had 2/10) | PASS |
+
+- Semantic success: 8/9 valid runs exact on every oracle segment.
+- Operational valid-run rate: 9/10.
+- What improved since v3:
+  - streets are solved: SOB Defensa and Estados Unidos went from 2/3 to
+    0/4;
+  - Avenida Caseros went from 3/3 to 1/4;
+  - SOB areas are clean;
+  - AG San Telmo went from 5/5 to 0/5.
+
+### Stop rule applied
+
+v4 failed again on areas (criteria 2 and 4), so prompt tuning stops here.
+What is left is a representation problem, not a prompt problem.
+
+**R1. A transfer's destination is a membership channel.** The only remaining
+area promotion is Puerto Madero. It comes 5/5 from the TRANSFER atom
+labelling its own destination `ITINERARY_STOP`, against an explicit v4
+instruction.
+
+Offline counterfactual, with no provider calls and not a gate result
+(`counterfactual-transfer-destination.cjs` →
+`runs/counterfactual-transfer-destination.md`): re-assembling the recorded
+labels of 23 runs (v2, v3 and v4) with entities on TRANSFER atoms as
+destination provenance only.
+
+- Mandatory recall is unchanged in all 23 runs. Caminito and the other
+  S2/S3 stops are always recovered from non-transfer atoms.
+- Puerto Madero promotion disappears.
+- The counterfactual mapped the destination to `ROUTE_LEG`, which creates
+  false `ROLE_CONFLICT`s on Caminito. The destination needs its own
+  provenance role.
+
+**R2. The atom classification duplicates entity roles, and that redundancy
+produces contract failures.** 3 of the 4 v4 contract fail-closed cases had
+correct entity roles and an atom classification that did not equal the
+strongest role:
+
+- `ROUTE_EXPERIENCE` a-003 "Walk down Mill Street to reach the Painted
+  Lane" was classified `ROUTE_LEG`, with entities Mill Street:`ROUTE_LEG`
+  and Painted Lane:`ITINERARY_STOP` (runs 1 and 2);
+- AG run 1 a-068 was classified `OPTIONAL_STOP`, with entity Caminito
+  Street:`ITINERARY_STOP`.
+
+The fourth (AG run 3, `NAME_NOT_IN_MENTION_ATOM` "the market") is a real
+contract slip.
+
+### Proposed v5: representation, not new prompt rules (not run; needs a decision)
+
+- **R1:** a new entity role `TRANSFER_DESTINATION`, allowed only on
+  TRANSFER atoms. It is provenance only and never membership, structurally,
+  not by instruction. Membership of the next segment comes only from
+  non-transfer atoms, and the recorded evidence shows that costs no recall.
+- **R2:** atom kind ∈ {`ITINERARY_CONTENT`, `TRANSFER`, `NON_ITINERARY`}.
+  Per-entity roles (`ITINERARY_STOP`, `ROUTE_LEG`, `OPTIONAL_STOP`,
+  `ALTERNATIVE`, `PASS_BY`) are the only role authority.
+  - Exhaustiveness is unchanged: one result per atom.
+  - `ITINERARY_CONTENT` without entities still fails closed
+    (`ENTITY_REQUIRED`), which keeps the "a-079 stop without an entity"
+    signal.
+  - The classification-vs-role mismatch class disappears.
+- `ROLE_CONFLICT` stays visible, with the stronger role kept.
+- Re-gate with the same 10 frozen criteria. Criterion 2 then measures
+  membership coming from direction or entry atoms, because a transfer atom
+  can no longer carry an `ITINERARY_STOP`.
+
+**Genuine residual semantic ambiguity (not a representation issue):**
+
+- AG a-026, the heading "**12 am - Walk through Defensa Street**", promotes
+  Defensa 5/5. The source does frame walking Defensa as the activity of
+  that section, and the oracle allows it (ACCEPTABLE). Defensa resolved as
+  a ROUTE in C3 COLD (14 OSM ways), so it may pass identity.
+- Obelisco was missed once (a-012 `PASS_BY`, visible).

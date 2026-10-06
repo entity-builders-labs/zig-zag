@@ -1,0 +1,106 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-166",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Travel tip regarding money exchange."
+    },
+    {
+      "atomId": "a-167",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Travel advice on best time to visit."
+    },
+    {
+      "atomId": "a-168",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Practical travel tip about SIM cards."
+    },
+    {
+      "atomId": "a-169",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Section heading for accommodation."
+    },
+    {
+      "atomId": "a-170",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Accommodation advice and heading."
+    },
+    {
+      "atomId": "a-171",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Lists hotels in Buenos Aires without visiting instructions."
+    },
+    {
+      "atomId": "a-172",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Lists hotels in San Telmo without visiting instructions."
+    },
+    {
+      "atomId": "a-173",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Lists hotels in Palermo without visiting instructions."
+    },
+    {
+      "atomId": "a-174",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Section heading for tips and tricks."
+    },
+    {
+      "atomId": "a-175",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Transport information and practical tips."
+    },
+    {
+      "atomId": "a-176",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Informational background on history and facts."
+    },
+    {
+      "atomId": "a-177",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General activity tip about cycling."
+    },
+    {
+      "atomId": "a-178",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Seasonal travel info."
+    },
+    {
+      "atomId": "a-179",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Section heading for Patagonia travel tips."
+    },
+    {
+      "atomId": "a-180",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language switcher option."
+    },
+    {
+      "atomId": "a-181",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language switcher option."
+    },
+    {
+      "atomId": "a-182",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language switcher option."
+    }
+  ]
+}
