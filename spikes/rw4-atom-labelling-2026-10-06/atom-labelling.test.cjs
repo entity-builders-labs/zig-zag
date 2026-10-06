@@ -213,7 +213,7 @@ test('anaphora: an entity may name a place written in an earlier atom, verified 
       { atomId: ids[2], classification: 'NON_ITINERARY', entities: [] },
     ],
   });
-  const ok = L.validateLabelling(ids, byId, resp({ mentionAtomId: ids[0] }));
+  const ok = L.resolveMentions(L.validateLabelling(ids, byId, resp({ mentionAtomId: ids[0] })));
   assert.equal(ok.valid, true);
   const [seg] = L.assemble(z.atoms, ok);
   // The earlier PASS_BY mention is upgraded in place, keeping source order.
@@ -260,7 +260,7 @@ test('ROLE_CONFLICT: ROUTE_LEG and ITINERARY_STOP for one name stays mandatory a
   const text = ['Go to Long Street.', 'Visit the Fort.', 'Walk back along Long Street.', 'You pass the Mill.', 'Jump inside.'].join('\n');
   const z = L.atomize(text);
   const ids = z.atoms.map((a) => a.atomId);
-  const v = L.validateLabelling(ids, new Map(z.atoms.map((a) => [a.atomId, a])), {
+  const v = L.resolveMentions(L.validateLabelling(ids, new Map(z.atoms.map((a) => [a.atomId, a])), {
     atoms: [
       { atomId: ids[0], classification: 'ITINERARY_STOP', entities: [ent('Long Street', 'Go to Long Street', 'ITINERARY_STOP')] },
       { atomId: ids[1], classification: 'ITINERARY_STOP', entities: [ent('Fort', 'Visit the Fort', 'ITINERARY_STOP')] },
@@ -268,7 +268,7 @@ test('ROLE_CONFLICT: ROUTE_LEG and ITINERARY_STOP for one name stays mandatory a
       { atomId: ids[3], classification: 'PASS_BY', entities: [ent('Mill', 'pass the Mill', 'PASS_BY')] },
       { atomId: ids[4], classification: 'ITINERARY_STOP', entities: [{ ...ent('Mill', 'Jump inside', 'ITINERARY_STOP'), mentionAtomId: ids[3] }] },
     ],
-  });
+  }));
   const [seg] = L.assemble(z.atoms, v);
   assert.deepEqual(seg.mandatory, ['Long Street', 'Fort', 'Mill']);
   // Anaphoric PASS_BY -> ITINERARY_STOP is not a conflict.
@@ -435,4 +435,284 @@ test('the prompt lists every atom of a batch exactly once and never a context at
   for (const id of b2.atomIds) assert.equal(labelPart.split(`[${id}]`).length - 1, 1);
   for (const id of b2.contextAtomIds) assert.ok(!labelPart.includes(`[${id}]`));
   assert.ok(b1.atomIds.length > 0);
+});
+
+// ---------------------------------------------------------------------------
+// A.1 source-noise boundary (editorial structure)
+// ---------------------------------------------------------------------------
+const NAV_PAGE = [
+  '## A harbour walk',
+  'Start at the Old Square.',
+  '[Read more about the Old Square](https://x.example/old-square)',
+  '**[Visit the Fish Market](https://x.example/fish)**, the busiest stall row in town.',
+  'Walk on to the Lighthouse.',
+  '* [Home](https://x.example/)',
+  '  + [Best hotels in Old Town](https://x.example/hotels \"Hotels\")',
+  '* [![](https://x.example/flag.svg)English](https://x.example/en)',
+  'Arrive at the Shell Museum.',
+].join('\n');
+
+test('A.1 a run of link-only atoms is a navigation block; prose and a lone link stay editorial', () => {
+  const z = L.atomize(NAV_PAGE);
+  const s = L.markEditorialStructure(z.atoms);
+  const ed = (needle) => s.atoms.find((a) => a.text.includes(needle)).editorial;
+  assert.deepEqual(s.blocks.map((b) => [b.firstAtomId, b.lastAtomId, b.atomCount, b.reason]), [[idOf(z.atoms, '[Home]'), idOf(z.atoms, 'English'), 3, 'NAVIGATION_BLOCK']]);
+  assert.equal(ed('Best hotels in Old Town'), false);
+  for (const n of ['Start at the Old Square', 'Read more about the Old Square', 'Visit the Fish Market', 'Walk on to the Lighthouse', 'Shell Museum']) assert.equal(ed(n), true, n);
+  // Offsets, IDs and text are untouched; coverage still holds.
+  assert.deepEqual(s.atoms.map(({ editorial, nonEditorial, ...a }) => a), z.atoms);
+  assert.ok(L.checkCoverage(NAV_PAGE, z).ok);
+  for (const a of s.atoms) assert.equal(NAV_PAGE.slice(a.sourceStart, a.sourceEnd), a.text);
+  // The rule is link structure only: a prose line with a link is never link-only.
+  assert.equal(L.isLinkOnly('**[Visit La Bombonera](https://x.example)**, the stadium.'), false);
+  assert.equal(L.isLinkOnly('+ [Best hotels in Old Town](https://x.example/h)'), true);
+  assert.equal(L.isLinkOnly('Best hotels in Old Town'), false);
+  // Below the run length nothing is excluded.
+  assert.deepEqual(L.markEditorialStructure(z.atoms, { minRun: 4 }).blocks, []);
+});
+
+test('A.1 non-editorial atoms are accounted exactly once by a structural label and never presented', () => {
+  const s = L.markEditorialStructure(L.atomize(NAV_PAGE).atoms);
+  const byId = new Map(s.atoms.map((a) => [a.atomId, a]));
+  const editorial = s.atoms.filter((a) => a.editorial);
+  const batches = L.planBatches(editorial, { maxBatchChars: 120, contextAtoms: 2 });
+  const navIds = s.atoms.filter((a) => !a.editorial).map((a) => a.atomId);
+  for (const b of batches) {
+    const prompt = L.buildPrompt(b, byId);
+    for (const id of navIds) assert.ok(!prompt.includes(`[${id}]`), id);
+  }
+  const nonItinerary = (b) => ({ atoms: b.atomIds.map((atomId) => ({ atomId, classification: 'NON_ITINERARY', entities: [] })) });
+  const results = batches.map((b) => L.validateLabelling(b.atomIds, byId, nonItinerary(b)));
+  const merged = L.mergeBatches(s.atoms, [...results, L.structuralLabels(s.atoms)]);
+  assert.equal(merged.valid, true);
+  assert.equal(merged.labels.size, s.atoms.length);
+  for (const id of navIds) assert.equal(merged.labels.get(id).classification, 'NON_EDITORIAL');
+  // Without the structural labels the nav atoms are MISSING; a model label on one is UNKNOWN_ATOM.
+  assert.deepEqual(L.mergeBatches(s.atoms, results).issues.map((x) => x.atomId), navIds);
+  const leaky = L.validateLabelling(batches[batches.length - 1].atomIds, byId, { atoms: [...nonItinerary(batches[batches.length - 1]).atoms, { atomId: navIds[1], classification: 'ITINERARY_STOP', entities: [ent('Old Town', 'Best hotels in Old Town', 'ITINERARY_STOP')] }] });
+  assert.deepEqual(leaky.issues.map((x) => [x.code, x.atomId]), [['UNKNOWN_ATOM', navIds[1]]]);
+});
+
+const RECORDED_V5 = path.join(__dirname, 'runs/v5-batched-relabel-gemini');
+const recordedAtoms = (input) => JSON.parse(fs.readFileSync(path.join(RECORDED_V5, `${input}.atoms.json`), 'utf8')).atoms;
+
+test('A.1 frozen SOB unit: the San Telmo hotel link is outside editorial content; no oracle wording is', () => {
+  const { oracleItems } = require('./score.cjs');
+  const s = L.markEditorialStructure(recordedAtoms('SOB_UNIT'));
+  const a172 = s.atoms.find((a) => a.atomId === 'a-172');
+  assert.ok(a172.text.includes('Best hotels in San Telmo'));
+  assert.deepEqual(a172.nonEditorial, { reason: 'NAVIGATION_BLOCK', blockId: 'nav-3' });
+  assert.deepEqual(s.blocks.map((b) => `${b.firstAtomId}..${b.lastAtomId}`), ['a-118..a-121', 'a-123..a-130', 'a-132..a-182']);
+  // The last editorial prose of the walk and the author note survive.
+  for (const id of ['a-104', 'a-105', 'a-109', 'a-117']) assert.equal(s.atoms.find((a) => a.atomId === id).editorial, true, id);
+  // Every atom carrying an oracle item wording (mandatory, acceptable or alternative) stays editorial.
+  for (const [input, sourceId] of [['SOB_UNIT', 'secretsofbuenosaires-day1'], ['AG_UNIT', 'agusyornet-san-telmo']]) {
+    const atoms = L.markEditorialStructure(recordedAtoms(input)).atoms;
+    for (const item of oracleItems(sourceId)) {
+      const carriers = atoms.filter((a) => item.wordings.some((w) => L.fold(L.present(a.text).text).includes(L.fold(w))));
+      const prose = carriers.filter((a) => a.editorial);
+      if (item.role === 'MANDATORY') assert.ok(prose.length > 0, `${input} ${item.name} has no editorial carrier`);
+    }
+  }
+});
+
+test('A.1 recorded v5 SOB run 5: replaying the same answers drops the a-172 member and keeps recall', () => {
+  const { replayRecorded } = require('./replay-recorded.cjs');
+  const { scoreSource } = require('./score.cjs');
+  const x = replayRecorded(RECORDED_V5, 'SOB_UNIT', 5);
+  assert.equal(x.outcome, 'ASSEMBLED');
+  const stops = x.segments.flatMap((s) => s.members.filter((m) => m.role === 'ITINERARY_STOP').flatMap((m) => m.provenance.map((p) => p.atomId)));
+  assert.ok(!stops.includes('a-172'));
+  assert.ok(!x.segments.some((s) => s.mandatory.some((n) => L.fold(n) === 'san telmo')));
+  const score = scoreSource('secretsofbuenosaires-day1', x.segments, x.atoms, x.final.labels);
+  assert.deepEqual(score.verdicts.map((v) => v.mandatoryRecall), ['8/8', '2/2']);
+});
+
+// ---------------------------------------------------------------------------
+// A.2 anaphora contract (explicit mentionAtomId, verified by code)
+// ---------------------------------------------------------------------------
+function anaphoraCase(antecedentEntities, mention = {}) {
+  const text = 'On your left you will see Lake Park and Park Lane.\nThe founders landed here.\nTake your time and enjoy the park.';
+  const z = L.atomize(text);
+  const byId = new Map(z.atoms.map((a) => [a.atomId, a]));
+  const ids = z.atoms.map((a) => a.atomId);
+  const resp = {
+    atoms: [
+      { atomId: ids[0], classification: antecedentEntities.length ? 'PASS_BY' : 'NON_ITINERARY', entities: antecedentEntities },
+      { atomId: ids[1], classification: 'NON_ITINERARY', entities: [] },
+      { atomId: ids[2], classification: 'ITINERARY_STOP', entities: [{ ...ent('park', 'enjoy the park', 'ITINERARY_STOP'), mentionAtomId: ids[0], ...mention }] },
+    ],
+  };
+  return { text, atoms: z.atoms, byId, ids, resp, run: (opts) => L.resolveMentions(L.validateLabelling(ids, byId, resp, opts)) };
+}
+
+test('A.2 a valid mentionAtomId resolves to the prior supported entity; provenance keeps both spans', () => {
+  const c = anaphoraCase([ent('Lake Park', 'see Lake Park', 'PASS_BY')]);
+  const raw = L.validateLabelling(c.ids, c.byId, c.resp);
+  // Validation alone leaves the anaphor unresolved and assembly refuses it.
+  assert.throws(() => L.assemble(c.atoms, raw), /unresolved anaphor/);
+  const v = c.run();
+  assert.equal(v.valid, true);
+  const e = v.labels.get(c.ids[2]).entities[0];
+  assert.equal(e.sourceName, 'Lake Park');
+  assert.deepEqual(e.anaphor, { surfaceForm: 'park', mentionAtomId: c.ids[0], surfaceIn: 'SPAN', status: 'RESOLVED', antecedent: { atomId: c.ids[0], sourceName: 'Lake Park', supportSpan: 'see Lake Park', role: 'PASS_BY' } });
+  assert.equal(c.text.slice(e.sourceStart, e.sourceEnd), 'enjoy the park');
+  assert.equal(c.text.slice(e.mention.sourceStart, e.mention.sourceEnd), 'see Lake Park');
+  const [seg] = L.assemble(c.atoms, v);
+  assert.deepEqual(seg.mandatory, ['Lake Park']);
+  assert.deepEqual(seg.members[0].provenance.map((p) => [p.atomId, p.role]), [[c.ids[0], 'PASS_BY'], [c.ids[2], 'ITINERARY_STOP']]);
+  assert.equal(seg.members[0].provenance[1].anaphor.surfaceForm, 'park');
+  // Pure and repeatable (it runs again after a relabel round).
+  assert.deepEqual(L.resolveMentions(v), v);
+});
+
+test('A.2 missing, ambiguous, chained, invalid, forward and unseen antecedents fail closed', () => {
+  const codes = (v) => v.issues.map((x) => `${x.code}:${x.atomId}`);
+  const c0 = anaphoraCase([]);
+  assert.deepEqual(codes(c0.run()), [`MENTION_ANTECEDENT_MISSING:${c0.ids[2]}`]);
+  assert.throws(() => L.assemble(c0.atoms, { ...c0.run(), valid: true, issues: [] }), /unresolved anaphor/);
+  const amb = anaphoraCase([ent('Lake Park', 'see Lake Park', 'PASS_BY'), ent('Park Lane', 'Park Lane', 'PASS_BY')]);
+  assert.deepEqual(codes(amb.run()), [`MENTION_ANTECEDENT_AMBIGUOUS:${amb.ids[2]}`]);
+  assert.match(amb.run().issues[0].detail, /Lake Park \| Park Lane/);
+  // The same name twice is one entity, not an ambiguity.
+  assert.equal(anaphoraCase([ent('Lake Park', 'see Lake Park', 'PASS_BY'), ent('Lake Park', 'Lake Park', 'PASS_BY')]).run().valid, true);
+  // A chain resolves hop by hop; an unresolved hop makes every later hop fail closed.
+  const chain = (antecedent) => {
+    const k = anaphoraCase(antecedent, {});
+    k.resp.atoms[1] = { atomId: k.ids[1], classification: 'PASS_BY', entities: [{ ...ent('here', 'landed here', 'PASS_BY'), mentionAtomId: k.ids[0] }] };
+    k.resp.atoms[2].entities[0].mentionAtomId = k.ids[1];
+    return k;
+  };
+  const ok = chain([ent('Lake Park', 'see Lake Park', 'PASS_BY')]).run();
+  assert.equal(ok.valid, true);
+  assert.equal(ok.labels.get(c0.ids[2]).entities[0].sourceName, 'Lake Park');
+  assert.deepEqual(codes(chain([]).run()), [`MENTION_ANTECEDENT_MISSING:${c0.ids[1]}`, `MENTION_ANTECEDENT_MISSING:${c0.ids[2]}`]);
+  // Several cited entities: an exact name, or the ONE name holding the
+  // surface form as whole words, resolves; anything else is ambiguous.
+  const z = L.atomize('Reach Plaza de Mayo along Avenida de Mayo.\nThis Plaza is the heart of the city.\nThe square is busy.');
+  const zb = new Map(z.atoms.map((a) => [a.atomId, a]));
+  const [p0, p1, p2] = z.atoms.map((a) => a.atomId);
+  const cited = { atomId: p0, classification: 'ITINERARY_STOP', entities: [ent('Plaza de Mayo', 'Reach Plaza de Mayo', 'ITINERARY_STOP'), ent('Avenida de Mayo', 'along Avenida de Mayo', 'ROUTE_LEG')] };
+  const plaza = (name, span, atomId = p1) => L.resolveMentions(L.validateLabelling([p0, p1, p2], zb, { atoms: [cited, ...[p1, p2].map((id) => ({ atomId: id, classification: id === atomId ? 'ITINERARY_STOP' : 'NON_ITINERARY', entities: id === atomId ? [{ ...ent(name, span, 'ITINERARY_STOP'), mentionAtomId: p0 }] : [] }))] }));
+  assert.equal(plaza('Plaza', 'This Plaza').labels.get(p1).entities[0].sourceName, 'Plaza de Mayo');
+  // Zero anaphora (name written only in the cited atom) is verified the same way.
+  assert.equal(plaza('Plaza de Mayo', 'heart of the city').labels.get(p1).entities[0].anaphor.surfaceIn, 'MENTION_ATOM');
+  assert.deepEqual(plaza('Mayo', 'heart of the city').issues.map((x) => x.code), ['MENTION_ANTECEDENT_AMBIGUOUS']);
+  assert.deepEqual(plaza('Rome', 'heart of the city').issues.map((x) => x.code), ['NAME_NOT_IN_MENTION_ATOM']);
+  assert.deepEqual(plaza('square', 'The square', p2).issues.map((x) => x.code), ['MENTION_ANTECEDENT_AMBIGUOUS']);
+  // A partial word is not a whole-word match.
+  assert.deepEqual(plaza('Plaz', 'This Plaz', p1).issues.map((x) => x.code), ['MENTION_ANTECEDENT_AMBIGUOUS']);
+  const bad = (mentionAtomId, opts) => codes(anaphoraCase([ent('Lake Park', 'see Lake Park', 'PASS_BY')], { mentionAtomId }).run(opts));
+  const c = anaphoraCase([]);
+  assert.deepEqual(bad('a-999'), [`BAD_MENTION_ATOM:${c.ids[2]}`]);
+  assert.deepEqual(bad(c.ids[2]), [`BAD_MENTION_ATOM:${c.ids[2]}`]);
+  assert.deepEqual(bad(c.ids[0], { visibleAtomIds: [c.ids[1], c.ids[2]] }), [`BAD_MENTION_ATOM:${c.ids[2]}`]);
+  // An invented name that is neither in the cited atom nor in the span.
+  assert.deepEqual(codes(anaphoraCase([ent('Lake Park', 'see Lake Park', 'PASS_BY')], { sourceName: 'Hill Park' }).run()), [`NAME_NOT_IN_MENTION_ATOM:${c.ids[2]}`]);
+});
+
+test('A.2 anaphor across a batch boundary resolves after merge; a non-editorial antecedent is refused', () => {
+  const c = anaphoraCase([ent('Lake Park', 'see Lake Park', 'PASS_BY')]);
+  const batches = L.planBatches(c.atoms, { maxBatchChars: 60, contextAtoms: 2 });
+  assert.ok(batches.length >= 2 && !batches[batches.length - 1].atomIds.includes(c.ids[0]));
+  const results = batches.map((b) => L.validateLabelling(b.atomIds, c.byId, { atoms: c.resp.atoms.filter((l) => b.atomIds.includes(l.atomId)) }, { visibleAtomIds: [...b.contextAtomIds, ...b.atomIds] }));
+  const v = L.resolveMentions(L.mergeBatches(c.atoms, results));
+  assert.equal(v.valid, true);
+  assert.equal(v.labels.get(c.ids[2]).entities[0].sourceName, 'Lake Park');
+  const nav = new Map([...c.byId].map(([id, a]) => [id, id === c.ids[0] ? { ...a, editorial: false } : a]));
+  assert.deepEqual(L.validateLabelling([c.ids[2]], nav, { atoms: [c.resp.atoms[2]] }).issues.map((x) => x.code), ['BAD_MENTION_ATOM']);
+});
+
+test('A.2 recorded SOB a-078 "enjoy the park": a-073 antecedent resolves, the two-entity a-077 one fails closed', () => {
+  const { replayRecorded } = require('./replay-recorded.cjs');
+  const x = replayRecorded(RECORDED_V5, 'SOB_UNIT', 2);
+  assert.equal(x.outcome, 'ASSEMBLED');
+  const e = x.final.labels.get('a-078').entities[0];
+  assert.deepEqual([e.sourceName, e.anaphor.surfaceForm, e.anaphor.mentionAtomId, e.anaphor.status], ['Parque Lezama', 'park', 'a-073', 'RESOLVED']);
+  // The recorded relabel answer cited a-077 (Parque Lezama AND Defensa): ambiguous, so fail closed.
+  const atoms = L.markEditorialStructure(recordedAtoms('SOB_UNIT')).atoms;
+  const byId = new Map(atoms.map((a) => [a.atomId, a]));
+  const relabel = JSON.parse(fs.readFileSync(path.join(RECORDED_V5, 'SOB_UNIT-2.relabel.raw.txt'), 'utf8'));
+  const labels = new Map(x.final.labels);
+  const second = L.validateLabelling(['a-078'], byId, { atoms: relabel.atoms.filter((l) => l.atomId === 'a-078') });
+  labels.set('a-078', second.labels.get('a-078'));
+  const v = L.resolveMentions({ ...x.final, labels });
+  assert.deepEqual(v.issues.map((i) => `${i.code}:${i.atomId}`), ['MENTION_ANTECEDENT_AMBIGUOUS:a-078']);
+});
+
+// ---------------------------------------------------------------------------
+// A.3 orchestration: batching, one bounded relabel, INVALID_RUN
+// ---------------------------------------------------------------------------
+const labelsFor = (batch, fn = () => null) => JSON.stringify({ atoms: batch.atomIds.map((atomId) => fn(atomId) ?? { atomId, classification: 'NON_ITINERARY', entities: [] }) });
+
+test('A.3 labelUnit: ~2500-char batches keep global IDs and account for every atom exactly once', async () => {
+  for (const text of frozen) {
+    const prompts = [];
+    const res = await L.labelUnit(text, {
+      complete: async ({ kind, batch, user }) => {
+        prompts.push({ kind, user, batch });
+        return labelsFor(batch);
+      },
+    });
+    assert.equal(res.outcome, 'ASSEMBLED');
+    assert.deepEqual(res.atoms.map((a) => a.atomId), L.atomize(text).atoms.map((a) => a.atomId));
+    assert.equal(res.final.labels.size, res.atoms.length);
+    const asked = prompts.flatMap((p) => p.batch.atomIds);
+    assert.deepEqual(asked, res.atoms.filter((a) => a.editorial).map((a) => a.atomId));
+    assert.ok(res.batches.length > 1);
+    for (const p of prompts) {
+      const presented = p.batch.atomIds.reduce((n, id) => n + L.present(res.atoms.find((a) => a.atomId === id).text).text.length + id.length + 4, 0);
+      assert.ok(presented <= L.DEFAULT_MAX_BATCH_CHARS || p.batch.atomIds.length === 1, `batch ${p.batch.batchIndex} ${presented}`);
+    }
+    assert.ok(res.structure.blocks.length > 0);
+    for (const a of res.atoms.filter((x) => !x.editorial)) assert.equal(res.final.labels.get(a.atomId).classification, 'NON_EDITORIAL');
+    const trace = L.unitTrace(res, { sourceUnitId: 'u', sourceUrl: 'https://x.example', sectionComplete: true });
+    assert.equal(trace.atoms.length, res.atoms.length);
+    assert.equal(trace.contractOutcome, 'ASSEMBLED');
+  }
+});
+
+test('A.3 at most one relabel round; a second invalid answer fails closed; malformed output is not repairable', async () => {
+  const text = 'Start at the Old Square.\nWalk to the Fish Market.\nPrices are low.';
+  const stop = (atomId, ok) => ({ atomId, classification: 'ITINERARY_STOP', entities: ok ? [ent('Fish Market', 'Walk to the Fish Market', 'ITINERARY_STOP')] : [] });
+  const fishId = L.atomize(text).atoms[1].atomId;
+  for (const [fixAfter, expected, calls] of [
+    [1, 'ASSEMBLED', ['batch', 'relabel']],
+    [Infinity, 'CONTRACT_FAIL_CLOSED', ['batch', 'relabel']],
+  ]) {
+    let n = 0;
+    const res = await L.labelUnit(text, { complete: async ({ batch }) => labelsFor(batch, (id) => (id === fishId ? stop(id, n++ >= fixAfter) : null)) });
+    assert.equal(res.outcome, expected);
+    assert.deepEqual(res.calls.map((c) => c.kind), calls);
+    if (expected === 'CONTRACT_FAIL_CLOSED') assert.deepEqual(res.final.issues.map((x) => `${x.code}:${x.atomId}`), [`STOP_WITHOUT_ENTITY:${fishId}`]);
+  }
+  const malformed = await L.labelUnit(text, { complete: async () => '{not json' });
+  assert.equal(malformed.outcome, 'CONTRACT_FAIL_CLOSED');
+  assert.deepEqual(malformed.calls.map((c) => c.kind), ['batch']);
+});
+
+test('A.3 a provider timeout is INVALID_RUN (batch or relabel), never a contract or semantic outcome', async () => {
+  const [sob] = frozen;
+  let n = 0;
+  const timeout = await L.labelUnit(sob, {
+    complete: async ({ batch }) => {
+      if (++n === 2) throw new L.TransportFailure('Gemini request timeout after 25000ms', { batchIndex: batch.batchIndex });
+      return labelsFor(batch);
+    },
+  });
+  assert.equal(timeout.outcome, 'INVALID_RUN');
+  assert.deepEqual(timeout.failure, { kind: 'batch', batchIndex: 2, message: 'Gemini request timeout after 25000ms' });
+  assert.equal(timeout.final, undefined);
+  assert.equal(L.unitTrace(timeout, { sourceUnitId: 'u', sourceUrl: 'x', sectionComplete: true }).providerFailure.batchIndex, 2);
+  const text = 'Walk to the Fish Market.';
+  const relabelTimeout = await L.labelUnit(text, {
+    complete: async ({ kind, batch }) => {
+      if (kind === 'relabel') throw new L.TransportFailure('timeout');
+      return labelsFor(batch, (atomId) => ({ atomId, classification: 'ITINERARY_STOP', entities: [] }));
+    },
+  });
+  assert.equal(relabelTimeout.outcome, 'INVALID_RUN');
+  assert.equal(relabelTimeout.failure.kind, 'relabel');
+  // A programming error is not masked as an operational failure.
+  await assert.rejects(L.labelUnit(text, { complete: async () => { throw new TypeError('bug'); } }), /bug/);
 });

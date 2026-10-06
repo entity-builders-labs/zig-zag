@@ -1,0 +1,554 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [
+      "STOP_WITHOUT_ENTITY:a-025"
+    ],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 63,
+    "navigationBlocks": [
+      "a-118..a-121(4)",
+      "a-123..a-130(8)",
+      "a-132..a-182(51)"
+    ],
+    "recordedVerdicts": [
+      "S1-walk 8/8",
+      "S2-la-boca 2/2"
+    ],
+    "replayVerdicts": [
+      "S1-walk 8/8",
+      "S2-la-boca 2/2"
+    ],
+    "replaySegments": 3,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [
+      "Avenida Caseros",
+      "La Boca"
+    ],
+    "replayRouteAreaPromoted": [
+      "Avenida Caseros",
+      "La Boca"
+    ],
+    "anaphors": [
+      "a-020 \"Casa Rosada\"→a-009 RESOLVED (Casa Rosada)",
+      "a-022 \"Cabildo\"→a-020 RESOLVED (Cabildo)",
+      "a-056 \"Mercado de San Telmo\"→a-055 RESOLVED (Mercado de San Telmo)",
+      "a-061 \"Mercado de San Telmo\"→a-055 RESOLVED (Mercado de San Telmo)",
+      "a-077 \"Parque Lezama\"→a-073 RESOLVED (Parque Lezama)",
+      "a-078 \"park\"→a-073 RESOLVED (Parque Lezama)",
+      "a-080 \"Parque Lezama\"→a-073 RESOLVED (Parque Lezama)"
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "recordedOutcome": "CONTRACT_FAIL_CLOSED",
+    "recordedFinalIssues": [
+      "NAME_NOT_IN_MENTION_ATOM:a-078"
+    ],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [
+      "STOP_WITHOUT_ENTITY:a-084"
+    ],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 63,
+    "navigationBlocks": [
+      "a-118..a-121(4)",
+      "a-123..a-130(8)",
+      "a-132..a-182(51)"
+    ],
+    "recordedVerdicts": [
+      "S1-walk 8/8",
+      "S2-la-boca 2/2"
+    ],
+    "replayVerdicts": [
+      "S1-walk 8/8",
+      "S2-la-boca 2/2"
+    ],
+    "replaySegments": 3,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [
+      "Avenida Caseros"
+    ],
+    "replayRouteAreaPromoted": [
+      "Avenida Caseros"
+    ],
+    "anaphors": [
+      "a-056 \"Mercado de San Telmo\"→a-055 RESOLVED (Mercado de San Telmo)",
+      "a-077 \"Parque Lezama\"→a-073 RESOLVED (Parque Lezama)",
+      "a-078 \"park\"→a-073 RESOLVED (Parque Lezama)",
+      "a-080 \"Parque Lezama\"→a-073 RESOLVED (Parque Lezama)"
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 3,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 63,
+    "navigationBlocks": [
+      "a-118..a-121(4)",
+      "a-123..a-130(8)",
+      "a-132..a-182(51)"
+    ],
+    "recordedVerdicts": [
+      "S1-walk 8/8",
+      "S2-la-boca 2/2"
+    ],
+    "replayVerdicts": [
+      "S1-walk 8/8",
+      "S2-la-boca 2/2"
+    ],
+    "replaySegments": 3,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [
+      "Avenida Caseros"
+    ],
+    "replayRouteAreaPromoted": [
+      "Avenida Caseros"
+    ],
+    "anaphors": [
+      "a-056 \"Mercado de San Telmo\"→a-055 RESOLVED (Mercado de San Telmo)",
+      "a-061 \"Mercado de San Telmo\"→a-055 RESOLVED (Mercado de San Telmo)",
+      "a-078 \"Parque Lezama\"→a-073 RESOLVED (Parque Lezama)",
+      "a-084 \"Avenida Caseros\"→a-082 RESOLVED (Avenida Caseros)"
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 4,
+    "recordedOutcome": "CONTRACT_FAIL_CLOSED",
+    "recordedFinalIssues": [
+      "NAME_NOT_IN_MENTION_ATOM:a-078"
+    ],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 63,
+    "navigationBlocks": [
+      "a-118..a-121(4)",
+      "a-123..a-130(8)",
+      "a-132..a-182(51)"
+    ],
+    "recordedVerdicts": [
+      "S1-walk 8/8",
+      "S2-la-boca 2/2"
+    ],
+    "replayVerdicts": [
+      "S1-walk 8/8",
+      "S2-la-boca 2/2"
+    ],
+    "replaySegments": 3,
+    "sanTelmoStopAtoms": [
+      "a-041"
+    ],
+    "recordedRouteAreaPromoted": [
+      "San Telmo"
+    ],
+    "replayRouteAreaPromoted": [
+      "San Telmo"
+    ],
+    "anaphors": [
+      "a-020 \"Casa Rosada\"→a-009 RESOLVED (Casa Rosada)",
+      "a-022 \"Cabildo\"→a-020 RESOLVED (Cabildo)",
+      "a-025 \"Catedral\"→a-022 RESOLVED (Catedral Metropolitana)",
+      "a-056 \"Mercado de San Telmo\"→a-055 RESOLVED (Mercado de San Telmo)",
+      "a-061 \"Mercado de San Telmo\"→a-055 RESOLVED (Mercado de San Telmo)",
+      "a-063 \"Plaza Dorrego\"→a-061 RESOLVED (Plaza Dorrego)",
+      "a-077 \"Parque Lezama\"→a-073 RESOLVED (Parque Lezama)",
+      "a-078 \"park\"→a-073 RESOLVED (Parque Lezama)",
+      "a-080 \"Parque Lezama\"→a-073 RESOLVED (Parque Lezama)"
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 5,
+    "recordedOutcome": "CONTRACT_FAIL_CLOSED",
+    "recordedFinalIssues": [
+      "NAME_NOT_IN_MENTION_ATOM:a-078"
+    ],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [
+      "ROLE_INCONSISTENT:a-041",
+      "ROLE_INCONSISTENT:a-050"
+    ],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 63,
+    "navigationBlocks": [
+      "a-118..a-121(4)",
+      "a-123..a-130(8)",
+      "a-132..a-182(51)"
+    ],
+    "recordedVerdicts": [
+      "S1-walk 8/8",
+      "S2-la-boca 2/2"
+    ],
+    "replayVerdicts": [
+      "S1-walk 8/8",
+      "S2-la-boca 2/2"
+    ],
+    "replaySegments": 3,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [
+      "Defensa",
+      "La Boca",
+      "San Telmo"
+    ],
+    "replayRouteAreaPromoted": [
+      "Defensa",
+      "La Boca"
+    ],
+    "anaphors": [
+      "a-020 \"Casa Rosada\"→a-009 RESOLVED (Casa Rosada)",
+      "a-022 \"Cabildo\"→a-020 RESOLVED (Cabildo)",
+      "a-025 \"Catedral\"→a-022 RESOLVED (Catedral Metropolitana)",
+      "a-056 \"Mercado de San Telmo\"→a-055 RESOLVED (Mercado de San Telmo)",
+      "a-077 \"Parque Lezama\"→a-073 RESOLVED (Parque Lezama)",
+      "a-078 \"park\"→a-073 RESOLVED (Parque Lezama)",
+      "a-080 \"Parque Lezama\"→a-073 RESOLVED (Parque Lezama)",
+      "a-101 \"La Boca\"→a-097 RESOLVED (La Boca)"
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [
+      "STOP_WITHOUT_ENTITY:a-072"
+    ],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 5,
+    "navigationBlocks": [
+      "a-084..a-088(5)"
+    ],
+    "recordedVerdicts": [
+      "S1-walk 8/9",
+      "S2-la-boca 1/1",
+      "S3-puerto-madero 1/1"
+    ],
+    "replayVerdicts": [
+      "S1-walk 8/9 [MISSING_MANDATORY:Obelisco]",
+      "S2-la-boca 1/1",
+      "S3-puerto-madero 1/1"
+    ],
+    "replaySegments": 5,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [
+      "Defensa"
+    ],
+    "replayRouteAreaPromoted": [
+      "Defensa"
+    ],
+    "anaphors": [
+      "a-029 \"\"Farmacia la Estrella\"\"→a-028 RESOLVED (\"Farmacia la Estrella\")",
+      "a-056 \"El Patio de los Ezeiza\"→a-053 RESOLVED (\"El Patio de los Ezeiza\")",
+      "a-076 \"\"Centro Cultural Kirchner\"\"→a-075 RESOLVED (\"Centro Cultural Kirchner\")"
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 5,
+    "navigationBlocks": [
+      "a-084..a-088(5)"
+    ],
+    "recordedVerdicts": [
+      "S1-walk 9/9",
+      "S2-la-boca 1/1",
+      "S3-puerto-madero 1/1"
+    ],
+    "replayVerdicts": [
+      "S1-walk 9/9",
+      "S2-la-boca 1/1",
+      "S3-puerto-madero 1/1"
+    ],
+    "replaySegments": 4,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [
+      "Defensa"
+    ],
+    "replayRouteAreaPromoted": [
+      "Defensa"
+    ],
+    "anaphors": [
+      "a-017 \"Tortoni\"→a-016 RESOLVED (Café Tortoni)",
+      "a-018 \"Tortoni\"→a-016 RESOLVED (Café Tortoni)",
+      "a-021 \"Plaza\"→a-020 RESOLVED (Plaza de Mayo)",
+      "a-023 \"Plaza de Mayo\"→a-020 RESOLVED (Plaza de Mayo)",
+      "a-029 \"\"Farmacia la Estrella\"\"→a-028 RESOLVED (\"Farmacia la Estrella\")",
+      "a-059 \"\"El Patio de los Ezeiza\"\"→a-053 RESOLVED (\"El Patio de los Ezeiza\")"
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 3,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [
+      "SPAN_NOT_IN_ATOM:a-041",
+      "SPAN_NOT_IN_ATOM:a-072"
+    ],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 5,
+    "navigationBlocks": [
+      "a-084..a-088(5)"
+    ],
+    "recordedVerdicts": [
+      "S1-walk 9/9",
+      "S2-la-boca 1/1",
+      "S3-puerto-madero 1/1"
+    ],
+    "replayVerdicts": [
+      "S1-walk 9/9",
+      "S2-la-boca 1/1",
+      "S3-puerto-madero 1/1"
+    ],
+    "replaySegments": 5,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [
+      "Defensa"
+    ],
+    "replayRouteAreaPromoted": [
+      "Defensa"
+    ],
+    "anaphors": [
+      "a-029 \"\"Farmacia la Estrella\"\"→a-028 RESOLVED (\"Farmacia la Estrella\")",
+      "a-043 \"The San Telmo Market\"→a-040 RESOLVED (The San Telmo Market)",
+      "a-056 \"El Patio de los Ezeiza\"→a-053 RESOLVED (El Patio de los Ezeiza)",
+      "a-059 \"El Patio de los Ezeiza\"→a-053 RESOLVED (El Patio de los Ezeiza)",
+      "a-067 \"\"Don Carlos\"\"→a-065 RESOLVED (\"Don Carlos\")",
+      "a-076 \"\"Centro Cultural Kirchner\"\"→a-075 RESOLVED (\"Centro Cultural Kirchner\")"
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 4,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [
+      "STOP_WITHOUT_ENTITY:a-072",
+      "ROLE_INCONSISTENT:a-080",
+      "ROLE_INCONSISTENT:a-082"
+    ],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 5,
+    "navigationBlocks": [
+      "a-084..a-088(5)"
+    ],
+    "recordedVerdicts": [
+      "S1-walk 8/9",
+      "S2-la-boca 1/1",
+      "S3-puerto-madero 1/1"
+    ],
+    "replayVerdicts": [
+      "S1-walk 8/9 [MISSING_MANDATORY:Obelisco]",
+      "S2-la-boca 1/1",
+      "S3-puerto-madero 1/1"
+    ],
+    "replaySegments": 5,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [
+      "Defensa"
+    ],
+    "replayRouteAreaPromoted": [
+      "Defensa"
+    ],
+    "anaphors": [
+      "a-021 \"Plaza\"→a-020 RESOLVED (Plaza de Mayo)",
+      "a-029 \"\"Farmacia la Estrella\"\"→a-028 RESOLVED (\"Farmacia la Estrella\")",
+      "a-041 \"The San Telmo Market\"→a-040 RESOLVED (The San Telmo Market)",
+      "a-043 \"The San Telmo Market\"→a-040 RESOLVED (The San Telmo Market)",
+      "a-059 \"El Patio de los Ezeiza\"→a-053 RESOLVED (\"El Patio de los Ezeiza\")",
+      "a-076 \"Centro Cultural Kirchner\"→a-075 RESOLVED (Centro Cultural Kirchner)"
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 5,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [
+      "NAME_NOT_IN_SPAN:a-021",
+      "STOP_WITHOUT_ENTITY:a-072"
+    ],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 5,
+    "navigationBlocks": [
+      "a-084..a-088(5)"
+    ],
+    "recordedVerdicts": [
+      "S1-walk 8/9",
+      "S2-la-boca 1/1",
+      "S3-puerto-madero 1/1"
+    ],
+    "replayVerdicts": [
+      "S1-walk 8/9 [MISSING_MANDATORY:Obelisco]",
+      "S2-la-boca 1/1",
+      "S3-puerto-madero 1/1"
+    ],
+    "replaySegments": 5,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [
+      "Defensa"
+    ],
+    "replayRouteAreaPromoted": [
+      "Defensa"
+    ],
+    "anaphors": [
+      "a-029 \"\"Farmacia la Estrella\"\"→a-028 RESOLVED (\"Farmacia la Estrella\")",
+      "a-041 \"The San Telmo Market\"→a-040 RESOLVED (The San Telmo Market)",
+      "a-056 \"\"El Patio de los Ezeiza\"\"→a-053 RESOLVED (\"El Patio de los Ezeiza\")",
+      "a-076 \"Centro Cultural Kirchner\"→a-075 RESOLVED (Centro Cultural Kirchner)",
+      "a-021 \"Plaza\"→a-020 RESOLVED (Plaza de Mayo)"
+    ]
+  },
+  {
+    "input": "RW3_EV3",
+    "run": 1,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 0,
+    "navigationBlocks": [],
+    "recordedVerdicts": [
+      "ALL 4/4"
+    ],
+    "replayVerdicts": [
+      "ALL 4/4"
+    ],
+    "replaySegments": 1,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [],
+    "replayRouteAreaPromoted": [],
+    "anaphors": []
+  },
+  {
+    "input": "RW3_EV3",
+    "run": 2,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 0,
+    "navigationBlocks": [],
+    "recordedVerdicts": [
+      "ALL 4/4"
+    ],
+    "replayVerdicts": [
+      "ALL 4/4"
+    ],
+    "replaySegments": 1,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [],
+    "replayRouteAreaPromoted": [],
+    "anaphors": []
+  },
+  {
+    "input": "RW3_EV3",
+    "run": 3,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 0,
+    "navigationBlocks": [],
+    "recordedVerdicts": [
+      "ALL 4/4"
+    ],
+    "replayVerdicts": [
+      "ALL 4/4"
+    ],
+    "replaySegments": 1,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [],
+    "replayRouteAreaPromoted": [],
+    "anaphors": []
+  },
+  {
+    "input": "ROUTE_EXPERIENCE",
+    "run": 1,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 0,
+    "navigationBlocks": [],
+    "recordedVerdicts": [
+      "ALL 3/3"
+    ],
+    "replayVerdicts": [
+      "ALL 3/3"
+    ],
+    "replaySegments": 1,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [],
+    "replayRouteAreaPromoted": [],
+    "anaphors": []
+  },
+  {
+    "input": "ROUTE_EXPERIENCE",
+    "run": 2,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 0,
+    "navigationBlocks": [],
+    "recordedVerdicts": [
+      "ALL 3/3"
+    ],
+    "replayVerdicts": [
+      "ALL 3/3"
+    ],
+    "replaySegments": 1,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [],
+    "replayRouteAreaPromoted": [],
+    "anaphors": []
+  },
+  {
+    "input": "ROUTE_EXPERIENCE",
+    "run": 3,
+    "recordedOutcome": "ASSEMBLED",
+    "recordedFinalIssues": [],
+    "replayOutcome": "ASSEMBLED",
+    "replayFirstPassIssues": [],
+    "replayFinalIssues": [],
+    "nonEditorialAtoms": 0,
+    "navigationBlocks": [],
+    "recordedVerdicts": [
+      "ALL 3/3"
+    ],
+    "replayVerdicts": [
+      "ALL 3/3"
+    ],
+    "replaySegments": 1,
+    "sanTelmoStopAtoms": [],
+    "recordedRouteAreaPromoted": [],
+    "replayRouteAreaPromoted": [],
+    "anaphors": []
+  }
+]

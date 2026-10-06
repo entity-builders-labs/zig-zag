@@ -8,10 +8,14 @@
 //   EXTRACTOR=gemini RUNS=3 INPUTS=SOB_UNIT,AG_UNIT LABEL=single \
 //     node spikes/rw4-atom-labelling-2026-10-06/probe.cjs
 //
-// MAX_BATCH_CHARS forces batching (default 24000 = one request per unit).
-// RESCORE=1 re-validates/re-scores saved raw output without provider calls.
-// CONSISTENCY=STRICT|MEMBERSHIP (default MEMBERSHIP, contract v2).
-// RELABEL=1 runs one bounded relabel round on the rejected atoms.
+// Runs `labelUnit` (editorial structure -> batches -> validation ->
+// anaphora -> one relabel -> assembly) and writes the per-unit trace.
+// MAX_BATCH_CHARS (default 2500), NAV_MIN_RUN (default 3),
+// CONSISTENCY (default ENTITY_ROLES, contract v5), RELABEL=1 for the one
+// bounded relabel round. RESCORE=1 re-validates saved raw output of a run
+// recorded under the SAME settings at HEAD; batches recorded before the
+// A.1 editorial structure are replayed by replay-recorded.cjs instead.
+// Per-call timing is recorded in <input>-<run>.wire.json.
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -65,80 +69,53 @@ function shadowAssemble(atoms, validation) {
 async function main() {
   const runs = Number(process.env.RUNS || 3);
   const label = process.env.LABEL || 'single';
-  const maxBatchChars = Number(process.env.MAX_BATCH_CHARS || 24000);
+  const maxBatchChars = Number(process.env.MAX_BATCH_CHARS || L.DEFAULT_MAX_BATCH_CHARS);
   const contextAtoms = Number(process.env.CONTEXT_ATOMS || 4);
-  const consistency = process.env.CONSISTENCY || 'MEMBERSHIP';
+  const consistency = process.env.CONSISTENCY || 'ENTITY_ROLES';
+  const navigationMinRun = process.env.NAV_MIN_RUN ? Number(process.env.NAV_MIN_RUN) : L.DEFAULT_NAVIGATION_MIN_RUN;
   const outDir = path.join(HERE, 'runs', `${label}-${process.env.DISCOVERY_EXTRACTOR_PROVIDER}`);
   fs.mkdirSync(outDir, { recursive: true });
   const p = process.env.RESCORE ? null : provider();
   const summary = [];
   for (const input of (process.env.INPUTS || 'SOB_UNIT,AG_UNIT').split(',')) {
     const text = unitText(input);
-    const atomization = L.atomize(text);
-    const coverage = L.checkCoverage(text, atomization);
-    if (!coverage.ok) throw new Error(`${input}: atomization does not cover the unit`);
-    const atoms = atomization.atoms;
-    const byId = new Map(atoms.map((a) => [a.atomId, a]));
-    const batches = L.planBatches(atoms, { maxBatchChars, contextAtoms });
-    fs.writeFileSync(path.join(outDir, `${input}.atoms.json`), JSON.stringify({ ...atomization, batches }, null, 2) + '\n');
     for (let r = 1; r <= runs; r++) {
       const t0 = wire.length;
-      // One provider call (live) or a saved raw file (RESCORE). Returns the
-      // parsed response, or { invalidRun } on a transport failure.
-      const call = async (rawFile, user) => {
-        let raw = '';
+      // The only provider seam: live call, or the saved raw file (RESCORE).
+      // An operational failure becomes TransportFailure -> INVALID_RUN.
+      const complete = async ({ kind, batch, system, user, schema }) => {
+        const rawFile = path.join(outDir, kind === 'batch' ? `${input}-${r}.b${batch.batchIndex}.raw.txt` : `${input}-${r}.relabel.raw.txt`);
+        if (process.env.RESCORE) {
+          if (!fs.existsSync(rawFile)) throw new L.TransportFailure('no raw output recorded (INVALID_RUN at capture time)');
+          return fs.readFileSync(rawFile, 'utf8');
+        }
+        const started = Date.now();
         try {
-          if (process.env.RESCORE) {
-            if (!fs.existsSync(rawFile)) return { invalidRun: 'no raw output recorded (INVALID_RUN at capture time)' };
-            raw = fs.readFileSync(rawFile, 'utf8');
-          } else {
-            raw = await p.completeStructured({ system: L.SYSTEM_PROMPT, user, jsonSchema: L.LABELLING_SCHEMA });
-            fs.writeFileSync(rawFile, raw);
-          }
+          const raw = await p.completeStructured({ system, user, jsonSchema: schema });
+          fs.writeFileSync(rawFile, raw);
+          wire.push({ kind, batchIndex: batch.batchIndex, atoms: batch.atomIds.length, elapsedMs: Date.now() - started });
+          return raw;
         } catch (e) {
-          if (isTransportFailure(String(e.message))) return { invalidRun: String(e.message).slice(0, 300) };
+          wire.push({ kind, batchIndex: batch.batchIndex, atoms: batch.atomIds.length, elapsedMs: Date.now() - started, error: String(e.message).slice(0, 200) });
+          if (isTransportFailure(String(e.message))) throw new L.TransportFailure(String(e.message).slice(0, 300), { batchIndex: batch.batchIndex, kind });
           throw e;
         }
-        try {
-          return { parsed: JSON.parse(raw) };
-        } catch {
-          return { parsed: null };
-        }
       };
-      const batchResults = [];
-      let invalidRun = null;
-      for (const batch of batches) {
-        const res = await call(path.join(outDir, `${input}-${r}.b${batch.batchIndex}.raw.txt`), L.buildPrompt(batch, byId));
-        if (res.invalidRun) {
-          invalidRun = res.invalidRun;
-          break;
-        }
-        batchResults.push(L.validateLabelling(batch.atomIds, byId, res.parsed, { consistency }));
-      }
-      const first = invalidRun ? null : L.mergeBatches(atoms, batchResults);
-      // Bounded relabel round (RELABEL=1): only the rejected atoms, once.
-      let merged = first;
-      let relabel = null;
-      const relabelFile = path.join(outDir, `${input}-${r}.relabel.raw.txt`);
-      if (first && !first.valid && (process.env.RELABEL || (process.env.RESCORE && fs.existsSync(relabelFile)))) {
-        const scope = L.relabelScope(first);
-        relabel = { scope, firstPassIssues: first.issues };
-        if (scope) {
-          const batch = L.relabelBatch(atoms, scope);
-          const res = await call(relabelFile, L.buildRelabelPrompt(batch, byId, first.issues));
-          if (res.invalidRun) invalidRun = res.invalidRun;
-          else merged = L.applyRelabel(atoms, first, scope, L.validateLabelling(batch.atomIds, byId, res.parsed, { consistency }));
-        }
-      }
+      const res = await L.labelUnit(text, { complete, maxBatchChars, contextAtoms, relabel: Boolean(process.env.RELABEL), consistency, navigationMinRun });
+      if (r === 1) fs.writeFileSync(path.join(outDir, `${input}.atoms.json`), JSON.stringify({ ...res.atomization, structure: { version: res.structure.version, minRun: res.structure.minRun, blocks: res.structure.blocks }, batches: res.batches }, null, 2) + '\n');
       if (!process.env.RESCORE) fs.writeFileSync(path.join(outDir, `${input}-${r}.wire.json`), JSON.stringify(wire.slice(t0), null, 2) + '\n');
-      if (invalidRun) {
-        const row = { input, run: r, validity: 'INVALID_RUN', error: invalidRun };
+      const trace = L.unitTrace(res, { sourceUnitId: input, sourceUrl: SOURCES[input]?.url ?? REGRESSION[input]?.file, sectionComplete: true });
+      fs.writeFileSync(path.join(outDir, `${input}-${r}.trace.json`), JSON.stringify(trace, null, 2) + '\n');
+      if (res.outcome === 'INVALID_RUN') {
+        const row = { input, run: r, validity: 'INVALID_RUN', error: res.failure.message, failure: res.failure };
         summary.push(row);
         console.log(JSON.stringify(row));
         continue;
       }
+      const { atoms, first } = res;
+      const merged = res.final;
       const count = (code) => merged.issues.filter((x) => x.code === code).map((x) => x.atomId);
-      const segments = merged.valid ? L.assemble(atoms, merged) : null;
+      const segments = res.segments;
       const shadow = merged.valid ? null : shadowAssemble(atoms, merged);
       const score = REGRESSION[input] ? scoreRegression(input, segments ?? shadow) : scoreSource(SOURCES[input].sourceId, segments ?? shadow, atoms, merged.labels);
       const histogram = {};
@@ -147,22 +124,25 @@ async function main() {
         input,
         run: r,
         validity: 'VALID',
-        promptVersion: process.env.PROMPT_VERSION_OF_CAPTURE || L.PROMPT_VERSION,
+        promptVersion: L.PROMPT_VERSION,
+        structureVersion: L.STRUCTURE_VERSION,
         consistency,
-        batches: batches.length,
+        batches: res.batches.length,
         atoms: atoms.length,
+        editorialAtoms: atoms.filter((a) => a.editorial).length,
+        nonEditorialBlocks: res.structure.blocks.map((b) => `${b.firstAtomId}..${b.lastAtomId}`),
         classified: merged.labels.size,
         firstPassValid: first.valid,
         firstPassIssueCount: first.issues.length,
-        relabel: relabel && { scope: relabel.scope, firstPassIssues: relabel.firstPassIssues.map((x) => `${x.code}:${x.atomId}`) },
+        relabel: res.relabel && { scope: res.relabel.scope, firstPassIssues: res.relabel.firstPassIssues.map((x) => `${x.code}:${x.atomId}`) },
         missingAtomIds: count('MISSING_ATOM'),
         duplicateAtomIds: count('DUPLICATE_ATOM'),
         unknownAtomIds: count('UNKNOWN_ATOM'),
         malformed: merged.issues.filter((x) => ['MALFORMED_RESPONSE', 'MALFORMED_LABEL', 'ROLE_INCONSISTENT', 'STOP_WITHOUT_ENTITY'].includes(x.code)),
-        spanIssues: merged.issues.filter((x) => ['SPAN_NOT_IN_ATOM', 'NAME_NOT_IN_SPAN', 'BAD_MENTION_ATOM', 'NAME_NOT_IN_MENTION_ATOM'].includes(x.code)),
+        spanIssues: merged.issues.filter((x) => ['SPAN_NOT_IN_ATOM', 'NAME_NOT_IN_SPAN', 'BAD_MENTION_ATOM', 'NAME_NOT_IN_MENTION_ATOM', 'MENTION_ANTECEDENT_MISSING', 'MENTION_ANTECEDENT_AMBIGUOUS'].includes(x.code)),
         notes: merged.notes,
         labellingValid: merged.valid,
-        outcome: merged.valid ? 'ASSEMBLED' : 'CONTRACT_FAIL_CLOSED',
+        outcome: res.outcome,
         histogram,
         segments: (segments ?? shadow).map((s) => ({
           segmentIndex: s.segmentIndex,
@@ -188,10 +168,11 @@ async function main() {
           run: r,
           outcome: row.outcome,
           firstPass: first.valid ? 'VALID' : `${first.issues.length} issues`,
-          relabel: relabel ? (relabel.scope ? relabel.scope.length + ' atoms' : 'NOT_REPAIRABLE') : undefined,
+          relabel: res.relabel ? (res.relabel.scope ? res.relabel.scope.length + ' atoms' : 'NOT_REPAIRABLE') : undefined,
           issues: merged.issues.map((x) => `${x.code}:${x.atomId}`),
           routeAreaPromoted: score.routeAreaPromoted,
           verdicts: score.verdicts.map((v) => `${v.segment}:${v.mandatoryRecall}${v.success ? ' OK' : ' ' + v.reasons.join(',')}`),
+          calls: wire.slice(t0).filter((w) => w.kind).map((w) => `${w.kind}${w.batchIndex}:${w.atoms}a/${w.elapsedMs}ms${w.error ? '!' : ''}`),
         }),
       );
     }

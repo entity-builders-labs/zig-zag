@@ -1,0 +1,155 @@
+{
+  "sourceUnitId": "RW3_EV3",
+  "sourceUrl": "fixtures/rw3-ev3-spans.md",
+  "sectionComplete": true,
+  "versions": {
+    "atomizer": "atomizer-v1",
+    "structure": "editorial-structure-v1",
+    "prompt": "labelling-prompt-v4"
+  },
+  "atomCount": 2,
+  "editorialAtomCount": 2,
+  "nonEditorialBlocks": [],
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "sourceStart": 0,
+      "sourceEnd": 124,
+      "editorial": true,
+      "label": "CONTENT",
+      "modelClassification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Market",
+          "role": "ITINERARY_STOP",
+          "supportSpan": "Caminito Market",
+          "sourceStart": 32,
+          "sourceEnd": 47
+        },
+        {
+          "sourceName": "Museo Benito Quinquela Martin",
+          "role": "ITINERARY_STOP",
+          "supportSpan": "Museo Benito Quinquela Martin",
+          "sourceStart": 49,
+          "sourceEnd": 78
+        },
+        {
+          "sourceName": "Puente Transbordador Nicolás Avellaneda",
+          "role": "ITINERARY_STOP",
+          "supportSpan": "Puente Transbordador Nicolás Avellaneda",
+          "sourceStart": 84,
+          "sourceEnd": 123
+        }
+      ]
+    },
+    {
+      "atomId": "a-002",
+      "sourceStart": 125,
+      "sourceEnd": 179,
+      "editorial": true,
+      "label": "CONTENT",
+      "modelClassification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Estadio Alberto J. Armando",
+          "role": "ITINERARY_STOP",
+          "supportSpan": "Estadio Alberto J. Armando",
+          "sourceStart": 152,
+          "sourceEnd": 178
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "batchIndex": 1,
+      "atomCount": 2,
+      "firstAtomId": "a-001",
+      "lastAtomId": "a-002",
+      "contextAtomIds": []
+    }
+  ],
+  "calls": [
+    {
+      "kind": "batch",
+      "batchIndex": 1,
+      "atomCount": 2,
+      "promptChars": 4842
+    }
+  ],
+  "relabel": null,
+  "contractOutcome": "ASSEMBLED",
+  "issues": [],
+  "providerFailure": null,
+  "assembledSegmentCount": 1,
+  "segments": [
+    {
+      "segmentIndex": 1,
+      "transferBoundary": [],
+      "transferDestinations": [],
+      "mandatoryBeforeIdentity": [
+        {
+          "position": 1,
+          "sourceName": "Caminito Market",
+          "provenance": [
+            {
+              "atomId": "a-001",
+              "supportSpan": "Caminito Market",
+              "sourceStart": 32,
+              "sourceEnd": 47,
+              "role": "ITINERARY_STOP",
+              "viaTransfer": false
+            }
+          ]
+        },
+        {
+          "position": 2,
+          "sourceName": "Museo Benito Quinquela Martin",
+          "provenance": [
+            {
+              "atomId": "a-001",
+              "supportSpan": "Museo Benito Quinquela Martin",
+              "sourceStart": 49,
+              "sourceEnd": 78,
+              "role": "ITINERARY_STOP",
+              "viaTransfer": false
+            }
+          ]
+        },
+        {
+          "position": 3,
+          "sourceName": "Puente Transbordador Nicolás Avellaneda",
+          "provenance": [
+            {
+              "atomId": "a-001",
+              "supportSpan": "Puente Transbordador Nicolás Avellaneda",
+              "sourceStart": 84,
+              "sourceEnd": 123,
+              "role": "ITINERARY_STOP",
+              "viaTransfer": false
+            }
+          ]
+        },
+        {
+          "position": 4,
+          "sourceName": "Estadio Alberto J. Armando",
+          "provenance": [
+            {
+              "atomId": "a-002",
+              "supportSpan": "Estadio Alberto J. Armando",
+              "sourceStart": 152,
+              "sourceEnd": 178,
+              "role": "ITINERARY_STOP",
+              "viaTransfer": false
+            }
+          ]
+        }
+      ],
+      "optional": [],
+      "alternativeGroups": [],
+      "routeLegs": [],
+      "passBy": [],
+      "conflicts": []
+    }
+  ]
+}

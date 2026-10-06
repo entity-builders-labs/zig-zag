@@ -1,0 +1,128 @@
+[
+  {
+    "input": "RW3_EV3",
+    "run": 1,
+    "validity": "VALID",
+    "promptVersion": "labelling-prompt-v4",
+    "structureVersion": "editorial-structure-v1",
+    "consistency": "ENTITY_ROLES",
+    "batches": 1,
+    "atoms": 2,
+    "editorialAtoms": 2,
+    "nonEditorialBlocks": [],
+    "classified": 2,
+    "firstPassValid": true,
+    "firstPassIssueCount": 0,
+    "relabel": null,
+    "missingAtomIds": [],
+    "duplicateAtomIds": [],
+    "unknownAtomIds": [],
+    "malformed": [],
+    "spanIssues": [],
+    "notes": [],
+    "labellingValid": true,
+    "outcome": "ASSEMBLED",
+    "histogram": {
+      "ITINERARY_STOP": 2
+    },
+    "segments": [
+      {
+        "segmentIndex": 1,
+        "openedBy": [],
+        "mandatory": [
+          "Caminito Market",
+          "Museo Benito Quinquela Martin",
+          "Puente Transbordador Nicolás Avellaneda",
+          "Estadio Alberto J. Armando"
+        ],
+        "optional": [],
+        "alternativeGroups": [],
+        "routeLegs": [],
+        "passBy": [],
+        "conflicts": []
+      }
+    ],
+    "segmentsAreDiagnosticShadow": false,
+    "verdicts": [
+      {
+        "segment": "ALL",
+        "success": true,
+        "mandatoryRecall": "4/4",
+        "reasons": [],
+        "acceptablePromoted": [],
+        "notInOracleMandatory": [],
+        "missingAtomDecisions": {}
+      }
+    ],
+    "alternatives": [],
+    "mandatoryDecisions": {},
+    "routeAreaPromoted": [],
+    "routeLegMissing": []
+  },
+  {
+    "input": "ROUTE_EXPERIENCE",
+    "run": 1,
+    "validity": "VALID",
+    "promptVersion": "labelling-prompt-v4",
+    "structureVersion": "editorial-structure-v1",
+    "consistency": "ENTITY_ROLES",
+    "batches": 1,
+    "atoms": 6,
+    "editorialAtoms": 6,
+    "nonEditorialBlocks": [],
+    "classified": 6,
+    "firstPassValid": true,
+    "firstPassIssueCount": 0,
+    "relabel": null,
+    "missingAtomIds": [],
+    "duplicateAtomIds": [],
+    "unknownAtomIds": [],
+    "malformed": [],
+    "spanIssues": [],
+    "notes": [],
+    "labellingValid": true,
+    "outcome": "ASSEMBLED",
+    "histogram": {
+      "NON_ITINERARY": 1,
+      "ITINERARY_STOP": 3,
+      "ROUTE_LEG": 1,
+      "PASS_BY": 1
+    },
+    "segments": [
+      {
+        "segmentIndex": 1,
+        "openedBy": [],
+        "mandatory": [
+          "Harbour Square",
+          "Painted Lane",
+          "Riverside Art Museum"
+        ],
+        "optional": [],
+        "alternativeGroups": [],
+        "routeLegs": [
+          "Mill Street"
+        ],
+        "passBy": [
+          "Sailors' Church"
+        ],
+        "conflicts": []
+      }
+    ],
+    "segmentsAreDiagnosticShadow": false,
+    "verdicts": [
+      {
+        "segment": "ALL",
+        "success": true,
+        "mandatoryRecall": "3/3",
+        "reasons": [],
+        "acceptablePromoted": [],
+        "notInOracleMandatory": [],
+        "missingAtomDecisions": {}
+      }
+    ],
+    "alternatives": [],
+    "mandatoryDecisions": {},
+    "routeAreaPromoted": [],
+    "routeLegMissing": []
+  }
+]
