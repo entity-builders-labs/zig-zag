@@ -208,3 +208,59 @@ no booking marketplace, no sandbox source.
     an explicit `ITINERARY_STOP`.
 - Recommendation: PROCEED_TO_PRODUCTIZATION, pending owner authorization.
   Walked streets and areas are promoted to mandatory and remain a C3 risk.
+
+## C3 COLD after milestone B (atomized extraction) — 2026-10-06
+
+- Run: `c3-atomized-cold/`, DB `zigzag_spike_rw4_c3_atomized` (fresh),
+  HEAD `9a9eca47`, canonical provenance verified. Same providers as
+  C3fix: serper search, Gemini `gemini-3.5-flash-lite` extractor, Tavily
+  content, geoapify, local Nominatim/Overpass. Same request file.
+- Completed in ~171 s. COLD counts `geoEntity 0→18`,
+  `geoEntityIdentity 0→33`, `experience 0→13`, `experienceComponent 0→13`;
+  0 duplicates. **0 multi-component Experiences persisted.** WARM not run
+  (rule: WARM only if COLD persists a qualifying composite).
+- Analysis: `analyze-atomized.cjs` → `c3-atomized-cold/atomized-analysis.json`.
+
+### C3 precondition: NOT MET (oracle sources never examined)
+
+- Search returned both oracle sources (agusyornet ev-4 and
+  secretsofbuenosaires ev-7 in the AREA_ROUTE_WALK pass), but:
+  - AREA_ROUTE_WALK selected buenosairesfreewalks + agusyornet. Round-robin
+    examined buenosairesfreewalks window 1 first (`WHOLE_DOCUMENT`,
+    generative path), whose candidate closed the requirement, so the scan
+    stopped before agusyornet's window 1 was ever examined.
+  - secretsofbuenosaires lost deep selection (limit 2) in every pass.
+- So this run did **not** exercise B on the frozen oracle units and gives
+  no RW4-EXTRACT-COMPLETENESS-1 verdict. This is a source
+  selection/scan-order outcome, not a B failure.
+- Generative attempt on buenosairesfreewalks (`WHOLE_DOCUMENT`,
+  complete): "San Telmo & Market Tour", REJECTED
+  `INCOMPLETE_SOURCE_COMPOSITION` 1/3 (as in C1). `WHOLE_DOCUMENT` is
+  outside B's scope (RW4-ATOM-SCOPE-1).
+
+### B live behaviour (two tangol `SECTION_UNIT` units, no oracle)
+
+| Pass | Unit | Outcome | Calls (elapsed) | Mandatory before identity | Downstream |
+|---|---|---|---|---|---|
+| generic | ev-2:w1 (25 atoms, 0 non-editorial) | ASSEMBLED after relabel of `a-009` (`SPAN_NOT_IN_ATOM`) | batch 4.3 s, batch 3.7 s, relabel 1.6 s, member_kind 2.0 s | Manzana de las Luces Historical and Cultural Complex, San Telmo Square, Plaza Dorrego, El Balcón de la Plaza in San Telmo, San Telmo and Mataderos Market Tour [ROUTE], Mataderos neighborhood [AREA], San Telmo antique market, The San Telmo Market | REJECTED `INCOMPLETE_SOURCE_COMPOSITION` 2/8 (Plaza Dorrego, Mercado resolved INSIDE) |
+| planner_capacity | ev-7:w1 (9 atoms) | ASSEMBLED, first pass | batch 2.9 s, member_kind 1.8 s | Bar El Federal, Bar La Poesía, Casa Mínima | REJECTED `INCOMPLETE_SOURCE_COMPOSITION` 2/3 (Bar La Poesía AMBIGUOUS) |
+
+- Operational: 0 INVALID_RUN, 0 CONTRACT_FAIL_CLOSED; every call 1.6–4.3 s,
+  far below the 25 s Gemini timeout.
+- One composition authority held: no generative attempt examined either
+  complete unit.
+- Visible semantic disagreements, on named atoms (no oracle exists for
+  tangol): a tour product ("San Telmo and Mataderos Market Tour", `a-016`)
+  and an out-of-walk area ("Mataderos neighborhood", `a-016`) labelled
+  `ITINERARY_STOP`; "San Telmo Square" and "Plaza Dorrego" emitted as two
+  members (string equality is not identity). Alternatives (food/coffee)
+  stayed choice groups; streets stayed `ROUTE_LEG`.
+- Downstream gates unchanged; both rejections are identity/composition
+  outcomes (`FIDELITY_*_IDENTITY_BLOCKED` class), never an extraction
+  workaround.
+
+### Verdict
+
+- RW4_FUNCTIONAL_MILESTONE_PASSED: **NO** (no qualifying composite).
+- RW4-EXTRACT-COMPLETENESS-1: **not evaluated** by this run (oracle units
+  not reached). B is operationally sound live.

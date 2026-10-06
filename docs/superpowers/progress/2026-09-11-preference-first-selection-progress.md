@@ -2542,11 +2542,39 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   unchanged).
 - Recommendation: **READY_FOR_C3**, with the C3 precondition below.
 
+### RW4 C3 COLD after milestone B — 2026-10-06
+
+- Canonical run `c3-atomized-cold` at `9a9eca47`, same providers and
+  request as C3fix. 0 multi-component Experiences persisted, so WARM was
+  not run. Details: campaign log, "C3 COLD after milestone B".
+- **The C3 precondition was not met:**
+  - the AREA_ROUTE_WALK scan stopped at buenosairesfreewalks
+    (`WHOLE_DOCUMENT`, generative) before agusyornet's window 1 was
+    examined;
+  - secretsofbuenosaires lost deep selection in every pass.
+  - The oracle units were never atomized, so RW4-EXTRACT-COMPLETENESS-1
+    is not evaluated.
+- **B worked live** on two tangol `SECTION_UNIT`s:
+  - both ASSEMBLED, one after a single relabel;
+  - 0 INVALID_RUN, 0 CONTRACT_FAIL_CLOSED;
+  - calls took 1.6–4.3 s against the 25 s timeout;
+  - one composition authority held.
+- Both tangol candidates were rejected downstream by
+  `INCOMPLETE_SOURCE_COMPOSITION` (2/8, 2/3). Visible semantic
+  disagreements: a tour product and an out-of-walk area labelled stops.
+
 ## Next authorized action
 
-0. (2026-10-06, B IMPLEMENTED, READY_FOR_C3) Owner authorization of C3
-   COLD, and WARM only if COLD persists a qualifying composite. Do not
-   run C3 without that authorization.
+0. (2026-10-06, C3 COLD ran; precondition not met, no composite) Owner
+   decision on how to reach the oracle units. Options, each needing
+   authorization; none is started:
+   - (a) rerun C3 COLD as is: search and selection vary per run;
+   - (b) address deep-source selection/scan order, so that a complete
+     editorial unit of a selected source is examined before a satisfied
+     scan stops (RW4-C3-SELECTION-1);
+   - (c) extend B's scope to complete `WHOLE_DOCUMENT` and whole-unit
+     continuation windows (RW4-ATOM-SCOPE-1).
+   C3 rules (kept from B):
    - C3 precondition: in the C3 trace, each oracle source's unit must be
      an `atomized_source_unit` attempt. Live C3fix put both at window 1,
      `SECTION_UNIT`. If a walk unit arrives as a continuation window
@@ -2743,6 +2771,16 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
     whole unit inside a window) is an owner decision.
   - Not a C3 blocker: live C3fix had both oracle units at window 1,
     `SECTION_UNIT`.
+- RW4-C3-SELECTION-1: OPEN, MEDIUM (2026-10-06, C3 after B). Both oracle
+  sources were in grounded search, but neither was atomized.
+  - agusyornet was selected, but the scan stopped once
+    buenosairesfreewalks (examined first) produced a qualifying
+    generative candidate.
+  - secretsofbuenosaires lost the deep selection limit (2) in all passes.
+  - It is not an extraction defect, but it decides whether C3 can test
+    RW4-EXTRACT-COMPLETENESS-1.
+- RW4-ATOM-SCOPE-1 addendum (C3): a complete `WHOLE_DOCUMENT` window
+  (buenosairesfreewalks) also stays on the generative path.
 - RW4-ATOM-KIND-1: OPEN, LOW (2026-10-06).
   - The member-kind call is a new bounded semantic step (PLACE/AREA/ROUTE
     per mandatory member), decided in B because identity routes on it.
