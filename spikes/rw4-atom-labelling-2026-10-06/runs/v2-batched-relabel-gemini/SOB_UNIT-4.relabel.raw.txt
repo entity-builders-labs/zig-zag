@@ -1,0 +1,16 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-039",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "neighborhood",
+          "supportSpan": "neighborhood",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to visit the oldest neighborhood."
+    }
+  ]
+}

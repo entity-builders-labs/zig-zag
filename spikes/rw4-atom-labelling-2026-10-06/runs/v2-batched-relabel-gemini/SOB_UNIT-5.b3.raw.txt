@@ -1,0 +1,376 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-121",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social media link."
+    },
+    {
+      "atomId": "a-122",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Related posts heading."
+    },
+    {
+      "atomId": "a-123",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Related post link image."
+    },
+    {
+      "atomId": "a-124",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Related post heading."
+    },
+    {
+      "atomId": "a-125",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Related post link image."
+    },
+    {
+      "atomId": "a-126",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Related post heading."
+    },
+    {
+      "atomId": "a-127",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Related post link image."
+    },
+    {
+      "atomId": "a-128",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Related post heading."
+    },
+    {
+      "atomId": "a-129",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Related post link image."
+    },
+    {
+      "atomId": "a-130",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Related post heading."
+    },
+    {
+      "atomId": "a-131",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comment section."
+    },
+    {
+      "atomId": "a-132",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-133",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-134",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-135",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-136",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-137",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-138",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image link."
+    },
+    {
+      "atomId": "a-139",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-140",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-141",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-142",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-143",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-144",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Menu link."
+    },
+    {
+      "atomId": "a-145",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-146",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-147",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-148",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-149",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-150",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-151",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-152",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-153",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-154",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-155",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-156",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-157",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-158",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-159",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-160",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-161",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-162",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-163",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-164",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-165",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-166",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-167",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-168",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-169",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-170",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-171",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-172",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-173",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-174",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-175",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-176",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-177",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-178",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-179",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation link."
+    },
+    {
+      "atomId": "a-180",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language switch link."
+    },
+    {
+      "atomId": "a-181",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language switch link."
+    },
+    {
+      "atomId": "a-182",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Language switch link."
+    }
+  ]
+}

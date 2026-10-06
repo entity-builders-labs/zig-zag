@@ -1,0 +1,54 @@
+[
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+    "status": 200,
+    "usage": {
+      "total_tokens": 13926,
+      "total_input_tokens": 4502,
+      "input_tokens_by_modality": [
+        {
+          "modality": "text",
+          "tokens": 4502
+        }
+      ],
+      "total_cached_tokens": 0,
+      "total_output_tokens": 9424,
+      "total_tool_use_tokens": 0,
+      "total_thought_tokens": 0,
+      "raw_prompt_token": 5057,
+      "model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 5057
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 9443
+            }
+          ]
+        }
+      ],
+      "non_grounding_model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 5057
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 9443
+            }
+          ]
+        }
+      ]
+    },
+    "status_": "completed"
+  }
+]

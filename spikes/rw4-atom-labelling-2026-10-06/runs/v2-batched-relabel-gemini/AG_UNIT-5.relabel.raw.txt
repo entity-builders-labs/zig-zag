@@ -1,0 +1,22 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-066",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of the restaurant without direct visit instruction."
+    },
+    {
+      "atomId": "a-076",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Descriptive information about tours and building access."
+    },
+    {
+      "atomId": "a-080",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the view from the bar."
+    }
+  ]
+}

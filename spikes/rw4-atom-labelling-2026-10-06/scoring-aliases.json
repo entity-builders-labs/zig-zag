@@ -1,0 +1,42 @@
+{
+  "frozenAt": "2026-10-06, before the first atom-labelling live run of this spike",
+  "purpose": "Scoring-side only. The atom contract keeps each entity's exact source wording (sourceName), while oracle.json names items canonically. These are the wordings each oracle item has in the frozen unit text, read from the source text, never from model output. ../rw4-extract-completeness-2026-10-05/oracle.json is not modified.",
+  "matching": "case/accent/markup-insensitive equality after removing a leading article (the/el/la/los/las), against the oracle name, oracle aliases, or these source wordings",
+  "sources": {
+    "secretsofbuenosaires-day1": {
+      "Plaza de Mayo": ["PLAZA DE MAYO"],
+      "Catedral Metropolitana": ["Catedral"],
+      "Cabildo": ["Museo del Cabildo"],
+      "Defensa": ["street Defensa"],
+      "Estados Unidos": ["street Estados Unidos"],
+      "Paseo Colón": ["Paseo de Colon", "street Paseo de Colon", "Avenida Paseo Colon"],
+      "Facultad de Ingeniería (UBA)": ["University of Buenos Aires department of engineers", "University of Buenos Aires", "Evita Foundation", "Evita Peron’s foundation", "Evita Peron's foundation"],
+      "Avenida San Juan": ["street Avenida San Juan"],
+      "Museo de Arte Moderno de Buenos Aires": ["Museum of Modern Arts"],
+      "Monumento a Pedro de Mendoza": ["Pedro de Mendoza", "big statue"],
+      "Museo Histórico Nacional": ["national history museum"],
+      "La Boca": ["Boca"],
+      "Caminito": ["El Caminito"]
+    },
+    "agusyornet-san-telmo": {
+      "Avenida Roque Sáenz Peña": ["Av. Roque Saenz Peña"],
+      "Avenida de Mayo": ["Av. de Mayo"],
+      "Congreso de la Nación Argentina": ["Congress building", "Congress"],
+      "Café Tortoni": ["Tortoni", "Tortoni Café"],
+      "London City": ["London City Coffee"],
+      "Catedral Metropolitana": ["Cathedral"],
+      "Defensa": ["Defensa Street"],
+      "Museo de la Ciudad": ["Museum of the city", "small Museum of the city"],
+      "Colegio Nacional de Buenos Aires": ["National School of Buenos Aires"],
+      "Librería de Ávila": ["La Librería del Avila", "Librería del Avila"],
+      "Monumento de Mafalda": ["Mafalda"],
+      "Mercado de San Telmo": ["San Telmo Market"],
+      "Galería Solar": ["Galería Solar"],
+      "El Patio de los Ezeiza": ["Patio de los Ezeiza", "Patio Ezeiza"],
+      "Caminito": ["Caminito Street", "Caminito en La Boca", "CAMINITO, LA BOCA"],
+      "La Bombonera": ["Estadio La Boca"],
+      "Dársena Sur": ["Darsena Sur"],
+      "Avenida Ingeniero Huergo / Hernán Giralt": ["Av. Int. Hernan Giralt"]
+    }
+  }
+}

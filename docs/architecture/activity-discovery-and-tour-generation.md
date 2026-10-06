@@ -1604,12 +1604,24 @@ with its own role:
   is mapped back to source offsets.
 - `sourceName` must be inside its `supportSpan`. A name that is not in the
   atom is an invented entity and makes the response invalid.
-- Role consistency: a `NON_ITINERARY` atom has no entities. Any other
-  non-`TRANSFER` atom has at least one entity, and its classification
-  equals its strongest entity role
-  (`ITINERARY_STOP > OPTIONAL_STOP > ALTERNATIVE > PASS_BY`). A `TRANSFER`
-  atom may name its destination, as `ITINERARY_STOP` when visited next and
-  otherwise as `PASS_BY`.
+- Anaphora (`mentionAtomId`): an atom may direct a visit to a place named
+  only in an earlier atom ("Jump inside.", "enjoy the park"). The entity
+  then cites that earlier atom. `supportSpan` must be in this atom, and
+  `sourceName` must be in the cited atom, which must precede it in the
+  unit. Assembly merges it with the earlier mention, so source order is
+  kept.
+- Role consistency fails closed on every inconsistency that can hide or
+  invent membership:
+  - an `ITINERARY_STOP` atom without an `ITINERARY_STOP` entity
+    (`STOP_WITHOUT_ENTITY`);
+  - an entity role stronger than its atom's classification
+    (`ITINERARY_STOP > OPTIONAL_STOP > ALTERNATIVE > PASS_BY`);
+  - a `NON_ITINERARY` atom with entities.
+
+  An `OPTIONAL_STOP`, `ALTERNATIVE` or `PASS_BY` atom whose option is
+  unnamed ("two ice-cream shops") adds no membership. It is recorded as an
+  audit note, not a failure. A `TRANSFER` atom may name its destination:
+  `ITINERARY_STOP` when visited next, otherwise `PASS_BY`.
 - `reason` is audit only and never authority. No canonical entity IDs, and
   no model-authored ordinals.
 
@@ -1623,8 +1635,16 @@ outside its atom, a name is outside its span, or roles are inconsistent.
 There is no partial acceptance and no fallback to the generative candidate
 contract.
 
+A rejected result gets at most one relabel round. The model relabels only
+the rejected atoms, sees the validator's issue codes and preceding atoms as
+context, and its answer passes through the same validation; the whole unit
+is then re-checked. This is not a repair by guessing. An unknown atom ID or
+a malformed response is not repairable, and a second invalid answer fails
+closed.
+
 When the atoms do not fit one request, they are batched under their global
-IDs. Each atom belongs to exactly one batch. Preceding atoms may be shown
+IDs. Batching is also the default, because a single response labelling
+~180 atoms exceeded the extractor transport's fixed 25 s timeout. Each atom belongs to exactly one batch. Preceding atoms may be shown
 as read-only context. A batched result is valid only if each batch is valid
 for its own scope and the union labels every unit atom exactly once.
 
@@ -1676,3 +1696,6 @@ failure is an operational failure, not a semantic one.
 
 Productization requires the spike's evidence and a separate owner
 authorization. The production extractor path stays unchanged until then.
+Spike evidence (2026-10-06, Gemini `gemini-3.5-flash-lite`, frozen
+`SECTION_UNIT`s and oracle) is in
+`spikes/rw4-atom-labelling-2026-10-06/README.md`.
