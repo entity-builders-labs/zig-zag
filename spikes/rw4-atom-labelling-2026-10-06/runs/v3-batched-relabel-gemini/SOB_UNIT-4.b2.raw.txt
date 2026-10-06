@@ -1,0 +1,490 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-059",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes features of the market."
+    },
+    {
+      "atomId": "a-060",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "External link."
+    },
+    {
+      "atomId": "a-061",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Mercado de San Telmo",
+          "supportSpan": "Mercado de San Telmo",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-055"
+        },
+        {
+          "sourceName": "Plaza Dorrego",
+          "supportSpan": "Plaza Dorrego",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to Plaza Dorrego."
+    },
+    {
+      "atomId": "a-062",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes Plaza Dorrego."
+    },
+    {
+      "atomId": "a-063",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza Dorrego",
+          "supportSpan": "square",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-061"
+        }
+      ],
+      "reason": "Describes sights at the square."
+    },
+    {
+      "atomId": "a-064",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Avenida San Juan",
+          "supportSpan": "Avenida San Juan",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Instructs walking on a street."
+    },
+    {
+      "atomId": "a-065",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Museum of Modern Arts",
+          "supportSpan": "Museum of Modern Arts",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out museum on the route."
+    },
+    {
+      "atomId": "a-066",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Avenida Paseo Colon",
+          "supportSpan": "Avenida Paseo Colon",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Instructs walking along an avenue."
+    },
+    {
+      "atomId": "a-067",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Club Atlético",
+          "supportSpan": "Club Atlético",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out memorial sight."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical background."
+    },
+    {
+      "atomId": "a-069",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical background."
+    },
+    {
+      "atomId": "a-070",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author opinion."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Commentary."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Defensa",
+          "supportSpan": "Defensa",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Instructs walking on street."
+    },
+    {
+      "atomId": "a-073",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Parque Lezama",
+          "supportSpan": "Parque Lezama",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out park on left."
+    },
+    {
+      "atomId": "a-074",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Statue description."
+    },
+    {
+      "atomId": "a-075",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History."
+    },
+    {
+      "atomId": "a-076",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History."
+    },
+    {
+      "atomId": "a-077",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History and geography details."
+    },
+    {
+      "atomId": "a-078",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Parque Lezama",
+          "supportSpan": "park",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-073"
+        }
+      ],
+      "reason": "Tells traveller to enjoy the park."
+    },
+    {
+      "atomId": "a-079",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "national history museum",
+          "supportSpan": "national history museum",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs stop at museum."
+    },
+    {
+      "atomId": "a-080",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Location detail."
+    },
+    {
+      "atomId": "a-081",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Pricing information."
+    },
+    {
+      "atomId": "a-082",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Avenida Caseros",
+          "supportSpan": "Avenida Caseros",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out avenue."
+    },
+    {
+      "atomId": "a-083",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Trivia."
+    },
+    {
+      "atomId": "a-084",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Avenida Caseros",
+          "supportSpan": "red walkway",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-082"
+        }
+      ],
+      "reason": "Instructs walking on walkway."
+    },
+    {
+      "atomId": "a-085",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Boca",
+          "supportSpan": "Boca",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Public bus transfer to La Boca.",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-086",
+      "classification": "TRANSFER",
+      "entities": [],
+      "reason": "Alternative taxi transfer.",
+      "transferMode": "TAXI"
+    },
+    {
+      "atomId": "a-087",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author commentary."
+    },
+    {
+      "atomId": "a-088",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Video reference."
+    },
+    {
+      "atomId": "a-089",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Ad/link."
+    },
+    {
+      "atomId": "a-090",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "El Caminito",
+          "supportSpan": "El Caminito",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Arrival at El Caminito."
+    },
+    {
+      "atomId": "a-091",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Street description."
+    },
+    {
+      "atomId": "a-092",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History."
+    },
+    {
+      "atomId": "a-093",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History."
+    },
+    {
+      "atomId": "a-094",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description."
+    },
+    {
+      "atomId": "a-095",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description."
+    },
+    {
+      "atomId": "a-096",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Link."
+    },
+    {
+      "atomId": "a-097",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Football club context."
+    },
+    {
+      "atomId": "a-098",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "La Bombonera",
+          "supportSpan": "La Bombonera",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs visit to stadium."
+    },
+    {
+      "atomId": "a-099",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Team colors description."
+    },
+    {
+      "atomId": "a-100",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth/trivia."
+    },
+    {
+      "atomId": "a-101",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth/trivia."
+    },
+    {
+      "atomId": "a-102",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth/trivia."
+    },
+    {
+      "atomId": "a-103",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author comment."
+    },
+    {
+      "atomId": "a-104",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Safety tip."
+    },
+    {
+      "atomId": "a-105",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Return transfer back to San Telmo.",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-106",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recap comment."
+    },
+    {
+      "atomId": "a-107",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recap comment."
+    },
+    {
+      "atomId": "a-108",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "beer bars or restaurants",
+          "supportSpan": "beer bars or restaurants",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Suggests options for evening."
+    },
+    {
+      "atomId": "a-109",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Itinerary summary."
+    },
+    {
+      "atomId": "a-110",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Link."
+    },
+    {
+      "atomId": "a-111",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Fragment."
+    },
+    {
+      "atomId": "a-112",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author info."
+    },
+    {
+      "atomId": "a-113",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author info."
+    },
+    {
+      "atomId": "a-114",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author info."
+    },
+    {
+      "atomId": "a-115",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author info."
+    },
+    {
+      "atomId": "a-116",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author info."
+    },
+    {
+      "atomId": "a-117",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Closing remarks."
+    },
+    {
+      "atomId": "a-118",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social link."
+    },
+    {
+      "atomId": "a-119",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social link."
+    },
+    {
+      "atomId": "a-120",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social link."
+    }
+  ]
+}

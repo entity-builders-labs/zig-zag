@@ -1,0 +1,103 @@
+{
+  "input": "RW3_EV3",
+  "run": 2,
+  "validity": "VALID",
+  "promptVersion": "labelling-prompt-v3",
+  "consistency": "MEMBERSHIP",
+  "batches": 1,
+  "atoms": 2,
+  "classified": 2,
+  "firstPassValid": true,
+  "firstPassIssueCount": 0,
+  "relabel": null,
+  "missingAtomIds": [],
+  "duplicateAtomIds": [],
+  "unknownAtomIds": [],
+  "malformed": [],
+  "spanIssues": [],
+  "notes": [],
+  "labellingValid": true,
+  "outcome": "ASSEMBLED",
+  "histogram": {
+    "ITINERARY_STOP": 2
+  },
+  "segments": [
+    {
+      "segmentIndex": 1,
+      "openedBy": [],
+      "mandatory": [
+        "Caminito Market",
+        "Museo Benito Quinquela Martin",
+        "Puente Transbordador Nicolás Avellaneda",
+        "Estadio Alberto J. Armando"
+      ],
+      "optional": [],
+      "alternativeGroups": [],
+      "routeLegs": [],
+      "passBy": []
+    }
+  ],
+  "segmentsAreDiagnosticShadow": false,
+  "verdicts": [
+    {
+      "segment": "ALL",
+      "success": true,
+      "mandatoryRecall": "4/4",
+      "reasons": [],
+      "acceptablePromoted": [],
+      "notInOracleMandatory": [],
+      "missingAtomDecisions": {}
+    }
+  ],
+  "alternatives": [],
+  "mandatoryDecisions": {},
+  "routeAreaPromoted": [],
+  "routeLegMissing": [],
+  "labels": [
+    {
+      "text": "Highlights include visiting the Caminito Market, Museo Benito Quinquela Martin, and Puente Transbordador Nicolás Avellaneda.",
+      "atomId": "a-001",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Market",
+          "supportSpan": "Caminito Market",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 32,
+          "sourceEnd": 47
+        },
+        {
+          "sourceName": "Museo Benito Quinquela Martin",
+          "supportSpan": "Museo Benito Quinquela Martin",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 49,
+          "sourceEnd": 78
+        },
+        {
+          "sourceName": "Puente Transbordador Nicolás Avellaneda",
+          "supportSpan": "Puente Transbordador Nicolás Avellaneda",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 84,
+          "sourceEnd": 123
+        }
+      ],
+      "reason": "Directs visits to multiple highlights."
+    },
+    {
+      "text": "Your tour concludes at the Estadio Alberto J. Armando.",
+      "atomId": "a-002",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Estadio Alberto J. Armando",
+          "supportSpan": "Estadio Alberto J. Armando",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 152,
+          "sourceEnd": 178
+        }
+      ],
+      "reason": "Concludes the tour at the stadium."
+    }
+  ],
+  "issues": []
+}

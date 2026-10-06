@@ -1,0 +1,146 @@
+{
+  "input": "ROUTE_EXPERIENCE",
+  "run": 3,
+  "validity": "VALID",
+  "promptVersion": "labelling-prompt-v3",
+  "consistency": "MEMBERSHIP",
+  "batches": 1,
+  "atoms": 6,
+  "classified": 6,
+  "firstPassValid": true,
+  "firstPassIssueCount": 0,
+  "relabel": null,
+  "missingAtomIds": [],
+  "duplicateAtomIds": [],
+  "unknownAtomIds": [],
+  "malformed": [],
+  "spanIssues": [],
+  "notes": [],
+  "labellingValid": true,
+  "outcome": "ASSEMBLED",
+  "histogram": {
+    "NON_ITINERARY": 1,
+    "ITINERARY_STOP": 3,
+    "ROUTE_LEG": 1,
+    "PASS_BY": 1
+  },
+  "segments": [
+    {
+      "segmentIndex": 1,
+      "openedBy": [],
+      "mandatory": [
+        "Harbour Square",
+        "Painted Lane",
+        "Riverside Art Museum"
+      ],
+      "optional": [],
+      "alternativeGroups": [],
+      "routeLegs": [
+        "Mill Street"
+      ],
+      "passBy": [
+        "Sailors' Church"
+      ]
+    }
+  ],
+  "segmentsAreDiagnosticShadow": false,
+  "verdicts": [
+    {
+      "segment": "ALL",
+      "success": true,
+      "mandatoryRecall": "3/3",
+      "reasons": [],
+      "acceptablePromoted": [],
+      "notInOracleMandatory": [],
+      "missingAtomDecisions": {}
+    }
+  ],
+  "alternatives": [],
+  "mandatoryDecisions": {},
+  "routeAreaPromoted": [],
+  "routeLegMissing": [],
+  "labels": [
+    {
+      "text": "## The Painted Lane walk",
+      "atomId": "a-001",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "Start at Harbour Square, next to the old fire station.",
+      "atomId": "a-002",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Harbour Square",
+          "supportSpan": "Harbour Square",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 35,
+          "sourceEnd": 49
+        }
+      ],
+      "reason": "Starting point of the itinerary"
+    },
+    {
+      "text": "Walk down Mill Street to reach the Painted Lane.",
+      "atomId": "a-003",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Mill Street",
+          "supportSpan": "Mill Street",
+          "role": "ROUTE_LEG",
+          "sourceStart": 91,
+          "sourceEnd": 102
+        }
+      ],
+      "reason": "Street walked to reach the destination"
+    },
+    {
+      "text": "The Painted Lane is the reason to come: stroll its whole 150-metre curve slowly, looking at every painted tin house and the murals along it.",
+      "atomId": "a-004",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Painted Lane",
+          "supportSpan": "Painted Lane",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 134,
+          "sourceEnd": 146
+        }
+      ],
+      "reason": "Main attraction to stroll and visit"
+    },
+    {
+      "text": "Halfway along, you will pass the Sailors' Church on your right.",
+      "atomId": "a-005",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Sailors' Church",
+          "supportSpan": "Sailors' Church",
+          "role": "PASS_BY",
+          "sourceStart": 304,
+          "sourceEnd": 319
+        }
+      ],
+      "reason": "Place passed along the way"
+    },
+    {
+      "text": "At the end of the lane, visit the Riverside Art Museum.",
+      "atomId": "a-006",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Riverside Art Museum",
+          "supportSpan": "Riverside Art Museum",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 369,
+          "sourceEnd": 389
+        }
+      ],
+      "reason": "Final museum stop to visit"
+    }
+  ],
+  "issues": []
+}

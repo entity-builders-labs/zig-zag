@@ -2408,9 +2408,33 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 - Recommendation: PROCEED_TO_PRODUCTIZATION (smallest cutover step in the
   spike README). Not implemented; production is unchanged.
 
+### RW4 atom labelling milestone A (ROUTE_LEG gate) — 2026-10-06
+
+- Owner approved productization in milestones A → B → C. B is not
+  authorized until A passes.
+- The amendment adds `ROUTE_LEG`, area and description rules,
+  route-as-experience, the production trace and the outcome classes. The
+  gate was frozen before the runs (`547d6acb`).
+- v3 frozen replay:
+  - recall equal or better per run (AG S1 9/9 in 5/5);
+  - 0 mixing, 0 alternatives promoted;
+  - CONTRACT_FAIL_CLOSED 1/8 (baseline 3/10);
+  - RW3 route-as-experience fixtures PASS.
+- **Gate FAIL:** route/area promotion rose from 2.9 to 3.4 per run.
+  Causes: the transfer-destination rule, the v2 sight rule and directive
+  verbs on streets in the prompt, plus the strongest-role merge across
+  atoms. 2/10 INVALID_RUN: 4000-char batches exceeded the 25 s timeout.
+  Details and the proposed v4 are in
+  `spikes/rw4-atom-labelling-2026-10-06/README.md`.
+
 ## Next authorized action
 
-0. (2026-10-06, supersedes the earlier 2026-10-06 item 0) Owner
+0. (2026-10-06, milestone A FAILED) Owner decision on the v4 re-gate
+   proposed in `spikes/rw4-atom-labelling-2026-10-06/README.md` (transfer
+   destinations and areas, a narrowed sight rule, streets reached by "go to"
+   are `ROUTE_LEG`, visible `ROLE_CONFLICT`, smaller batches). Milestone B
+   stays unauthorized until A passes its frozen criteria. The superseded
+   item follows, kept as the B/C plan. Earlier: owner
    authorization of the atom-labelling cutover recommended in
    `spikes/rw4-atom-labelling-2026-10-06/README.md`
    (PROCEED_TO_PRODUCTIZATION): port the spike contract into `be/src` for

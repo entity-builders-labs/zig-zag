@@ -293,3 +293,76 @@ EXTRACTOR=gemini RUNS=5 RELABEL=1 MAX_BATCH_CHARS=4000 LABEL=v2-batched-relabel 
 # re-score saved output without provider calls:
 RESCORE=1 CONSISTENCY=STRICT RUNS=5 LABEL=v2-single node spikes/rw4-atom-labelling-2026-10-06/probe.cjs
 ```
+
+## Milestone A gate: `ROUTE_LEG` (prompt v3), 2026-10-06. Verdict: **FAIL (stop before B)**
+
+The gate was frozen before any v3 run (`milestone-a-gate.json`, commit
+`547d6acb`). Baseline: `v2-batched-relabel-gemini`, rescored with the same
+scorer and no provider calls. Candidate: `v3-batched-relabel-gemini` (5
+runs per unit) and `v3-regression-gemini` (3 runs per fixture), with the
+same model and settings (batch 4000 chars, one relabel). Tables:
+`runs/summary-v3.md`, `runs/analysis-v3.md`.
+
+| Criterion | Baseline v2 | v3 | Result |
+|---|---|---|---|
+| Mandatory recall (valid runs) | SOB S1 8/8 5/5, S2 5/5; AG S1 9/9 4/5, S2 5/5, S3 5/5 | SOB S1 8/8 3/3, S2 3/3; AG S1 9/9 5/5, S2 5/5, S3 5/5 | per run: equal or better (Obelisco fixed). The frozen total-hits rule fails only because of 2 INVALID_RUN |
+| Transfers / mixing | S2/S3 always; 0 mixed | S2/S3 always; 0 mixed, 0 boundaries missed | PASS |
+| Alternatives promoted | 0 | 0 | PASS |
+| Route/area items promoted to mandatory (mean per valid run) | 2.9 (SOB 3.2, AG 2.6) | **3.4** (SOB 3.7, AG 3.2) | **FAIL**: worse |
+| Defensa/Estados Unidos not mandatory in ≥ 4/5 SOB runs | 0/5 | 1/3 valid | **FAIL** |
+| CONTRACT_FAIL_CLOSED | 3/10 | 1/8 valid | PASS |
+| RW3 regression (RW3_EV3, ROUTE_EXPERIENCE) | n/a | recall 4/4 and 3/3 in 3/3 runs each; Mill Street never mandatory; Painted Lane always `ITINERARY_STOP`; 1 contract fail-closed | PASS |
+| INVALID_RUN | 0/10 | 2/10 (SOB batches of ~60 atoms: call and retry both over 25 s) | operational; see point 5 |
+
+### Why `ROUTE_LEG` did not reduce promotion
+
+The model does use `ROUTE_LEG`. For example: Paseo de Colon, Avenida San
+Juan, Av. Roque Saenz Peña, Av. de Mayo, Darsena Sur and Giralt are route
+legs in 8/8 runs. Defensa is a route leg at a-054 and a-072. Promotion
+comes from three conflicting instructions in the v3 prompt and from one
+assembly rule:
+
+1. **The transfer-destination rule.** "A TRANSFER atom may list the place
+   it travels to: ITINERARY_STOP when the traveller visits that place next"
+   turns area directions into stops: SOB a-085 "Boca" (3/3), AG a-069
+   "Puerto Madero" (5/5), AG a-058 "La Boca" (2/5). This contradicts the
+   area rule.
+2. **The sight rule from v2.** "you will see X … is an ITINERARY_STOP"
+   promotes streets presented as sights: SOB a-082 "you will see Avenida
+   Caseros" (3/3).
+3. **Directive verbs on a street.** "Go to the street Defensa" (a-033) and
+   "go to the street Estados Unidos" (a-042) were labelled
+   `ITINERARY_STOP` in 2/3 runs. "Now you are entering San Telmo" (AG
+   a-026) was labelled `ITINERARY_STOP` in 4/5 runs, against the area rule.
+4. **Strongest-role merge across atoms.** One `ITINERARY_STOP` atom for a
+   street promotes it, even when every other atom labels the same street
+   `ROUTE_LEG` (Defensa: a-033 STOP, a-054/a-072 ROUTE_LEG). The merge is
+   right for anaphora ("pass the entrance" → "Jump inside."). It also hides
+   a role conflict that ought to be visible.
+
+### Proposed v4 for a re-gate (not run; needs your go-ahead)
+
+All are generic and keep the LLM as the only semantic authority:
+
+- Transfer destination: a named place that is visited next stays a stop. A
+  district or area named as the direction or destination of the transfer
+  is `ROUTE_LEG`, unless a later atom presents it as a destination to
+  explore.
+- Narrow the sight rule to places that are not the path. A street or
+  avenue is never a sight stop merely because it is "seen". It is a stop
+  only when the source presents walking or experiencing it as the
+  attraction.
+- "Go to / head to / reach" a street that the walk then follows is a
+  `ROUTE_LEG`.
+- Make cross-atom role disagreement visible. When the same folded name in
+  a segment has both `ROUTE_LEG` and `ITINERARY_STOP` atoms, assembly keeps
+  `ITINERARY_STOP` (no silent demotion) but records a typed `ROLE_CONFLICT`
+  with both atom IDs, for trace and review. The anaphora case
+  (`PASS_BY` → `ITINERARY_STOP`) is not a conflict.
+- Batch transport: drop the batch budget to about 2500 presented chars
+  (about 35–40 atoms), or have the production transport carry an explicit
+  timeout for atom labelling. Measure that before B.
+
+Over-fitting risk: these come from the same two fixtures. The re-gate must
+keep the frozen criteria, and the RW3 fixtures guard the opposite failure
+(a corridor that is itself the experience).
