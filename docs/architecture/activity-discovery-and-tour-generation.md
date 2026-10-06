@@ -1488,3 +1488,191 @@ deficit. Provider/operational failure, premature acquisition termination,
 source-contract violation or a misleading aggregate rejection reason are
 system defects and stay outside the research-agent loop.
 
+
+## Experience Domain V2 — exhaustive source-atom labelling amendment (2026-10-06)
+
+**Status: PROPOSED target contract. Spike only; not implemented in the
+production extractor.** The production path still asks the extractor to
+generate `ExperienceCandidate`s from prose. This amendment defines the
+replacement contract for editorial itinerary units (`SECTION_UNIT`,
+`sectionComplete=true`) and the evidence a later cutover must meet. Spike:
+`spikes/rw4-atom-labelling-2026-10-06/`. Finding:
+RW4-EXTRACT-COMPLETENESS-1 (`spikes/rw4-extract-completeness-2026-10-05/`).
+
+### Problem
+
+```text
+complete editorial unit → LLM generates candidate(s) → validators check what was emitted
+```
+
+The mechanical loss paths are fixed: unit windowing, early acceptance of an
+incomplete window, silent `MAX_HINTS` truncation, markdown span
+normalization, and a prompt without exhaustive itinerary semantics. The
+remaining defect is the contract itself. A generative extractor that gets a
+complete unit can still omit a required stop, merge segments that the
+source separates by a transfer, or promote a passing mention. Source
+support, identity, geography and `INCOMPLETE_SOURCE_COMPOSITION` judge only
+emitted objects. A missing stop leaves nothing to judge. Model selection
+lowers the omission rate but does not make an omission detectable.
+
+### Target contract
+
+```text
+editorial unit
+  → deterministic atomization        (no semantics)
+  → LLM labels EVERY atom            (semantic authority)
+  → deterministic completeness check (fail closed)
+  → deterministic assembly           (order, segments, roles)
+  → source support → identity → geography   (unchanged)
+```
+
+The LLM stays the only semantic authority. Deterministic code splits text and
+checks structure. It never infers itinerary meaning from words. Keyword
+lists, transport dictionaries and `Stop N` shortcuts are forbidden as
+classification rules.
+
+#### 1. Source atom
+
+A source atom is a deterministic text unit with a stable identity and a
+source position:
+
+- `atomId`: the ordinal in source order, zero-padded (`a-001`). It is
+  stable for identical input.
+- `sourceStart`, `sourceEnd`: offsets into the editorial unit.
+- `text`: the exact source slice.
+- Provenance: `blockKind` (`HEADING | LIST_ITEM | TABLE_CELL | LINE`) and
+  `fragment` (only for a bounded split of an over-long piece).
+
+Boundaries come only from neutral text structure: line breaks, unescaped
+table pipes, and sentence-final punctuation followed by whitespace. A
+terminator right after a token of at most three letters or digits is not a
+boundary. This abbreviation guard works by token length, never by a word
+list. Merging is always safe: it makes atoms coarser and never drops text.
+A piece longer than the atom bound is split at whitespace into fragments
+that keep their offsets.
+
+Atoms and separators partition the unit exactly. A separator is whitespace,
+a newline, a table pipe, or a piece with no letter or number once URL
+targets are elided (pure markup, or an image whose only content is its
+URL). Such a piece cannot name a place, so dropping it from labelling loses
+nothing semantic. Its range is still recorded. No text disappears because
+of a token budget: a unit too large for one request is batched (below).
+
+The model sees each atom with markdown link and image targets and bare URLs
+replaced by `…`. Every presented character maps back to a source offset.
+
+#### 2. Semantic classification
+
+Every atom receives exactly one classification:
+
+| Classification | Meaning | Membership effect |
+|---|---|---|
+| `ITINERARY_STOP` | directs the traveller to a named place in the itinerary (start, visit, stop, enter, arrive, numbered stop) | mandatory |
+| `OPTIONAL_STOP` | a named place presented as optional or extra | optional, never mandatory |
+| `ALTERNATIVE` | a choice among places, or a recommendation among options (for example where to eat) | a choice group, never flattened |
+| `TRANSFER` | describes or announces a motorized or public-transport move to the next part of the itinerary | segment boundary |
+| `PASS_BY` | named places only seen or passed (streets walked, buildings seen, orientation) | context, never membership |
+| `NON_ITINERARY` | description, history, tips, captions, ads, navigation, author notes | none |
+
+Walking between places is never a `TRANSFER`. `transferMode`
+(`BUS | TAXI | METRO | TRAIN | TRAM | FERRY | CAR | OTHER_MOTORIZED |
+UNSPECIFIED`) is optional semantic metadata on a `TRANSFER` atom.
+
+#### 3. Zero-to-many entities per atom
+
+An atom is not a stop. One atom may name zero, one or several places, each
+with its own role:
+
+```json
+{
+  "atomId": "a-012",
+  "classification": "ITINERARY_STOP",
+  "entities": [
+    { "sourceName": "the old lighthouse", "supportSpan": "climb the old lighthouse", "role": "ITINERARY_STOP" },
+    { "sourceName": "Harbour Road", "supportSpan": "walking along Harbour Road", "role": "PASS_BY" }
+  ],
+  "reason": "audit only"
+}
+```
+
+- `sourceName` is the exact source wording. No translation, expansion or
+  canonical naming happens here. Identity stays with the geographic
+  resolver. `MISSING_NORMALIZATION_KIND` and the identity gates are
+  unchanged; this contract simply never asks for normalization.
+- `supportSpan` must be inside that atom. Containment ignores only case,
+  accents, emphasis/escape/quote characters and whitespace runs. The span
+  is mapped back to source offsets.
+- `sourceName` must be inside its `supportSpan`. A name that is not in the
+  atom is an invented entity and makes the response invalid.
+- Role consistency: a `NON_ITINERARY` atom has no entities. Any other
+  non-`TRANSFER` atom has at least one entity, and its classification
+  equals its strongest entity role
+  (`ITINERARY_STOP > OPTIONAL_STOP > ALTERNATIVE > PASS_BY`). A `TRANSFER`
+  atom may name its destination, as `ITINERARY_STOP` when visited next and
+  otherwise as `PASS_BY`.
+- `reason` is audit only and never authority. No canonical entity IDs, and
+  no model-authored ordinals.
+
+#### 4. Exhaustiveness invariant
+
+Every input atom appears exactly once in the semantic result. The result is
+invalid, and extraction FAILS CLOSED for that unit, when any atom is
+missing or duplicated, any label names an unknown atom (including a
+read-only context atom), any label or entity is malformed, a span is
+outside its atom, a name is outside its span, or roles are inconsistent.
+There is no partial acceptance and no fallback to the generative candidate
+contract.
+
+When the atoms do not fit one request, they are batched under their global
+IDs. Each atom belongs to exactly one batch. Preceding atoms may be shown
+as read-only context. A batched result is valid only if each batch is valid
+for its own scope and the union labels every unit atom exactly once.
+
+#### 5. Deterministic assembly
+
+The backend derives every fact that needs no further interpretation:
+
+- **Order:** atom order, then span position inside the atom. Never a
+  model-generated ordinal.
+- **Segments:** a `TRANSFER` atom closes the current segment once that
+  segment has membership from a non-`TRANSFER` atom. Adjacent `TRANSFER`
+  atoms, such as a heading and the sentence that follows it, form one
+  boundary. A transfer destination labelled `ITINERARY_STOP` opens the new
+  segment. The model is never asked to remember to emit a separate
+  candidate per segment.
+- **Membership:** only `ITINERARY_STOP` entities are mandatory.
+  `OPTIONAL_STOP` stays optional. `ALTERNATIVE` entities form choice
+  groups: consecutive alternative-bearing atoms (atoms with no entities do
+  not interrupt). `A or B` never becomes `A + B`. `PASS_BY` keeps
+  provenance only. `NON_ITINERARY` contributes nothing.
+- An exact repeat of a folded name inside one segment is one member with
+  all of its provenance. A mandatory occurrence absorbs weaker ones. This
+  is string equality, not identity.
+
+Each segment with mandatory membership is a source-defined composition
+candidate. Its members carry `sourceName`, `supportSpan` and source offsets
+into the existing source-support → identity → geography →
+`INCOMPLETE_SOURCE_COMPOSITION` path, which is unchanged.
+
+#### 6. Failure policy
+
+Incomplete or structurally inconsistent labelling FAILS CLOSED for that
+unit and records the issue list (atom IDs and codes). Never fall back to
+accepting a generative candidate, never repair labels by guessing, and
+never relax a downstream gate to compensate. A provider or transport
+failure is an operational failure, not a semantic one.
+
+### What this changes and what it does not
+
+- An omission becomes observable. "Atom `a-079` is labelled `PASS_BY`"
+  is an explicit, reviewable decision. A silently dropped stop is not.
+- Segment loss and segment mixing caused by the model forgetting to emit
+  a candidate become structurally impossible. Mixing remains possible only
+  as a visible labelling decision (for example a transfer heading labelled
+  as a stop).
+- Semantic labels are still probabilistic. Exhaustiveness does not prove
+  that `ITINERARY_STOP` vs `PASS_BY` is right. It makes every such call
+  explicit and auditable.
+
+Productization requires the spike's evidence and a separate owner
+authorization. The production extractor path stays unchanged until then.
