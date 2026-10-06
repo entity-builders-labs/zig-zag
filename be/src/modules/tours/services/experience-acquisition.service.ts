@@ -70,6 +70,12 @@ import {
   CorroborationGroupTrace,
 } from './structured-candidate-corroboration.service';
 import { WorkUnitAnchorScope } from '../interfaces/experience-geographic-scope.interface';
+import { AtomizedSourceUnitTrace } from '../interfaces/atomized-source-unit.interface';
+import {
+  ATOMIZED_SOURCE_UNIT_EXTRACTOR,
+  AtomizedSourceUnitExtractor,
+} from './atomized-source-unit-extractor';
+import { isAtomizableSourceUnit } from '../utils/atomized-candidate-mapping.util';
 
 function relevantDeficitsFor(
   sourcePlan: SourcePlan,
@@ -267,12 +273,15 @@ export type WebAcquisitionStage =
 
 /**
  * What evidence one extraction attempt consumed: the grounded search
- * snippets as returned, or those same items with deep-retrieved source
- * content substituted for the selected URLs.
+ * snippets as returned, those same items with deep-retrieved source content
+ * substituted for the selected URLs, or one complete editorial unit
+ * (`SECTION_UNIT`, `sectionComplete: true`) labelled atom by atom, whose
+ * atomized contract is the unit's only composition authority.
  */
 export type WebExtractionInputKind =
   | 'grounded_snippets'
-  | 'deep_source_content';
+  | 'deep_source_content'
+  | 'atomized_source_unit';
 
 export interface WebExtractionAttemptAudit {
   inputKind: WebExtractionInputKind;
@@ -294,6 +303,8 @@ export interface WebExtractionAttemptAudit {
   sourceWindow?: WebDeepSourceWindowAudit;
   /** Deep-source attempts only: what the scan did after this attempt. */
   scanDecision?: WebDeepSourceScanDecision;
+  /** Atomized attempts only: the pre-identity fidelity trace of the unit. */
+  atomizedUnit?: AtomizedSourceUnitTrace;
 }
 
 export type WebDeepSourceDecisionReason =
@@ -474,6 +485,9 @@ export class ExperienceAcquisitionService {
     @Optional()
     @Inject(EXPERIENCE_WEB_SOURCE_CONTENT_PROVIDER)
     private readonly webSourceContentProvider?: WebSourceContentProvider,
+    @Optional()
+    @Inject(ATOMIZED_SOURCE_UNIT_EXTRACTOR)
+    private readonly atomizedUnitExtractor?: AtomizedSourceUnitExtractor,
   ) {}
 
   async executePlan(
@@ -882,6 +896,78 @@ export class ExperienceAcquisitionService {
         }
       };
 
+      // A complete editorial unit has exactly one composition authority:
+      // the atomized contract. The generative extractor is never run on it,
+      // and a contract failure or INVALID_RUN yields no candidates instead
+      // of a fallback (the scan simply moves on to the next window).
+      const runAtomizedExtraction = async (
+        sourceWindow: WebDeepSourceWindowAudit,
+      ) => {
+        stage = 'EXTRACTION';
+        const empty = {
+          inputKind: 'atomized_source_unit' as const,
+          validationErrors: [] as string[],
+          extractedCandidateCount: 0,
+          admittedCandidateCount: 0,
+          candidateDecisions: [] as WebCandidateAdmissionDecision[],
+          sourceWindow,
+        };
+        if (!this.atomizedUnitExtractor) {
+          const failureReason =
+            'ATOMIZED_SOURCE_UNIT_EXTRACTOR_NOT_CONFIGURED: a complete SECTION_UNIT has no composition authority';
+          extractionAttempts.push({
+            ...empty,
+            status: 'failed',
+            failureReason,
+          });
+          throw new Error(failureReason);
+        }
+        const record = grounded.evidence.find(
+          (item) => item.url === sourceWindow.sourceUrl,
+        );
+        let result: Awaited<ReturnType<AtomizedSourceUnitExtractor['extract']>>;
+        try {
+          result = await this.atomizedUnitExtractor.extract({
+            sourceUrl: sourceWindow.sourceUrl,
+            evidenceKey: record.key,
+            ...(record.title ? { sourceTitle: record.title } : {}),
+            content: sourceWindow.content,
+            windowing: sourceWindow.windowing,
+          });
+        } catch (error: any) {
+          extractionAttempts.push({
+            ...empty,
+            status: 'failed',
+            failureReason: error?.message ?? String(error),
+          });
+          throw error;
+        }
+        const decisions = decideAdmission(result.candidates);
+        const invalidRun = result.unit.contractOutcome === 'INVALID_RUN';
+        const audit: WebExtractionAttemptAudit = {
+          ...empty,
+          status: invalidRun ? 'failed' : 'completed',
+          extractorProvider: result.provider,
+          extractorModel: result.model,
+          validationErrors: result.validationErrors,
+          extractedCandidateCount: result.candidates.length,
+          admittedCandidateCount: decisions.filter((d) => d.accepted).length,
+          candidateDecisions: decisions,
+          sourceSupportAudits: result.sourceSupportAudits,
+          ...(result.localityRecovery
+            ? { localityRecovery: result.localityRecovery }
+            : {}),
+          atomizedUnit: result.unit,
+          ...(invalidRun && result.unit.providerFailure
+            ? {
+                failureReason: `INVALID_RUN ${result.unit.providerFailure.kind}#${result.unit.providerFailure.batchIndex}: ${result.unit.providerFailure.message}`,
+              }
+            : {}),
+        };
+        extractionAttempts.push(audit);
+        return { extracted: result, decisions, audit };
+      };
+
       const initial = await runExtraction('grounded_snippets', grounded);
       // The evidence set behind the emitted candidates. Never mutated in
       // place: the provider's result object stays exactly as returned.
@@ -1168,15 +1254,18 @@ export class ExperienceAcquisitionService {
                 ),
               };
               attemptCount++;
-              const deep = await runExtraction(
-                'deep_source_content',
-                windowInput,
-                {
-                  sourceUrl: url,
-                  windowing: window.audit,
-                  content: window.content,
-                },
-              );
+              const sourceWindow: WebDeepSourceWindowAudit = {
+                sourceUrl: url,
+                windowing: window.audit,
+                content: window.content,
+              };
+              const deep = isAtomizableSourceUnit(window.audit)
+                ? await runAtomizedExtraction(sourceWindow)
+                : await runExtraction(
+                    'deep_source_content',
+                    windowInput,
+                    sourceWindow,
+                  );
               const closesGap = closesCompositionGap(deep.decisions);
               if (closesGap && !window.audit.sectionComplete) {
                 // Fail closed on fidelity, not on the source: keep scanning

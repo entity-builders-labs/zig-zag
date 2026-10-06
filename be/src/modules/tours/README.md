@@ -65,10 +65,27 @@ The primary flow when a user creates a tour from the mobile app wizard:
      section up to `DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS` is an editorial unit
      that always reaches one extraction whole. A window that cuts a unit
      (`sectionComplete: false`) can never close the gap, so a prefix of a
-     source-defined itinerary is never persisted as the whole of it. An
-     extracted itinerary is enumerated exhaustively and in order. It is split
-     only where the source states a motorized transfer, and it is never
-     truncated: `MAX_COMPONENT_HINTS` rejects an oversized candidate instead
+     source-defined itinerary is never persisted as the whole of it.
+   - A complete unit window (`SECTION_UNIT`, `sectionComplete: true`) has one
+     composition authority, `services/atomized-source-unit-extractor.ts`.
+     The generative extractor never sees it. The extractor:
+     - splits the unit into source atoms deterministically;
+     - marks runs of ≥3 link-only atoms `NON_EDITORIAL`;
+     - has the LLM label every editorial atom exactly once, in ~2500-char
+       batches with at most one relabel round;
+     - verifies `mentionAtomId` anaphora against the cited atom;
+     - assembles transfer-bounded segments in source order;
+     - asks each segment's mandatory members for their physical kind.
+     Only `ITINERARY_STOP` members become component hints, and the
+     candidates go through the same source-support gate. Any contract issue
+     fails the unit closed, and a transport failure is `INVALID_RUN`; neither
+     falls back. The pre-identity trace is in
+     `acquisition.atomized_source_unit` / `acquisition.atomized_source_atoms`.
+     See the architecture's "exhaustive source-atom labelling amendment".
+   - Other windows still use generative extraction: an extracted itinerary is
+     enumerated exhaustively and in order. It is split only where the source
+     states a motorized transfer, and it is never truncated:
+     `MAX_COMPONENT_HINTS` rejects an oversized candidate instead
      (RW4-EXTRACT-COMPLETENESS-1).
    - Resolves component hints against Places/OSM and validates geographic coherence.
      A policy class (`DEFAULT` / `WALK` / `ROUTE_LIKE`) is granted per candidate,
@@ -112,7 +129,7 @@ deliberately deferred to the spatial-feasibility stage.
 
 ### LangChain Prompts
 
-There is no itinerary/planning prompt in this module's live path (planning is a deterministic solver, never an LLM). `prompts/` holds the media prompt and the two shared discovery contracts every extractor provider sends unchanged: `experience-discovery-extraction.prompt.ts` (candidates and components) and `component-locality-recovery.prompt.ts` (the bounded follow-up that classifies source statements naming a component; the backend admits a locality deterministically, see `utils/component-locality-recovery.util.ts`). `PreferenceInterpreterService` builds its prompt inline.
+There is no itinerary/planning prompt in this module's live path (planning is a deterministic solver, never an LLM). `prompts/` holds the media prompt and the two shared discovery contracts every extractor provider sends unchanged: `experience-discovery-extraction.prompt.ts` (candidates and components) `source-atom-labelling.prompt.ts` (the frozen atom-labelling prompt v4 and the member-kind prompt for complete editorial units), and `component-locality-recovery.prompt.ts` (the bounded follow-up that classifies source statements naming a component; the backend admits a locality deterministically, see `utils/component-locality-recovery.util.ts`). `PreferenceInterpreterService` builds its prompt inline.
 
 ## API Endpoints
 

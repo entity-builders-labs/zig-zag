@@ -1491,14 +1491,20 @@ system defects and stay outside the research-agent loop.
 
 ## Experience Domain V2 — exhaustive source-atom labelling amendment (2026-10-06)
 
-**Status: APPROVED for productization (owner, 2026-10-06), gated by
-milestones A → B → C below. Milestone A is closed as
-COMPLETED_WITH_FINDINGS (owner, 2026-10-06), and its boundary hardening
-(A.1–A.3) has landed in the spike. B is not yet authorized. Not yet
-implemented in the production extractor.** The production path still asks the extractor to
-generate `ExperienceCandidate`s from prose. This amendment defines the
-replacement contract for editorial itinerary units (`SECTION_UNIT`,
-`sectionComplete=true`) and the evidence a later cutover must meet. Spike:
+**Status: APPROVED (owner, 2026-10-06), gated by milestones A → B → C
+below.**
+
+- Milestone A: closed as COMPLETED_WITH_FINDINGS (owner, 2026-10-06), and
+  its boundary hardening (A.1–A.3) landed in the spike.
+- Milestone B: **IMPLEMENTED in production (2026-10-06)** for
+  `SECTION_UNIT` windows with `sectionComplete=true`; there, this contract
+  is the only composition authority.
+- C3 is not yet run.
+- Every other window still asks the generative extractor for
+  `ExperienceCandidate`s from prose.
+
+This amendment defines the replacement contract for editorial itinerary
+units and the evidence a cutover must meet. Spike:
 `spikes/rw4-atom-labelling-2026-10-06/`. Finding:
 RW4-EXTRACT-COMPLETENESS-1 (`spikes/rw4-extract-completeness-2026-10-05/`).
 
@@ -1865,7 +1871,29 @@ RW4-EXTRACT-COMPLETENESS-1 cannot be closed.
 
   All ten structural readiness properties hold (spike README). The
   recommendation is READY_FOR_B.
-- **B. Production port.** Needs separate owner authorization. Scope:
+- **B. Production port. IMPLEMENTED (2026-10-06).**
+  - Code: `be/src/modules/tours`, starting at
+    `services/atomized-source-unit-extractor.ts`. The routing predicate is
+    `isAtomizableSourceUnit`.
+  - Integration decisions made during B:
+    - Identity routes on `GeoEntityHint.expectedKind`, which this contract
+      does not carry. A bounded member-kind call runs per candidate
+      segment after assembly. It is exactly-once by member ID, and a
+      missing, duplicate, unknown or invalid kind fails the unit closed.
+      It never adds, drops or reorders a member, and the labelling prompt
+      stays byte-identical to v4.
+    - Candidate names come only from the source: the unit heading; with
+      several segments, heading + the segment's unique source heading;
+      else the grounded title; ` (part N of M)` only to disambiguate.
+    - Members enter the unchanged `extractExperienceCandidates` gate as
+      their source wording, with no normalization claimed. Their support
+      span is a literal unit slice.
+    - Themes, intents and traits stay empty; evidence-only classification
+      owns them.
+  - Open scope finding: a whole unit that arrives as a continuation window
+    still takes the generative path (RW4-ATOM-SCOPE-1).
+
+  Original scope:
   - port atomization, editorial structure, validation, anaphora
     resolution and assembly into `be/src` as a provider-neutral utility;
   - a typed semantic result contract and typed roles;

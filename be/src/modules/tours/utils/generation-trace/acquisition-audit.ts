@@ -32,6 +32,7 @@ import {
   workUnitGeographicGrant,
 } from '../acquisition-strategy-selector.util';
 import { WorkUnitGeographicGrant } from '../../interfaces/geographic-validation-authorization.interface';
+import { projectAtomizedSourceUnitSteps } from './atomized-source-unit-audit';
 
 export type AcquisitionWorkUnitStrategyLabel =
   | 'area_route_walk'
@@ -585,7 +586,7 @@ export function recordAcquisitionLifecycle(
       recorder.record({
         parentId: passId,
         name: 'acquisition.deep_source_window',
-        description: `Extracción sobre ventana ${windowing.windowOrdinal}/${windowing.windowCount} de ${sourceUrl}`,
+        description: `${attempt.inputKind === 'atomized_source_unit' ? 'Extracción atomizada' : 'Extracción'} sobre ventana ${windowing.windowOrdinal}/${windowing.windowCount} de ${sourceUrl}`,
         component: 'ExperienceDiscoveryExtractor',
         decision: {
           status:
@@ -607,6 +608,13 @@ export function recordAcquisitionLifecycle(
           content,
         },
       });
+      if (attempt.atomizedUnit) {
+        for (const stepInput of projectAtomizedSourceUnitSteps(
+          attempt.atomizedUnit,
+        )) {
+          recorder.record({ parentId: passId, ...stepInput });
+        }
+      }
     }
 
     // 5c. acquisition.semantic_extraction
@@ -642,7 +650,7 @@ export function recordAcquisitionLifecycle(
         // detailed in their own `acquisition.deep_source_window` steps, so a
         // long progressive scan cannot overflow this step's payload.
         extractionAttempts: webResult.extractionAttempts.map((attempt) =>
-          attempt.inputKind === 'deep_source_content'
+          attempt.sourceWindow
             ? summarizeDeepExtractionAttempt(attempt)
             : projectExtractionAttempt(attempt),
         ),

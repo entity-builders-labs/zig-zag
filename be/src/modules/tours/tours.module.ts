@@ -29,6 +29,10 @@ import { OllamaDiscoveryProvider } from './services/ollama-discovery.provider';
 import { CloudflareDiscoveryProvider } from './services/cloudflare-discovery.provider';
 import { selectDiscoveryExtractor } from './services/discovery-extractor-selection.util';
 import { LocalityRecoveringDiscoveryExtractor } from './services/locality-recovering-discovery-extractor';
+import {
+  ATOMIZED_SOURCE_UNIT_EXTRACTOR,
+  AtomizedSourceUnitExtractor,
+} from './services/atomized-source-unit-extractor';
 import { GreedyDailyPlanningSolver } from './services/greedy-daily-planning.solver';
 import { ApproximateTravelEstimateProvider } from './services/approximate-travel-estimate.provider';
 import { GeoapifyTravelEstimateProvider } from './services/geoapify-travel-estimate.provider';
@@ -223,6 +227,37 @@ import { MediaModule } from '../media/media.module';
             cloudflare,
           }),
         ),
+      inject: [
+        aiConfig.KEY,
+        GeminiDiscoveryProvider,
+        GroqDiscoveryProvider,
+        OllamaDiscoveryProvider,
+        CloudflareDiscoveryProvider,
+      ],
+    },
+    {
+      // The composition authority for a complete editorial unit. Same
+      // configured extractor transport and model as EXPERIENCE_DISCOVERY_
+      // PROVIDER, so the trace names the provider that actually labelled.
+      provide: ATOMIZED_SOURCE_UNIT_EXTRACTOR,
+      useFactory: (
+        config: AiConfig,
+        gemini: GeminiDiscoveryProvider,
+        groq: GroqDiscoveryProvider,
+        ollama: OllamaDiscoveryProvider,
+        cloudflare: CloudflareDiscoveryProvider,
+      ) => {
+        const provider = config.discoveryExtractor.provider;
+        return new AtomizedSourceUnitExtractor(
+          selectDiscoveryExtractor(provider, {
+            gemini,
+            groq,
+            ollama,
+            cloudflare,
+          }),
+          { provider, model: config.discoveryExtractor[provider].model },
+        );
+      },
       inject: [
         aiConfig.KEY,
         GeminiDiscoveryProvider,

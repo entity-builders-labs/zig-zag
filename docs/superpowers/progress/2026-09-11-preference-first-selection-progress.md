@@ -2485,22 +2485,78 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 - Recommendation: **READY_FOR_B**. B is not started. Details are in the
   spike README, "Milestone A closure".
 
+### RW4 atom labelling milestone B (production port) — 2026-10-06
+
+- Owner authorized B only (no C3, no merge, no prompt tuning). Ported
+  into `be/src/modules/tours`:
+  - `utils/source-atomization.util.ts`: atomizer and A.1 editorial
+    structure;
+  - `utils/atom-labelling-contract.util.ts`: validation, merge,
+    relabel scope, A.2 anaphora, batching;
+  - `utils/atom-segment-assembly.util.ts`: assembly;
+  - `utils/atomized-candidate-mapping.util.ts`: routing predicate,
+    member kinds, naming, hints and trace;
+  - `prompts/source-atom-labelling.prompt.ts`;
+  - `services/atomized-source-unit-extractor.ts`;
+  - trace steps `acquisition.atomized_source_unit` and
+    `acquisition.atomized_source_atoms`.
+- **Cutover:** in the deep-source scan, a `SECTION_UNIT` window with
+  `sectionComplete=true` goes only to `AtomizedSourceUnitExtractor`
+  (`inputKind: atomized_source_unit`). The generative extractor never
+  sees that unit, and there is no fallback. Every other window keeps the
+  generative path and its continuation rules.
+- **Equivalence with the spike:**
+  - atomization, separators and navigation blocks are byte-identical on
+    the frozen SOB/AG units (`spike-golden.json`);
+  - the batch plan and labelling prompt hashes match prompt v4;
+  - the recorded live SOB run 1 and AG run 1 (with the AG relabel of
+    `a-072`) replay offline to exactly the spike's segments.
+- **Owner decisions taken during B:**
+  - Identity routes on `GeoEntityHint.expectedKind`, which labelling does
+    not produce. It comes from a separate, bounded per-segment
+    member-kind call (`member-kind-prompt-v1`). It is exactly-once by
+    member ID and never changes membership. The labelling prompt stays
+    byte-identical.
+  - Candidate names come from the source: the unit heading, then
+    heading + the segment's unique source heading, then the grounded
+    source title, then ` (part N of M)` only to disambiguate.
+- **Downstream unchanged:**
+  - candidates are raw extractor-shaped objects through the unchanged
+    `extractExperienceCandidates` gate and source locality recovery;
+  - hint `name` is the source wording, with no `sourceName` and no
+    `normalizationKind`; the support span is a literal unit slice.
+  - Recorded SOB: every hint is `SUPPORTED`.
+  - Themes, intents and traits are empty and are owned by evidence-only
+    classification.
+- `MISSING_NORMALIZATION_KIND`: no bug. Name === source wording needs no
+  kind, and a real normalization still requires one (tests).
+- Verification on this tree:
+  - `yarn test`: 195 suites, 2746 tests;
+  - `yarn test:integration` (zigzag_test): 25 suites, 115 tests;
+  - `yarn test:e2e`: 41/41 on 3 consecutive runs. One earlier run failed
+    `experience-selection-competitive › CF5 5B-baseline` once; it did not
+    reproduce in 3 isolated runs and does not touch acquisition;
+  - typecheck and lint: clean.
+- No live provider call was made in B. Per-call `elapsedMs` is now in the
+  trace, so C3 measures the batching/timeout cost (25 s Gemini timeout
+  unchanged).
+- Recommendation: **READY_FOR_C3**, with the C3 precondition below.
+
 ## Next authorized action
 
-0. (2026-10-06, A COMPLETED_WITH_FINDINGS, READY_FOR_B) Owner
-   authorization of milestone B. Its scope is in the architecture
-   amendment, "Productization milestones":
-   - port atomization, editorial structure, validation, anaphora
-     resolution and assembly into `be/src`;
-   - typed semantic result and roles, and the complete per-unit trace;
-   - only `SECTION_UNIT` with `sectionComplete=true`;
-   - the generative composition path disabled for the same unit;
-   - downstream source support, identity, geography, dedupe and
-     persistence unchanged.
-
-   Then run C3 COLD, and WARM only if COLD persists a qualifying
-   composite. Do not start B without that authorization. No prompt
-   tuning. Do not relax `INCOMPLETE_SOURCE_COMPOSITION`, source support,
+0. (2026-10-06, B IMPLEMENTED, READY_FOR_C3) Owner authorization of C3
+   COLD, and WARM only if COLD persists a qualifying composite. Do not
+   run C3 without that authorization.
+   - C3 precondition: in the C3 trace, each oracle source's unit must be
+     an `atomized_source_unit` attempt. Live C3fix put both at window 1,
+     `SECTION_UNIT`. If a walk unit arrives as a continuation window
+     instead, the run did not exercise B (RW4-ATOM-SCOPE-1); classify it
+     that way, not as a B failure.
+   - Classify outcomes with the amendment's taxonomy, from the
+     `acquisition.atomized_source_unit` steps: `ASSEMBLED`,
+     `CONTRACT_FAIL_CLOSED`, `INVALID_RUN`, then
+     `FIDELITY_PASS_IDENTITY_*`.
+   - No prompt tuning. Do not relax `INCOMPLETE_SOURCE_COMPOSITION`, source support,
    identity thresholds or `MISSING_NORMALIZATION_KIND`. A correctly
    extracted mandatory stop that fails identity (Mafalda, Patio de los
    Ezeiza) is a downstream blocker, never a reason to drop the stop.
@@ -2671,9 +2727,29 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   segments are assembled deterministically. Milestone A is
   COMPLETED_WITH_FINDINGS (2026-10-06), and the A.1 chrome boundary, the
   A.2 anaphora contract and A.3 batching have landed in the spike.
-  Recommendation: READY_FOR_B. It stays OPEN until the authorized B
-  cutover and C3; see "milestone A closure + boundary hardening —
-  2026-10-06" above.
+  Milestone B (2026-10-06) cut complete `SECTION_UNIT`s over to the
+  atomized contract in production: one composition authority, and a
+  pre-identity trace. Recommendation: READY_FOR_C3. It stays OPEN until
+  C3; see "milestone B (production port)" above.
+- RW4-ATOM-SCOPE-1: OPEN, MEDIUM (2026-10-06, B scope boundary).
+  - Only a `SECTION_UNIT` window with `sectionComplete=true` is atomized.
+    A whole editorial unit that reaches extraction as a
+    `DOCUMENT_ORDER_CONTINUATION` window (also `sectionComplete=true`)
+    still takes the generative path.
+  - Example: the full SOB page with a plain snippet context puts the walk
+    unit in window 3.
+  - Atomizing such a window as-is is unsafe: it may hold several whole
+    units, and assembly would mix them. Extending the scope (atomize per
+    whole unit inside a window) is an owner decision.
+  - Not a C3 blocker: live C3fix had both oracle units at window 1,
+    `SECTION_UNIT`.
+- RW4-ATOM-KIND-1: OPEN, LOW (2026-10-06).
+  - The member-kind call is a new bounded semantic step (PLACE/AREA/ROUTE
+    per mandatory member), decided in B because identity routes on it.
+  - It cannot change membership, and any contract slip fails the unit
+    closed. Its labels have not been measured live; a wrong ROUTE vs
+    PLACE label shows up as an identity outcome in C3, attributable via
+    `physicalKind` in the trace.
 - RW4-ID-C3-AGUS-1: OPEN, separate from extraction. In C3 COLD the
   faithfully emitted agusyornet stops Monumento de Mafalda and El Patio de
   los Ezeiza were `CANDIDATE_REJECTED` by identity. Thresholds untouched.

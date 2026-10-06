@@ -15,6 +15,37 @@ import {
 } from '../interfaces/web-source-content.interface';
 import { windowSourceContentSequence } from '../utils/source-content-windowing.util';
 import { extractExperienceCandidates } from '../utils/experience-candidate-extraction.util';
+import {
+  readAtomizedFixture,
+  recordedAtomTransport,
+  recordedRun,
+} from '../fixtures/atomized-source-units.fixture';
+import { AtomizedSourceUnitExtractor } from './atomized-source-unit-extractor';
+import { GenerationTraceRecorder } from '../utils/generation-trace-recorder.util';
+import { recordAcquisitionLifecycle } from '../utils/experience-generation-trace.util';
+
+/**
+ * Double of the complete-unit composition authority (milestone B): a
+ * complete SECTION_UNIT window goes to it, never to the generative
+ * extractor. `candidatesFor` decides what the unit yields.
+ */
+function atomizedExtractorDouble(
+  candidatesFor: (input: { content: string }) => any[] = () => [],
+) {
+  return {
+    extract: jest.fn().mockImplementation((input: { content: string }) =>
+      Promise.resolve({
+        candidates: candidatesFor(input),
+        validationErrors: [],
+        extractionFailures: [],
+        sourceSupportAudits: [],
+        provider: 'gemini',
+        model: 'gemini-x',
+        unit: { contractOutcome: 'ASSEMBLED', providerFailure: null },
+      }),
+    ),
+  };
+}
 
 describe('ExperienceAcquisitionService', () => {
   const input = {
@@ -1169,6 +1200,7 @@ describe('ExperienceAcquisitionService', () => {
                 }),
               };
 
+              const atomized = atomizedExtractorDouble();
               const service = new ExperienceAcquisitionService(
                 {} as any,
                 {} as any,
@@ -1181,6 +1213,7 @@ describe('ExperienceAcquisitionService', () => {
                 { extractExperiences } as any,
                 undefined,
                 webSourceContentProvider,
+                atomized as any,
               );
 
               const result = await service.executePlan(multiComponentWebPlan);
@@ -1195,21 +1228,37 @@ describe('ExperienceAcquisitionService', () => {
                 DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
                 DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS,
               );
-              // Nothing qualifies, so every window is examined exactly once.
+              // Nothing qualifies, so every window is examined exactly once:
+              // window 1 is the complete itinerary unit, so the atomized
+              // contract examines it and the generative extractor never sees
+              // it; every other window stays generative.
+              expect(windows[0].audit).toMatchObject({
+                selectionStrategy: 'SECTION_UNIT',
+                sectionComplete: true,
+              });
+              expect(atomized.extract).toHaveBeenCalledTimes(1);
               expect(extractExperiences).toHaveBeenCalledTimes(
-                1 + windows.length,
+                1 + windows.length - 1,
               );
-              const enriched =
-                extractExperiences.mock.calls[1][1].evidence.find(
-                  (e: any) => e.key === 'ev-1',
-                );
-              expect(enriched.snippet.length).toBeLessThanOrEqual(
+              const unit = atomized.extract.mock.calls[0][0];
+              expect(unit).toMatchObject({
+                sourceUrl: 'https://buenosaires.travel/san-telmo-walk',
+                evidenceKey: 'ev-1',
+                windowing: windows[0].audit,
+              });
+              expect(unit.content.length).toBeLessThanOrEqual(
                 DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS,
               );
-              expect(enriched.snippet).toContain(
+              expect(unit.content).toContain(
                 'Start at Plaza Dorrego, then walk down Defensa to Parque Lezama.',
               );
-              expect(enriched.snippet).toBe(windows[0].content);
+              expect(unit.content).toBe(windows[0].content);
+              for (const call of extractExperiences.mock.calls.slice(1)) {
+                const deep = call[1].evidence.find(
+                  (e: any) => e.key === 'ev-1',
+                );
+                expect(deep.snippet).not.toBe(windows[0].content);
+              }
 
               const traceItem =
                 result.webResults?.[0].sourceContentRetrieval?.items[0];
@@ -1223,7 +1272,7 @@ describe('ExperienceAcquisitionService', () => {
                 selectionStrategy: 'SECTION_UNIT',
                 sectionComplete: true,
                 originalContentChars: fullContent.length,
-                retainedContentChars: enriched.snippet.length,
+                retainedContentChars: unit.content.length,
                 maxChars: DEFAULT_WEB_SOURCE_CONTENT_MAX_CHARS,
                 unitMaxChars: DEFAULT_WEB_SOURCE_UNIT_MAX_CHARS,
                 truncated: true,
@@ -1306,6 +1355,7 @@ describe('ExperienceAcquisitionService', () => {
             evidenceRequirements: ExperienceAcquisitionPlan['evidenceRequirements'] = [
               'MULTI_COMPONENT_EXPERIENCE',
             ],
+            atomized = atomizedExtractorDouble(),
           ) {
             const retrieve = jest.fn().mockResolvedValue({
               provider: 'cloudflare',
@@ -1333,12 +1383,13 @@ describe('ExperienceAcquisitionService', () => {
               { extractExperiences } as any,
               undefined,
               { providerName: 'cloudflare', retrieve } as any,
+              atomized as any,
             );
             const plan: ExperienceAcquisitionPlan = {
               ...multiComponentWebPlan,
               evidenceRequirements,
             };
-            return { service, retrieve, plan };
+            return { service, retrieve, plan, atomized };
           }
 
           /** Extractor double: the composition is only "found" when a deep
@@ -1367,6 +1418,18 @@ describe('ExperienceAcquisitionService', () => {
             const extractExperiences = findsCompositionWhenVisible(() =>
               extraction([]),
             );
+            const atomizedWalk = atomizedExtractorDouble(({ content }) =>
+              content.includes(composition)
+                ? [
+                    walk(
+                      'San Telmo walk',
+                      hint('m-1', 'Plaza Dorrego'),
+                      hint('m-2', 'Parque Lezama'),
+                      hint('m-3', 'Caminito'),
+                    ),
+                  ]
+                : [],
+            );
             const { service, retrieve, plan } = serviceFor(
               { [URL_A]: page },
               extractExperiences,
@@ -1378,12 +1441,21 @@ describe('ExperienceAcquisitionService', () => {
                     : e,
                 ),
               },
+              ['MULTI_COMPONENT_EXPERIENCE'],
+              atomizedWalk,
             );
 
             const result = await service.executePlan(plan);
 
             expect(retrieve).toHaveBeenCalledTimes(1);
-            expect(extractExperiences).toHaveBeenCalledTimes(2);
+            // Window 1 is a complete unit: the atomized contract is its only
+            // composition authority; the generative extractor ran only on
+            // the grounded snippets.
+            expect(atomizedWalk.extract).toHaveBeenCalledTimes(1);
+            expect(extractExperiences).toHaveBeenCalledTimes(1);
+            expect(
+              result.webResults![0].extractionAttempts.map((a) => a.inputKind),
+            ).toEqual(['grounded_snippets', 'atomized_source_unit']);
             const web = result.webResults![0];
             expect(web.sourceContentRetrieval?.scan).toMatchObject({
               outcome: 'REQUIREMENT_SATISFIED',
@@ -1427,7 +1499,7 @@ describe('ExperienceAcquisitionService', () => {
             const extractExperiences = findsCompositionWhenVisible(() =>
               extraction([]),
             );
-            const { service, plan } = serviceFor(
+            const { service, plan, atomized } = serviceFor(
               { [URL_A]: oversized },
               extractExperiences,
               {
@@ -1441,6 +1513,10 @@ describe('ExperienceAcquisitionService', () => {
             );
 
             const result = await service.executePlan(plan);
+
+            // An incomplete unit is never atomized: atomization cannot make
+            // a cut composition complete.
+            expect(atomized.extract).not.toHaveBeenCalled();
 
             const web = result.webResults![0];
             const deep = web.extractionAttempts.filter(
@@ -1704,7 +1780,11 @@ describe('ExperienceAcquisitionService', () => {
               0,
             );
             const deepCalls = extractExperiences.mock.calls.slice(1);
-            expect(deepCalls).toHaveLength(total);
+            const atomizedCalls = (service as any).atomizedUnitExtractor.extract
+              .mock.calls;
+            // A complete unit is atomized, every other window generative;
+            // each window is examined by exactly one of them.
+            expect(deepCalls.length + atomizedCalls.length).toBe(total);
             for (const call of deepCalls) {
               // Exactly one source carries deep content in each attempt.
               expect(deepEvidence(call)).toHaveLength(1);
@@ -4024,6 +4104,242 @@ describe('ExperienceAcquisitionService', () => {
           ).toEqual(['DEFAULT', 'DEFAULT']);
         });
       });
+    });
+  });
+
+  describe('complete-unit cutover (milestone B, real atomized extractor)', () => {
+    const SOB_URL =
+      'https://secretsofbuenosaires.com/day-1-self-guided-walking-tour-in-buenos-aires/';
+    const SOB_PAGE = readAtomizedFixture('sob-day1-page.md');
+    const SOB_UNIT = readAtomizedFixture('sob-day1-unit.md');
+    const SOB_RUN = recordedRun('recorded-sob-run1.json');
+    /** The C3 grounded search record and free text for this source. */
+    const grounded = {
+      provider: 'serper',
+      model: 'n/a',
+      groundingStatus: 'applied',
+      evidence: [
+        {
+          key: 'ev-2',
+          source: 'secretsofbuenosaires.com',
+          title: 'Day 1 self guided walking tour in Buenos Aires',
+          snippet:
+            'What you will see: Presidential Palace, Plaza de Mayo, Catedral, old town house, San Telmo, La Boca, tango on the street, Street Defensa, ...',
+          url: SOB_URL,
+        },
+      ],
+      rawOutput: 'grounded raw fixture',
+    };
+    const plan: ExperienceAcquisitionPlan = {
+      destination: { destinationName: 'Buenos Aires' },
+      deficits: [],
+      evidenceRequirements: ['MULTI_COMPONENT_EXPERIENCE'],
+      breadth: 'focused',
+      sourcePlans: [
+        {
+          provider: 'web',
+          web: {
+            query:
+              'Quiero recorrer San Telmo a pie por mi cuenta, sin guía, siguiendo un itinerario autoguiado por sus lugares históricos.',
+          },
+        },
+      ],
+    };
+    const noCandidates = () =>
+      jest.fn().mockResolvedValue({
+        candidates: [],
+        extractionFailures: [],
+        validationErrors: [],
+        sourceSupportAudits: [],
+        provider: 'gemini',
+        model: 'gemini-x',
+        rawOutput: '{"candidates":[]}',
+      });
+    const kindOf = (name: string) =>
+      name === 'El Caminito' ? 'ROUTE' : 'PLACE';
+
+    function serviceWith(
+      extractExperiences: jest.Mock,
+      transport: ReturnType<typeof recordedAtomTransport>['transport'],
+    ) {
+      return new ExperienceAcquisitionService(
+        {} as any,
+        {} as any,
+        { acquire: jest.fn() } as any,
+        { acquire: jest.fn() } as any,
+        new StructuredExperienceCandidateSynthesizerService(),
+        new StructuredCandidateCorroborationService(),
+        undefined,
+        { search: jest.fn().mockResolvedValue(grounded) } as any,
+        { extractExperiences } as any,
+        undefined,
+        {
+          providerName: 'tavily',
+          retrieve: jest.fn().mockResolvedValue({
+            provider: 'tavily',
+            requestedCount: 1,
+            retrievedCount: 1,
+            items: [
+              {
+                requestedUrl: SOB_URL,
+                status: 'retrieved',
+                contentType: 'markdown',
+                content: SOB_PAGE,
+                contentChars: SOB_PAGE.length,
+                provider: 'tavily',
+              },
+            ],
+            totalDurationMs: 10,
+          }),
+        } as any,
+        new AtomizedSourceUnitExtractor(transport, {
+          provider: 'gemini',
+          model: 'gemini-3.5-flash-lite',
+        }),
+      );
+    }
+
+    it('the complete SECTION_UNIT takes the atomized path only; its candidates flow downstream', async () => {
+      const extractExperiences = noCandidates();
+      const { transport } = recordedAtomTransport(SOB_RUN, kindOf);
+      const result = await serviceWith(
+        extractExperiences,
+        transport,
+      ).executePlan(plan);
+
+      const web = result.webResults![0];
+      expect(web.extractionAttempts.map((a) => a.inputKind)).toEqual([
+        'grounded_snippets',
+        'atomized_source_unit',
+      ]);
+      const [, atomizedAttempt] = web.extractionAttempts;
+      expect(atomizedAttempt.sourceWindow.windowing).toMatchObject({
+        selectionStrategy: 'SECTION_UNIT',
+        sectionComplete: true,
+        windowOrdinal: 1,
+      });
+      expect(atomizedAttempt.sourceWindow.content).toBe(SOB_UNIT);
+      // One composition authority: the generative extractor saw only the
+      // grounded snippets, never the complete unit.
+      expect(extractExperiences).toHaveBeenCalledTimes(1);
+      for (const call of extractExperiences.mock.calls)
+        for (const e of call[1].evidence)
+          expect(e.snippet).not.toContain(
+            'Make a stop at the national history museum',
+          );
+      expect(atomizedAttempt).toMatchObject({
+        status: 'completed',
+        scanDecision: 'STOP_REQUIREMENT_SATISFIED',
+        extractorProvider: 'gemini',
+        extractorModel: 'gemini-3.5-flash-lite',
+        atomizedUnit: { contractOutcome: 'ASSEMBLED', atomCount: 182 },
+      });
+      expect(
+        result.candidates.map((c) => c.componentHints.map((h) => h.name)),
+      ).toEqual([
+        SOB_RUN.spikeSegments[0].mandatory,
+        SOB_RUN.spikeSegments[1].mandatory,
+      ]);
+      expect(web.sourceContentRetrieval?.scan).toMatchObject({
+        outcome: 'REQUIREMENT_SATISFIED',
+        satisfiedBy: { sourceUrl: SOB_URL, windowOrdinal: 1 },
+      });
+
+      // The Generation Trace carries the pre-identity fidelity record.
+      const recorder = new GenerationTraceRecorder();
+      recordAcquisitionLifecycle(recorder, {
+        passNumber: 1,
+        workUnit: { kind: 'GENERIC', deficits: [] },
+        geographicGrant: NO_GEOGRAPHIC_GRANT,
+        plan,
+        execution: result,
+      });
+      const trace = recorder.build({
+        canonicalRequest: {},
+        result: { status: 'COMPLETED', outcome: 'COMPLETED' },
+      } as any);
+      const window = trace.steps.find(
+        (s) => s.name === 'acquisition.deep_source_window',
+      );
+      expect(window.description).toMatch(/^Extracción atomizada/);
+      const unitStep = trace.steps.find(
+        (s) => s.name === 'acquisition.atomized_source_unit',
+      );
+      expect(unitStep.parentId).toBe(window.parentId);
+      expect(unitStep.decision).toMatchObject({
+        status: 'PASS',
+        outcome: 'ASSEMBLED',
+      });
+      expect(
+        (unitStep.facts as any).segments.map((s: any) =>
+          s.mandatoryBeforeIdentity.map((m: any) => m.sourceName),
+        ),
+      ).toEqual([...SOB_RUN.spikeSegments.map((s) => s.mandatory)]);
+      expect(
+        trace.steps.filter(
+          (s) => s.name === 'acquisition.atomized_source_atoms',
+        ),
+      ).toHaveLength(4);
+    });
+
+    it('a contract fail-closed unit yields no candidates and never falls back to the generative path', async () => {
+      const extractExperiences = noCandidates();
+      const { transport } = recordedAtomTransport(SOB_RUN, kindOf, {
+        kind: () => Promise.resolve('{"members": []}'),
+      });
+      const result = await serviceWith(
+        extractExperiences,
+        transport,
+      ).executePlan(plan);
+
+      const web = result.webResults![0];
+      const unitAttempt = web.extractionAttempts.find(
+        (a) => a.inputKind === 'atomized_source_unit',
+      );
+      expect(unitAttempt).toMatchObject({
+        status: 'completed',
+        extractedCandidateCount: 0,
+        scanDecision: 'CONTINUE_NO_QUALIFYING_CANDIDATE',
+        atomizedUnit: { contractOutcome: 'CONTRACT_FAIL_CLOSED' },
+      });
+      // No generative attempt ever examined the complete unit.
+      for (const call of extractExperiences.mock.calls)
+        for (const e of call[1].evidence) expect(e.snippet).not.toBe(SOB_UNIT);
+      expect(
+        web.extractionAttempts.filter(
+          (a) =>
+            a.inputKind === 'deep_source_content' &&
+            a.sourceWindow.windowing.selectionStrategy === 'SECTION_UNIT',
+        ),
+      ).toEqual([]);
+      expect(result.candidates).toEqual([]);
+    });
+
+    it('an INVALID_RUN unit is an operational failure on the attempt, not a semantic outcome', async () => {
+      const extractExperiences = noCandidates();
+      const { transport } = recordedAtomTransport(SOB_RUN, kindOf, {
+        batch: (index) =>
+          index === 1
+            ? Promise.reject(new Error('Gemini request timeout after 25000ms'))
+            : undefined,
+      });
+      const result = await serviceWith(
+        extractExperiences,
+        transport,
+      ).executePlan(plan);
+      const unitAttempt = result.webResults![0].extractionAttempts.find(
+        (a) => a.inputKind === 'atomized_source_unit',
+      );
+      expect(unitAttempt).toMatchObject({
+        status: 'failed',
+        failureReason:
+          'INVALID_RUN batch#1: Gemini request timeout after 25000ms',
+        atomizedUnit: {
+          contractOutcome: 'INVALID_RUN',
+          providerFailure: { kind: 'batch', batchIndex: 1 },
+        },
+      });
+      expect(result.candidates).toEqual([]);
     });
   });
 });
