@@ -1,0 +1,21 @@
+import * as fs from 'fs';
+import { nameCorrespondence } from '../utils/identity-name-correspondence.util';
+it('characterizes C3 verified components', () => {
+  const t = JSON.parse(fs.readFileSync(process.env.TRACE!, 'utf8'));
+  const rows = new Map<string, any>();
+  for (const st of t.steps.filter((s: any) => s.name === 'resolution.component_identity')) {
+    for (const c of st.facts.components) {
+      for (const a of c.attempts) {
+        if (a.verificationDecision !== 'VERIFIED' || !a.selectedCandidate) continue;
+        const key = `${c.name}=>${a.selectedCandidate.name}@${a.strategy}`;
+        rows.set(key, {
+          hint: c.name,
+          candidate: a.selectedCandidate.name,
+          strategy: a.strategy,
+          correspondence: nameCorrespondence(c.name, a.selectedCandidate.name),
+        });
+      }
+    }
+  }
+  fs.writeFileSync(process.env.OUT!, JSON.stringify([...rows.values()], null, 1));
+});

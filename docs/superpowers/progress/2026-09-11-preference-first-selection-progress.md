@@ -2611,6 +2611,35 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   - it is also only one part of the source walk.
 - WARM not run. RW4_FUNCTIONAL_MILESTONE_PASSED: NO.
 
+### RW4-ID-FALSE-VERIFY-1 identity trust fix — 2026-10-07
+
+- Forensic: replayed the real resolver on the real local OSM pool and the
+  real Wikidata item.
+  - "Don Carlos" was AMBIGUOUS (11 material competitors) until the
+    candidate's own QID arrived.
+  - Rule 3d (`QID_LINK`) then VERIFIED it on a containment match
+    ("carlos" ⊆ "Carlos Pellegrini"), ahead of competitor examination.
+- Fix:
+  - verification-grade name correspondence (`nameCorrespondence`:
+    EQUIVALENT / OVERLAP / NONE);
+  - a typed evidence-role authority (`identityEvidenceRole`); no
+    RETRIEVAL_ONLY fact decides VERIFIED;
+  - the QID link moved after competitor examination, the same rule for
+    OWN_QID and OBSERVATION_QID;
+  - competitors gated by the one structural-compatibility authority, for
+    every provider.
+- Spec: amendment §19.3 (rule 4b).
+- Trace: every attempt carries `verificationRule`; the deciding attempt
+  carries `identityDecision`.
+- After the fix, the replay gives AMBIGUOUS for "Don Carlos". Four more
+  false positives of the same class in the C3 trace are closed: Catedral,
+  Bar El Federal, Club Atlético, Plaza.
+- A4, P0.2 and the RW1 matrix are unchanged. Accepted recall loss:
+  "La Librería del Avila", "The San Telmo Market", "Cabildo".
+- Dossier:
+  `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2026-10-07/`.
+  No C3 run.
+
 ## Next authorized action
 
 0. (2026-10-06, C3 COLD ran; precondition not met, no composite) Owner
@@ -2619,8 +2648,8 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
    - (a) rerun C3 COLD as is: search and selection vary per run;
    - (b) DONE 2026-10-07 for scan order, confirmed by the live C3 retry
      (`c3-retry-cold`, no qualifying composite). Selection-limit losses
-     remain. The next blocker is RW4-ID-FALSE-VERIFY-1: an owner
-     decision, nothing started;
+     remain. RW4-ID-FALSE-VERIFY-1 is fixed (2026-10-07). A C3 identity
+     retry needs new authorization;
    - (c) extend B's scope to complete `WHOLE_DOCUMENT` and whole-unit
      continuation windows (RW4-ATOM-SCOPE-1).
    C3 rules (kept from B):
@@ -2833,11 +2862,25 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
     (secretsofbuenosaires) stays OPEN, and a live C3 retry has not run.
 - RW4-ATOM-SCOPE-1 addendum (C3): a complete `WHOLE_DOCUMENT` window
   (buenosairesfreewalks) also stays on the generative path.
-- RW4-ID-FALSE-VERIFY-1: OPEN, HIGH (2026-10-07, C3 retry). The source
-  stop "Don Carlos" (La Boca segment) was VERIFIED via `LOCAL_OSM_POOL`
-  as `osm:node:5332434913` "Carlos Pellegrini" (`historic=tomb`,
-  wikidata Q270446, ~6 km away). It persisted as a component because
-  the city-wide scope cannot catch it. Not fixed; thresholds untouched.
+- RW4-ID-FALSE-VERIFY-1: FIXED, pending a live C3 retry (2026-10-07).
+  The source stop "Don Carlos" was VERIFIED as the tomb of Carlos
+  Pellegrini. The cause was a fuzzy hint-to-label match on the
+  candidate's own QID, decided ahead of 11 known material competitors.
+  Spec §19.3. Thresholds untouched.
+- RW4-ID-EQUIV-RECALL-1: OPEN, LOW (2026-10-07). Equivalence has no
+  stopword handling, so article and preposition variants of a true
+  referent ("La Librería del Avila" / "Librería de Ávila", "The San Telmo
+  Market") no longer verify through a name-linked QID. Any fix must stay
+  language-neutral and must not reopen OVERLAP as proof.
+- RW4-ID-QID-NONPHYSICAL-1: OPEN, LOW (2026-10-07). A candidate's own QID
+  can name a non-physical subject (Q270446 is a human, without P625; the
+  "Catedral Constructiva" node's QID is a painting). This is a candidate
+  generic contradiction for a PLACE, but the Wikidata summary does not
+  carry P31/P625. It needs an adapter extension and an owner decision.
+- RW4-ID-RETRIEVAL-QID-BIAS-1: OPEN, LOW (2026-10-07). Among fuzzy ties,
+  `bestFuzzyMatch` prefers a record carrying a `wikidata` tag. It is
+  harmless for verification now (an OVERLAP link decides nothing), but
+  retrieval still favours the QID-tagged homonym over the source's place.
 - RW4-ATOM-KIND-1: OPEN, LOW (2026-10-06).
   - The member-kind call is a new bounded semantic step (PLACE/AREA/ROUTE
     per mandatory member), decided in B because identity routes on it.
@@ -2898,10 +2941,10 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   collision, `662d817c`) and was deliberately left unchanged. The verifier
   tests A9/A10 use `OWN_QID (true, false)`, a shape the collector never
   produces.
-- RW4-ID-QID-HOMONYM-1: OPEN, LOW. A corroborating OWN_QID/OBSERVATION_QID
-  still singles out a MULTIPLE same-name member by label-only matching
-  (retained for RW1 San Telmo). It is a potential false positive for
-  homonyms that each carry a QID. Not demonstrated.
+- RW4-ID-QID-HOMONYM-1: NARROWED (2026-10-07). A QID link now needs an
+  EQUIVALENT name and runs after competitor examination. A known material
+  competitor always blocks it. The residual case is a homonym no examined
+  pool exposed.
 - RW4-INT-FLAKE-2: MERGED into PF-CI-FLAKE-1. `catalog-reuse` failed COLD
   planning with `MAX_WALKING_PER_DAY_EXCEEDED` in 1 of 6 runs on this tree.
   The untouched baseline `15af1ccb` fails identically in 1 of 10 runs, so

@@ -1,0 +1,176 @@
+[
+ {
+  "hint": "Obelisco",
+  "candidate": "Obelisco",
+  "strategy": "NOMINATIM",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Plaza",
+  "candidate": "Plaza Dorrego",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "Casa Rosada",
+  "candidate": "Casa Rosada",
+  "strategy": "NOMINATIM",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Defensa Street",
+  "candidate": "Defensa",
+  "strategy": "TARGETED_ROUTE",
+  "correspondence": "NONE"
+ },
+ {
+  "hint": "Casa Mínima",
+  "candidate": "Casa Mínima",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "The San Telmo Market",
+  "candidate": "Mercado de San Telmo",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "NONE"
+ },
+ {
+  "hint": "Caminito",
+  "candidate": "Caminito",
+  "strategy": "TARGETED_ROUTE",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Caminito Street",
+  "candidate": "Caminito",
+  "strategy": "CATALOG_REUSE",
+  "correspondence": "NONE"
+ },
+ {
+  "hint": "San Telmo",
+  "candidate": "San Telmo",
+  "strategy": "CATALOG_REUSE",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Mafalda sculpture",
+  "candidate": "Mafalda, Susanita and Manolito",
+  "strategy": "PLACES",
+  "correspondence": "NONE"
+ },
+ {
+  "hint": "Casa Mínima",
+  "candidate": "Casa Mínima",
+  "strategy": "CATALOG_REUSE",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "San Telmo Market",
+  "candidate": "Mercado de San Telmo",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "NONE"
+ },
+ {
+  "hint": "Teatro Colón",
+  "candidate": "Teatro Colón",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Casa Rosada",
+  "candidate": "Casa Rosada",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Cabildo",
+  "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "La Librería del Avila",
+  "candidate": "La Librería de Avila",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "The San Telmo Market",
+  "candidate": "Mercado de San Telmo",
+  "strategy": "CATALOG_REUSE",
+  "correspondence": "NONE"
+ },
+ {
+  "hint": "Caminito",
+  "candidate": "Caminito",
+  "strategy": "CATALOG_REUSE",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Don Carlos",
+  "candidate": "Carlos Pellegrini",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "PLAZA DE MAYO",
+  "candidate": "Plaza de Mayo",
+  "strategy": "PLACES",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Casa Rosada",
+  "candidate": "Casa Rosada",
+  "strategy": "CATALOG_REUSE",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Catedral Metropolitana",
+  "candidate": "Catedral Metropolitana",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Catedral",
+  "candidate": "Catedral Constructiva",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "Bar Sur",
+  "candidate": "Bar Sur",
+  "strategy": "NOMINATIM",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Mercado de San Telmo",
+  "candidate": "Mercado de San Telmo",
+  "strategy": "CATALOG_REUSE",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Plaza Dorrego",
+  "candidate": "Plaza Dorrego",
+  "strategy": "CATALOG_REUSE",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Club Atlético",
+  "candidate": "Club Atlético Atlanta",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "Parque Lezama",
+  "candidate": "Parque Lezama",
+  "strategy": "LOCAL_OSM_POOL",
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "La Boca",
+  "candidate": "La Boca",
+  "strategy": "NOMINATIM",
+  "correspondence": "EQUIVALENT"
+ }
+]
