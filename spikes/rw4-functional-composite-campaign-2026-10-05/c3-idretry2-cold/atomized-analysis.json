@@ -1,0 +1,5076 @@
+{
+ "run": "c3-idretry2-cold",
+ "buildCommit": "1177638263554142ab0b4f8959f4ada8d123a763",
+ "windows": [
+  {
+   "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+   "sourceUrl": "http://www.agusyornet.com/2020/03/self-guided-walking-tour-san-telmo.html",
+   "inputKind": "atomized_source_unit",
+   "strategy": "SECTION_UNIT",
+   "sectionComplete": true,
+   "windowOrdinal": 1,
+   "chars": 13309,
+   "decision": "STOP_REQUIREMENT_SATISFIED",
+   "extracted": 3,
+   "admitted": 2,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+   "sourceUrl": "https://secretsofbuenosaires.com/day-1-self-guided-walking-tour-in-buenos-aires/",
+   "inputKind": "atomized_source_unit",
+   "strategy": "SECTION_UNIT",
+   "sectionComplete": true,
+   "windowOrdinal": 1,
+   "chars": 1452,
+   "decision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+   "extracted": 1,
+   "admitted": 0,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+   "sourceUrl": "https://secretsofbuenosaires.com/day-1-self-guided-walking-tour-in-buenos-aires/",
+   "inputKind": "deep_source_content",
+   "strategy": "DOCUMENT_ORDER_CONTINUATION",
+   "sectionComplete": true,
+   "windowOrdinal": 2,
+   "chars": 641,
+   "decision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+   "extracted": 0,
+   "admitted": 0,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+   "sourceUrl": "https://secretsofbuenosaires.com/day-1-self-guided-walking-tour-in-buenos-aires/",
+   "inputKind": "deep_source_content",
+   "strategy": "DOCUMENT_ORDER_CONTINUATION",
+   "sectionComplete": true,
+   "windowOrdinal": 3,
+   "chars": 14926,
+   "decision": "STOP_REQUIREMENT_SATISFIED",
+   "extracted": 2,
+   "admitted": 2,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "sourceUrl": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/",
+   "inputKind": "atomized_source_unit",
+   "strategy": "SECTION_UNIT",
+   "sectionComplete": true,
+   "windowOrdinal": 1,
+   "chars": 14370,
+   "decision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+   "extracted": 0,
+   "admitted": 0,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "sourceUrl": "https://www.argentina4u.com/en/buenos-aires/san-telmo-walking-tour",
+   "inputKind": "atomized_source_unit",
+   "strategy": "SECTION_UNIT",
+   "sectionComplete": true,
+   "windowOrdinal": 1,
+   "chars": 1501,
+   "decision": "STOP_REQUIREMENT_SATISFIED",
+   "extracted": 1,
+   "admitted": 1,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "sourceUrl": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/",
+   "inputKind": "deep_source_content",
+   "strategy": "DOCUMENT_ORDER_CONTINUATION",
+   "sectionComplete": true,
+   "windowOrdinal": 2,
+   "chars": 3447,
+   "decision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+   "extracted": 0,
+   "admitted": 0,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "sourceUrl": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/",
+   "inputKind": "deep_source_content",
+   "strategy": "DOCUMENT_ORDER_CONTINUATION",
+   "sectionComplete": true,
+   "windowOrdinal": 3,
+   "chars": 5063,
+   "decision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+   "extracted": 0,
+   "admitted": 0,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "sourceUrl": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/",
+   "inputKind": "deep_source_content",
+   "strategy": "DOCUMENT_ORDER_CONTINUATION",
+   "sectionComplete": true,
+   "windowOrdinal": 4,
+   "chars": 3905,
+   "decision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+   "extracted": 1,
+   "admitted": 1,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "sourceUrl": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/",
+   "inputKind": "deep_source_content",
+   "strategy": "DOCUMENT_ORDER_CONTINUATION",
+   "sectionComplete": true,
+   "windowOrdinal": 5,
+   "chars": 2270,
+   "decision": "STOP_SOURCES_EXHAUSTED",
+   "extracted": 0,
+   "admitted": 0,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "sourceUrl": "http://www.agusyornet.com/2020/03/self-guided-walking-tour-san-telmo.html",
+   "inputKind": "atomized_source_unit",
+   "strategy": "SECTION_UNIT",
+   "sectionComplete": true,
+   "windowOrdinal": 1,
+   "chars": 13309,
+   "decision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+   "extracted": 0,
+   "admitted": 0,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "sourceUrl": "https://secretsofbuenosaires.com/day-1-self-guided-walking-tour-in-buenos-aires/",
+   "inputKind": "atomized_source_unit",
+   "strategy": "SECTION_UNIT",
+   "sectionComplete": true,
+   "windowOrdinal": 1,
+   "chars": 14926,
+   "decision": "STOP_REQUIREMENT_SATISFIED",
+   "extracted": 2,
+   "admitted": 2,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "sourceUrl": "http://www.agusyornet.com/2020/03/self-guided-walking-tour-san-telmo.html",
+   "inputKind": "deep_source_content",
+   "strategy": "DOCUMENT_ORDER_CONTINUATION",
+   "sectionComplete": true,
+   "windowOrdinal": 2,
+   "chars": 3526,
+   "decision": "CONTINUE_NO_QUALIFYING_CANDIDATE",
+   "extracted": 0,
+   "admitted": 0,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "sourceUrl": "http://www.agusyornet.com/2020/03/self-guided-walking-tour-san-telmo.html",
+   "inputKind": "deep_source_content",
+   "strategy": "DOCUMENT_ORDER_CONTINUATION",
+   "sectionComplete": true,
+   "windowOrdinal": 3,
+   "chars": 9586,
+   "decision": "STOP_EXTRACTION_FAILED",
+   "extracted": 0,
+   "admitted": 0,
+   "failureReason": "The operation was aborted due to timeout"
+  }
+ ],
+ "units": [
+  {
+   "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+   "sourceUnitId": "ev-2:w1:d98df37379f4",
+   "sourceUrl": "http://www.agusyornet.com/2020/03/self-guided-walking-tour-san-telmo.html",
+   "outcome": "ASSEMBLED",
+   "atoms": "95 (5 non-editorial)",
+   "nonEditorialBlocks": [
+    "a-084..a-088"
+   ],
+   "batches": 5,
+   "calls": [
+    "batch#1:23a/7114c/6011ms",
+    "batch#2:20a/7713c/4884ms",
+    "batch#3:20a/7612c/5786ms",
+    "batch#4:19a/7737c/5324ms",
+    "batch#5:8a/5738c/2360ms",
+    "relabel#0:1a/5569c/1458ms",
+    "member_kind#1:14a/3530c/2683ms",
+    "member_kind#2:3a/1381c/1704ms",
+    "member_kind#3:2a/1104c/1466ms"
+   ],
+   "relabel": {
+    "scope": [
+     "a-072"
+    ],
+    "firstPassIssues": [
+     "STOP_WITHOUT_ENTITY:a-072"
+    ]
+   },
+   "issues": [],
+   "memberKindIssues": [],
+   "providerFailure": null,
+   "segments": [
+    {
+     "segmentIndex": 1,
+     "range": "a-001..a-057",
+     "openedBy": [],
+     "transferDestinations": [],
+     "mandatoryBeforeIdentity": [
+      "Teatro Colón [PLACE] @a-010,a-011",
+      "Obelisco [PLACE] @a-012",
+      "Plaza de Mayo [PLACE] @a-012,a-013,a-015,a-020,a-021,a-027",
+      "Congress building [PLACE] @a-015",
+      "Casa Rosada [PLACE] @a-021",
+      "Cathedral [PLACE] @a-021",
+      "Cabildo [PLACE] @a-021",
+      "Defensa Street [ROUTE] @a-026",
+      "\"Farmacia la Estrella\" [PLACE] @a-028,a-029",
+      "\"La Librería del Avila\" [PLACE] @a-031",
+      "Monumento de Mafalda [PLACE] @a-034",
+      "Casa Mínima [PLACE] @a-038",
+      "The San Telmo Market [PLACE] @a-040,a-052",
+      "\"El Patio de los Ezeiza\" [PLACE] @a-053,a-056"
+     ],
+     "optional": [
+      "Museum of the city",
+      "Chile 371",
+      "Café Rivas y Galería Solar",
+      "Café Rivas",
+      "Galería Solar"
+     ],
+     "alternativeGroups": [
+      [
+       "Café Tortoni",
+       "London City Coffee"
+      ],
+      [
+       "Alfonso"
+      ],
+      [
+       "market",
+       "La Boca",
+       "Nuestra Parrilla",
+       "Coffee Town",
+       "Saigón",
+       "Desnivel"
+      ]
+     ],
+     "routeLegs": [
+      "Av. Roque Saenz Peña",
+      "Av. de Mayo"
+     ],
+     "passBy": [
+      "Plaza Dorrego",
+      "National School of Buenos Aires"
+     ],
+     "conflicts": [],
+     "candidateName": "Self Guided Walking Tour San Telmo (part 1 of 3)"
+    },
+    {
+     "segmentIndex": 2,
+     "range": "a-058..a-068",
+     "openedBy": [
+      "a-058:UNSPECIFIED",
+      "a-059:BUS"
+     ],
+     "transferDestinations": [
+      "Caminito en La Boca@a-058",
+      "\"El Patio de los Ezeiza\"@a-059",
+      "Caminito@a-059"
+     ],
+     "mandatoryBeforeIdentity": [
+      "Caminito [ROUTE] @a-062",
+      "\"Don Carlos\" [PLACE] @a-065,a-066,a-067",
+      "Caminito Street [ROUTE] @a-068"
+     ],
+     "optional": [
+      "\"Fundación Proa\""
+     ],
+     "alternativeGroups": [],
+     "routeLegs": [],
+     "passBy": [
+      "colorful houses",
+      "\"Estadio La Boca\""
+     ],
+     "conflicts": [],
+     "candidateName": "Self Guided Walking Tour San Telmo (part 2 of 3)"
+    },
+    {
+     "segmentIndex": 3,
+     "range": "a-069..a-074",
+     "openedBy": [
+      "a-069:BUS"
+     ],
+     "transferDestinations": [
+      "Puerto Madero@a-069"
+     ],
+     "mandatoryBeforeIdentity": [
+      "Puente de la Mujer [PLACE] @a-070,a-071",
+      "Puerto Madero [AREA] @a-071"
+     ],
+     "optional": [],
+     "alternativeGroups": [],
+     "routeLegs": [
+      "Av. Int. Hernan Giralt"
+     ],
+     "passBy": [
+      "San Telmo",
+      "\"Darsena Sur\""
+     ],
+     "conflicts": [],
+     "candidateName": "Self Guided Walking Tour San Telmo (part 3 of 3)"
+    },
+    {
+     "segmentIndex": 4,
+     "range": "a-075..a-076",
+     "openedBy": [
+      "a-075:UNSPECIFIED"
+     ],
+     "transferDestinations": [
+      "Centro Cultural Kirchner@a-075"
+     ],
+     "mandatoryBeforeIdentity": [],
+     "optional": [
+      "Centro Cultural Kirchner"
+     ],
+     "alternativeGroups": [],
+     "routeLegs": [],
+     "passBy": [],
+     "conflicts": []
+    },
+    {
+     "segmentIndex": 5,
+     "range": "a-077..a-095",
+     "openedBy": [
+      "a-077:BUS"
+     ],
+     "transferDestinations": [
+      "Metrobus@a-077"
+     ],
+     "mandatoryBeforeIdentity": [],
+     "optional": [],
+     "alternativeGroups": [
+      [
+       "Trade Sky Bar"
+      ]
+     ],
+     "routeLegs": [],
+     "passBy": [
+      "Puerto madero"
+     ],
+     "conflicts": []
+    }
+   ],
+   "candidateNames": [
+    "Self Guided Walking Tour San Telmo (part 1 of 3)",
+    "Self Guided Walking Tour San Telmo (part 2 of 3)",
+    "Self Guided Walking Tour San Telmo (part 3 of 3)"
+   ]
+  },
+  {
+   "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+   "sourceUnitId": "ev-5:w1:0fdd2dfef688",
+   "sourceUrl": "https://secretsofbuenosaires.com/day-1-self-guided-walking-tour-in-buenos-aires/",
+   "outcome": "ASSEMBLED",
+   "atoms": "11 (0 non-editorial)",
+   "nonEditorialBlocks": [],
+   "batches": 1,
+   "calls": [
+    "batch#1:11a/5752c/2425ms",
+    "member_kind#1:1a/778c/1482ms"
+   ],
+   "relabel": null,
+   "issues": [],
+   "memberKindIssues": [],
+   "providerFailure": null,
+   "segments": [
+    {
+     "segmentIndex": 1,
+     "range": "a-001..a-011",
+     "openedBy": [],
+     "transferDestinations": [],
+     "mandatoryBeforeIdentity": [
+      "San Telmo [AREA] @a-008"
+     ],
+     "optional": [],
+     "alternativeGroups": [],
+     "routeLegs": [],
+     "passBy": [],
+     "conflicts": [],
+     "candidateName": "Day 1 self guided walking tour in Buenos Aires"
+    }
+   ],
+   "candidateNames": [
+    "Day 1 self guided walking tour in Buenos Aires"
+   ]
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "sourceUnitId": "ev-3:w1:32a16a1bfe1d",
+   "sourceUrl": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/",
+   "outcome": "CONTRACT_FAIL_CLOSED",
+   "atoms": "181 (0 non-editorial)",
+   "nonEditorialBlocks": [],
+   "batches": 6,
+   "calls": [
+    "batch#1:33a/7137c/6712ms",
+    "batch#2:36a/7581c/6515ms",
+    "batch#3:24a/7482c/7207ms",
+    "batch#4:27a/7666c/31489ms",
+    "batch#5:33a/7582c/8146ms",
+    "batch#6:28a/7493c/5934ms",
+    "relabel#0:5a/6894c/8863ms"
+   ],
+   "relabel": {
+    "scope": [
+     "a-034",
+     "a-066",
+     "a-102",
+     "a-172",
+     "a-138"
+    ],
+    "firstPassIssues": [
+     "STOP_WITHOUT_ENTITY:a-034",
+     "STOP_WITHOUT_ENTITY:a-066",
+     "STOP_WITHOUT_ENTITY:a-102",
+     "NAME_NOT_IN_SPAN:a-172",
+     "MENTION_ANTECEDENT_MISSING:a-138"
+    ]
+   },
+   "issues": [
+    "MENTION_ANTECEDENT_MISSING:a-138"
+   ],
+   "memberKindIssues": [],
+   "providerFailure": null,
+   "segments": [],
+   "candidateNames": []
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "sourceUnitId": "ev-5:w1:205f98913509",
+   "sourceUrl": "https://www.argentina4u.com/en/buenos-aires/san-telmo-walking-tour",
+   "outcome": "ASSEMBLED",
+   "atoms": "11 (0 non-editorial)",
+   "nonEditorialBlocks": [],
+   "batches": 1,
+   "calls": [
+    "batch#1:11a/6233c/9310ms",
+    "member_kind#1:6a/2068c/1807ms"
+   ],
+   "relabel": null,
+   "issues": [],
+   "memberKindIssues": [],
+   "providerFailure": null,
+   "segments": [
+    {
+     "segmentIndex": 1,
+     "range": "a-001..a-011",
+     "openedBy": [],
+     "transferDestinations": [],
+     "mandatoryBeforeIdentity": [
+      "Church of San Ignacio de Loyola [PLACE] @a-007",
+      "Comic Strip Walk [ROUTE] @a-009",
+      "Mafalda sculpture [PLACE] @a-009",
+      "Casa Mínima [PLACE] @a-010",
+      "San Telmo Market [PLACE] @a-011",
+      "San Telmo Fair [PLACE] @a-011"
+     ],
+     "optional": [],
+     "alternativeGroups": [],
+     "routeLegs": [],
+     "passBy": [
+      "Basilica and Convent of Santo Domingo"
+     ],
+     "conflicts": [],
+     "candidateName": "Tour Description"
+    }
+   ],
+   "candidateNames": [
+    "Tour Description"
+   ]
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "sourceUnitId": "ev-1:w1:d98df37379f4",
+   "sourceUrl": "http://www.agusyornet.com/2020/03/self-guided-walking-tour-san-telmo.html",
+   "outcome": "CONTRACT_FAIL_CLOSED",
+   "atoms": "95 (5 non-editorial)",
+   "nonEditorialBlocks": [
+    "a-084..a-088"
+   ],
+   "batches": 5,
+   "calls": [
+    "batch#1:23a/7114c/5124ms",
+    "batch#2:20a/7713c/7275ms",
+    "batch#3:20a/7612c/4637ms",
+    "batch#4:19a/7737c/5058ms",
+    "batch#5:8a/5738c/3587ms",
+    "relabel#0:3a/6693c/8478ms"
+   ],
+   "relabel": {
+    "scope": [
+     "a-041",
+     "a-072",
+     "a-076"
+    ],
+    "firstPassIssues": [
+     "SPAN_NOT_IN_ATOM:a-041",
+     "SPAN_NOT_IN_ATOM:a-072",
+     "MENTION_ANTECEDENT_AMBIGUOUS:a-076"
+    ]
+   },
+   "issues": [
+    "SPAN_NOT_IN_ATOM:a-072"
+   ],
+   "memberKindIssues": [],
+   "providerFailure": null,
+   "segments": [],
+   "candidateNames": []
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "sourceUnitId": "ev-3:w1:403bb88ffa9a",
+   "sourceUrl": "https://secretsofbuenosaires.com/day-1-self-guided-walking-tour-in-buenos-aires/",
+   "outcome": "ASSEMBLED",
+   "atoms": "182 (63 non-editorial)",
+   "nonEditorialBlocks": [
+    "a-118..a-121",
+    "a-123..a-130",
+    "a-132..a-182"
+   ],
+   "batches": 4,
+   "calls": [
+    "batch#1:34a/7107c/31081ms",
+    "batch#2:38a/7557c/7539ms",
+    "batch#3:39a/7485c/5975ms",
+    "batch#4:8a/5424c/2432ms",
+    "relabel#0:7a/6916c/2230ms",
+    "member_kind#1:19a/3552c/3767ms",
+    "member_kind#2:2a/823c/26733ms"
+   ],
+   "relabel": {
+    "scope": [
+     "a-041",
+     "a-043",
+     "a-050",
+     "a-051",
+     "a-062",
+     "a-068",
+     "a-071"
+    ],
+    "firstPassIssues": [
+     "ROLE_INCONSISTENT:a-041",
+     "ROLE_INCONSISTENT:a-043",
+     "ROLE_INCONSISTENT:a-050",
+     "ROLE_INCONSISTENT:a-051",
+     "ROLE_INCONSISTENT:a-062",
+     "ROLE_INCONSISTENT:a-068",
+     "ROLE_INCONSISTENT:a-071"
+    ]
+   },
+   "issues": [],
+   "memberKindIssues": [],
+   "providerFailure": null,
+   "segments": [
+    {
+     "segmentIndex": 1,
+     "range": "a-001..a-084",
+     "openedBy": [],
+     "transferDestinations": [],
+     "mandatoryBeforeIdentity": [
+      "PLAZA DE MAYO [PLACE] @a-002,a-003,a-007,a-019",
+      "Casa Rosada [PLACE] @a-004,a-009,a-020",
+      "Catedral Metropolitana [PLACE] @a-004,a-022",
+      "Museo del Cabildo [PLACE] @a-004",
+      "National Bank [PLACE] @a-004",
+      "Cabildo [PLACE] @a-020,a-022",
+      "Catedral [PLACE] @a-025",
+      "Mausoleum of General San Martín [PLACE] @a-025",
+      "Feria San Telmo [PLACE] @a-035",
+      "oldest neighborhood of the capital city [AREA] @a-039",
+      "Bar Sur [PLACE] @a-045",
+      "big building with columns [PLACE] @a-049",
+      "Mercado de San Telmo [PLACE] @a-055,a-056,a-061",
+      "Plaza Dorrego [PLACE] @a-061",
+      "Museum of Modern Arts [PLACE] @a-065",
+      "Club Atlético [PLACE] @a-067",
+      "Parque Lezama [PLACE] @a-073,a-077,a-078,a-080",
+      "the national history museum [PLACE] @a-079",
+      "Avenida Caseros [ROUTE] @a-082,a-084"
+     ],
+     "optional": [],
+     "alternativeGroups": [],
+     "routeLegs": [
+      "Defensa",
+      "street Defensa",
+      "street Estados Unidos",
+      "street Paseo de Colon",
+      "Avenida San Juan",
+      "Avenida Paseo Colon"
+     ],
+     "passBy": [
+      "Buenos Aires",
+      "MetroBus infrastructure"
+     ],
+     "conflicts": [],
+     "candidateName": "Walking tour Buenos Aires – Day 1 (part 1 of 2)"
+    },
+    {
+     "segmentIndex": 2,
+     "range": "a-085..a-104",
+     "openedBy": [
+      "a-085:BUS",
+      "a-086:TAXI"
+     ],
+     "transferDestinations": [
+      "Boca@a-085"
+     ],
+     "mandatoryBeforeIdentity": [
+      "“El Caminito“ [ROUTE] @a-090",
+      "La Bombonera [PLACE] @a-098"
+     ],
+     "optional": [],
+     "alternativeGroups": [],
+     "routeLegs": [],
+     "passBy": [],
+     "conflicts": [],
+     "candidateName": "Walking tour Buenos Aires – Day 1 (part 2 of 2)"
+    },
+    {
+     "segmentIndex": 3,
+     "range": "a-105..a-182",
+     "openedBy": [
+      "a-105:BUS"
+     ],
+     "transferDestinations": [
+      "San Telmo@a-105"
+     ],
+     "mandatoryBeforeIdentity": [],
+     "optional": [],
+     "alternativeGroups": [
+      [
+       "beer bars or restaurants"
+      ]
+     ],
+     "routeLegs": [],
+     "passBy": [],
+     "conflicts": []
+    }
+   ],
+   "candidateNames": [
+    "Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+    "Walking tour Buenos Aires – Day 1 (part 2 of 2)"
+   ]
+  }
+ ],
+ "resolution": [
+  {
+   "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+   "description": "Identidad por componente de \"Self Guided Walking Tour San Telmo (part 1 of 3)\": 4/14 resueltos (política geográfica WALK)",
+   "decision": {
+    "status": "WARN",
+    "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+   },
+   "facts": {
+    "components": [
+     {
+      "name": "Teatro Colón",
+      "role": "venue",
+      "hintKey": "m-1",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Teatro Colón",
+         "latitude": -34.6011497,
+         "longitude": -58.3817115
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 1,
+         "viableCount": 1,
+         "searchWindow": {
+          "provenance": "CANDIDATE_ROUTE",
+          "radiusMeters": 1141
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Colony Theatre",
+         "latitude": -34.6125849,
+         "longitude": -58.3696706
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "MATERIAL_COMPETITOR_KNOWN",
+      "identityVerdict": "AMBIGUOUS",
+      "identityDecision": {
+       "rule": "MATERIAL_COMPETITOR_KNOWN",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "MATERIAL_COMPETITOR_KNOWN",
+        "competitorCount": 1
+       },
+       "decisiveEvidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION",
+         "outcome": "MATERIAL_COMPETITOR_KNOWN",
+         "competitorCount": 1,
+         "examinedStrategies": [
+          "LOCAL_OSM_POOL",
+          "NOMINATIM",
+          "PLACES"
+         ]
+        }
+       ],
+       "candidateStrongIds": [
+        "geoapify/geoapify:5177a5c05d512f4dc05900c3972e694e41c0f00103f90109adb3b200000000c0020192030e436f6c6f6e792054686561747265",
+        "openstreetmap/osm:node:2998119689"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Colony Theatre",
+       "latitude": -34.6125849,
+       "provider": "geoapify",
+       "longitude": -58.3696706
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Obelisco",
+      "role": "venue",
+      "hintKey": "m-2",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_UNIQUE_EXACT_NAME",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Obelisco",
+         "latitude": -34.6037093,
+         "longitude": -58.3816296
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_UNIQUE_EXACT_NAME",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "SINGLE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:1332861812"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Obelisco",
+       "latitude": -34.6037093,
+       "provider": "nominatim",
+       "longitude": -58.3816296
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ]
+     },
+     {
+      "name": "Plaza de Mayo",
+      "role": "venue",
+      "hintKey": "m-3",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "QID_LINK_MISMATCH",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Plaza Dorrego",
+         "latitude": -34.6204739,
+         "longitude": -58.3717792
+        },
+        "verificationDecision": "REJECTED"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Plaza de Mayo",
+         "latitude": -34.6089638,
+         "longitude": -58.371573
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 5,
+         "viableCount": 4,
+         "searchWindow": {
+          "provenance": "CANDIDATE_ROUTE",
+          "radiusMeters": 1141
+         },
+         "rejectedCount": 1
+        },
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Plaza 30'000 compañeros",
+         "latitude": -34.6224616,
+         "longitude": -58.3684553
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "MATERIAL_COMPETITOR_KNOWN",
+      "identityVerdict": "AMBIGUOUS",
+      "identityDecision": {
+       "rule": "MATERIAL_COMPETITOR_KNOWN",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "MATERIAL_COMPETITOR_KNOWN",
+        "competitorCount": 1
+       },
+       "decisiveEvidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION",
+         "outcome": "MATERIAL_COMPETITOR_KNOWN",
+         "competitorCount": 1,
+         "examinedStrategies": [
+          "LOCAL_OSM_POOL",
+          "NOMINATIM",
+          "PLACES"
+         ]
+        }
+       ],
+       "candidateStrongIds": [
+        "geoapify/geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000c00201920318506c617a612033302730303020636f6d7061c3b165726f73",
+        "openstreetmap/osm:node:5290138422"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Plaza 30'000 compañeros",
+       "latitude": -34.6224616,
+       "provider": "geoapify",
+       "longitude": -58.3684553
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Congress building",
+      "role": "venue",
+      "hintKey": "m-4",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 1,
+         "viableCount": 1,
+         "searchWindow": {
+          "provenance": "CANDIDATE_ROUTE",
+          "radiusMeters": 1141
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Brisas Office Building",
+         "latitude": -34.6163564,
+         "longitude": -58.3624693
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "NO_DECISIVE_EVIDENCE",
+      "identityVerdict": "INSUFFICIENT_EVIDENCE",
+      "identityDecision": {
+       "rule": "NO_DECISIVE_EVIDENCE",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [],
+       "candidateStrongIds": [
+        "geoapify/geoapify:51eaa6de64652e4dc05914573ac4e44e41c0f00102f901119d320300000000c00201920316427269736173204f6666696365204275696c64696e67e203206f70656e7374726565746d61703a76656e75653a7761792f3533363438363537",
+        "openstreetmap/osm:way:53648657"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Brisas Office Building",
+       "latitude": -34.6163564,
+       "provider": "geoapify",
+       "longitude": -58.3624693
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Casa Rosada",
+      "role": "venue",
+      "hintKey": "m-5",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_UNIQUE_EXACT_NAME",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Casa Rosada",
+         "latitude": -34.6080692,
+         "longitude": -58.3702762
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_UNIQUE_EXACT_NAME",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "SINGLE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:185738988"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Casa Rosada",
+       "latitude": -34.6080692,
+       "provider": "nominatim",
+       "longitude": -58.3702762
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ]
+     },
+     {
+      "name": "Cathedral",
+      "role": "venue",
+      "hintKey": "m-6",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 0,
+         "viableCount": 0,
+         "searchWindow": {
+          "provenance": "CANDIDATE_ROUTE",
+          "radiusMeters": 1141
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "NO_OSM_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "candidateAcquired": false,
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Cabildo",
+      "role": "venue",
+      "hintKey": "m-7",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Cabildo de Buenos Aires",
+         "latitude": -34.6088795,
+         "longitude": -58.3736729
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 0,
+         "viableCount": 0,
+         "searchWindow": {
+          "provenance": "CANDIDATE_ROUTE",
+          "radiusMeters": 1141
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "MATERIAL_COMPETITOR_KNOWN",
+      "identityVerdict": "AMBIGUOUS",
+      "identityDecision": {
+       "rule": "MATERIAL_COMPETITOR_KNOWN",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "MATERIAL_COMPETITOR_KNOWN",
+        "competitorCount": 1
+       },
+       "decisiveEvidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION",
+         "outcome": "MATERIAL_COMPETITOR_KNOWN",
+         "competitorCount": 1,
+         "examinedStrategies": [
+          "LOCAL_OSM_POOL",
+          "NOMINATIM"
+         ]
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:293947112"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Cabildo de Buenos Aires",
+       "latitude": -34.6088795,
+       "provider": "nominatim",
+       "longitude": -58.3736729
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Defensa Street",
+      "role": "route",
+      "hintKey": "m-8",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "TARGETED_ROUTE",
+        "executionStatus": "completed",
+        "verificationRule": "STRUCTURED_ROUTE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "ROUTE",
+         "name": "Defensa",
+         "latitude": -34.6195152,
+         "longitude": -58.3715225
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "ROUTE",
+      "identityRule": "STRUCTURED_ROUTE",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "STRUCTURED_ROUTE",
+       "evidence": [
+        {
+         "role": "DISCRIMINATING",
+         "type": "STRUCTURED_ROUTE_RESOLUTION"
+        }
+       ],
+       "decisiveEvidence": [
+        {
+         "role": "DISCRIMINATING",
+         "type": "STRUCTURED_ROUTE_RESOLUTION",
+         "provider": "openstreetmap",
+         "ambiguity": "SINGLE_CLUSTER",
+         "segmentExternalIds": [
+          "osm:way:18828962",
+          "osm:way:38536550",
+          "osm:way:47521381",
+          "osm:way:48113515",
+          "osm:way:147999135",
+          "osm:way:150893241",
+          "osm:way:158893264",
+          "osm:way:452873573",
+          "osm:way:452873574",
+          "osm:way:473141731",
+          "osm:way:473173836",
+          "osm:way:1435572237",
+          "osm:way:1435572238",
+          "osm:way:1459168009"
+         ],
+         "destinationCompatibility": "COMPATIBLE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:18828962",
+        "openstreetmap/osm:way:38536550",
+        "openstreetmap/osm:way:47521381",
+        "openstreetmap/osm:way:48113515",
+        "openstreetmap/osm:way:147999135",
+        "openstreetmap/osm:way:150893241",
+        "openstreetmap/osm:way:158893264",
+        "openstreetmap/osm:way:452873573",
+        "openstreetmap/osm:way:452873574",
+        "openstreetmap/osm:way:473141731",
+        "openstreetmap/osm:way:473173836",
+        "openstreetmap/osm:way:1435572237",
+        "openstreetmap/osm:way:1435572238",
+        "openstreetmap/osm:way:1459168009"
+       ]
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Defensa",
+       "latitude": -34.6195152,
+       "provider": "openstreetmap",
+       "longitude": -58.3715225
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TARGETED_ROUTE"
+      ]
+     },
+     {
+      "name": "Farmacia la Estrella",
+      "role": "venue",
+      "hintKey": "m-9",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Farmacia de la Estrella",
+         "latitude": -34.6102605,
+         "longitude": -58.3721513
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 10,
+         "viableCount": 10,
+         "searchWindow": {
+          "provenance": "CANDIDATE_ROUTE",
+          "radiusMeters": 1141
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Farmacia Bolivar",
+         "latitude": -34.6196786,
+         "longitude": -58.3730267
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "NO_DECISIVE_EVIDENCE",
+      "identityVerdict": "INSUFFICIENT_EVIDENCE",
+      "identityDecision": {
+       "rule": "NO_DECISIVE_EVIDENCE",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_COMPETITOR_OBSERVED",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [],
+       "candidateStrongIds": [
+        "geoapify/geoapify:517484c256bf2f4dc059fa83dca0514f41c0f00103f901bfc4335a00000000c002019203104661726d6163696120426f6c69766172e203236f70656e7374726565746d61703a76656e75653a6e6f64652f31353133333432313433",
+        "openstreetmap/osm:node:1513342143"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Farmacia Bolivar",
+       "latitude": -34.6196786,
+       "provider": "geoapify",
+       "longitude": -58.3730267
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "La Librería del Avila",
+      "role": "venue",
+      "hintKey": "m-10",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 10,
+         "viableCount": 10,
+         "searchWindow": {
+          "provenance": "CANDIDATE_ROUTE",
+          "radiusMeters": 1141
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "La Licoreria Del Mercado",
+         "latitude": -34.619431,
+         "longitude": -58.372765
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "NO_DECISIVE_EVIDENCE",
+      "identityVerdict": "INSUFFICIENT_EVIDENCE",
+      "identityDecision": {
+       "rule": "NO_DECISIVE_EVIDENCE",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_COMPETITOR_OBSERVED",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [],
+       "candidateStrongIds": [
+        "geoapify/geoapify:51f60b76c3b62f4dc0597590d783494f41c0f00103f9010dfd896f01000000c002019203184c61204c69636f72657269612044656c204d65726361646fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f36313636323831343835",
+        "openstreetmap/osm:node:6166281485"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "La Licoreria Del Mercado",
+       "latitude": -34.619431,
+       "provider": "geoapify",
+       "longitude": -58.372765
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Monumento de Mafalda",
+      "role": "venue",
+      "hintKey": "m-11",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "QID_LINK_MISMATCH",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Monumento a la Cordialidad Argentino-Uruguaya",
+         "latitude": -34.6279872,
+         "longitude": -58.3696441
+        },
+        "verificationDecision": "REJECTED"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 10,
+         "viableCount": 10,
+         "searchWindow": {
+          "provenance": "CANDIDATE_ROUTE",
+          "radiusMeters": 1141
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Monumento Canto al Trabajo",
+         "latitude": -34.6177688,
+         "longitude": -58.3691116
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "NO_DECISIVE_EVIDENCE",
+      "identityVerdict": "INSUFFICIENT_EVIDENCE",
+      "identityDecision": {
+       "rule": "NO_DECISIVE_EVIDENCE",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [],
+       "candidateStrongIds": [
+        "geoapify/geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea5045900000000c0020192031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f31343933343736363836",
+        "openstreetmap/osm:node:1493476686"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Monumento Canto al Trabajo",
+       "latitude": -34.6177688,
+       "provider": "geoapify",
+       "longitude": -58.3691116
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Casa Mínima",
+      "role": "venue",
+      "hintKey": "m-12",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_UNIQUE_EXACT_NAME",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Casa Mínima",
+         "latitude": -34.6167555,
+         "longitude": -58.3713487
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_UNIQUE_EXACT_NAME",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "RETRIEVAL_ONLY",
+         "type": "DECLARED_ALIAS_MATCH"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "SINGLE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:node:4440588689"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Casa Mínima",
+       "latitude": -34.6167555,
+       "provider": "openstreetmap",
+       "longitude": -58.3713487
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL"
+      ]
+     },
+     {
+      "name": "The San Telmo Market",
+      "role": "venue",
+      "hintKey": "m-13",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Mercado de San Telmo",
+         "latitude": -34.6190607,
+         "longitude": -58.3722354
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 10,
+         "viableCount": 8,
+         "searchWindow": {
+          "provenance": "CANDIDATE_ROUTE",
+          "radiusMeters": 1141
+         },
+         "rejectedCount": 2
+        },
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Mercado de San Telmo",
+         "latitude": -34.6190492,
+         "longitude": -58.372512
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "MATERIAL_COMPETITOR_KNOWN",
+      "identityVerdict": "AMBIGUOUS",
+      "identityDecision": {
+       "rule": "MATERIAL_COMPETITOR_KNOWN",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "CORROBORATING",
+         "type": "IDENTITY_CONVERGENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "CONVERGENCE_PROVENANCE"
+        },
+        {
+         "role": "RETRIEVAL_ONLY",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "MATERIAL_COMPETITOR_KNOWN",
+        "competitorCount": 1
+       },
+       "decisiveEvidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION",
+         "outcome": "MATERIAL_COMPETITOR_KNOWN",
+         "competitorCount": 1,
+         "examinedStrategies": [
+          "LOCAL_OSM_POOL",
+          "NOMINATIM",
+          "PLACES"
+         ]
+        }
+       ],
+       "candidateStrongIds": [
+        "geoapify/geoapify:510caf2479ae2f4dc059b74e12013d4f41c0f00102f901d784780900000000c002019203144d65726361646f2064652053616e2054656c6d6f",
+        "openstreetmap/osm:way:158893271",
+        "wikidata/Q6010497"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Mercado de San Telmo",
+       "latitude": -34.6190492,
+       "provider": "geoapify",
+       "longitude": -58.372512
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "El Patio de los Ezeiza",
+      "role": "venue",
+      "hintKey": "m-14",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 5,
+         "viableCount": 5,
+         "searchWindow": {
+          "provenance": "CANDIDATE_ROUTE",
+          "radiusMeters": 1141
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "El Patio de Cabo Verde",
+         "latitude": -34.6197849,
+         "longitude": -58.3703287
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "NO_DECISIVE_EVIDENCE",
+      "identityVerdict": "INSUFFICIENT_EVIDENCE",
+      "identityDecision": {
+       "rule": "NO_DECISIVE_EVIDENCE",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [],
+       "candidateStrongIds": [
+        "geoapify/geoapify:5196a24bee662f4dc059fe06921c554f41c0f00103f90195a3f6bf01000000c00201920316456c20506174696f206465204361626f205665726465e203236f70656e7374726565746d61703a76656e75653a6e6f64652f37353135353739323835",
+        "openstreetmap/osm:node:7515579285"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "El Patio de Cabo Verde",
+       "latitude": -34.6197849,
+       "provider": "geoapify",
+       "longitude": -58.3703287
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     }
+    ],
+    "candidateName": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+    "candidateStatus": "rejected",
+    "geographicPolicy": {
+     "kind": "WALK",
+     "workUnit": "AREA_ROUTE_WALK",
+     "admittedAs": "MULTI_COMPONENT_EXPERIENCE",
+     "ownedIntent": "walk",
+     "ownedDeficit": "intent:walk"
+    },
+    "rejectionReasons": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ],
+    "candidateTraceKey": "self guided walking tour san telmo (part 1 of 3):ev-2:m-1:Teatro Colón|m-2:Obelisco|m-3:Plaza de Mayo|m-4:Congress building|m-5:Casa Rosada|m-6:Cathedral|m-7:Cabildo|m-8:Defensa Street|m-9:Farmacia la Estrella|m-10:La Librería del Avila|m-11:Monumento de Mafalda|m-12:Casa Mínima|m-13:The San Telmo Market|m-14:El Patio de los Ezeiza",
+    "acquisitionContext": {
+     "strategy": "area_route_walk",
+     "passNumber": 1,
+     "workUnitKind": "AREA_ROUTE_WALK"
+    },
+    "componentSearchScope": {
+     "kind": "ROUTE",
+     "name": "Defensa",
+     "provenance": "CANDIDATE_ROUTE",
+     "geoEntityId": "700d9f71-901e-482d-87d0-3437775ed318",
+     "destinationRelation": "INSIDE"
+    }
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+   "description": "Identidad por componente de \"Self Guided Walking Tour San Telmo (part 2 of 3)\": 2/3 resueltos (política geográfica WALK)",
+   "decision": {
+    "status": "WARN",
+    "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+   },
+   "facts": {
+    "components": [
+     {
+      "name": "Caminito",
+      "role": "route",
+      "hintKey": "m-1",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "TARGETED_ROUTE",
+        "executionStatus": "completed",
+        "verificationRule": "STRUCTURED_ROUTE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "ROUTE",
+         "name": "Caminito",
+         "latitude": -34.6393481,
+         "longitude": -58.3626552
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "ROUTE",
+      "identityRule": "STRUCTURED_ROUTE",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "STRUCTURED_ROUTE",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "DISCRIMINATING",
+         "type": "STRUCTURED_ROUTE_RESOLUTION"
+        }
+       ],
+       "decisiveEvidence": [
+        {
+         "role": "DISCRIMINATING",
+         "type": "STRUCTURED_ROUTE_RESOLUTION",
+         "provider": "openstreetmap",
+         "ambiguity": "SINGLE_CLUSTER",
+         "segmentExternalIds": [
+          "osm:way:144844726"
+         ],
+         "destinationCompatibility": "COMPATIBLE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:144844726"
+       ]
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Caminito",
+       "latitude": -34.6393481,
+       "provider": "openstreetmap",
+       "longitude": -58.3626552
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TARGETED_ROUTE"
+      ]
+     },
+     {
+      "name": "Don Carlos",
+      "role": "venue",
+      "hintKey": "m-2",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "NAME_COLLISION",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Don Carlos",
+         "latitude": -34.6360936,
+         "longitude": -58.3636502
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 0,
+         "viableCount": 0,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "NAME_COLLISION",
+      "identityVerdict": "AMBIGUOUS",
+      "identityDecision": {
+       "rule": "NAME_COLLISION",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH",
+         "source": "NEARBY",
+         "hintCorrespondence": "NONE",
+         "candidateCorrespondence": "NONE"
+        },
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "MULTIPLE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:node:4575480167"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Don Carlos",
+       "latitude": -34.6360936,
+       "provider": "nominatim",
+       "longitude": -58.3636502
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Caminito Street",
+      "role": "route",
+      "hintKey": "m-3",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "verificationRule": "CATALOG_ROUTE_VARIANT",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "ROUTE",
+         "name": "Caminito",
+         "latitude": -34.6393481,
+         "longitude": -58.3626552
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "ROUTE",
+      "identityRule": "CATALOG_ROUTE_VARIANT",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "CATALOG_ROUTE_VARIANT",
+       "evidence": [
+        {
+         "role": "DISCRIMINATING",
+         "type": "CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "decisiveEvidence": [
+        {
+         "role": "DISCRIMINATING",
+         "type": "CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH",
+         "retrievalVariant": "DESIGNATOR_NORMALIZED",
+         "identityMultiplicity": "SINGLE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:144844726"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Caminito",
+       "latitude": -34.6393481,
+       "provider": "catalog",
+       "longitude": -58.3626552
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE"
+      ]
+     }
+    ],
+    "candidateName": "Self Guided Walking Tour San Telmo (part 2 of 3)",
+    "candidateStatus": "rejected",
+    "geographicPolicy": {
+     "kind": "WALK",
+     "workUnit": "AREA_ROUTE_WALK",
+     "admittedAs": "MULTI_COMPONENT_EXPERIENCE",
+     "ownedIntent": "walk",
+     "ownedDeficit": "intent:walk"
+    },
+    "rejectionReasons": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ],
+    "candidateTraceKey": "self guided walking tour san telmo (part 2 of 3):ev-2:m-1:Caminito|m-2:Don Carlos|m-3:Caminito Street",
+    "acquisitionContext": {
+     "strategy": "area_route_walk",
+     "passNumber": 1,
+     "workUnitKind": "AREA_ROUTE_WALK"
+    },
+    "componentSearchScope": {
+     "kind": "AREA",
+     "name": "Buenos Aires",
+     "provenance": "DESTINATION_AREA"
+    }
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "description": "Identidad por componente de \"Tour Description\": 2/6 resueltos (política geográfica DEFAULT)",
+   "decision": {
+    "status": "WARN",
+    "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+   },
+   "facts": {
+    "components": [
+     {
+      "name": "Church of San Ignacio de Loyola",
+      "role": "venue",
+      "hintKey": "m-1",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Parroquia San Ignacio de Loyola",
+         "latitude": -34.610485,
+         "longitude": -58.3739264
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 0,
+         "viableCount": 0,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "NO_DECISIVE_EVIDENCE",
+      "identityVerdict": "INSUFFICIENT_EVIDENCE",
+      "identityDecision": {
+       "rule": "NO_DECISIVE_EVIDENCE",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:239347480"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Parroquia San Ignacio de Loyola",
+       "latitude": -34.610485,
+       "provider": "openstreetmap",
+       "longitude": -58.3739264
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Comic Strip Walk",
+      "role": "route",
+      "hintKey": "m-2",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "TARGETED_ROUTE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "NO_OSM_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "ROUTE",
+      "candidateAcquired": false,
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TARGETED_ROUTE"
+      ]
+     },
+     {
+      "name": "Mafalda sculpture",
+      "role": "venue",
+      "hintKey": "m-3",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "QID_LINK_MISMATCH",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Mafalda, Susanita y Manolito",
+         "latitude": -34.6159617,
+         "longitude": -58.3716913
+        },
+        "verificationDecision": "REJECTED"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 7,
+         "viableCount": 4,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 3
+        },
+        "executionStatus": "completed",
+        "verificationRule": "QID_LINK_MISMATCH",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Plaza Mafalda",
+         "latitude": -34.5807258,
+         "longitude": -58.4455726
+        },
+        "verificationDecision": "REJECTED"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "QID_LINK_MISMATCH",
+      "identityVerdict": "REJECTED",
+      "identityDecision": {
+       "rule": "QID_LINK_MISMATCH",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "CONTRADICTORY",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [
+        {
+         "role": "CONTRADICTORY",
+         "type": "WIKIDATA_IDENTITY_MATCH",
+         "source": "OWN_QID",
+         "hintCorrespondence": "NONE",
+         "candidateCorrespondence": "DECLARES_QID"
+        }
+       ],
+       "candidateStrongIds": [
+        "geoapify/geoapify:51317fe08508394dc059c3781739554a41c0f00102f901f2b1a10000000000c0020192030d506c617a61204d6166616c6461e203206f70656e7374726565746d61703a76656e75653a7761792f3130353936383530",
+        "openstreetmap/osm:way:10596850",
+        "wikidata/Q17625439"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Plaza Mafalda",
+       "latitude": -34.5807258,
+       "provider": "geoapify",
+       "longitude": -58.4455726
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Casa Mínima",
+      "role": "venue",
+      "hintKey": "m-4",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_UNIQUE_EXACT_NAME",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Casa Mínima",
+         "latitude": -34.6167555,
+         "longitude": -58.3713487
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_UNIQUE_EXACT_NAME",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "SINGLE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:node:4440588689"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Casa Mínima",
+       "latitude": -34.6167555,
+       "provider": "catalog",
+       "longitude": -58.3713487
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE"
+      ]
+     },
+     {
+      "name": "San Telmo Market",
+      "role": "venue",
+      "hintKey": "m-5",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "QID_LINK",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Mercado de San Telmo",
+         "latitude": -34.6190607,
+         "longitude": -58.3722354
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "QID_LINK",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "QID_LINK",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "CORROBORATING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "WIKIDATA_IDENTITY_MATCH",
+         "source": "OWN_QID",
+         "hintCorrespondence": "EQUIVALENT",
+         "candidateCorrespondence": "DECLARES_QID"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION",
+         "outcome": "NO_MATERIAL_COMPETITOR",
+         "competitorCount": 0,
+         "examinedStrategies": [
+          "LOCAL_OSM_POOL"
+         ]
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:158893271"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Mercado de San Telmo",
+       "latitude": -34.6190607,
+       "provider": "openstreetmap",
+       "longitude": -58.3722354
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL"
+      ]
+     },
+     {
+      "name": "San Telmo Fair",
+      "role": "venue",
+      "hintKey": "m-6",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "QID_LINK_MISMATCH",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Mercado de San Telmo",
+         "latitude": -34.6190607,
+         "longitude": -58.3722354
+        },
+        "verificationDecision": "REJECTED"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 10,
+         "viableCount": 9,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 1
+        },
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "San Andrés",
+         "latitude": -34.618478,
+         "longitude": -58.3768653
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "NO_DECISIVE_EVIDENCE",
+      "identityVerdict": "INSUFFICIENT_EVIDENCE",
+      "identityDecision": {
+       "rule": "NO_DECISIVE_EVIDENCE",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_COMPETITOR_OBSERVED",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [],
+       "candidateStrongIds": [
+        "geoapify/geoapify:51a53f451f3d304dc059d3a57f492a4f41c0f00103f9011c1bfba200000000c0020192030b53616e20416e6472c3a973e203236f70656e7374726565746d61703a76656e75653a6e6f64652f32373334333635343638",
+        "openstreetmap/osm:node:2734365468"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "San Andrés",
+       "latitude": -34.618478,
+       "provider": "geoapify",
+       "longitude": -58.3768653
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     }
+    ],
+    "candidateName": "Tour Description",
+    "candidateStatus": "rejected",
+    "geographicPolicy": {
+     "kind": "DEFAULT"
+    },
+    "rejectionReasons": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ],
+    "candidateTraceKey": "tour description:ev-5:m-1:Church of San Ignacio de Loyola|m-2:Comic Strip Walk|m-3:Mafalda sculpture|m-4:Casa Mínima|m-5:San Telmo Market|m-6:San Telmo Fair",
+    "acquisitionContext": {
+     "strategy": "generic",
+     "passNumber": 1,
+     "workUnitKind": "GENERIC"
+    },
+    "componentSearchScope": {
+     "kind": "AREA",
+     "name": "Buenos Aires",
+     "provenance": "DESTINATION_AREA"
+    }
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "description": "Identidad por componente de \"Walking tour Buenos Aires – Day 1 (part 1 of 2)\": 9/19 resueltos (política geográfica DEFAULT)",
+   "decision": {
+    "status": "WARN",
+    "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+   },
+   "facts": {
+    "components": [
+     {
+      "name": "PLAZA DE MAYO",
+      "role": "venue",
+      "hintKey": "m-1",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Plaza de Mayo",
+         "latitude": -34.6084134,
+         "longitude": -58.3722821
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Plaza de Mayo",
+         "latitude": -34.6084134,
+         "longitude": -58.3722821
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 2,
+         "viableCount": 2,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Plaza de Mayo",
+         "latitude": -34.6084453,
+         "longitude": -58.3721787
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "MATERIAL_COMPETITOR_KNOWN",
+      "identityVerdict": "AMBIGUOUS",
+      "identityDecision": {
+       "rule": "MATERIAL_COMPETITOR_KNOWN",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "CORROBORATING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "MATERIAL_COMPETITOR_KNOWN",
+        "competitorCount": 8
+       },
+       "decisiveEvidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION",
+         "outcome": "MATERIAL_COMPETITOR_KNOWN",
+         "competitorCount": 8,
+         "examinedStrategies": [
+          "LOCAL_OSM_POOL",
+          "NOMINATIM",
+          "PLACES"
+         ]
+        }
+       ],
+       "candidateStrongIds": [
+        "geoapify/geoapify:514762388da32f4dc059d4731c89e14d41c0f00101f901478f040100000000c0020192030d506c617a61206465204d61796f",
+        "openstreetmap/osm:relation:17076039",
+        "wikidata/Q1126357"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Plaza de Mayo",
+       "latitude": -34.6084453,
+       "provider": "geoapify",
+       "longitude": -58.3721787
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Casa Rosada",
+      "role": "venue",
+      "hintKey": "m-2",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_UNIQUE_EXACT_NAME",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Casa Rosada",
+         "latitude": -34.6080692,
+         "longitude": -58.3702762
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_UNIQUE_EXACT_NAME",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "SINGLE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:185738988"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Casa Rosada",
+       "latitude": -34.6080692,
+       "provider": "catalog",
+       "longitude": -58.3702762
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE"
+      ]
+     },
+     {
+      "name": "Catedral Metropolitana",
+      "role": "venue",
+      "hintKey": "m-3",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_UNIQUE_EXACT_NAME",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Catedral Metropolitana",
+         "latitude": -34.6074744,
+         "longitude": -58.3732765
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_UNIQUE_EXACT_NAME",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "SINGLE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:265344159"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Catedral Metropolitana",
+       "latitude": -34.6074744,
+       "provider": "catalog",
+       "longitude": -58.3732765
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE"
+      ]
+     },
+     {
+      "name": "Museo del Cabildo",
+      "role": "venue",
+      "hintKey": "m-4",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "recordEquivalence": {
+         "qid": "Q1024829",
+         "basis": {
+          "sharedQid": "Q1024829",
+          "locatedItem": true,
+          "exactAddress": "bolivar 65",
+          "memberNameConsistency": "EQUIVALENT"
+         },
+         "grouped": true,
+         "members": [
+          "osm:node:767690911",
+          "osm:way:293947112"
+         ]
+        },
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+         "latitude": -34.6087695,
+         "longitude": -58.3738806
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false,
+        "destinationCompatibility": {
+         "reason": "OUTSIDE_DESTINATION_BOUNDARY",
+         "verdict": "INCOMPATIBLE"
+        }
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 10,
+         "viableCount": 10,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Museo del Subte Centenera",
+         "latitude": -34.6285907,
+         "longitude": -58.439988
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "NO_DECISIVE_EVIDENCE",
+      "identityVerdict": "INSUFFICIENT_EVIDENCE",
+      "identityDecision": {
+       "rule": "NO_DECISIVE_EVIDENCE",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [],
+       "candidateStrongIds": [
+        "geoapify/geoapify:51f450db8651384dc059ed88f9a8755041c0f00103f901592b6d8102000000c002019203194d7573656f2064656c2053756274652043656e74656e657261e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3130373631333439393737",
+        "openstreetmap/osm:node:10761349977"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Museo del Subte Centenera",
+       "latitude": -34.6285907,
+       "provider": "geoapify",
+       "longitude": -58.439988
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "National Bank",
+      "role": "venue",
+      "hintKey": "m-5",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Edificio First National Bank of Boston",
+         "latitude": -34.6070608,
+         "longitude": -58.3748214
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 1,
+         "viableCount": 1,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_CONVERGENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Edificio First National Bank of Boston",
+         "latitude": -34.6070608,
+         "longitude": -58.3748214
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_CONVERGENCE",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_CONVERGENCE",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "CORROBORATING",
+         "type": "IDENTITY_CONVERGENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "CONVERGENCE_PROVENANCE"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "IDENTITY_CONVERGENCE",
+         "identity": {
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:9254658"
+         },
+         "priorStrategy": "NOMINATIM"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION",
+         "outcome": "NO_MATERIAL_COMPETITOR",
+         "competitorCount": 0,
+         "examinedStrategies": [
+          "LOCAL_OSM_POOL",
+          "NOMINATIM",
+          "PLACES"
+         ]
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "geoapify/geoapify:51a46bcb25fa2f4dc0598057152bb44d41c0f00101f90102378d0000000000c00201920326456469666963696f204669727374204e6174696f6e616c2042616e6b206f6620426f73746f6e",
+        "openstreetmap/osm:relation:9254658",
+        "wikidata/Q5818109"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Edificio First National Bank of Boston",
+       "latitude": -34.6070608,
+       "provider": "geoapify",
+       "longitude": -58.3748214
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES"
+      ]
+     },
+     {
+      "name": "Cabildo",
+      "role": "venue",
+      "hintKey": "m-6",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_UNIQUE_ALIAS",
+        "candidateAcquired": true,
+        "recordEquivalence": {
+         "qid": "Q1024829",
+         "basis": {
+          "sharedQid": "Q1024829",
+          "locatedItem": true,
+          "exactAddress": "bolivar 65",
+          "memberNameConsistency": "EQUIVALENT"
+         },
+         "grouped": true,
+         "members": [
+          "osm:node:767690911",
+          "osm:way:293947112"
+         ]
+        },
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+         "latitude": -34.6087695,
+         "longitude": -58.3738806
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_UNIQUE_ALIAS",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_UNIQUE_ALIAS",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "DECLARED_ALIAS_MATCH"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "DECLARED_ALIAS_MATCH",
+         "correspondence": "EQUIVALENT",
+         "identityMultiplicity": "SINGLE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:node:767690911"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+       "latitude": -34.6087695,
+       "provider": "openstreetmap",
+       "longitude": -58.3738806
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL"
+      ]
+     },
+     {
+      "name": "Catedral",
+      "role": "venue",
+      "hintKey": "m-7",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Catedral Constructiva",
+         "latitude": -34.5839633,
+         "longitude": -58.3931082
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Catedral",
+         "latitude": -34.607633,
+         "longitude": -58.3743445
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 0,
+         "viableCount": 0,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "MATERIAL_COMPETITOR_KNOWN",
+      "identityVerdict": "AMBIGUOUS",
+      "identityDecision": {
+       "rule": "MATERIAL_COMPETITOR_KNOWN",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "MATERIAL_COMPETITOR_KNOWN",
+        "competitorCount": 5
+       },
+       "decisiveEvidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION",
+         "outcome": "MATERIAL_COMPETITOR_KNOWN",
+         "competitorCount": 5,
+         "examinedStrategies": [
+          "LOCAL_OSM_POOL",
+          "NOMINATIM"
+         ]
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:node:4867324671"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Catedral",
+       "latitude": -34.607633,
+       "provider": "nominatim",
+       "longitude": -58.3743445
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Mausoleum of General San Martín",
+      "role": "venue",
+      "hintKey": "m-8",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "QID_LINK_MISMATCH",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Monumento al General San Martín",
+         "latitude": -34.594978,
+         "longitude": -58.3771048
+        },
+        "verificationDecision": "REJECTED"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 0,
+         "viableCount": 0,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "QID_LINK_MISMATCH",
+      "identityVerdict": "REJECTED",
+      "identityDecision": {
+       "rule": "QID_LINK_MISMATCH",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "CONTRADICTORY",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [
+        {
+         "role": "CONTRADICTORY",
+         "type": "WIKIDATA_IDENTITY_MATCH",
+         "source": "OWN_QID",
+         "hintCorrespondence": "NONE",
+         "candidateCorrespondence": "DECLARES_QID"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:node:667772497"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Monumento al General San Martín",
+       "latitude": -34.594978,
+       "provider": "openstreetmap",
+       "longitude": -58.3771048
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Feria San Telmo",
+      "role": "venue",
+      "hintKey": "m-9",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "QID_LINK_MISMATCH",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Mercado de San Telmo",
+         "latitude": -34.6190607,
+         "longitude": -58.3722354
+        },
+        "verificationDecision": "REJECTED"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 10,
+         "viableCount": 10,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "MATERIAL_COMPETITOR_KNOWN",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Feria Americana",
+         "latitude": -34.6084183,
+         "longitude": -58.4231469
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "MATERIAL_COMPETITOR_KNOWN",
+      "identityVerdict": "AMBIGUOUS",
+      "identityDecision": {
+       "rule": "MATERIAL_COMPETITOR_KNOWN",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "MATERIAL_COMPETITOR_KNOWN",
+        "competitorCount": 2
+       },
+       "decisiveEvidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION",
+         "outcome": "MATERIAL_COMPETITOR_KNOWN",
+         "competitorCount": 2,
+         "examinedStrategies": [
+          "LOCAL_OSM_POOL",
+          "NOMINATIM",
+          "PLACES"
+         ]
+        }
+       ],
+       "candidateStrongIds": [
+        "geoapify/geoapify:51af7378ad29364dc059da649ea6e04d41c0f00103f90170c38a1701000000c0020192030f466572696120416d65726963616e61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34363839393337323634",
+        "openstreetmap/osm:node:4689937264"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Feria Americana",
+       "latitude": -34.6084183,
+       "provider": "geoapify",
+       "longitude": -58.4231469
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "oldest neighborhood of the capital city",
+      "role": "area",
+      "hintKey": "m-10",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "AREA_TO_PLACE_CORRECTION",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "NO_OSM_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "AREA",
+      "candidateAcquired": false,
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "AREA_TO_PLACE_CORRECTION"
+      ]
+     },
+     {
+      "name": "Bar Sur",
+      "role": "venue",
+      "hintKey": "m-11",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_UNIQUE_EXACT_NAME",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Bar Sur",
+         "latitude": -34.6183462,
+         "longitude": -58.3700905
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_UNIQUE_EXACT_NAME",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "SINGLE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:node:2722400019"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Bar Sur",
+       "latitude": -34.6183462,
+       "provider": "catalog",
+       "longitude": -58.3700905
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE"
+      ]
+     },
+     {
+      "name": "big building with columns",
+      "role": "venue",
+      "hintKey": "m-12",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 0,
+         "viableCount": 0,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "NO_OSM_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "candidateAcquired": false,
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Mercado de San Telmo",
+      "role": "venue",
+      "hintKey": "m-13",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_UNIQUE_EXACT_NAME",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Mercado de San Telmo",
+         "latitude": -34.6190607,
+         "longitude": -58.3722354
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_UNIQUE_EXACT_NAME",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "SINGLE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:158893271"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Mercado de San Telmo",
+       "latitude": -34.6190607,
+       "provider": "catalog",
+       "longitude": -58.3722354
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE"
+      ]
+     },
+     {
+      "name": "Plaza Dorrego",
+      "role": "venue",
+      "hintKey": "m-14",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_UNIQUE_EXACT_NAME",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Plaza Dorrego",
+         "latitude": -34.6204739,
+         "longitude": -58.3717792
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_UNIQUE_EXACT_NAME",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "SINGLE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:31364659"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Plaza Dorrego",
+       "latitude": -34.6204739,
+       "provider": "catalog",
+       "longitude": -58.3717792
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE"
+      ]
+     },
+     {
+      "name": "Museum of Modern Arts",
+      "role": "venue",
+      "hintKey": "m-15",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 1,
+         "viableCount": 1,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "National Museum of Fine Arts",
+         "latitude": -34.58401,
+         "longitude": -58.39295
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "NO_DECISIVE_EVIDENCE",
+      "identityVerdict": "INSUFFICIENT_EVIDENCE",
+      "identityDecision": {
+       "rule": "NO_DECISIVE_EVIDENCE",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [],
+       "candidateStrongIds": [
+        "geoapify/geoapify:514a7b832f4c324dc059bb44f5d6c04a41c0c0020192031c4e6174696f6e616c204d757365756d206f662046696e652041727473e2031667656f6e616d65733a76656e75653a37333033363636"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "National Museum of Fine Arts",
+       "latitude": -34.58401,
+       "provider": "geoapify",
+       "longitude": -58.39295
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Club Atlético",
+      "role": "venue",
+      "hintKey": "m-16",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Club Atlético Atlanta",
+         "latitude": -34.6184278,
+         "longitude": -58.3799118
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "NO_DECISIVE_EVIDENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Club Atlético San Lorenzo de Almagro - Sede Boedo",
+         "latitude": -34.6349503,
+         "longitude": -58.4238986
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 2,
+         "viableCount": 2,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_CONVERGENCE",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Club Atlético San Lorenzo de Almagro - Sede Boedo",
+         "latitude": -34.6349503,
+         "longitude": -58.4238986
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_CONVERGENCE",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_CONVERGENCE",
+       "evidence": [
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "CORROBORATING",
+         "type": "IDENTITY_CONVERGENCE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "CONVERGENCE_PROVENANCE"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "IDENTITY_CONVERGENCE",
+         "identity": {
+          "provider": "openstreetmap",
+          "externalId": "osm:way:23634484"
+         },
+         "priorStrategy": "NOMINATIM"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION",
+         "outcome": "NO_MATERIAL_COMPETITOR",
+         "competitorCount": 0,
+         "examinedStrategies": [
+          "LOCAL_OSM_POOL",
+          "NOMINATIM",
+          "PLACES"
+         ]
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "geoapify/geoapify:51fce82f4f42364dc059ee8a2a0d465141c0f00102f90134a2680100000000c00201920332436c75622041746cc3a97469636f2053616e204c6f72656e7a6f20646520416c6d6167726f202d205365646520426f65646f",
+        "openstreetmap/osm:way:23634484"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Club Atlético San Lorenzo de Almagro - Sede Boedo",
+       "latitude": -34.6349503,
+       "provider": "geoapify",
+       "longitude": -58.4238986
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES"
+      ]
+     },
+     {
+      "name": "Parque Lezama",
+      "role": "venue",
+      "hintKey": "m-17",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "verificationRule": "GROUNDED_UNIQUE_EXACT_NAME",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Parque Lezama",
+         "latitude": -34.6271301,
+         "longitude": -58.369574
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityRule": "GROUNDED_UNIQUE_EXACT_NAME",
+      "identityVerdict": "VERIFIED",
+      "identityDecision": {
+       "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        }
+       ],
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "SINGLE"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE",
+         "basis": "BOUNDED_ADMISSION_SCOPE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:17441757"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Parque Lezama",
+       "latitude": -34.6271301,
+       "provider": "catalog",
+       "longitude": -58.369574
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE"
+      ]
+     },
+     {
+      "name": "the national history museum",
+      "role": "venue",
+      "hintKey": "m-18",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 0,
+         "viableCount": 0,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "NO_OSM_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "candidateAcquired": false,
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Avenida Caseros",
+      "role": "route",
+      "hintKey": "m-19",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "TARGETED_ROUTE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "AMBIGUOUS",
+      "finalStatus": "unresolved",
+      "expectedKind": "ROUTE",
+      "candidateAcquired": false,
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TARGETED_ROUTE"
+      ]
+     }
+    ],
+    "candidateName": "Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+    "candidateStatus": "rejected",
+    "geographicPolicy": {
+     "kind": "DEFAULT"
+    },
+    "rejectionReasons": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ],
+    "candidateTraceKey": "walking tour buenos aires – day 1 (part 1 of 2):ev-3:m-1:PLAZA DE MAYO|m-2:Casa Rosada|m-3:Catedral Metropolitana|m-4:Museo del Cabildo|m-5:National Bank|m-6:Cabildo|m-7:Catedral|m-8:Mausoleum of General San Martín|m-9:Feria San Telmo|m-10:oldest neighborhood of the capital city|m-11:Bar Sur|m-12:big building with columns|m-13:Mercado de San Telmo|m-14:Plaza Dorrego|m-15:Museum of Modern Arts|m-16:Club Atlético|m-17:Parque Lezama|m-18:the national history museum|m-19:Avenida Caseros",
+    "acquisitionContext": {
+     "strategy": "planner_capacity",
+     "passNumber": 1,
+     "workUnitKind": "PLANNER_CAPACITY"
+    },
+    "componentSearchScope": {
+     "kind": "AREA",
+     "name": "Buenos Aires",
+     "provenance": "DESTINATION_AREA"
+    }
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "description": "Identidad por componente de \"Walking tour Buenos Aires – Day 1 (part 2 of 2)\": 0/2 resueltos (política geográfica DEFAULT)",
+   "decision": {
+    "status": "WARN",
+    "outcome": "NO_COMPONENTS_RESOLVED"
+   },
+   "facts": {
+    "components": [
+     {
+      "name": "El Caminito",
+      "role": "route",
+      "hintKey": "m-1",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "TARGETED_ROUTE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "NO_OSM_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "ROUTE",
+      "candidateAcquired": false,
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TARGETED_ROUTE"
+      ]
+     },
+     {
+      "name": "La Bombonera",
+      "role": "venue",
+      "hintKey": "m-2",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "verificationRule": "NAME_COLLISION",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "La Bombonera",
+         "latitude": -34.6355171,
+         "longitude": -58.3649163
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 0,
+         "viableCount": 0,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityRule": "NAME_COLLISION",
+      "identityVerdict": "AMBIGUOUS",
+      "identityDecision": {
+       "rule": "NAME_COLLISION",
+       "evidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "COMPETITOR_EXAMINATION"
+        },
+        {
+         "role": "QUALIFYING",
+         "type": "GEOGRAPHIC_CORRESPONDENCE"
+        },
+        {
+         "role": "CORROBORATING",
+         "type": "WIKIDATA_IDENTITY_MATCH"
+        }
+       ],
+       "competitors": {
+        "outcome": "NO_MATERIAL_COMPETITOR",
+        "competitorCount": 0
+       },
+       "decisiveEvidence": [
+        {
+         "role": "CORROBORATING",
+         "type": "WIKIDATA_IDENTITY_MATCH",
+         "source": "NEARBY",
+         "hintCorrespondence": "EQUIVALENT",
+         "candidateCorrespondence": "EQUIVALENT"
+        },
+        {
+         "role": "CORROBORATING",
+         "type": "EXACT_NAME",
+         "identityMultiplicity": "MULTIPLE"
+        }
+       ],
+       "candidateStrongIds": [
+        "openstreetmap/osm:way:248598885"
+       ],
+       "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE"
+      },
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "La Bombonera",
+       "latitude": -34.6355171,
+       "provider": "nominatim",
+       "longitude": -58.3649163
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     }
+    ],
+    "candidateName": "Walking tour Buenos Aires – Day 1 (part 2 of 2)",
+    "candidateStatus": "rejected",
+    "geographicPolicy": {
+     "kind": "DEFAULT"
+    },
+    "rejectionReasons": [
+     "NO_OSM_MATCH",
+     "UNCONFIRMED_MATCH"
+    ],
+    "candidateTraceKey": "walking tour buenos aires – day 1 (part 2 of 2):ev-3:m-1:El Caminito|m-2:La Bombonera",
+    "acquisitionContext": {
+     "strategy": "planner_capacity",
+     "passNumber": 1,
+     "workUnitKind": "PLANNER_CAPACITY"
+    },
+    "componentSearchScope": {
+     "kind": "AREA",
+     "name": "Buenos Aires",
+     "provenance": "DESTINATION_AREA"
+    }
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+   "step": "resolution.entity",
+   "candidate": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+   "decision": {
+    "reason": "INCOMPLETE_SOURCE_COMPOSITION [resueltos 4/14: Teatro Colón=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT), Obelisco=RESOLVED/OUTSIDE 1451m, Plaza de Mayo=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT), Congress building=UNRESOLVED/CANDIDATE_UNCONFIRMED(PENDING_CLASSIFICATION), Casa Rosada=RESOLVED/OUTSIDE 865m, Cathedral=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), Cabildo=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT), Defensa Street=RESOLVED/INTERSECTS, Farmacia la Estrella=UNRESOLVED/CANDIDATE_UNCONFIRMED(PENDING_CLASSIFICATION), La Librería del Avila=UNRESOLVED/CANDIDATE_UNCONFIRMED(PENDING_CLASSIFICATION), Monumento de Mafalda=UNRESOLVED/CANDIDATE_UNCONFIRMED(PENDING_CLASSIFICATION), Casa Mínima=RESOLVED/INSIDE, The San Telmo Market=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT), El Patio de los Ezeiza=UNRESOLVED/CANDIDATE_UNCONFIRMED(PENDING_CLASSIFICATION)]",
+    "status": "FAIL",
+    "outcome": "REJECTED",
+    "reasonCodes": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ]
+   },
+   "facts": {
+    "reason": "MAX_STEP_PAYLOAD_CHARS",
+    "truncated": true,
+    "originalChars": 94423
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+   "step": "resolution.entity",
+   "candidate": "Self Guided Walking Tour San Telmo (part 2 of 3)",
+   "decision": {
+    "reason": "INCOMPLETE_SOURCE_COMPOSITION [resueltos 2/3: Caminito=RESOLVED/OUTSIDE, Don Carlos=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT), Caminito Street=RESOLVED/OUTSIDE]",
+    "status": "FAIL",
+    "outcome": "REJECTED",
+    "reasonCodes": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ]
+   },
+   "facts": {
+    "reason": "MAX_STEP_PAYLOAD_CHARS",
+    "truncated": true,
+    "originalChars": 94423
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "step": "resolution.entity",
+   "candidate": "Tour Description",
+   "decision": {
+    "reason": "INCOMPLETE_SOURCE_COMPOSITION [resueltos 2/6: Church of San Ignacio de Loyola=UNRESOLVED/CANDIDATE_UNCONFIRMED(PENDING_CLASSIFICATION), Comic Strip Walk=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), Mafalda sculpture=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION), Casa Mínima=RESOLVED/INSIDE, San Telmo Market=RESOLVED/INSIDE, San Telmo Fair=UNRESOLVED/CANDIDATE_UNCONFIRMED(PENDING_CLASSIFICATION)]",
+    "status": "FAIL",
+    "outcome": "REJECTED",
+    "reasonCodes": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ]
+   },
+   "facts": {
+    "reason": "MAX_STEP_PAYLOAD_CHARS",
+    "truncated": true,
+    "originalChars": 122805
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "step": "resolution.entity",
+   "candidate": "Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+   "decision": {
+    "reason": "INCOMPLETE_SOURCE_COMPOSITION [resueltos 9/19: PLAZA DE MAYO=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT), Casa Rosada=RESOLVED/INSIDE, Catedral Metropolitana=RESOLVED/INSIDE, Museo del Cabildo=UNRESOLVED/CANDIDATE_UNCONFIRMED(PENDING_CLASSIFICATION), National Bank=RESOLVED/INSIDE, Cabildo=RESOLVED/INSIDE, Catedral=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT), Mausoleum of General San Martín=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION), Feria San Telmo=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT), oldest neighborhood of the capital city=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), Bar Sur=RESOLVED/INSIDE, big building with columns=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), Mercado de San Telmo=RESOLVED/INSIDE, Plaza Dorrego=RESOLVED/INSIDE, Museum of Modern Arts=UNRESOLVED/CANDIDATE_UNCONFIRMED(PENDING_CLASSIFICATION), Club Atlético=RESOLVED/INSIDE, Parque Lezama=RESOLVED/INSIDE, the national history museum=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), Avenida Caseros=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT)]",
+    "status": "FAIL",
+    "outcome": "REJECTED",
+    "reasonCodes": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ]
+   },
+   "facts": {
+    "reason": "MAX_STEP_PAYLOAD_CHARS",
+    "truncated": true,
+    "originalChars": 88869
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "step": "resolution.entity",
+   "candidate": "Walking tour Buenos Aires – Day 1 (part 2 of 2)",
+   "decision": {
+    "reason": "NO_OSM_MATCH, UNCONFIRMED_MATCH [resueltos 0/2: El Caminito=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), La Bombonera=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT)]",
+    "status": "FAIL",
+    "outcome": "REJECTED",
+    "reasonCodes": [
+     "NO_OSM_MATCH",
+     "UNCONFIRMED_MATCH"
+    ]
+   },
+   "facts": {
+    "reason": "MAX_STEP_PAYLOAD_CHARS",
+    "truncated": true,
+    "originalChars": 88869
+   }
+  }
+ ]
+}

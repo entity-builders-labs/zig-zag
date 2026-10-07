@@ -2709,8 +2709,12 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
      (2026-10-07). The authorized C3 identity retry (`c3-idretry-cold`,
        HEAD `3e945160`) was an INVALID_RUN: a Gemini 503/timeouts hit
        extraction, the runner poll got ECONNRESET, and the backend was killed
-       before a terminal state, so no trace exists. A rerun needs owner
-       authorization;
+       before a terminal state, so no trace exists. The authorized rerun
+       (`c3-idretry2-cold`, HEAD `11776382`, `be/` identical to `3e945160`)
+       was canonical: 0 multi-component Experiences, WARM not run,
+       RW4_FUNCTIONAL_MILESTONE_PASSED NO. Cabildo is VERIFIED in
+       PLANNER_CAPACITY; there are 2 new false VERIFIED
+       (RW4-ID-FALSE-VERIFY-2). Next step needs owner authorization;
    - (c) extend B's scope to complete `WHOLE_DOCUMENT` and whole-unit
      continuation windows (RW4-ATOM-SCOPE-1).
    C3 rules (kept from B):
@@ -2923,12 +2927,32 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
     (secretsofbuenosaires) stays OPEN, and a live C3 retry has not run.
 - RW4-ATOM-SCOPE-1 addendum (C3): a complete `WHOLE_DOCUMENT` window
   (buenosairesfreewalks) also stays on the generative path.
-- RW4-ID-FALSE-VERIFY-1: FIXED, pending a live C3 retry (2026-10-07).
+- RW4-ID-FALSE-VERIFY-1: FIXED, confirmed live in `c3-idretry2-cold`
+  (2026-10-07): Don Carlos AMBIGUOUS/NAME_COLLISION, Catedral and
+  Bar El Federal AMBIGUOUS; none persisted.
   The source stop "Don Carlos" was VERIFIED as the tomb of Carlos
   Pellegrini. The cause was a fuzzy hint-to-label match on the
   candidate's own QID, decided ahead of 11 known material competitors.
   Spec §19.3. Thresholds untouched.
-- RW4-ID-RECALL-CABILDO-1: FIXED, pending a live C3 retry (2026-10-07).
+- RW4-ID-FALSE-VERIFY-2: OPEN, HIGH (`c3-idretry2-cold`, 2026-10-07).
+  `GROUNDED_CONVERGENCE` VERIFIED two hints whose names only OVERLAP the
+  record: "Club Atlético" (the Paseo Colón memorial) as
+  `Club Atlético San Lorenzo de Almagro - Sede Boedo` (`osm:way:23634484`)
+  and "National Bank" (the HQ on Plaza de Mayo) as
+  `Edificio First National Bank of Boston` (`osm:relation:9254658`).
+  - In both, Nominatim and Places converged on one OSM record, there were
+    0 known material competitors, and the geography basis was
+    `BOUNDED_ADMISSION_SCOPE` (city).
+  - Both were persisted as GeoEntities with the hint in
+    `verifiedHintNames`, although their composite was REJECTED.
+  - Not fixed; thresholds untouched.
+- RW4-ID-RECALL-CABILDO-1: FIXED, confirmed live in PLANNER_CAPACITY
+  (`c3-idretry2-cold`, 2026-10-07): VERIFIED / `GROUNDED_UNIQUE_ALIAS`
+  via LOCAL_OSM_POOL, recordEquivalence grouped Q1024829
+  (`osm:node:767690911` + `osm:way:293947112`, "bolivar 65"). In
+  AREA_ROUTE_WALK, LOCAL_OSM_POOL acquired no Cabildo candidate. NOMINATIM
+  then stayed AMBIGUOUS/`MATERIAL_COMPETITOR_KNOWN` (1 competitor), and
+  record equivalence is LOCAL_OSM_POOL-only.
   Record equivalence (spec §19.4). Introduced by the identity fix in
   PLANNER_CAPACITY (the route-scoped pass already failed).
   - One landmark is split across two OSM records that share a located QID

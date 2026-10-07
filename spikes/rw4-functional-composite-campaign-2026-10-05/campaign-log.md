@@ -372,3 +372,94 @@ search variance, not a fix.
 - WARM not run. RW4_FUNCTIONAL_MILESTONE_PASSED: **NO** (not evaluable).
 - The objectives of the identity retry (Cabildo `recordEquivalence`,
   Don Carlos, per-component identity recall) remain **unmeasured**.
+
+## C3 COLD identity retry, rerun — 2026-10-07
+
+- Run: `c3-idretry2-cold/`, DB `zigzag_spike_rw4_c3_idretry2` (fresh). HEAD
+  `11776382` (adds the poll transport retry to `run-campaign.mjs`; `be/`
+  is byte-identical to `3e945160`). Canonical provenance verified.
+  Same request and providers as `c3-retry-cold`.
+- Completed in ~765 s. Provider requests: serper 3, Tavily 3, Gemini 69,
+  wikidata 87, geoapify 247 (167 routing), local Nominatim 49 and
+  Overpass 36.
+- Gemini: 4 extractor timeouts were retried once. One left AG PLANNER_CAPACITY
+  w3 `STOP_EXTRACTION_FAILED`. 3 classification failures (503/timeout)
+  hit single-place candidates. 0 poll transport retries were needed.
+- COLD DB `0→`: geoEntity 28, geoEntityIdentity 100, hint memory 30,
+  experience 15 (all single-component), experienceComponent 15. 0
+  duplicate identity rows, names or hint keys.
+- Analyses: `atomized-analysis.json`, `identity-analysis.json`
+  (`analyze-identity.cjs`, new, read-only).
+
+### Selected / examined / extraction path
+
+| Pass | Selected = examined | Per source | Path per window |
+|---|---|---|---|
+| AREA_ROUTE_WALK | AG, SOB | AG 1/5 satisfied w1; SOB 3/3 satisfied w3 | AG w1 atomized `SECTION_UNIT` ASSEMBLED (95 atoms, 3 parts); SOB w1 atomized ASSEMBLED (11-atom intro, no qualifying candidate); SOB w2, w3 `DOCUMENT_ORDER_CONTINUATION` generative (RW4-ATOM-SCOPE-1) |
+| GENERIC | solsalute, argentina4u | solsalute 5/5 exhausted; a4u 1/3 satisfied | solsalute w1 atomized `CONTRACT_FAIL_CLOSED` (`MENTION_ANTECEDENT_MISSING`), w2–w5 generative; a4u w1 atomized ASSEMBLED |
+| PLANNER_CAPACITY | AG, SOB | AG 3/5 `SOURCE_EXTRACTION_FAILED`; SOB 1/2 satisfied w1 | AG w1 atomized `CONTRACT_FAIL_CLOSED` (`SPAN_NOT_IN_ATOM:a-072`; ASSEMBLED in `c3-retry-cold`), w2 generative, w3 extractor timeout; SOB w1 atomized ASSEMBLED (182 atoms, 2 parts) |
+
+All passes: `selectedSources == examinedSources`.
+
+### Composite candidates and component identity
+
+| Pass | Candidate | VERIFIED | AMBIGUOUS | INSUFFICIENT | REJECTED | no candidate | Entity verdict |
+|---|---|---|---|---|---|---|---|
+| AREA_ROUTE_WALK | AG part 1 of 3 | 4 | 4 | 5 | 0 | 1 | REJECTED `INCOMPLETE_SOURCE_COMPOSITION` 4/14 |
+| AREA_ROUTE_WALK | AG part 2 of 3 | 2 | 1 | 0 | 0 | 0 | REJECTED `INCOMPLETE_SOURCE_COMPOSITION` 2/3 |
+| AREA_ROUTE_WALK | SOB "Day 1: Plaza de Mayo to San Telmo" (generative) | 8 | 2 | 0 | 0 | 2 | REJECTED `INCOMPLETE_SOURCE_COMPOSITION` 8/12 |
+| AREA_ROUTE_WALK | SOB "La Boca" (generative) | 0 | 1 | 1 | 0 | 0 | REJECTED `UNCONFIRMED_MATCH` 0/2 |
+| GENERIC | a4u "Tour Description" | 2 | 0 | 2 | 1 | 1 | REJECTED `INCOMPLETE_SOURCE_COMPOSITION` 2/6 |
+| PLANNER_CAPACITY | SOB part 1 of 2 | 9 | 3 | 2 | 1 | 4 | REJECTED `INCOMPLETE_SOURCE_COMPOSITION` 9/19 |
+| PLANNER_CAPACITY | SOB part 2 of 2 | 0 | 1 | 0 | 0 | 1 | REJECTED 0/2 |
+
+- Rules of VERIFIED components: `GROUNDED_UNIQUE_EXACT_NAME` (Obelisco,
+  Casa Rosada, Catedral Metropolitana, Casa Mínima, Bar Sur, Mercado de
+  San Telmo, Plaza Dorrego, Parque Lezama), `STRUCTURED_ROUTE` (Defensa,
+  Caminito, Avenida San Juan), `CATALOG_ROUTE_VARIANT` (Caminito Street),
+  `QID_LINK` (San Telmo Market, OWN_QID with EQUIVALENT hint),
+  `GROUNDED_UNIQUE_ALIAS` (Cabildo), `GROUNDED_CONVERGENCE` (National
+  Bank, Club Atlético: both false, below).
+- Geographic validation: ALL_ACCEPTED in every pass (it ran only on the
+  accepted candidates). Materialization: only single-place Experiences.
+  The resolved components of the rejected composites are persisted as
+  GeoEntities with hint memory.
+
+### Identity targets before / after
+
+| Hint | `c3-retry-cold` (d4e0754f) | `c3-idretry2-cold` |
+|---|---|---|
+| Don Carlos | VERIFIED as Carlos Pellegrini tomb, persisted | AMBIGUOUS `NAME_COLLISION` (NEARBY QID, correspondence NONE; exact name MULTIPLE). Not persisted |
+| Catedral | VERIFIED as Catedral Constructiva | AMBIGUOUS `MATERIAL_COMPETITOR_KNOWN` (SOB part 1). "Catedral Metropolitana" VERIFIED exact name |
+| Bar El Federal | VERIFIED as Plaza República Federal de Brasil | AMBIGUOUS (single-place candidate rejected) |
+| Club Atlético | VERIFIED as Club Atlético Atlanta | **VERIFIED as Club Atlético San Lorenzo - Sede Boedo, persisted (false)** |
+| Cabildo, PLANNER_CAPACITY | AMBIGUOUS | **VERIFIED** `GROUNDED_UNIQUE_ALIAS` via LOCAL_OSM_POOL. recordEquivalence grouped, QID Q1024829, members `osm:node:767690911` + `osm:way:293947112`, address "bolivar 65", member names EQUIVALENT. Alias match EQUIVALENT, multiplicity SINGLE. Competitors: `NO_MATERIAL_COMPETITOR` (0). Persisted as "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo" |
+| Cabildo, AREA_ROUTE_WALK (AG and SOB) | AMBIGUOUS | AMBIGUOUS `MATERIAL_COMPETITOR_KNOWN` (1). LOCAL_OSM_POOL acquired no candidate; NOMINATIM decided, without record equivalence (LOCAL_OSM_POOL-only) |
+| Museo del Cabildo (SOB) | — | INSUFFICIENT (Places "Museo del Subte Centenera"); the LOCAL_OSM_POOL attempt logged the same grouped recordEquivalence |
+
+### New false VERIFIED: RW4-ID-FALSE-VERIFY-2
+
+- "Club Atlético": the source says "Under the bridge, you see a memory
+  of 'Club Atlético'", the memorial on Paseo Colón. It was VERIFIED as
+  `osm:way:23634484` San Lorenzo Sede Boedo.
+- "National Bank": "the headquarters of the National Bank" on Plaza de
+  Mayo. It was VERIFIED as `osm:relation:9254658` / Q5818109, Edificio
+  First National Bank of Boston.
+- Both by `GROUNDED_CONVERGENCE`: Nominatim and Places returned the same
+  OSM record, with 0 material competitors, geography
+  `BOUNDED_ADMISSION_SCOPE`. The hint only OVERLAPs the record name.
+- Both are persisted as GeoEntities with the hint in `verifiedHintNames`.
+
+### Verdict
+
+- No composite qualified. WARM not run.
+- **RW4_FUNCTIONAL_MILESTONE_PASSED: NO.**
+- First real blocker: every oracle composite is REJECTED
+  `INCOMPLETE_SOURCE_COMPOSITION`, because mandatory components lack
+  VERIFIED identity. Best case: SOB walk 8/12, with Plaza de Mayo and
+  Cabildo AMBIGUOUS, Estados Unidos AMBIGUOUS and Paseo de Colón with no
+  candidate. Plaza de Mayo is unresolved in all three oracle composites
+  (AMBIGUOUS `MATERIAL_COMPETITOR_KNOWN`, 1, 3 and 8 competitors).
+- No regression in the measured RW4-ID-FALSE-VERIFY-1 class.
+  RW4-ID-FALSE-VERIFY-2 is the same lexical-overlap class reaching
+  VERIFIED through `GROUNDED_CONVERGENCE`.
