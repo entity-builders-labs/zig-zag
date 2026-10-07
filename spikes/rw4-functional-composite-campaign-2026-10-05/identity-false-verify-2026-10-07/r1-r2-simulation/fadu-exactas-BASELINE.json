@@ -1,0 +1,34 @@
+[
+ {
+  "hint": "Facultad de Ciencias Exactas y Naturales",
+  "candidate": "Facultad de Ciencias Exactas y Naturales",
+  "aliases": [
+   "FCEN",
+   "Facultad de Ciencias Exactas y Naturales (Universidad de Buenos Aires)"
+  ],
+  "status": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+  "evidence": [
+   "EXACT_NAME:SINGLE",
+   "DECLARED_ALIAS_MATCH:OVERLAP:SINGLE",
+   "COMPETITOR_EXAMINATION:NO_MATERIAL_COMPETITOR",
+   "GEOGRAPHIC_CORRESPONDENCE"
+  ]
+ },
+ {
+  "hint": "Facultad de Arquitectura, Diseño y Urbanismo",
+  "candidate": "Facultad de Arquitectura, Diseño y Urbanismo",
+  "aliases": [
+   "FADU",
+   "Facultad de Arquitectura, Diseño y Urbanismo (Universidad de Buenos Aires)"
+  ],
+  "status": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+  "evidence": [
+   "EXACT_NAME:SINGLE",
+   "DECLARED_ALIAS_MATCH:OVERLAP:SINGLE",
+   "COMPETITOR_EXAMINATION:NO_MATERIAL_COMPETITOR",
+   "GEOGRAPHIC_CORRESPONDENCE"
+  ]
+ }
+]

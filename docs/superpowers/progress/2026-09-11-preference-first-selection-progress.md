@@ -2660,6 +2660,26 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 - Recommendation: NEEDS_MORE_FORENSIC. Dossier:
   `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2026-10-07/recall-forensic/`.
 
+### Offline R1/R1+R2 simulation for Cabildo recall — 2026-10-07
+
+- No production change; jest spies only.
+- R1 groups:
+  - Buenos Aires production pool: 1 (Cabildo, correct);
+  - Mendoza production pool: 0;
+  - broad Buenos Aires stress pool: 2 (Cabildo, plus FADU/Exactas, which is
+    wrong).
+- Real `CANDIDATE_AREA San Telmo` scope reproduced.
+- Of 55 components, 6 change, all Cabildo hints, all to the correct
+  record. R1 alone does not recover "Cabildo"; R1+R2 does
+  (`GROUNDED_UNIQUE_ALIAS` via the way's `short_name`).
+- Don Carlos, El Zanjón and Farmacia are unchanged. Fixtures never form an
+  R1 group.
+- FADU/Exactas: a self-contradicting QID tag on the Exactas node. R2 would
+  copy FADU's names onto it (latent). Condition (a), each record's own
+  name EQUIVALENT to the item, dissolves it and keeps Cabildo.
+- Dossier:
+  `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2026-10-07/r1-r2-simulation/`.
+
 ## Next authorized action
 
 0. (2026-10-06, C3 COLD ran; precondition not met, no composite) Owner

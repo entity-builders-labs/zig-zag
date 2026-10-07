@@ -1,0 +1,4 @@
+BASELINE unit tours: Tests:       2364 passed, 2364 total | R1 groups formed: 0
+R1 unit tours: Tests:       2364 passed, 2364 total | R1 groups formed: 0
+R1R2 unit tours: Tests:       2364 passed, 2364 total | R1 groups formed: 0
+R1R2 integration: Tests:       1 failed, 114 passed, 115 total | R1 groups formed: 0; the single failure reproduces identically in the BASELINE+setup control (Tests:       1 failed, 114 passed, 115 total) and passes 3/3 without the setup (harness artifact: afterEach restoreAllMocks).
