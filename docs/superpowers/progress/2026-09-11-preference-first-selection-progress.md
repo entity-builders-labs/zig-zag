@@ -2680,6 +2680,23 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 - Dossier:
   `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2026-10-07/r1-r2-simulation/`.
 
+### Record equivalence implemented (R1+R2 with member consistency) — 2026-10-07
+
+- Owner-approved rule; spec §19.4. Single authority:
+  `record-identity-equivalence.policy`, fed by the OSM boundary
+  `osmEquivalenceRecord` and the typed `lookupPhysicalLocation` (P625,
+  fail closed). LOCAL_OSM_POOL only.
+- Cabildo: AMBIGUOUS before, VERIFIED (`GROUNDED_UNIQUE_ALIAS`) in all four
+  replayed scopes. FADU/Exactas: no group, no alias transfer. Don Carlos:
+  not verified.
+- Real-data replay of the final code matches the simulation on 55 of 55
+  components.
+- Mutation runs:
+  - without member consistency, FADU/Exactas fails;
+  - without R2 aggregation, Cabildo fails;
+  - without grouping, Cabildo fails (no fuzzy path is involved).
+- No C3 run.
+
 ## Next authorized action
 
 0. (2026-10-06, C3 COLD ran; precondition not met, no composite) Owner
@@ -2688,9 +2705,8 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
    - (a) rerun C3 COLD as is: search and selection vary per run;
    - (b) DONE 2026-10-07 for scan order, confirmed by the live C3 retry
      (`c3-retry-cold`, no qualifying composite). Selection-limit losses
-     remain. RW4-ID-FALSE-VERIFY-1 is fixed (2026-10-07), but the state
-     is NOT_READY_FOR_C3_IDENTITY_RETRY until the Cabildo recall regression
-     (RW4-ID-RECALL-CABILDO-1) is resolved;
+     remain. RW4-ID-FALSE-VERIFY-1 and RW4-ID-RECALL-CABILDO-1 are fixed
+     (2026-10-07). A C3 identity retry needs new owner authorization;
    - (c) extend B's scope to complete `WHOLE_DOCUMENT` and whole-unit
      continuation windows (RW4-ATOM-SCOPE-1).
    C3 rules (kept from B):
@@ -2908,8 +2924,9 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   Pellegrini. The cause was a fuzzy hint-to-label match on the
   candidate's own QID, decided ahead of 11 known material competitors.
   Spec §19.3. Thresholds untouched.
-- RW4-ID-RECALL-CABILDO-1: OPEN, HIGH (2026-10-07), introduced by the
-  identity fix in PLANNER_CAPACITY (the route-scoped pass already failed).
+- RW4-ID-RECALL-CABILDO-1: FIXED, pending a live C3 retry (2026-10-07).
+  Record equivalence (spec §19.4). Introduced by the identity fix in
+  PLANNER_CAPACITY (the route-scoped pass already failed).
   - One landmark is split across two OSM records that share a located QID
     and an address. The other record is counted as a material competitor,
     and the hint's exact name is only that record's `short_name`.

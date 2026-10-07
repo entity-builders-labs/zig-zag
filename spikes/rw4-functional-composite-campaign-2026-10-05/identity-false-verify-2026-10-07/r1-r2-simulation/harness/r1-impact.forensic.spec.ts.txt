@@ -129,7 +129,7 @@ it(`simulates ${MODE}`, async () => {
     undefined,
     new NominatimApiService(config) as any,
     { provider: 'geoapify', declaresSourceIdentitiesInDetails: true, searchText: jest.fn().mockResolvedValue({ data: [], provenance: {} }), getPlaceDetails: jest.fn() } as any,
-    { getEntitySummaries: (q: string[]) => wd.getEntitySummaries(q), findNearbyPlaces: (a: number, b: number, c: number) => wd.findNearbyPlaces(a, b, c) } as any,
+    { getEntitySummaries: (q: string[]) => wd.getEntitySummaries(q), findNearbyPlaces: (a: number, b: number, c: number) => wd.findNearbyPlaces(a, b, c), lookupPhysicalLocation: (q: string[]) => wd.lookupPhysicalLocation(q) } as any,
   );
   const rel = await (overpass as any).execute('[out:json][timeout:120];relation(1224652);out geom;');
   const boundary = { id: 'osm:relation:1224652', name: 'Buenos Aires', osmType: 'relation', osmId: 1224652, tags: rel[0].tags, geometry: overpassElementToGeoJson(rel[0]) };
