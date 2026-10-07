@@ -19,6 +19,7 @@ describe('CachedWikidataApiService', () => {
       getEntitySummaries: jest.fn(),
       lookupEntitySummaries: jest.fn(),
       findNearbyPlaces: jest.fn(),
+      lookupPhysicalLocation: jest.fn(),
     };
   });
 

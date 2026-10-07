@@ -464,6 +464,9 @@ function projectComponentIdentity(component: ComponentResolutionAudit) {
     ...(attempt.verificationRule
       ? { verificationRule: attempt.verificationRule }
       : {}),
+    ...(attempt.recordEquivalence
+      ? { recordEquivalence: attempt.recordEquivalence }
+      : {}),
     ...(attempt.destinationCompatibility
       ? { destinationCompatibility: attempt.destinationCompatibility }
       : {}),

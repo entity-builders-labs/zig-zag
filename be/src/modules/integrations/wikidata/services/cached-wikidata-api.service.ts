@@ -7,6 +7,7 @@ import {
   WikidataEntitySummary,
   WikidataLookupOutcome,
   WikidataNearbyPlace,
+  WikidataPhysicalLocation,
 } from '../interfaces/wikidata.interface';
 
 /**
@@ -156,5 +157,12 @@ export class CachedWikidataApiService implements IWikidataApiService {
     radiusMeters: number,
   ): Promise<WikidataNearbyPlace[]> {
     return this.realService.findNearbyPlaces(latitude, longitude, radiusMeters);
+  }
+
+  /** Not cached: a small, structural lookup made only for record equivalence. */
+  lookupPhysicalLocation(
+    qids: string[],
+  ): Promise<Map<string, WikidataPhysicalLocation>> {
+    return this.realService.lookupPhysicalLocation(qids);
   }
 }

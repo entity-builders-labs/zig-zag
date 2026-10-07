@@ -469,4 +469,71 @@ describe('WikidataApiService', () => {
       expect(results).toEqual([]);
     });
   });
+
+  describe('lookupPhysicalLocation', () => {
+    beforeEach(() => mockedAxios.get.mockReset());
+
+    it('reports an item with a coordinate (P625) as located and one without as not located', async () => {
+      service = await setup();
+      mockedAxios.get.mockResolvedValueOnce(
+        mockWbGetEntities({
+          Q1: {
+            id: 'Q1',
+            claims: { P625: [{ mainsnak: { snaktype: 'value' } }] },
+          },
+          Q2: {
+            id: 'Q2',
+            claims: { P31: [{ mainsnak: { snaktype: 'value' } }] },
+          },
+        }),
+      );
+
+      const result = await service.lookupPhysicalLocation(['Q1', 'Q2']);
+
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          params: expect.objectContaining({ props: 'claims', ids: 'Q1|Q2' }),
+        }),
+      );
+      expect(result.get('Q1')).toEqual({ qid: 'Q1', located: true });
+      expect(result.get('Q2')).toEqual({ qid: 'Q2', located: false });
+    });
+
+    it('leaves a missing item and a P625 without a value UNKNOWN or not located', async () => {
+      service = await setup();
+      mockedAxios.get.mockResolvedValueOnce(
+        mockWbGetEntities({
+          Q3: { id: 'Q3', missing: '' },
+          Q4: {
+            id: 'Q4',
+            claims: { P625: [{ mainsnak: { snaktype: 'novalue' } }] },
+          },
+        }),
+      );
+
+      const result = await service.lookupPhysicalLocation(['Q3', 'Q4']);
+
+      expect(result.has('Q3')).toBe(false);
+      expect(result.get('Q4')).toEqual({ qid: 'Q4', located: false });
+    });
+
+    it('never throws: a failed lookup leaves every item UNKNOWN', async () => {
+      service = await setup();
+      mockedAxios.get.mockRejectedValueOnce(new Error('timeout'));
+
+      const result = await service.lookupPhysicalLocation(['Q5']);
+
+      expect(result.size).toBe(0);
+    });
+
+    it('ignores ids that are not QIDs without calling Wikidata', async () => {
+      service = await setup();
+
+      const result = await service.lookupPhysicalLocation(['', 'osm:node:1']);
+
+      expect(result.size).toBe(0);
+      expect(mockedAxios.get).not.toHaveBeenCalled();
+    });
+  });
 });

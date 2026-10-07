@@ -51,10 +51,10 @@ import {
   bestNominatimMatch,
   candidateMatchCountToMultiplicity,
   aliasMatches,
-  countAliasMatches,
   countExactNormalizedMatches,
   nominatimExactMatches,
   extractDeclaredNameAliases,
+  osmEquivalenceRecord,
   extractWikidataQid,
   isAreaScaleEligible,
   isPlaceScaleEligible,
@@ -132,6 +132,12 @@ import {
   ContextualPoolMember,
 } from '../interfaces/component-identity-context.interface';
 import { evaluateStructuralCompatibility } from '../utils/place-structural-compatibility.policy';
+import {
+  EquivalenceItemFacts,
+  RecordIdentityGrouping,
+  groupEquivalentRecords,
+  itemsNeedingFacts,
+} from '../utils/record-identity-equivalence.policy';
 import {
   strongIdentitiesOf,
   strongIdentityKey,
@@ -880,10 +886,14 @@ export class ExperienceProposalResolverService
           destinationCompatibility?: DestinationCompatibility;
           routeResolution?: ResolutionAttemptAudit['routeResolution'];
           placeSearch?: PlaceSearchAudit;
+          recordEquivalence?: ResolutionAttemptAudit['recordEquivalence'];
         },
         verification: VerificationResult | undefined,
       ): void => {
         attempts.push({
+          ...(acquisition.recordEquivalence
+            ? { recordEquivalence: acquisition.recordEquivalence }
+            : {}),
           ...(acquisition.destinationCompatibility
             ? { destinationCompatibility: acquisition.destinationCompatibility }
             : {}),
@@ -1222,6 +1232,13 @@ export class ExperienceProposalResolverService
 
       let unconfirmedLocalMatch: ResolvedGeoEntity | undefined;
       let unconfirmedGlobalMatch: ResolvedGeoEntity | undefined;
+      // Record equivalence (one physical identity mapped as several records
+      // of this pool) applies to the LOCAL_OSM_POOL strategy only: its
+      // records carry the tags the authority needs.
+      const recordGrouping =
+        localLookup?.status === 'success'
+          ? await this.recordGroupingOf(pool)
+          : RecordIdentityGrouping.none();
       if (localLookup?.status === 'success') {
         competition.pools.push(
           this.localCompetitorPool(
@@ -1229,6 +1246,7 @@ export class ExperienceProposalResolverService
             hint.name,
             pool,
             componentScope,
+            recordGrouping,
           ),
         );
       }
@@ -1246,12 +1264,14 @@ export class ExperienceProposalResolverService
             hint.name,
             pool,
             componentScope,
+            recordGrouping,
           );
         }
         const resolvedEntity = this.buildOsmCandidate(
           hint,
           matched,
           nameMultiplicity,
+          recordGrouping,
         );
         if (!isAreaHint) {
           // Exact-name and declared-alias members are the competitors. The
@@ -1259,6 +1279,7 @@ export class ExperienceProposalResolverService
           // source's locality, so it is never a complete comparison: it can
           // expose an equally consistent competitor, never single one out.
           const needle = normalizeGeoName(hint.name);
+          // One member per physical identity (record equivalence).
           const members = [
             ...new Map(
               [
@@ -1266,7 +1287,10 @@ export class ExperienceProposalResolverService
                   (candidate) => normalizeGeoName(candidate.name) === needle,
                 ),
                 ...aliasMatches(hint.name, pool),
-              ].map((candidate) => [candidate.id, candidate]),
+              ].map((candidate) => [
+                recordGrouping.identityKeyOf(candidate.id),
+                candidate,
+              ]),
             ).values(),
           ];
           const contextualPool = evaluateContextualPool(
@@ -1297,12 +1321,14 @@ export class ExperienceProposalResolverService
           identityContext,
           competition,
         );
+        const recordEquivalence = recordGrouping.auditOf(matched.id);
         recordAttempt(
           'LOCAL_OSM_POOL',
           {
             ...localOsmFacts,
             provider: resolvedEntity.provider,
             entity: resolvedEntity,
+            ...(recordEquivalence ? { recordEquivalence } : {}),
           },
           verification,
         );
@@ -2468,51 +2494,155 @@ export class ExperienceProposalResolverService
     ).admitted;
   }
 
-  /** The local OSM POI pool as an examined competitor pool. */
+  /**
+   * The local OSM POI pool as an examined competitor pool. Records that
+   * record equivalence groups into one physical identity are ONE member
+   * carrying every record's key, so a group never competes with itself and
+   * counts once against another candidate.
+   */
   private localCompetitorPool(
     strategy: ResolutionStrategy,
     hintName: string,
     pool: OsmCandidate[],
     componentScope: ComponentAcquisitionScope,
+    grouping: RecordIdentityGrouping = RecordIdentityGrouping.none(),
   ): CompetitorPool {
     const aliasIds = new Set(
       aliasMatches(hintName, pool).map((candidate) => candidate.id),
     );
+    const needle = normalizeGeoName(hintName);
+    const byIdentity = new Map<string, OsmCandidate[]>();
+    for (const candidate of pool) {
+      const key = grouping.identityKeyOf(candidate.id);
+      (byIdentity.get(key) ?? byIdentity.set(key, []).get(key)!).push(
+        candidate,
+      );
+    }
     return {
       strategy,
       coverage: this.destinationPoolCoverage(componentScope),
-      members: pool.map((candidate): CompetitorPoolMember => {
-        const point = this.representativePoint(candidate);
+      members: [...byIdentity.values()].map((records): CompetitorPoolMember => {
+        // The record answering to the hint by name represents the
+        // identity; otherwise its first record.
+        const representative =
+          records.find((record) => normalizeGeoName(record.name) === needle) ??
+          records[0];
+        const point = this.representativePoint(representative);
         return {
-          identityKeys: [
+          identityKeys: records.map((record) =>
             strongIdentityKey({
               provider: 'openstreetmap',
-              externalId: candidate.id,
+              externalId: record.id,
             }),
-          ],
-          name: candidate.name,
-          ...(aliasIds.has(candidate.id) ? { declaresHintAlias: true } : {}),
+          ),
+          name: representative.name,
+          ...(records.some((record) => aliasIds.has(record.id))
+            ? { declaresHintAlias: true }
+            : {}),
           ...(point ? point : {}),
-          structuralKind: structuralKindFromOsmTags(candidate.tags),
+          structuralKind: structuralKindFromOsmTags(representative.tags),
         };
       }),
     };
   }
 
-  /** Exact-name / declared-alias multiplicity of the local POI pool. */
+  /**
+   * Record equivalence for one pool, computed once per pool. Item facts
+   * (physical location, names) are read only for items two or more
+   * records declare; any lookup failure leaves them unknown, and unknown
+   * facts group nothing (fail closed).
+   */
+  private readonly recordGroupings = new WeakMap<
+    OsmCandidate[],
+    Promise<RecordIdentityGrouping>
+  >();
+
+  private recordGroupingOf(
+    pool: OsmCandidate[],
+  ): Promise<RecordIdentityGrouping> {
+    let grouping = this.recordGroupings.get(pool);
+    if (!grouping) {
+      grouping = this.computeRecordGrouping(pool);
+      this.recordGroupings.set(pool, grouping);
+    }
+    return grouping;
+  }
+
+  private async computeRecordGrouping(
+    pool: OsmCandidate[],
+  ): Promise<RecordIdentityGrouping> {
+    const records = pool.map(osmEquivalenceRecord);
+    const qids = itemsNeedingFacts(records);
+    const facts = new Map<string, EquivalenceItemFacts>();
+    if (
+      qids.length > 0 &&
+      typeof this.wikidata?.lookupPhysicalLocation === 'function'
+    ) {
+      try {
+        const [located, summaries] = await Promise.all([
+          this.wikidata.lookupPhysicalLocation(qids),
+          this.wikidata.getEntitySummaries(qids),
+        ]);
+        for (const qid of qids) {
+          const location = located?.get(qid);
+          const summary = summaries?.get(qid);
+          if (!location || !summary) continue;
+          facts.set(qid, {
+            located: location.located,
+            names: [summary.label, ...(summary.aliases ?? [])].filter(
+              (name): name is string => Boolean(name),
+            ),
+          });
+        }
+      } catch (error) {
+        this.logger.warn(
+          `Record equivalence item facts unavailable: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
+      }
+    }
+    return groupEquivalentRecords(records, facts);
+  }
+
+  /**
+   * Exact-name / declared-alias multiplicity of the local POI pool, counted
+   * in physical identities (record equivalence): a grouped identity counts
+   * once, matches through any member's own name, and declares the names of
+   * all its members.
+   */
   private localPoolNameMultiplicity(
     hintName: string,
     pool: OsmCandidate[],
     componentScope: ComponentAcquisitionScope,
+    grouping: RecordIdentityGrouping = RecordIdentityGrouping.none(),
   ): { exactName: IdentityMultiplicity; declaredAlias: IdentityMultiplicity } {
     const coverage = this.destinationPoolCoverage(componentScope);
+    const needle = normalizeGeoName(hintName);
+    const exact = pool.filter(
+      (candidate) => needle && normalizeGeoName(candidate.name) === needle,
+    );
+    const aliased = aliasMatches(
+      hintName,
+      pool.map((candidate) => {
+        const group = grouping.groupOf(candidate.id);
+        return group
+          ? {
+              ...candidate,
+              nameAliasCandidates: [
+                ...new Set([
+                  ...extractDeclaredNameAliases(candidate.tags),
+                  ...group.declaredNames,
+                ]),
+              ],
+            }
+          : candidate;
+      }),
+    );
     return {
-      exactName: poolMultiplicity(
-        countExactNormalizedMatches(hintName, pool, (c) => c.name),
-        coverage,
-      ),
+      exactName: poolMultiplicity(grouping.countIdentities(exact), coverage),
       declaredAlias: poolMultiplicity(
-        countAliasMatches(hintName, pool),
+        grouping.countIdentities(aliased),
         coverage,
       ),
     };
@@ -2525,7 +2655,11 @@ export class ExperienceProposalResolverService
       exactName: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
       declaredAlias: 'SINGLE' | 'MULTIPLE' | 'UNKNOWN';
     },
+    grouping: RecordIdentityGrouping = RecordIdentityGrouping.none(),
   ): EntityCandidate {
+    // R2: a record grouped by record equivalence declares the names of its
+    // whole physical identity; IdentityVerifier still grades each one.
+    const group = grouping.groupOf(matched.id);
     const kind =
       hint.expectedKind === 'ROUTE'
         ? GeoEntityKind.ROUTE
@@ -2545,7 +2679,14 @@ export class ExperienceProposalResolverService
       geometry: matched.geometry,
       role: hint.role,
       wikidataQid: extractWikidataQid(matched.tags),
-      nameAliasCandidates: extractDeclaredNameAliases(matched.tags),
+      nameAliasCandidates: group
+        ? [
+            ...new Set([
+              ...extractDeclaredNameAliases(matched.tags),
+              ...group.declaredNames.filter((name) => name !== matched.name),
+            ]),
+          ]
+        : extractDeclaredNameAliases(matched.tags),
       addressConfirmed: matchesAddressHint(hint.addressHint, matched.tags),
       nameEvidenceMultiplicity: nameMultiplicity,
       structuralKind: structuralKindFromOsmTags(matched.tags),

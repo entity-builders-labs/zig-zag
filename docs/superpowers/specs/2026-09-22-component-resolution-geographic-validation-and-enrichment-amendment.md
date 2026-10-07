@@ -1482,3 +1482,62 @@ identities now stay unverified unless other evidence decides:
 with no coordinate (P625). "The item is not a physical entity" would be a
 clean generic contradiction for a PLACE, but the Wikidata summary
 carries neither fact; it needs an adapter extension and its own decision.
+
+### 19.4 Record equivalence: one physical identity mapped as several records (2026-10-07, RW4-ID-RECALL-CABILDO-1)
+
+**Why.** After §19.3, "Cabildo" no longer resolved.
+- OSM maps the Cabildo of Buenos Aires as a museum node and a building way.
+  Both carry `wikidata=Q1024829` and the address Bolívar 65. Only the way
+  declares `short_name=Cabildo`.
+- Competitor examination counted the way as a material competitor of the
+  node.
+- The hint's exact name was a name of the other record.
+
+**Record equivalence is not identity verification.** One authority,
+`record-identity-equivalence.policy` (`groupEquivalentRecords`), decides
+whether records of one pool are one physical identity. It never decides
+which record a source hint means.
+
+Records group only when ALL of these hold:
+1. they declare the same Wikidata item;
+2. the item has a coordinate (P625), read through the typed
+   `IWikidataApiService.lookupPhysicalLocation`;
+3. they declare the same exact address (street + housenumber, normalized at
+   the provider boundary by `osmEquivalenceRecord`);
+4. EACH record, on its own, declares a name (`name`, `short_name`,
+   `alt_name`, `official_name`) EQUIVALENT to the item's label or an alias.
+   OVERLAP is not enough.
+
+Condition 4 checks a record's consistency with the item it claims to be. It
+is not evidence that a hint means the record, so it does not reopen fuzzy
+verification. An unknown fact (a failed or missing lookup) forms no group:
+fail closed.
+
+**Use (LOCAL_OSM_POOL only).** Nominatim results carry no `wikidata` tag,
+and the AREA_TO_PLACE_CORRECTION path is unchanged. For a grouped identity:
+- competitor examination counts it as one member carrying every record's
+  key;
+- exact-name and declared-alias multiplicity count it once, matching
+  through any member's own name;
+- the selected record declares every member's own names (R2), still graded
+  by `nameCorrespondence`.
+
+Nothing new is persisted: the selected record keeps its own provider id
+and identities. Each LOCAL_OSM_POOL attempt records `recordEquivalence`:
+either `grouped`, with its basis and members, or a typed reason —
+`QID_FACTS_UNAVAILABLE`, `QID_NOT_LOCATED`, `ADDRESS_MISSING`,
+`ADDRESS_MISMATCH` or `MEMBER_NAME_NOT_EQUIVALENT`.
+
+**Evidence.**
+- Groups formed:
+  - Buenos Aires production pool: 1 (Cabildo);
+  - Mendoza production pool: 0;
+  - a broad Buenos Aires stress pool: 2, the second being FADU + Exactas
+    (Exactas carries FADU's QID and the campus address). Condition 4
+    rejects that one: Exactas' names correspond NONE to FADU's item.
+- A real-data replay of the C3 candidates matches the offline simulation
+  on 55 of 55 components. 6 change, all toward the correct Cabildo record;
+  "Cabildo" verifies by `GROUNDED_UNIQUE_ALIAS` in every scope.
+- "Don Carlos" stays unverified (Q270446 has no P625).
+- Dossier:
+  `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2026-10-07/r1-r2-simulation/`.

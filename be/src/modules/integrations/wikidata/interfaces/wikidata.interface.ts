@@ -57,6 +57,16 @@ export interface WikidataEnrichmentOutcome {
   safetyCheckFailedQids: Set<string>;
 }
 
+/**
+ * Whether a Wikidata item is a physically located entity: it carries a
+ * coordinate location (P625). A structural fact only -- no type list,
+ * no ranking. Record equivalence uses it (`record-identity-equivalence`).
+ */
+export interface WikidataPhysicalLocation {
+  qid: string;
+  located: boolean;
+}
+
 export interface WikidataNearbyPlace {
   qid: string;
   label: string;
@@ -92,4 +102,13 @@ export interface IWikidataApiService {
     longitude: number,
     radiusMeters: number,
   ): Promise<WikidataNearbyPlace[]>;
+
+  /**
+   * Whether each item has a coordinate location (P625). Never throws: a
+   * QID absent from the returned Map (lookup failed, item missing) is
+   * UNKNOWN, and callers must fail closed on it.
+   */
+  lookupPhysicalLocation(
+    qids: string[],
+  ): Promise<Map<string, WikidataPhysicalLocation>>;
 }

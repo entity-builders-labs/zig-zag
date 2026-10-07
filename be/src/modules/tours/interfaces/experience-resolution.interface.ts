@@ -418,6 +418,37 @@ export interface VerificationResult {
   evidence: IdentityEvidence[];
 }
 
+/** Record equivalence outcomes (see record-identity-equivalence.policy). */
+export type RecordEquivalenceFailure =
+  /** The item's facts could not be read: fail closed. */
+  | 'QID_FACTS_UNAVAILABLE'
+  /** The item has no coordinate: not a physical entity. */
+  | 'QID_NOT_LOCATED'
+  /** The record declares no complete address. */
+  | 'ADDRESS_MISSING'
+  /** No other record of this item declares the same exact address. */
+  | 'ADDRESS_MISMATCH'
+  /** A member's own names are not EQUIVALENT to the item's names. */
+  | 'MEMBER_NAME_NOT_EQUIVALENT';
+
+/**
+ * Per-record outcome, recorded only for records whose item is declared by
+ * more than one record of the pool (otherwise there is nothing to group).
+ */
+export type RecordEquivalenceAudit =
+  | {
+      grouped: true;
+      qid: string;
+      basis: {
+        sharedQid: string;
+        locatedItem: true;
+        exactAddress: string;
+        memberNameConsistency: 'EQUIVALENT';
+      };
+      members: string[];
+    }
+  | { grouped: false; qid: string; reason: RecordEquivalenceFailure };
+
 /** Bounded, provider-neutral forensic facts for one executed strategy. */
 export interface ResolutionAttemptAudit {
   strategy: ResolutionStrategy;
@@ -445,6 +476,8 @@ export interface ResolutionAttemptAudit {
   /** Bounded facts of a PLACES text search (no raw payloads). */
   placeSearch?: PlaceSearchAudit;
   identityEvidence: IdentityEvidence[];
+  /** Whether record equivalence grouped the selected record (LOCAL pool). */
+  recordEquivalence?: RecordEquivalenceAudit;
   verificationDecision?: VerificationDecision['status'];
   /** The IdentityVerifier rule that produced `verificationDecision`. */
   verificationRule?: IdentityVerificationRule;

@@ -6,6 +6,7 @@ import {
   WikidataEntitySummary,
   WikidataLookupOutcome,
   WikidataNearbyPlace,
+  WikidataPhysicalLocation,
 } from '../interfaces/wikidata.interface';
 
 const DEFAULT_WIKIDATA_API_URL = 'https://www.wikidata.org/w/api.php';
@@ -29,6 +30,17 @@ interface WbGetEntitiesResponse {
       descriptions?: Record<string, { value: string }>;
       aliases?: Record<string, Array<{ value: string }>>;
       sitelinks?: Record<string, { title: string }>;
+    }
+  >;
+}
+
+interface WbGetClaimsResponse {
+  entities?: Record<
+    string,
+    {
+      id: string;
+      missing?: string;
+      claims?: Record<string, Array<{ mainsnak?: { snaktype?: string } }>>;
     }
   >;
 }
@@ -108,6 +120,45 @@ export class WikidataApiService implements IWikidataApiService {
       failedQids,
       extractFailedQids,
     };
+  }
+
+  async lookupPhysicalLocation(
+    qids: string[],
+  ): Promise<Map<string, WikidataPhysicalLocation>> {
+    const located = new Map<string, WikidataPhysicalLocation>();
+    const uniqueQids = Array.from(new Set(qids)).filter((qid) =>
+      /^Q\d+$/.test(qid),
+    );
+    for (const batch of chunk(uniqueQids, MAX_IDS_PER_BATCH)) {
+      try {
+        const response = await axios.get<WbGetClaimsResponse>(this.apiUrl, {
+          params: {
+            action: 'wbgetentities',
+            ids: batch.join('|'),
+            props: 'claims',
+            format: 'json',
+          },
+          headers: { 'User-Agent': USER_AGENT },
+        });
+        for (const [qid, entity] of Object.entries(
+          response.data?.entities ?? {},
+        )) {
+          // A missing item, or one returned without claims, stays UNKNOWN.
+          if (entity.missing !== undefined || !entity.claims) continue;
+          located.set(qid, {
+            qid,
+            located: (entity.claims.P625 ?? []).some(
+              (claim) => claim.mainsnak?.snaktype === 'value',
+            ),
+          });
+        }
+      } catch (error) {
+        this.logger.warn(
+          `wbgetentities claims batch failed: ${(error as Error).message}`,
+        );
+      }
+    }
+    return located;
   }
 
   private async resolveBatch(

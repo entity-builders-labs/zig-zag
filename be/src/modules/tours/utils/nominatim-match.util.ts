@@ -1,3 +1,4 @@
+import type { EquivalenceRecord } from './record-identity-equivalence.policy';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import { NominatimResult } from '@integrations/osm/interfaces/nominatim.interface';
 import { calculateDistance, Coordinates } from '@shared/utils/distance.utils';
@@ -595,6 +596,41 @@ const OSM_WIKIDATA_QID_PATTERN = /^Q[1-9][0-9]*$/;
  *   - "Q123 Q456" (space-separated)
  *   - arbitrary text
  */
+const OSM_OWN_NAME_KEYS = ['name', 'short_name', 'alt_name', 'official_name'];
+
+/**
+ * An OSM record's facts for record equivalence, normalized at this
+ * provider boundary: its own `wikidata` item, its exact address
+ * (`addr:street` + `addr:housenumber` under `normalizeGeoName`) and the
+ * names it declares itself (`name`, `short_name`, `alt_name`,
+ * `official_name`; semicolon lists split).
+ */
+export function osmEquivalenceRecord(record: {
+  id: string;
+  name?: string;
+  tags?: Record<string, string>;
+}): EquivalenceRecord {
+  const tags = record.tags ?? {};
+  const street = tags['addr:street']
+    ? normalizeGeoName(tags['addr:street'])
+    : '';
+  const housenumber = tags['addr:housenumber']
+    ? normalizeGeoName(tags['addr:housenumber'])
+    : '';
+  const ownNames = OSM_OWN_NAME_KEYS.flatMap((key) =>
+    tags[key] ? tags[key].split(';').map((part) => part.trim()) : [],
+  );
+  if (!tags.name && record.name) ownNames.unshift(record.name);
+  return {
+    id: record.id,
+    declaredQid: extractWikidataQid(tags),
+    ...(street && housenumber
+      ? { exactAddress: `${street} ${housenumber}` }
+      : {}),
+    ownNames: [...new Set(ownNames.filter(Boolean))],
+  };
+}
+
 export function extractWikidataQid(
   tags: Record<string, string> | undefined,
 ): string | undefined {
