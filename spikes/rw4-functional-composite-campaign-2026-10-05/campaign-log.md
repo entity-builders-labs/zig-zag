@@ -264,3 +264,77 @@ no booking marketplace, no sandbox source.
 - RW4_FUNCTIONAL_MILESTONE_PASSED: **NO** (no qualifying composite).
 - RW4-EXTRACT-COMPLETENESS-1: **not evaluated** by this run (oracle units
   not reached). B is operationally sound live.
+
+## C3 COLD retry after the bounded-plan scan fix — 2026-10-07
+
+- Run: `c3-retry-cold/`, DB `zigzag_spike_rw4_c3_retry` (fresh), HEAD
+  `d4e0754f`, canonical provenance verified. Same providers and request as
+  `c3-atomized-cold`: serper search, Gemini `gemini-3.5-flash-lite`
+  extractor, Tavily content, geoapify, local Nominatim/Overpass.
+- Completed in ~500 s (was ~171 s; more atomized units ran). COLD counts
+  `geoEntity 0→36`, `geoEntityIdentity 0→68`, `experience 0→19`,
+  `experienceComponent 0→20`; 0 duplicate identity rows or names.
+- Provider requests: serper 3, Tavily 3 (one fetch per pass, no extra
+  fetch), Gemini 67, wikidata 85, geoapify 127 (59 routing).
+- Analysis: `analyze-atomized.cjs` → `c3-retry-cold/atomized-analysis.json`.
+
+### Selected / examined / atomized (from `scan.plan`)
+
+Search returned both oracle sources this time, so the earlier
+selection-limit loss of secretsofbuenosaires (SOB) did not recur. That is
+search variance, not a fix.
+
+| Pass | Selected (order) | Examined | Per source: windows examined, local stop | Atomized windows |
+|---|---|---|---|---|
+| AREA_ROUTE_WALK | agusyornet (AG), SOB | AG, SOB | AG 1/5 `SOURCE_REQUIREMENT_SATISFIED` (w1); SOB 3/3 `SOURCE_REQUIREMENT_SATISFIED` (w3) | AG w1 `SECTION_UNIT` ASSEMBLED (95 atoms, 1 relabel); SOB w1 `SECTION_UNIT` ASSEMBLED (11-atom intro, "San Telmo" only, no qualifying candidate); SOB w2, w3 `DOCUMENT_ORDER_CONTINUATION` → generative (RW4-ATOM-SCOPE-1); w3 satisfied |
+| GENERIC | solsalute, argentina4u | both | solsalute 5/5 `SOURCE_WINDOWS_EXHAUSTED`; argentina4u 1/3 satisfied (w1) | solsalute w1 `CONTRACT_FAIL_CLOSED` (181 atoms, 5 issues after relabel); argentina4u w1 ASSEMBLED |
+| PLANNER_CAPACITY | AG, SOB | AG, SOB | AG 1/5 satisfied (w1); SOB 1/2 satisfied (w1) | AG w1 ASSEMBLED; SOB w1 `SECTION_UNIT` ASSEMBLED (182 atoms, 63 non-editorial) |
+
+- All three passes: `completion = ALL_SELECTED_SOURCES_EXAMINED`,
+  `selectedSources == examinedSources`. In the AREA_ROUTE_WALK pass, AG
+  satisfied first and SOB was still examined: that is exactly the
+  `c3-atomized-cold` failure mode, now fixed live.
+- 0 INVALID_RUN. One `CONTRACT_FAIL_CLOSED` (solsalute).
+
+### Downstream
+
+- AG part 1 (both passes): REJECTED `INCOMPLETE_SOURCE_COMPOSITION` 6/15
+  and 7/12.
+- AG part 2 ("Caminito", "Don Carlos", "Caminito Street"):
+  - AREA_ROUTE_WALK: REJECTED `external_scope_mismatch` (Caminito
+    outside San Telmo). Correct.
+  - PLANNER_CAPACITY (city scope): ACCEPTED 3/3 and **persisted**
+    `3eefb37e-…` with 2 components: Caminito ROUTE (both Caminito hints
+    collapse to `osm:way:144844726`) + "Carlos Pellegrini" PLACE.
+- SOB (PLANNER_CAPACITY) part 1: REJECTED `INCOMPLETE_SOURCE_COMPOSITION`
+  10/18. Part 2 (El Caminito, La Bombonera, La Boca): REJECTED 1/3.
+- argentina4u "Tour Description": REJECTED 4/8.
+
+### The persisted composite does not qualify
+
+- "Don Carlos" is a stop in the source's La Boca segment (reached by bus
+  to Caminito/La Boca). It was VERIFIED via `LOCAL_OSM_POOL` as
+  `osm:node:5332434913` "Carlos Pellegrini" at -34.5872,-58.3935.
+  - Tags: `historic=tomb`, `wikidata=Q270446` (the person). It is a tomb
+    ~6 km away in Recoleta, not the La Boca venue.
+  - The geography check passed only because the pass scope is the whole
+    city (`WITHIN_DESTINATION`).
+  - **False-positive identity: RW4-ID-FALSE-VERIFY-1.**
+- Even with a correct identity it would be a 2-stop part of a 3-part
+  walk, not the source-defined Experience.
+- WARM not run (rule: WARM only if COLD persists a qualifying composite).
+
+### Verdict
+
+- Scan-order fix (RW4-C3-SELECTION-1 scan half): **confirmed live**.
+- RW4_FUNCTIONAL_MILESTONE_PASSED: **NO**.
+- RW4-EXTRACT-COMPLETENESS-1: both oracle units were atomized and
+  ASSEMBLED in PLANNER_CAPACITY, AG also in AREA_ROUTE_WALK. Not formally
+  scored against the oracle here. The stops lost to identity
+  (Mafalda/Ezeiza, AMBIGUOUS Plaza de Mayo/Cathedral) are downstream
+  blockers, not extraction failures.
+- New: **RW4-ID-FALSE-VERIFY-1** (HIGH): a token-overlapping OSM record
+  of a different physical kind was VERIFIED. Not fixed here; thresholds
+  untouched.
+- RW4-ATOM-SCOPE-1 reconfirmed: SOB's walk reached AREA_ROUTE_WALK as a
+  continuation window and took the generative path.

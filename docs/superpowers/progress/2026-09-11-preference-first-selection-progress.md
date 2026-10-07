@@ -2592,15 +2592,35 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   secretsofbuenosaires case) is still never examined. That is selection,
   not scan order.
 
+### RW4 C3 COLD retry at `d4e0754f` — 2026-10-07
+
+- Canonical run `c3-retry-cold`, fresh DB, same providers and request.
+  Details: campaign log, "C3 COLD retry after the bounded-plan scan fix".
+- The scan fix held live:
+  - in every pass, `selectedSources == examinedSources` and completion
+    is `ALL_SELECTED_SOURCES_EXAMINED`;
+  - in AREA_ROUTE_WALK, agusyornet satisfied first and
+    secretsofbuenosaires was still examined.
+- Both oracle units were atomized and ASSEMBLED in PLANNER_CAPACITY.
+  This time search selected both, so the selection-limit loss did not
+  recur (variance, not a fix).
+- One 2-component Experience persisted (agusyornet part 2), but it does
+  not qualify:
+  - "Don Carlos" was VERIFIED as the OSM `historic=tomb` "Carlos
+    Pellegrini", ~6 km away (RW4-ID-FALSE-VERIFY-1);
+  - it is also only one part of the source walk.
+- WARM not run. RW4_FUNCTIONAL_MILESTONE_PASSED: NO.
+
 ## Next authorized action
 
 0. (2026-10-06, C3 COLD ran; precondition not met, no composite) Owner
    decision on how to reach the oracle units. Options, each needing
    authorization; none is started:
    - (a) rerun C3 COLD as is: search and selection vary per run;
-   - (b) DONE 2026-10-07 for scan order: every selected source is
-     examined before plan completion (RW4-C3-SELECTION-1). C3 retry
-     needs new authorization; selection-limit losses remain;
+   - (b) DONE 2026-10-07 for scan order, confirmed by the live C3 retry
+     (`c3-retry-cold`, no qualifying composite). Selection-limit losses
+     remain. The next blocker is RW4-ID-FALSE-VERIFY-1: an owner
+     decision, nothing started;
    - (c) extend B's scope to complete `WHOLE_DOCUMENT` and whole-unit
      continuation windows (RW4-ATOM-SCOPE-1).
    C3 rules (kept from B):
@@ -2813,6 +2833,11 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
     (secretsofbuenosaires) stays OPEN, and a live C3 retry has not run.
 - RW4-ATOM-SCOPE-1 addendum (C3): a complete `WHOLE_DOCUMENT` window
   (buenosairesfreewalks) also stays on the generative path.
+- RW4-ID-FALSE-VERIFY-1: OPEN, HIGH (2026-10-07, C3 retry). The source
+  stop "Don Carlos" (La Boca segment) was VERIFIED via `LOCAL_OSM_POOL`
+  as `osm:node:5332434913` "Carlos Pellegrini" (`historic=tomb`,
+  wikidata Q270446, ~6 km away). It persisted as a component because
+  the city-wide scope cannot catch it. Not fixed; thresholds untouched.
 - RW4-ATOM-KIND-1: OPEN, LOW (2026-10-06).
   - The member-kind call is a new bounded semantic step (PLACE/AREA/ROUTE
     per mandatory member), decided in B because identity routes on it.
