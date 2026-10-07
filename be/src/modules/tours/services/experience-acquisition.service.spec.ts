@@ -4,7 +4,10 @@ import {
   withDefaultGeographicAuthorization,
 } from '../utils/geographic-validation-authorization.util';
 import { geographicIntentDeficit } from '../fixtures/geographic-authorization.fixture';
-import { ExperienceAcquisitionService } from './experience-acquisition.service';
+import {
+  ExperienceAcquisitionService,
+  WebAcquisitionResult,
+} from './experience-acquisition.service';
 import { StructuredExperienceCandidateSynthesizerService } from './structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './structured-candidate-corroboration.service';
 import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-plan.interface';
@@ -1460,8 +1463,29 @@ describe('ExperienceAcquisitionService', () => {
             expect(web.sourceContentRetrieval?.scan).toMatchObject({
               outcome: 'REQUIREMENT_SATISFIED',
               attemptCount: 1,
-              satisfiedBy: { sourceUrl: URL_A, windowOrdinal: 1 },
+              satisfiedBy: [{ sourceUrl: URL_A, windowOrdinal: 1 }],
+              plan: {
+                selectedSources: [URL_A, URL_B],
+                examinedSources: [URL_A],
+                completion: 'ALL_SELECTED_SOURCES_EXAMINED',
+              },
             });
+            // Source-local stop: the satisfied source's later windows are
+            // never examined.
+            expect(web.sourceContentRetrieval!.scan!.plan.sources).toEqual([
+              expect.objectContaining({
+                sourceUrl: URL_A,
+                examinedWindowCount: 1,
+                localStop: 'SOURCE_REQUIREMENT_SATISFIED',
+                satisfiedByWindowOrdinal: 1,
+              }),
+              // Selected but never retrieved: skipped, with the reason.
+              expect.objectContaining({
+                sourceUrl: URL_B,
+                examinedWindowCount: 0,
+                localStop: 'CONTENT_NOT_RETRIEVED',
+              }),
+            ]);
             expect(
               web.sourceContentRetrieval!.scan!.windowCount,
             ).toBeGreaterThan(1);
@@ -1636,6 +1660,27 @@ describe('ExperienceAcquisitionService', () => {
               outcome: 'SOURCES_EXHAUSTED',
               attemptCount: windows.length,
               windowCount: windows.length,
+              plan: {
+                selectedSources: [URL_A, URL_B],
+                examinedSources: [URL_A],
+                completion: 'ALL_SELECTED_SOURCES_EXAMINED',
+                sources: [
+                  {
+                    sourceUrl: URL_A,
+                    selectionOrder: 1,
+                    windowCount: windows.length,
+                    examinedWindowCount: windows.length,
+                    localStop: 'SOURCE_WINDOWS_EXHAUSTED',
+                  },
+                  {
+                    sourceUrl: URL_B,
+                    selectionOrder: 2,
+                    windowCount: 0,
+                    examinedWindowCount: 0,
+                    localStop: 'CONTENT_NOT_RETRIEVED',
+                  },
+                ],
+              },
             });
             // No deep window has authority: the grounded snippets stand.
             expect(result.evidence.find((e) => e.key === 'ev-1')).toMatchObject(
@@ -1801,6 +1846,327 @@ describe('ExperienceAcquisitionService', () => {
               [URL_A, 2],
               [URL_B, 2],
             ]);
+          });
+
+          describe('bounded selected-source plan: source-local vs plan completion', () => {
+            // Generic synthetic sources: each page opens with a complete
+            // editorial unit (window 1) followed by filler windows.
+            const COMPOSITION_A =
+              'Start at Alpha Square, then walk to Beta Park and finish at Gamma Gate.';
+            const COMPOSITION_B =
+              'Begin at Delta Market, continue to Epsilon Bridge and end at Zeta Hall.';
+            const pageWith = (unit: string, label: string) =>
+              `# Guide\n\n## Walk\n\n${unit}\n\n## Other\n\n${`${label} filler text. `.repeat(1200)}`;
+            const pageA = pageWith(COMPOSITION_A, 'alpha');
+            const pageB = pageWith(COMPOSITION_B, 'bravo');
+            const pageBWithoutUnit = pageWith(
+              'Nothing here names a route.',
+              'bravo',
+            );
+            const URL_C = 'https://other.com/recoleta';
+
+            const walkA = walk(
+              'Walk A',
+              hint('a1', 'Alpha Square', 'ev-1'),
+              hint('a2', 'Beta Park', 'ev-1'),
+              hint('a3', 'Gamma Gate', 'ev-1'),
+            );
+            const walkB = walk(
+              'Walk B',
+              hint('b1', 'Delta Market', 'ev-2'),
+              hint('b2', 'Epsilon Bridge', 'ev-2'),
+              hint('b3', 'Zeta Hall', 'ev-2'),
+            );
+            /** A window yields a walk only when it shows that walk's unit. */
+            const candidatesIn = (content: string) => [
+              ...(content.includes(COMPOSITION_A) ? [walkA] : []),
+              ...(content.includes(COMPOSITION_B) ? [walkB] : []),
+            ];
+            const generative = () =>
+              jest
+                .fn()
+                .mockImplementation((_req: any, grounded: any) =>
+                  Promise.resolve(
+                    extraction(
+                      deepEvidence([null, grounded]).flatMap((e: any) =>
+                        candidatesIn(e.snippet),
+                      ),
+                    ),
+                  ),
+                );
+            const atomizedFor = () =>
+              atomizedExtractorDouble(({ content }) => candidatesIn(content));
+            const examinedOrder = (web: WebAcquisitionResult) =>
+              web.extractionAttempts
+                .filter((a) => a.sourceWindow)
+                .map((a): [string, number] => [
+                  a.sourceWindow!.sourceUrl,
+                  a.sourceWindow!.windowing.windowOrdinal,
+                ]);
+
+            it('examines an already-selected source B after source A satisfied the requirement', async () => {
+              const atomized = atomizedFor();
+              const { service, plan } = serviceFor(
+                { [URL_A]: pageA, [URL_B]: pageBWithoutUnit },
+                generative(),
+                groundedWithUrls,
+                ['MULTI_COMPONENT_EXPERIENCE'],
+                atomized,
+              );
+
+              const result = await service.executePlan(plan);
+
+              const web = result.webResults![0];
+              const scan = web.sourceContentRetrieval!.scan!;
+              const windowsB = scan.plan.sources[1].windowCount;
+              expect(windowsB).toBeGreaterThan(1);
+              // A satisfies at window 1; B still gets every window examined.
+              expect(examinedOrder(web)[0]).toEqual([URL_A, 1]);
+              expect(
+                examinedOrder(web).filter(([url]) => url === URL_B),
+              ).toHaveLength(windowsB);
+              expect(scan.plan).toMatchObject({
+                selectedSources: [URL_A, URL_B],
+                examinedSources: [URL_A, URL_B],
+                completion: 'ALL_SELECTED_SOURCES_EXAMINED',
+              });
+              expect(scan.plan.sources).toEqual([
+                expect.objectContaining({
+                  sourceUrl: URL_A,
+                  selectionOrder: 1,
+                  examinedWindowCount: 1,
+                  localStop: 'SOURCE_REQUIREMENT_SATISFIED',
+                  satisfiedByWindowOrdinal: 1,
+                }),
+                expect.objectContaining({
+                  sourceUrl: URL_B,
+                  selectionOrder: 2,
+                  examinedWindowCount: windowsB,
+                  localStop: 'SOURCE_WINDOWS_EXHAUSTED',
+                }),
+              ]);
+              expect(web.extractionAttempts[1].scanDecision).toBe(
+                'STOP_REQUIREMENT_SATISFIED',
+              );
+              expect(scan.outcome).toBe('REQUIREMENT_SATISFIED');
+              expect(scan.satisfiedBy).toEqual([
+                { sourceUrl: URL_A, windowOrdinal: 1 },
+              ]);
+              // A's result survives B's examination.
+              expect(result.candidates.map((c) => c.name)).toEqual(['Walk A']);
+              expect(
+                result.evidence.find(
+                  (e) => e.key === 'ev-1' && e.url === URL_A,
+                ),
+              ).toMatchObject({ evidenceQuality: 'original_content' });
+            });
+
+            it('discovers no source beyond the selected plan and stays within its window budget', async () => {
+              const extractExperiences = generative();
+              const { service, retrieve, plan } = serviceFor(
+                { [URL_A]: pageA, [URL_B]: pageBWithoutUnit },
+                extractExperiences,
+                groundedWithUrls,
+                ['MULTI_COMPONENT_EXPERIENCE'],
+                atomizedFor(),
+              );
+              const search = (service as any).groundedSearchProvider.search;
+
+              const result = await service.executePlan(plan);
+
+              const web = result.webResults![0];
+              const scan = web.sourceContentRetrieval!.scan!;
+              // C is an eligible grounded source, but selection bounded the
+              // plan to two: it is neither selected, fetched nor examined.
+              expect(web.deepSourceSelection?.selectedUrls).toEqual([
+                URL_A,
+                URL_B,
+              ]);
+              expect(
+                web.deepSourceSelection?.items.find((i) => i.url === URL_C),
+              ).toMatchObject({
+                selected: false,
+                decisionReason: 'BELOW_SELECTION_LIMIT',
+              });
+              expect(search).toHaveBeenCalledTimes(1);
+              expect(retrieve).toHaveBeenCalledTimes(1);
+              expect(retrieve).toHaveBeenCalledWith({ urls: [URL_A, URL_B] });
+              expect(examinedOrder(web).every(([url]) => url !== URL_C)).toBe(
+                true,
+              );
+              // Every attempt is one window of the selected plan, at most once.
+              const examined = examinedOrder(web).map((e) => e.join('#'));
+              expect(new Set(examined).size).toBe(examined.length);
+              expect(scan.attemptCount).toBe(examined.length);
+              expect(scan.attemptCount).toBeLessThanOrEqual(scan.windowCount);
+              expect(
+                scan.plan.sources.reduce((n, s) => n + s.windowCount, 0),
+              ).toBe(scan.windowCount);
+            });
+
+            it('completes a one-source plan normally', async () => {
+              const atomized = atomizedFor();
+              const { service, plan } = serviceFor(
+                { [URL_A]: pageA },
+                generative(),
+                {
+                  ...groundedWithUrls,
+                  evidence: groundedWithUrls.evidence.filter(
+                    (e) => e.url === URL_A,
+                  ),
+                },
+                ['MULTI_COMPONENT_EXPERIENCE'],
+                atomized,
+              );
+
+              const result = await service.executePlan(plan);
+
+              const scan = result.webResults![0].sourceContentRetrieval!.scan!;
+              expect(atomized.extract).toHaveBeenCalledTimes(1);
+              expect(scan).toMatchObject({
+                outcome: 'REQUIREMENT_SATISFIED',
+                attemptCount: 1,
+                satisfiedBy: [{ sourceUrl: URL_A, windowOrdinal: 1 }],
+                plan: {
+                  selectedSources: [URL_A],
+                  examinedSources: [URL_A],
+                  completion: 'ALL_SELECTED_SOURCES_EXAMINED',
+                },
+              });
+              expect(result.candidates.map((c) => c.name)).toEqual(['Walk A']);
+            });
+
+            it('keeps source-local early stop: a satisfied source has no later window examined', async () => {
+              const extractExperiences = generative();
+              const atomized = atomizedFor();
+              const { service, plan } = serviceFor(
+                { [URL_A]: pageA, [URL_B]: pageB },
+                extractExperiences,
+                groundedWithUrls,
+                ['MULTI_COMPONENT_EXPERIENCE'],
+                atomized,
+              );
+
+              const result = await service.executePlan(plan);
+
+              const web = result.webResults![0];
+              const scan = web.sourceContentRetrieval!.scan!;
+              expect(scan.plan.sources.every((s) => s.windowCount > 1)).toBe(
+                true,
+              );
+              // Window 1 of each source satisfies: their filler windows are
+              // never examined, by either extractor.
+              expect(examinedOrder(web)).toEqual([
+                [URL_A, 1],
+                [URL_B, 1],
+              ]);
+              expect(atomized.extract).toHaveBeenCalledTimes(2);
+              expect(extractExperiences).toHaveBeenCalledTimes(1);
+              expect(scan.attemptCount).toBe(2);
+              expect(
+                scan.plan.sources.map((s) => [
+                  s.examinedWindowCount,
+                  s.localStop,
+                ]),
+              ).toEqual([
+                [1, 'SOURCE_REQUIREMENT_SATISFIED'],
+                [1, 'SOURCE_REQUIREMENT_SATISFIED'],
+              ]);
+            });
+
+            it('aggregates results from every satisfied source, each with the evidence its attempt examined', async () => {
+              const { service, plan } = serviceFor(
+                { [URL_A]: pageA, [URL_B]: pageB },
+                generative(),
+                groundedWithUrls,
+                ['MULTI_COMPONENT_EXPERIENCE'],
+                atomizedFor(),
+              );
+
+              const result = await service.executePlan(plan);
+
+              const web = result.webResults![0];
+              expect(web.sourceContentRetrieval!.scan!.satisfiedBy).toEqual([
+                { sourceUrl: URL_A, windowOrdinal: 1 },
+                { sourceUrl: URL_B, windowOrdinal: 1 },
+              ]);
+              // No candidate is composed across sources; both survive.
+              expect(result.candidates.map((c) => c.name)).toEqual([
+                'Walk A',
+                'Walk B',
+              ]);
+              expect(web.candidateCount).toBe(2);
+              expect(
+                web.candidateDecisions!.map((d) => d.candidate.name),
+              ).toEqual(['Walk A', 'Walk B']);
+              // Each source's examined window flows on; nothing an attempt
+              // examined is replaced by another attempt's substitution.
+              const windowA = web.extractionAttempts[1].sourceWindow!.content;
+              const windowB = web.extractionAttempts[2].sourceWindow!.content;
+              const evidenceFor = (key: string) =>
+                result.evidence.filter((e) => e.key === key);
+              expect(evidenceFor('ev-1').map((e) => e.snippet)).toEqual(
+                expect.arrayContaining([windowA]),
+              );
+              expect(evidenceFor('ev-2').map((e) => e.snippet)).toEqual(
+                expect.arrayContaining([windowB]),
+              );
+              // Unsubstituted grounded items are emitted once.
+              expect(evidenceFor('ev-3')).toHaveLength(1);
+            });
+
+            it("keeps an earlier source's result when a later selected source's extraction throws", async () => {
+              const atomized = atomizedFor();
+              atomized.extract
+                .mockImplementationOnce(({ content }: any) =>
+                  Promise.resolve({
+                    candidates: candidatesIn(content),
+                    validationErrors: [],
+                    extractionFailures: [],
+                    sourceSupportAudits: [],
+                    provider: 'gemini',
+                    model: 'gemini-x',
+                    unit: {
+                      contractOutcome: 'ASSEMBLED',
+                      providerFailure: null,
+                    },
+                  }),
+                )
+                .mockRejectedValueOnce(new Error('extractor timeout'));
+              const { service, plan } = serviceFor(
+                { [URL_A]: pageA, [URL_B]: pageB },
+                generative(),
+                groundedWithUrls,
+                ['MULTI_COMPONENT_EXPERIENCE'],
+                atomized,
+              );
+
+              const result = await service.executePlan(plan);
+
+              const web = result.webResults![0];
+              expect(web.status).toBe('success');
+              expect(web.failedStage).toBeUndefined();
+              expect(web.extractionAttempts[2]).toMatchObject({
+                status: 'failed',
+                scanDecision: 'STOP_EXTRACTION_FAILED',
+              });
+              expect(web.sourceContentRetrieval!.scan).toMatchObject({
+                outcome: 'REQUIREMENT_SATISFIED',
+                plan: {
+                  examinedSources: [URL_A, URL_B],
+                  completion: 'EXTRACTION_FAILED',
+                },
+              });
+              expect(
+                web.sourceContentRetrieval!.scan!.plan.sources.map(
+                  (s) => s.localStop,
+                ),
+              ).toEqual([
+                'SOURCE_REQUIREMENT_SATISFIED',
+                'SOURCE_EXTRACTION_FAILED',
+              ]);
+              expect(result.candidates.map((c) => c.name)).toEqual(['Walk A']);
+            });
           });
         });
 
@@ -4242,7 +4608,7 @@ describe('ExperienceAcquisitionService', () => {
       ]);
       expect(web.sourceContentRetrieval?.scan).toMatchObject({
         outcome: 'REQUIREMENT_SATISFIED',
-        satisfiedBy: { sourceUrl: SOB_URL, windowOrdinal: 1 },
+        satisfiedBy: [{ sourceUrl: SOB_URL, windowOrdinal: 1 }],
       });
 
       // The Generation Trace carries the pre-identity fidelity record.

@@ -2563,15 +2563,44 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   `INCOMPLETE_SOURCE_COMPOSITION` (2/8, 2/3). Visible semantic
   disagreements: a tour product and an out-of-walk area labelled stops.
 
+### RW4-C3-SELECTION-1 scan-order fix: bounded plan completion — 2026-10-07
+
+- Root cause: the deep-source scan ran one round-robin schedule over the
+  windows of every selected source and `break`ed on the first satisfying
+  window, so `STOP_REQUIREMENT_SATISFIED` from source A ended the scan of
+  every source, including already-selected and already-fetched source B.
+- Fix (`experience-acquisition.service.ts`): source-local completion is
+  now distinct from plan completion.
+  - A satisfying window stops only its own source.
+  - Every other selected source is still examined, until it satisfies
+    or runs out of windows.
+  - Only an extraction failure stops the plan early. A thrown failure
+    after an earlier source satisfied keeps that source's result.
+  - The plan's result is the union of the satisfying attempts. Each
+    candidate keeps the evidence items its own attempt examined.
+- Budget: selection (limit 2) and the single fetch are unchanged. No
+  source is added. The worst case stays the finite window schedule; only
+  extractor calls on already-fetched selected windows are added.
+- Trace: `scan.plan` records `selectedSources`, `examinedSources`
+  (first-examination order), per-source `localStop` (including
+  `CONTENT_NOT_RETRIEVED`), and `completion`. `scan.satisfiedBy` is now a
+  list.
+- No extraction, identity, geography, source-support, dedupe or
+  persistence semantics changed. No domain or source names are in
+  production logic. No live provider call was made, and C3 was not run.
+- Not addressed: a source that loses the selection limit (the
+  secretsofbuenosaires case) is still never examined. That is selection,
+  not scan order.
+
 ## Next authorized action
 
 0. (2026-10-06, C3 COLD ran; precondition not met, no composite) Owner
    decision on how to reach the oracle units. Options, each needing
    authorization; none is started:
    - (a) rerun C3 COLD as is: search and selection vary per run;
-   - (b) address deep-source selection/scan order, so that a complete
-     editorial unit of a selected source is examined before a satisfied
-     scan stops (RW4-C3-SELECTION-1);
+   - (b) DONE 2026-10-07 for scan order: every selected source is
+     examined before plan completion (RW4-C3-SELECTION-1). C3 retry
+     needs new authorization; selection-limit losses remain;
    - (c) extend B's scope to complete `WHOLE_DOCUMENT` and whole-unit
      continuation windows (RW4-ATOM-SCOPE-1).
    C3 rules (kept from B):
@@ -2779,6 +2808,9 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   - secretsofbuenosaires lost the deep selection limit (2) in all passes.
   - It is not an extraction defect, but it decides whether C3 can test
     RW4-EXTRACT-COMPLETENESS-1.
+  - 2026-10-07: the scan-order half is fixed. Every selected source is
+    examined before plan completion. The selection-limit half
+    (secretsofbuenosaires) stays OPEN, and a live C3 retry has not run.
 - RW4-ATOM-SCOPE-1 addendum (C3): a complete `WHOLE_DOCUMENT` window
   (buenosairesfreewalks) also stays on the generative path.
 - RW4-ATOM-KIND-1: OPEN, LOW (2026-10-06).

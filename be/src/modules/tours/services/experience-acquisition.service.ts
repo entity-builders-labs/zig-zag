@@ -143,7 +143,9 @@ export type WebSourceContentTraceItem = Omit<
  * window's extraction attempt.
  */
 export type WebDeepSourceScanDecision =
-  /** An admitted candidate closed the MULTI_COMPONENT_EXPERIENCE gap. */
+  /** An admitted candidate closed the MULTI_COMPONENT_EXPERIENCE gap.
+   * Source-local: this source's later windows are not examined, but every
+   * other selected source still gets its windows examined. */
   | 'STOP_REQUIREMENT_SATISFIED'
   /** No admitted candidate closed the gap; an unexamined window remains. */
   | 'CONTINUE_NO_QUALIFYING_CANDIDATE'
@@ -153,8 +155,57 @@ export type WebDeepSourceScanDecision =
   | 'CONTINUE_SOURCE_UNIT_INCOMPLETE'
   /** No admitted candidate closed the gap and no window remains. */
   | 'STOP_SOURCES_EXHAUSTED'
-  /** The extractor response as a whole was unusable (fail-closed). */
+  /** The extractor response as a whole was unusable (fail-closed). Stops
+   * the whole plan, not only this source. */
   | 'STOP_EXTRACTION_FAILED';
+
+/**
+ * Why the scan of one selected source ended (source-local completion).
+ * Distinct from plan completion: one source ending never ends the
+ * examination of the other sources in the same selected plan.
+ */
+export type WebDeepSourceLocalStop =
+  /** A complete window of this source closed the gap. */
+  | 'SOURCE_REQUIREMENT_SATISFIED'
+  /** Every window of this source was examined without closing the gap. */
+  | 'SOURCE_WINDOWS_EXHAUSTED'
+  /** This source's extraction failed as a whole; the plan stopped. */
+  | 'SOURCE_EXTRACTION_FAILED'
+  /** Another source's extraction failure stopped the plan first. */
+  | 'PLAN_STOPPED_EXTRACTION_FAILED'
+  /** The source was selected but its content was never retrieved. */
+  | 'CONTENT_NOT_RETRIEVED';
+
+/** Why the bounded selected-source plan stopped being examined. */
+export type WebDeepSourcePlanCompletion =
+  /** Every retrieved selected source reached source-local completion. */
+  | 'ALL_SELECTED_SOURCES_EXAMINED'
+  /** An extraction failure stopped the plan before that. */
+  | 'EXTRACTION_FAILED';
+
+/** One selected source's examination within the bounded plan. */
+export interface WebDeepSourcePlanSourceAudit {
+  sourceUrl: string;
+  /** 1-based position in the selected plan (selection order). */
+  selectionOrder: number;
+  windowCount: number;
+  examinedWindowCount: number;
+  localStop: WebDeepSourceLocalStop;
+  /** Set when `localStop` is SOURCE_REQUIREMENT_SATISFIED. */
+  satisfiedByWindowOrdinal?: number;
+}
+
+/**
+ * The bounded selected-source plan as executed: `selectedSources` is the
+ * plan source selection approved, `examinedSources` the sources whose
+ * windows were actually examined, in first-examination order.
+ */
+export interface WebDeepSourcePlanAudit {
+  selectedSources: string[];
+  examinedSources: string[];
+  completion: WebDeepSourcePlanCompletion;
+  sources: WebDeepSourcePlanSourceAudit[];
+}
 
 /** The single source window one deep-source extraction attempt examined. */
 export interface WebDeepSourceWindowAudit {
@@ -236,14 +287,19 @@ export interface WebAcquisitionResult {
     /**
      * Progressive deep-source scan summary. Attempts run round-robin by
      * window ordinal across the retrieved sources (window 1 of every source,
-     * then window 2, ...), one source window per attempt.
+     * then window 2, ...), one source window per attempt. A source that
+     * closes the gap stops only its own scan; the plan completes once
+     * every selected source has been examined.
      */
     scan?: {
       outcome: WebDeepSourceScanOutcome;
       attemptCount: number;
       /** Windows the finite sequences held in total (the attempt bound). */
       windowCount: number;
-      satisfiedBy?: { sourceUrl: string; windowOrdinal: number };
+      /** Every window that closed the gap, one per satisfied source, in
+       * examination order. Their attempts' candidates flow downstream. */
+      satisfiedBy?: Array<{ sourceUrl: string; windowOrdinal: number }>;
+      plan: WebDeepSourcePlanAudit;
     };
   };
   /**
@@ -1228,16 +1284,32 @@ export class ExperienceAcquisitionService {
               }
             }
 
-            let satisfied:
-              | {
-                  extracted: typeof extracted;
-                  decisions: WebCandidateAdmissionDecision[];
-                  evidence: typeof grounded.evidence;
-                }
-              | undefined;
-            let outcome: WebDeepSourceScanOutcome = 'SOURCES_EXHAUSTED';
+            // Plan policy: every source in the bounded selected plan gets
+            // examined before the plan completes. A source that closes the
+            // gap stops only its own scan (its later windows are skipped);
+            // the other selected sources keep their turn. Only an
+            // extraction failure stops the plan early. Selection already
+            // bounds the plan, and this never adds a source to it.
+            const contributions: Array<{
+              sourceUrl: string;
+              windowOrdinal: number;
+              extracted: typeof extracted;
+              decisions: WebCandidateAdmissionDecision[];
+              evidence: typeof grounded.evidence;
+            }> = [];
+            const localStops = new Map<string, WebDeepSourceLocalStop>();
+            const examinedWindowCounts = new Map<string, number>();
+            const examinedSources: string[] = [];
+            let planStoppedByFailure = false;
+            const windowRemainsAfter = (index: number) =>
+              schedule
+                .slice(index + 1)
+                .some((entry) => !localStops.has(entry.url));
             let attemptCount = 0;
             for (const [index, { url, window }] of schedule.entries()) {
+              // Source-local completion: a source that already closed the
+              // gap has no later window examined.
+              if (localStops.has(url)) continue;
               // Substitute ONLY this source's window; every other evidence
               // item stays as grounded search returned it. Candidates are
               // never merged across attempts.
@@ -1254,46 +1326,57 @@ export class ExperienceAcquisitionService {
                 ),
               };
               attemptCount++;
+              if (!examinedWindowCounts.has(url)) examinedSources.push(url);
+              examinedWindowCounts.set(
+                url,
+                (examinedWindowCounts.get(url) ?? 0) + 1,
+              );
               const sourceWindow: WebDeepSourceWindowAudit = {
                 sourceUrl: url,
                 windowing: window.audit,
                 content: window.content,
               };
-              const deep = isAtomizableSourceUnit(window.audit)
-                ? await runAtomizedExtraction(sourceWindow)
-                : await runExtraction(
-                    'deep_source_content',
-                    windowInput,
-                    sourceWindow,
-                  );
+              let deep: Awaited<ReturnType<typeof runExtraction>>;
+              try {
+                deep = isAtomizableSourceUnit(window.audit)
+                  ? await runAtomizedExtraction(sourceWindow)
+                  : await runExtraction(
+                      'deep_source_content',
+                      windowInput,
+                      sourceWindow,
+                    );
+              } catch (error) {
+                // With no source satisfied yet, a thrown failure keeps
+                // failing the web plan as before. Once an earlier selected
+                // source has closed the gap, examining a later one must not
+                // void that result: the failure only stops the plan.
+                if (contributions.length === 0) throw error;
+                extractionAttempts[extractionAttempts.length - 1].scanDecision =
+                  'STOP_EXTRACTION_FAILED';
+                localStops.set(url, 'SOURCE_EXTRACTION_FAILED');
+                planStoppedByFailure = true;
+                break;
+              }
               const closesGap = closesCompositionGap(deep.decisions);
               if (closesGap && !window.audit.sectionComplete) {
                 // Fail closed on fidelity, not on the source: keep scanning
                 // for a window that carries the whole unit.
-                deep.audit.scanDecision =
-                  index === schedule.length - 1
-                    ? 'STOP_SOURCES_EXHAUSTED'
-                    : 'CONTINUE_SOURCE_UNIT_INCOMPLETE';
+                deep.audit.scanDecision = windowRemainsAfter(index)
+                  ? 'CONTINUE_SOURCE_UNIT_INCOMPLETE'
+                  : 'STOP_SOURCES_EXHAUSTED';
                 continue;
               }
               if (closesGap) {
                 deep.audit.scanDecision = 'STOP_REQUIREMENT_SATISFIED';
-                outcome = 'REQUIREMENT_SATISFIED';
-                satisfied = {
+                localStops.set(url, 'SOURCE_REQUIREMENT_SATISFIED');
+                contributions.push({
+                  sourceUrl: url,
+                  windowOrdinal: window.audit.windowOrdinal,
                   extracted: deep.extracted,
                   decisions: deep.decisions,
                   evidence: windowInput.evidence,
-                };
-                sourceContentRetrievalTrace.scan = {
-                  outcome,
-                  attemptCount,
-                  windowCount: schedule.length,
-                  satisfiedBy: {
-                    sourceUrl: url,
-                    windowOrdinal: window.audit.windowOrdinal,
-                  },
-                };
-                break;
+                });
+                continue;
               }
               // Same fail-closed rule as the deep-retrieval trigger: only an
               // unusable extractor response stops the scan. Candidate-level
@@ -1301,34 +1384,111 @@ export class ExperienceAcquisitionService {
               // wrong-shape admitted candidates) continues to the next window.
               if (deep.extracted.extractionFailures.length > 0) {
                 deep.audit.scanDecision = 'STOP_EXTRACTION_FAILED';
-                outcome = 'EXTRACTION_FAILED';
+                localStops.set(url, 'SOURCE_EXTRACTION_FAILED');
+                planStoppedByFailure = true;
                 break;
               }
-              deep.audit.scanDecision =
-                index === schedule.length - 1
-                  ? 'STOP_SOURCES_EXHAUSTED'
-                  : 'CONTINUE_NO_QUALIFYING_CANDIDATE';
+              deep.audit.scanDecision = windowRemainsAfter(index)
+                ? 'CONTINUE_NO_QUALIFYING_CANDIDATE'
+                : 'STOP_SOURCES_EXHAUSTED';
             }
 
-            if (satisfied) {
-              // The satisfying attempt is the authority: its candidates and
-              // exactly the evidence it examined flow downstream together.
-              extracted = satisfied.extracted;
-              candidateDecisions = satisfied.decisions;
-              emittedEvidence = satisfied.evidence;
+            const planSources: WebDeepSourcePlanSourceAudit[] = targetUrls.map(
+              (sourceUrl, position) => {
+                const windowCount = windowsByUrl.get(sourceUrl)?.length ?? 0;
+                const contribution = contributions.find(
+                  (c) => c.sourceUrl === sourceUrl,
+                );
+                const localStop: WebDeepSourceLocalStop = !windowsByUrl.has(
+                  sourceUrl,
+                )
+                  ? 'CONTENT_NOT_RETRIEVED'
+                  : (localStops.get(sourceUrl) ??
+                    (planStoppedByFailure
+                      ? 'PLAN_STOPPED_EXTRACTION_FAILED'
+                      : 'SOURCE_WINDOWS_EXHAUSTED'));
+                return {
+                  sourceUrl,
+                  selectionOrder: position + 1,
+                  windowCount,
+                  examinedWindowCount: examinedWindowCounts.get(sourceUrl) ?? 0,
+                  localStop,
+                  ...(contribution
+                    ? { satisfiedByWindowOrdinal: contribution.windowOrdinal }
+                    : {}),
+                };
+              },
+            );
+            const outcome: WebDeepSourceScanOutcome =
+              contributions.length > 0
+                ? 'REQUIREMENT_SATISFIED'
+                : planStoppedByFailure
+                  ? 'EXTRACTION_FAILED'
+                  : 'SOURCES_EXHAUSTED';
+            sourceContentRetrievalTrace.scan = {
+              outcome,
+              attemptCount,
+              windowCount: schedule.length,
+              ...(contributions.length > 0
+                ? {
+                    satisfiedBy: contributions.map((c) => ({
+                      sourceUrl: c.sourceUrl,
+                      windowOrdinal: c.windowOrdinal,
+                    })),
+                  }
+                : {}),
+              plan: {
+                selectedSources: [...targetUrls],
+                examinedSources,
+                completion: planStoppedByFailure
+                  ? 'EXTRACTION_FAILED'
+                  : 'ALL_SELECTED_SOURCES_EXAMINED',
+                sources: planSources,
+              },
+            };
+
+            if (contributions.length > 0) {
+              // Each satisfying attempt is the single composition authority
+              // over its own candidates; the plan's result is their union.
+              // A candidate travels with exactly the evidence its attempt
+              // examined: items are kept by identity, so a source's window
+              // and its grounded snippet (seen by another source's attempt)
+              // both remain, and nothing an attempt examined is replaced.
+              candidateDecisions = contributions.flatMap((c) => c.decisions);
+              const seen = new Set<(typeof grounded.evidence)[number]>();
+              emittedEvidence = contributions.flatMap((c) =>
+                c.evidence.filter((item) => {
+                  if (seen.has(item)) return false;
+                  seen.add(item);
+                  return true;
+                }),
+              );
+              const [first] = contributions;
+              extracted =
+                contributions.length === 1
+                  ? first.extracted
+                  : {
+                      ...first.extracted,
+                      candidates: contributions.flatMap(
+                        (c) => c.extracted.candidates,
+                      ),
+                      validationErrors: contributions.flatMap(
+                        (c) => c.extracted.validationErrors ?? [],
+                      ),
+                      sourceSupportAudits: contributions.flatMap(
+                        (c) => c.extracted.sourceSupportAudits ?? [],
+                      ),
+                      // Per-attempt raw outputs stay on extractionAttempts;
+                      // no single raw output stands for several attempts.
+                      rawOutput: undefined,
+                    };
               admissibleCandidates = candidateDecisions
                 .filter((decision) => decision.accepted)
                 .map((decision) => decision.candidate);
-            } else {
-              // No window closed the gap: no single deep window has authority
-              // over the others, so the grounded-snippet attempt's result and
-              // evidence stand, unmerged with any deep attempt.
-              sourceContentRetrievalTrace.scan = {
-                outcome,
-                attemptCount,
-                windowCount: schedule.length,
-              };
             }
+            // Otherwise no window closed the gap: no single deep window has
+            // authority over the others, so the grounded-snippet attempt's
+            // result and evidence stand, unmerged with any deep attempt.
           }
         }
       }
