@@ -1,0 +1,14 @@
+{
+  "sourceHead": "3e945160cc09953facebc61426238ad5a48ad2ac",
+  "sourceBranch": "feat/preference-first-selection",
+  "buildCommand": "cd be && yarn build",
+  "buildStartedAt": "2026-10-07T21:13:47Z",
+  "buildFinishedAt": "2026-10-07T21:13:56Z",
+  "runtimeEntry": "be/dist/src/main.js",
+  "distSha256": "3acbb0f034a02cf34ca56c5b7641ccc2f82cb0efcac2a91d2a47072018bb3546",
+  "canonical": false,
+  "failures": [
+    "trace runtime.buildCommit does not equal source HEAD",
+    "run manifest provenance does not equal source HEAD"
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "runLabel": "rw4-composite-c3-idretry-cold",
+  "error": "TypeError: fetch failed\n    at node:internal/deps/undici/undici:15482:13\n    at async readTour (file:///Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign/spikes/rw4-functional-composite-campaign-2026-10-05/run-campaign.mjs:85:15)\n    at async pollUntilTerminal (file:///Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign/spikes/rw4-functional-composite-campaign-2026-10-05/run-campaign.mjs:112:12)\n    at async main (file:///Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign/spikes/rw4-functional-composite-campaign-2026-10-05/run-campaign.mjs:142:75)",
+  "finishedAt": "2026-10-07T21:22:33.522Z"
+}

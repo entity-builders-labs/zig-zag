@@ -338,3 +338,37 @@ search variance, not a fix.
   untouched.
 - RW4-ATOM-SCOPE-1 reconfirmed: SOB's walk reached AREA_ROUTE_WALK as a
   continuation window and took the generative path.
+
+## C3 COLD identity retry — 2026-10-07 — INVALID_RUN
+
+- Authorized as `READY_FOR_C3_IDENTITY_RETRY`. Run: `c3-idretry-cold/`, DB
+  `zigzag_spike_rw4_c3_idretry` (fresh), HEAD `3e945160`. Same request and
+  providers as `c3-retry-cold`: serper, Gemini `gemini-3.5-flash-lite`
+  extractor, Tavily, geoapify, local Nominatim/Overpass. No code change.
+- **NOT CANONICAL, no generation trace.** The runner's status poll got
+  `ECONNRESET` at 21:22:33Z (~347 s). The orchestrator then exited and
+  `run.sh` killed the backend while the tour was still `generating`
+  (planning had started: 14 geoapify routing calls at 21:22:34–40Z).
+  `tour.metadata` has no trace. Evidence: `log-excerpt.txt`.
+- Before the reset, the backend served no HTTP from 21:19:50Z to
+  21:22:33Z. A Gemini classification call ("Plaza Dorrego") was in flight
+  and timed out at 21:22:33Z. Why polls were not served is not determined.
+- Provider degradation during acquisition: the Gemini discovery extractor
+  timed out twice (retried), then
+  `Web acquisition threw during EXTRACTION: Gemini error 503` ("high
+  demand"). Serper made 2 calls (prior run 3), Tavily 1 (prior run 3),
+  Gemini 26 (prior run 67). The web deep-source path did not run as in
+  the prior runs, so this run says nothing about selection, atomization
+  or composite identity.
+- Partial DB state (`db-after.json`; it is not the trace): 17 GeoEntities,
+  16 Experiences, 15 single-place plus one 2-component
+  "Caminando por San Telmo" (Plaza Dorrego + Defensa ROUTE). That one was
+  resolved at 21:14:34Z, before any web extraction, so it does not come
+  from the oracle walk sources. None of the known false identities
+  (Carlos Pellegrini, Catedral Constructiva, Plaza República Federal de
+  Brasil, Club Atlético Atlanta) was persisted, and neither was Cabildo,
+  but the hints that produced them were never extracted in this run. That
+  is not evidence that the fix works.
+- WARM not run. RW4_FUNCTIONAL_MILESTONE_PASSED: **NO** (not evaluable).
+- The objectives of the identity retry (Cabildo `recordEquivalence`,
+  Don Carlos, per-component identity recall) remain **unmeasured**.

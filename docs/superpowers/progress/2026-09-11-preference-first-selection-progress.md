@@ -2706,7 +2706,11 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
    - (b) DONE 2026-10-07 for scan order, confirmed by the live C3 retry
      (`c3-retry-cold`, no qualifying composite). Selection-limit losses
      remain. RW4-ID-FALSE-VERIFY-1 and RW4-ID-RECALL-CABILDO-1 are fixed
-     (2026-10-07). A C3 identity retry needs new owner authorization;
+     (2026-10-07). The authorized C3 identity retry (`c3-idretry-cold`,
+       HEAD `3e945160`) was an INVALID_RUN: a Gemini 503/timeouts hit
+       extraction, the runner poll got ECONNRESET, and the backend was killed
+       before a terminal state, so no trace exists. A rerun needs owner
+       authorization;
    - (c) extend B's scope to complete `WHOLE_DOCUMENT` and whole-unit
      continuation windows (RW4-ATOM-SCOPE-1).
    C3 rules (kept from B):

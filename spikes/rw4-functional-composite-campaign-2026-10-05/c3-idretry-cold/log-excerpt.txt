@@ -1,0 +1,66 @@
+# Bounded excerpt of backend.log (gitignored) and run.log for the INVALID run.
+## backend.log: acquisition, provider failures, resolver, generation
+[Nest] 81003  - 07/10/2026, 06:14:11     LOG [ExperienceAcquisitionPlannerService] Built acquisition plan for "Buenos Aires" with 2 deficits: [wikivoyage, google_places, web]
+[Nest] 81003  - 07/10/2026, 06:14:11     LOG [ExperienceAcquisitionPlannerService] Built acquisition plan for "Buenos Aires" with 1 deficits: [wikivoyage, web]
+[Nest] 81003  - 07/10/2026, 06:14:32   DEBUG [ExperienceProposalResolverService] [P2-B] reuse none for hint "Plaza Dorrego"
+[Nest] 81003  - 07/10/2026, 06:14:35     LOG [ExperienceProposalResolverService] Resolved 1/1 Experience candidate(s) against trusted geography
+[Nest] 81003  - 07/10/2026, 06:15:26    WARN [GeminiDiscoveryProvider] Gemini Interactions API timed out; retrying once.
+[Nest] 81003  - 07/10/2026, 06:15:43     LOG [TavilyWebSourceContentProvider] Tavily extract: requesting 2 URLs (depth=advanced, format=markdown, timeout=45000ms)
+[Nest] 81003  - 07/10/2026, 06:16:10    WARN [GeminiDiscoveryProvider] Gemini Interactions API timed out; retrying once.
+[Nest] 81003  - 07/10/2026, 06:16:58    WARN [ExperienceAcquisitionService] Web acquisition threw during EXTRACTION: Gemini error 503: {"error":{"message":"gemini-3.5-flash-lite is currently experiencing high demand, spikes in demand are usually temporary. Please try again later.","code":"service_unavailable"}}
+[Nest] 81003  - 07/10/2026, 06:16:58   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "Roca granitica" via geoapify:5134d18cea192f4dc05947150f39c75041c0f00103f9018c6c89800200000092030e526f6361206772616e6974696361
+[Nest] 81003  - 07/10/2026, 06:16:59   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "La Madre" via geoapify:5105a2ccabdf2f4dc059c1ecf9f59e5141c0f00103f901372a1306010000009203084c61204d61647265
+[Nest] 81003  - 07/10/2026, 06:16:59   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "La flor de la vida" via geoapify:513254e438262e4dc059efb6e390de5141c0f00102f901bc0d8749000000009203124c6120666c6f72206465206c612076696461
+[Nest] 81003  - 07/10/2026, 06:16:59   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "Museo de Artistas Argentinos Benito Quinquela Martín" via geoapify:513e682c50412e4dc0592d99be32ca5141c0f00103f9019aadff54010000009203354d7573656f20646520417274697374617320417267656e74696e6f732042656e69746f205175696e7175656c61204d617274c3ad6e
+[Nest] 81003  - 07/10/2026, 06:16:59   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate outside destination scope for hint "Ferroclub de Remedios de Escalada"
+[Nest] 81003  - 07/10/2026, 06:16:59   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate outside destination scope for hint "Paseo de las Esculturas"
+[Nest] 81003  - 07/10/2026, 06:17:06   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "Estatua Hugo del Carril" via geoapify:515a1def44ff3c4dc059c27aede3b25641c0f00103f90184fc55a60100000092031745737461747561204875676f2064656c2043617272696c
+[Nest] 81003  - 07/10/2026, 06:17:06   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "Guillermo Brown" via geoapify:5175a4445c4a2e4dc059eef5a402dd5141c0f00103f901a2d8440a0100000092030f4775696c6c65726d6f2042726f776e
+[Nest] 81003  - 07/10/2026, 06:17:06   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "Juventud" via geoapify:516b381be1a32e4dc059dd2cb9e57e5241c0f00103f901ec1c540a010000009203084a7576656e747564
+[Nest] 81003  - 07/10/2026, 06:17:06   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "Museo Histórico de Cera" via geoapify:5183458f29692e4dc059ccbadae5b65141c0f00103f901268eab7f010000009203184d7573656f2048697374c3b37269636f2064652043657261
+[Nest] 81003  - 07/10/2026, 06:17:07   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "Colón Fábrica" via geoapify:51aaace539412e4dc059bb44a7851d5241c0f00102f901f45a20180000000092030f436f6cc3b36e2046c3a16272696361
+[Nest] 81003  - 07/10/2026, 06:17:07   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "Museo del Cine Pablo Ducrós Hicken" via geoapify:51b4a61e0eb72d4dc05983d3cca4975041c0f00103f901444b70c9010000009203234d7573656f2064656c2043696e65205061626c6f2044756372c3b373204869636b656e
+[Nest] 81003  - 07/10/2026, 06:17:07   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf" via geoapify:51c5ae20c8fb2e4dc0597889a783105141c0f00102f9016aaecc1a0000000092033f4c6120e2809c496e6d6f7274616c20506f6c616361e2809d2064656c206d61657374726f20616a656472656369737461204d696775656c204e616a646f7266
+[Nest] 81003  - 07/10/2026, 06:17:08   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "José de San Martín" via geoapify:51cbbbea01f32f4dc0591e8d9eb6a15141c0f00103f9015a371306010000009203144a6f73c3a92064652053616e204d617274c3ad6e
+[Nest] 81003  - 07/10/2026, 06:17:11   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "Museo Casa Taller 'Celia Chevalier'" via geoapify:51d2a0b2abda2e4dc0590a421e66d45141c0f00103f9019943ad7f010000009203234d7573656f20436173612054616c6c6572202743656c69612043686576616c69657227
+[Nest] 81003  - 07/10/2026, 06:17:12   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "Benito Quinquela Martín" via geoapify:51d793afbac42f4dc059805a56abc05141c0f00103f901dc6c26060100000092031842656e69746f205175696e7175656c61204d617274c3ad6e
+[Nest] 81003  - 07/10/2026, 06:17:16   DEBUG [ExperienceProposalResolverService] [P2-B] reuse candidate acquired for hint "Hidrovértigo" via geoapify:51df02644392394dc059ca518028985541c0f00103f901969a9cca0200000092030d486964726f76c3a9727469676f
+[Nest] 81003  - 07/10/2026, 06:17:16   DEBUG [ExperienceProposalResolverService] [P2-B] reuse none for hint "Centro Científico Tecnológicos."
+[Nest] 81003  - 07/10/2026, 06:17:16   DEBUG [ExperienceProposalResolverService] [P2-B] reuse none for hint "Galería Güemes"
+[Nest] 81003  - 07/10/2026, 06:17:16   DEBUG [ExperienceProposalResolverService] [P2-B] reuse none for hint "Iglesia San Ignacio de Loyola"
+[Nest] 81003  - 07/10/2026, 06:17:17   DEBUG [ExperienceProposalResolverService] [P2-B] reuse none for hint "Manzana de las Luces"
+[Nest] 81003  - 07/10/2026, 06:17:17   DEBUG [ExperienceProposalResolverService] [P2-B] reuse none for hint "Mercado San Telmo"
+[Nest] 81003  - 07/10/2026, 06:17:17   DEBUG [ExperienceProposalResolverService] [P2-B] reuse none for hint "Museo Histórico Nacional"
+[Nest] 81003  - 07/10/2026, 06:17:17   DEBUG [ExperienceProposalResolverService] [P2-B] reuse none for hint "Pasaje San Lorenzo"
+[Nest] 81003  - 07/10/2026, 06:17:17    WARN [WikidataApiService] Wikidata proximity lookup failed (-34.6373095,-58.3746922,200m): timeout of 10000ms exceeded
+[Nest] 81003  - 07/10/2026, 06:17:17   DEBUG [ExperienceProposalResolverService] [P2-B] reuse none for hint "El Zanjón de Granados"
+[Nest] 81003  - 07/10/2026, 06:17:18    WARN [WikidataApiService] Wikidata proximity lookup failed (-34.6377476,-58.3746035,200m): timeout of 10000ms exceeded
+[Nest] 81003  - 07/10/2026, 06:17:25     LOG [ExperienceProposalResolverService] Resolved 15/26 Experience candidate(s) against trusted geography
+[Nest] 81003  - 07/10/2026, 06:17:44   ERROR [LangChainService] Gemini error 503: {
+[Nest] 81003  - 07/10/2026, 06:17:44   ERROR [LangChainService] Error generating chat response: Gemini error 503: {
+[Nest] 81003  - 07/10/2026, 06:17:44    WARN [ExperienceClassificationService] Experience classification failed for "La flor de la vida": Gemini error 503: {
+[Nest] 81003  - 07/10/2026, 06:22:33   ERROR [LangChainService] Error generating chat response: Gemini call timed out: The operation was aborted due to timeout
+[Nest] 81003  - 07/10/2026, 06:22:33    WARN [ExperienceClassificationService] Experience classification failed for "Plaza Dorrego": Gemini call timed out: The operation was aborted due to timeout
+[Nest] 81003  - 07/10/2026, 06:22:34     LOG [ExperienceGenerationService] Excluded 1 candidate(s) redundant with another selected candidate covering the same real place: 1a44cbdf-5462-4416-99bf-1350b83b1e21 (kept 307bdc65-524f-4033-9652-7c37354bb718)
+## backend.log: last HTTP poll served, then next activity
+[Nest] 81003  - 07/10/2026, 06:19:48   DEBUG Incoming GET /tours/a5893ea0-6b41-4fb5-92b7-28d11edfb88d
+GET /tours/a5893ea0-6b41-4fb5-92b7-28d11edfb88d 200 12.011 ms - 2557
+[Nest] 81003  - 07/10/2026, 06:19:50   DEBUG Incoming GET /tours/a5893ea0-6b41-4fb5-92b7-28d11edfb88d
+GET /tours/a5893ea0-6b41-4fb5-92b7-28d11edfb88d 200 14.976 ms - 2557
+[Nest] 81003  - 07/10/2026, 06:22:33   ERROR [LangChainService] Error generating chat response: Gemini call timed out: The operation was aborted due to timeout
+[Nest] 81003  - 07/10/2026, 06:22:33    WARN [ExperienceClassificationService] Experience classification failed for "Plaza Dorrego": Gemini call timed out: The operation was aborted due to timeout
+[Nest] 81003  - 07/10/2026, 06:22:34   DEBUG [OutboxService] [OutboxService] Enqueued event "TourProgressUpdated" (id: 87710b7e-5efd-45e2-b05e-17f6d849e07d) in transaction.
+[Nest] 81003  - 07/10/2026, 06:22:34     LOG [ExperienceGenerationService] Excluded 1 candidate(s) redundant with another selected candidate covering the same real place: 1a44cbdf-5462-4416-99bf-1350b83b1e21 (kept 307bdc65-524f-4033-9652-7c37354bb718)
+## run.log tail
+[rw4-composite-c3-idretry-cold] FATAL: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at async readTour (file:///Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign/spikes/rw4-functional-composite-campaign-2026-10-05/run-campaign.mjs:85:15)
+    at async pollUntilTerminal (file:///Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign/spikes/rw4-functional-composite-campaign-2026-10-05/run-campaign.mjs:112:12)
+    at async main (file:///Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign/spikes/rw4-functional-composite-campaign-2026-10-05/run-campaign.mjs:142:75) {
+  [cause]: Error: read ECONNRESET
+      at TCP.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
