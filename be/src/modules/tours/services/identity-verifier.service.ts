@@ -1,8 +1,11 @@
 import {
   IdentityEvidence,
+  IdentityVerdict,
+  IdentityVerificationRule,
   ResolutionAttempt,
   VerificationDecision,
 } from '../interfaces/experience-resolution.interface';
+import { identityEvidenceRole } from '../utils/identity-evidence-role.policy';
 
 /**
  * The single authority for interpreting normalized identity facts. It never
@@ -16,13 +19,15 @@ import {
  *  3. Discriminating correspondence -- a source-grounded fact that singles
  *     out this candidate among homonyms: the component's locality (and
  *     kind) DISTINGUISHES it in a complete comparison, the source declares
- *     its strong identity (QID), the source's address matches it, or a
- *     source-declared or candidate-declared QID corroborates it. Two
+ *     its strong identity (QID), or the source's address matches it. Two
  *     equally consistent members are AMBIGUOUS whatever the name says.
  *  4. A material competitor known from ANY pool examined for this hint
  *     (COMPETITOR_EXAMINATION) -> AMBIGUOUS. A name, an alias, convergence
  *     of any provenance or a Wikidata label confirms that a record matches
  *     the hint text; none of them decides which homonym the source meant.
+ *  4b. A QID link (OWN_QID / OBSERVATION_QID) that corroborates both sides
+ *     -> VERIFIED, now that no competitor is known. It is not
+ *     discriminating: it may never skip rule 4.
  *  5. Convergence (two strategies on one strong identity) decides only
  *     over an examined competitor set (NO_MATERIAL_COMPETITOR). Over an
  *     unexamined one it confirms a record, nothing more.
@@ -30,6 +35,12 @@ import {
  *  7. Wikidata corroboration (NEARBY never decides a name collision, and
  *     a NEARBY non-match is NOT_CORROBORATED, never a contradiction).
  *  8. Missing evidence -> INSUFFICIENT_EVIDENCE / AMBIGUOUS.
+ *
+ * What each fact can do is `identityEvidenceRole`'s decision, not this
+ * class's: no RETRIEVAL_ONLY fact (a lexical OVERLAP, the grade candidate
+ * retrieval uses) ever decides VERIFIED. A candidate's own QID identifies
+ * the candidate; only an EQUIVALENT hint-to-label correspondence lets it
+ * stand for the source's meaning.
  *
  * Rules 5, 6 and the NEARBY confirmation in 7 rest on uniqueness, not on
  * a fact that singles the candidate out. They decide only when
@@ -39,11 +50,31 @@ import {
  * ADMISSION_SCOPE_ONLY, they are not decisive (RW4-ID-CORRESPONDENCE-1).
  */
 export class IdentityVerifier {
+  /** The verdict only; see `decide` for the rule and decisive evidence. */
   verify(
     hint: { name: string },
     attempt: ResolutionAttempt,
   ): VerificationDecision {
+    return { status: this.decide(hint, attempt).status };
+  }
+
+  /**
+   * The verdict, the rule that produced it and the evidence that rule
+   * read, so a trace can answer "why VERIFIED?" without replaying.
+   */
+  decide(_hint: { name: string }, attempt: ResolutionAttempt): IdentityVerdict {
     const evidence = attempt.evidence;
+    const verdict = (
+      status: VerificationDecision['status'],
+      rule: IdentityVerificationRule,
+      ...decisive: Array<IdentityEvidence | undefined>
+    ): IdentityVerdict => ({
+      status,
+      rule,
+      decisiveEvidence: decisive.filter(
+        (item): item is IdentityEvidence => item !== undefined,
+      ),
+    });
     const exactName = this.evidenceOf(evidence, 'EXACT_NAME');
     const alias = this.evidenceOf(evidence, 'DECLARED_ALIAS_MATCH');
 
@@ -52,7 +83,11 @@ export class IdentityVerifier {
     // that a record matches the hint text; none of them can outweigh the
     // source having identified the component as a different entity.
     if (this.evidenceOf(evidence, 'IDENTITY_CONTRADICTION')) {
-      return { status: 'REJECTED' };
+      return verdict(
+        'REJECTED',
+        'IDENTITY_CONTRADICTION',
+        this.evidenceOf(evidence, 'IDENTITY_CONTRADICTION'),
+      );
     }
 
     // 2a. STRUCTURED_ROUTE_RESOLUTION -> VERIFIED only for exactly one
@@ -64,10 +99,10 @@ export class IdentityVerifier {
     );
     if (structuredRoute) {
       if (structuredRoute.ambiguity === 'MULTIPLE_CLUSTERS') {
-        return { status: 'AMBIGUOUS' };
+        return verdict('AMBIGUOUS', 'STRUCTURED_ROUTE', structuredRoute);
       }
       if (structuredRoute.destinationCompatibility === 'COMPATIBLE') {
-        return { status: 'VERIFIED' };
+        return verdict('VERIFIED', 'STRUCTURED_ROUTE', structuredRoute);
       }
     }
 
@@ -78,10 +113,10 @@ export class IdentityVerifier {
       'CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH',
     );
     if (routeVariant?.identityMultiplicity === 'SINGLE') {
-      return { status: 'VERIFIED' };
+      return verdict('VERIFIED', 'CATALOG_ROUTE_VARIANT', routeVariant);
     }
     if (routeVariant?.identityMultiplicity === 'MULTIPLE') {
-      return { status: 'AMBIGUOUS' };
+      return verdict('AMBIGUOUS', 'CATALOG_ROUTE_VARIANT', routeVariant);
     }
 
     // 2c. Catalog reuse through verified hint memory: this exact hint key
@@ -95,10 +130,10 @@ export class IdentityVerifier {
       'CATALOG_VERIFIED_HINT_MATCH',
     );
     if (verifiedHint?.identityMultiplicity === 'SINGLE') {
-      return { status: 'VERIFIED' };
+      return verdict('VERIFIED', 'CATALOG_VERIFIED_HINT', verifiedHint);
     }
     if (verifiedHint?.identityMultiplicity === 'MULTIPLE') {
-      return { status: 'AMBIGUOUS' };
+      return verdict('AMBIGUOUS', 'CATALOG_VERIFIED_HINT', verifiedHint);
     }
 
     // 3a. Contextual correspondence. DISTINGUISHED: the source's
@@ -110,38 +145,30 @@ export class IdentityVerifier {
     // discriminating and leave the decision to the remaining evidence.
     const contextual = this.evidenceOf(evidence, 'CONTEXTUAL_CORRESPONDENCE');
     if (contextual?.outcome === 'DISTINGUISHED') {
-      return { status: 'VERIFIED' };
+      return verdict('VERIFIED', 'CONTEXTUAL_CORRESPONDENCE', contextual);
     }
     if (contextual?.outcome === 'AMBIGUOUS') {
-      return { status: 'AMBIGUOUS' };
+      return verdict('AMBIGUOUS', 'CONTEXTUAL_CORRESPONDENCE', contextual);
     }
 
     // 3b. The source declares this component's strong identity and the
     // candidate carries it: the mirror image of the QID contradiction.
     if (this.evidenceOf(evidence, 'SOURCE_DECLARED_IDENTITY_MATCH')) {
-      return { status: 'VERIFIED' };
+      return verdict(
+        'VERIFIED',
+        'SOURCE_DECLARED_IDENTITY',
+        this.evidenceOf(evidence, 'SOURCE_DECLARED_IDENTITY_MATCH'),
+      );
     }
 
     // 3c. The source's own address for the component matches the
     // candidate's: it singles out one branch of a same-name chain.
     if (this.evidenceOf(evidence, 'ADDRESS_MATCH')) {
-      return { status: 'VERIFIED' };
-    }
-
-    // 3d. A QID the source declares (OBSERVATION_QID) or the candidate
-    // record itself declares (OWN_QID) whose labels corroborate both the
-    // hint and the candidate: a structural link to one Wikidata entity, not
-    // a proximity search, so it singles out the record that carries it
-    // (P0.2: the one of two exact-name OSM objects tagged with the item).
-    // A NEARBY match is never discriminating (rule 7).
-    const wikidataMatch = this.evidenceOf(evidence, 'WIKIDATA_IDENTITY_MATCH');
-    if (
-      wikidataMatch &&
-      wikidataMatch.source !== 'NEARBY' &&
-      wikidataMatch.hintMatched &&
-      wikidataMatch.candidateMatched
-    ) {
-      return { status: 'VERIFIED' };
+      return verdict(
+        'VERIFIED',
+        'ADDRESS_MATCH',
+        this.evidenceOf(evidence, 'ADDRESS_MATCH'),
+      );
     }
 
     // 4. A material competitor is known for this hint, from whichever pool
@@ -149,7 +176,27 @@ export class IdentityVerifier {
     // homonyms Nominatim returned). Nothing below is discriminating.
     const competitors = this.evidenceOf(evidence, 'COMPETITOR_EXAMINATION');
     if (competitors?.outcome === 'MATERIAL_COMPETITOR_KNOWN') {
-      return { status: 'AMBIGUOUS' };
+      return verdict('AMBIGUOUS', 'MATERIAL_COMPETITOR_KNOWN', competitors);
+    }
+
+    // 4b. A QID the source declares (OBSERVATION_QID) or the candidate
+    // record itself carries (OWN_QID), linked to the other side by an
+    // EQUIVALENT name: a structural link to one Wikidata entity, so it
+    // singles out the record that carries it among same-name records that
+    // are not material competitors (P0.2: a park and a transit stop both
+    // named "Plaza de Mayo", the park tagged with the item). It runs after
+    // rule 4 because it says who a record is, not which homonym the source
+    // meant. A link whose other side only OVERLAPs a label is
+    // RETRIEVAL_ONLY: the C3 "Don Carlos" -> tomb of Carlos Pellegrini
+    // chain (fuzzy retrieval, then the candidate's own QID, then a fuzzy
+    // hint-to-label match) proves nothing.
+    const wikidataMatch = this.evidenceOf(evidence, 'WIKIDATA_IDENTITY_MATCH');
+    if (
+      wikidataMatch &&
+      wikidataMatch.source !== 'NEARBY' &&
+      identityEvidenceRole(wikidataMatch) === 'CORROBORATING'
+    ) {
+      return verdict('VERIFIED', 'QID_LINK', wikidataMatch, competitors);
     }
 
     // Uniqueness identifies the source's place only inside a grounded
@@ -176,7 +223,13 @@ export class IdentityVerifier {
       this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE') &&
       competitors?.outcome === 'NO_MATERIAL_COMPETITOR'
     ) {
-      return { status: 'VERIFIED' };
+      return verdict(
+        'VERIFIED',
+        'GROUNDED_CONVERGENCE',
+        this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE'),
+        competitors,
+        correspondence,
+      );
     }
 
     // 6. EXACT_NAME + SINGLE -> VERIFIED. SINGLE is the producer's claim
@@ -187,16 +240,28 @@ export class IdentityVerifier {
       exactName &&
       exactName.identityMultiplicity === 'SINGLE'
     ) {
-      return { status: 'VERIFIED' };
+      return verdict(
+        'VERIFIED',
+        'GROUNDED_UNIQUE_EXACT_NAME',
+        exactName,
+        correspondence,
+      );
     }
 
-    // 6b. DECLARED_ALIAS_MATCH + SINGLE -> VERIFIED
+    // 6b. DECLARED_ALIAS_MATCH + SINGLE -> VERIFIED, for an alias that
+    // names the hint EQUIVALENTLY. An OVERLAP alias is RETRIEVAL_ONLY.
     if (
       uniquenessIsGrounded &&
       alias &&
-      alias.identityMultiplicity === 'SINGLE'
+      alias.identityMultiplicity === 'SINGLE' &&
+      identityEvidenceRole(alias) === 'CORROBORATING'
     ) {
-      return { status: 'VERIFIED' };
+      return verdict(
+        'VERIFIED',
+        'GROUNDED_UNIQUE_ALIAS',
+        alias,
+        correspondence,
+      );
     }
 
     // 7. WIKIDATA_IDENTITY_MATCH
@@ -210,61 +275,81 @@ export class IdentityVerifier {
       // unique candidate; it never decides WHICH member of a real name
       // collision the source meant (live: "Ojo de Agua" -> a Cordoba hamlet
       // 383 km from the source's Lujan de Cuyo). A corroborating OWN_QID /
-      // OBSERVATION_QID already decided at rule 3d.
-      const corroborated =
-        wikidataMatch.hintMatched && wikidataMatch.candidateMatched;
+      // OBSERVATION_QID already decided at rule 4b.
+      const role = identityEvidenceRole(wikidataMatch);
+      const corroborated = role === 'CORROBORATING';
       const disambiguates =
         !namePoolHasCollision || wikidataMatch.source !== 'NEARBY';
       // A NEARBY item confirms a unique record; uniqueness itself must be
-      // grounded (rules 5-6). Structural QID links decided at rule 3d.
+      // grounded (rules 5-6). Structural QID links decided at rule 4b.
       if (corroborated && disambiguates && uniquenessIsGrounded) {
-        return { status: 'VERIFIED' };
+        return verdict(
+          'VERIFIED',
+          'WIKIDATA_CORROBORATION',
+          wikidataMatch,
+          correspondence,
+        );
       }
       // A non-corroborating (or non-disambiguating) match over a real name
       // collision only failed to single out one member: AMBIGUOUS, not
       // REJECTED, which would imply the identity was disproven.
       if (namePoolHasCollision) {
-        return { status: 'AMBIGUOUS' };
+        return verdict(
+          'AMBIGUOUS',
+          'NAME_COLLISION',
+          wikidataMatch,
+          exactName,
+          alias,
+        );
       }
-      // Any NEARBY result other than one item matching both names is
+      // Any NEARBY result other than one item naming both is
       // NOT_CORROBORATED, never CONTRADICTED (2026-09-22 amendment §6). Its
-      // booleans are text matches of labels found around the candidate's
-      // own point: a label matching only the hint (El Zanjón: the
-      // candidate's "(historic ruins)" suffix defeats the label match) or
-      // only the candidate establishes no incompatible identity, so the
+      // correspondences are text matches of labels found around the
+      // candidate's own point: a label matching only the hint (El Zanjón:
+      // the candidate's "(historic ruins)" suffix defeats the label match)
+      // or only the candidate establishes no incompatible identity, so the
       // decision falls through to the remaining evidence. A positive
-      // contradiction is a typed IDENTITY_CONTRADICTION (rule 1). A failing
-      // OWN_QID / OBSERVATION_QID match is a structural link to one item
-      // that does not name both sides, and stays REJECTED.
-      if (wikidataMatch.source !== 'NEARBY') {
-        return { status: 'REJECTED' };
+      // contradiction is a typed IDENTITY_CONTRADICTION (rule 1). An OWN_QID
+      // / OBSERVATION_QID item that does not name the other side at all is
+      // CONTRADICTORY and stays REJECTED; one that only OVERLAPs it is
+      // RETRIEVAL_ONLY and decides nothing.
+      if (role === 'CONTRADICTORY') {
+        return verdict('REJECTED', 'QID_LINK_MISMATCH', wikidataMatch);
       }
     }
 
     // 8. Fallback based on multiplicity
     if (this.evidenceOf(evidence, 'WIKIDATA_UNAVAILABLE')) {
-      return { status: 'INSUFFICIENT_EVIDENCE' };
+      return verdict(
+        'INSUFFICIENT_EVIDENCE',
+        'WIKIDATA_UNAVAILABLE',
+        this.evidenceOf(evidence, 'WIKIDATA_UNAVAILABLE'),
+      );
     }
 
     // If we reach here, no VERIFIED evidence was found
     // EXACT_NAME MULTIPLE -> AMBIGUOUS
     if (exactName && exactName.identityMultiplicity === 'MULTIPLE') {
-      return { status: 'AMBIGUOUS' };
+      return verdict('AMBIGUOUS', 'NAME_COLLISION', exactName);
     }
     // DECLARED_ALIAS_MATCH MULTIPLE -> AMBIGUOUS
     if (alias && alias.identityMultiplicity === 'MULTIPLE') {
-      return { status: 'AMBIGUOUS' };
+      return verdict('AMBIGUOUS', 'NAME_COLLISION', alias);
     }
     // EXACT_NAME UNKNOWN -> INSUFFICIENT_EVIDENCE
     if (exactName && exactName.identityMultiplicity === 'UNKNOWN') {
-      return { status: 'INSUFFICIENT_EVIDENCE' };
+      return verdict(
+        'INSUFFICIENT_EVIDENCE',
+        'NAME_UNIQUENESS_UNKNOWN',
+        exactName,
+      );
     }
     // DECLARED_ALIAS_MATCH UNKNOWN -> INSUFFICIENT_EVIDENCE
     if (alias && alias.identityMultiplicity === 'UNKNOWN') {
-      return { status: 'INSUFFICIENT_EVIDENCE' };
+      return verdict('INSUFFICIENT_EVIDENCE', 'NAME_UNIQUENESS_UNKNOWN', alias);
     }
     // No local name evidence at all
-    return { status: 'INSUFFICIENT_EVIDENCE' };
+    return verdict('INSUFFICIENT_EVIDENCE', 'NO_DECISIVE_EVIDENCE');
   }
 
   private evidenceOf<T extends IdentityEvidence['type']>(

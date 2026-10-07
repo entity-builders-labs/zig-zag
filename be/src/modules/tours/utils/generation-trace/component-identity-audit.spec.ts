@@ -138,6 +138,61 @@ function resolutionWith(audits: CandidateResolutionAudit[]) {
   };
 }
 
+/** The same heavy composite, every attempt carrying a typed decision. */
+function withIdentityDecisions(
+  audit: CandidateResolutionAudit,
+): CandidateResolutionAudit {
+  const evidence: ResolutionAttemptAudit['identityEvidence'] = [
+    {
+      type: 'DECLARED_ALIAS_MATCH',
+      identityMultiplicity: 'MULTIPLE',
+      correspondence: 'OVERLAP',
+    },
+    {
+      type: 'WIKIDATA_IDENTITY_MATCH',
+      source: 'OWN_QID',
+      hintCorrespondence: 'OVERLAP',
+      candidateCorrespondence: 'DECLARES_QID',
+    },
+    {
+      type: 'CONTEXTUAL_CORRESPONDENCE',
+      assertion: 'LOCALITY',
+      locality: 'Valle',
+      coverage: 'NOT_ESTABLISHED',
+      memberCount: 3,
+      consistentCount: 2,
+      outcome: 'AMBIGUOUS',
+    },
+    {
+      type: 'COMPETITOR_EXAMINATION',
+      outcome: 'MATERIAL_COMPETITOR_KNOWN',
+      examinedStrategies: ['LOCAL_OSM_POOL', 'NOMINATIM', 'PLACES'],
+      competitorCount: 11,
+    },
+    { type: 'GEOGRAPHIC_CORRESPONDENCE', basis: 'BOUNDED_ADMISSION_SCOPE' },
+  ];
+  return {
+    ...audit,
+    componentAudits: audit.componentAudits.map((component) => ({
+      ...component,
+      attempts: component.attempts.map((attempt) => ({
+        ...attempt,
+        selectedCandidate: {
+          ...attempt.selectedCandidate!,
+          identities: [
+            { provider: 'openstreetmap', externalId: 'osm:node:5332434913' },
+            { provider: 'wikidata', externalId: 'Q270446' },
+          ],
+        },
+        identityEvidence: evidence,
+        verificationDecision: 'AMBIGUOUS' as const,
+        verificationRule: 'MATERIAL_COMPETITOR_KNOWN' as const,
+        decisiveEvidence: [evidence[3]],
+      })),
+    })),
+  };
+}
+
 describe('resolution.component_identity compact audit', () => {
   it('projects exactly the per-component diagnosis facts, with coordinates and the candidate authorization', () => {
     const [step] = projectComponentIdentityStepInputs(
@@ -188,6 +243,64 @@ describe('resolution.component_identity compact audit', () => {
     // No raw evidence / rejected-place payloads.
     expect(JSON.stringify(step)).not.toContain('NAME_SIMILARITY');
     expect(JSON.stringify(step)).not.toContain('Rejected winery');
+  });
+
+  it('explains every identity decision from normalized facts: rule, decisive evidence with roles, strong ids and qualifiers', () => {
+    const [step] = projectComponentIdentityStepInputs(
+      resolutionWith([withIdentityDecisions(heavyAudit(2))]) as any,
+      { strategy: 'generic', passNumber: 1, workUnitKind: 'GENERIC' },
+    );
+    const component = (step.facts as any).components[0];
+    expect(component.identityRule).toBe('MATERIAL_COMPETITOR_KNOWN');
+    expect(
+      component.attempts.map((attempt: any) => attempt.verificationRule),
+    ).toEqual(Array(5).fill('MATERIAL_COMPETITOR_KNOWN'));
+    expect(component.identityDecision).toEqual({
+      rule: 'MATERIAL_COMPETITOR_KNOWN',
+      decisiveEvidence: [
+        {
+          type: 'COMPETITOR_EXAMINATION',
+          outcome: 'MATERIAL_COMPETITOR_KNOWN',
+          examinedStrategies: ['LOCAL_OSM_POOL', 'NOMINATIM', 'PLACES'],
+          competitorCount: 11,
+          role: 'QUALIFYING',
+        },
+      ],
+      evidence: [
+        { type: 'DECLARED_ALIAS_MATCH', role: 'RETRIEVAL_ONLY' },
+        { type: 'WIKIDATA_IDENTITY_MATCH', role: 'RETRIEVAL_ONLY' },
+        { type: 'CONTEXTUAL_CORRESPONDENCE', role: 'QUALIFYING' },
+        { type: 'COMPETITOR_EXAMINATION', role: 'QUALIFYING' },
+        { type: 'GEOGRAPHIC_CORRESPONDENCE', role: 'QUALIFYING' },
+      ],
+      candidateStrongIds: [
+        'openstreetmap/osm:node:5332434913',
+        'wikidata/Q270446',
+      ],
+      contextualCorrespondence: 'AMBIGUOUS',
+      geographicCorrespondence: 'BOUNDED_ADMISSION_SCOPE',
+      competitors: {
+        outcome: 'MATERIAL_COMPETITOR_KNOWN',
+        competitorCount: 11,
+      },
+    });
+  });
+
+  it('stays bounded with a typed identity decision on every attempt of a heavy composite', () => {
+    const [step] = projectComponentIdentityStepInputs(
+      resolutionWith([withIdentityDecisions(heavyAudit(6))]) as any,
+      { strategy: 'generic', passNumber: 1, workUnitKind: 'GENERIC' },
+    );
+    const [baseline] = projectComponentIdentityStepInputs(
+      resolutionWith([heavyAudit(6)]) as any,
+      { strategy: 'generic', passNumber: 1, workUnitKind: 'GENERIC' },
+    );
+    const size = JSON.stringify(step).length;
+    // The explanation costs a bounded amount per component (the full
+    // decision of its deciding attempt, the rule of every other attempt) and
+    // leaves the step well clear of truncation.
+    expect(size - JSON.stringify(baseline).length).toBeLessThan(6 * 1500);
+    expect(size).toBeLessThan(TRACE_LIMITS.maxStepPayloadChars * 0.75);
   });
 
   it('only single-component candidates are skipped', () => {

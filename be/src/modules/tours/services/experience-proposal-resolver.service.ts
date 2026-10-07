@@ -131,7 +131,7 @@ import {
   ContextualPoolCoverage,
   ContextualPoolMember,
 } from '../interfaces/component-identity-context.interface';
-import { evaluatePlaceStructuralCompatibility } from '../utils/place-structural-compatibility.policy';
+import { evaluateStructuralCompatibility } from '../utils/place-structural-compatibility.policy';
 import {
   strongIdentitiesOf,
   strongIdentityKey,
@@ -923,6 +923,12 @@ export class ExperienceProposalResolverService
               : undefined,
           identityEvidence: verification?.evidence ?? [],
           verificationDecision: verification?.decision.status,
+          ...(verification
+            ? {
+                verificationRule: verification.decision.rule,
+                decisiveEvidence: verification.decision.decisiveEvidence,
+              }
+            : {}),
         });
       };
       const finishAudit = (entity: ResolvedGeoEntity): void => {
@@ -1993,6 +1999,7 @@ export class ExperienceProposalResolverService
         ? [
             examineCompetitors({
               hintName: hint.name,
+              expectedKind: hint.expectedKind,
               candidate: entity,
               pools: competition.pools,
               context,
@@ -2062,7 +2069,7 @@ export class ExperienceProposalResolverService
       candidate: entity,
       evidence,
     };
-    const directDecision = this.identityVerifier.verify(hint, attempt);
+    const directDecision = this.identityVerifier.decide(hint, attempt);
     if (directDecision.status === 'VERIFIED') {
       return { decision: directDecision, evidence: [...attempt.evidence] };
     }
@@ -2074,7 +2081,7 @@ export class ExperienceProposalResolverService
       )),
     );
     return {
-      decision: this.identityVerifier.verify(hint, attempt),
+      decision: this.identityVerifier.decide(hint, attempt),
       evidence: [...attempt.evidence],
     };
   }
@@ -3535,14 +3542,16 @@ export class ExperienceProposalResolverService
       const viable: PlaceData[] = [];
       for (const place of result.data) {
         const name = place.displayName?.text || place.name || '';
-        const structural = evaluatePlaceStructuralCompatibility(
-          place.featureClass,
-        );
-        if (structural.verdict === 'INCOMPATIBLE') {
+        if (
+          evaluateStructuralCompatibility(
+            'PLACE',
+            structuralKindFromPlaceFeatureClass(place.featureClass),
+          ) === 'INCOMPATIBLE'
+        ) {
           placeSearch.rejected.push({
             name,
             reason: 'STRUCTURALLY_INCOMPATIBLE',
-            featureClass: structural.featureClass,
+            featureClass: place.featureClass!,
           });
           continue;
         }
@@ -3595,40 +3604,36 @@ export class ExperienceProposalResolverService
       }): CompetitorPool => ({
         strategy: 'PLACES',
         coverage,
-        members: result.data
-          .filter(
-            (candidate) =>
-              evaluatePlaceStructuralCompatibility(candidate.featureClass)
-                .verdict !== 'INCOMPATIBLE',
-          )
-          .map(
-            (candidate): CompetitorPoolMember => ({
-              identityKeys: [
-                strongIdentityKey({
-                  provider: providerLabel,
-                  externalId: canonicalPlacesExternalId(
-                    this.placesApi!.provider,
-                    candidate.id,
-                  ),
-                }),
-                ...(selected?.id === candidate.id
-                  ? selected.identities.map(strongIdentityKey)
-                  : []),
-              ],
-              name: candidate.displayName?.text || candidate.name || '',
-              ...(candidate.location &&
-              Number.isFinite(candidate.location.latitude) &&
-              Number.isFinite(candidate.location.longitude)
-                ? {
-                    latitude: candidate.location.latitude,
-                    longitude: candidate.location.longitude,
-                  }
-                : {}),
-              structuralKind: structuralKindFromPlaceFeatureClass(
-                candidate.featureClass,
-              ),
-            }),
-          ),
+        // Structural compatibility of each member is judged by
+        // `examineCompetitors`, the same way for every provider's pool.
+        members: result.data.map(
+          (candidate): CompetitorPoolMember => ({
+            identityKeys: [
+              strongIdentityKey({
+                provider: providerLabel,
+                externalId: canonicalPlacesExternalId(
+                  this.placesApi!.provider,
+                  candidate.id,
+                ),
+              }),
+              ...(selected?.id === candidate.id
+                ? selected.identities.map(strongIdentityKey)
+                : []),
+            ],
+            name: candidate.displayName?.text || candidate.name || '',
+            ...(candidate.location &&
+            Number.isFinite(candidate.location.latitude) &&
+            Number.isFinite(candidate.location.longitude)
+              ? {
+                  latitude: candidate.location.latitude,
+                  longitude: candidate.location.longitude,
+                }
+              : {}),
+            structuralKind: structuralKindFromPlaceFeatureClass(
+              candidate.featureClass,
+            ),
+          }),
+        ),
       });
       // Every exact-name result is a potential competitor, whatever its
       // admission. The provider search is a hard circle around the scope

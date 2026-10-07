@@ -175,7 +175,7 @@ export class WikidataApiService implements IWikidataApiService {
       // IDENTITY admission (a textually identifiable entity), deliberately
       // unchanged by sitelinkCount: IdentityEvidenceCollector treats any
       // returned summary as a Wikidata identity attempt
-      // (WIKIDATA_IDENTITY_MATCH, hintMatched/candidateMatched derived from
+      // (WIKIDATA_IDENTITY_MATCH, its name correspondences derived from
       // label/aliases), so admitting a sitelink-only entity with no usable
       // textual identity here would turn "has sitelinks" into a spurious
       // identity claim and could get a real candidate wrongly REJECTED

@@ -41,8 +41,8 @@ describe('IdentityEvidenceCollector', () => {
       {
         type: 'WIKIDATA_IDENTITY_MATCH',
         source: 'OWN_QID',
-        hintMatched: true,
-        candidateMatched: true,
+        hintCorrespondence: 'EQUIVALENT',
+        candidateCorrespondence: 'DECLARES_QID',
       },
     ]);
   });
@@ -74,8 +74,8 @@ describe('IdentityEvidenceCollector', () => {
       {
         type: 'WIKIDATA_IDENTITY_MATCH',
         source: 'OWN_QID',
-        hintMatched: false,
-        candidateMatched: true,
+        hintCorrespondence: 'NONE',
+        candidateCorrespondence: 'DECLARES_QID',
       },
     ]);
   });
@@ -115,8 +115,8 @@ describe('IdentityEvidenceCollector', () => {
       {
         type: 'WIKIDATA_IDENTITY_MATCH',
         source: 'OWN_QID',
-        hintMatched: false,
-        candidateMatched: true,
+        hintCorrespondence: 'NONE',
+        candidateCorrespondence: 'DECLARES_QID',
       },
     ]);
   });
@@ -143,8 +143,8 @@ describe('IdentityEvidenceCollector', () => {
       {
         type: 'WIKIDATA_IDENTITY_MATCH',
         source: 'OBSERVATION_QID',
-        hintMatched: true,
-        candidateMatched: false,
+        hintCorrespondence: 'DECLARES_QID',
+        candidateCorrespondence: 'NONE',
       },
     ]);
   });
@@ -187,8 +187,8 @@ describe('IdentityEvidenceCollector', () => {
       {
         type: 'WIKIDATA_IDENTITY_MATCH',
         source: 'NEARBY',
-        hintMatched: true,
-        candidateMatched: true,
+        hintCorrespondence: 'EQUIVALENT',
+        candidateCorrespondence: 'EQUIVALENT',
       },
     ]);
   });
@@ -218,8 +218,8 @@ describe('IdentityEvidenceCollector', () => {
       {
         type: 'WIKIDATA_IDENTITY_MATCH',
         source: 'NEARBY',
-        hintMatched: true,
-        candidateMatched: false,
+        hintCorrespondence: 'EQUIVALENT',
+        candidateCorrespondence: 'NONE',
       },
     ]);
   });
@@ -255,8 +255,8 @@ describe('IdentityEvidenceCollector', () => {
       {
         type: 'WIKIDATA_IDENTITY_MATCH',
         source: 'NEARBY',
-        hintMatched: true,
-        candidateMatched: false,
+        hintCorrespondence: 'EQUIVALENT',
+        candidateCorrespondence: 'NONE',
       },
     ]);
   });

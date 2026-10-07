@@ -1,37 +1,43 @@
-import { PlaceFeatureClass } from '@integrations/google-places/interfaces/places-api.interface';
+import { CandidateStructuralKind } from '../interfaces/component-identity-context.interface';
 
 /**
- * Feature classes a PLACE component can never be, whatever its name:
- *  - `street`: a ROUTE-shaped object -- ROUTE hints belong to the targeted
- *    ROUTE resolver, never to a PLACE text search ("Defensa Street");
- *  - `administrative_area` / `postcode`: an AREA-scale or postal unit
+ * Structural kinds a PLACE component can never be, whatever its name:
+ *  - ROAD: a ROUTE-shaped object -- ROUTE hints belong to the targeted
+ *    ROUTE resolver, never to a PLACE ("Defensa Street");
+ *  - ADMINISTRATIVE_AREA / POSTAL_UNIT: an AREA-scale or postal unit
  *    ("San Martín" -> the Partido de General San Martín);
- *  - `transport_stop`: a stop/dock named after the landmark it serves, not
- *    the landmark ("Parque Lezama" bus stops).
+ *  - TRANSPORT_STOP: a stop, platform or station named after the landmark
+ *    it serves, not the landmark ("Parque Lezama" bus stops).
  */
-const NOT_A_PLACE: ReadonlySet<PlaceFeatureClass> = new Set<PlaceFeatureClass>([
-  'street',
-  'administrative_area',
-  'postcode',
-  'transport_stop',
-]);
+const NOT_A_PLACE: ReadonlySet<CandidateStructuralKind> = new Set([
+  'ROAD',
+  'ADMINISTRATIVE_AREA',
+  'POSTAL_UNIT',
+  'TRANSPORT_STOP',
+] as const);
 
-export type PlaceStructuralCompatibility =
-  | { verdict: 'COMPATIBLE' }
-  | { verdict: 'INCOMPATIBLE'; featureClass: PlaceFeatureClass };
+export type StructuralCompatibility = 'COMPATIBLE' | 'INCOMPATIBLE';
 
 /**
- * Answers only "can this KIND of provider object be a PLACE?" from the
- * provider's own structural declaration -- never "is this the hinted
- * entity?". No name, distance or ranking fact is consulted here; identity
- * stays with IdentityVerifier. An undeclared class is unknown, not a
- * rejection (providers such as Google Text Search only ever return places).
+ * The single authority for "can this KIND of record be the hinted
+ * component?", read from the provider-neutral structural kind every
+ * provider adapter normalizes to. It never answers "is this the hinted
+ * entity?": no name, distance or ranking fact is consulted, and identity
+ * stays with IdentityVerifier. It gates both which records a PLACE search
+ * may select and which records can be material competitors
+ * (`examineCompetitors`), for every provider alike. An unknown structure,
+ * or an expected kind with no defined exclusions, is not a rejection.
  */
-export function evaluatePlaceStructuralCompatibility(
-  featureClass: PlaceFeatureClass | undefined,
-): PlaceStructuralCompatibility {
-  if (featureClass && NOT_A_PLACE.has(featureClass)) {
-    return { verdict: 'INCOMPATIBLE', featureClass };
+export function evaluateStructuralCompatibility(
+  expectedKind: string | undefined,
+  structuralKind: CandidateStructuralKind | undefined,
+): StructuralCompatibility {
+  if (
+    expectedKind === 'PLACE' &&
+    structuralKind &&
+    NOT_A_PLACE.has(structuralKind)
+  ) {
+    return 'INCOMPATIBLE';
   }
-  return { verdict: 'COMPATIBLE' };
+  return 'COMPATIBLE';
 }

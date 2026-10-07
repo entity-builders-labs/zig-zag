@@ -3688,7 +3688,7 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
     });
 
-    it('confirms a fuzzy (non-exact) local match when Wikidata independently has something nearby with a matching name', async () => {
+    it('never confirms a fuzzy (non-exact) local match through a nearby Wikidata label the hint only overlaps', async () => {
       // Task A5 fixture fix: the hint must have ALL significant tokens
       // present in the Wikidata label for confirmation under requireAllTokens.
       // Changed from "MALBA Museum" (only "museum" appears in the Wikidata
@@ -3750,7 +3750,11 @@ describe('ExperienceProposalResolverService', () => {
         -58.4034,
         200,
       );
-      expect(result.acceptedCount).toBe(1);
+      // RW4-ID-FALSE-VERIFY-1 (2026-10-07): the hint only OVERLAPs the
+      // Wikidata label (retrieval-grade), so the link corroborates nothing
+      // and the fuzzy local match stays unverified. The lookup above still
+      // runs: only what it is allowed to prove changed.
+      expect(result.acceptedCount).toBe(0);
     });
 
     it('does NOT confirm — and rejects the candidate — when a fuzzy local match has no independent Wikidata corroboration nearby (real regression: "San Ignacio Church" -> "Ignacio Pirovano")', async () => {
@@ -3906,7 +3910,7 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
     });
 
-    it('still confirms via the global (Nominatim) path the same way, when the local pool has no match at all', async () => {
+    it('treats the global (Nominatim) path the same way, when the local pool has no match at all', async () => {
       const wikidata = {
         findNearbyPlaces: jest.fn().mockResolvedValue([
           {
@@ -3977,7 +3981,11 @@ describe('ExperienceProposalResolverService', () => {
         -58.3801,
         200,
       );
-      expect(result.acceptedCount).toBe(1);
+      // RW4-ID-FALSE-VERIFY-1 (2026-10-07): the hint only OVERLAPs the
+      // Wikidata label (retrieval-grade), so the link corroborates nothing
+      // and the fuzzy local match stays unverified. The lookup above still
+      // runs: only what it is allowed to prove changed.
+      expect(result.acceptedCount).toBe(0);
     });
   });
 
@@ -4152,6 +4160,92 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
         expect.objectContaining({ externalId: 'osm:way:1' }),
       );
+      // The stop cannot structurally be the PLACE, so it is no material
+      // competitor; the QID link decides after competitor examination.
+      const attempt = (
+        result as any
+      ).entityResolution.forensicAudit[0].componentAudits[0].attempts.find(
+        (a: any) => a.verificationDecision === 'VERIFIED',
+      );
+      expect(attempt.verificationRule).toBe('QID_LINK');
+      expect(attempt.identityEvidence).toContainEqual(
+        expect.objectContaining({
+          type: 'COMPETITOR_EXAMINATION',
+          outcome: 'NO_MATERIAL_COMPETITOR',
+        }),
+      );
+    });
+
+    it('a structurally compatible same-name homonym stays a material competitor: the QID link cannot skip it', async () => {
+      const wikidata = {
+        getEntitySummaries: jest
+          .fn()
+          .mockResolvedValue(new Map([['Q123', { label: 'Plaza de Mayo' }]])),
+      };
+      const osmPlaces = {
+        lookupPoisWithin: jest.fn().mockResolvedValue({
+          status: 'success',
+          value: [
+            {
+              id: 'osm:way:1',
+              name: 'Plaza de Mayo',
+              osmType: 'way',
+              osmId: 1,
+              geometry: { type: 'Point', coordinates: [-58.3712, -34.6083] },
+              tags: { leisure: 'park', wikidata: 'Q123' },
+            },
+            {
+              id: 'osm:way:3',
+              name: 'Plaza de Mayo',
+              osmType: 'way',
+              osmId: 3,
+              geometry: { type: 'Point', coordinates: [-58.45, -34.6] },
+              tags: { leisure: 'park' },
+            },
+          ],
+        }),
+      };
+      const catalog = {
+        resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+        findGeoEntityCandidatesForHint: jest
+          .fn()
+          .mockResolvedValue({ candidates: [] }),
+        upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo-1' }),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-1', dedupeDecision: 'NEW' }),
+      };
+      const service = new ExperienceProposalResolverService(
+        osmPlaces as any,
+        catalog as any,
+        {
+          validate: jest
+            .fn()
+            .mockReturnValue(acceptedValidation('Visit Plaza de Mayo')),
+        } as any,
+        undefined,
+        undefined,
+        undefined,
+        wikidata as any,
+      );
+
+      const result = await service.resolve({
+        geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+        candidates: withDefaultGeographicAuthorization([
+          candidate('Visit Plaza de Mayo', 'Plaza de Mayo'),
+        ]),
+      });
+
+      expect(result.acceptedCount).toBe(0);
+      const local = (
+        result as any
+      ).entityResolution.forensicAudit[0].componentAudits[0].attempts.find(
+        (a: any) => a.strategy === 'LOCAL_OSM_POOL',
+      );
+      expect(local).toMatchObject({
+        verificationDecision: 'AMBIGUOUS',
+        verificationRule: 'MATERIAL_COMPETITOR_KNOWN',
+      });
     });
 
     it('does NOT auto-confirm an exact Nominatim result when its global result set contains two exact same-name entities', async () => {
@@ -4377,7 +4471,7 @@ describe('ExperienceProposalResolverService', () => {
         .mockResolvedValue({ status: 'success', value: pois }),
     });
 
-    it("confirms directly from the candidate's own wikidata tag and never calls the geo-proximity search at all", async () => {
+    it("reads the candidate's own wikidata tag directly, never calls the geo-proximity search, and does not let an overlapping hint verify through it", async () => {
       const wikidata = {
         findNearbyPlaces: jest.fn(),
         getEntitySummaries: jest.fn().mockResolvedValue(
@@ -4435,7 +4529,11 @@ describe('ExperienceProposalResolverService', () => {
 
       expect(wikidata.getEntitySummaries).toHaveBeenCalledWith(['Q1808336']);
       expect(wikidata.findNearbyPlaces).not.toHaveBeenCalled();
-      expect(result.acceptedCount).toBe(1);
+      // RW4-ID-FALSE-VERIFY-1 (2026-10-07): the hint only OVERLAPs the
+      // Wikidata label (retrieval-grade), so the link corroborates nothing
+      // and the fuzzy local match stays unverified. The lookup above still
+      // runs: only what it is allowed to prove changed.
+      expect(result.acceptedCount).toBe(0);
     });
 
     it("confirms via an English alias when the hint is English, the local OSM name and Wikidata's primary label are both Spanish, and the strict same-language token bar alone would reject it", async () => {
@@ -4636,7 +4734,11 @@ describe('ExperienceProposalResolverService', () => {
 
       expect(wikidata.getEntitySummaries).toHaveBeenCalledWith(['Q99999999']);
       expect(wikidata.findNearbyPlaces).toHaveBeenCalled();
-      expect(result.acceptedCount).toBe(1);
+      // RW4-ID-FALSE-VERIFY-1 (2026-10-07): the hint only OVERLAPs the
+      // Wikidata label (retrieval-grade), so the link corroborates nothing
+      // and the fuzzy local match stays unverified. The lookup above still
+      // runs: only what it is allowed to prove changed.
+      expect(result.acceptedCount).toBe(0);
     });
 
     it('fails closed (does not confirm) when getEntitySummaries throws, without falling back to geo-proximity', async () => {
@@ -4741,7 +4843,11 @@ describe('ExperienceProposalResolverService', () => {
 
       expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
       expect(wikidata.findNearbyPlaces).toHaveBeenCalled();
-      expect(result.acceptedCount).toBe(1);
+      // RW4-ID-FALSE-VERIFY-1 (2026-10-07): the hint only OVERLAPs the
+      // Wikidata label (retrieval-grade), so the link corroborates nothing
+      // and the fuzzy local match stays unverified. The lookup above still
+      // runs: only what it is allowed to prove changed.
+      expect(result.acceptedCount).toBe(0);
     });
 
     it('resolves the real "Recoleta Cemetery" case end to end -- the general mechanism (best-fuzzy-match + own-tag QID confirmation), not a case-specific rule, is what fixes it (live-verified real data: OSM way "Cementerio de la Recoleta" carries `wikidata=Q831322`, which real Wikidata labels "Recoleta Cemetery" in English -- an exact match to the hint -- while the historically-wrong "Hotel Urban Suites Recoleta" carries no wikidata tag at all and shares the same single token, so the tag-presence tiebreak picks the real cemetery)', async () => {
@@ -5123,7 +5229,11 @@ describe('ExperienceProposalResolverService', () => {
 
       expect(wikidata.getEntitySummaries).not.toHaveBeenCalled();
       expect(wikidata.findNearbyPlaces).toHaveBeenCalled();
-      expect(result.acceptedCount).toBe(1);
+      // RW4-ID-FALSE-VERIFY-1 (2026-10-07): the hint only OVERLAPs the
+      // Wikidata label (retrieval-grade), so the link corroborates nothing
+      // and the fuzzy local match stays unverified. The lookup above still
+      // runs: only what it is allowed to prove changed.
+      expect(result.acceptedCount).toBe(0);
     });
   });
 
@@ -5315,7 +5425,11 @@ describe('ExperienceProposalResolverService', () => {
       });
 
       expect(wikidata.findNearbyPlaces).toHaveBeenCalled();
-      expect(result.acceptedCount).toBe(1);
+      // RW4-ID-FALSE-VERIFY-1 (2026-10-07): the hint only OVERLAPs the
+      // Wikidata label (retrieval-grade), so the link corroborates nothing
+      // and the fuzzy local match stays unverified. The lookup above still
+      // runs: only what it is allowed to prove changed.
+      expect(result.acceptedCount).toBe(0);
     });
 
     it('alias MULTIPLE -> AMBIGUOUS -> not persisted: two POI candidates declare aliases matching the same hint', async () => {

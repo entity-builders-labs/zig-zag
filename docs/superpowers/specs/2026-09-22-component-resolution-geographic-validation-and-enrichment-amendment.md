@@ -1082,15 +1082,18 @@ order has no score and no threshold:
      contradiction.
    - `ADDRESS_MATCH`. The source's address for the component matches the
      candidate.
-   - An `OWN_QID` or `OBSERVATION_QID` whose labels corroborate both the
-     hint and the candidate. The residual risk is tracked as
-     RW4-ID-QID-HOMONYM-1.
+   - (Until 2026-10-07 an `OWN_QID` or `OBSERVATION_QID` link was listed
+     here. It is not discriminating; it is rule 4b, §19.3.)
 4. **Known material competitor, which yields AMBIGUOUS.**
    `COMPETITOR_EXAMINATION` is a fact about the hint. It is computed from
    every pool examined for that hint, by any strategy and in any order,
    judged against this candidate (see **Competitors** below). When it is
    `MATERIAL_COMPETITOR_KNOWN`, no record-level fact decides: not a name,
    an alias, convergence of any provenance, or a Wikidata label.
+   4b. **QID link** (§19.3). An `OWN_QID` or `OBSERVATION_QID` link
+   verifies when each side either carries the item or names it
+   EQUIVALENTLY. It runs after rule 4, so it never skips a known material
+   competitor.
 5. **Convergence** (`IDENTITY_CONVERGENCE`, with its own
    `CONVERGENCE_PROVENANCE`) verifies only when the result is
    `NO_MATERIAL_COMPETITOR`. If the provenance or the examination is
@@ -1389,3 +1392,93 @@ imported; no code reads the manifest for it.
 
 Dossier:
 `spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/identity-policy-reassessment-2026-10-03/`.
+
+### 19.3 Lexical similarity retrieves; it never proves identity (2026-10-07, RW4-ID-FALSE-VERIFY-1)
+
+**Why.** The C3 retry (`c3-retry-cold`) persisted the source stop "Don
+Carlos", a La Boca venue, as the tomb of Carlos Pellegrini
+(`osm:node:5332434913`, `historic=tomb`, ~6 km away in Recoleta). A replay
+of the real code on the real pool and the real Wikidata item reproduced the
+chain:
+
+1. Retrieval drops tokens under four letters, so "Don Carlos" is "carlos".
+   47 pool records contain "carlos". The fuzzy tie-break prefers a record
+   with a `wikidata` tag, so retrieval chose the record for its QID.
+2. Without Wikidata the attempt was AMBIGUOUS: 11 material competitors.
+3. The candidate's own QID (Q270446, the person) was compared with the
+   hint through the same containment ("carlos" ⊆ "Carlos Pellegrini").
+4. The QID rule ran before competitor examination and returned VERIFIED.
+
+The same class verified four more C3 identities: "Catedral" (a QID of a
+painting), "Bar El Federal" (a square), "Club Atlético" (a different club,
+via NEARBY) and "Plaza". Dossier:
+`spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2026-10-07/`.
+
+**Rules.**
+
+- Candidate retrieval may stay permissive (`hasSpecificNameOverlap`).
+  Identity verification grades names with `nameCorrespondence`:
+  - EQUIVALENT: every normalized token of each name is in the other,
+    short tokens included;
+  - OVERLAP: the retrieval-grade match;
+  - NONE: neither.
+- `identityEvidenceRole` is the single typed authority for what each fact
+  can do:
+  - DISCRIMINATING: decides among homonyms;
+  - CORROBORATING: decides only where no material competitor is known;
+  - RETRIEVAL_ONLY: never decides;
+  - CONTRADICTORY: rejects;
+  - QUALIFYING: competitors, geography, provenance, availability.
+- A Wikidata link (OWN_QID, OBSERVATION_QID or NEARBY) corroborates only
+  when each side carries the item (`DECLARES_QID`) or names it EQUIVALENTLY.
+  A side that only OVERLAPs makes the link RETRIEVAL_ONLY: a candidate's own
+  QID says who the candidate is, not that the source meant it. A structural
+  link to an item that names the other side not at all stays CONTRADICTORY
+  (REJECTED), as before.
+- OWN_QID and OBSERVATION_QID follow the same rule. A source-declared QID
+  linked to the candidate only by name never decides among known
+  competitors; a candidate that carries the source's QID is
+  `SOURCE_DECLARED_IDENTITY_MATCH` (rule 3), which still does.
+- `DECLARED_ALIAS_MATCH` records its correspondence. Only an EQUIVALENT
+  alias corroborates (rule 6b).
+- Every verdict carries its rule and the evidence that rule read
+  (`IdentityVerifier.decide`). The Bitácora records the rule of every
+  attempt and, for the deciding attempt, `identityDecision`:
+  - decisive evidence with roles;
+  - candidate strong ids;
+  - contextual correspondence, geographic basis and competitor outcome.
+
+**Structural competition (the Competitors bullet above, now for every
+provider).**
+- A record that structurally cannot be the hinted kind is not a material
+  competitor: `evaluateStructuralCompatibility` is the one authority, over
+  the provider-neutral structural kind.
+- For PLACE, that kind is ROAD, ADMINISTRATIVE_AREA, POSTAL_UNIT or
+  TRANSPORT_STOP. Places' `transport_stop` and OSM/Nominatim
+  `public_transport` normalize to TRANSPORT_STOP at the provider boundary.
+- Before, only the Places pool applied this, through its own feature-class
+  filter. The OSM pool counted a stop named after a plaza as a competitor,
+  and P0.2 (park + stop, park tagged with the QID) verified only because
+  the QID rule ran before competitor examination.
+
+**Expectations changed (not weakened).**
+- The verifier suite listed a name-linked OBSERVATION_QID among facts that
+  decide over 30 known competitors. It is now AMBIGUOUS.
+- Seven resolver tests (Task A3 and the confirmMatch groups) verified the
+  hint "Museum Latin American" against "Museum of Latin American Art of
+  Buenos Aires" through an overlapping Wikidata label. Their lookup
+  mechanics are unchanged; the outcome is now unverified.
+- A4, P0.2 and the RW1 matrix (El Zanjón, Farmacia la Estrella) are
+  unchanged.
+
+**Accepted recall loss.** Equivalence has no stopword list (that would be
+a language-specific magic rule). In the replay these likely-correct C3
+identities now stay unverified unless other evidence decides:
+- "La Librería del Avila" vs "Librería de Ávila";
+- "The San Telmo Market" (with the article);
+- "Cabildo" (11 competitors, now examined first).
+
+**Characterized, not implemented.** Q270446 is an instance of human (Q5)
+with no coordinate (P625). "The item is not a physical entity" would be a
+clean generic contradiction for a PLACE, but the Wikidata summary
+carries neither fact; it needs an adapter extension and its own decision.

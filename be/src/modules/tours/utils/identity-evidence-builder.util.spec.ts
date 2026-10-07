@@ -90,7 +90,11 @@ describe('buildLocalIdentityEvidence', () => {
       }),
     );
     expect(evidence).toEqual([
-      { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'UNKNOWN' },
+      {
+        type: 'DECLARED_ALIAS_MATCH',
+        identityMultiplicity: 'UNKNOWN',
+        correspondence: 'EQUIVALENT',
+      },
     ]);
   });
 
@@ -107,7 +111,11 @@ describe('buildLocalIdentityEvidence', () => {
       }),
     );
     expect(evidence).toEqual([
-      { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'MULTIPLE' },
+      {
+        type: 'DECLARED_ALIAS_MATCH',
+        identityMultiplicity: 'MULTIPLE',
+        correspondence: 'EQUIVALENT',
+      },
     ]);
   });
 
@@ -124,7 +132,11 @@ describe('buildLocalIdentityEvidence', () => {
       }),
     );
     expect(evidence).toEqual([
-      { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'SINGLE' },
+      {
+        type: 'DECLARED_ALIAS_MATCH',
+        identityMultiplicity: 'SINGLE',
+        correspondence: 'EQUIVALENT',
+      },
     ]);
   });
 
@@ -172,7 +184,11 @@ describe('buildLocalIdentityEvidence', () => {
     );
     expect(evidence).toEqual([
       { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
-      { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'MULTIPLE' },
+      {
+        type: 'DECLARED_ALIAS_MATCH',
+        identityMultiplicity: 'MULTIPLE',
+        correspondence: 'OVERLAP',
+      },
     ]);
   });
 
@@ -189,7 +205,11 @@ describe('buildLocalIdentityEvidence', () => {
       }),
     );
     expect(evidence).toEqual([
-      { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'SINGLE' },
+      {
+        type: 'DECLARED_ALIAS_MATCH',
+        identityMultiplicity: 'SINGLE',
+        correspondence: 'EQUIVALENT',
+      },
     ]);
   });
 
@@ -207,7 +227,11 @@ describe('buildLocalIdentityEvidence', () => {
     );
 
     expect(evidence).toEqual([
-      { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'UNKNOWN' },
+      {
+        type: 'DECLARED_ALIAS_MATCH',
+        identityMultiplicity: 'UNKNOWN',
+        correspondence: 'EQUIVALENT',
+      },
     ]);
   });
 

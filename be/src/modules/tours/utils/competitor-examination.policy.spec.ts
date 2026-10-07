@@ -85,10 +85,12 @@ const examine = (
     context?: ComponentIdentityContext;
     entity?: EntityCandidate;
     admits?: (member: CompetitorPoolMember) => boolean;
+    expectedKind?: string;
   } = {},
 ) =>
   examineCompetitors({
     hintName: 'Ojo de Agua',
+    expectedKind: options.expectedKind,
     candidate: options.entity ?? candidate(),
     pools,
     context: options.context ?? {},
@@ -391,5 +393,58 @@ describe('examineCompetitors', () => {
         },
       ]).outcome,
     ).toBe('MATERIAL_COMPETITOR_KNOWN');
+  });
+
+  describe('structural compatibility gates material competition (any provider)', () => {
+    const STOP = member(
+      'openstreetmap/osm:node:2',
+      'Ojo de Agua',
+      -33.131,
+      -68.965,
+      {
+        structuralKind: 'TRANSPORT_STOP',
+      },
+    );
+    const SAME_NAME_VENUE = member(
+      'openstreetmap/osm:node:3',
+      'Ojo de Agua',
+      -33.2,
+      -69.0,
+    );
+    const pool = (members: CompetitorPoolMember[]): CompetitorPool[] => [
+      { strategy: 'LOCAL_OSM_POOL', coverage: 'COMPLETE', members },
+    ];
+
+    it('a structurally incompatible homonym is not a material competitor of a PLACE hint', () => {
+      expect(
+        examine(pool([RESTAURANT, STOP]), { expectedKind: 'PLACE' }).outcome,
+      ).toBe('NO_MATERIAL_COMPETITOR');
+    });
+
+    it('a structurally compatible homonym is a material competitor', () => {
+      expect(
+        examine(pool([RESTAURANT, STOP, SAME_NAME_VENUE]), {
+          expectedKind: 'PLACE',
+        }),
+      ).toMatchObject({
+        outcome: 'MATERIAL_COMPETITOR_KNOWN',
+        competitorCount: 1,
+      });
+    });
+
+    it('a structure of unknown kind is never excluded', () => {
+      expect(
+        examine(
+          pool([RESTAURANT, { ...SAME_NAME_VENUE, structuralKind: 'UNKNOWN' }]),
+          { expectedKind: 'PLACE' },
+        ).outcome,
+      ).toBe('MATERIAL_COMPETITOR_KNOWN');
+    });
+
+    it('without an expected kind nothing is excluded structurally', () => {
+      expect(examine(pool([RESTAURANT, STOP])).outcome).toBe(
+        'MATERIAL_COMPETITOR_KNOWN',
+      );
+    });
   });
 });

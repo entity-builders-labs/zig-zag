@@ -45,6 +45,7 @@ export function structuralKindFromOsm(
     return value && OSM_SETTLEMENT_PLACES.has(value) ? 'SETTLEMENT' : 'UNKNOWN';
   }
   if (key === 'boundary') return 'ADMINISTRATIVE_AREA';
+  if (key === 'public_transport') return 'TRANSPORT_STOP';
   if (key === 'highway') return 'ROAD';
   if (key === 'natural' || key === 'waterway') return 'NATURAL_FEATURE';
   if (OSM_POINT_OF_INTEREST_KEYS.has(key)) return 'POINT_OF_INTEREST';
@@ -70,7 +71,14 @@ export function structuralKindFromOsmTags(
   for (const key of OSM_POINT_OF_INTEREST_KEYS) {
     if (tags[key]) return 'POINT_OF_INTEREST';
   }
-  for (const key of ['place', 'boundary', 'highway', 'natural', 'waterway']) {
+  for (const key of [
+    'place',
+    'boundary',
+    'public_transport',
+    'highway',
+    'natural',
+    'waterway',
+  ]) {
     if (tags[key]) return structuralKindFromOsm(key, tags[key]);
   }
   return 'UNKNOWN';
@@ -87,6 +95,10 @@ export function structuralKindFromPlaceFeatureClass(
       return 'ADMINISTRATIVE_AREA';
     case 'street':
       return 'ROAD';
+    case 'transport_stop':
+      return 'TRANSPORT_STOP';
+    case 'postcode':
+      return 'POSTAL_UNIT';
     default:
       return 'UNKNOWN';
   }

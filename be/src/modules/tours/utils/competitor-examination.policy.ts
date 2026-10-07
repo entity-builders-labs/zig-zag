@@ -11,6 +11,7 @@ import {
   localityRelation,
 } from './contextual-identity.policy';
 import { normalizeGeoName } from './nominatim-match.util';
+import { evaluateStructuralCompatibility } from './place-structural-compatibility.policy';
 import { strongIdentitiesOf, strongIdentityKey } from './strong-identity.util';
 
 export type CompetitorExamination = Extract<
@@ -24,12 +25,15 @@ export type CompetitorExamination = Extract<
  * score. IdentityVerifier interprets the fact it produces.
  *
  * A member is a material competitor when it answers to the hint's name or
- * to the candidate's own name (or declares a hint alias), lies inside the
- * component's admission scope (`admits`, the canonical admission policy),
- * is not excluded by a component-specific source fact (outside a grounded
- * locality, a structure contradicting a stated kind), and is not the
- * candidate. The destination is never such a fact: it excludes only what
- * admission excludes.
+ * to the candidate's own name (or declares a hint alias), can structurally
+ * be the hinted kind of component (`evaluateStructuralCompatibility`, the
+ * same authority that gates PLACE selection -- a stop named after a plaza
+ * cannot be the plaza, so it never blocks the plaza's identity), lies
+ * inside the component's admission scope (`admits`, the canonical
+ * admission policy), is not excluded by a component-specific source fact
+ * (outside a grounded locality, a structure contradicting a stated kind),
+ * and is not the candidate. The destination is never such a fact: it
+ * excludes only what admission excludes.
  *
  * Records are never merged by name, brand, website, phone or proximity:
  * two records of one pool are two identities unless they share a strong
@@ -40,6 +44,8 @@ export type CompetitorExamination = Extract<
  */
 export function examineCompetitors(input: {
   hintName: string;
+  /** The hint's expected component kind (PLACE, AREA, ROUTE). */
+  expectedKind?: string;
   candidate: EntityCandidate;
   pools: readonly CompetitorPool[];
   context: ComponentIdentityContext;
@@ -66,6 +72,10 @@ export function examineCompetitors(input: {
       (member) =>
         (names.has(normalizeGeoName(member.name)) ||
           member.declaresHintAlias === true) &&
+        evaluateStructuralCompatibility(
+          input.expectedKind,
+          member.structuralKind,
+        ) === 'COMPATIBLE' &&
         !excludedBySourceContext(input.context, member) &&
         input.admits(member),
     );

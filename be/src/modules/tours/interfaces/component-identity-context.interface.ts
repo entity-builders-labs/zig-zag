@@ -27,6 +27,11 @@ export type CandidateStructuralKind =
   | 'ADMINISTRATIVE_AREA'
   | 'ROAD'
   | 'NATURAL_FEATURE'
+  /** Public-transport infrastructure (a stop, platform or station node)
+   * that is often named after the landmark it serves. */
+  | 'TRANSPORT_STOP'
+  /** A postal unit (postcode area). */
+  | 'POSTAL_UNIT'
   | 'UNKNOWN';
 
 /**

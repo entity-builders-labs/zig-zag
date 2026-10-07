@@ -3,6 +3,7 @@ import {
   ResolutionAttempt,
 } from '../interfaces/experience-resolution.interface';
 import { IdentityVerifier } from './identity-verifier.service';
+import { IdentityEvidence } from '../interfaces/experience-resolution.interface';
 import { GeoEntityKind } from '@prisma/client';
 
 const candidate = (
@@ -39,6 +40,30 @@ const destinationBounded = {
   type: 'GEOGRAPHIC_CORRESPONDENCE' as const,
   basis: 'BOUNDED_ADMISSION_SCOPE' as const,
 };
+
+/** Legacy boolean shape of a Wikidata link, as the pre-2026-10-07
+ * fixtures state it: `true` is the strongest correspondence (the side
+ * carries the item, or names it EQUIVALENTLY), `false` names nothing. */
+const wikidataLink = (
+  source: 'OWN_QID' | 'OBSERVATION_QID' | 'NEARBY',
+  hintMatched: boolean,
+  candidateMatched: boolean,
+): IdentityEvidence => ({
+  type: 'WIKIDATA_IDENTITY_MATCH',
+  source,
+  hintCorrespondence:
+    source === 'OBSERVATION_QID'
+      ? 'DECLARES_QID'
+      : hintMatched
+        ? 'EQUIVALENT'
+        : 'NONE',
+  candidateCorrespondence:
+    source === 'OWN_QID'
+      ? 'DECLARES_QID'
+      : candidateMatched
+        ? 'EQUIVALENT'
+        : 'NONE',
+});
 
 describe('IdentityVerifier', () => {
   /**
@@ -105,8 +130,8 @@ describe('IdentityVerifier', () => {
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'NEARBY',
-            hintMatched: true,
-            candidateMatched: false,
+            hintCorrespondence: 'EQUIVALENT',
+            candidateCorrespondence: 'NONE',
           },
         ]),
       ),
@@ -160,8 +185,8 @@ describe('IdentityVerifier', () => {
             {
               type: 'WIKIDATA_IDENTITY_MATCH',
               source: 'NEARBY',
-              hintMatched: true,
-              candidateMatched: false,
+              hintCorrespondence: 'EQUIVALENT',
+              candidateCorrespondence: 'NONE',
             },
           ]),
         ),
@@ -179,8 +204,8 @@ describe('IdentityVerifier', () => {
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'OBSERVATION_QID',
-            hintMatched: true,
-            candidateMatched: false,
+            hintCorrespondence: 'DECLARES_QID',
+            candidateCorrespondence: 'NONE',
           },
         ]),
       ),
@@ -197,8 +222,8 @@ describe('IdentityVerifier', () => {
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'OBSERVATION_QID',
-            hintMatched: true,
-            candidateMatched: true,
+            hintCorrespondence: 'DECLARES_QID',
+            candidateCorrespondence: 'EQUIVALENT',
           },
         ]),
       ),
@@ -215,8 +240,8 @@ describe('IdentityVerifier', () => {
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'OBSERVATION_QID',
-            hintMatched: true,
-            candidateMatched: true,
+            hintCorrespondence: 'DECLARES_QID',
+            candidateCorrespondence: 'EQUIVALENT',
           },
         ]),
       ),
@@ -236,8 +261,8 @@ describe('IdentityVerifier', () => {
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'NEARBY',
-            hintMatched: true,
-            candidateMatched: false,
+            hintCorrespondence: 'EQUIVALENT',
+            candidateCorrespondence: 'NONE',
           },
         ]),
       ),
@@ -298,8 +323,8 @@ describe('IdentityVerifier', () => {
         {
           type: 'WIKIDATA_IDENTITY_MATCH',
           source: 'OWN_QID',
-          hintMatched: true,
-          candidateMatched: true,
+          hintCorrespondence: 'EQUIVALENT',
+          candidateCorrespondence: 'DECLARES_QID',
         },
       ]),
     );
@@ -325,7 +350,11 @@ describe('IdentityVerifier', () => {
     const result = await verifier.verify(
       { name: 'Defensa Street' },
       attempt([
-        { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'SINGLE' },
+        {
+          type: 'DECLARED_ALIAS_MATCH',
+          identityMultiplicity: 'SINGLE',
+          correspondence: 'EQUIVALENT' as const,
+        },
         destinationBounded,
       ]),
     );
@@ -338,7 +367,11 @@ describe('IdentityVerifier', () => {
     const result = await verifier.verify(
       { name: 'Defensa Street' },
       attempt([
-        { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'MULTIPLE' },
+        {
+          type: 'DECLARED_ALIAS_MATCH',
+          identityMultiplicity: 'MULTIPLE',
+          correspondence: 'EQUIVALENT' as const,
+        },
       ]),
     );
     expect(result).toEqual({ status: 'AMBIGUOUS' });
@@ -350,7 +383,11 @@ describe('IdentityVerifier', () => {
     const result = await verifier.verify(
       { name: 'Defensa Street' },
       attempt([
-        { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'UNKNOWN' },
+        {
+          type: 'DECLARED_ALIAS_MATCH',
+          identityMultiplicity: 'UNKNOWN',
+          correspondence: 'EQUIVALENT' as const,
+        },
       ]),
     );
     expect(result).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
@@ -366,8 +403,8 @@ describe('IdentityVerifier', () => {
         {
           type: 'WIKIDATA_IDENTITY_MATCH',
           source: 'OWN_QID',
-          hintMatched: true,
-          candidateMatched: false,
+          hintCorrespondence: 'NONE',
+          candidateCorrespondence: 'DECLARES_QID',
         },
         destinationBounded,
       ]),
@@ -384,8 +421,8 @@ describe('IdentityVerifier', () => {
         {
           type: 'WIKIDATA_IDENTITY_MATCH',
           source: 'OWN_QID',
-          hintMatched: true,
-          candidateMatched: false,
+          hintCorrespondence: 'NONE',
+          candidateCorrespondence: 'DECLARES_QID',
         },
       ]),
     );
@@ -424,8 +461,8 @@ describe('IdentityVerifier', () => {
         {
           type: 'WIKIDATA_IDENTITY_MATCH',
           source: 'NEARBY',
-          hintMatched: true,
-          candidateMatched: false,
+          hintCorrespondence: 'EQUIVALENT',
+          candidateCorrespondence: 'NONE',
         },
       ];
 
@@ -490,8 +527,8 @@ describe('IdentityVerifier', () => {
             {
               type: 'WIKIDATA_IDENTITY_MATCH',
               source: 'NEARBY',
-              hintMatched: false,
-              candidateMatched: false,
+              hintCorrespondence: 'NONE',
+              candidateCorrespondence: 'NONE',
             },
           ],
           'MULTIPLE',
@@ -518,8 +555,8 @@ describe('IdentityVerifier', () => {
             {
               type: 'WIKIDATA_IDENTITY_MATCH',
               source: 'NEARBY',
-              hintMatched: true,
-              candidateMatched: true,
+              hintCorrespondence: 'EQUIVALENT',
+              candidateCorrespondence: 'EQUIVALENT',
             },
           ],
           'MULTIPLE',
@@ -689,12 +726,8 @@ describe('IdentityVerifier', () => {
     const nearby = (
       hintMatched: boolean,
       candidateMatched: boolean,
-    ): ResolutionAttempt['evidence'][number] => ({
-      type: 'WIKIDATA_IDENTITY_MATCH',
-      source: 'NEARBY',
-      hintMatched,
-      candidateMatched,
-    });
+    ): ResolutionAttempt['evidence'][number] =>
+      wikidataLink('NEARBY', hintMatched, candidateMatched);
     const overtureAttempt = (
       canonicalName: string,
       evidence: ResolutionAttempt['evidence'],
@@ -805,12 +838,7 @@ describe('IdentityVerifier', () => {
             attempt(
               [
                 { type: 'EXACT_NAME', identityMultiplicity: 'MULTIPLE' },
-                {
-                  type: 'WIKIDATA_IDENTITY_MATCH',
-                  source,
-                  hintMatched: true,
-                  candidateMatched: true,
-                },
+                wikidataLink(source, true, true),
               ],
               'MULTIPLE',
             ),
@@ -828,6 +856,7 @@ describe('IdentityVerifier', () => {
               {
                 type: 'DECLARED_ALIAS_MATCH',
                 identityMultiplicity: 'MULTIPLE',
+                correspondence: 'EQUIVALENT' as const,
               },
               nearby(true, true),
             ],
@@ -929,7 +958,13 @@ describe('IdentityVerifier', () => {
       ['ADDRESS_MATCH', [{ type: 'ADDRESS_MATCH' }]],
       [
         'DECLARED_ALIAS_MATCH + SINGLE',
-        [{ type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'SINGLE' }],
+        [
+          {
+            type: 'DECLARED_ALIAS_MATCH',
+            identityMultiplicity: 'SINGLE',
+            correspondence: 'EQUIVALENT' as const,
+          },
+        ],
       ],
       [
         'IDENTITY_CONVERGENCE',
@@ -957,8 +992,8 @@ describe('IdentityVerifier', () => {
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'OWN_QID',
-            hintMatched: true,
-            candidateMatched: true,
+            hintCorrespondence: 'EQUIVALENT',
+            candidateCorrespondence: 'DECLARES_QID',
           },
         ],
       ],
@@ -1109,8 +1144,8 @@ describe('IdentityVerifier', () => {
               {
                 type: 'WIKIDATA_IDENTITY_MATCH',
                 source: 'NEARBY',
-                hintMatched: true,
-                candidateMatched: true,
+                hintCorrespondence: 'EQUIVALENT',
+                candidateCorrespondence: 'EQUIVALENT',
               },
             ],
             'MULTIPLE',
@@ -1257,8 +1292,8 @@ describe('IdentityVerifier', () => {
             {
               type: 'WIKIDATA_IDENTITY_MATCH',
               source: 'NEARBY',
-              hintMatched: true,
-              candidateMatched: true,
+              hintCorrespondence: 'EQUIVALENT',
+              candidateCorrespondence: 'EQUIVALENT',
             },
             examination('MATERIAL_COMPETITOR_KNOWN'),
           ]),
@@ -1273,12 +1308,6 @@ describe('IdentityVerifier', () => {
           identity: { provider: 'wikidata', externalId: 'Q1' },
         },
         { type: 'ADDRESS_MATCH' as const },
-        {
-          type: 'WIKIDATA_IDENTITY_MATCH' as const,
-          source: 'OBSERVATION_QID' as const,
-          hintMatched: true,
-          candidateMatched: true,
-        },
         {
           type: 'CONTEXTUAL_CORRESPONDENCE' as const,
           assertion: 'LOCALITY' as const,
@@ -1301,6 +1330,35 @@ describe('IdentityVerifier', () => {
           ),
         ).toEqual({ status: 'VERIFIED' });
       }
+    });
+
+    // Changed 2026-10-07 (RW4-ID-FALSE-VERIFY-1). This suite listed a
+    // source-declared QID whose label the candidate's NAME matches among the
+    // discriminating facts. It is not one: the candidate does not carry the
+    // item, and a same-name competitor matches the label just as well. A
+    // QID link (OWN_QID or OBSERVATION_QID) never skips a known material
+    // competitor. A candidate that carries the source's QID is
+    // SOURCE_DECLARED_IDENTITY_MATCH, which still decides (above).
+    it('a source-declared QID linked to the candidate only by name does not decide among known competitors', () => {
+      expect(
+        verifier.decide(
+          { name: 'Ojo de Agua' },
+          attempt([
+            {
+              type: 'WIKIDATA_IDENTITY_MATCH',
+              source: 'OBSERVATION_QID',
+              hintCorrespondence: 'DECLARES_QID',
+              candidateCorrespondence: 'EQUIVALENT',
+            },
+            convergence,
+            provenance('SHARED_UPSTREAM'),
+            examination('MATERIAL_COMPETITOR_KNOWN', 30),
+          ]),
+        ),
+      ).toMatchObject({
+        status: 'AMBIGUOUS',
+        rule: 'MATERIAL_COMPETITOR_KNOWN',
+      });
     });
 
     it('a single provider over an examined set verifies without a second dataset', () => {
@@ -1364,12 +1422,8 @@ describe('IdentityVerifier', () => {
    */
   describe('NEARBY non-corroboration is never a contradiction (RW4-ID-NEARBY-1)', () => {
     const verifier = new IdentityVerifier();
-    const nearby = (hintMatched: boolean, candidateMatched: boolean) => ({
-      type: 'WIKIDATA_IDENTITY_MATCH' as const,
-      source: 'NEARBY' as const,
-      hintMatched,
-      candidateMatched,
-    });
+    const nearby = (hintMatched: boolean, candidateMatched: boolean) =>
+      wikidataLink('NEARBY', hintMatched, candidateMatched);
     const examination = (
       outcome: 'MATERIAL_COMPETITOR_KNOWN' | 'NO_MATERIAL_COMPETITOR',
     ) => ({
@@ -1575,11 +1629,13 @@ describe('IdentityVerifier', () => {
             hint,
             attempt(
               [
+                // OWN_QID's failing shape names no hint; OBSERVATION_QID's
+                // names no candidate (the other side carries the item).
                 {
-                  type: 'WIKIDATA_IDENTITY_MATCH',
-                  source,
-                  hintMatched,
-                  candidateMatched,
+                  ...wikidataLink(source, hintMatched, candidateMatched),
+                  ...(source === 'OWN_QID'
+                    ? { hintCorrespondence: 'NONE' as const }
+                    : {}),
                 },
               ],
               'UNKNOWN',
@@ -1677,7 +1733,11 @@ describe('IdentityVerifier', () => {
           hint,
           attempt(
             [
-              { type: 'DECLARED_ALIAS_MATCH', identityMultiplicity: 'SINGLE' },
+              {
+                type: 'DECLARED_ALIAS_MATCH',
+                identityMultiplicity: 'SINGLE',
+                correspondence: 'EQUIVALENT' as const,
+              },
               correspondence('ADMISSION_SCOPE_ONLY'),
             ],
             'UNKNOWN',
@@ -1695,8 +1755,8 @@ describe('IdentityVerifier', () => {
             {
               type: 'WIKIDATA_IDENTITY_MATCH',
               source: 'NEARBY',
-              hintMatched: true,
-              candidateMatched: true,
+              hintCorrespondence: 'EQUIVALENT',
+              candidateCorrespondence: 'EQUIVALENT',
             },
             correspondence('ADMISSION_SCOPE_ONLY'),
           ]),
@@ -1733,8 +1793,8 @@ describe('IdentityVerifier', () => {
         {
           type: 'WIKIDATA_IDENTITY_MATCH' as const,
           source: 'OWN_QID' as const,
-          hintMatched: true,
-          candidateMatched: true,
+          hintCorrespondence: 'EQUIVALENT',
+          candidateCorrespondence: 'DECLARES_QID',
         },
       ],
       [

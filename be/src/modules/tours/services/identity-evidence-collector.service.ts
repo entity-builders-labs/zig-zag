@@ -2,12 +2,13 @@ import { IWikidataApiService } from '@integrations/wikidata/interfaces/wikidata.
 import {
   EntityCandidate,
   IdentityEvidence,
+  NameCorrespondence,
 } from '../interfaces/experience-resolution.interface';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import {
-  hasSpecificNameOverlap,
-  normalizeGeoName,
-} from '../utils/nominatim-match.util';
+  bestNameCorrespondence,
+  nameCorrespondence,
+} from '../utils/identity-name-correspondence.util';
 import { sourceDeclaredWikidataQid } from '../utils/identity-evidence-builder.util';
 
 const CONFIRMATION_RADIUS_METERS = 200;
@@ -37,17 +38,29 @@ export class IdentityEvidenceCollector {
           const identities = [summary.label, ...(summary.aliases ?? [])].filter(
             (label): label is string => Boolean(label),
           );
-          const hintMatched = this.matchesAny(hint.name, identities);
-          const candidateMatched = ownQid
-            ? true
-            : this.matchesAny(candidate.canonicalName ?? '', identities);
+          // The side that carries the item is linked structurally; the
+          // other side only through its name, graded for verification
+          // (an OVERLAP is retrieval-grade and never decisive).
           return [
-            {
-              type: 'WIKIDATA_IDENTITY_MATCH',
-              source: ownQid ? 'OWN_QID' : 'OBSERVATION_QID',
-              hintMatched,
-              candidateMatched,
-            },
+            ownQid
+              ? {
+                  type: 'WIKIDATA_IDENTITY_MATCH',
+                  source: 'OWN_QID',
+                  hintCorrespondence: bestNameCorrespondence(
+                    hint.name,
+                    identities,
+                  ),
+                  candidateCorrespondence: 'DECLARES_QID',
+                }
+              : {
+                  type: 'WIKIDATA_IDENTITY_MATCH',
+                  source: 'OBSERVATION_QID',
+                  hintCorrespondence: 'DECLARES_QID',
+                  candidateCorrespondence: bestNameCorrespondence(
+                    candidate.canonicalName ?? '',
+                    identities,
+                  ),
+                },
           ];
         }
       } catch {
@@ -68,73 +81,47 @@ export class IdentityEvidenceCollector {
         CONFIRMATION_RADIUS_METERS,
       );
 
-      // Check each SAME nearby Wikidata entity individually.
-      // Only one and the same entity can corroborate both hint and candidate.
-      const bothMatch = nearby.find(
-        ({ label }) =>
-          this.matchesAny(hint.name, [label]) &&
-          this.matchesAny(candidate.canonicalName ?? '', [label]),
-      );
-      if (bothMatch) {
-        return [
-          {
-            type: 'WIKIDATA_IDENTITY_MATCH',
-            source: 'NEARBY',
-            hintMatched: true,
-            candidateMatched: true,
-          },
-        ];
-      }
-
-      // If no single entity matches both, check if an entity matches the hint.
-      // Crucial: never combine hint matching entity A with candidate matching entity B.
-      const hintMatch = nearby.find(({ label }) =>
-        this.matchesAny(hint.name, [label]),
-      );
-      if (hintMatch) {
-        return [
-          {
-            type: 'WIKIDATA_IDENTITY_MATCH',
-            source: 'NEARBY',
-            hintMatched: true,
-            candidateMatched: false,
-          },
-        ];
-      }
-
-      const candidateMatch = nearby.find(({ label }) =>
-        this.matchesAny(candidate.canonicalName ?? '', [label]),
-      );
-      if (candidateMatch) {
-        return [
-          {
-            type: 'WIKIDATA_IDENTITY_MATCH',
-            source: 'NEARBY',
-            hintMatched: false,
-            candidateMatched: true,
-          },
-        ];
-      }
-
+      // Each nearby item is judged on its own: only one and the same item
+      // can corroborate both hint and candidate, never hint matching item A
+      // with candidate matching item B. Preference: the item naming both
+      // most strongly, then an item naming the hint, then one naming the
+      // candidate.
+      const graded = nearby.map(({ label }) => ({
+        hint: nameCorrespondence(hint.name, label),
+        candidate: nameCorrespondence(candidate.canonicalName ?? '', label),
+      }));
+      const strength = (c: NameCorrespondence) =>
+        c === 'EQUIVALENT' ? 2 : c === 'OVERLAP' ? 1 : 0;
+      const namingBoth = graded
+        .filter((g) => g.hint !== 'NONE' && g.candidate !== 'NONE')
+        .sort(
+          (a, b) =>
+            strength(b.hint) +
+            strength(b.candidate) -
+            (strength(a.hint) + strength(a.candidate)),
+        )[0];
+      const namingHint = graded.find((g) => g.hint !== 'NONE');
+      const namingCandidate = graded.find((g) => g.candidate !== 'NONE');
+      const [hintCorrespondence, candidateCorrespondence]: [
+        NameCorrespondence,
+        NameCorrespondence,
+      ] = namingBoth
+        ? [namingBoth.hint, namingBoth.candidate]
+        : namingHint
+          ? [namingHint.hint, 'NONE']
+          : namingCandidate
+            ? ['NONE', namingCandidate.candidate]
+            : ['NONE', 'NONE'];
       return [
         {
           type: 'WIKIDATA_IDENTITY_MATCH',
           source: 'NEARBY',
-          hintMatched: false,
-          candidateMatched: false,
+          hintCorrespondence,
+          candidateCorrespondence,
         },
       ];
     } catch {
       return [{ type: 'WIKIDATA_UNAVAILABLE' }];
     }
-  }
-
-  private matchesAny(name: string, identities: string[]): boolean {
-    const normalizedName = normalizeGeoName(name);
-    return identities.some((identity) =>
-      hasSpecificNameOverlap(normalizedName, normalizeGeoName(identity), {
-        requireAllTokens: true,
-      }),
-    );
   }
 }

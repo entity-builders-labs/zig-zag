@@ -87,23 +87,50 @@ export interface NameEvidenceMultiplicity {
   declaredAlias: IdentityMultiplicity;
 }
 
+/**
+ * How one name corresponds to another for identity VERIFICATION (see
+ * `nameCorrespondence`). Distinct from candidate retrieval, which may be as
+ * permissive as recall needs:
+ *  - EQUIVALENT: the same normalized name, every token in both directions,
+ *    short tokens included ("Don Carlos" is not "Carlos Pellegrini").
+ *  - OVERLAP: the retrieval-grade match (significant-token containment).
+ *    It may bring a record into consideration; it never proves identity.
+ *  - NONE: neither.
+ */
+export type NameCorrespondence = 'EQUIVALENT' | 'OVERLAP' | 'NONE';
+
+/**
+ * One side of a Wikidata link: DECLARES_QID when that side itself carries
+ * the item (the candidate's own QID, or the QID the source declares for
+ * the component); otherwise how its name corresponds to the item's labels.
+ */
+export type QidLinkCorrespondence = 'DECLARES_QID' | NameCorrespondence;
+
 export type IdentityEvidence =
   | { type: 'EXACT_NAME'; identityMultiplicity: IdentityMultiplicity }
   | { type: 'ADDRESS_MATCH' }
-  | { type: 'DECLARED_ALIAS_MATCH'; identityMultiplicity: IdentityMultiplicity }
+  | {
+      /** A name the candidate's own record declares (alt_name, name:xx,
+       * wikipedia) answers to the hint. Only an EQUIVALENT alias
+       * corroborates identity; an OVERLAP alias is retrieval-grade. */
+      type: 'DECLARED_ALIAS_MATCH';
+      identityMultiplicity: IdentityMultiplicity;
+      correspondence: Exclude<NameCorrespondence, 'NONE'>;
+    }
   | {
       /**
-       * Text matches of Wikidata labels against the hint and the
-       * candidate's name. OWN_QID / OBSERVATION_QID compare the labels of
-       * one item structurally linked to the candidate or the source.
-       * NEARBY compares labels of items found around the candidate's own
-       * point: only `true/true` (one item naming both) corroborates; any
-       * other combination is NOT_CORROBORATED, never a contradiction.
+       * One Wikidata item set against the hint and the candidate.
+       * OWN_QID: the candidate carries the item (candidate side
+       * DECLARES_QID). OBSERVATION_QID: the source declares it for the
+       * component (hint side DECLARES_QID). NEARBY: an item found around
+       * the candidate's own point (both sides are names). A side that only
+       * OVERLAPs a label never makes the link decisive: a candidate's own
+       * QID says who the candidate is, not that the source meant it.
        */
       type: 'WIKIDATA_IDENTITY_MATCH';
       source: 'OWN_QID' | 'OBSERVATION_QID' | 'NEARBY';
-      hintMatched: boolean;
-      candidateMatched: boolean;
+      hintCorrespondence: QidLinkCorrespondence;
+      candidateCorrespondence: QidLinkCorrespondence;
     }
   | { type: 'WIKIDATA_UNAVAILABLE' }
   | {
@@ -358,9 +385,36 @@ export type VerificationDecision =
   | { status: 'INSUFFICIENT_EVIDENCE' }
   | { status: 'REJECTED' };
 
+/** The IdentityVerifier rule that produced a verdict (see its doc). */
+export type IdentityVerificationRule =
+  | 'IDENTITY_CONTRADICTION'
+  | 'STRUCTURED_ROUTE'
+  | 'CATALOG_ROUTE_VARIANT'
+  | 'CATALOG_VERIFIED_HINT'
+  | 'CONTEXTUAL_CORRESPONDENCE'
+  | 'SOURCE_DECLARED_IDENTITY'
+  | 'ADDRESS_MATCH'
+  | 'QID_LINK'
+  | 'MATERIAL_COMPETITOR_KNOWN'
+  | 'GROUNDED_CONVERGENCE'
+  | 'GROUNDED_UNIQUE_EXACT_NAME'
+  | 'GROUNDED_UNIQUE_ALIAS'
+  | 'WIKIDATA_CORROBORATION'
+  | 'NAME_COLLISION'
+  | 'QID_LINK_MISMATCH'
+  | 'WIKIDATA_UNAVAILABLE'
+  | 'NAME_UNIQUENESS_UNKNOWN'
+  | 'NO_DECISIVE_EVIDENCE';
+
+/** A verdict with the rule that produced it and the evidence it read. */
+export type IdentityVerdict = VerificationDecision & {
+  rule: IdentityVerificationRule;
+  decisiveEvidence: IdentityEvidence[];
+};
+
 /** The exact evidence and verdict returned by the canonical verification path. */
 export interface VerificationResult {
-  decision: VerificationDecision;
+  decision: IdentityVerdict;
   evidence: IdentityEvidence[];
 }
 
@@ -392,6 +446,10 @@ export interface ResolutionAttemptAudit {
   placeSearch?: PlaceSearchAudit;
   identityEvidence: IdentityEvidence[];
   verificationDecision?: VerificationDecision['status'];
+  /** The IdentityVerifier rule that produced `verificationDecision`. */
+  verificationRule?: IdentityVerificationRule;
+  /** The evidence that rule read (a subset of `identityEvidence`). */
+  decisiveEvidence?: IdentityEvidence[];
   /** Destination-policy verdict that gated this attempt's candidate. */
   destinationCompatibility?: {
     verdict: DestinationCompatibilityVerdict;

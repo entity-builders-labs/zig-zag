@@ -686,8 +686,8 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
       expect(attempt.identityEvidence).toContainEqual({
         type: 'WIKIDATA_IDENTITY_MATCH',
         source: 'OWN_QID',
-        hintMatched: true,
-        candidateMatched: true,
+        hintCorrespondence: 'EQUIVALENT',
+        candidateCorrespondence: 'DECLARES_QID',
       });
       expect(attempt.verificationDecision).toBe('VERIFIED');
       expect(catalog.upsertGeoEntityWithIdentities).toHaveBeenCalledWith(

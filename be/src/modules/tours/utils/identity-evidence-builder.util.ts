@@ -3,10 +3,8 @@ import {
   IdentityEvidence,
 } from '../interfaces/experience-resolution.interface';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
-import {
-  normalizeGeoName,
-  hasSpecificNameOverlap,
-} from './nominatim-match.util';
+import { normalizeGeoName } from './nominatim-match.util';
+import { bestNameCorrespondence } from './identity-name-correspondence.util';
 
 /**
  * Pure, provider-neutral, no-network helper that builds the local identity
@@ -64,18 +62,18 @@ export function buildLocalIdentityEvidence(
   // DECLARED_ALIAS_MATCH: aliases come from the specific candidate's own
   // OSM tags (name:xx, alt_name, wikipedia). If the candidate has at least
   // one matching alias, that is a direct declaration by the same real record
-  // -- not a pool-level ambiguity. Use the candidate's declaredAlias multiplicity.
-  const hasMatchingAlias = (candidate.nameAliasCandidates ?? []).some((alias) =>
-    hasSpecificNameOverlap(
-      normalizeGeoName(hint.name),
-      normalizeGeoName(alias),
-      { requireAllTokens: true },
-    ),
+  // -- not a pool-level ambiguity. Use the candidate's declaredAlias
+  // multiplicity. The strongest correspondence is recorded: an OVERLAP
+  // alias (retrieval-grade) is visible but never proves identity.
+  const aliasCorrespondence = bestNameCorrespondence(
+    hint.name,
+    candidate.nameAliasCandidates ?? [],
   );
-  if (hasMatchingAlias) {
+  if (aliasCorrespondence !== 'NONE') {
     evidence.push({
       type: 'DECLARED_ALIAS_MATCH',
       identityMultiplicity: nameMultiplicity.declaredAlias,
+      correspondence: aliasCorrespondence,
     });
   }
 

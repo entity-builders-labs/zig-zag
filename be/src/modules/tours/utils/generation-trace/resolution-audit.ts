@@ -6,7 +6,10 @@ import {
   ExperienceGeographicValidationResult,
   ExperienceResolutionResponse,
   FinalExperienceResolutionResponse,
+  IdentityEvidence,
+  ResolutionAttemptAudit,
 } from '../../interfaces/experience-resolution.interface';
+import { identityEvidenceRole } from '../identity-evidence-role.policy';
 import { traceCandidateKey } from '../experience-candidate-correlation.util';
 import {
   buildCompositeOutcome,
@@ -391,6 +394,49 @@ export function projectComponentIdentityStepInputs(
     });
 }
 
+/**
+ * Why IdentityVerifier decided what it did for one attempt, from normalized
+ * facts only (no provider payloads): the rule, the evidence it read with
+ * each fact's role, the candidate's strong identities, and the qualifiers
+ * every identity decision depends on (contextual correspondence, the basis
+ * of geographic grounding, competitor examination).
+ */
+function projectIdentityDecision(attempt: ResolutionAttemptAudit) {
+  if (!attempt.verificationRule) return undefined;
+  const find = <T extends IdentityEvidence['type']>(type: T) =>
+    attempt.identityEvidence.find(
+      (item): item is Extract<IdentityEvidence, { type: T }> =>
+        item.type === type,
+    );
+  const contextual = find('CONTEXTUAL_CORRESPONDENCE');
+  const geographic = find('GEOGRAPHIC_CORRESPONDENCE');
+  const competitors = find('COMPETITOR_EXAMINATION');
+  return {
+    rule: attempt.verificationRule,
+    decisiveEvidence: (attempt.decisiveEvidence ?? []).map((item) => ({
+      ...item,
+      role: identityEvidenceRole(item),
+    })),
+    evidence: attempt.identityEvidence.map((item) => ({
+      type: item.type,
+      role: identityEvidenceRole(item),
+    })),
+    candidateStrongIds: (attempt.selectedCandidate?.identities ?? []).map(
+      (identity) => `${identity.provider}/${identity.externalId}`,
+    ),
+    ...(contextual ? { contextualCorrespondence: contextual.outcome } : {}),
+    ...(geographic ? { geographicCorrespondence: geographic.basis } : {}),
+    ...(competitors
+      ? {
+          competitors: {
+            outcome: competitors.outcome,
+            competitorCount: competitors.competitorCount,
+          },
+        }
+      : {}),
+  };
+}
+
 function projectComponentIdentity(component: ComponentResolutionAudit) {
   const attempts = component.attempts.map((attempt) => ({
     strategy: attempt.strategy,
@@ -414,6 +460,9 @@ function projectComponentIdentity(component: ComponentResolutionAudit) {
       : {}),
     ...(attempt.verificationDecision
       ? { verificationDecision: attempt.verificationDecision }
+      : {}),
+    ...(attempt.verificationRule
+      ? { verificationRule: attempt.verificationRule }
       : {}),
     ...(attempt.destinationCompatibility
       ? { destinationCompatibility: attempt.destinationCompatibility }
@@ -467,6 +516,14 @@ function projectComponentIdentity(component: ComponentResolutionAudit) {
       : {}),
     ...(deciding?.verificationDecision
       ? { identityVerdict: deciding.verificationDecision }
+      : {}),
+    // The full explanation is kept for the deciding attempt only, so a
+    // heavy composite's step stays bounded; every attempt keeps its rule.
+    ...(deciding?.verificationRule
+      ? {
+          identityRule: deciding.verificationRule,
+          identityDecision: projectIdentityDecision(deciding),
+        }
       : {}),
     ...(deciding?.destinationCompatibility
       ? { destinationCompatibility: deciding.destinationCompatibility }
