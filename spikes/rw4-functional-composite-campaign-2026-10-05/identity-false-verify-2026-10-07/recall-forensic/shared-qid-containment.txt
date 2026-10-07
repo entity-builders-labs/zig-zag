@@ -1,0 +1,33 @@
+LOC separate  Q1024829    node:Museo Histórico Nacional del Cabildo y de la Revolución de Mayo / way:Cabildo de Buenos Aires
+LOC separate  Q5844300    node:Presidente Illia / node:Presidente Illia
+NOL separate  Q130642790  node:Galicia Más / node:Galicia Más / node:Galicia Más / node:Galicia Más / node:Galicia Más / node:Galicia Más / node:Galicia Más / node:Galicia Más
+NOL separate  Q5755704    node:Casal de Catalunya / node:Casal de Catalunya
+LOC separate  Q5844527    node:Rivadavia / relation:Estación Rivadavia
+LOC separate  Q5841983    node:Doctor Luis María Drago / relation:Doctor Luis María Drago
+LOC separate  Q5840655    node:3 de Febrero / relation:Estación 3 de Febrero
+LOC separate  Q5572984    node:Palermo / relation:Palermo
+LOC separate  Q5842051    node:El Libertador / relation:Estación El Libertador
+LOC separate  Q5796926    node:Córdoba / node:Córdoba
+LOC separate  Q111694361  node:Convivencia y Paz / node:Rojo Flor
+LOC separate  Q64764396   node:Museo del agua y de la historia sanitaria / node:Museo Iser
+NOL separate  Q5982348    node:Lucio Vicente López / node:Lucio Vicente López
+NOL separate  Q5772461    node:Clemente Onelli / way:Cantero Clemente Onelli
+NOL separate  Q1269826    node:Joaquín Samuel de Anchorena / way:Plazoleta Intendente Joaquín S. de Anchorena
+NOL separate  Q5835236    node:Erasmo Obligado / node:Erasmo Obligado
+LOC CONTAINED Q90206189   node:COI 1 / way:Centro de Salud y Acción Comunitaria - CeSAC 37
+          node:COI 1 ⊂ way:Centro de Salud y Acción Comunitaria - CeSAC 37
+NOL separate  Q96377188   node:Embajada de Filipinas / way:Embajada de Filipinas
+LOC CONTAINED Q5854525    node:Facultad de Arquitectura, Diseño y Urbanismo / node:Facultad de Ciencias Exactas y Naturales / way:Facultad de Arquitectura, Diseño y Urbanismo -
+          node:Facultad de Arquitectura, Diseño y Urbanismo ⊂ way:Facultad de Arquitectura, Diseño y Urbanismo - Pabellón 3
+LOC separate  Q5719936    way:Plaza Barrancas de Belgrano / way:Plaza General A. J. Sucre / way:Plaza Barrancas de Belgrano
+LOC separate  Q5854907    way:UBA Facultad de Filosofía y Letras / way:Facultad de Filosofía y Letras UBA
+LOC separate  Q5428851    way:Facultad de Ciencias Exactas y Naturales - Pabellón 2 / way:Facultad de Ciencias Exactas y Naturales - Pabellón 1 / way:Facultad de Ciencias Exact
+LOC separate  Q5855136    way:Facultad de Psicología / way:Facultad de Psicología
+LOC separate  Q6978865    way:Universidad Tecnológica Nacional - FRBA / way:FRBA UTN
+LOC separate  Q28501895   way:Plaza Doctor Amadeo Sabattini / way:Plaza Doctor Amadeo Sabattini
+LOC separate  Q5708426    way:Asociación Argentina Amigos de la Astronomía / way:Asociación Argentina Amigos de la Astronomía
+LOC separate  Q2860529    way:Archivo General de la Nación / way:Archivo General de la Nación
+LOC separate  Q4579815    way:Plazoleta San Francisco / relation:Basílica de San Francisco
+NOL separate  Q3149120    way:La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf / way:La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf
+LOC separate  Q5841090    way:Belgrano C / relation:Belgrano C
+LOC separate  Q5384418    way:Monumento al General Manuel Belgrano / relation:Monumento ecuestre al General Manuel Belgrano

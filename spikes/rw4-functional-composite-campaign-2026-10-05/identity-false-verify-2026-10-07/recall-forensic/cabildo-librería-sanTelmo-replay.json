@@ -1,0 +1,2340 @@
+{
+ "runs": [
+  {
+   "label": "acquisition-pass-1-area_route_walk-san-telmo|Self Guided Walking Tour San Telmo (part 1 of 3)|components",
+   "componentSearchScope": {
+    "kind": "ROUTE",
+    "provenance": "CANDIDATE_ROUTE",
+    "name": "Defensa",
+    "geoEntityId": "geo-undefined",
+    "destinationRelation": "INSIDE"
+   },
+   "focus": [
+    {
+     "hintKey": "m-8",
+     "name": "Cabildo",
+     "role": "venue",
+     "expectedKind": "PLACE",
+     "strategiesAttempted": [
+      "CATALOG_REUSE",
+      "TRUSTED_OBSERVATION_REUSE",
+      "LOCAL_OSM_POOL",
+      "NOMINATIM",
+      "PLACES"
+     ],
+     "candidateAcquired": true,
+     "selectedCandidate": {
+      "name": "Cabildo de Buenos Aires",
+      "provider": "nominatim",
+      "latitude": -34.6088795,
+      "longitude": -58.3736729
+     },
+     "identityVerdict": "AMBIGUOUS",
+     "identityRule": "MATERIAL_COMPETITOR_KNOWN",
+     "identityDecision": {
+      "rule": "MATERIAL_COMPETITOR_KNOWN",
+      "decisiveEvidence": [
+       {
+        "type": "COMPETITOR_EXAMINATION",
+        "outcome": "MATERIAL_COMPETITOR_KNOWN",
+        "examinedStrategies": [
+         "LOCAL_OSM_POOL",
+         "NOMINATIM"
+        ],
+        "competitorCount": 1,
+        "role": "QUALIFYING"
+       }
+      ],
+      "evidence": [
+       {
+        "type": "COMPETITOR_EXAMINATION",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "GEOGRAPHIC_CORRESPONDENCE",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "WIKIDATA_IDENTITY_MATCH",
+        "role": "QUALIFYING"
+       }
+      ],
+      "candidateStrongIds": [
+       "openstreetmap/osm:way:293947112"
+      ],
+      "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE",
+      "competitors": {
+       "outcome": "MATERIAL_COMPETITOR_KNOWN",
+       "competitorCount": 1
+      }
+     },
+     "finalStatus": "unresolved",
+     "finalReason": "UNCONFIRMED_MATCH",
+     "attempts": [
+      {
+       "strategy": "CATALOG_REUSE",
+       "provider": "catalog",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "TRUSTED_OBSERVATION_REUSE",
+       "provider": "trusted_observation",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "LOCAL_OSM_POOL",
+       "provider": "openstreetmap",
+       "executionStatus": "completed",
+       "candidateAcquired": true,
+       "selectedCandidate": {
+        "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+        "kind": "PLACE",
+        "latitude": -34.6087695,
+        "longitude": -58.3738806
+       },
+       "verificationDecision": "AMBIGUOUS",
+       "verificationRule": "MATERIAL_COMPETITOR_KNOWN"
+      },
+      {
+       "strategy": "NOMINATIM",
+       "provider": "nominatim",
+       "executionStatus": "completed",
+       "candidateAcquired": true,
+       "selectedCandidate": {
+        "name": "Cabildo de Buenos Aires",
+        "kind": "PLACE",
+        "latitude": -34.6088795,
+        "longitude": -58.3736729
+       },
+       "verificationDecision": "AMBIGUOUS",
+       "verificationRule": "MATERIAL_COMPETITOR_KNOWN"
+      },
+      {
+       "strategy": "PLACES",
+       "provider": "geoapify",
+       "executionStatus": "completed",
+       "candidateAcquired": false,
+       "placeSearch": {
+        "resultCount": 0,
+        "viableCount": 0,
+        "rejectedCount": 0,
+        "searchWindow": {
+         "provenance": "CANDIDATE_ROUTE",
+         "radiusMeters": 1141
+        }
+       }
+      }
+     ]
+    },
+    {
+     "hintKey": "m-11",
+     "name": "La Librería del Avila",
+     "role": "venue",
+     "expectedKind": "PLACE",
+     "strategiesAttempted": [
+      "CATALOG_REUSE",
+      "TRUSTED_OBSERVATION_REUSE",
+      "LOCAL_OSM_POOL",
+      "NOMINATIM",
+      "PLACES"
+     ],
+     "candidateAcquired": true,
+     "selectedCandidate": {
+      "name": "La Librería de Avila",
+      "provider": "openstreetmap",
+      "latitude": -34.6103267,
+      "longitude": -58.3733624
+     },
+     "identityVerdict": "INSUFFICIENT_EVIDENCE",
+     "identityRule": "NO_DECISIVE_EVIDENCE",
+     "identityDecision": {
+      "rule": "NO_DECISIVE_EVIDENCE",
+      "decisiveEvidence": [],
+      "evidence": [
+       {
+        "type": "COMPETITOR_EXAMINATION",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "GEOGRAPHIC_CORRESPONDENCE",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "WIKIDATA_IDENTITY_MATCH",
+        "role": "RETRIEVAL_ONLY"
+       }
+      ],
+      "candidateStrongIds": [
+       "openstreetmap/osm:node:3348571875"
+      ],
+      "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE",
+      "competitors": {
+       "outcome": "NO_MATERIAL_COMPETITOR",
+       "competitorCount": 0
+      }
+     },
+     "finalStatus": "unresolved",
+     "finalReason": "UNCONFIRMED_MATCH",
+     "attempts": [
+      {
+       "strategy": "CATALOG_REUSE",
+       "provider": "catalog",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "TRUSTED_OBSERVATION_REUSE",
+       "provider": "trusted_observation",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "LOCAL_OSM_POOL",
+       "provider": "openstreetmap",
+       "executionStatus": "completed",
+       "candidateAcquired": true,
+       "selectedCandidate": {
+        "name": "La Librería de Avila",
+        "kind": "PLACE",
+        "latitude": -34.6103267,
+        "longitude": -58.3733624
+       },
+       "verificationDecision": "INSUFFICIENT_EVIDENCE",
+       "verificationRule": "NO_DECISIVE_EVIDENCE"
+      },
+      {
+       "strategy": "NOMINATIM",
+       "provider": "nominatim",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "PLACES",
+       "provider": "geoapify",
+       "executionStatus": "completed",
+       "candidateAcquired": false,
+       "placeSearch": {
+        "resultCount": 0,
+        "viableCount": 0,
+        "rejectedCount": 0,
+        "searchWindow": {
+         "provenance": "CANDIDATE_ROUTE",
+         "radiusMeters": 1141
+        }
+       }
+      }
+     ]
+    },
+    {
+     "hintKey": "m-14",
+     "name": "The San Telmo Market",
+     "role": "venue",
+     "expectedKind": "PLACE",
+     "strategiesAttempted": [
+      "CATALOG_REUSE",
+      "TRUSTED_OBSERVATION_REUSE",
+      "LOCAL_OSM_POOL",
+      "NOMINATIM",
+      "PLACES"
+     ],
+     "candidateAcquired": true,
+     "selectedCandidate": {
+      "name": "Mercado de San Telmo",
+      "provider": "openstreetmap",
+      "latitude": -34.6190607,
+      "longitude": -58.3722354
+     },
+     "identityVerdict": "INSUFFICIENT_EVIDENCE",
+     "identityRule": "NO_DECISIVE_EVIDENCE",
+     "identityDecision": {
+      "rule": "NO_DECISIVE_EVIDENCE",
+      "decisiveEvidence": [],
+      "evidence": [
+       {
+        "type": "COMPETITOR_EXAMINATION",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "GEOGRAPHIC_CORRESPONDENCE",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "WIKIDATA_IDENTITY_MATCH",
+        "role": "RETRIEVAL_ONLY"
+       }
+      ],
+      "candidateStrongIds": [
+       "openstreetmap/osm:way:158893271"
+      ],
+      "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE",
+      "competitors": {
+       "outcome": "NO_MATERIAL_COMPETITOR",
+       "competitorCount": 0
+      }
+     },
+     "finalStatus": "unresolved",
+     "finalReason": "UNCONFIRMED_MATCH",
+     "attempts": [
+      {
+       "strategy": "CATALOG_REUSE",
+       "provider": "catalog",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "TRUSTED_OBSERVATION_REUSE",
+       "provider": "trusted_observation",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "LOCAL_OSM_POOL",
+       "provider": "openstreetmap",
+       "executionStatus": "completed",
+       "candidateAcquired": true,
+       "selectedCandidate": {
+        "name": "Mercado de San Telmo",
+        "kind": "PLACE",
+        "latitude": -34.6190607,
+        "longitude": -58.3722354
+       },
+       "verificationDecision": "INSUFFICIENT_EVIDENCE",
+       "verificationRule": "NO_DECISIVE_EVIDENCE"
+      },
+      {
+       "strategy": "NOMINATIM",
+       "provider": "nominatim",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "PLACES",
+       "provider": "geoapify",
+       "executionStatus": "completed",
+       "candidateAcquired": false,
+       "placeSearch": {
+        "resultCount": 0,
+        "viableCount": 0,
+        "rejectedCount": 0,
+        "searchWindow": {
+         "provenance": "CANDIDATE_ROUTE",
+         "radiusMeters": 1141
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "label": "acquisition-pass-1-planner_capacity|Self Guided Walking Tour San Telmo (part 1 of 3)|components",
+   "componentSearchScope": {
+    "kind": "AREA",
+    "provenance": "DESTINATION_AREA",
+    "name": "Buenos Aires"
+   },
+   "focus": [
+    {
+     "hintKey": "m-5",
+     "name": "Cabildo",
+     "role": "venue",
+     "expectedKind": "PLACE",
+     "strategiesAttempted": [
+      "CATALOG_REUSE",
+      "TRUSTED_OBSERVATION_REUSE",
+      "LOCAL_OSM_POOL"
+     ],
+     "candidateAcquired": true,
+     "selectedCandidate": {
+      "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+      "provider": "openstreetmap",
+      "latitude": -34.6087695,
+      "longitude": -58.3738806
+     },
+     "identityVerdict": "AMBIGUOUS",
+     "identityRule": "MATERIAL_COMPETITOR_KNOWN",
+     "identityDecision": {
+      "rule": "MATERIAL_COMPETITOR_KNOWN",
+      "decisiveEvidence": [
+       {
+        "type": "COMPETITOR_EXAMINATION",
+        "outcome": "MATERIAL_COMPETITOR_KNOWN",
+        "examinedStrategies": [
+         "LOCAL_OSM_POOL"
+        ],
+        "competitorCount": 1,
+        "role": "QUALIFYING"
+       }
+      ],
+      "evidence": [
+       {
+        "type": "DECLARED_ALIAS_MATCH",
+        "role": "RETRIEVAL_ONLY"
+       },
+       {
+        "type": "COMPETITOR_EXAMINATION",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "GEOGRAPHIC_CORRESPONDENCE",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "WIKIDATA_IDENTITY_MATCH",
+        "role": "RETRIEVAL_ONLY"
+       }
+      ],
+      "candidateStrongIds": [
+       "openstreetmap/osm:node:767690911"
+      ],
+      "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE",
+      "competitors": {
+       "outcome": "MATERIAL_COMPETITOR_KNOWN",
+       "competitorCount": 1
+      }
+     },
+     "finalStatus": "unresolved",
+     "finalReason": "UNCONFIRMED_MATCH",
+     "attempts": [
+      {
+       "strategy": "CATALOG_REUSE",
+       "provider": "catalog",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "TRUSTED_OBSERVATION_REUSE",
+       "provider": "trusted_observation",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "LOCAL_OSM_POOL",
+       "provider": "openstreetmap",
+       "executionStatus": "completed",
+       "candidateAcquired": true,
+       "selectedCandidate": {
+        "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+        "kind": "PLACE",
+        "latitude": -34.6087695,
+        "longitude": -58.3738806
+       },
+       "verificationDecision": "AMBIGUOUS",
+       "verificationRule": "MATERIAL_COMPETITOR_KNOWN"
+      }
+     ]
+    },
+    {
+     "hintKey": "m-8",
+     "name": "La Librería del Avila",
+     "role": "venue",
+     "expectedKind": "PLACE",
+     "strategiesAttempted": [
+      "CATALOG_REUSE",
+      "TRUSTED_OBSERVATION_REUSE",
+      "LOCAL_OSM_POOL"
+     ],
+     "candidateAcquired": true,
+     "selectedCandidate": {
+      "name": "La Librería de Avila",
+      "provider": "openstreetmap",
+      "latitude": -34.6103267,
+      "longitude": -58.3733624
+     },
+     "identityVerdict": "INSUFFICIENT_EVIDENCE",
+     "identityRule": "NO_DECISIVE_EVIDENCE",
+     "identityDecision": {
+      "rule": "NO_DECISIVE_EVIDENCE",
+      "decisiveEvidence": [],
+      "evidence": [
+       {
+        "type": "COMPETITOR_EXAMINATION",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "GEOGRAPHIC_CORRESPONDENCE",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "WIKIDATA_IDENTITY_MATCH",
+        "role": "RETRIEVAL_ONLY"
+       }
+      ],
+      "candidateStrongIds": [
+       "openstreetmap/osm:node:3348571875"
+      ],
+      "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE",
+      "competitors": {
+       "outcome": "NO_MATERIAL_COMPETITOR",
+       "competitorCount": 0
+      }
+     },
+     "finalStatus": "unresolved",
+     "finalReason": "UNCONFIRMED_MATCH",
+     "attempts": [
+      {
+       "strategy": "CATALOG_REUSE",
+       "provider": "catalog",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "TRUSTED_OBSERVATION_REUSE",
+       "provider": "trusted_observation",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "LOCAL_OSM_POOL",
+       "provider": "openstreetmap",
+       "executionStatus": "completed",
+       "candidateAcquired": true,
+       "selectedCandidate": {
+        "name": "La Librería de Avila",
+        "kind": "PLACE",
+        "latitude": -34.6103267,
+        "longitude": -58.3733624
+       },
+       "verificationDecision": "INSUFFICIENT_EVIDENCE",
+       "verificationRule": "NO_DECISIVE_EVIDENCE"
+      }
+     ]
+    },
+    {
+     "hintKey": "m-11",
+     "name": "The San Telmo Market",
+     "role": "venue",
+     "expectedKind": "PLACE",
+     "strategiesAttempted": [
+      "CATALOG_REUSE",
+      "TRUSTED_OBSERVATION_REUSE",
+      "LOCAL_OSM_POOL"
+     ],
+     "candidateAcquired": true,
+     "selectedCandidate": {
+      "name": "Mercado de San Telmo",
+      "provider": "openstreetmap",
+      "latitude": -34.6190607,
+      "longitude": -58.3722354
+     },
+     "identityVerdict": "INSUFFICIENT_EVIDENCE",
+     "identityRule": "NO_DECISIVE_EVIDENCE",
+     "identityDecision": {
+      "rule": "NO_DECISIVE_EVIDENCE",
+      "decisiveEvidence": [],
+      "evidence": [
+       {
+        "type": "COMPETITOR_EXAMINATION",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "GEOGRAPHIC_CORRESPONDENCE",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "WIKIDATA_IDENTITY_MATCH",
+        "role": "RETRIEVAL_ONLY"
+       }
+      ],
+      "candidateStrongIds": [
+       "openstreetmap/osm:way:158893271"
+      ],
+      "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE",
+      "competitors": {
+       "outcome": "NO_MATERIAL_COMPETITOR",
+       "competitorCount": 0
+      }
+     },
+     "finalStatus": "unresolved",
+     "finalReason": "UNCONFIRMED_MATCH",
+     "attempts": [
+      {
+       "strategy": "CATALOG_REUSE",
+       "provider": "catalog",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "TRUSTED_OBSERVATION_REUSE",
+       "provider": "trusted_observation",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "LOCAL_OSM_POOL",
+       "provider": "openstreetmap",
+       "executionStatus": "completed",
+       "candidateAcquired": true,
+       "selectedCandidate": {
+        "name": "Mercado de San Telmo",
+        "kind": "PLACE",
+        "latitude": -34.6190607,
+        "longitude": -58.3722354
+       },
+       "verificationDecision": "INSUFFICIENT_EVIDENCE",
+       "verificationRule": "NO_DECISIVE_EVIDENCE"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "label": "acquisition-pass-1-planner_capacity|Walking tour Buenos Aires – Day 1 (part 1 of 2)|components",
+   "componentSearchScope": {
+    "kind": "AREA",
+    "provenance": "DESTINATION_AREA",
+    "name": "Buenos Aires"
+   },
+   "focus": [
+    {
+     "hintKey": "m-4",
+     "name": "Cabildo",
+     "role": "venue",
+     "expectedKind": "PLACE",
+     "strategiesAttempted": [
+      "CATALOG_REUSE",
+      "TRUSTED_OBSERVATION_REUSE",
+      "LOCAL_OSM_POOL",
+      "NOMINATIM",
+      "PLACES"
+     ],
+     "candidateAcquired": true,
+     "selectedCandidate": {
+      "name": "Cabildo",
+      "provider": "nominatim",
+      "latitude": -34.5687567,
+      "longitude": -58.4477297
+     },
+     "identityVerdict": "AMBIGUOUS",
+     "identityRule": "MATERIAL_COMPETITOR_KNOWN",
+     "identityDecision": {
+      "rule": "MATERIAL_COMPETITOR_KNOWN",
+      "decisiveEvidence": [
+       {
+        "type": "COMPETITOR_EXAMINATION",
+        "outcome": "MATERIAL_COMPETITOR_KNOWN",
+        "examinedStrategies": [
+         "LOCAL_OSM_POOL",
+         "NOMINATIM"
+        ],
+        "competitorCount": 2,
+        "role": "QUALIFYING"
+       }
+      ],
+      "evidence": [
+       {
+        "type": "EXACT_NAME",
+        "role": "CORROBORATING"
+       },
+       {
+        "type": "COMPETITOR_EXAMINATION",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "GEOGRAPHIC_CORRESPONDENCE",
+        "role": "QUALIFYING"
+       },
+       {
+        "type": "WIKIDATA_IDENTITY_MATCH",
+        "role": "QUALIFYING"
+       }
+      ],
+      "candidateStrongIds": [
+       "openstreetmap/osm:node:5029112112"
+      ],
+      "geographicCorrespondence": "BOUNDED_ADMISSION_SCOPE",
+      "competitors": {
+       "outcome": "MATERIAL_COMPETITOR_KNOWN",
+       "competitorCount": 2
+      }
+     },
+     "finalStatus": "unresolved",
+     "finalReason": "UNCONFIRMED_MATCH",
+     "attempts": [
+      {
+       "strategy": "CATALOG_REUSE",
+       "provider": "catalog",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "TRUSTED_OBSERVATION_REUSE",
+       "provider": "trusted_observation",
+       "executionStatus": "completed",
+       "candidateAcquired": false
+      },
+      {
+       "strategy": "LOCAL_OSM_POOL",
+       "provider": "openstreetmap",
+       "executionStatus": "completed",
+       "candidateAcquired": true,
+       "selectedCandidate": {
+        "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+        "kind": "PLACE",
+        "latitude": -34.6087695,
+        "longitude": -58.3738806
+       },
+       "verificationDecision": "AMBIGUOUS",
+       "verificationRule": "MATERIAL_COMPETITOR_KNOWN"
+      },
+      {
+       "strategy": "NOMINATIM",
+       "provider": "nominatim",
+       "executionStatus": "completed",
+       "candidateAcquired": true,
+       "selectedCandidate": {
+        "name": "Cabildo",
+        "kind": "PLACE",
+        "latitude": -34.5687567,
+        "longitude": -58.4477297
+       },
+       "verificationDecision": "AMBIGUOUS",
+       "verificationRule": "MATERIAL_COMPETITOR_KNOWN"
+      },
+      {
+       "strategy": "PLACES",
+       "provider": "geoapify",
+       "executionStatus": "completed",
+       "candidateAcquired": false,
+       "placeSearch": {
+        "resultCount": 0,
+        "viableCount": 0,
+        "rejectedCount": 0,
+        "searchWindow": {
+         "provenance": "DESTINATION_AREA",
+         "radiusMeters": 13421
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "examinations": [
+  {
+   "hint": "Cabildo",
+   "expectedKind": "PLACE",
+   "candidate": {
+    "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "externalId": "osm:node:767690911",
+    "strongIds": [
+     "openstreetmap/osm:node:767690911"
+    ],
+    "lat": -34.6087695,
+    "lon": -58.3738806
+   },
+   "context": {},
+   "output": {
+    "type": "COMPETITOR_EXAMINATION",
+    "outcome": "MATERIAL_COMPETITOR_KNOWN",
+    "examinedStrategies": [
+     "LOCAL_OSM_POOL"
+    ],
+    "competitorCount": 1
+   },
+   "pools": [
+    {
+     "strategy": "LOCAL_OSM_POOL",
+     "coverage": "COMPLETE",
+     "size": 2712,
+     "stages": [
+      {
+       "identityKeys": [
+        "openstreetmap/osm:node:767690911"
+       ],
+       "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": true,
+       "material": false,
+       "lat": -34.6087695,
+       "lon": -58.3738806
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:293947112"
+       ],
+       "name": "Cabildo de Buenos Aires",
+       "nameMatchedBy": "DECLARES_HINT_ALIAS",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": false,
+       "material": true,
+       "lat": -34.6088055,
+       "lon": -58.3736802
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "hint": "Cabildo",
+   "expectedKind": "PLACE",
+   "candidate": {
+    "name": "Cabildo de Buenos Aires",
+    "externalId": "osm:way:293947112",
+    "strongIds": [
+     "openstreetmap/osm:way:293947112"
+    ],
+    "lat": -34.6088795,
+    "lon": -58.3736729
+   },
+   "context": {},
+   "output": {
+    "type": "COMPETITOR_EXAMINATION",
+    "outcome": "MATERIAL_COMPETITOR_KNOWN",
+    "examinedStrategies": [
+     "LOCAL_OSM_POOL",
+     "NOMINATIM"
+    ],
+    "competitorCount": 1
+   },
+   "pools": [
+    {
+     "strategy": "LOCAL_OSM_POOL",
+     "coverage": "COMPLETE",
+     "size": 2712,
+     "stages": [
+      {
+       "identityKeys": [
+        "openstreetmap/osm:node:767690911"
+       ],
+       "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+       "nameMatchedBy": "DECLARES_HINT_ALIAS",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": false,
+       "material": true,
+       "lat": -34.6087695,
+       "lon": -58.3738806
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:293947112"
+       ],
+       "name": "Cabildo de Buenos Aires",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": true,
+       "material": false,
+       "lat": -34.6088055,
+       "lon": -58.3736802
+      }
+     ]
+    },
+    {
+     "strategy": "NOMINATIM",
+     "coverage": "COMPLETE",
+     "size": 6,
+     "stages": [
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:293947112"
+       ],
+       "name": "Cabildo de Buenos Aires",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "UNKNOWN",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": true,
+       "material": false,
+       "lat": -34.6088795,
+       "lon": -58.3736729
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:node:2665183488"
+       ],
+       "name": "Cabildo de Buenos Aires",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": false,
+       "material": true,
+       "lat": -34.6090577,
+       "lon": -58.3747462
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:relation:6418341"
+       ],
+       "name": "Cabildo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "ADMINISTRATIVE_AREA",
+       "structural": "INCOMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": false,
+       "isCandidate": false,
+       "material": false,
+       "lat": -38.4851522,
+       "lon": -61.893799
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:relation:6173235"
+       ],
+       "name": "Cabildo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "ADMINISTRATIVE_AREA",
+       "structural": "INCOMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": false,
+       "isCandidate": false,
+       "material": false,
+       "lat": -31.4870524,
+       "lon": -64.2351529
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "hint": "La Librería del Avila",
+   "expectedKind": "PLACE",
+   "candidate": {
+    "name": "La Librería de Avila",
+    "externalId": "osm:node:3348571875",
+    "strongIds": [
+     "openstreetmap/osm:node:3348571875"
+    ],
+    "lat": -34.6103267,
+    "lon": -58.3733624
+   },
+   "context": {},
+   "output": {
+    "type": "COMPETITOR_EXAMINATION",
+    "outcome": "NO_MATERIAL_COMPETITOR",
+    "examinedStrategies": [
+     "LOCAL_OSM_POOL"
+    ],
+    "competitorCount": 0
+   },
+   "pools": [
+    {
+     "strategy": "LOCAL_OSM_POOL",
+     "coverage": "COMPLETE",
+     "size": 2712,
+     "stages": [
+      {
+       "identityKeys": [
+        "openstreetmap/osm:node:3348571875"
+       ],
+       "name": "La Librería de Avila",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": true,
+       "material": false,
+       "lat": -34.6103267,
+       "lon": -58.3733624
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "hint": "The San Telmo Market",
+   "expectedKind": "PLACE",
+   "candidate": {
+    "name": "Mercado de San Telmo",
+    "externalId": "osm:way:158893271",
+    "strongIds": [
+     "openstreetmap/osm:way:158893271"
+    ],
+    "lat": -34.6190607,
+    "lon": -58.3722354
+   },
+   "context": {},
+   "output": {
+    "type": "COMPETITOR_EXAMINATION",
+    "outcome": "NO_MATERIAL_COMPETITOR",
+    "examinedStrategies": [
+     "LOCAL_OSM_POOL"
+    ],
+    "competitorCount": 0
+   },
+   "pools": [
+    {
+     "strategy": "LOCAL_OSM_POOL",
+     "coverage": "COMPLETE",
+     "size": 2712,
+     "stages": [
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:158893271"
+       ],
+       "name": "Mercado de San Telmo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": true,
+       "material": false,
+       "lat": -34.6190607,
+       "lon": -58.3722354
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "hint": "Cabildo",
+   "expectedKind": "PLACE",
+   "candidate": {
+    "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "externalId": "osm:node:767690911",
+    "strongIds": [
+     "openstreetmap/osm:node:767690911"
+    ],
+    "lat": -34.6087695,
+    "lon": -58.3738806
+   },
+   "context": {},
+   "output": {
+    "type": "COMPETITOR_EXAMINATION",
+    "outcome": "MATERIAL_COMPETITOR_KNOWN",
+    "examinedStrategies": [
+     "LOCAL_OSM_POOL"
+    ],
+    "competitorCount": 1
+   },
+   "pools": [
+    {
+     "strategy": "LOCAL_OSM_POOL",
+     "coverage": "COMPLETE",
+     "size": 2712,
+     "stages": [
+      {
+       "identityKeys": [
+        "openstreetmap/osm:node:767690911"
+       ],
+       "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": true,
+       "material": false,
+       "lat": -34.6087695,
+       "lon": -58.3738806
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:293947112"
+       ],
+       "name": "Cabildo de Buenos Aires",
+       "nameMatchedBy": "DECLARES_HINT_ALIAS",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": false,
+       "material": true,
+       "lat": -34.6088055,
+       "lon": -58.3736802
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "hint": "La Librería del Avila",
+   "expectedKind": "PLACE",
+   "candidate": {
+    "name": "La Librería de Avila",
+    "externalId": "osm:node:3348571875",
+    "strongIds": [
+     "openstreetmap/osm:node:3348571875"
+    ],
+    "lat": -34.6103267,
+    "lon": -58.3733624
+   },
+   "context": {},
+   "output": {
+    "type": "COMPETITOR_EXAMINATION",
+    "outcome": "NO_MATERIAL_COMPETITOR",
+    "examinedStrategies": [
+     "LOCAL_OSM_POOL"
+    ],
+    "competitorCount": 0
+   },
+   "pools": [
+    {
+     "strategy": "LOCAL_OSM_POOL",
+     "coverage": "COMPLETE",
+     "size": 2712,
+     "stages": [
+      {
+       "identityKeys": [
+        "openstreetmap/osm:node:3348571875"
+       ],
+       "name": "La Librería de Avila",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": true,
+       "material": false,
+       "lat": -34.6103267,
+       "lon": -58.3733624
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "hint": "The San Telmo Market",
+   "expectedKind": "PLACE",
+   "candidate": {
+    "name": "Mercado de San Telmo",
+    "externalId": "osm:way:158893271",
+    "strongIds": [
+     "openstreetmap/osm:way:158893271"
+    ],
+    "lat": -34.6190607,
+    "lon": -58.3722354
+   },
+   "context": {},
+   "output": {
+    "type": "COMPETITOR_EXAMINATION",
+    "outcome": "NO_MATERIAL_COMPETITOR",
+    "examinedStrategies": [
+     "LOCAL_OSM_POOL"
+    ],
+    "competitorCount": 0
+   },
+   "pools": [
+    {
+     "strategy": "LOCAL_OSM_POOL",
+     "coverage": "COMPLETE",
+     "size": 2712,
+     "stages": [
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:158893271"
+       ],
+       "name": "Mercado de San Telmo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": true,
+       "material": false,
+       "lat": -34.6190607,
+       "lon": -58.3722354
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "hint": "Cabildo",
+   "expectedKind": "PLACE",
+   "candidate": {
+    "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "externalId": "osm:node:767690911",
+    "strongIds": [
+     "openstreetmap/osm:node:767690911"
+    ],
+    "lat": -34.6087695,
+    "lon": -58.3738806
+   },
+   "context": {},
+   "output": {
+    "type": "COMPETITOR_EXAMINATION",
+    "outcome": "MATERIAL_COMPETITOR_KNOWN",
+    "examinedStrategies": [
+     "LOCAL_OSM_POOL"
+    ],
+    "competitorCount": 1
+   },
+   "pools": [
+    {
+     "strategy": "LOCAL_OSM_POOL",
+     "coverage": "COMPLETE",
+     "size": 2712,
+     "stages": [
+      {
+       "identityKeys": [
+        "openstreetmap/osm:node:767690911"
+       ],
+       "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": true,
+       "material": false,
+       "lat": -34.6087695,
+       "lon": -58.3738806
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:293947112"
+       ],
+       "name": "Cabildo de Buenos Aires",
+       "nameMatchedBy": "DECLARES_HINT_ALIAS",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": false,
+       "material": true,
+       "lat": -34.6088055,
+       "lon": -58.3736802
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "hint": "Cabildo",
+   "expectedKind": "PLACE",
+   "candidate": {
+    "name": "Cabildo",
+    "externalId": "osm:node:5029112112",
+    "strongIds": [
+     "openstreetmap/osm:node:5029112112"
+    ],
+    "lat": -34.5687567,
+    "lon": -58.4477297
+   },
+   "context": {},
+   "output": {
+    "type": "COMPETITOR_EXAMINATION",
+    "outcome": "MATERIAL_COMPETITOR_KNOWN",
+    "examinedStrategies": [
+     "LOCAL_OSM_POOL",
+     "NOMINATIM"
+    ],
+    "competitorCount": 2
+   },
+   "pools": [
+    {
+     "strategy": "LOCAL_OSM_POOL",
+     "coverage": "COMPLETE",
+     "size": 2712,
+     "stages": [
+      {
+       "identityKeys": [
+        "openstreetmap/osm:node:767690911"
+       ],
+       "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+       "nameMatchedBy": "DECLARES_HINT_ALIAS",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": false,
+       "material": true,
+       "lat": -34.6087695,
+       "lon": -58.3738806
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:293947112"
+       ],
+       "name": "Cabildo de Buenos Aires",
+       "nameMatchedBy": "DECLARES_HINT_ALIAS",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": false,
+       "material": true,
+       "lat": -34.6088055,
+       "lon": -58.3736802
+      }
+     ]
+    },
+    {
+     "strategy": "NOMINATIM",
+     "coverage": "COMPLETE",
+     "size": 7,
+     "stages": [
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:48664001"
+       ],
+       "name": "Cabildo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "ROAD",
+       "structural": "INCOMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": false,
+       "isCandidate": false,
+       "material": false,
+       "lat": -34.6862222,
+       "lon": -58.5066475
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:29197376"
+       ],
+       "name": "Cabildo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "ROAD",
+       "structural": "INCOMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": false,
+       "isCandidate": false,
+       "material": false,
+       "lat": -34.6788396,
+       "lon": -58.5005111
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:172820965"
+       ],
+       "name": "Cabildo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "ROAD",
+       "structural": "INCOMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": false,
+       "isCandidate": false,
+       "material": false,
+       "lat": -34.5301702,
+       "lon": -58.537996
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:way:127263332"
+       ],
+       "name": "Cabildo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "ROAD",
+       "structural": "INCOMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": false,
+       "isCandidate": false,
+       "material": false,
+       "lat": -34.6932515,
+       "lon": -58.5124442
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:node:4612043879"
+       ],
+       "name": "Cabildo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": false,
+       "material": true,
+       "lat": -34.5557469,
+       "lon": -58.4633444
+      },
+      {
+       "identityKeys": [
+        "openstreetmap/osm:node:5029112112"
+       ],
+       "name": "Cabildo",
+       "nameMatchedBy": "EXACT_NAME",
+       "structuralKind": "POINT_OF_INTEREST",
+       "structural": "COMPATIBLE",
+       "localityRelation": "NO_GROUNDED_LOCALITY",
+       "statedKind": "NOT_ASSERTED",
+       "admitted": true,
+       "isCandidate": true,
+       "material": false,
+       "lat": -34.5687567,
+       "lon": -58.4477297
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "verdicts": [
+  {
+   "hint": "Cabildo",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+   "externalId": "osm:node:767690911",
+   "evidence": [
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "MULTIPLE",
+     "correspondence": "OVERLAP"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 1
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 1
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+   "externalId": "osm:node:767690911",
+   "evidence": [
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "MULTIPLE",
+     "correspondence": "OVERLAP"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 1
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 1
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "NOMINATIM",
+   "candidate": "Cabildo de Buenos Aires",
+   "externalId": "osm:way:293947112",
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 1
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 1
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "NOMINATIM",
+   "candidate": "Cabildo de Buenos Aires",
+   "externalId": "osm:way:293947112",
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 1
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "NONE",
+     "candidateCorrespondence": "NONE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 1
+     }
+    ]
+   }
+  },
+  {
+   "hint": "La Librería del Avila",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "La Librería de Avila",
+   "externalId": "osm:node:3348571875",
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "La Librería del Avila",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "La Librería de Avila",
+   "externalId": "osm:node:3348571875",
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "The San Telmo Market",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "Mercado de San Telmo",
+   "externalId": "osm:way:158893271",
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "The San Telmo Market",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "Mercado de San Telmo",
+   "externalId": "osm:way:158893271",
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+   "externalId": "osm:node:767690911",
+   "evidence": [
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "MULTIPLE",
+     "correspondence": "OVERLAP"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 1
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 1
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+   "externalId": "osm:node:767690911",
+   "evidence": [
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "MULTIPLE",
+     "correspondence": "OVERLAP"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 1
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 1
+     }
+    ]
+   }
+  },
+  {
+   "hint": "La Librería del Avila",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "La Librería de Avila",
+   "externalId": "osm:node:3348571875",
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "La Librería del Avila",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "La Librería de Avila",
+   "externalId": "osm:node:3348571875",
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "The San Telmo Market",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "Mercado de San Telmo",
+   "externalId": "osm:way:158893271",
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "The San Telmo Market",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "Mercado de San Telmo",
+   "externalId": "osm:way:158893271",
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+   "externalId": "osm:node:767690911",
+   "evidence": [
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "MULTIPLE",
+     "correspondence": "OVERLAP"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 1
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 1
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+   "externalId": "osm:node:767690911",
+   "evidence": [
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "MULTIPLE",
+     "correspondence": "OVERLAP"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 1
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 1
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "NOMINATIM",
+   "candidate": "Cabildo",
+   "externalId": "osm:node:5029112112",
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "MULTIPLE"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 2
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 2
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "NOMINATIM",
+   "candidate": "Cabildo",
+   "externalId": "osm:node:5029112112",
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "MULTIPLE"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 2
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "NONE",
+     "candidateCorrespondence": "NONE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 2
+     }
+    ]
+   }
+  }
+ ],
+ "enrich": {
+  "openstreetmap/osm:node:767690911": {
+   "raw": {
+    "source": "OSM lookupPoisWithin",
+    "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "tags": {
+     "addr:city": "Ciudad Autónoma de Buenos Aires",
+     "addr:country": "AR",
+     "addr:housenumber": "65",
+     "addr:postcode": "C1066AAA",
+     "addr:street": "Bolívar",
+     "building": "yes",
+     "description": "Sus colecciones estan distribuídas en las salas: capitular, de mayo, invasiones inglesas, hall central, sala Hardoy, galería de los virreyes y calabozo.",
+     "image": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Cabildo_de_bs_as.jpg",
+     "museum": "history",
+     "museum_type": "national",
+     "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+     "name:ru": "Ратуша Буэнос-Айреса",
+     "name:uk": "Ратуша Буенос-Айреса",
+     "operator": "DNPyM",
+     "phone": "+54 11 4342-6729",
+     "start_date": "1943",
+     "tourism": "museum",
+     "website": "https://cabildonacional.cultura.gob.ar/",
+     "wikidata": "Q1024829",
+     "wikimedia_commons": "File:Cabildo de bs as.jpg",
+     "wikipedia": "es:Cabildo de Buenos Aires"
+    },
+    "geometryType": "Point"
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Ciudad Autónoma de Buenos Aires",
+    "5:Comuna 1",
+    "8:Buenos Aires",
+    "9:Monserrat"
+   ],
+   "qid": "Q1024829",
+   "qidSummary": {
+    "qid": "Q1024829",
+    "label": "Cabildo of Buenos Aires",
+    "description": "historical building in Buenos Aires, government house during colonial times",
+    "aliases": [
+     "Cabildo de Buenos Aires",
+     "Cabildo building",
+     "Cabildo historico",
+     "Museo Historico Nacional del Cabildo y de la Revolucion de Mayo",
+     "Cabildo histórico"
+    ],
+    "sitelinkCount": 17,
+    "extract": "The Cabildo of Buenos Aires (Spanish: Cabildo de Buenos Aires) is the public building in the city of Buenos Aires, Argentina, that was used as a seat of the town council during the colonial era and the government house of the Viceroyalty of the Río de la Plata. \nThe building was also seat of other institutions such as the Royal Audience of Buenos Aires, the highest court for appeal of second instance in the territory, operated from April 6, 1661 to January 23, 1812, when it was replaced by an Appeals Chamber. On September 13, 1810, the Primera Junta created the Public Library of Buenos Aires, being the Cabildo its first location for two years. The institution that was housed for the longest in the building was the Buenos Aires prison, from 1608 to 1877, when the prisoners were transferred to the new National Penitentiary on Las Heras Street, when it was inaugurated.\nThe Cabildo was declared National Historic Monument in 1933 and was opened to public as a museum in 1938."
+   }
+  },
+  "openstreetmap/osm:way:293947112": {
+   "raw": {
+    "source": "NOMINATIM",
+    "name": "Cabildo de Buenos Aires, 65, Bolívar, Monserrat, Buenos Aires, Comuna 1, Ciudad Autónoma de Buenos Aires, C1066AAA, Argentina",
+    "class": "historic",
+    "type": "building",
+    "lat": -34.6088795,
+    "lon": -58.3736729
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Ciudad Autónoma de Buenos Aires",
+    "5:Comuna 1",
+    "8:Buenos Aires",
+    "9:Monserrat"
+   ]
+  },
+  "openstreetmap/osm:node:2665183488": {
+   "raw": {
+    "source": "NOMINATIM",
+    "name": "Cabildo de Buenos Aires, Hipólito Yrigoyen, Monserrat, Buenos Aires, Comuna 1, Ciudad Autónoma de Buenos Aires, C1084AAN, Argentina",
+    "class": "amenity",
+    "type": "cafe",
+    "lat": -34.6090577,
+    "lon": -58.3747462
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Ciudad Autónoma de Buenos Aires",
+    "5:Comuna 1",
+    "8:Buenos Aires",
+    "9:Monserrat"
+   ]
+  },
+  "openstreetmap/osm:relation:6418341": {
+   "raw": {
+    "source": "NOMINATIM",
+    "name": "Cabildo, Cuartel XI, Partido de Bahía Blanca, Buenos Aires, Argentina",
+    "class": "boundary",
+    "type": "administrative",
+    "lat": -38.4851522,
+    "lon": -61.893799
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Buenos Aires",
+    "5:Partido de Bahía Blanca",
+    "6:Cuartel XI",
+    "8:Cabildo",
+    "undefined:Cabildo"
+   ]
+  },
+  "openstreetmap/osm:relation:6173235": {
+   "raw": {
+    "source": "NOMINATIM",
+    "name": "Cabildo, Córdoba, Municipio de Córdoba, Pedanía Capital, Departamento Capital, Córdoba, X5017, Argentina",
+    "class": "boundary",
+    "type": "administrative",
+    "lat": -31.4870524,
+    "lon": -64.2351529
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Córdoba",
+    "5:Departamento Capital",
+    "6:Pedanía Capital",
+    "7:Municipio de Córdoba",
+    "8:Córdoba",
+    "9:Cabildo"
+   ]
+  },
+  "openstreetmap/osm:node:3348571875": {
+   "raw": {
+    "source": "OSM lookupPoisWithin",
+    "name": "La Librería de Avila",
+    "tags": {
+     "name": "La Librería de Avila",
+     "shop": "books",
+     "tourism": "attraction",
+     "wikidata": "Q5974908",
+     "wikimedia_commons": "Category:Librería de Ávila"
+    },
+    "geometryType": "Point"
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Ciudad Autónoma de Buenos Aires",
+    "5:Comuna 1",
+    "8:Buenos Aires",
+    "9:Monserrat"
+   ],
+   "qid": "Q5974908",
+   "qidSummary": {
+    "qid": "Q5974908",
+    "label": "Librería de Ávila",
+    "description": "building in Argentina",
+    "aliases": [
+     "Librería de Ávila",
+     "Libreria de Avila",
+     "Librería del Colegio",
+     "La libraría de Avila"
+    ],
+    "sitelinkCount": 2
+   }
+  },
+  "openstreetmap/osm:way:158893271": {
+   "raw": {
+    "source": "OSM lookupPoisWithin",
+    "name": "Mercado de San Telmo",
+    "tags": {
+     "addr:city": "Ciudad Autónoma de Buenos Aires",
+     "addr:country": "AR",
+     "addr:housenumber": "963",
+     "addr:street": "Defensa",
+     "amenity": "marketplace",
+     "building": "yes",
+     "contact:facebook": "MercadoSanTelmoOficial",
+     "contact:instagram": "elmercadosantelmo",
+     "name": "Mercado de San Telmo",
+     "opening_hours": "Mo-Su 09:00-20:00",
+     "phone": "+54 11 4314 0133",
+     "website": "https://mercadosantelmo.com.ar/",
+     "wikidata": "Q6010497",
+     "wikimedia_commons": "Category:Mercado San Telmo, Buenos Aires",
+     "wikipedia": "es:Mercado San Telmo"
+    },
+    "geometryType": "Point"
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Ciudad Autónoma de Buenos Aires",
+    "5:Comuna 1",
+    "8:Buenos Aires",
+    "9:San Telmo"
+   ],
+   "qid": "Q6010497",
+   "qidSummary": {
+    "qid": "Q6010497",
+    "label": "San Telmo market",
+    "description": "market in Buenos Aires, Argentina",
+    "aliases": [
+     "Mercado San Telmo",
+     "Mercado de San Telmo",
+     "Mercado de pulgas",
+     "Marché de San Telmo"
+    ],
+    "sitelinkCount": 3
+   }
+  },
+  "openstreetmap/osm:way:48664001": {
+   "raw": {
+    "source": "NOMINATIM",
+    "name": "Cabildo, Villa Madero, Partido de La Matanza, Buenos Aires, 1768, Argentina",
+    "class": "highway",
+    "type": "residential",
+    "lat": -34.6862222,
+    "lon": -58.5066475
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Buenos Aires",
+    "5:Partido de La Matanza",
+    "8:Villa Madero"
+   ]
+  },
+  "openstreetmap/osm:way:29197376": {
+   "raw": {
+    "source": "NOMINATIM",
+    "name": "Cabildo, Villa Madero, Partido de La Matanza, Buenos Aires, C1439HWJ, Argentina",
+    "class": "highway",
+    "type": "residential",
+    "lat": -34.6788396,
+    "lon": -58.5005111
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Buenos Aires",
+    "5:Partido de La Matanza",
+    "8:Villa Madero"
+   ]
+  },
+  "openstreetmap/osm:way:172820965": {
+   "raw": {
+    "source": "NOMINATIM",
+    "name": "Cabildo, Carapachay, Partido de Vicente López, Buenos Aires, B1606DUU, Argentina",
+    "class": "highway",
+    "type": "residential",
+    "lat": -34.5301702,
+    "lon": -58.537996
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Buenos Aires",
+    "5:Partido de Vicente López",
+    "9:Carapachay"
+   ]
+  },
+  "openstreetmap/osm:way:127263332": {
+   "raw": {
+    "source": "NOMINATIM",
+    "name": "Cabildo, Villa Madero, Partido de La Matanza, Buenos Aires, 1770, Argentina",
+    "class": "highway",
+    "type": "residential",
+    "lat": -34.6932515,
+    "lon": -58.5124442
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Buenos Aires",
+    "5:Partido de La Matanza",
+    "8:Villa Madero"
+   ]
+  },
+  "openstreetmap/osm:node:4612043879": {
+   "raw": {
+    "source": "NOMINATIM",
+    "name": "Cabildo, 2465, Avenida Congreso, Núñez, Buenos Aires, Comuna 13, Ciudad Autónoma de Buenos Aires, C1429, Argentina",
+    "class": "shop",
+    "type": "locksmith",
+    "lat": -34.5557469,
+    "lon": -58.4633444
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Ciudad Autónoma de Buenos Aires",
+    "5:Comuna 13",
+    "8:Buenos Aires",
+    "9:Núñez"
+   ]
+  },
+  "openstreetmap/osm:node:5029112112": {
+   "raw": {
+    "source": "NOMINATIM",
+    "name": "Cabildo, 1152, Avenida Cabildo, Colegiales, Buenos Aires, Comuna 13, Ciudad Autónoma de Buenos Aires, 1426, Argentina",
+    "class": "amenity",
+    "type": "veterinary",
+    "lat": -34.5687567,
+    "lon": -58.4477297
+   },
+   "adminUnits": [
+    "2:Argentina",
+    "4:Ciudad Autónoma de Buenos Aires",
+    "5:Comuna 13",
+    "8:Buenos Aires",
+    "9:Colegiales"
+   ]
+  }
+ }
+}

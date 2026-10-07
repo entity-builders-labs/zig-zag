@@ -1,0 +1,31 @@
+SAME_ADDRESS Q1024829    with-address: 2/2 [bolivar 65] node:Museo Histórico Nacional del Cabildo y de la Revolución de Mayo + way:Cabildo de Buenos Aires
+no-pair      Q5844300    with-address: 0/2
+no-pair      Q130642790  with-address: 2/20
+SAME_ADDRESS Q5755704    with-address: 2/2 [chacabuco 863] node:Casal de Catalunya + node:Casal de Catalunya
+no-pair      Q5844527    with-address: 0/2
+no-pair      Q5841983    with-address: 0/2
+no-pair      Q5840655    with-address: 0/2
+no-pair      Q5572984    with-address: 0/2
+no-pair      Q5842051    with-address: 0/2
+no-pair      Q5796926    with-address: 0/2
+no-pair      Q111694361  with-address: 0/2
+no-pair      Q64764396   with-address: 2/2
+no-pair      Q5982348    with-address: 0/2
+no-pair      Q5772461    with-address: 0/2
+no-pair      Q1269826    with-address: 0/2
+no-pair      Q5835236    with-address: 0/2
+no-pair      Q90206189   with-address: 1/2
+no-pair      Q96377188   with-address: 2/2
+SAME_ADDRESS Q5854525    with-address: 2/3 [intendente guiraldes 2160] node:Facultad de Arquitectura, Diseño y Urbanismo + node:Facultad de Ciencias Exactas y Naturales
+no-pair      Q5719936    with-address: 0/3
+no-pair      Q5854907    with-address: 2/2
+no-pair      Q5428851    with-address: 1/5
+no-pair      Q5855136    with-address: 2/2
+no-pair      Q6978865    with-address: 1/2
+no-pair      Q28501895   with-address: 0/2
+no-pair      Q5708426    with-address: 0/2
+no-pair      Q2860529    with-address: 2/2
+no-pair      Q4579815    with-address: 0/2
+no-pair      Q3149120    with-address: 0/2
+no-pair      Q5841090    with-address: 0/2
+no-pair      Q5384418    with-address: 0/2

@@ -2640,6 +2640,26 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
   `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2026-10-07/`.
   No C3 run.
 
+### Recall forensic after the identity fix — 2026-10-07
+
+- Owner state: `NOT_READY_FOR_C3_IDENTITY_RETRY`. A canonical place
+  (Cabildo) must not be lost. No code change, no C3 run.
+- Cabildo:
+  - Blocked by 1 to 2 competitors, not 11 (the earlier report conflated
+    it with Don Carlos).
+  - The LOCAL competitor is the same building as the candidate (shared
+    `wikidata=Q1024829`, same address, `short_name=Cabildo`), split across
+    two OSM records.
+  - Competitor identity keys ignore the shared QID, and the hint's exact
+    name sits on the other record.
+- La Librería del Avila and The San Telmo Market: no competitor; only a
+  lexical gap ("del"/"de", "The"), with no non-lexical evidence.
+- Shared-QID merge rules tested on the Buenos Aires pool:
+  - containment misses Cabildo;
+  - exact address merges FADU with Exactas (wrong).
+- Recommendation: NEEDS_MORE_FORENSIC. Dossier:
+  `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2026-10-07/recall-forensic/`.
+
 ## Next authorized action
 
 0. (2026-10-06, C3 COLD ran; precondition not met, no composite) Owner
@@ -2648,8 +2668,9 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
    - (a) rerun C3 COLD as is: search and selection vary per run;
    - (b) DONE 2026-10-07 for scan order, confirmed by the live C3 retry
      (`c3-retry-cold`, no qualifying composite). Selection-limit losses
-     remain. RW4-ID-FALSE-VERIFY-1 is fixed (2026-10-07). A C3 identity
-     retry needs new authorization;
+     remain. RW4-ID-FALSE-VERIFY-1 is fixed (2026-10-07), but the state
+     is NOT_READY_FOR_C3_IDENTITY_RETRY until the Cabildo recall regression
+     (RW4-ID-RECALL-CABILDO-1) is resolved;
    - (c) extend B's scope to complete `WHOLE_DOCUMENT` and whole-unit
      continuation windows (RW4-ATOM-SCOPE-1).
    C3 rules (kept from B):
@@ -2867,6 +2888,13 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   Pellegrini. The cause was a fuzzy hint-to-label match on the
   candidate's own QID, decided ahead of 11 known material competitors.
   Spec §19.3. Thresholds untouched.
+- RW4-ID-RECALL-CABILDO-1: OPEN, HIGH (2026-10-07), introduced by the
+  identity fix in PLANNER_CAPACITY (the route-scoped pass already failed).
+  - One landmark is split across two OSM records that share a located QID
+    and an address. The other record is counted as a material competitor,
+    and the hint's exact name is only that record's `short_name`.
+  - A recall fix needs a safe same-identity rule. The candidate rules
+    tested so far either miss Cabildo or merge distinct faculties.
 - RW4-ID-EQUIV-RECALL-1: OPEN, LOW (2026-10-07). Equivalence has no
   stopword handling, so article and preposition variants of a true
   referent ("La Librería del Avila" / "Librería de Ávila", "The San Telmo

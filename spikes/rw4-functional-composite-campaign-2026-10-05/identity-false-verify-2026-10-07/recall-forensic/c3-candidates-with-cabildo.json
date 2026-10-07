@@ -1,0 +1,458 @@
+{
+ "acquisition-pass-1-area_route_walk-san-telmo|Self Guided Walking Tour San Telmo (part 1 of 3)|components": [
+  {
+   "key": "m-1",
+   "name": "Teatro Colón",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Teatro Colón"
+  },
+  {
+   "key": "m-2",
+   "name": "Obelisco",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Obelisco"
+  },
+  {
+   "key": "m-3",
+   "name": "Plaza de Mayo",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Plaza de Mayo"
+  },
+  {
+   "key": "m-4",
+   "name": "Congress building",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Congress building"
+  },
+  {
+   "key": "m-5",
+   "name": "Plaza",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Plaza"
+  },
+  {
+   "key": "m-6",
+   "name": "Casa Rosada",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Casa Rosada"
+  },
+  {
+   "key": "m-7",
+   "name": "Cathedral",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Cathedral"
+  },
+  {
+   "key": "m-8",
+   "name": "Cabildo",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Cabildo"
+  },
+  {
+   "key": "m-9",
+   "name": "Defensa Street",
+   "role": "route",
+   "expectedKind": "ROUTE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Defensa Street"
+  },
+  {
+   "key": "m-10",
+   "name": "Farmacia la Estrella",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Farmacia la Estrella"
+  },
+  {
+   "key": "m-11",
+   "name": "La Librería del Avila",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "La Librería del Avila"
+  },
+  {
+   "key": "m-12",
+   "name": "Monumento de Mafalda",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Monumento de Mafalda"
+  },
+  {
+   "key": "m-13",
+   "name": "Casa Mínima",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Casa Mínima"
+  },
+  {
+   "key": "m-14",
+   "name": "The San Telmo Market",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "The San Telmo Market"
+  },
+  {
+   "key": "m-15",
+   "name": "El Patio de los Ezeiza",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "El Patio de los Ezeiza"
+  }
+ ],
+ "acquisition-pass-1-planner_capacity|Self Guided Walking Tour San Telmo (part 1 of 3)|components": [
+  {
+   "key": "m-1",
+   "name": "Teatro Colón",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "Teatro Colón"
+  },
+  {
+   "key": "m-2",
+   "name": "Plaza de Mayo",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "Plaza de Mayo"
+  },
+  {
+   "key": "m-3",
+   "name": "Casa Rosada",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "Casa Rosada"
+  },
+  {
+   "key": "m-4",
+   "name": "Cathedral",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "Cathedral"
+  },
+  {
+   "key": "m-5",
+   "name": "Cabildo",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "Cabildo"
+  },
+  {
+   "key": "m-6",
+   "name": "San Telmo",
+   "role": "area",
+   "expectedKind": "AREA",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "San Telmo"
+  },
+  {
+   "key": "m-7",
+   "name": "Farmacia la Estrella",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "Farmacia la Estrella"
+  },
+  {
+   "key": "m-8",
+   "name": "La Librería del Avila",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "La Librería del Avila"
+  },
+  {
+   "key": "m-9",
+   "name": "Monumento de Mafalda",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "Monumento de Mafalda"
+  },
+  {
+   "key": "m-10",
+   "name": "Casa Mínima",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "Casa Mínima"
+  },
+  {
+   "key": "m-11",
+   "name": "The San Telmo Market",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "The San Telmo Market"
+  },
+  {
+   "key": "m-12",
+   "name": "El Patio de los Ezeiza",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-1"
+   ],
+   "sourceName": "El Patio de los Ezeiza"
+  }
+ ],
+ "acquisition-pass-1-planner_capacity|Walking tour Buenos Aires – Day 1 (part 1 of 2)|components": [
+  {
+   "key": "m-1",
+   "name": "PLAZA DE MAYO",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "PLAZA DE MAYO"
+  },
+  {
+   "key": "m-2",
+   "name": "Casa Rosada",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Casa Rosada"
+  },
+  {
+   "key": "m-3",
+   "name": "Catedral Metropolitana",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Catedral Metropolitana"
+  },
+  {
+   "key": "m-4",
+   "name": "Cabildo",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Cabildo"
+  },
+  {
+   "key": "m-5",
+   "name": "Catedral",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Catedral"
+  },
+  {
+   "key": "m-6",
+   "name": "Mausoleum of General San Martín",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Mausoleum of General San Martín"
+  },
+  {
+   "key": "m-7",
+   "name": "Feria San Telmo",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Feria San Telmo"
+  },
+  {
+   "key": "m-8",
+   "name": "oldest neighborhood of the capital city",
+   "role": "area",
+   "expectedKind": "AREA",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "oldest neighborhood of the capital city"
+  },
+  {
+   "key": "m-9",
+   "name": "Bar Sur",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Bar Sur"
+  },
+  {
+   "key": "m-10",
+   "name": "big building with columns",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "big building with columns"
+  },
+  {
+   "key": "m-11",
+   "name": "Mercado de San Telmo",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Mercado de San Telmo"
+  },
+  {
+   "key": "m-12",
+   "name": "Plaza Dorrego",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Plaza Dorrego"
+  },
+  {
+   "key": "m-13",
+   "name": "Museum of Modern Arts",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Museum of Modern Arts"
+  },
+  {
+   "key": "m-14",
+   "name": "Club Atlético",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Club Atlético"
+  },
+  {
+   "key": "m-15",
+   "name": "Parque Lezama",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Parque Lezama"
+  },
+  {
+   "key": "m-16",
+   "name": "national history museum",
+   "role": "venue",
+   "expectedKind": "PLACE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "national history museum"
+  },
+  {
+   "key": "m-17",
+   "name": "Avenida Caseros",
+   "role": "route",
+   "expectedKind": "ROUTE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "Avenida Caseros"
+  },
+  {
+   "key": "m-18",
+   "name": "red walkway",
+   "role": "route",
+   "expectedKind": "ROUTE",
+   "evidenceKeys": [
+    "ev-2"
+   ],
+   "sourceName": "red walkway"
+  }
+ ]
+}
