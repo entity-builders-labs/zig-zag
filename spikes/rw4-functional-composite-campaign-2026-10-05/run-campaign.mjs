@@ -109,7 +109,17 @@ async function pollUntilTerminal(tourId, token) {
   const startedAt = Date.now();
   let last;
   while (Date.now() - startedAt <= timeoutMs) {
-    last = await readTour(tourId, token);
+    // A transport error on one poll (the backend briefly not answering)
+    // must not abort observation of a generation that is still running.
+    // HTTP error statuses stay fatal; the overall timeout still bounds this.
+    try {
+      last = await readTour(tourId, token);
+    } catch (error) {
+      if (!(error instanceof TypeError)) throw error;
+      log('poll transport error, retrying:', String(error.cause?.code ?? error.message));
+      await new Promise((r) => setTimeout(r, intervalMs));
+      continue;
+    }
     const d = diagnostics(last, startedAt);
     if (d.generationStatus === 'completed' || d.generationStatus === 'failed') {
       log('terminal:', JSON.stringify(d));
