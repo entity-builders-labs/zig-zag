@@ -2718,6 +2718,12 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
     especially §6 (expectation changes outside the pre-authorized four)
     and §7 (identically described A-B held AMBIGUOUS). Do not merge. A
     later C3 needs separate authorization and a fresh/reset catalog.
+    The §7 forensic is done
+    (`spikes/semantic-overlap-threshold-forensic-2026-10-08/README.md`):
+    verdict DEDUPE_MODEL_MISSING_STRUCTURAL_AUTHORITY,
+    NO_EVIDENCE_FOUND_FOR_0_58. Owner decision needed on spec §6.1
+    (name/semantic → AMBIGUOUS) and on containment/source-document evidence.
+    No threshold change is authorized.
 
 0. (2026-10-06, C3 COLD ran; precondition not met, no composite) Owner
    decision on how to reach the oracle units. Options, each needing
@@ -2786,6 +2792,12 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
 
 ## Open findings / blockers
 
+- RW4-DEDUPE-SEMANTIC-1: OPEN, owner decision. The lexical
+  `semanticSimilarity >= 0.58` alone forces AMBIGUOUS (fail-closed reject).
+  It is uncalibrated (`baba7da0`, no evidence), order-dependent through
+  existing-side trait tokens, and the only reason the later A-B is held. The
+  dedupe has no containment or source-document authority. Dossier:
+  `spikes/semantic-overlap-threshold-forensic-2026-10-08/README.md`.
 - PF-REVIEW-PROVIDER-1: OPEN, BLOCKING for automated review. The contextual
   review workflow cannot publish an artifact: the configured Groq endpoint
   rejects the Codex CLI request body (`invalid JSON body`, with
