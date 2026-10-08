@@ -9,6 +9,7 @@ import {
   TravelPace,
 } from '../interfaces/tour-generation.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
+import { TourPlanningFeasibilityValidatorService } from './tour-planning-feasibility-validator.service';
 
 function realishTravelEstimateProvider(): TravelEstimateProvider {
   return {
@@ -355,5 +356,127 @@ describe('GreedyDailyPlanningSolver', () => {
     expect(
       solution.unselected.some((item) => item.experienceId === 'dup'),
     ).toBe(true);
+  });
+});
+
+describe('GreedyDailyPlanningSolver → TourPlanningFeasibilityValidatorService walking invariant', () => {
+  // Placement checks legs in relevance order; routed ordering later rebuilds
+  // the day nearest-next. Each fixture is placement-feasible, but the
+  // nearest-next order creates a leg/total placement never checked. The
+  // validator only reads the solver's own `travelFromPrevious` estimates, so
+  // a feasible solve must never fail it on a walking limit.
+  function pointCandidate(
+    id: string,
+    lng: number,
+    semanticScore: number,
+  ): PlanningExperienceCandidate {
+    const footprint = { type: 'POINT' as const, centroid: { lat: 0, lng } };
+    return {
+      experienceId: id,
+      title: id,
+      durationMinutes: 60,
+      spatialFootprint: footprint,
+      startFootprint: footprint,
+      endFootprint: footprint,
+      componentFootprints: [],
+      semanticScore,
+    };
+  }
+
+  async function solveAndValidate(
+    candidates: PlanningExperienceCandidate[],
+    limits: {
+      maxContinuousWalkingDistanceMeters: number;
+      maxWalkingDistancePerDayMeters: number;
+    },
+  ) {
+    const base = baseInput();
+    const input = baseInput({
+      requestedDays: 1,
+      candidates,
+      mobility: { ...base.mobility, ...limits },
+    });
+    const solution = await new GreedyDailyPlanningSolver(
+      realishTravelEstimateProvider(),
+      policy,
+    ).solve(input);
+    const validation = new TourPlanningFeasibilityValidatorService().validate(
+      solution,
+      input,
+    );
+    return { solution, validation };
+  }
+
+  it('does not emit a reorder-created continuous-walking violation', async () => {
+    // start→west 1,598 m, west→nearEast 2,098 m, nearEast→farEast 999 m
+    // (placement); nearest-next would add farEast→west = 3,097 m.
+    const { solution, validation } = await solveAndValidate(
+      [
+        pointCandidate('start', 0, 0.9),
+        pointCandidate('west', -0.0144, 0.8),
+        pointCandidate('nearEast', 0.0045, 0.7),
+        pointCandidate('farEast', 0.0135, 0.6),
+      ],
+      {
+        maxContinuousWalkingDistanceMeters: 3000,
+        maxWalkingDistancePerDayMeters: 10000,
+      },
+    );
+
+    expect(validation).toEqual({ valid: true, issues: [] });
+    expect(solution.days[0].experiences.map((e) => e.experienceId)).toEqual([
+      'start',
+      'nearEast',
+      'west',
+    ]);
+    expect(solution.unselected).toEqual([
+      { experienceId: 'farEast', reasons: ['MAX_CONTINUOUS_WALKING_EXCEEDED'] },
+    ]);
+  });
+
+  it('does not emit a reorder-created daily-walking violation', async () => {
+    // Placement walks 3,885 m; nearest-next would walk 4,940 m (> 4,500 m)
+    // with every leg under the 3,000 m continuous limit.
+    const { solution, validation } = await solveAndValidate(
+      [
+        pointCandidate('start', 0, 0.9),
+        pointCandidate('west', -0.0085, 0.8),
+        pointCandidate('nearEast', 0.0081, 0.7),
+        pointCandidate('farEast', 0.018, 0.6),
+      ],
+      {
+        maxContinuousWalkingDistanceMeters: 3000,
+        maxWalkingDistancePerDayMeters: 4500,
+      },
+    );
+
+    expect(validation).toEqual({ valid: true, issues: [] });
+    expect(solution.unselected).toEqual([
+      { experienceId: 'farEast', reasons: ['MAX_WALKING_PER_DAY_EXCEEDED'] },
+    ]);
+  });
+
+  it('keeps the nearest-next order unchanged when it is walking-feasible', async () => {
+    const { solution, validation } = await solveAndValidate(
+      [
+        pointCandidate('start', 0, 0.9),
+        pointCandidate('west', -0.0144, 0.8),
+        pointCandidate('nearEast', 0.0045, 0.7),
+        pointCandidate('farEast', 0.0135, 0.6),
+      ],
+      {
+        maxContinuousWalkingDistanceMeters: 3500,
+        maxWalkingDistancePerDayMeters: 10000,
+      },
+    );
+
+    expect(validation).toEqual({ valid: true, issues: [] });
+    expect(solution.days[0].experiences.map((e) => e.experienceId)).toEqual([
+      'start',
+      'nearEast',
+      'farEast',
+      'west',
+    ]);
+    expect(solution.unselected).toEqual([]);
   });
 });

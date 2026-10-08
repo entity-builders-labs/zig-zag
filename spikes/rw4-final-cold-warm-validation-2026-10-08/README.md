@@ -197,13 +197,23 @@ implemented (future spec
 The final fresh composition includes the composite `32656b95` whose 4
 resolved members span Obelisco (~ -34.6037, -58.3816) to Casa Mínima
 (~ -34.6167, -58.3713) via the San Telmo AREA and the Defensa Street ROUTE —
-a span far larger than the San Telmo area. The greedy solver schedules with
-approximate/fallback travel estimates (`greedy-daily-planning.solver.ts`),
-but `tour-planning-feasibility-validator.service.ts` re-checks
-`travelFromPrevious.walkingDistanceMeters` from real routing and raises
+a span far larger than the San Telmo area.
+`tour-planning-feasibility-validator.service.ts` raises
 `MAX_CONTINUOUS_WALKING_EXCEEDED` on the composite's inbound leg
-(`> 3000 m`). The generation then fails closed
+(`> 3000 m`), and the generation then fails closed
 (`experience-generation.service.ts:1539`).
+
+*Correction (2026-10-08, forensic replay):* an earlier version of this
+section attributed the failure to the solver using approximate travel
+estimates while the validator used real routing. That is false. The
+validator performs no travel estimation; it reads the solver-provided
+`travelFromPrevious` estimate (same provider result, same policy value, same
+units). Placement checked the walking limits on its own candidate order
+(Plaza Dorrego → composite start, 2,552 m ≤ 3,000 m); routed day ordering
+then rebuilt the day and created a new inbound leg (Museo Histórico
+Nacional → composite start, 3,336 m) without reapplying the walking
+constraints. The defect was that ordering created a new leg without
+reapplying walking constraints (`RW4-FINAL-PLAN-INFEASIBLE-1`).
 
 This is **not** a regression in the GATHER → RECONCILE → FREEZE → PLAN code
 (which is proven correct by §4). It is a pre-existing planner

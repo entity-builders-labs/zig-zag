@@ -6,13 +6,14 @@ import {
   TravelEstimateProvider,
   UnselectedPlanningCandidate,
 } from '../interfaces/daily-planning.interface';
-import {
-  MobilityPreferences,
-  TransportationMode,
-} from '../interfaces/tour-generation.interface';
+import { MobilityPreferences } from '../interfaces/tour-generation.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 import { isOpenDuring } from './normalized-opening-hours.util';
 import { plannerRelevanceScore } from './daily-planning-candidate-sort.util';
+import {
+  evaluateWalkingFeasibility,
+  internalWalkingMeters,
+} from './daily-planning-walking-feasibility.util';
 
 const candidateIdentity = (candidate: PlanningExperienceCandidate): string =>
   candidate.experienceId;
@@ -55,38 +56,6 @@ export function candidateExperienceMinutes(
 ): number {
   return (
     candidate.durationMinutes + (candidate.mobility?.internalTravelMinutes ?? 0)
-  );
-}
-
-export function internalWalkingMeters(
-  candidate: PlanningExperienceCandidate,
-  policy: DailyPlanningPolicy,
-): number {
-  if (candidate.mobility?.internalWalkingDistanceMeters !== undefined) {
-    return candidate.mobility.internalWalkingDistanceMeters;
-  }
-  if (
-    candidate.mobility?.internalWalkingDistanceMeters === undefined &&
-    candidate.mobility?.internalWalkingMinutes === undefined
-  ) {
-    if (candidate.spatialFootprint.type === 'POINT') return 0;
-    return (
-      (policy.internalWalking.unknownFallbackMinutes *
-        policy.travel.walkingSpeedKmh *
-        1000) /
-      60
-    );
-  }
-  return 0;
-}
-
-function maxInternalContinuousWalkingMeters(
-  candidate: PlanningExperienceCandidate,
-  policy: DailyPlanningPolicy,
-): number {
-  return (
-    candidate.mobility?.maxInternalContinuousWalkingDistanceMeters ??
-    internalWalkingMeters(candidate, policy)
   );
 }
 
@@ -135,56 +104,15 @@ export async function checkHardConstraints(
     reasons.push('DAILY_TIME_CAPACITY_EXCEEDED');
   }
 
-  const legWalkingMeters = travel?.walkingDistanceMeters ?? 0;
-  const candidateInternalWalkingMeters = internalWalkingMeters(
+  const walking = evaluateWalkingFeasibility(
     candidate,
+    travel,
+    acc.totalWalkingMeters,
+    context.mobility,
     context.policy,
   );
-  const internalContinuousWalkingMeters = maxInternalContinuousWalkingMeters(
-    candidate,
-    context.policy,
-  );
-  const projectedWalkingMeters =
-    acc.totalWalkingMeters + candidateInternalWalkingMeters + legWalkingMeters;
-
-  let walkingDailyExceeded = false;
-  if (
-    context.mobility.allowedTransportationModes.includes(
-      TransportationMode.WALKING,
-    ) &&
-    projectedWalkingMeters > context.mobility.maxWalkingDistancePerDayMeters
-  ) {
-    reasons.push('MAX_WALKING_PER_DAY_EXCEEDED');
-    walkingDailyExceeded = true;
-  }
-
-  const maxContinuousWalkingMeters =
-    context.mobility.maxContinuousWalkingDistanceMeters;
-  let walkingContinuousExceeded = false;
-  if (
-    legWalkingMeters > maxContinuousWalkingMeters ||
-    internalContinuousWalkingMeters > maxContinuousWalkingMeters
-  ) {
-    reasons.push('MAX_CONTINUOUS_WALKING_EXCEEDED');
-    walkingContinuousExceeded = true;
-  }
-
-  // Observability only: the same canonical walking facts computed above,
-  // projected against the configured limits. Never fed back into policy.
-  let walkingDiagnostics: PlanningWalkingDiagnostics | undefined;
-  if (walkingDailyExceeded || walkingContinuousExceeded) {
-    walkingDiagnostics = {
-      dailyWalkingMeters: projectedWalkingMeters,
-      dailyWalkingLimitMeters: context.mobility.maxWalkingDistancePerDayMeters,
-      longestContinuousWalkingMeters: Math.max(
-        legWalkingMeters,
-        internalContinuousWalkingMeters,
-      ),
-      continuousWalkingLimitMeters: maxContinuousWalkingMeters,
-      internalWalkingContributionMeters: candidateInternalWalkingMeters,
-      incomingTravelWalkingContributionMeters: legWalkingMeters,
-    };
-  }
+  reasons.push(...walking.reasons);
+  const walkingDiagnostics = walking.diagnostics;
 
   if (candidate.openingHours) {
     const weekday = resolveWeekday(context.startDates, acc.dayNumber);

@@ -2148,6 +2148,15 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
+RW4-FINAL-PLAN-INFEASIBLE-1 FIXED, not COLD-validated (2026-10-08, on top
+of `7385a9e1`). Routed day ordering re-applies the walking limits through
+the same `evaluateWalkingFeasibility` authority placement uses (continuous
+leg, internal continuous leg, running day total incl. internal walking);
+an infeasible next pick is skipped and, if none remains, repair drops the
+lowest-priority candidate with `MAX_CONTINUOUS_WALKING_EXCEEDED` /
+`MAX_WALKING_PER_DAY_EXCEEDED`. Solver → validator walking invariant tests
+added. Verdict: READY_FOR_FINAL_COLD_RERUN.
+
 GATHER_RECONCILE_PLAN is IMPLEMENTED, not merged (2026-10-08, on top of
 `9e5a6c9a`). Evidence: `spikes/gather-reconcile-plan-2026-10-08/README.md`.
 - Diagnosis: the C3 SOB 8/15 composite was selected by the post-refill
@@ -2794,7 +2803,13 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 
 ## Next authorized action
 
-0000000. (2026-10-08) Owner review of the final canonical COLD
+00000000. (2026-10-08) RW4-FINAL-PLAN-INFEASIBLE-1 fixed (routed ordering
+          now enforces the shared walking-feasibility authority). Next:
+          owner-authorized final canonical COLD rerun on a fresh catalog;
+          WARM only if COLD qualifies. Do not merge.
+
+0000000. (2026-10-08) [SUPERSEDED by 00000000: root cause was ordering,
+         not approximate-vs-real travel] Owner review of the final canonical COLD
          (`spikes/rw4-final-cold-warm-validation-2026-10-08/README.md`).
          Orchestration/structural/duration invariants PASS, but the final
          plan failed at the feasibility validator
@@ -2906,16 +2921,23 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
 
 ## Open findings / blockers
 
-- RW4-FINAL-PLAN-INFEASIBLE-1: OPEN (owner decision). The final canonical
-  COLD (`d102fbc0`) reached the fresh post-acquisition snapshot and then
-  failed at the feasibility validator with
-  `MAX_CONTINUOUS_WALKING_EXCEEDED` on the composite's inbound leg, so no
-  Tour materialized and WARM was not run. The GATHER → RECONCILE → FREEZE →
-  PLAN orchestration is proven correct; the blocker is a planner/validator
-  travel-estimate mismatch on a composite whose descriptive-scope membership
-  spans Obelisco (~1.9 km outside San Telmo). Same class as
-  `PF-CI-FLAKE-1`, now observed in a live deterministic run. Dossier:
-  `spikes/rw4-final-cold-warm-validation-2026-10-08/README.md`.
+- RW4-FINAL-PLAN-INFEASIBLE-1: FIXED, awaiting final COLD rerun. The
+  final canonical COLD (`d102fbc0`) failed at the feasibility validator
+  with `MAX_CONTINUOUS_WALKING_EXCEEDED` on the composite's inbound leg.
+  Forensic replay: the validator does no travel estimation (it reads the
+  solver's `travelFromPrevious`); placement checked walking on its own
+  order, then routed day ordering created a new leg (3,336 m > 3,000 m)
+  without reapplying walking limits. Fix: one shared walking-feasibility
+  authority (`daily-planning-walking-feasibility.util.ts`) used by
+  placement and ordering; infeasible picks are skipped and repair receives
+  the typed walking reason. Possibly related to `PF-CI-FLAKE-1` (not
+  proven). Dossier:
+  `spikes/rw4-final-cold-warm-validation-2026-10-08/README.md` §9.
+- RW4-WALKING-VALIDATOR-SEMANTICS-1: OPEN, LOW (pre-existing debt). The
+  validator keeps its own walking arithmetic: unknown internal walking is
+  `0` (solver uses the policy fallback, stricter), and the daily check is
+  not gated on WALKING being allowed (solver's is). Not this defect class;
+  not changed.
 - RW4-RECONCILE-GEO-1: OPEN, LOW (debt). A SAME-reconciled resolution was
   validated by the observation that resolved it. The canonical set is not
   jointly re-validated by composite geography after enrichment.

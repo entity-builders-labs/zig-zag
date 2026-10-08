@@ -7,8 +7,8 @@ import {
   PlacementContext,
   candidateExperienceMinutes,
   checkHardConstraints,
-  internalWalkingMeters,
 } from './daily-planning-placement.util';
+import { internalWalkingMeters } from './daily-planning-walking-feasibility.util';
 import { footprintDistanceMeters } from './spatial-footprint.util';
 
 const candidateIdentity = (candidate: PlanningExperienceCandidate): string =>

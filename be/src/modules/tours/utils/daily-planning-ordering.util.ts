@@ -8,16 +8,23 @@ import {
   TravelEstimateProvider,
   UnselectedPlanningCandidate,
 } from '../interfaces/daily-planning.interface';
-import { TransportationMode } from '../interfaces/tour-generation.interface';
+import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 import { sortCandidatesDeterministically } from './daily-planning-candidate-sort.util';
 import { resolveWeekday } from './daily-planning-placement.util';
+import {
+  evaluateWalkingFeasibility,
+  WalkingLimits,
+} from './daily-planning-walking-feasibility.util';
 import { isOpenDuring } from './normalized-opening-hours.util';
 import { footprintDistanceMeters } from './spatial-footprint.util';
 
 export interface OrderingContext {
   travelEstimateProvider: TravelEstimateProvider;
   planningWindow: DailyPlanningWindow;
-  allowedTransportationModes: TransportationMode[];
+  /** The same walking limits placement enforced: every leg routed ordering
+   * creates is re-checked against them, never trusted from placement. */
+  mobility: WalkingLimits;
+  policy: DailyPlanningPolicy;
   startDates: string[];
 }
 
@@ -38,7 +45,12 @@ interface RoutedChoice {
   startMinutes: number;
   endMinutes: number;
   distanceMeters: number;
+  projectedDayWalkingMeters: number;
 }
+
+type RoutedPick =
+  | { ok: true; choice: RoutedChoice }
+  | { ok: false; reason: PlanningRejectionReason };
 
 interface ScheduleAttemptSuccess {
   ok: true;
@@ -73,28 +85,54 @@ function isCandidateOpen(
   );
 }
 
+/**
+ * Chooses the nearest feasible next Experience. A candidate is feasible only
+ * if it fits the planning window, is open on arrival, and passes the shared
+ * walking-feasibility authority for the leg this ordering would create.
+ * When none is feasible, the binding constraint is reported with precedence
+ * continuous walking > daily walking > opening hours > time capacity; a
+ * walking reason is reported only for a candidate that fit time and hours.
+ */
 async function pickNextRouted(
   previous: PlanningExperienceCandidate | null,
   remaining: PlanningExperienceCandidate[],
   weekday: number | undefined,
   cursorMinutes: number,
+  dayWalkingMeters: number,
   context: OrderingContext,
-): Promise<RoutedChoice | undefined> {
+): Promise<RoutedPick> {
   const choices: RoutedChoice[] = [];
+  const rejections = new Set<PlanningRejectionReason>();
 
   for (const candidate of remaining) {
     const travel = previous
       ? await context.travelEstimateProvider.estimate(
           previous.endFootprint,
           candidate.startFootprint,
-          context.allowedTransportationModes,
+          context.mobility.allowedTransportationModes,
         )
       : undefined;
     const startMinutes = cursorMinutes + (travel?.durationMinutes ?? 0);
     const endMinutes = startMinutes + occupiedMinutes(candidate);
-    if (endMinutes > context.planningWindow.endMinutesFromMidnight) continue;
-    if (!isCandidateOpen(candidate, weekday, startMinutes, endMinutes))
+    if (endMinutes > context.planningWindow.endMinutesFromMidnight) {
+      rejections.add('DAILY_TIME_CAPACITY_EXCEEDED');
       continue;
+    }
+    if (!isCandidateOpen(candidate, weekday, startMinutes, endMinutes)) {
+      rejections.add('OPENING_HOURS_INCOMPATIBLE');
+      continue;
+    }
+    const walking = evaluateWalkingFeasibility(
+      candidate,
+      travel,
+      dayWalkingMeters,
+      context.mobility,
+      context.policy,
+    );
+    if (walking.reasons.length > 0) {
+      walking.reasons.forEach((reason) => rejections.add(reason));
+      continue;
+    }
 
     choices.push({
       candidate,
@@ -111,43 +149,33 @@ async function pickNextRouted(
             candidate.startFootprint,
           )
         : 0,
+      projectedDayWalkingMeters: walking.projectedDayWalkingMeters,
     });
   }
 
-  if (!previous) return choices[0];
-  return choices.sort(
-    (left, right) =>
-      left.distanceMeters - right.distanceMeters ||
-      left.startMinutes - right.startMinutes ||
-      left.candidate.experienceId.localeCompare(right.candidate.experienceId),
-  )[0];
-}
-
-async function inferFailureReason(
-  previous: PlanningExperienceCandidate | null,
-  remaining: PlanningExperienceCandidate[],
-  weekday: number | undefined,
-  cursorMinutes: number,
-  context: OrderingContext,
-): Promise<PlanningRejectionReason> {
-  for (const candidate of remaining) {
-    const travel = previous
-      ? await context.travelEstimateProvider.estimate(
-          previous.endFootprint,
-          candidate.startFootprint,
-          context.allowedTransportationModes,
-        )
-      : undefined;
-    const startMinutes = cursorMinutes + (travel?.durationMinutes ?? 0);
-    const endMinutes = startMinutes + occupiedMinutes(candidate);
-    if (
-      endMinutes <= context.planningWindow.endMinutesFromMidnight &&
-      !isCandidateOpen(candidate, weekday, startMinutes, endMinutes)
-    ) {
-      return 'OPENING_HOURS_INCOMPATIBLE';
-    }
+  if (choices.length === 0) {
+    const precedence: PlanningRejectionReason[] = [
+      'MAX_CONTINUOUS_WALKING_EXCEEDED',
+      'MAX_WALKING_PER_DAY_EXCEEDED',
+      'OPENING_HOURS_INCOMPATIBLE',
+    ];
+    return {
+      ok: false,
+      reason:
+        precedence.find((reason) => rejections.has(reason)) ??
+        'DAILY_TIME_CAPACITY_EXCEEDED',
+    };
   }
-  return 'DAILY_TIME_CAPACITY_EXCEEDED';
+  if (!previous) return { ok: true, choice: choices[0] };
+  return {
+    ok: true,
+    choice: choices.sort(
+      (left, right) =>
+        left.distanceMeters - right.distanceMeters ||
+        left.startMinutes - right.startMinutes ||
+        left.candidate.experienceId.localeCompare(right.candidate.experienceId),
+    )[0],
+  };
 }
 
 async function tryScheduleDay(
@@ -161,35 +189,27 @@ async function tryScheduleDay(
   let cursorMinutes = context.planningWindow.startMinutesFromMidnight;
   let totalTravelMinutes = 0;
   let totalWalkingMinutes = 0;
+  let dayWalkingMeters = 0;
   let previous: PlanningExperienceCandidate | null = null;
 
   while (remaining.length > 0) {
-    const choice = await pickNextRouted(
+    const pick = await pickNextRouted(
       previous,
       remaining,
       weekday,
       cursorMinutes,
+      dayWalkingMeters,
       context,
     );
-    if (!choice) {
-      return {
-        ok: false,
-        reason: await inferFailureReason(
-          previous,
-          remaining,
-          weekday,
-          cursorMinutes,
-          context,
-        ),
-      };
-    }
+    if ('reason' in pick) return { ok: false, reason: pick.reason };
 
     const {
       candidate: next,
       travel,
       startMinutes: start,
       endMinutes: end,
-    } = choice;
+      projectedDayWalkingMeters,
+    } = pick.choice;
     remaining.splice(remaining.indexOf(next), 1);
 
     if (travel) {
@@ -204,6 +224,7 @@ async function tryScheduleDay(
       travelFromPrevious: travel,
     });
     totalWalkingMinutes += next.mobility?.internalWalkingMinutes ?? 0;
+    dayWalkingMeters = projectedDayWalkingMeters;
     cursorMinutes = end;
     previous = next;
   }

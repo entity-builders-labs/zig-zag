@@ -8,6 +8,7 @@ import {
   TravelEstimateProvider,
 } from '../interfaces/daily-planning.interface';
 import { TransportationMode } from '../interfaces/tour-generation.interface';
+import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 
 function candidate(
   id: string,
@@ -47,6 +48,31 @@ function realTravelEstimateProvider(): TravelEstimateProvider {
   };
 }
 
+const policy: DailyPlanningPolicy = {
+  paceTargets: {
+    relaxed: { preferredExperiencesMin: 2, preferredExperiencesMax: 4 },
+    moderate: { preferredExperiencesMin: 3, preferredExperiencesMax: 5 },
+    fast: { preferredExperiencesMin: 4, preferredExperiencesMax: 7 },
+  },
+  travel: {
+    detourFactor: 1.3,
+    walkingSpeedKmh: 4.5,
+    bikeSpeedKmh: 15,
+    carUrbanSpeedKmh: 25,
+  },
+  internalWalking: { unknownFallbackMinutes: 20 },
+  compositeDefaultDurationMinutes: 90,
+  scoring: { semanticWeight: 1, qualityWeight: 0.5, dayBalanceWeight: 0.25 },
+  localImprovement: { maxIterations: 20 },
+  backfill: {
+    minimumUsefulResidualMinutes: 60,
+    maxReservoirPromotionAttempts: 50,
+    maxAcquisitionPasses: 1,
+  },
+  window: { startMinutesFromMidnight: 540, endMinutesFromMidnight: 1200 },
+};
+
+/** Walking limits are not under test here: explicitly non-binding. */
 function context(): OrderingContext {
   return {
     travelEstimateProvider: realTravelEstimateProvider(),
@@ -54,10 +80,32 @@ function context(): OrderingContext {
       startMinutesFromMidnight: 540,
       endMinutesFromMidnight: 1200,
     },
-    allowedTransportationModes: [TransportationMode.WALKING],
+    mobility: {
+      allowedTransportationModes: [TransportationMode.WALKING],
+      maxWalkingDistancePerDayMeters: Number.POSITIVE_INFINITY,
+      maxContinuousWalkingDistanceMeters: Number.POSITIVE_INFINITY,
+    },
+    policy,
     startDates: [],
   };
 }
+
+function walkingContext(
+  maxContinuousWalkingDistanceMeters: number,
+  maxWalkingDistancePerDayMeters: number,
+): OrderingContext {
+  return {
+    ...context(),
+    mobility: {
+      allowedTransportationModes: [TransportationMode.WALKING],
+      maxContinuousWalkingDistanceMeters,
+      maxWalkingDistancePerDayMeters,
+    },
+  };
+}
+
+/** 1 degree of longitude on the equator is 111 km in the test provider. */
+const METERS_PER_DEGREE = 111000;
 
 function mondayHours(
   startMinutesFromMidnight: number,
@@ -279,5 +327,137 @@ describe('orderAndScheduleDay', () => {
       expect(to.centroid).not.toEqual({ lat: 5, lng: 5 });
       expect(to.centroid).not.toEqual({ lat: 9, lng: 9 });
     }
+  });
+});
+
+describe('orderAndScheduleDayWithRepair walking feasibility', () => {
+  // Generic geometry on the equator. Relevance order (placement order) is
+  // start → west → nearEast → farEast, whose legs are all <= 3,000 m:
+  //   start→west 1,598 m, west→nearEast 2,098 m, nearEast→farEast 999 m.
+  // Nearest-next ordering instead visits start → nearEast → farEast and then
+  // must create farEast→west = 3,097 m, a leg placement never checked.
+  const reorderFixture = (): PlanningExperienceCandidate[] => [
+    candidate('start', 0, 0, 60, 0.9),
+    candidate('west', 0, -0.0144, 60, 0.8),
+    candidate('nearEast', 0, 0.0045, 60, 0.7),
+    candidate('farEast', 0, 0.0135, 60, 0.6),
+  ];
+
+  it('never emits an inbound leg over the continuous limit; repair drops the lowest-priority candidate with a typed reason', async () => {
+    const repaired = await orderAndScheduleDayWithRepair(
+      1,
+      reorderFixture(),
+      walkingContext(3000, 10000),
+    );
+
+    for (const experience of repaired.day.experiences) {
+      expect(
+        experience.travelFromPrevious?.walkingDistanceMeters ?? 0,
+      ).toBeLessThanOrEqual(3000);
+    }
+    expect(repaired.day.experiences.map((item) => item.experienceId)).toEqual([
+      'start',
+      'nearEast',
+      'west',
+    ]);
+    expect(repaired.unselected).toEqual([
+      { experienceId: 'farEast', reasons: ['MAX_CONTINUOUS_WALKING_EXCEEDED'] },
+    ]);
+  });
+
+  it('keeps the unchanged nearest-next order when the same reorder stays within the limits', async () => {
+    const repaired = await orderAndScheduleDayWithRepair(
+      1,
+      reorderFixture(),
+      walkingContext(3500, 10000),
+    );
+
+    expect(repaired.day.experiences.map((item) => item.experienceId)).toEqual([
+      'start',
+      'nearEast',
+      'farEast',
+      'west',
+    ]);
+    expect(repaired.unselected).toEqual([]);
+  });
+
+  it('enforces the internal continuous walking leg in ordering too', async () => {
+    const composite: PlanningExperienceCandidate = {
+      ...candidate('composite', 0, 0, 60, 0.9),
+      mobility: {
+        internalWalkingDistanceMeters: 3200,
+        maxInternalContinuousWalkingDistanceMeters: 3200,
+      },
+    };
+
+    const repaired = await orderAndScheduleDayWithRepair(
+      1,
+      [composite],
+      walkingContext(3000, 10000),
+    );
+
+    expect(repaired.day.experiences).toEqual([]);
+    expect(repaired.unselected).toEqual([
+      {
+        experienceId: 'composite',
+        reasons: ['MAX_CONTINUOUS_WALKING_EXCEEDED'],
+      },
+    ]);
+  });
+
+  it('counts external legs plus internal walking against the daily limit and repairs with MAX_WALKING_PER_DAY_EXCEEDED', async () => {
+    // Every leg is under the 3,000 m continuous limit. Placement order
+    // start → west → nearEast → farEast walks 3,885 m; nearest-next walks
+    // start → nearEast → farEast → west = 4,940 m, over a 4,500 m day.
+    const candidates = [
+      candidate('start', 0, 0, 60, 0.9),
+      candidate('west', 0, -0.0085, 60, 0.8),
+      candidate('nearEast', 0, 0.0081, 60, 0.7),
+      candidate('farEast', 0, 0.018, 60, 0.6),
+    ];
+
+    const repaired = await orderAndScheduleDayWithRepair(
+      1,
+      candidates,
+      walkingContext(3000, 4500),
+    );
+
+    expect(repaired.day.experiences.map((item) => item.experienceId)).toEqual([
+      'start',
+      'nearEast',
+      'west',
+    ]);
+    expect(repaired.unselected).toEqual([
+      { experienceId: 'farEast', reasons: ['MAX_WALKING_PER_DAY_EXCEEDED'] },
+    ]);
+    const dayWalkingMeters = repaired.day.experiences.reduce(
+      (sum, item) =>
+        sum + (item.travelFromPrevious?.walkingDistanceMeters ?? 0),
+      0,
+    );
+    expect(dayWalkingMeters).toBeLessThanOrEqual(4500);
+  });
+
+  it('includes internal walking in the running day total', async () => {
+    const first: PlanningExperienceCandidate = {
+      ...candidate('first', 0, 0, 60, 0.9),
+      mobility: { internalWalkingDistanceMeters: 2000 },
+    };
+    // 0.009 deg = 999 m leg; 2,000 internal + 999 leg > 2,500 day limit.
+    const second = candidate('second', 0, 0.009, 60, 0.5);
+    expect(0.009 * METERS_PER_DEGREE).toBeCloseTo(999);
+
+    const repaired = await orderAndScheduleDayWithRepair(
+      1,
+      [first, second],
+      walkingContext(3000, 2500),
+    );
+
+    expect(repaired.day.experiences.map((item) => item.experienceId)).toEqual([
+      'first',
+    ]);
+    expect(repaired.unselected).toEqual([
+      { experienceId: 'second', reasons: ['MAX_WALKING_PER_DAY_EXCEEDED'] },
+    ]);
   });
 });
