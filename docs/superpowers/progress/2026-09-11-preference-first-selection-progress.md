@@ -2148,6 +2148,21 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
+Dedupe structural authority (DEDUPE_STRUCTURAL_AUTHORITY) is IMPLEMENTED,
+not merged (2026-10-08). Evidence:
+`spikes/dedupe-structural-authority-2026-10-08/README.md`.
+
+- Identity is decided by a structural relation (EXACT_COMPOSITION /
+  SUBCOMPOSITION / PARTIAL_OVERLAP / DISJOINT) + source-document relation
+  in one policy; lexical semantic overlap is diagnostic/ranking only.
+- `semantic >= 0.58 → AMBIGUOUS` and `strongConsistentIdentity` removed;
+  spec §6.1 amended (invariant 14).
+- A later A-B now coexists with a PARTIAL A-F (NEW). 2 expectation
+  changes, both SUBCOMPOSITION; the resolved-only characterization needs
+  owner review (dossier §8).
+- Deferred: name >= 0.72 (still standalone on DISJOINT), component/role
+  cuts. No C3, no live provider call.
+
 Partial composite persistence (PARTIAL-COMPOSITE-1) is IMPLEMENTED,
 not merged (2026-10-08, owner decisions D1–D7). Evidence:
 `spikes/partial-composite-implementation-2026-10-08/README.md`.
@@ -2712,6 +2727,10 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 - No C3 run.
 
 ## Next authorized action
+
+000. (2026-10-08) Owner review of the dedupe structural authority
+     (`spikes/dedupe-structural-authority-2026-10-08/README.md`), together
+     with the partial composite review below. Do not merge; no C3.
 
 00. (2026-10-08) Owner review of the partial composite implementation
     (`spikes/partial-composite-implementation-2026-10-08/README.md`),
