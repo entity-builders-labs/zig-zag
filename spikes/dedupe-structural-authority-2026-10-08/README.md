@@ -172,7 +172,9 @@ All from `57d2dfcf`, no evidence:
 Also open: AMBIGUOUS is still not persisted for later resolution (spec §6);
 no persisted CONTAINS relation; PARTIAL-vs-COMPLETE views of the same
 source (an unresolved member vs its later resolved GeoEntity) are
-PARTIAL_OVERLAP, not EXACT.
+PARTIAL_OVERLAP, not EXACT. **Superseded** by
+`../source-member-identity-2026-10-08/README.md` (`273bf4aa`): members are
+keyed by source identity and those views are EXACT_COMPOSITION.
 
 ## 11. Verification
 

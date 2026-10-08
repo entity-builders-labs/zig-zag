@@ -2148,6 +2148,20 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
+Source member identity (SOURCE_MEMBER_IDENTITY) is IMPLEMENTED, not merged
+(2026-10-08, code `273bf4aa`). Evidence:
+`spikes/source-member-identity-2026-10-08/README.md`.
+- The structural relation reads source members (`sourcePosition` +
+  `sourceName`), not resolution state; members correspond by wording or
+  by a shared resolved GeoEntity. Hard invariant 15: enrichment, admin
+  confirm and admin revoke never change composition identity.
+- PARTIAL vs COMPLETE of one source is EXACT_COMPOSITION; A-B vs A-B-C-D
+  SUBCOMPOSITION and A-F/A-B NEW in every resolution state.
+- Replay of 217 baseline calls: 0 decision/relation flips. Decision table
+  and thresholds unchanged. Verdict: READY_FOR_C3 (C3 itself still needs
+  separate authorization). Debt: SAME onto a PARTIAL does not adopt the
+  incoming member resolution.
+
 Dedupe structural authority (DEDUPE_STRUCTURAL_AUTHORITY) is IMPLEMENTED,
 not merged (2026-10-08). Evidence:
 `spikes/dedupe-structural-authority-2026-10-08/README.md`.
@@ -2727,6 +2741,11 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 - No C3 run.
 
 ## Next authorized action
+
+0000. (2026-10-08) Owner review of source member identity
+      (`spikes/source-member-identity-2026-10-08/README.md`) together with
+      the two reviews below; then a separately authorized C3 on a
+      fresh/reset catalog. Do not merge; C3 not run.
 
 000. (2026-10-08) Owner review of the dedupe structural authority
      (`spikes/dedupe-structural-authority-2026-10-08/README.md`), together
