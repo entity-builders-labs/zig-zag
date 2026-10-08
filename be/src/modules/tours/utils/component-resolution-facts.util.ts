@@ -24,6 +24,13 @@ import {
 import { WorkUnitAnchorScope } from '../interfaces/experience-geographic-scope.interface';
 import { deficitClassification } from './component-deficit-classification.policy';
 import {
+  DedupeDecisiveEvidence,
+  DedupeEvidence,
+  SourceProvenanceRelation,
+  StructuralCompositionRelation,
+  SubcompositionContainment,
+} from './experience-dedupe.util';
+import {
   SourceCompositionAdmission,
   SourceMemberResolution,
   decideSourceCompositionAdmission,
@@ -329,22 +336,54 @@ export interface CompositeOutcome {
         status: 'PERSISTED';
         experienceId: string;
         dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
+        dedupeEvidence?: DedupeTraceEvidence;
       }
     | {
         status: 'NOT_PERSISTED';
         reasons: string[];
         dedupe?: {
           conflictingExperienceIds: string[];
-          evidence?: {
-            nameSimilarity: number;
-            semanticSimilarity: number;
-            componentOverlap: number;
-            roleAwareComponentOverlap: number;
-            reasons: string[];
-          };
+          evidence?: DedupeTraceEvidence;
         };
       };
   plannerEligible: boolean;
+}
+
+/**
+ * What the trace records of one dedupe decision: the structural and
+ * source-provenance facts that decided it. `semanticScore` is diagnostic
+ * only and is never the decisive evidence.
+ */
+export interface DedupeTraceEvidence {
+  structuralRelation: StructuralCompositionRelation;
+  containment: SubcompositionContainment | null;
+  sourceRelation: SourceProvenanceRelation;
+  sharedResolvedGeoEntities: string[];
+  sourceMemberCounts: { incoming: number; existing: number };
+  decisiveEvidence: DedupeDecisiveEvidence | null;
+  nameSimilarity: number;
+  componentOverlap: number;
+  roleAwareComponentOverlap: number;
+  semanticScore: number;
+  reasons: string[];
+}
+
+function dedupeTraceEvidence(evidence: DedupeEvidence): DedupeTraceEvidence {
+  return {
+    structuralRelation: evidence.structure.relation,
+    containment: evidence.structure.containment,
+    sourceRelation: evidence.sourceRelation,
+    sharedResolvedGeoEntities: [
+      ...evidence.structure.sharedResolvedGeoEntityIds,
+    ],
+    sourceMemberCounts: { ...evidence.structure.sourceMemberCounts },
+    decisiveEvidence: evidence.decisiveEvidence,
+    nameSimilarity: evidence.nameSimilarity,
+    componentOverlap: evidence.componentOverlap,
+    roleAwareComponentOverlap: evidence.roleAwareComponentOverlap,
+    semanticScore: evidence.semanticSimilarity,
+    reasons: [...evidence.reasons],
+  };
 }
 
 export function buildCompositeOutcome(
@@ -378,6 +417,9 @@ export function buildCompositeOutcome(
           ...(entry.dedupeDecision
             ? { dedupeDecision: entry.dedupeDecision }
             : {}),
+          ...(entry.dedupeEvidence
+            ? { dedupeEvidence: dedupeTraceEvidence(entry.dedupeEvidence) }
+            : {}),
         }
       : {
           status: 'NOT_PERSISTED',
@@ -388,18 +430,7 @@ export function buildCompositeOutcome(
                 dedupe: {
                   conflictingExperienceIds: [...(entry.dedupeCandidates ?? [])],
                   ...(entry.dedupeEvidence
-                    ? {
-                        evidence: {
-                          nameSimilarity: entry.dedupeEvidence.nameSimilarity,
-                          semanticSimilarity:
-                            entry.dedupeEvidence.semanticSimilarity,
-                          componentOverlap:
-                            entry.dedupeEvidence.componentOverlap,
-                          roleAwareComponentOverlap:
-                            entry.dedupeEvidence.roleAwareComponentOverlap,
-                          reasons: [...entry.dedupeEvidence.reasons],
-                        },
-                      }
+                    ? { evidence: dedupeTraceEvidence(entry.dedupeEvidence) }
                     : {}),
                 },
               }

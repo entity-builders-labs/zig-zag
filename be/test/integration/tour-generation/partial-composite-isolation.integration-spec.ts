@@ -262,17 +262,14 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
     expect(visible.forMatching).toEqual([experience.id]);
   });
 
-  // CONSEQUENCE OF INTENTIONAL_PRODUCT_CHANGE: PARTIAL_COMPOSITE_POLICY
-  // (the A-F above now persists). OWNER REVIEW REQUIRED.
-  // Old expectation: the later A-B was accepted and was the only
-  // Experience. Now the PARTIAL A-F exists first. Structurally the two are
-  // distinct (source-member overlap 2/6, D7), so A-B is never SAME-merged
-  // into the partial and never promotes it. But this fixture gives both
-  // walks the SAME description and themes, and the unchanged dedupe rule
-  // (semantic overlap >= 0.58 => AMBIGUOUS) holds A-B back, exactly as it
-  // would against a COMPLETE A-F with the same text. The next case shows an
-  // independently described A-B persisting as NEW.
-  it('a later complete composite sharing A/B with an identically described PARTIAL A-F reuses their GeoEntities, is never merged into or promotes the partial, and is held as AMBIGUOUS by semantic overlap only', async () => {
+  // INTENTIONAL_PRODUCT_CHANGE: DEDUPE_STRUCTURAL_AUTHORITY (2026-10-08).
+  // Old expectation (8bd16b97, owner review): the later A-B was held
+  // AMBIGUOUS by the lexical rule "semantic overlap >= 0.58" alone, because
+  // the fixture gives both walks the same description and themes. That
+  // rule had no calibration (forensic cb39f467). Structurally A-B is a
+  // SUBCOMPOSITION of the PARTIAL A-F: never SAME, never promoting it, and,
+  // with no similar name, it coexists as NEW whatever the shared text.
+  it('a later complete composite sharing A/B with an identically described PARTIAL A-F reuses their GeoEntities, is never merged into or promotes the partial, and persists as a coexisting SUBCOMPOSITION', async () => {
     const prisma = await getPrisma();
 
     const first = await resolveWith(
@@ -287,11 +284,27 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
     // Catalog-first reuse: no duplicate GeoEntities for A/B.
     expect(await prisma.geoEntity.count()).toBe(geoBefore);
     const later = result.resolved[0];
-    expect(later.status).toBe('rejected');
-    expect(later.rejectionReasons).toEqual(['AMBIGUOUS_DEDUPE']);
-    expect(later.dedupeCandidates).toEqual([partialId]);
+    expect(later.status).toBe('accepted');
+    expect(later.dedupeDecision).toBe('NEW');
+    expect(later.experienceId).toBeDefined();
+    expect(later.experienceId).not.toBe(partialId);
     expect(later.dedupeEvidence!.componentOverlap).toBeCloseTo(2 / 6);
-    expect(later.dedupeEvidence!.reasons).toContain('partial_semantic_overlap');
+    expect(later.dedupeEvidence!.structure).toMatchObject({
+      relation: 'SUBCOMPOSITION',
+      containment: 'INCOMING_WITHIN_EXISTING',
+      sourceMemberCounts: { incoming: 2, existing: 6 },
+    });
+    expect(
+      later.dedupeEvidence!.structure.sharedResolvedGeoEntityIds,
+    ).toHaveLength(2);
+    expect(later.dedupeEvidence!.decisiveEvidence).toBe(
+      'SUBCOMPOSITION_SOURCE_UNKNOWN',
+    );
+    const smaller = await prisma.experience.findUniqueOrThrow({
+      where: { id: later.experienceId! },
+      include: { components: { orderBy: { sourcePosition: 'asc' } } },
+    });
+    expect(smaller.components).toHaveLength(2);
     // The partial is untouched: still PARTIAL, C/E still unresolved.
     const partial = await prisma.experience.findUniqueOrThrow({
       where: { id: partialId },
@@ -305,7 +318,7 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
       'UNRESOLVED',
       'RESOLVED',
     ]);
-    expect(await prisma.experience.count()).toBe(1);
+    expect(await prisma.experience.count()).toBe(2);
   });
 
   it('D7: an independently described COMPLETE A-B after the PARTIAL A-F is NEW, persists with its own two members, and leaves the partial untouched', async () => {

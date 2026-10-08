@@ -1726,6 +1726,9 @@ export class ExperienceCatalogService {
               },
         ),
         provenance: (input.evidence ?? []).map((item) => item.source),
+        sourceDocuments: (input.evidence ?? []).flatMap((item) =>
+          item.url ? [item.url] : [],
+        ),
       };
       const decision = decideExperienceDedupe(
         incomingFingerprint,
@@ -1746,6 +1749,9 @@ export class ExperienceCatalogService {
           longitude: candidate.longitude,
           components: candidate.components,
           provenance: candidate.evidence.map((item) => item.source),
+          sourceDocuments: candidate.evidence.flatMap((item) =>
+            item.url ? [item.url] : [],
+          ),
         })),
       );
 
@@ -1935,8 +1941,8 @@ export class ExperienceCatalogService {
    * genuinely different real Experiences over the same real stops. Feeds
    * `DedupeExperienceFingerprint.conceptTerms`, the identity-dedupe gate's
    * dedicated compatible-concept-evidence signal (never a substitute for
-   * `semanticTerms`, which still legitimately blends in description/
-   * traits for the broader `strongConsistentIdentity` path).
+   * `semanticTerms`, which blends in description/traits for the
+   * diagnostic, ranking-only lexical score).
    */
   private conceptTerms(metadataValue: unknown): string[] {
     const metadata = this.objectMetadata(metadataValue);

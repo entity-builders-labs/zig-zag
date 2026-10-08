@@ -49,11 +49,86 @@ export interface DedupeExperienceFingerprint {
   latitude?: number | null;
   longitude?: number | null;
   components: DedupeComponentFingerprint[];
+  /** Evidence channels (`ExperienceEvidence.source`, e.g. `web`). Ranking only. */
   provenance?: string[];
+  /**
+   * Source DOCUMENT identities: the evidence URLs this composition was
+   * extracted from. The only source identity the catalog persists. Titles
+   * and descriptions are never source identity.
+   */
+  sourceDocuments?: string[];
 }
+
+/**
+ * Deterministic structural relation between two source-defined
+ * compositions, derived only from their source members:
+ *
+ *  - EXACT_COMPOSITION: the same source-member set (a resolved member is
+ *    its GeoEntity, an unresolved one its source wording), so a PARTIAL
+ *    composition seen twice is exact without every member resolving;
+ *  - SUBCOMPOSITION: one member set strictly contained in the other, with
+ *    no conflicting evidenced order over the shared members;
+ *  - PARTIAL_OVERLAP: they share at least one resolved GeoEntity but
+ *    neither contains the other (or evidenced order conflicts);
+ *  - DISJOINT: no shared resolved GeoEntity. Shared unresolved wording
+ *    alone is never shared structure.
+ *
+ * Text (names, descriptions, themes) never enters this relation.
+ */
+export type StructuralCompositionRelation =
+  | 'EXACT_COMPOSITION'
+  | 'SUBCOMPOSITION'
+  | 'PARTIAL_OVERLAP'
+  | 'DISJOINT';
+
+/** Which side of a SUBCOMPOSITION is the contained one. */
+export type SubcompositionContainment =
+  | 'INCOMING_WITHIN_EXISTING'
+  | 'EXISTING_WITHIN_INCOMING';
+
+/**
+ * Source-document relation of two compositions, from evidence URLs only:
+ * SAME_SOURCE when they share a source document, DIFFERENT_SOURCE when both
+ * have source documents and share none, SOURCE_UNKNOWN otherwise.
+ */
+export type SourceProvenanceRelation =
+  | 'SAME_SOURCE'
+  | 'DIFFERENT_SOURCE'
+  | 'SOURCE_UNKNOWN';
+
+export interface StructuralCompositionEvidence {
+  relation: StructuralCompositionRelation;
+  containment: SubcompositionContainment | null;
+  sharedResolvedGeoEntityIds: string[];
+  sourceMemberCounts: { incoming: number; existing: number };
+}
+
+/**
+ * The structural/provenance fact that decided a comparison. Never a
+ * similarity score.
+ */
+export type DedupeDecisiveEvidence =
+  | 'NO_EXISTING_CANDIDATES'
+  | 'EXACT_COMPOSITION_IDENTITY_CONFIRMED'
+  | 'EXACT_COMPOSITION_IDENTITY_UNCONFIRMED'
+  | 'STRUCTURAL_OVERLAP_WITH_SIMILAR_NAME'
+  | 'SIMILAR_NAME_WITHOUT_SHARED_STRUCTURE'
+  | 'PARTIAL_OVERLAP_IDENTITY_UNRESOLVED'
+  | 'PARTIAL_OVERLAP_INSUFFICIENT'
+  | 'STANDALONE_COMPOSITE_MEMBERSHIP'
+  | 'SUBCOMPOSITION_SAME_SOURCE_CONTAINMENT'
+  | 'SUBCOMPOSITION_DIFFERENT_SOURCE'
+  | 'SUBCOMPOSITION_SOURCE_UNKNOWN'
+  | 'STRUCTURALLY_DISJOINT';
 
 export interface DedupeEvidence {
   nameSimilarity: number;
+  /**
+   * Lexical token overlap of name + description + themes/intents/traits.
+   * DIAGNOSTIC and candidate-ranking only: it never decides SAME,
+   * AMBIGUOUS or NEW (identity spec §6.1). It is uncalibrated and depends
+   * on which side carries persisted trait rows.
+   */
   semanticSimilarity: number;
   componentOverlap: number;
   roleAwareComponentOverlap: number;
@@ -81,6 +156,10 @@ export interface DedupeEvidence {
    * open identity question, never an automatic match.
    */
   orderConflict: boolean;
+  structure: StructuralCompositionEvidence;
+  sourceRelation: SourceProvenanceRelation;
+  /** Set on the evidence of a final decision; null on raw comparisons. */
+  decisiveEvidence: DedupeDecisiveEvidence | null;
   reasons: string[];
 }
 
@@ -104,149 +183,186 @@ export function decideExperienceDedupe(
   incoming: DedupeExperienceFingerprint,
   existing: DedupeExperienceFingerprint[],
 ): DedupeDecision {
-  const ranked = existing
+  // Ranking only orders candidates (which exact duplicate is canonical, which
+  // conflicting ids are reported first). It never decides identity: every
+  // candidate is judged by the same structural policy below.
+  const judged = existing
     .filter(
       (candidate): candidate is DedupeExperienceFingerprint & { id: string } =>
         !!candidate.id,
     )
-    .map((candidate) => ({
-      candidate,
-      evidence: compareFingerprints(incoming, candidate),
-    }))
+    .map((candidate) => {
+      const evidence = compareFingerprints(incoming, candidate);
+      return {
+        candidate,
+        evidence,
+        verdict: judgeDedupeComparison(
+          evidence,
+          isStandaloneCompositeComparison(incoming, candidate),
+        ),
+      };
+    })
     .sort((a, b) => evidenceScore(b.evidence) - evidenceScore(a.evidence));
 
-  if (!ranked.length) {
+  if (!judged.length) {
     return {
       decision: 'NEW',
-      evidence: emptyEvidence('no_existing_candidates'),
+      evidence: emptyEvidence(
+        'no_existing_candidates',
+        allSourceMembers(incoming).length,
+      ),
     };
   }
 
-  const best = ranked[0];
-  // A COMPLETE, role-consistent match of the real component set (every
-  // required real place, in the same role, on both sides -- not a
-  // partial/threshold overlap) is a very strong identity signal: two
-  // sources describing literally the same real physical composition.
-  // Display-name wording legitimately varies across independent sources
-  // ("San Telmo Historical Walking Tour" vs "Historical Walk through San
-  // Telmo" for the identical real stops), so byte-identical names must
-  // never be required. But it is NOT unilateral identity authority
-  // (hard invariant 7: "component overlap alone cannot force SAME") --
-  // two independently evidenced Experiences can legitimately share the
-  // exact same real stops/roles while representing different tourism
-  // concepts, or describe the same component set in explicitly
-  // conflicting sequences. `exactStructure` therefore additionally
-  // requires (a) no explicit evidenced-order conflict, AND (b) real
-  // compatible IDENTITY evidence, not merely any shared word or shared
-  // classification facet. Neither partial name overlap NOR partial (or
-  // even any) concept/classification overlap is, by itself, that
-  // evidence:
-  //   - Two independently evidenced Experiences over the exact same real
-  //     stops can legitimately share generic location/format words in
-  //     their names ("San Telmo Historical Walk" vs "San Telmo Food Walk"
-  //     both truthfully contain "San Telmo" and "Walk").
-  //   - `theme`/`intent` are CLASSIFICATION facets, not identity: two
-  //     genuinely different real Experiences over the identical stops can
-  //     legitimately share an intent ("multiple distinct Experiences with
-  //     intent=walk in the same scope" is explicitly valid design) or a
-  //     theme label independently of whether they are the same physical
-  //     composition. A classification facet therefore can never be the
-  //     thing that "upgrades" a structural match to SAME, whether the
-  //     overlap is partial (one shared intent, differing theme) OR total
-  //     absence on both sides (silently treating "no one classified
-  //     either side" as agreement is not identity evidence either --
-  //     `conceptOverlap` special-cases empty/empty to 0, unlike every
-  //     other overlap signal in this file).
-  // Compatible identity evidence is therefore either of:
-  //   - the two names being IDENTICAL after normalization
-  //     (nameSimilarity === 1) -- on its own already a very strong,
-  //     unambiguous textual identity signal, independent of concept; or
-  //   - the two sides' curated CONCEPT being IN FULL AGREEMENT
-  //     (conceptOverlap === 1 -- every theme/intent token on one side is
-  //     matched by the other, real non-vacuous data on both sides). Full
-  //     agreement across the WHOLE curated concept is meaningfully
-  //     different from "shares one generic facet" -- it is two
-  //     independent sources converging on the SAME complete
-  //     classification, not merely both happening to be tagged `walk`.
-  // Neither is a tuned magic threshold: both are the same "===1, full
-  // agreement, not partial" pattern already required of
-  // componentOverlap/roleAwareComponentOverlap above. Absent one of
-  // these, a perfect component match alone resolves to AMBIGUOUS below,
-  // exactly like the partial-overlap case -- never a confident NEW, never
-  // a silent SAME.
-  const exactStructure =
-    best.evidence.roleAwareComponentOverlap === 1 &&
-    best.evidence.componentOverlap === 1 &&
-    (best.evidence.nameSimilarity === 1 ||
-      best.evidence.conceptOverlap === 1) &&
-    !best.evidence.orderConflict;
-  const strongConsistentIdentity =
-    best.evidence.nameSimilarity >= 0.86 &&
-    best.evidence.semanticSimilarity >= 0.72 &&
-    best.evidence.roleAwareComponentOverlap >= 0.8 &&
-    (best.evidence.distanceKm == null || best.evidence.distanceKm <= 1.5) &&
-    !best.evidence.orderConflict;
-
-  if (exactStructure || strongConsistentIdentity) {
-    return {
-      decision: 'SAME',
-      canonicalExperienceId: best.candidate.id,
-      evidence: {
-        ...best.evidence,
-        reasons: [
-          ...best.evidence.reasons,
-          exactStructure ? 'exact_structure' : 'strong_consistent_identity',
-        ],
-      },
-    };
-  }
-
-  const ambiguous = ranked.filter(({ candidate, evidence }) => {
-    // Canonical domain rule: a standalone Experience and a source-backed
-    // composite may legitimately point at the SAME GeoEntity (§16 of the
-    // component-resolution amendment). In that 1-vs-many shape, shared
-    // component membership is expected catalog structure, not identity
-    // ambiguity. Keep measuring the structural overlap for audit/ranking,
-    // but do not let component overlap ALONE fail-close either Experience.
-    //
-    // Independent identity signals still apply: the same/similar name or
-    // strong semantic overlap may still make the pair AMBIGUOUS. And
-    // composite-vs-composite overlap keeps the existing conservative policy.
-    const standaloneComposite = isStandaloneCompositeComparison(
-      incoming,
-      candidate,
-    );
-    return (
-      evidence.nameSimilarity >= 0.72 ||
-      evidence.semanticSimilarity >= 0.58 ||
-      (!standaloneComposite &&
-        (evidence.componentOverlap >= 0.5 ||
-          evidence.roleAwareComponentOverlap >= 0.4))
-    );
+  const decided = (
+    entry: (typeof judged)[number],
+    reason: string,
+  ): DedupeEvidence => ({
+    ...entry.evidence,
+    decisiveEvidence: entry.verdict.decisiveEvidence,
+    reasons: [...entry.evidence.reasons, reason],
   });
 
+  const same = judged.find(({ verdict }) => verdict.identity === 'SAME');
+  if (same) {
+    return {
+      decision: 'SAME',
+      canonicalExperienceId: same.candidate.id,
+      evidence: decided(same, 'exact_structure'),
+    };
+  }
+
+  const ambiguous = judged.filter(
+    ({ verdict }) => verdict.identity === 'AMBIGUOUS',
+  );
   if (ambiguous.length) {
-    const bestAmbiguous = ambiguous[0];
     return {
       decision: 'AMBIGUOUS',
       candidates: ambiguous.slice(0, 5).map(({ candidate }) => candidate.id),
-      evidence: {
-        ...bestAmbiguous.evidence,
-        reasons: [
-          ...bestAmbiguous.evidence.reasons,
-          'identity_signals_conflict_or_are_incomplete',
-        ],
-      },
+      evidence: decided(
+        ambiguous[0],
+        'identity_signals_conflict_or_are_incomplete',
+      ),
     };
   }
 
   return {
     decision: 'NEW',
-    evidence: {
-      ...best.evidence,
-      reasons: [...best.evidence.reasons, 'insufficient_identity_overlap'],
-    },
+    evidence: decided(judged[0], 'insufficient_identity_overlap'),
   };
+}
+
+interface DedupeComparisonVerdict {
+  identity: 'SAME' | 'AMBIGUOUS' | 'DISTINCT';
+  decisiveEvidence: DedupeDecisiveEvidence;
+}
+
+/**
+ * THE Experience identity policy for one comparison: structural relation +
+ * source provenance + the existing strong identity evidence. Text
+ * similarity is never decisive on its own (identity spec §6.1):
+ *
+ * | relation          | outcome                                             |
+ * | ----------------- | --------------------------------------------------- |
+ * | EXACT_COMPOSITION | SAME when roles agree, the name is identical or the |
+ * |                   | curated concept fully agrees, and evidenced order   |
+ * |                   | does not conflict; else AMBIGUOUS                   |
+ * | SUBCOMPOSITION    | never SAME. AMBIGUOUS only with a similar name;     |
+ * |                   | else DISTINCT (coexist), whatever the source        |
+ * |                   | relation (same-source containment is recorded, not  |
+ * |                   | persisted: explicit CONTAINS relations are future   |
+ * |                   | work)                                               |
+ * | PARTIAL_OVERLAP   | AMBIGUOUS with a similar name, or composite-vs-     |
+ * |                   | composite structural overlap; else DISTINCT         |
+ * | DISJOINT          | AMBIGUOUS with a similar name; else DISTINCT        |
+ *
+ * The similar-name rule is the one remaining text-based AMBIGUOUS
+ * authority. It is kept unchanged as explicit follow-up debt (the 0.72 cut
+ * is uncalibrated, like the composite overlap cuts); removing it would flip
+ * accepted same-name cases and is out of this milestone's scope. Lexical
+ * semantic overlap has no decision authority at all. Shared membership
+ * between a standalone Experience and a composite is never identity by
+ * itself (§6.1).
+ *
+ * Every input is symmetric in the two sides, so the identity outcome does
+ * not depend on which Experience was persisted first.
+ */
+function judgeDedupeComparison(
+  evidence: DedupeEvidence,
+  standaloneComposite: boolean,
+): DedupeComparisonVerdict {
+  // Uncalibrated cuts inherited from 57d2dfcf; explicit follow-up debt
+  // (semantic-overlap forensic 2026-10-08 §12.7).
+  const similarName = evidence.nameSimilarity >= 0.72;
+  const compositeStructuralOverlap =
+    !standaloneComposite &&
+    (evidence.componentOverlap >= 0.5 ||
+      evidence.roleAwareComponentOverlap >= 0.4);
+
+  switch (evidence.structure.relation) {
+    case 'EXACT_COMPOSITION': {
+      // Hard invariants 7 and 8: neither the shared component set nor
+      // text alone forces SAME. Roles must agree, the evidenced order must
+      // not conflict, and an independent identity signal must agree:
+      // identical normalized names, or full curated-concept agreement (a
+      // shared generic facet or an empty/empty concept is not agreement).
+      const identityConfirmed =
+        evidence.roleAwareComponentOverlap === 1 &&
+        (evidence.nameSimilarity === 1 || evidence.conceptOverlap === 1) &&
+        !evidence.orderConflict;
+      return identityConfirmed
+        ? {
+            identity: 'SAME',
+            decisiveEvidence: 'EXACT_COMPOSITION_IDENTITY_CONFIRMED',
+          }
+        : {
+            identity: 'AMBIGUOUS',
+            decisiveEvidence: 'EXACT_COMPOSITION_IDENTITY_UNCONFIRMED',
+          };
+    }
+    case 'SUBCOMPOSITION':
+      if (similarName) {
+        return {
+          identity: 'AMBIGUOUS',
+          decisiveEvidence: 'STRUCTURAL_OVERLAP_WITH_SIMILAR_NAME',
+        };
+      }
+      return {
+        identity: 'DISTINCT',
+        decisiveEvidence: standaloneComposite
+          ? 'STANDALONE_COMPOSITE_MEMBERSHIP'
+          : evidence.sourceRelation === 'SAME_SOURCE'
+            ? 'SUBCOMPOSITION_SAME_SOURCE_CONTAINMENT'
+            : evidence.sourceRelation === 'DIFFERENT_SOURCE'
+              ? 'SUBCOMPOSITION_DIFFERENT_SOURCE'
+              : 'SUBCOMPOSITION_SOURCE_UNKNOWN',
+      };
+    case 'PARTIAL_OVERLAP':
+      if (similarName) {
+        return {
+          identity: 'AMBIGUOUS',
+          decisiveEvidence: 'STRUCTURAL_OVERLAP_WITH_SIMILAR_NAME',
+        };
+      }
+      return compositeStructuralOverlap
+        ? {
+            identity: 'AMBIGUOUS',
+            decisiveEvidence: 'PARTIAL_OVERLAP_IDENTITY_UNRESOLVED',
+          }
+        : {
+            identity: 'DISTINCT',
+            decisiveEvidence: standaloneComposite
+              ? 'STANDALONE_COMPOSITE_MEMBERSHIP'
+              : 'PARTIAL_OVERLAP_INSUFFICIENT',
+          };
+    case 'DISJOINT':
+      return similarName
+        ? {
+            identity: 'AMBIGUOUS',
+            decisiveEvidence: 'SIMILAR_NAME_WITHOUT_SHARED_STRUCTURE',
+          }
+        : { identity: 'DISTINCT', decisiveEvidence: 'STRUCTURALLY_DISJOINT' };
+  }
 }
 
 export function compareFingerprints(
@@ -261,25 +377,15 @@ export function compareFingerprints(
     semanticTokenSet(incoming),
     semanticTokenSet(existing),
   );
-  const incomingIds = new Set(sourceMemberKeys(incoming));
-  const existingIds = new Set(sourceMemberKeys(existing));
-  const componentOverlap = setOverlap(incomingIds, existingIds);
-
-  const incomingRoleKeys = new Set(
-    allSourceMembers(incoming).map(
-      (component) =>
-        `${normalize(component.role ?? 'component')}|${sourceMemberKey(component)}`,
-    ),
-  );
-  const existingRoleKeys = new Set(
-    allSourceMembers(existing).map(
-      (component) =>
-        `${normalize(component.role ?? 'component')}|${sourceMemberKey(component)}`,
-    ),
+  const incomingKeys = sourceMemberKeys(incoming, 'incoming');
+  const existingKeys = sourceMemberKeys(existing, 'existing');
+  const componentOverlap = setOverlap(
+    new Set(incomingKeys.map(({ key }) => key)),
+    new Set(existingKeys.map(({ key }) => key)),
   );
   const roleAwareComponentOverlap = setOverlap(
-    incomingRoleKeys,
-    existingRoleKeys,
+    new Set(incomingKeys.map(({ key, role }) => `${role}|${key}`)),
+    new Set(existingKeys.map(({ key, role }) => `${role}|${key}`)),
   );
 
   const incomingProvenance = new Set(
@@ -299,11 +405,18 @@ export function compareFingerprints(
     resolvedSourceMembers(existing),
   );
 
+  const structure = structuralCompositionRelation(
+    incoming,
+    existing,
+    incomingKeys,
+    existingKeys,
+    orderConflict,
+  );
+  const sourceRelation = sourceProvenanceRelation(incoming, existing);
+
   const reasons: string[] = [];
   if (nameSimilarity === 1) reasons.push('same_normalized_name');
   else if (nameSimilarity >= 0.72) reasons.push('similar_name');
-  if (semanticSimilarity >= 0.72) reasons.push('strong_semantic_overlap');
-  else if (semanticSimilarity >= 0.58) reasons.push('partial_semantic_overlap');
   if (componentOverlap > 0) reasons.push('shared_geo_entities');
   if (
     componentOverlap > 0 &&
@@ -328,8 +441,93 @@ export function compareFingerprints(
     provenanceOverlap,
     conceptOverlap,
     orderConflict,
+    structure,
+    sourceRelation,
+    decisiveEvidence: null,
     reasons,
   };
+}
+
+/**
+ * Structural relation over source-member keys (see
+ * `StructuralCompositionRelation`). Containment reads the member SET; the
+ * only sequence semantics are the evidenced `order` ones (spec §9, no
+ * manufactured order), so a conflicting evidenced order downgrades
+ * containment to PARTIAL_OVERLAP.
+ */
+function structuralCompositionRelation(
+  incoming: DedupeExperienceFingerprint,
+  existing: DedupeExperienceFingerprint,
+  incomingKeys: SourceMemberKey[],
+  existingKeys: SourceMemberKey[],
+  orderConflict: boolean,
+): StructuralCompositionEvidence {
+  const existingGeo = new Set(distinctResolvedGeoEntityIds(existing));
+  const sharedResolvedGeoEntityIds = distinctResolvedGeoEntityIds(
+    incoming,
+  ).filter((id) => existingGeo.has(id));
+  const sourceMemberCounts = {
+    incoming: incomingKeys.length,
+    existing: existingKeys.length,
+  };
+  const of = (
+    relation: StructuralCompositionRelation,
+    containment: SubcompositionContainment | null = null,
+  ): StructuralCompositionEvidence => ({
+    relation,
+    containment,
+    sharedResolvedGeoEntityIds,
+    sourceMemberCounts,
+  });
+
+  if (!sharedResolvedGeoEntityIds.length) return of('DISJOINT');
+
+  const incomingSet = new Set(incomingKeys.map(({ key }) => key));
+  const existingSet = new Set(existingKeys.map(({ key }) => key));
+  const incomingWithin = [...incomingSet].every((key) => existingSet.has(key));
+  const existingWithin = [...existingSet].every((key) => incomingSet.has(key));
+
+  if (incomingWithin && existingWithin) return of('EXACT_COMPOSITION');
+  if (orderConflict) return of('PARTIAL_OVERLAP');
+  if (incomingWithin) return of('SUBCOMPOSITION', 'INCOMING_WITHIN_EXISTING');
+  if (existingWithin) return of('SUBCOMPOSITION', 'EXISTING_WITHIN_INCOMING');
+  return of('PARTIAL_OVERLAP');
+}
+
+function sourceProvenanceRelation(
+  incoming: DedupeExperienceFingerprint,
+  existing: DedupeExperienceFingerprint,
+): SourceProvenanceRelation {
+  const incomingDocs = canonicalSourceDocuments(incoming);
+  const existingDocs = canonicalSourceDocuments(existing);
+  if (!incomingDocs.size || !existingDocs.size) return 'SOURCE_UNKNOWN';
+  return [...incomingDocs].some((doc) => existingDocs.has(doc))
+    ? 'SAME_SOURCE'
+    : 'DIFFERENT_SOURCE';
+}
+
+/**
+ * Evidence URL as a document identity: scheme and host case, a fragment and
+ * a trailing slash do not change the document. A value that is not a URL is
+ * compared trimmed.
+ */
+function canonicalSourceDocuments(
+  fingerprint: DedupeExperienceFingerprint,
+): Set<string> {
+  return new Set(
+    (fingerprint.sourceDocuments ?? [])
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .map((value) => {
+        try {
+          const url = new URL(value);
+          url.hash = '';
+          return url.toString().replace(/\/$/, '');
+        } catch {
+          return value;
+        }
+      }),
+  );
 }
 
 /**
@@ -375,22 +573,30 @@ function hasConflictingEvidencedOrder(
   return incomingSequence.join('|') !== existingSequence.join('|');
 }
 
-/**
- * Identity key of one source member inside a dedupe comparison: its
- * GeoEntity when resolved, else its normalized source wording. Never a bare
- * `null`, so two unrelated PARTIAL Experiences never share a fake member.
- */
-function sourceMemberKey(component: DedupeComponentFingerprint): string {
-  const resolved: boolean = isResolvedSourceMember(component);
-  return resolved
-    ? `geo:${component.geoEntityId}`
-    : `source:${normalizeGeoName(component.sourceName ?? '')}`;
+interface SourceMemberKey {
+  key: string;
+  role: string;
 }
 
+/**
+ * Identity key of each source member inside a dedupe comparison, in source
+ * order: its GeoEntity when resolved, else its normalized source wording.
+ * Never a bare `null`; an unresolved member without wording gets a key no
+ * other member can share, so it never becomes shared structure.
+ */
 function sourceMemberKeys(
   fingerprint: Pick<DedupeExperienceFingerprint, 'components'>,
-): string[] {
-  return allSourceMembers(fingerprint).map(sourceMemberKey);
+  side: 'incoming' | 'existing',
+): SourceMemberKey[] {
+  return allSourceMembers(fingerprint).map((component, index) => {
+    const wording = normalizeGeoName(component.sourceName ?? '');
+    const key = isResolvedSourceMember(component)
+      ? `geo:${component.geoEntityId}`
+      : wording
+        ? `source:${wording}`
+        : `unnamed:${side}:${index}`;
+    return { key, role: normalize(component.role ?? 'component') };
+  });
 }
 
 /**
@@ -518,7 +724,10 @@ function normalize(value: string): string {
     .trim();
 }
 
-function emptyEvidence(reason: string): DedupeEvidence {
+function emptyEvidence(
+  reason: string,
+  incomingMemberCount: number,
+): DedupeEvidence {
   return {
     nameSimilarity: 0,
     semanticSimilarity: 0,
@@ -528,6 +737,14 @@ function emptyEvidence(reason: string): DedupeEvidence {
     provenanceOverlap: 0,
     conceptOverlap: 0,
     orderConflict: false,
+    structure: {
+      relation: 'DISJOINT',
+      containment: null,
+      sharedResolvedGeoEntityIds: [],
+      sourceMemberCounts: { incoming: incomingMemberCount, existing: 0 },
+    },
+    sourceRelation: 'SOURCE_UNKNOWN',
+    decisiveEvidence: 'NO_EXISTING_CANDIDATES',
     reasons: [reason],
   };
 }

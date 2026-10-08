@@ -247,8 +247,9 @@ Canonical dedupe consequence:
 - for **standalone-vs-composite** comparisons (one distinct component vs more
   than one), shared component membership alone MUST NOT force `SAME` or
   `AMBIGUOUS`;
-- independent identity signals such as name/semantic evidence may still make
-  the pair `AMBIGUOUS`;
+- a similar name may still make the pair `AMBIGUOUS` (deferred debt, see
+  "Structural identity authority" below); lexical/semantic text overlap may
+  not;
 - exact standalone-vs-standalone and exact composite-vs-composite duplicate
   behavior remains unchanged;
 - composite-vs-composite partial-overlap policy remains conservative unless
@@ -265,6 +266,57 @@ component membership != standalone Experience authority
 
 It is a policy correction to the meaning of the overlap signal, not a new
 numeric threshold.
+
+### Structural identity authority (amendment 2026-10-08)
+
+Name/text/semantic similarity is non-authoritative identity evidence.
+
+It may nominate or corroborate a comparison, but SAME / AMBIGUOUS / DISTINCT
+decisions require structural or independently grounded identity evidence.
+
+This replaces the earlier reading of this section that "name/semantic
+evidence may by itself make the pair AMBIGUOUS". Why
+(`spikes/semantic-overlap-threshold-forensic-2026-10-08/README.md`):
+
+- the `semanticOverlap >= 0.58 → AMBIGUOUS` rule had no calibration, dataset
+  or rationale (`NO_EVIDENCE_FOUND_FOR_0_58`);
+- the score is insertion-order dependent: persisted trait rows reach it only
+  on the existing side, so one pair scored 0.500 or 0.857 depending on which
+  Experience was persisted first (hard invariant 11);
+- it conflates textual similarity (shared descriptions, templated LLM text,
+  generic themes) with Experience identity;
+- it cannot represent containment: a smaller source-defined composition
+  inside a larger one was either merged or rejected by word overlap.
+
+The dedupe primitive derives a deterministic **structural relation** from
+the two source-defined compositions. A resolved member is its GeoEntity; an
+unresolved member is its source wording and never a shared `null`:
+
+```text
+EXACT_COMPOSITION  same source-member set (PARTIAL seen twice included)
+SUBCOMPOSITION     one member set strictly inside the other, with no
+                   conflicting evidenced order over the shared members
+PARTIAL_OVERLAP    shared resolved GeoEntities, neither contains the other
+DISJOINT           no shared resolved GeoEntity
+```
+
+and a **source relation** from evidence URLs only (`SAME_SOURCE`,
+`DIFFERENT_SOURCE`, `SOURCE_UNKNOWN`; titles/descriptions are never source
+identity). One policy combines them:
+
+| Relation | Outcome |
+| --- | --- |
+| EXACT_COMPOSITION | SAME when roles agree, names are identical or the curated concept fully agrees, and evidenced order does not conflict; else AMBIGUOUS |
+| SUBCOMPOSITION | never SAME; AMBIGUOUS only with a similar name; otherwise NEW (coexist) for same, different or unknown source |
+| PARTIAL_OVERLAP | AMBIGUOUS with a similar name or composite-vs-composite structural overlap; else NEW |
+| DISJOINT | AMBIGUOUS only with a similar name; else NEW |
+
+A same-source SUBCOMPOSITION is recorded as containment evidence in the
+trace, not as identity. Persisted containment (`CONTAINS`) relations are
+future work. The lexical semantic score remains for diagnostics and
+candidate ordering only. The remaining uncalibrated cuts (name `>= 0.72`,
+component `>= 0.5`, role-aware `>= 0.4`) are explicit follow-up debt; the
+name cut is the last text-based AMBIGUOUS authority.
 
 ---
 
@@ -377,6 +429,7 @@ It is **not required now** and must not be introduced simply to solve identity. 
 11. Provider ordering must not change the final identity decision/state.
 12. Evidence can resolve ambiguity later; catalog decisions remain auditable.
 13. Shared GeoEntity membership between a standalone Experience and a composite is not, by itself, a SAME or AMBIGUOUS identity signal.
+14. Lexical/semantic text similarity alone never decides SAME, AMBIGUOUS or NEW; a source-defined sub-composition is never SAME with the composition that contains it.
 
 ---
 

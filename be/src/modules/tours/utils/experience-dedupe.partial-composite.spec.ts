@@ -50,7 +50,12 @@ describe('decideExperienceDedupe · partial vs complete composites (characteriza
     expect(decision.decision).toBe('SAME');
   });
 
-  it('CHARACTERIZATION: with unresolved members dropped, COMPLETE A-B against PARTIAL A-F (A,B,D,F resolved) shares half its members and is AMBIGUOUS, so A-B would not persist', () => {
+  // INTENTIONAL_PRODUCT_CHANGE: DEDUPE_STRUCTURAL_AUTHORITY (2026-10-08).
+  // Old expectation: AMBIGUOUS (member overlap 2/4 >= 0.5), so A-B did not
+  // persist. In the resolved-only shape {A,B} is an ordered SUBCOMPOSITION
+  // of {A,B,D,F}; a subcomposition is never SAME and, without a similar
+  // name, coexists (spec §6.1 amendment).
+  it('CHARACTERIZATION: with unresolved members dropped, COMPLETE A-B against PARTIAL A-F (A,B,D,F resolved) is a SUBCOMPOSITION and coexists as NEW', () => {
     const decision = decideExperienceDedupe(
       {
         ...resolvedOnly(undefined, ['A', 'B']),
@@ -65,8 +70,12 @@ describe('decideExperienceDedupe · partial vs complete composites (characteriza
         },
       ],
     );
-    expect(decision.decision).toBe('AMBIGUOUS');
+    expect(decision.decision).toBe('NEW');
     expect(decision.evidence.componentOverlap).toBe(0.5);
+    expect(decision.evidence.structure).toMatchObject({
+      relation: 'SUBCOMPOSITION',
+      containment: 'INCOMING_WITHIN_EXISTING',
+    });
   });
 
   it('COMPLETE A-B against COMPLETE A-B with the same name is SAME (unchanged complete behavior)', () => {
