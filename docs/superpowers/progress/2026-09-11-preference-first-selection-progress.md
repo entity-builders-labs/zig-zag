@@ -2148,14 +2148,17 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
-RW4-FINAL-PLAN-INFEASIBLE-1 FIXED, not COLD-validated (2026-10-08, on top
-of `7385a9e1`). Routed day ordering re-applies the walking limits through
-the same `evaluateWalkingFeasibility` authority placement uses (continuous
-leg, internal continuous leg, running day total incl. internal walking);
-an infeasible next pick is skipped and, if none remains, repair drops the
-lowest-priority candidate with `MAX_CONTINUOUS_WALKING_EXCEEDED` /
-`MAX_WALKING_PER_DAY_EXCEEDED`. Solver → validator walking invariant tests
-added. Verdict: READY_FOR_FINAL_COLD_RERUN.
+RW4 final canonical COLD + WARM rerun PASSED functionally (2026-10-08, HEAD
+`27315cf7`, fresh DB `zigzag_spike_rw4_final_rerun`, canonical). Evidence:
+`spikes/rw4-final-rerun-cold-warm-2026-10-08/README.md`.
+- COLD_QUALIFIED: final snapshot epoch 5 = last acquisition epoch; the
+  composite acquired by the final PLANNER_CAPACITY pass leads the Tour;
+  validator passed (legs ≤ 2,724 m / 3,000 m, day 7,029 m / 10,000 m).
+- WARM: identical Tour, legs and snapshots; one policy refill only
+  (non-routing provider requests 349 → 40, 4 classifications reused).
+- Verdict: RW4_FUNCTIONAL_PASS_WITH_NONBLOCKING_QUALITY_DEBT
+  (RW4-ID-FALSE-VERIFY-2 reproduced in the selected composite;
+  RW4-EXTRACT-STABILITY-1 reobserved).
 
 GATHER_RECONCILE_PLAN is IMPLEMENTED, not merged (2026-10-08, on top of
 `9e5a6c9a`). Evidence: `spikes/gather-reconcile-plan-2026-10-08/README.md`.
@@ -2803,7 +2806,14 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 
 ## Next authorized action
 
-00000000. (2026-10-08) RW4-FINAL-PLAN-INFEASIBLE-1 fixed (routed ordering
+000000000. (2026-10-08) Full Preference-First PR review (governance-aware,
+           ARCHITECTURE PASS/DRIFT), carrying RW4-ID-FALSE-VERIFY-2 as an
+           open HIGH owner decision. Evidence:
+           `spikes/rw4-final-rerun-cold-warm-2026-10-08/README.md`. Do not
+           merge without separate authorization.
+
+00000000. (2026-10-08) [DONE by 000000000: COLD qualified, WARM reuse
+          proven] RW4-FINAL-PLAN-INFEASIBLE-1 fixed (routed ordering
           now enforces the shared walking-feasibility authority). Next:
           owner-authorized final canonical COLD rerun on a fresh catalog;
           WARM only if COLD qualifies. Do not merge.
@@ -2921,7 +2931,10 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
 
 ## Open findings / blockers
 
-- RW4-FINAL-PLAN-INFEASIBLE-1: FIXED, awaiting final COLD rerun. The
+- RW4-FINAL-PLAN-INFEASIBLE-1: CLOSED (2026-10-08). The final canonical
+  COLD rerun at `27315cf7` emitted only legs ≤ 3,000 m and passed the
+  validator; WARM reproduced the same plan
+  (`spikes/rw4-final-rerun-cold-warm-2026-10-08/README.md`). History: the
   final canonical COLD (`d102fbc0`) failed at the feasibility validator
   with `MAX_CONTINUOUS_WALKING_EXCEEDED` on the composite's inbound leg.
   Forensic replay: the validator does no travel estimation (it reads the

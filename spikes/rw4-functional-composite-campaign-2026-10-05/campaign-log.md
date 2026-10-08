@@ -637,3 +637,26 @@ navigable component. No false VERIFIED observed.
   ~1.9 km outside San Telmo); no TourExperience materialized. Deterministic
   planner infeasibility, not a provider failure. WARM not run.
 - Dossier: `spikes/rw4-final-cold-warm-validation-2026-10-08/README.md`.
+
+## Final canonical COLD + WARM rerun — 2026-10-08 — COLD_QUALIFIED, WARM reuse proven
+
+- HEAD `27315cf7` (walking-ordering fix), DB **`zigzag_spike_rw4_final_rerun`**
+  (fresh), canonical provenance verified for both runs. Same request,
+  providers and command as `rw4-final-cold`.
+- `rw4-final-rerun-cold/`: 575 s, `completed`, Tour `85ebc2c6`, 856
+  provider requests. Final snapshot epoch 5 = last acquisition epoch. Final
+  Tour: `0613fabb` (secretsofbuenosaires Day 1 walk, 18 members / 7
+  resolved, acquired by the final PLANNER_CAPACITY pass), Museo Histórico
+  Nacional, Roca granitica, Manzana de las Luces. Legs 210 / 799 / 2,724 m
+  (limit 3,000), day 7,029 m incl. 3,296 m internal (limit 10,000).
+  Validator passed; no repair.
+- `rw4-final-rerun-warm/`: 253 s, `completed`, Tour `7e6a203a`, identical
+  Tour and legs; 1 PLANNER_CAPACITY refill (NEW 1 `5ff30e31`
+  OVERLAP_EXCLUDED, SAME 4, REJ 6); 580 requests (40 excluding routing).
+- Anomalies: COLD 1 Gemini 429 (pass-2 GENERIC extraction), 3 Wikidata
+  timeouts; WARM none.
+- Known debt reobserved: RW4-ID-FALSE-VERIFY-2 (National Bank → First
+  National Bank of Boston, in the selected composite);
+  RW4-EXTRACT-STABILITY-1 (agusyornet unit fail-closed; "Frequently Asked
+  Questions" composite name).
+- Dossier: `spikes/rw4-final-rerun-cold-warm-2026-10-08/README.md`.

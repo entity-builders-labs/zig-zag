@@ -1,0 +1,24 @@
+{
+  "destination": {
+    "label": "Buenos Aires, Argentina",
+    "latitude": -34.6037,
+    "longitude": -58.3816,
+    "scaleHint": "settlement"
+  },
+  "days": 1,
+  "budgetLevel": "medium",
+  "groupType": "solo",
+  "intent": {
+    "interests": ["history", "architecture"],
+    "intents": ["walk"],
+    "explorationStyle": "balanced",
+    "additionalPreferences": "Quiero recorrer San Telmo a pie por mi cuenta, sin guía, siguiendo un itinerario autoguiado por sus lugares históricos."
+  },
+  "mobility": {
+    "allowedTransportationModes": ["walking"],
+    "maxWalkingDistancePerDayMeters": 10000,
+    "maxContinuousWalkingDistanceMeters": 3000,
+    "travelPace": "moderate"
+  },
+  "skipImageGeneration": true
+}

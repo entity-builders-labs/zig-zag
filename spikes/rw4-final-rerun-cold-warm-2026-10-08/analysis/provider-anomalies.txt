@@ -1,0 +1,7 @@
+# Provider/runtime anomalies extracted from the gitignored backend.log of each run.
+== cold
+[Nest] 55678  - 08/10/2026, 08:02:03    WARN [WikidataApiService] Wikidata proximity lookup failed (-34.6373095,-58.3746922,200m): timeout of 10000ms exceeded
+[Nest] 55678  - 08/10/2026, 08:02:03    WARN [WikidataApiService] Wikidata proximity lookup failed (-34.6415202,-58.3614139,200m): timeout of 10000ms exceeded
+[Nest] 55678  - 08/10/2026, 08:02:05    WARN [WikidataApiService] Wikidata proximity lookup failed (-34.6334567,-58.3670125,200m): timeout of 10000ms exceeded
+[Nest] 55678  - 08/10/2026, 08:03:20    WARN [ExperienceAcquisitionService] Web acquisition threw during EXTRACTION: Gemini error 429: {"error":{"message":"Rate limit exceeded for model gemini-3.5-flash-lite (limit: 15 requests per minute on Free Tier). Please retry in 39s or upgrade your tier at ht
+== warm
