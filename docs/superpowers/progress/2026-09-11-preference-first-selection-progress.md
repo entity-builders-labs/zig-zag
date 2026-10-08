@@ -2956,11 +2956,19 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
     Farmacia and was reverted (`89fcc6de`).
   - Both rows are persisted with the hint in `verifiedHintNames`: reset
     the C3 catalog before any WARM run on it.
-- RW4-ID-SOURCE-GROUNDING-1: OPEN, owner decision. Source context lost at
-  atom labelling (`LabelledEntity` has no assertion slot) and atomized
-  mapping. The National Bank fact is anaphoric ("This historic place is
-  surrounded by ... the headquarters of the National Bank"), so §19's
-  same-statement admission rule rejects it.
+- RW4-ID-SOURCE-GROUNDING-1: AUTHORIZED 2026-10-07 (typed adjacent-atom /
+  anaphora assertions with provenance), not implemented:
+  BLOCKED_BY_MISSING_DISCRIMINATING_EVIDENCE. The only fact separating
+  Banco Nación (22 m) from First National Bank of Boston (159 m) relative
+  to the Plaza de Mayo park is a distance. Canonical area relations,
+  topology, Wikidata and administrative containment do not separate them.
+  New thresholds are forbidden, so the assertion would be UNVERIFIABLE and
+  change no decision. Evidence:
+  `identity-false-verify-2-2026-10-07/association-evidence.md`. Unblock
+  options need an owner decision (a city-block adjacency primitive).
+  Correct-candidate retrieval is a separate deficiency: "National Bank"
+  corresponds NONE to "Banco Nación"; the atomized path has no TRANSLATION
+  normalization.
 - RW4-ID-RECALL-CABILDO-1: FIXED, confirmed live in PLANNER_CAPACITY
   (`c3-idretry2-cold`, 2026-10-07): VERIFIED / `GROUNDED_UNIQUE_ALIAS`
   via LOCAL_OSM_POOL, recordEquivalence grouped Q1024829
