@@ -497,7 +497,12 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
       address: { city: 'Buenos Aires', country: 'Argentina' },
     };
 
-    it('Nominatim osm:node:3348573778 + Geoapify Place Details osm:node:3348573778 -> IDENTITY_CONVERGENCE -> RESOLVED -> one PLACE GeoEntity with both identities', async () => {
+    // Changed 2026-10-07 (RW4-ID-FALSE-VERIFY-2). This RESOLVED through
+    // GROUNDED_CONVERGENCE. Nominatim and Geoapify Place Details both read
+    // OSM node 3348573778: one evidence origin, two adapters. The hint only
+    // OVERLAPs "Farmacia de la Estrella", so nothing else is decisive: the
+    // same evidence shape as the C3 "National Bank" false VERIFIED.
+    it('Nominatim osm:node:3348573778 + Geoapify Place Details osm:node:3348573778 is one origin: convergence recorded, not decisive', async () => {
       const { service, catalog, placesApi } = build({
         nominatimResults: [NOMINATIM_FARMACIA],
         searchResults: [FARMACIA],
@@ -531,6 +536,10 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
         { provider: 'geoapify', externalId: 'geoapify:geo-farmacia-search' },
         { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
       ]);
+      const osmOrigin = {
+        authority: 'openstreetmap',
+        recordId: 'osm:node:3348573778',
+      };
       expect(attempt.identityEvidence).toContainEqual({
         type: 'IDENTITY_CONVERGENCE',
         priorStrategy: 'NOMINATIM',
@@ -538,30 +547,16 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
           provider: 'openstreetmap',
           externalId: 'osm:node:3348573778',
         },
+        observations: [
+          { strategy: 'NOMINATIM', origins: [osmOrigin] },
+          { strategy: 'PLACES', origins: [osmOrigin] },
+        ],
+        independence: 'SHARED_ORIGIN',
       });
-      expect(attempt.verificationDecision).toBe('VERIFIED');
-
+      expect(attempt.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
-      expect(catalog.upsertGeoEntityWithIdentities).toHaveBeenCalledTimes(1);
-      expect(catalog.upsertGeoEntityWithIdentities).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: 'Farmacia de la Estrella',
-          kind: GeoEntityKind.PLACE,
-          identities: [
-            {
-              provider: 'geoapify',
-              externalId: 'geoapify:geo-farmacia-search',
-            },
-            { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
-          ],
-        }),
-      );
-      expect(audit.finalStatus).toBe('resolved');
-      expect(audit.resolvedGeoEntity).toMatchObject({
-        geoEntityId: 'geo-place',
-        persistence: { status: 'CREATED' },
-      });
-      expect(result.resolved[0].status).toBe('accepted');
+      expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();
+      expect(audit.finalStatus).not.toBe('resolved');
     });
 
     it('a different OSM object from each strategy is NOT convergence (identity, not name)', async () => {
@@ -609,6 +604,8 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
     });
 
     it('IDENTITY_CONFLICT at persistence fails closed (no merge, no winner)', async () => {
+      // VERIFIED through the record's own QID naming the hint (QID_LINK),
+      // so persistence is reached.
       const { service } = build({
         nominatimResults: [NOMINATIM_FARMACIA],
         searchResults: [FARMACIA],
@@ -616,8 +613,12 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
           'geo-farmacia-search': {
             sourceIdentities: [
               { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
+              { provider: 'wikidata', externalId: 'Q-farmacia' },
             ],
           },
+        },
+        wikidataLabels: {
+          'Q-farmacia': { label: 'Farmacia la Estrella', aliases: [] },
         },
         upsertWithIdentitiesResult: {
           status: 'IDENTITY_CONFLICT',
@@ -730,7 +731,7 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
 
   describe('trusted-observation reuse keeps declared cross-identities', () => {
     it('a Geoapify observation whose details declare the OSM node converges with a later Nominatim acquisition of that node', async () => {
-      const { service, placesApi, catalog } = build({
+      const { service, catalog } = build({
         details: {
           'obs-farmacia': {
             id: 'obs-farmacia',
@@ -796,17 +797,22 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
       const nominatimAttempt = attempts.find(
         (a: any) => a.strategy === 'NOMINATIM',
       );
-      expect(nominatimAttempt.identityEvidence).toContainEqual({
-        type: 'IDENTITY_CONVERGENCE',
-        priorStrategy: 'TRUSTED_OBSERVATION_REUSE',
-        identity: {
-          provider: 'openstreetmap',
-          externalId: 'osm:node:3348573778',
-        },
-      });
-      expect(nominatimAttempt.verificationDecision).toBe('VERIFIED');
-      expect(placesApi.searchText).not.toHaveBeenCalled();
-      expect(catalog.upsertGeoEntity).toHaveBeenCalledWith(
+      // Changed 2026-10-07 (RW4-ID-FALSE-VERIFY-2): the observation and
+      // Nominatim both read OSM node 3348573778, one origin. The
+      // convergence is recorded with that provenance and no longer decides.
+      expect(nominatimAttempt.identityEvidence).toContainEqual(
+        expect.objectContaining({
+          type: 'IDENTITY_CONVERGENCE',
+          priorStrategy: 'TRUSTED_OBSERVATION_REUSE',
+          identity: {
+            provider: 'openstreetmap',
+            externalId: 'osm:node:3348573778',
+          },
+          independence: 'SHARED_ORIGIN',
+        }),
+      );
+      expect(nominatimAttempt.verificationDecision).not.toBe('VERIFIED');
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalledWith(
         expect.objectContaining({
           provider: 'openstreetmap',
           externalId: 'osm:node:3348573778',
@@ -908,6 +914,9 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
       longitude: -58.3721455,
       address: { city: 'Buenos Aires', country: 'Argentina' },
     };
+    // VERIFIED through the record's own QID naming the hint (QID_LINK).
+    // One OSM node reached by Nominatim and Geoapify is one origin and no
+    // longer verifies on its own (RW4-ID-FALSE-VERIFY-2).
     const farmaciaCold = (extra: Parameters<typeof build>[0] = {}) =>
       build({
         nominatimResults: [NOMINATIM_FARMACIA],
@@ -917,8 +926,12 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
             id: 'geo-farmacia-details',
             sourceIdentities: [
               { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
+              { provider: 'wikidata', externalId: 'Q-farmacia' },
             ],
           },
+        },
+        wikidataLabels: {
+          'Q-farmacia': { label: 'Farmacia la Estrella', aliases: [] },
         },
         ...extra,
       });
@@ -1004,7 +1017,17 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
     });
 
     it('does not remember a REJECTED candidate (PLACES alone, no convergence -- Farmacia without Nominatim)', async () => {
-      const { service, catalog } = farmaciaCold({ nominatimResults: [] });
+      const { service, catalog } = build({
+        searchResults: [FARMACIA],
+        details: {
+          'geo-farmacia-search': {
+            id: 'geo-farmacia-details',
+            sourceIdentities: [
+              { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
+            ],
+          },
+        },
+      });
 
       const result = await resolveHint(service, 'Farmacia la Estrella');
 
@@ -1431,4 +1454,79 @@ describe('ExperienceProposalResolverService -- candidate-scoped geographic autho
       ['C walk', walkAuthorization],
     ]);
   });
+});
+
+/**
+ * RW4-ID-FALSE-VERIFY-2: the real C3 `c3-idretry2-cold` records. Each
+ * hint only OVERLAPs the record name, and Nominatim and Geoapify Place
+ * Details both read one OSM record. Before 2026-10-07 the PLACES attempt
+ * VERIFIED by GROUNDED_CONVERGENCE and the record was persisted.
+ */
+describe('ExperienceProposalResolverService -- one OSM record through Nominatim and Geoapify is one origin (C3 false VERIFIEDs)', () => {
+  const cases = [
+    {
+      hint: 'Club Atlético',
+      name: 'Club Atlético San Lorenzo de Almagro - Sede Boedo',
+      osmType: 'way',
+      osmId: 23634484,
+      latitude: -34.6349503,
+      longitude: -58.4238986,
+    },
+    {
+      hint: 'National Bank',
+      name: 'Edificio First National Bank of Boston',
+      osmType: 'relation',
+      osmId: 9254658,
+      latitude: -34.6070608,
+      longitude: -58.3748214,
+    },
+  ];
+
+  it.each(cases)(
+    '"$hint" -> $name is not VERIFIED and not persisted',
+    async ({ hint, name, osmType, osmId, latitude, longitude }) => {
+      const externalId = `osm:${osmType}:${osmId}`;
+      const { service, catalog } = build({
+        nominatimResults: [
+          {
+            osmType,
+            osmId,
+            class: 'building',
+            type: 'yes',
+            addresstype: 'building',
+            displayName: `${name}, Buenos Aires, Argentina`,
+            importance: 0.1,
+            latitude,
+            longitude,
+            address: { city: 'Buenos Aires', country: 'Argentina' },
+          },
+        ],
+        searchResults: [
+          place('geo-c3', name, latitude, longitude, 'point_of_interest'),
+        ],
+        details: {
+          'geo-c3': {
+            sourceIdentities: [{ provider: 'openstreetmap', externalId }],
+          },
+        },
+      });
+
+      const result = await resolveHint(service, hint);
+
+      const attempt = placesAttempt(result);
+      const convergence = attempt.identityEvidence.find(
+        (item: any) => item.type === 'IDENTITY_CONVERGENCE',
+      );
+      expect(convergence).toMatchObject({
+        priorStrategy: 'NOMINATIM',
+        identity: { provider: 'openstreetmap', externalId },
+        independence: 'SHARED_ORIGIN',
+      });
+      expect(attempt.verificationDecision).not.toBe('VERIFIED');
+      expect(componentAudit(result).finalStatus).not.toBe('resolved');
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();
+      expect(catalog.rememberVerifiedHintName).not.toHaveBeenCalled();
+    },
+  );
 });

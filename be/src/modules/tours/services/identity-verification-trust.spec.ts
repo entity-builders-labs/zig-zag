@@ -9,6 +9,7 @@ import { identityEvidenceRole } from '../utils/identity-evidence-role.policy';
 import { nameCorrespondence } from '../utils/identity-name-correspondence.util';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
 import { IdentityVerifier } from './identity-verifier.service';
+import { identityConvergence } from '../fixtures/identity-convergence.fixture';
 
 /**
  * RW4-ID-FALSE-VERIFY-1 (C3 retry, 2026-10-07): "Don Carlos" (a La Boca
@@ -202,16 +203,10 @@ describe('identity verification trust (RW4-ID-FALSE-VERIFY-1)', () => {
           strategy: 'PLACES',
           candidate: candidateNamed('Kestrel Hall Annex'),
           evidence: [
-            {
-              type: 'IDENTITY_CONVERGENCE',
-              priorStrategy: 'NOMINATIM',
-              identity: { provider: 'openstreetmap', externalId: 'osm:way:9' },
-            },
-            {
-              type: 'CONVERGENCE_PROVENANCE',
-              identity: { provider: 'openstreetmap', externalId: 'osm:way:9' },
-              upstream: 'INDEPENDENT_UPSTREAMS',
-            },
+            identityConvergence('INDEPENDENT_ORIGINS', {
+              provider: 'openstreetmap',
+              externalId: 'osm:way:9',
+            }),
             competitors('NO_MATERIAL_COMPETITOR'),
             bounded,
           ],
@@ -410,28 +405,116 @@ describe('identity verification trust (RW4-ID-FALSE-VERIFY-1)', () => {
       [competitors('NO_MATERIAL_COMPETITOR'), bounded],
       [competitors('MATERIAL_COMPETITOR_KNOWN'), bounded],
     ];
+    // One record through two adapters (or an unknown origin) is a
+    // qualifier-grade repetition; only independent origins corroborate.
+    const convergences: IdentityEvidence[][] = [
+      [],
+      [identityConvergence('SHARED_ORIGIN')],
+      [identityConvergence('UNDETERMINED_ORIGIN')],
+      [identityConvergence('INDEPENDENT_ORIGINS')],
+    ];
     let verifiedCount = 0;
     for (const names of alphabet)
       for (const link of [undefined, ...links])
-        for (const qualifiers of qualifierSets) {
-          const verdict = verifier.decide(
-            { name: 'Kestrel Hall' },
-            {
-              strategy: 'LOCAL_OSM_POOL',
-              candidate: candidateNamed('Kestrel Hall'),
-              evidence: [...names, ...(link ? [link] : []), ...qualifiers],
-            },
-          );
-          if (verdict.status !== 'VERIFIED') continue;
-          verifiedCount++;
-          const roles = verdict.decisiveEvidence.map(identityEvidenceRole);
-          expect(roles).not.toContain('RETRIEVAL_ONLY');
-          expect(
-            roles.some(
-              (role) => role === 'DISCRIMINATING' || role === 'CORROBORATING',
-            ),
-          ).toBe(true);
-        }
+        for (const convergence of convergences)
+          for (const qualifiers of qualifierSets) {
+            const verdict = verifier.decide(
+              { name: 'Kestrel Hall' },
+              {
+                strategy: 'LOCAL_OSM_POOL',
+                candidate: candidateNamed('Kestrel Hall'),
+                evidence: [
+                  ...names,
+                  ...(link ? [link] : []),
+                  ...convergence,
+                  ...qualifiers,
+                ],
+              },
+            );
+            if (verdict.status !== 'VERIFIED') continue;
+            verifiedCount++;
+            const roles = verdict.decisiveEvidence.map(identityEvidenceRole);
+            expect(roles).not.toContain('RETRIEVAL_ONLY');
+            expect(
+              roles.some(
+                (role) => role === 'DISCRIMINATING' || role === 'CORROBORATING',
+              ),
+            ).toBe(true);
+          }
     expect(verifiedCount).toBeGreaterThan(0);
+  });
+  /**
+   * RW4-ID-FALSE-VERIFY-2 (C3 `c3-idretry2-cold`, 2026-10-07): a hint that
+   * only OVERLAPs a record name ("Club Atletico" -> "Club Atletico San
+   * Lorenzo de Almagro - Sede Boedo"; "National Bank" -> "Edificio First
+   * National Bank of Boston") was VERIFIED by GROUNDED_CONVERGENCE because
+   * Nominatim and Geoapify both returned one OSM record. Provider diversity
+   * is not evidence independence. Generic names, real evidence shape.
+   */
+  describe('11. one origin seen through two adapters is one observation', () => {
+    const sharedRecord = { provider: 'openstreetmap', externalId: 'osm:way:7' };
+    const c3Shape = (convergence: IdentityEvidence) =>
+      verifier.decide(
+        { name: 'Kestrel Club' },
+        {
+          strategy: 'PLACES',
+          candidate: candidateNamed('Kestrel Club Hollowmere - North Seat'),
+          evidence: [
+            convergence,
+            competitors('NO_MATERIAL_COMPETITOR'),
+            bounded,
+          ],
+        },
+      );
+
+    it('A/C: an OVERLAP candidate repeated from one origin is not VERIFIED', () => {
+      expect(
+        nameCorrespondence(
+          'Kestrel Club',
+          'Kestrel Club Hollowmere - North Seat',
+        ),
+      ).toBe('OVERLAP');
+      expect(
+        c3Shape(
+          identityConvergence('SHARED_ORIGIN', sharedRecord, 'NOMINATIM'),
+        ),
+      ).toMatchObject({
+        status: 'INSUFFICIENT_EVIDENCE',
+        rule: 'NO_DECISIVE_EVIDENCE',
+      });
+    });
+
+    it('E: an undetermined origin earns no convergence credit either', () => {
+      expect(
+        c3Shape(
+          identityConvergence('UNDETERMINED_ORIGIN', sharedRecord, 'NOMINATIM'),
+        ).status,
+      ).not.toBe('VERIFIED');
+    });
+
+    it('F: genuinely independent origins keep GROUNDED_CONVERGENCE', () => {
+      expect(
+        c3Shape(
+          identityConvergence('INDEPENDENT_ORIGINS', sharedRecord, 'NOMINATIM'),
+        ),
+      ).toMatchObject({ status: 'VERIFIED', rule: 'GROUNDED_CONVERGENCE' });
+    });
+
+    it('F: independent origins never outweigh a known material competitor', () => {
+      expect(
+        verifier.decide(
+          { name: 'Kestrel Club' },
+          {
+            strategy: 'PLACES',
+            candidate: candidateNamed('Kestrel Club Hollowmere'),
+            evidence: [
+              identityConvergence('INDEPENDENT_ORIGINS', sharedRecord),
+              competitors('MATERIAL_COMPETITOR_KNOWN', 2),
+              bounded,
+            ],
+          },
+        ),
+      ).toMatchObject({ status: 'AMBIGUOUS' });
+    });
   });
 });

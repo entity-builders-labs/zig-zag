@@ -195,7 +195,9 @@ describe('Overture identity lookup -> IdentityVerifier (real Postgres)', () => {
       expect(lookup.coverage).toBe('PARTIAL_OR_UNKNOWN');
       expect(lookup.enumeratedExtent).toEqual(RW4_AOI_EXTENT);
       expect(candidate?.externalId).toBe(record.featureId);
-      expect(candidate?.upstreamDatasets).toEqual(['meta']);
+      expect(candidate?.evidenceOrigins).toEqual([
+        { authority: 'meta', recordId: record.upstreamRecordId },
+      ]);
       expect(candidate?.structuralKind).toBe('UNKNOWN');
       expect(candidate?.persistenceMetadata).toMatchObject({
         overture: {

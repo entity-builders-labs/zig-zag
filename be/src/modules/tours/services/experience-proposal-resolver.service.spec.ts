@@ -7301,7 +7301,15 @@ describe('ExperienceProposalResolverService', () => {
     // records IDENTITY_CONVERGENCE evidence -- pure ID equality across two
     // independent lookups -- and IdentityVerifier verifies on that alone,
     // without ever consulting Wikidata for this second attempt.
-    it('Case A: NOMINATIM verifies "El Zanjón de Granados" via IDENTITY_CONVERGENCE with LOCAL_OSM_POOL\'s own (unverified) osm:node:9953027884 acquisition', async () => {
+    //
+    // Changed 2026-10-07 (RW4-ID-FALSE-VERIFY-2). Overpass (LOCAL_OSM_POOL)
+    // and Nominatim are two adapters over ONE evidence origin, OSM node
+    // 9953027884: not two independent lookups. With the hint only
+    // OVERLAPping "El Zanjón de Granados (historic ruins)", that repetition
+    // is the exact shape of the C3 false VERIFIEDs ("Club Atletico" -> San
+    // Lorenzo Sede Boedo through Nominatim + Geoapify). The convergence is
+    // still recorded, with its origins; it no longer decides.
+    it('Case A: NOMINATIM records one-origin IDENTITY_CONVERGENCE with LOCAL_OSM_POOL on osm:node:9953027884, which is not decisive', async () => {
       const zanjonOsmNode = {
         id: 'osm:node:9953027884',
         name: 'El Zanjón de Granados (historic ruins)',
@@ -7441,7 +7449,10 @@ describe('ExperienceProposalResolverService', () => {
       expect(nominatimAttempt?.selectedCandidate?.externalId).toBe(
         'osm:node:9953027884',
       );
-      expect(nominatimAttempt?.verificationDecision).toBe('VERIFIED');
+      const osmOrigin = {
+        authority: 'openstreetmap',
+        recordId: 'osm:node:9953027884',
+      };
       expect(nominatimAttempt?.identityEvidence).toContainEqual({
         type: 'IDENTITY_CONVERGENCE',
         priorStrategy: 'LOCAL_OSM_POOL',
@@ -7449,19 +7460,15 @@ describe('ExperienceProposalResolverService', () => {
           provider: 'openstreetmap',
           externalId: 'osm:node:9953027884',
         },
+        observations: [
+          { strategy: 'LOCAL_OSM_POOL', origins: [osmOrigin] },
+          { strategy: 'NOMINATIM', origins: [osmOrigin] },
+        ],
+        independence: 'SHARED_ORIGIN',
       });
-
-      expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
-      expect(result.resolved[0].status).toBe('accepted');
-      // Persisted as NOMINATIM's candidate, in the OpenStreetMap identity
-      // namespace (the acquisition strategy is not the identity provider)
-      // -- the same (openstreetmap, osm:node:...) key LOCAL_OSM_POOL uses.
-      expect(result.resolved[0].resolvedEntities[0]).toMatchObject({
-        status: 'resolved',
-        provider: 'openstreetmap',
-        externalId: 'osm:node:9953027884',
-        geoEntityId: 'geo-el-zanjon-resolved',
-      });
+      expect(nominatimAttempt?.verificationDecision).not.toBe('VERIFIED');
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(result.resolved[0].status).toBe('rejected');
     });
   });
 

@@ -71,6 +71,40 @@ export interface StrongIdentity {
 }
 
 /**
+ * Where one observed record was authored: the upstream dataset (an
+ * `authority` such as `openstreetmap`, `meta`, or a Places provider's own
+ * dataset) and, when the observation carries it, the record's id inside
+ * that authority (`osm:way:23634484`). An adapter is not an origin:
+ * Overpass, Nominatim and Geoapify reading one OSM way are one origin seen
+ * three times.
+ */
+export interface EvidenceOrigin {
+  authority: string;
+  recordId?: string;
+}
+
+/** One strategy's observation of a converged identity. */
+export interface ConvergenceObservation {
+  strategy: ResolutionStrategy;
+  /** Empty when the adapter cannot say what its record derives from. */
+  origins: EvidenceOrigin[];
+}
+
+/**
+ * Whether two observations of one strong identity are independent:
+ *  - INDEPENDENT_ORIGINS: no authority in common (an OSM node and a record
+ *    another dataset authored, linked by a shared cross-identity);
+ *  - SHARED_ORIGIN: at least one authority in common -- one underlying
+ *    record (or one dataset's editorial process) found twice;
+ *  - UNDETERMINED_ORIGIN: either side's origin is unknown. Never assumed
+ *    independent.
+ */
+export type ConvergenceIndependence =
+  | 'INDEPENDENT_ORIGINS'
+  | 'SHARED_ORIGIN'
+  | 'UNDETERMINED_ORIGIN';
+
+/**
  * Provider-normalized facts used to decide whether an acquired entity is the
  * hint's real-world identity. Acquisition and ranking may produce these
  * facts, but neither may declare an entity verified.
@@ -183,37 +217,26 @@ export type IdentityEvidence =
     }
   | {
       /**
-       * A DIFFERENT, structurally independent acquisition strategy already
-       * acquired, for this same hint, a candidate sharing at least one
-       * exact strong identity (namespace + canonical id) with this one --
-       * e.g. NOMINATIM returning osm:node:3348573778 and PLACES (Geoapify
-       * Place Details) declaring the same `openstreetmap/osm:node:
-       * 3348573778`. The candidates' identity SETS intersect; `identity` is
-       * the shared key. Real-world identity by ID equality, never by
-       * name/coordinates: two separate lookup mechanisms landing on the
-       * exact same object is strictly stronger than any one fuzzy name
-       * match. It is NOT provider-majority voting -- it never counts
-       * opinions or picks a winner among competing candidates.
+       * A DIFFERENT acquisition strategy already acquired, for this same
+       * hint, a candidate sharing at least one exact strong identity
+       * (namespace + canonical id) with this one -- e.g. NOMINATIM
+       * returning osm:node:3348573778 and PLACES (Geoapify Place Details)
+       * declaring the same `openstreetmap/osm:node:3348573778`. Identity
+       * by ID equality, never by name/coordinates, and never a count of
+       * agreeing providers.
+       *
+       * Provider diversity is not evidence independence: `independence`
+       * compares the observations' evidence origins. Only
+       * INDEPENDENT_ORIGINS corroborates; one record reached through two
+       * adapters (SHARED_ORIGIN) or an unknown origin is one observation
+       * and earns no convergence credit (RW4-ID-FALSE-VERIFY-2).
        */
       type: 'IDENTITY_CONVERGENCE';
       priorStrategy: ResolutionStrategy;
       identity: StrongIdentity;
-    }
-  | {
-      /**
-       * Provenance of an IDENTITY_CONVERGENCE on `identity`, recorded as its
-       * own fact. SHARED_UPSTREAM when both acquisitions derive from one
-       * upstream dataset (Overpass, Nominatim and Geoapify indexing one OSM
-       * node): one record found twice. INDEPENDENT_UPSTREAMS corroborates
-       * that the record exists in two datasets. Neither says which homonym
-       * the source meant: that is COMPETITOR_EXAMINATION's question.
-       */
-      type: 'CONVERGENCE_PROVENANCE';
-      identity: StrongIdentity;
-      upstream:
-        | 'SHARED_UPSTREAM'
-        | 'INDEPENDENT_UPSTREAMS'
-        | 'UNDETERMINED_UPSTREAM';
+      /** The prior observation, then this attempt's. */
+      observations: [ConvergenceObservation, ConvergenceObservation];
+      independence: ConvergenceIndependence;
     }
   | {
       /**
@@ -773,12 +796,12 @@ export interface EntityCandidate {
   /** Coarse structural kind, normalized at the provider boundary. */
   structuralKind?: CandidateStructuralKind;
   /**
-   * Upstream datasets this record derives from (`openstreetmap` for an OSM
-   * node however it was reached, `overture:meta` for a Meta-sourced
-   * Overture row). Two acquisitions sharing an upstream are not
-   * independent corroboration of each other.
+   * Where this record was authored (`openstreetmap / osm:node:1` for an OSM
+   * node however it was reached, `meta / <id>` for a Meta-sourced Overture
+   * row). Absent when the adapter cannot say. Two acquisitions sharing an
+   * origin authority are not independent corroboration of each other.
    */
-  upstreamDatasets?: string[];
+  evidenceOrigins?: EvidenceOrigin[];
   /** The contextual evaluation of the pool this candidate was taken from. */
   contextualPool?: ContextualPoolEvaluation;
 }

@@ -334,11 +334,15 @@ describe('tour-generation integration · verified hint memory', () => {
           getPlaceDetails: jest.fn().mockResolvedValue({
             data: {
               id: 'geo-farmacia-details',
+              // The record's own QID names the hint: COLD verifies by
+              // QID_LINK. One OSM node read by Nominatim and Geoapify is
+              // one origin and no longer verifies (RW4-ID-FALSE-VERIFY-2).
               sourceIdentities: [
                 {
                   provider: 'openstreetmap',
                   externalId: 'osm:node:3348573778',
                 },
+                { provider: 'wikidata', externalId: 'Q-farmacia' },
               ],
             },
             provenance: {
@@ -350,7 +354,13 @@ describe('tour-generation integration · verified hint memory', () => {
           }),
         },
         wikidata: {
-          getEntitySummaries: jest.fn().mockResolvedValue(new Map()),
+          getEntitySummaries: jest
+            .fn()
+            .mockResolvedValue(
+              new Map([
+                ['Q-farmacia', { label: 'Farmacia la Estrella', aliases: [] }],
+              ]),
+            ),
           findNearbyPlaces: jest.fn().mockResolvedValue([]),
         },
       };

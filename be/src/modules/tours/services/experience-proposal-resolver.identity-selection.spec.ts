@@ -443,10 +443,9 @@ describe('ExperienceProposalResolverService -- RW4 candidate selection before ve
     // examined so far, not a flag on the converging pair.
     expect(places.identityEvidence).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ type: 'IDENTITY_CONVERGENCE' }),
         expect.objectContaining({
-          type: 'CONVERGENCE_PROVENANCE',
-          upstream: 'SHARED_UPSTREAM',
+          type: 'IDENTITY_CONVERGENCE',
+          independence: 'SHARED_ORIGIN',
         }),
         expect.objectContaining({
           type: 'COMPETITOR_EXAMINATION',
@@ -1134,7 +1133,7 @@ describe('ExperienceProposalResolverService -- Overture pool on the same terms',
     role: 'venue',
     nameEvidenceMultiplicity: { exactName, declaredAlias: 'UNKNOWN' },
     structuralKind: 'UNKNOWN',
-    upstreamDatasets: ['meta'],
+    evidenceOrigins: [{ authority: 'meta' }],
   });
   const lujanLocality = {
     localityAssertion: {
@@ -1323,10 +1322,9 @@ describe('ExperienceProposalResolverService -- hint-level competitor examination
     const places = attemptOf(result, 'PLACES');
     expect(places.identityEvidence).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ type: 'IDENTITY_CONVERGENCE' }),
         expect.objectContaining({
-          type: 'CONVERGENCE_PROVENANCE',
-          upstream: 'SHARED_UPSTREAM',
+          type: 'IDENTITY_CONVERGENCE',
+          independence: 'SHARED_ORIGIN',
         }),
       ]),
     );
@@ -1522,7 +1520,7 @@ describe('ExperienceProposalResolverService -- identity policy reassessment scen
     role: 'venue',
     nameEvidenceMultiplicity: { exactName, declaredAlias: 'UNKNOWN' },
     structuralKind: 'UNKNOWN',
-    upstreamDatasets: ['meta'],
+    evidenceOrigins: [{ authority: 'meta' }],
   });
   // Real Overture rows.
   const alfaCrux = (multiplicity: 'UNKNOWN' | 'SINGLE') =>
