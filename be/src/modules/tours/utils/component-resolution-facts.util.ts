@@ -5,7 +5,6 @@ import {
   AreaScopeComponentFact,
 } from '../interfaces/area-scope-membership.interface';
 import {
-  ComponentDeficitClassification,
   ComponentDeficitReason,
   ComponentGeographicScope,
   ComponentIdentityStatus,
@@ -23,6 +22,13 @@ import {
   classifyComponentPointRadiusRelation,
 } from './area-scope-membership-policy';
 import { WorkUnitAnchorScope } from '../interfaces/experience-geographic-scope.interface';
+import { deficitClassification } from './component-deficit-classification.policy';
+import {
+  SourceCompositionAdmission,
+  SourceMemberResolution,
+  decideSourceCompositionAdmission,
+} from './experience-source-membership.policy';
+import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 
 /**
  * Builds the per-component truth of one source-backed candidate: identity
@@ -121,6 +127,61 @@ export function buildCompositeComponentResolution(input: {
         identityResolvedComponents === components.length,
     },
   };
+}
+
+/**
+ * Each source member as resolution left it, in source order: the input of
+ * the canonical admission rule (`decideSourceCompositionAdmission`). Uses
+ * the same identity-status and deficit-reason derivation as
+ * `buildCompositeComponentResolution`, so admission and the trace facts can
+ * never disagree.
+ */
+export function sourceMemberResolutions(input: {
+  hints: GeoEntityHint[];
+  entities: ResolvedGeoEntity[];
+  componentAudits: ComponentResolutionAudit[];
+}): SourceMemberResolution[] {
+  return input.hints.map((hint): SourceMemberResolution => {
+    const entity = input.entities.find((item) => item.hintKey === hint.key);
+    const audit = input.componentAudits.find(
+      (item) => item.hintKey === hint.key,
+    );
+    const identityStatus = componentIdentityStatus(entity, audit);
+    if (identityStatus === 'RESOLVED' && entity) {
+      return {
+        identityStatus,
+        ...(entity.geoEntityId ? { geoEntityId: entity.geoEntityId } : {}),
+      };
+    }
+    return {
+      identityStatus:
+        identityStatus === 'RESOLVED' ? 'UNRESOLVED' : identityStatus,
+      deficitReason: componentDeficitReason(entity, audit),
+    };
+  });
+}
+
+/** The admission decision over already-built component facts. */
+export function compositionAdmissionOf(
+  resolution: CompositeComponentResolution | undefined,
+): SourceCompositionAdmission | undefined {
+  if (!resolution) return undefined;
+  return decideSourceCompositionAdmission(
+    resolution.components.map(
+      (fact): SourceMemberResolution =>
+        fact.identityStatus === 'RESOLVED'
+          ? {
+              identityStatus: 'RESOLVED',
+              ...(fact.resolved?.geoEntityId
+                ? { geoEntityId: fact.resolved.geoEntityId }
+                : {}),
+            }
+          : {
+              identityStatus: fact.identityStatus,
+              deficitReason: fact.deficit!.reason,
+            },
+    ),
+  );
 }
 
 /**
@@ -230,6 +291,18 @@ function componentDeficitReason(
   ) {
     return 'CANDIDATE_REJECTED';
   }
+  // D4: an acquired candidate left undecided because the identity
+  // authority was unavailable is an operational failure, not missing
+  // knowledge.
+  if (
+    attempts.some(
+      (attempt) =>
+        attempt.candidateAcquired &&
+        attempt.verificationRule === 'WIKIDATA_UNAVAILABLE',
+    )
+  ) {
+    return 'IDENTITY_AUTHORITY_UNAVAILABLE';
+  }
   if (attempts.some((attempt) => attempt.candidateAcquired)) {
     return 'CANDIDATE_UNCONFIRMED';
   }
@@ -240,14 +313,6 @@ function componentDeficitReason(
     return 'PROVIDER_FAILURE';
   }
   return 'NO_CANDIDATE_ACQUIRED';
-}
-
-function deficitClassification(
-  reason: ComponentDeficitReason,
-): ComponentDeficitClassification {
-  if (reason === 'AMBIGUOUS_CANDIDATES') return 'KNOWLEDGE_DEFICIT';
-  if (reason === 'PROVIDER_FAILURE') return 'OPERATIONAL_FAILURE';
-  return 'PENDING_CLASSIFICATION';
 }
 
 export interface CompositeOutcome {
@@ -287,8 +352,12 @@ export function buildCompositeOutcome(
   validation: ExperienceGeographicValidationResult | undefined,
 ): CompositeOutcome {
   const coverage = entry.componentResolution?.coverage;
-  const complete = coverage?.sourceCompositionComplete ?? false;
-  const geographicDecision: CompositeOutcome['geographicDecision'] = !complete
+  // A COMPLETE composition, or a PARTIAL one the canonical admission rule
+  // accepts, reaches geographic validation; any other incomplete
+  // composition is never evaluated.
+  const admitted =
+    compositionAdmissionOf(entry.componentResolution)?.admitted ?? false;
+  const geographicDecision: CompositeOutcome['geographicDecision'] = !admitted
     ? { status: 'NOT_EVALUATED', reason: 'INCOMPLETE_SOURCE_COMPOSITION' }
     : !validation
       ? { status: 'NOT_EVALUATED', reason: 'NO_VALIDATION_RESULT' }

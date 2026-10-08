@@ -1277,7 +1277,15 @@ describe('ExperienceCatalogService.findVerifiedMultiComponentByExactComponent (T
         findMany: jest
           .fn()
           .mockResolvedValueOnce([
-            { id: 'exp-caminito', _count: { components: 3 } },
+            // // Fixture shape only (row shape of the membership query); outcome unchanged.
+            {
+              id: 'exp-caminito',
+              components: [
+                { geoEntityId: 'geo-caminito', resolutionState: 'RESOLVED' },
+                { geoEntityId: 'geo-b', resolutionState: 'RESOLVED' },
+                { geoEntityId: 'geo-c', resolutionState: 'RESOLVED' },
+              ],
+            },
           ])
           .mockResolvedValueOnce([
             {
@@ -1319,7 +1327,15 @@ describe('ExperienceCatalogService.findVerifiedMultiComponentByExactComponent (T
       experience: {
         findMany: jest
           .fn()
-          .mockResolvedValue([{ id: 'exp-single', _count: { components: 1 } }]),
+          // // Fixture shape only (row shape of the membership query); outcome unchanged.
+          .mockResolvedValue([
+            {
+              id: 'exp-single',
+              components: [
+                { geoEntityId: 'geo-x', resolutionState: 'RESOLVED' },
+              ],
+            },
+          ]),
       },
     };
     const service = new ExperienceCatalogService(prisma, {} as any);
@@ -1349,7 +1365,10 @@ describe('ExperienceCatalogService.findVerifiedTourismRouteByName (Task B5, Clea
       {
         id: 'exp-ruta',
         canonicalName: 'Ruta del Vino de Mendoza',
-        components: [{ geoEntity: {} }, { geoEntity: {} }],
+        components: [
+          { geoEntityId: 'geo-1', geoEntity: {} },
+          { geoEntityId: 'geo-2', geoEntity: {} },
+        ],
       } as any,
     ]);
 
@@ -1370,7 +1389,10 @@ describe('ExperienceCatalogService.findVerifiedTourismRouteByName (Task B5, Clea
       {
         id: 'exp-mendoza-wine-route',
         canonicalName: 'Mendoza Wine Route',
-        components: [{ geoEntity: {} }, { geoEntity: {} }],
+        components: [
+          { geoEntityId: 'geo-1', geoEntity: {} },
+          { geoEntityId: 'geo-2', geoEntity: {} },
+        ],
       } as any,
     ]);
 
@@ -1391,7 +1413,7 @@ describe('ExperienceCatalogService.findVerifiedTourismRouteByName (Task B5, Clea
       {
         id: 'exp-single',
         canonicalName: 'Ruta del Vino de Mendoza',
-        components: [{ geoEntity: {} }],
+        components: [{ geoEntityId: 'geo-1', geoEntity: {} }],
       } as any,
     ]);
 

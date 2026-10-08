@@ -8,13 +8,14 @@ import { getPrisma, resetDb, closeDb } from '../support/test-db';
 
 /**
  * Stage 4 hard gates against real Postgres (component-resolution-and-
- * partial-composite-recovery-plan.md): source composition is the authority
- * on which components make up an Experience. A composite whose source says
- * A-B-C-D-E-F, with C and E unresolved, must never persist as a VERIFIED
- * A-B-D-F, must never reach the planner's catalog boundary, and resolving
- * A/B/D/F must create/reuse GeoEntities only -- never standalone
- * Experiences. Real resolver + real geographic validation + real catalog;
- * only the local OSM pool transport is faked.
+ * partial-composite-recovery-plan.md), as amended by the PARTIAL composite
+ * policy (2026-10-08): source composition is the authority on which
+ * components make up an Experience. A composite whose source says
+ * A-B-C-D-E-F, with C and E unresolved (missing knowledge), persists as a
+ * PARTIAL Experience with ALL SIX source members -- never as a trimmed
+ * A-B-D-F -- and resolving A/B/D/F creates/reuses GeoEntities only, never
+ * standalone Experiences. Real resolver + real geographic validation + real
+ * catalog; only the local OSM pool transport is faked.
  */
 describe('tour-generation integration · partial composite isolation (Stage 4)', () => {
   let catalog: ExperienceCatalogService;
@@ -130,7 +131,13 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
     await closeDb();
   });
 
-  it('A-B-C-D-E-F with C/E unresolved: GeoEntities for A/B/D/F, no VERIFIED A-B-D-F, nothing planner-visible, no standalone promotion', async () => {
+  // INTENTIONAL_PRODUCT_CHANGE: PARTIAL_COMPOSITE_POLICY.
+  // Old expectation: rejected (INCOMPLETE_SOURCE_COMPOSITION), 0 Experiences,
+  // 0 component rows, nothing planner-visible. It qualifies for PARTIAL: 4
+  // distinct resolved GeoEntities and C/E are NO_CANDIDATE_ACQUIRED
+  // (MISSING_KNOWLEDGE). Still enforced unchanged: no trimmed A-B-D-F, no
+  // fake GeoEntity for C/E, no standalone Experience per component.
+  it('A-B-C-D-E-F with C/E unresolved: persists ONE PARTIAL Experience with all six source members in source order, no trimmed A-B-D-F, no standalone promotion', async () => {
     const prisma = await getPrisma();
 
     const result = await resolveWith(
@@ -139,12 +146,8 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
     );
 
     const candidate = result.resolved[0];
-    expect(candidate.status).toBe('rejected');
-    expect(candidate.rejectionReasons).toEqual([
-      'INCOMPLETE_SOURCE_COMPOSITION',
-    ]);
-    expect(candidate.experienceId).toBeUndefined();
-    // Component truth survives, transiently: C/E are explicit deficits.
+    expect(candidate.status).toBe('accepted');
+    expect(candidate.rejectionReasons).toEqual([]);
     expect(
       candidate.componentResolution!.components.map((fact) => [
         fact.hintKey,
@@ -159,14 +162,8 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
       ['stop-E', 'UNRESOLVED', null],
       ['stop-F', 'RESOLVED', 'INSIDE'],
     ]);
-    expect(candidate.componentResolution!.coverage).toMatchObject({
-      totalComponents: 6,
-      identityResolvedComponents: 4,
-      unresolvedComponents: 2,
-      sourceCompositionComplete: false,
-    });
 
-    // Component resolution created the four GeoEntities...
+    // Only the four real GeoEntities exist: none was invented for C/E.
     const geoEntities = await prisma.geoEntity.findMany({
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
@@ -177,16 +174,54 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
       'Stop D',
       'Stop F',
     ]);
-    // ...and NOTHING else: no trimmed Experience, no component rows, no
-    // standalone Experience per resolved component.
-    expect(await prisma.experience.count()).toBe(0);
-    expect(await prisma.experienceComponent.count()).toBe(0);
-    for (const geo of geoEntities) {
-      expect(
-        await catalog.findVerifiedMultiComponentByExactComponent(geo.id),
-      ).toEqual([]);
-    }
-    expect(await plannerVisibleIds()).toEqual({ within: [], forMatching: [] });
+
+    // Exactly one Experience: the source-defined A-F, never a trimmed
+    // A-B-D-F and never a standalone Experience per resolved component.
+    expect(await prisma.experience.count()).toBe(1);
+    const experience = await prisma.experience.findUniqueOrThrow({
+      where: { id: candidate.experienceId! },
+      include: {
+        components: {
+          include: { geoEntity: { select: { name: true } } },
+          orderBy: { sourcePosition: 'asc' },
+        },
+      },
+    });
+    expect(experience.status).toBe('VERIFIED');
+    expect(
+      experience.components.map((member) => [
+        member.sourcePosition,
+        member.order,
+        member.sourceName,
+        member.resolutionState,
+        member.resolutionReason,
+        member.geoEntity?.name ?? null,
+      ]),
+    ).toEqual([
+      [0, 1, 'Stop A', 'RESOLVED', null, 'Stop A'],
+      [1, 2, 'Stop B', 'RESOLVED', null, 'Stop B'],
+      [2, 3, 'Stop C', 'UNRESOLVED', 'NO_CANDIDATE_ACQUIRED', null],
+      [3, 4, 'Stop D', 'RESOLVED', null, 'Stop D'],
+      [4, 5, 'Stop E', 'UNRESOLVED', 'NO_CANDIDATE_ACQUIRED', null],
+      [5, 6, 'Stop F', 'RESOLVED', null, 'Stop F'],
+    ]);
+
+    // Planner-visible through every catalog boundary, as a composite, with
+    // only its resolved members as navigable components.
+    const visible = await plannerVisibleIds();
+    expect(visible.within).toEqual([experience.id]);
+    expect(visible.forMatching).toEqual([experience.id]);
+    const [projected] = await catalog.findVerifiedByIds([experience.id]);
+    expect(projected.compositionCompleteness).toBe('PARTIAL');
+    expect(
+      projected.components.map((member: any) => member.geoEntity.name),
+    ).toEqual(['Stop A', 'Stop B', 'Stop D', 'Stop F']);
+    const stopA = geoEntities.find((row) => row.name === 'Stop A')!;
+    expect(
+      (await catalog.findVerifiedMultiComponentByExactComponent(stopA.id)).map(
+        (row) => row.id,
+      ),
+    ).toEqual([experience.id]);
   });
 
   it('complete A-B-C: persists one VERIFIED Experience with exactly the source-backed membership and order, and it is planner-visible', async () => {
@@ -227,30 +262,107 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
     expect(visible.forMatching).toEqual([experience.id]);
   });
 
-  it('a later complete composite sharing A/B reuses their GeoEntities without promoting the earlier partial', async () => {
+  // CONSEQUENCE OF INTENTIONAL_PRODUCT_CHANGE: PARTIAL_COMPOSITE_POLICY
+  // (the A-F above now persists). OWNER REVIEW REQUIRED.
+  // Old expectation: the later A-B was accepted and was the only
+  // Experience. Now the PARTIAL A-F exists first. Structurally the two are
+  // distinct (source-member overlap 2/6, D7), so A-B is never SAME-merged
+  // into the partial and never promotes it. But this fixture gives both
+  // walks the SAME description and themes, and the unchanged dedupe rule
+  // (semantic overlap >= 0.58 => AMBIGUOUS) holds A-B back, exactly as it
+  // would against a COMPLETE A-F with the same text. The next case shows an
+  // independently described A-B persisting as NEW.
+  it('a later complete composite sharing A/B with an identically described PARTIAL A-F reuses their GeoEntities, is never merged into or promotes the partial, and is held as AMBIGUOUS by semantic overlap only', async () => {
     const prisma = await getPrisma();
 
-    await resolveWith(
+    const first = await resolveWith(
       ['A', 'B', 'D', 'F'],
       [walk(['A', 'B', 'C', 'D', 'E', 'F'])],
     );
+    const partialId = first.resolved[0].experienceId!;
     const geoBefore = await prisma.geoEntity.count();
 
     const result = await resolveWith(['A', 'B'], [walk(['A', 'B'])]);
 
-    expect(result.resolved[0].status).toBe('accepted');
     // Catalog-first reuse: no duplicate GeoEntities for A/B.
     expect(await prisma.geoEntity.count()).toBe(geoBefore);
-    // Only the independently source-backed A-B composite exists.
-    const experiences = await prisma.experience.findMany({
-      include: { components: true },
+    const later = result.resolved[0];
+    expect(later.status).toBe('rejected');
+    expect(later.rejectionReasons).toEqual(['AMBIGUOUS_DEDUPE']);
+    expect(later.dedupeCandidates).toEqual([partialId]);
+    expect(later.dedupeEvidence!.componentOverlap).toBeCloseTo(2 / 6);
+    expect(later.dedupeEvidence!.reasons).toContain('partial_semantic_overlap');
+    // The partial is untouched: still PARTIAL, C/E still unresolved.
+    const partial = await prisma.experience.findUniqueOrThrow({
+      where: { id: partialId },
+      include: { components: { orderBy: { sourcePosition: 'asc' } } },
     });
-    expect(experiences).toHaveLength(1);
-    expect(experiences[0].canonicalName).toBe('Walk A-B');
-    expect(experiences[0].components).toHaveLength(2);
+    expect(partial.components.map((member) => member.resolutionState)).toEqual([
+      'RESOLVED',
+      'RESOLVED',
+      'UNRESOLVED',
+      'RESOLVED',
+      'UNRESOLVED',
+      'RESOLVED',
+    ]);
+    expect(await prisma.experience.count()).toBe(1);
   });
 
-  it('A-B-C with B AMBIGUOUS (two real exact-name candidates): B stays explicit, no winner, no trimmed A-C persisted', async () => {
+  it('D7: an independently described COMPLETE A-B after the PARTIAL A-F is NEW, persists with its own two members, and leaves the partial untouched', async () => {
+    const prisma = await getPrisma();
+
+    const first = await resolveWith(
+      ['A', 'B', 'D', 'F'],
+      [walk(['A', 'B', 'C', 'D', 'E', 'F'])],
+    );
+    const partialId = first.resolved[0].experienceId!;
+    const geoBefore = await prisma.geoEntity.count();
+
+    const result = await resolveWith(
+      ['A', 'B'],
+      [
+        {
+          ...walk(['A', 'B']),
+          description: 'Two plazas joined by a short stroll',
+          themes: ['architecture'],
+          intents: ['visit'],
+        },
+      ],
+    );
+
+    expect(result.resolved[0].status).toBe('accepted');
+    expect(result.resolved[0].dedupeDecision).toBe('NEW');
+    expect(await prisma.geoEntity.count()).toBe(geoBefore);
+    const experiences = await prisma.experience.findMany({
+      include: { components: { orderBy: { sourcePosition: 'asc' } } },
+      orderBy: { canonicalName: 'asc' },
+    });
+    expect(experiences.map((row) => row.canonicalName)).toEqual([
+      'Walk A-B',
+      'Walk A-B-C-D-E-F',
+    ]);
+    expect(experiences[0].components).toHaveLength(2);
+    expect(
+      experiences[0].components.every(
+        (member) => member.resolutionState === 'RESOLVED',
+      ),
+    ).toBe(true);
+    const partial = experiences.find((row) => row.id === partialId)!;
+    expect(partial.components).toHaveLength(6);
+    expect(
+      partial.components.filter(
+        (member) => member.resolutionState === 'UNRESOLVED',
+      ),
+    ).toHaveLength(2);
+  });
+
+  // INTENTIONAL_PRODUCT_CHANGE: PARTIAL_COMPOSITE_POLICY.
+  // Old expectation: rejected, 0 Experiences, nothing planner-visible. It
+  // qualifies for PARTIAL: A and C are 2 distinct resolved GeoEntities and B
+  // is AMBIGUOUS_CANDIDATES (MISSING_KNOWLEDGE). Still enforced unchanged:
+  // B gets no winner and no GeoEntity, and no trimmed A-C is persisted --
+  // the Experience keeps all three source members.
+  it('A-B-C with B AMBIGUOUS (two real exact-name candidates): B stays explicit with no winner; the PARTIAL A-B-C persists with B unresolved, never a trimmed A-C', async () => {
     const prisma = await getPrisma();
     const service = new ExperienceProposalResolverService(
       {
@@ -291,8 +403,31 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
       openResearchDeficits: ['stop-B'],
       sourceCompositionComplete: false,
     });
-    expect(candidate.status).toBe('rejected');
-    expect(await prisma.experience.count()).toBe(0);
-    expect(await plannerVisibleIds()).toEqual({ within: [], forMatching: [] });
+    expect(candidate.status).toBe('accepted');
+    expect(await prisma.experience.count()).toBe(1);
+    const experience = await prisma.experience.findUniqueOrThrow({
+      where: { id: candidate.experienceId! },
+      include: {
+        components: {
+          include: { geoEntity: { select: { name: true } } },
+          orderBy: { sourcePosition: 'asc' },
+        },
+      },
+    });
+    expect(
+      experience.components.map((member) => [
+        member.sourceName,
+        member.resolutionState,
+        member.resolutionReason,
+        member.geoEntity?.name ?? null,
+      ]),
+    ).toEqual([
+      ['Stop A', 'RESOLVED', null, 'Stop A'],
+      ['Stop B', 'UNRESOLVED', 'AMBIGUOUS_CANDIDATES', null],
+      ['Stop C', 'RESOLVED', null, 'Stop C'],
+    ]);
+    const visible = await plannerVisibleIds();
+    expect(visible.within).toEqual([experience.id]);
+    expect(visible.forMatching).toEqual([experience.id]);
   });
 });

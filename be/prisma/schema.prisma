@@ -13,30 +13,36 @@ datasource db {
 // Experience identity: a provider identity belongs to a GeoEntity, while an
 // Experience describes what a traveller can do with one or more entities.
 model GeoEntity {
-  id                   String                @id @default(uuid())
-  name                 String
-  kind                 GeoEntityKind
-  latitude             Float?
-  longitude            Float?
-  geometry             Json?
-  address              String?
-  metadata             Json?
+  id                     String                           @id @default(uuid())
+  name                   String
+  kind                   GeoEntityKind
+  latitude               Float?
+  longitude              Float?
+  geometry               Json?
+  address                String?
+  metadata               Json?
   /// Verified hint memory (NOT an alias engine): the exact component-hint
   /// texts that previously resolved VERIFIED to THIS GeoEntity through
   /// external acquisition, stored verbatim. Never inferred from string
   /// similarity, never globally unique (the same text may be remembered on
   /// several GeoEntities; lookups keep that multiplicity). `name` stays the
   /// canonical, provider-backed display name.
-  verifiedHintNames    String[]              @default([])
+  ///
+  /// This pair is the FAST LOOKUP INDEX only. Provenance (who asserted the
+  /// hint, when, and whether it was revoked) lives in
+  /// `GeoEntityVerifiedHintAssertion`; a key stays here only while at least
+  /// one active assertion supports it.
+  verifiedHintNames      String[]                         @default([])
   /// `normalizeGeoName(verifiedHintNames[i])` -- positionally aligned with
   /// `verifiedHintNames` (a DB CHECK enforces equal cardinality) and
   /// deduplicated by key. The GIN index serves the `@>` lookup in
   /// `ExperienceCatalogService.findGeoEntityCandidatesForHint`.
-  verifiedHintNameKeys String[]              @default([])
-  identities           GeoEntityIdentity[]
-  components           ExperienceComponent[]
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
+  verifiedHintNameKeys   String[]                         @default([])
+  identities             GeoEntityIdentity[]
+  components             ExperienceComponent[]
+  verifiedHintAssertions GeoEntityVerifiedHintAssertion[]
+  createdAt              DateTime                         @default(now())
+  updatedAt              DateTime                         @updatedAt
 
   @@index([kind])
   @@index([latitude, longitude])
@@ -56,6 +62,42 @@ model GeoEntityIdentity {
   @@unique([provider, externalId])
   @@index([geoEntityId])
   @@map("geo_entity_identity")
+}
+
+/// Provenance of one verified-hint assertion: "hint text H identifies
+/// GeoEntity G", asserted by the automatic resolver or by an administrator.
+/// Rows are never deleted: revocation stamps `revokedAt`, so the history of
+/// a corrected (false) assertion survives. `GeoEntity.verifiedHintNames` /
+/// `verifiedHintNameKeys` stay the fast lookup index and hold a key only
+/// while an active (unrevoked) assertion supports it.
+///
+/// A partial unique index (migration SQL; Prisma cannot declare it) allows
+/// at most ONE active assertion per (geoEntityId, hintKey, source).
+model GeoEntityVerifiedHintAssertion {
+  id               String                 @id @default(uuid())
+  geoEntityId      String
+  /// Verbatim hint text as it was asserted.
+  hintName         String
+  /// `normalizeGeoName(hintName)`: the fast-index key.
+  hintKey          String
+  source           CatalogKnowledgeSource
+  /// Administrator who asserted it. Null for AUTOMATIC assertions and for
+  /// administrative calls made without an authenticated actor (no admin
+  /// role model exists yet).
+  actorUserId      String?
+  /// When this assertion was recorded. Rows backfilled from hint memory
+  /// that predates this table carry the migration time.
+  createdAt        DateTime               @default(now())
+  revokedAt        DateTime?
+  revokedByUserId  String?
+  revocationReason String?
+  geoEntity        GeoEntity              @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
+  actor            User?                  @relation("VerifiedHintAssertionActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  revokedBy        User?                  @relation("VerifiedHintAssertionRevoker", fields: [revokedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([hintKey])
+  @@index([geoEntityId, hintKey])
+  @@map("geo_entity_verified_hint_assertion")
 }
 
 /// Provider-owned Overture Places runtime index. It is acquisition evidence,
@@ -154,17 +196,46 @@ model Experience {
   @@map("experience")
 }
 
+/// One SOURCE-DECLARED member of an Experience composition, resolved or
+/// not. It is not a unique GeoEntity membership row: two source members
+/// (for example "Caminito" and "Caminito Street") may resolve to the same
+/// GeoEntity and stay two rows. Composite acceptance counts DISTINCT
+/// resolved GeoEntities. Read membership only through
+/// `experience-source-membership.policy.ts`; completeness (COMPLETE vs
+/// PARTIAL) is derived from these rows, never stored.
+///
+/// DB CHECK `experience_component_resolution_consistent` (migration SQL):
+///  - RESOLVED   => geoEntityId set, resolutionReason null;
+///  - UNRESOLVED => geoEntityId null, resolutionSource null, and
+///                  sourceName, sourcePosition, resolutionReason set.
 model ExperienceComponent {
-  id           String     @id @default(uuid())
-  experienceId String
-  geoEntityId  String
-  order        Int?
-  role         String?
-  required     Boolean    @default(true)
-  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
-  geoEntity    GeoEntity  @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
+  id               String                               @id @default(uuid())
+  experienceId     String
+  /// Null only while the source member is UNRESOLVED.
+  geoEntityId      String?
+  /// 0-based position of this member in the source-declared composition,
+  /// assigned once at persistence and never renumbered. It is the member's
+  /// identity inside its Experience. Null only on rows persisted before
+  /// source members were recorded (legacy; never fabricated).
+  sourcePosition   Int?
+  /// The member's component hint name: the source wording the resolver
+  /// looked up and that hint memory learns. Null only on legacy rows: never
+  /// backfilled from `GeoEntity.name`.
+  sourceName       String?
+  order            Int?
+  role             String?
+  required         Boolean                              @default(true)
+  resolutionState  ExperienceComponentResolutionState   @default(RESOLVED)
+  /// Why an UNRESOLVED member has no GeoEntity. Only PARTIAL-eligible
+  /// (missing-knowledge) reasons exist in this enum.
+  resolutionReason ExperienceComponentResolutionReason?
+  /// Who linked a RESOLVED member. Null when unknown (legacy rows).
+  resolutionSource CatalogKnowledgeSource?
+  experience       Experience                           @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  geoEntity        GeoEntity?                           @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
 
-  @@unique([experienceId, geoEntityId])
+  @@unique([experienceId, sourcePosition])
+  @@index([experienceId, resolutionState])
   @@index([geoEntityId])
   @@map("experience_component")
 }
@@ -237,6 +308,30 @@ enum GeoEntityKind {
   ROUTE
 }
 
+/// Resolution state of one source-declared Experience member.
+enum ExperienceComponentResolutionState {
+  RESOLVED
+  UNRESOLVED
+}
+
+/// Persisted reason of an UNRESOLVED source member. Deliberately limited to
+/// PARTIAL-eligible (MISSING_KNOWLEDGE) reasons: a blocking deficit never
+/// reaches persistence. `RESOLUTION_REVOKED` = an administrator revoked the
+/// verified hint the member had been resolved through.
+enum ExperienceComponentResolutionReason {
+  NO_CANDIDATE_ACQUIRED
+  CANDIDATE_UNCONFIRMED
+  CANDIDATE_REJECTED
+  AMBIGUOUS_CANDIDATES
+  RESOLUTION_REVOKED
+}
+
+/// Who asserted a piece of catalog knowledge.
+enum CatalogKnowledgeSource {
+  AUTOMATIC
+  ADMIN
+}
+
 enum ExperienceStatus {
   PENDING
   VERIFIED
@@ -259,6 +354,9 @@ model User {
   tours                Tour[]
   devices              UserDevice[]
   webPushSubscriptions WebPushSubscription[]
+
+  verifiedHintAssertions        GeoEntityVerifiedHintAssertion[] @relation("VerifiedHintAssertionActor")
+  revokedVerifiedHintAssertions GeoEntityVerifiedHintAssertion[] @relation("VerifiedHintAssertionRevoker")
 
   @@unique([provider, providerId])
   @@map("user")

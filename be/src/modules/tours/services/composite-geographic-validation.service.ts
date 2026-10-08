@@ -57,6 +57,7 @@ import {
 } from '../utils/experience-geographic-scope.policy';
 import { evaluateSourceCompositionSupport } from '../utils/source-composition-support.policy';
 import { MULTI_COMPONENT_MIN_DISTINCT_COMPONENTS } from '../utils/acquisition-candidate-requirement.util';
+import { compositionAdmissionOf } from '../utils/component-resolution-facts.util';
 
 /**
  * Composite geographic validation (spec 2026-10-02 Part II §P2-2 question B,
@@ -925,12 +926,12 @@ export class CompositeGeographicValidationService {
   }
 
   /**
-   * Composite coherence is only defined over the FULL source composition.
-   * Every source-backed component hint must have a resolved canonical
-   * identity, and every resolved component must carry some canonical
-   * geography: an unresolved component is never silently dropped from the
-   * set (that would validate, and later persist, a trimmed composite), and
-   * unknown geography is never treated as coherent.
+   * Composite coherence is defined over the source composition: a COMPLETE
+   * one, or a PARTIAL one the canonical membership authority admitted (its
+   * unresolved members stay members and persist as such; they are never
+   * silently dropped to validate a trimmed composite). Every resolved
+   * component must carry some canonical geography: unknown geography is
+   * never treated as coherent.
    */
   private rejectIfSourceCompositionIncomplete(
     resolvedProposal: ResolvedExperienceCandidate,
@@ -942,7 +943,14 @@ export class CompositeGeographicValidationService {
     const incomplete = resolvedProposal.candidate.componentHints.some(
       (hint) => !resolved.some((entity) => entity.hintKey === hint.key),
     );
-    if (incomplete) {
+    // An incomplete composition is judged here only when the canonical
+    // membership authority admitted it as PARTIAL (>= 2 distinct resolved
+    // GeoEntities, missing-knowledge deficits only). The validator then sees
+    // only its resolved members. Without component facts it fails closed.
+    if (
+      incomplete &&
+      !compositionAdmissionOf(resolvedProposal.componentResolution)?.admitted
+    ) {
       return this.rejected(
         proposalName,
         'EXPERIENCE',

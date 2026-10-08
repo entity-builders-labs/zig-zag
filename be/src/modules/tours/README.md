@@ -113,7 +113,25 @@ The primary flow when a user creates a tour from the mobile app wizard:
      destination are tour-eligible from the destination window
      (`utils/tour-destination-eligibility.policy.ts`). See spec
      `docs/superpowers/specs/2026-10-02-geographic-validation-authorization-review.md` Part II (§P2-18).
+   - Persists a source-defined composition as ONE `ExperienceComponent` row
+     per source member, resolved or not, in source order (`sourcePosition`).
+     Two members may share one GeoEntity. Admission, completeness and every
+     membership read go through `utils/experience-source-membership.policy.ts`:
+     a COMPLETE composition (every member resolved) persists as before; a
+     PARTIAL one persists only with >= 2 DISTINCT resolved GeoEntities and
+     every unresolved member classified MISSING_KNOWLEDGE by
+     `utils/component-deficit-classification.policy.ts` (identity conflict,
+     destination contradiction/unknown and provider or Wikidata
+     unavailability block it). Completeness is derived, never stored.
+     Unresolved members never reach coordinates, ranking, embeddings or Tour
+     snapshots, which read one resolved member per distinct GeoEntity.
+   - Verified hint memory (`GeoEntity.verifiedHintNameKeys`) is the fast
+     lookup index; `GeoEntityVerifiedHintAssertion` keeps who asserted each
+     hint and when it was revoked. `services/catalog-knowledge-administration.service.ts`
+     holds the admin primitives (REVOKE_VERIFIED_HINT, CONFIRM_EXISTING_GEOENTITY);
+     no UI or role model exists yet.
    - Runs deterministic daily planning and persists `TourExperience` snapshots
+     (frozen copies: later Experience enrichment reaches only new Tours)
    - Publishes media work through the existing outbox flow
 
 The request distinguishes thematic interests, exploration style,

@@ -1,4 +1,8 @@
 import { Prisma } from '@prisma/client';
+import {
+  SourceMemberShape,
+  distinctResolvedSourceMembers,
+} from './experience-source-membership.policy';
 
 export interface PlannedExperienceForSnapshot {
   dayNumber: number;
@@ -9,8 +13,8 @@ export interface PlannedExperienceForSnapshot {
   travelFromPrevious?: unknown;
 }
 
-export interface ExperienceComponentForSnapshot {
-  geoEntityId: string;
+export interface ExperienceComponentForSnapshot extends SourceMemberShape {
+  geoEntityId: string | null;
   order: number | null;
   role: string | null;
   required: boolean;
@@ -19,7 +23,7 @@ export interface ExperienceComponentForSnapshot {
     latitude: number | null;
     longitude: number | null;
     geometry: unknown;
-  };
+  } | null;
 }
 
 export interface ExperienceEntityForSnapshot {
@@ -34,6 +38,12 @@ export interface ExperienceEntityForSnapshot {
  * fixed here (order fabrication, discarded travelFromPrevious) are covered
  * by fast, dependency-free tests instead of only reachable through the full
  * generation service.
+ *
+ * Only RESOLVED source members are frozen into the Tour, one per distinct
+ * GeoEntity (two source members naming one place are one stop): an
+ * unresolved member has no GeoEntity and never becomes a navigable POI. The snapshot is
+ * a copy, so a later enrichment of the shared Experience reaches only Tours
+ * materialized after it.
  *
  * Component `order` is passed through as-is (`component.order`, no `??`
  * fallback) — verified live this session that fabricating `index + 1` when
@@ -61,7 +71,7 @@ export function buildTourExperienceCreateData(
       | Prisma.InputJsonValue
       | typeof Prisma.DbNull,
     components: {
-      create: experience.components.map((component) => ({
+      create: distinctResolvedSourceMembers(experience).map((component) => ({
         geoEntityId: component.geoEntityId,
         order: component.order,
         role: component.role,

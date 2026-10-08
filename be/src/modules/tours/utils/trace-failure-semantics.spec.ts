@@ -390,12 +390,43 @@ describe('Stage 5 trace failure semantics', () => {
   });
 
   describe('catalog_materialization composite outcome', () => {
+    // INTENTIONAL_PRODUCT_CHANGE: PARTIAL_COMPOSITE_POLICY.
+    // Old fixture/expectation: "Partial walk" (A, B resolved; C
+    // NO_CANDIDATE_ACQUIRED) was a rejected candidate, never evaluated,
+    // persisted or planner-eligible. It qualifies for PARTIAL (2 distinct
+    // resolved GeoEntities, C is MISSING_KNOWLEDGE), so the resolver now
+    // admits it: the fixture reflects that run (validated, persisted). The
+    // old "never evaluated" assertion moves, unchanged, onto incomplete
+    // compositions that do NOT qualify: below the distinct floor, and with a
+    // SYSTEM_FAILURE member.
     const partial = resolutionOf(
       'Partial walk',
       [
         [resolved('A', ...INSIDE), [acquired('VERIFIED')]],
         [resolved('B', ...INSIDE), [acquired('VERIFIED')]],
         [unresolved('C', 'NO_OSM_MATCH'), [attempt({})]],
+      ],
+      'accepted',
+      [],
+    );
+    const belowFloor = resolutionOf(
+      'Below-floor walk',
+      [
+        [resolved('A', ...INSIDE), [acquired('VERIFIED')]],
+        [unresolved('C', 'NO_OSM_MATCH'), [attempt({})]],
+      ],
+      'rejected',
+      ['INCOMPLETE_SOURCE_COMPOSITION'],
+    );
+    const blocked = resolutionOf(
+      'Provider-failed walk',
+      [
+        [resolved('A', ...INSIDE), [acquired('VERIFIED')]],
+        [resolved('B', ...INSIDE), [acquired('VERIFIED')]],
+        [
+          unresolved('E', 'PROVIDER_FAILURE'),
+          [attempt({ executionStatus: 'failed', failureReason: 'timeout' })],
+        ],
       ],
       'rejected',
       ['INCOMPLETE_SOURCE_COMPOSITION'],
@@ -433,7 +464,9 @@ describe('Stage 5 trace failure semantics', () => {
       validatorVersion: 3,
     });
     const finalResolved: ResolvedExperienceCandidate[] = [
-      partial.resolved,
+      { ...partial.resolved, experienceId: 'exp-2', dedupeDecision: 'NEW' },
+      belowFloor.resolved,
+      blocked.resolved,
       { ...complete.resolved, experienceId: 'exp-1', dedupeDecision: 'NEW' },
       {
         ...geoRejected.resolved,
@@ -442,18 +475,19 @@ describe('Stage 5 trace failure semantics', () => {
       },
     ];
     const step = projectCatalogMaterializationStepInput({
-      totalCandidates: 3,
-      acceptedCount: 1,
-      rejectedCount: 2,
+      totalCandidates: 5,
+      acceptedCount: 2,
+      rejectedCount: 3,
       resolved: finalResolved,
       geographicValidation: {
         results: [
+          validation('Partial walk', true),
           validation('Complete walk', true),
           validation('Scattered walk', false),
         ],
-        acceptedCount: 1,
+        acceptedCount: 2,
         rejectedCount: 1,
-        resolved: [complete.resolved, geoRejected.resolved],
+        resolved: [partial.resolved, complete.resolved, geoRejected.resolved],
       },
       materialization: { resolved: finalResolved },
     });
@@ -463,7 +497,7 @@ describe('Stage 5 trace failure semantics', () => {
         (item: any) => item.candidateName === name,
       )!.compositeOutcome;
 
-    it('a partial composite is never evaluated, persisted or planner-eligible, and says why', () => {
+    it('an admitted PARTIAL composite is evaluated geographically, persisted and planner-eligible', () => {
       expect(outcome('Partial walk')).toEqual({
         coverage: expect.objectContaining({
           totalComponents: 3,
@@ -472,17 +506,41 @@ describe('Stage 5 trace failure semantics', () => {
           resolutionRatio: 2 / 3,
           sourceCompositionComplete: false,
         }),
-        geographicDecision: {
-          status: 'NOT_EVALUATED',
-          reason: 'INCOMPLETE_SOURCE_COMPOSITION',
-        },
+        geographicDecision: { status: 'ACCEPTED', strategy: 'canonical_area' },
         persistence: {
-          status: 'NOT_PERSISTED',
-          reasons: ['INCOMPLETE_SOURCE_COMPOSITION'],
+          status: 'PERSISTED',
+          experienceId: 'exp-2',
+          dedupeDecision: 'NEW',
         },
-        plannerEligible: false,
+        plannerEligible: true,
       });
     });
+
+    it.each([
+      ['Below-floor walk', 2, 1],
+      ['Provider-failed walk', 3, 2],
+    ])(
+      'a non-admitted incomplete composite (%s) is never evaluated, persisted or planner-eligible, and says why',
+      (name, totalComponents, identityResolvedComponents) => {
+        expect(outcome(name)).toEqual({
+          coverage: expect.objectContaining({
+            totalComponents,
+            identityResolvedComponents,
+            unresolvedComponents: 1,
+            sourceCompositionComplete: false,
+          }),
+          geographicDecision: {
+            status: 'NOT_EVALUATED',
+            reason: 'INCOMPLETE_SOURCE_COMPOSITION',
+          },
+          persistence: {
+            status: 'NOT_PERSISTED',
+            reasons: ['INCOMPLETE_SOURCE_COMPOSITION'],
+          },
+          plannerEligible: false,
+        });
+      },
+    );
 
     it('a complete, geographically accepted composite is persisted and planner-eligible', () => {
       expect(outcome('Complete walk')).toMatchObject({
@@ -568,7 +626,10 @@ describe('Stage 5 trace failure semantics', () => {
 
     it('states each composite decision in the summary', () => {
       expect(step.description).toContain(
-        'Partial walk: 2/3 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner',
+        'Partial walk: 2/3 componentes resueltos, composición incompleta → geografía ACCEPTED, persistida, elegible para planner',
+      );
+      expect(step.description).toContain(
+        'Below-floor walk: 1/2 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner',
       );
       expect(step.description).toContain(
         'Complete walk: 2/2 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner',

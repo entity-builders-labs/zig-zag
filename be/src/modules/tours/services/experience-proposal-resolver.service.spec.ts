@@ -222,7 +222,12 @@ describe('ExperienceProposalResolverService', () => {
       },
     });
   });
-  it("dedupes components by geoEntityId before persisting (real regression: two hints of one candidate reconciled onto the same GeoEntity, crashing on ExperienceComponent's unique constraint)", async () => {
+  // INTENTIONAL_PRODUCT_CHANGE: SOURCE_MEMBER_IDENTITY (D2). Old expectation: the two hints that reconcile onto one GeoEntity
+  // were collapsed to ONE persisted component (the old
+  // @@unique([experienceId, geoEntityId]) crashed otherwise). A component is
+  // now one source member, identified by its source position, so both
+  // members persist and point at the same GeoEntity.
+  it('persists both source members of a candidate that reconcile onto the same GeoEntity, without a unique-constraint crash', async () => {
     // Verified live: a Recoleta candidate proposed an "area" hint ("Recoleta")
     // and a "venue" hint naming something inside it — cross-provider
     // reconciliation (ExperienceCatalogService.upsertGeoEntity, added earlier
@@ -306,7 +311,16 @@ describe('ExperienceProposalResolverService', () => {
     expect(result.acceptedCount).toBe(1);
     expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
       expect.objectContaining({
-        components: [expect.objectContaining({ geoEntityId: 'geo-shared' })],
+        components: [
+          expect.objectContaining({
+            geoEntityId: 'geo-shared',
+            sourceName: 'Recoleta',
+          }),
+          expect.objectContaining({
+            geoEntityId: 'geo-shared',
+            sourceName: 'Recoleta Cultural Center',
+          }),
+        ],
       }),
     );
   });
@@ -2780,18 +2794,37 @@ describe('ExperienceProposalResolverService', () => {
         candidates: withDefaultGeographicAuthorization([walkCandidate]),
       });
 
+      // INTENTIONAL_PRODUCT_CHANGE: SOURCE_MEMBER_IDENTITY (D2): each persisted member now also carries its
+      // source wording (`sourceName`); the three members, their order and
+      // roles are unchanged.
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
         expect.objectContaining({
           components: [
-            { geoEntityId: 'geo-1', order: null, role: 'venue' },
-            { geoEntityId: 'geo-2', order: null, role: 'venue' },
-            { geoEntityId: 'geo-3', order: null, role: 'venue' },
+            {
+              geoEntityId: 'geo-1',
+              sourceName: 'Plaza Dorrego',
+              order: null,
+              role: 'venue',
+            },
+            {
+              geoEntityId: 'geo-2',
+              sourceName: 'Mercado de San Telmo',
+              order: null,
+              role: 'venue',
+            },
+            {
+              geoEntityId: 'geo-3',
+              sourceName: 'Rooftop Viewpoint',
+              order: null,
+              role: 'venue',
+            },
           ],
         }),
       );
     });
 
-    it('persists one component when two hints converge on the same GeoEntity (order A)', async () => {
+    // INTENTIONAL_PRODUCT_CHANGE: SOURCE_MEMBER_IDENTITY (D2). Old expectation: ONE persisted component.
+    it('persists both source members when two hints converge on the same GeoEntity (order A)', async () => {
       const dedupeCandidate: ExperienceCandidate = {
         ...walkCandidate,
         componentHints: [
@@ -2851,13 +2884,25 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
         expect.objectContaining({
           components: [
-            { geoEntityId: 'geo-shared', order: null, role: 'venue' },
+            {
+              geoEntityId: 'geo-shared',
+              sourceName: 'Mercado de San Telmo',
+              order: null,
+              role: 'venue',
+            },
+            {
+              geoEntityId: 'geo-shared',
+              sourceName: 'Mercado de San Telmo',
+              order: null,
+              role: 'venue',
+            },
           ],
         }),
       );
     });
 
-    it('persists one component when two hints converge on the same GeoEntity (order B)', async () => {
+    // INTENTIONAL_PRODUCT_CHANGE: SOURCE_MEMBER_IDENTITY (D2). Old expectation: ONE persisted component.
+    it('persists both source members when two hints converge on the same GeoEntity (order B)', async () => {
       const dedupeCandidate: ExperienceCandidate = {
         ...walkCandidate,
         componentHints: [
@@ -2916,13 +2961,25 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
         expect.objectContaining({
           components: [
-            { geoEntityId: 'geo-shared', order: null, role: 'venue' },
+            {
+              geoEntityId: 'geo-shared',
+              sourceName: 'Mercado de San Telmo',
+              order: null,
+              role: 'venue',
+            },
+            {
+              geoEntityId: 'geo-shared',
+              sourceName: 'Mercado de San Telmo',
+              order: null,
+              role: 'venue',
+            },
           ],
         }),
       );
     });
 
-    it('persists one component when every converging hint is evidence-backed', async () => {
+    // INTENTIONAL_PRODUCT_CHANGE: SOURCE_MEMBER_IDENTITY (D2). Old expectation: ONE persisted component.
+    it('persists both source members when every converging hint is evidence-backed', async () => {
       const dedupeCandidate: ExperienceCandidate = {
         ...walkCandidate,
         componentHints: [
@@ -2981,7 +3038,18 @@ describe('ExperienceProposalResolverService', () => {
       expect(catalog.persistVerifiedExperience).toHaveBeenCalledWith(
         expect.objectContaining({
           components: [
-            { geoEntityId: 'geo-shared', order: null, role: 'venue' },
+            {
+              geoEntityId: 'geo-shared',
+              sourceName: 'Rooftop Viewpoint',
+              order: null,
+              role: 'venue',
+            },
+            {
+              geoEntityId: 'geo-shared',
+              sourceName: 'Rooftop Viewpoint',
+              order: null,
+              role: 'venue',
+            },
           ],
         }),
       );
@@ -3441,12 +3509,18 @@ describe('ExperienceProposalResolverService', () => {
           ]),
         }),
       );
+      // INTENTIONAL_PRODUCT_CHANGE: SOURCE_MEMBER_IDENTITY (D2). Old expectation: 2 persisted components
+      // (the duplicate collapsed). All 3 source members persist now; the
+      // notability above still counts the shared GeoEntity once.
       const persistedComponents = (
         catalog.persistVerifiedExperience.mock.calls[0][0] as {
-          components: unknown[];
+          components: Array<{ geoEntityId?: string }>;
         }
       ).components;
-      expect(persistedComponents).toHaveLength(2);
+      expect(persistedComponents).toHaveLength(3);
+      expect(
+        new Set(persistedComponents.map((member) => member.geoEntityId)).size,
+      ).toBe(2);
     });
 
     it('(14.G) a single-component Experience with a QID does NOT receive the composite component-derived quality path', async () => {

@@ -641,6 +641,11 @@ export type ComponentDeficitReason =
   | 'AMBIGUOUS_CANDIDATES'
   | 'IDENTITY_CONFLICT'
   | 'PROVIDER_FAILURE'
+  /**
+   * Acquired, but IdentityVerifier could not decide because the identity
+   * authority (Wikidata) was unavailable. Operational, not missing knowledge.
+   */
+  | 'IDENTITY_AUTHORITY_UNAVAILABLE'
   | 'DESTINATION_INCOMPATIBLE'
   | 'DESTINATION_COMPATIBILITY_UNKNOWN';
 
@@ -657,6 +662,19 @@ export type ComponentDeficitClassification =
   | 'KNOWLEDGE_DEFICIT'
   | 'OPERATIONAL_FAILURE'
   | 'PENDING_CLASSIFICATION';
+
+/**
+ * Composition axis of the same deficit (see
+ * `component-deficit-classification.policy.ts`): only MISSING_KNOWLEDGE may
+ * stay unresolved inside a persisted PARTIAL composite; every other class
+ * blocks it.
+ */
+export type ComponentDeficitClass =
+  | 'MISSING_KNOWLEDGE'
+  | 'CONTRADICTORY_EVIDENCE'
+  | 'INVALID_SOURCE_COMPONENT'
+  | 'SYSTEM_FAILURE'
+  | 'UNKNOWN';
 
 /**
  * The scope component relations were computed against: the candidate's own

@@ -102,6 +102,10 @@ import {
   GlobalCapacityDeficit,
 } from '../interfaces/experience-acquisition-plan.interface';
 import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fingerprint.util';
+import {
+  distinctResolvedSourceMembers,
+  sourceCompositionCompleteness,
+} from '../utils/experience-source-membership.policy';
 
 /**
  * Hard bound on the canonical acquisition loop: initial catalog coverage,
@@ -252,7 +256,11 @@ export class ExperienceGenerationService {
       !Array.isArray(experience.metadata)
         ? experience.metadata
         : {};
-    const firstPoint = experience.components?.find(
+    // Only resolved source members carry geography or reach the planner.
+    const resolvedComponents = distinctResolvedSourceMembers<any>({
+      components: experience.components ?? [],
+    });
+    const firstPoint = resolvedComponents.find(
       (component: any) =>
         Number.isFinite(component.geoEntity?.latitude) &&
         Number.isFinite(component.geoEntity?.longitude),
@@ -320,7 +328,10 @@ export class ExperienceGenerationService {
         source: 'experience_catalog',
         experienceId: experience.id,
       },
-      components: experience.components ?? [],
+      components: resolvedComponents,
+      compositionCompleteness: sourceCompositionCompleteness<any>({
+        components: experience.components ?? [],
+      }),
     };
   }
 
@@ -1867,7 +1878,7 @@ export class ExperienceGenerationService {
             order: selected.order,
             startTime: selected.startTime?.toISOString(),
             durationHours: selected.duration,
-            componentCount: experience.components.length,
+            componentCount: distinctResolvedSourceMembers(experience).length,
           };
         });
 
@@ -1896,6 +1907,8 @@ export class ExperienceGenerationService {
           if (this.outboxService) {
             for (const experience of experienceEntities) {
               if (experience.mediaStatus === 'PENDING') {
+                const [firstResolved] =
+                  distinctResolvedSourceMembers(experience);
                 await this.outboxService.createInTx(tx, {
                   eventType: 'ExperienceMediaEnrichmentRequested',
                   payload: {
@@ -1904,13 +1917,13 @@ export class ExperienceGenerationService {
                     destinationLabel: request.destination?.label,
                     latitude:
                       experience.latitude ??
-                      experience.components[0]?.geoEntity?.latitude ??
+                      firstResolved?.geoEntity?.latitude ??
                       0,
                     longitude:
                       experience.longitude ??
-                      experience.components[0]?.geoEntity?.longitude ??
+                      firstResolved?.geoEntity?.longitude ??
                       0,
-                    category: experience.components[0]?.role,
+                    category: firstResolved?.role,
                   },
                 });
               }

@@ -307,7 +307,9 @@ describe('Stage 4: `required` carries no geographic authority', () => {
           return { id: `geo-${upserts}` };
         }),
         rememberVerifiedHintName: jest.fn().mockResolvedValue('REMEMBERED'),
-        persistVerifiedExperience: jest.fn(),
+        persistVerifiedExperience: jest
+          .fn()
+          .mockResolvedValue({ id: 'exp-six-stop', dedupeDecision: 'NEW' }),
       };
       const geographicValidator = new CompositeGeographicValidationService();
       const validateSpy = jest.spyOn(geographicValidator, 'validate');
@@ -327,17 +329,64 @@ describe('Stage 4: `required` carries no geographic authority', () => {
       return { result, catalog, validateSpy };
     };
 
-    it('keeps C and E as explicit identity deficits, gives A/B/D/F geographic facts, and never persists a trimmed A-B-D-F', async () => {
+    // INTENTIONAL_PRODUCT_CHANGE: PARTIAL_COMPOSITE_POLICY.
+    // Old expectation: rejected with INCOMPLETE_SOURCE_COMPOSITION, the
+    // geographic validator never called, nothing persisted.
+    // It qualifies for PARTIAL: 4 distinct resolved GeoEntities (A, B, D, F)
+    // >= 2, and both unresolved members (C, E) are NO_CANDIDATE_ACQUIRED =
+    // MISSING_KNOWLEDGE. So the unchanged validator now judges the resolved
+    // members, and all SIX source members persist (C and E unresolved, in
+    // source order) -- never a trimmed A-B-D-F.
+    it('keeps C and E as explicit identity deficits, gives A/B/D/F geographic facts, and persists the PARTIAL A-F with all six source members (never a trimmed A-B-D-F)', async () => {
       const { result, catalog, validateSpy } = await run(sixStopWalk());
       const resolved = result.resolved[0];
 
-      expect(resolved.status).toBe('rejected');
-      expect(resolved.rejectionReasons).toEqual([
-        'INCOMPLETE_SOURCE_COMPOSITION',
+      expect(resolved.status).toBe('accepted');
+      expect(resolved.rejectionReasons).toEqual([]);
+      expect(validateSpy).toHaveBeenCalledTimes(1);
+      expect(catalog.persistVerifiedExperience).toHaveBeenCalledTimes(1);
+      expect(
+        catalog.persistVerifiedExperience.mock.calls[0][0].components,
+      ).toEqual([
+        {
+          geoEntityId: 'geo-1',
+          sourceName: 'Stop A',
+          order: 1,
+          role: 'waypoint',
+        },
+        {
+          geoEntityId: 'geo-2',
+          sourceName: 'Stop B',
+          order: 2,
+          role: 'waypoint',
+        },
+        {
+          resolutionState: 'UNRESOLVED',
+          resolutionReason: 'NO_CANDIDATE_ACQUIRED',
+          sourceName: 'Stop C',
+          order: 3,
+          role: 'waypoint',
+        },
+        {
+          geoEntityId: 'geo-3',
+          sourceName: 'Stop D',
+          order: 4,
+          role: 'waypoint',
+        },
+        {
+          resolutionState: 'UNRESOLVED',
+          resolutionReason: 'NO_CANDIDATE_ACQUIRED',
+          sourceName: 'Stop E',
+          order: 5,
+          role: 'waypoint',
+        },
+        {
+          geoEntityId: 'geo-4',
+          sourceName: 'Stop F',
+          order: 6,
+          role: 'waypoint',
+        },
       ]);
-      // Composite coherence never runs on a subset, and nothing persists.
-      expect(validateSpy).not.toHaveBeenCalled();
-      expect(catalog.persistVerifiedExperience).not.toHaveBeenCalled();
 
       const facts = resolved.componentResolution!.components;
       expect(

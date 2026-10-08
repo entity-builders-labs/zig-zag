@@ -1,5 +1,23 @@
-export interface DedupeComponentFingerprint {
-  geoEntityId: string;
+import { normalizeGeoName } from './nominatim-match.util';
+import {
+  SourceMemberShape,
+  allSourceMembers,
+  distinctResolvedGeoEntityIds,
+  isResolvedSourceMember,
+  resolvedSourceMembers,
+} from './experience-source-membership.policy';
+
+/**
+ * One SOURCE MEMBER of a composition. A resolved member is identified by its
+ * GeoEntity; an unresolved member (no GeoEntity) only by its source wording.
+ * The source-defined composition is part of composite identity: a PARTIAL
+ * A-B-C-D-E-F whose only resolved members are A and B is not the COMPLETE
+ * A-B composition, and an unresolved member never becomes a shared `null`.
+ */
+export interface DedupeComponentFingerprint extends SourceMemberShape {
+  geoEntityId: string | null;
+  /** Source wording; the identity of an UNRESOLVED member. */
+  sourceName?: string | null;
   role?: string | null;
   /**
    * `ExperienceComponent.order` — identity-relevant ONLY when real,
@@ -243,24 +261,20 @@ export function compareFingerprints(
     semanticTokenSet(incoming),
     semanticTokenSet(existing),
   );
-  const incomingIds = new Set(
-    incoming.components.map((component) => component.geoEntityId),
-  );
-  const existingIds = new Set(
-    existing.components.map((component) => component.geoEntityId),
-  );
+  const incomingIds = new Set(sourceMemberKeys(incoming));
+  const existingIds = new Set(sourceMemberKeys(existing));
   const componentOverlap = setOverlap(incomingIds, existingIds);
 
   const incomingRoleKeys = new Set(
-    incoming.components.map(
+    allSourceMembers(incoming).map(
       (component) =>
-        `${normalize(component.role ?? 'component')}|${component.geoEntityId}`,
+        `${normalize(component.role ?? 'component')}|${sourceMemberKey(component)}`,
     ),
   );
   const existingRoleKeys = new Set(
-    existing.components.map(
+    allSourceMembers(existing).map(
       (component) =>
-        `${normalize(component.role ?? 'component')}|${component.geoEntityId}`,
+        `${normalize(component.role ?? 'component')}|${sourceMemberKey(component)}`,
     ),
   );
   const roleAwareComponentOverlap = setOverlap(
@@ -281,8 +295,8 @@ export function compareFingerprints(
   );
   const distanceKm = haversineKm(incoming, existing);
   const orderConflict = hasConflictingEvidencedOrder(
-    incoming.components,
-    existing.components,
+    resolvedSourceMembers(incoming),
+    resolvedSourceMembers(existing),
   );
 
   const reasons: string[] = [];
@@ -362,21 +376,35 @@ function hasConflictingEvidencedOrder(
 }
 
 /**
- * A canonical standalone Experience has one DISTINCT GeoEntity component;
- * a composite has more than one. Array length is intentionally not used:
- * duplicate rows for the same GeoEntity must never manufacture composite
- * identity semantics.
+ * Identity key of one source member inside a dedupe comparison: its
+ * GeoEntity when resolved, else its normalized source wording. Never a bare
+ * `null`, so two unrelated PARTIAL Experiences never share a fake member.
+ */
+function sourceMemberKey(component: DedupeComponentFingerprint): string {
+  const resolved: boolean = isResolvedSourceMember(component);
+  return resolved
+    ? `geo:${component.geoEntityId}`
+    : `source:${normalizeGeoName(component.sourceName ?? '')}`;
+}
+
+function sourceMemberKeys(
+  fingerprint: Pick<DedupeExperienceFingerprint, 'components'>,
+): string[] {
+  return allSourceMembers(fingerprint).map(sourceMemberKey);
+}
+
+/**
+ * A canonical standalone Experience has one DISTINCT resolved GeoEntity; a
+ * composite has more than one. Array length is intentionally not used:
+ * duplicate rows for the same GeoEntity, and unresolved members, must never
+ * manufacture composite identity semantics.
  */
 function isStandaloneCompositeComparison(
   left: Pick<DedupeExperienceFingerprint, 'components'>,
   right: Pick<DedupeExperienceFingerprint, 'components'>,
 ): boolean {
-  const leftCount = new Set(
-    left.components.map((component) => component.geoEntityId),
-  ).size;
-  const rightCount = new Set(
-    right.components.map((component) => component.geoEntityId),
-  ).size;
+  const leftCount = distinctResolvedGeoEntityIds(left).length;
+  const rightCount = distinctResolvedGeoEntityIds(right).length;
   return (
     (leftCount === 1 && rightCount > 1) || (rightCount === 1 && leftCount > 1)
   );

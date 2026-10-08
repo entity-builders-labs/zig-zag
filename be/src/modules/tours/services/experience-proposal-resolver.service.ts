@@ -18,6 +18,7 @@ import {
 import {
   CatalogGeoEntityCandidate,
   ExperienceCatalogService,
+  VerifiedExperienceComponentInput,
 } from './experience-catalog.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
@@ -63,7 +64,12 @@ import {
   normalizeGeoName,
 } from '../utils/nominatim-match.util';
 import { selectBestPlaceCandidate } from '../utils/places-candidate-selector.util';
-import { buildCompositeComponentResolution } from '../utils/component-resolution-facts.util';
+import {
+  buildCompositeComponentResolution,
+  sourceMemberResolutions,
+} from '../utils/component-resolution-facts.util';
+import { decideSourceCompositionAdmission } from '../utils/experience-source-membership.policy';
+import { persistableUnresolvedReason } from '../utils/component-deficit-classification.policy';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { calculateDistance } from '@shared/utils/distance.utils';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
@@ -644,10 +650,8 @@ export class ExperienceProposalResolverService
         // exists; `persistVerifiedExperience` treats `undefined` the same
         // as omitting the field.
         const qualityEvidence = candidate.candidate.qualityEvidence;
-        // Computed ONCE and reused for both component-quality derivation
-        // and the `components` mapping below, so the two representations
-        // of "this candidate's real deduped component set" can never
-        // diverge (spec cutover requirement).
+        // The DISTINCT resolved GeoEntities feed component quality: two
+        // source members resolving to one place count once.
         const dedupedComponents = this.dedupeResolvedEntitiesByGeoEntity(
           candidate.resolvedEntities.filter(
             (entity: any) => entity.status === 'resolved' && entity.geoEntityId,
@@ -695,14 +699,7 @@ export class ExperienceProposalResolverService
             source: 'grounded_experience_discovery',
           },
           traitDefinitionIds,
-          components: dedupedComponents.map((entity: any, index: number) => ({
-            geoEntityId: entity.geoEntityId,
-            // Only a real, evidence-backed visiting sequence earns a
-            // concrete order — otherwise this is resolution/array order,
-            // not intrinsic sequence, and must persist as null.
-            order: candidate.candidate.orderedByEvidence ? index + 1 : null,
-            role: entity.role,
-          })),
+          components: this.sourceMemberInputs(candidate),
           evidence: evidence
             .filter((item: { key?: string }) =>
               candidate.candidate.evidenceKeys?.includes(item.key ?? ''),
@@ -1813,25 +1810,25 @@ export class ExperienceProposalResolverService
     const componentSearchScope = projectExperienceGeographicScope(derivedScope);
     await this.rememberVerifiedHints(verifiedHintsToRemember);
     // Source composition is the authority on WHICH components make up this
-    // Experience. A candidate is admitted to geographic validation (and so
-    // to persistence) only when every source-backed component hint has a
-    // resolved canonical identity. An unresolved/ambiguous component is kept
-    // as an explicit fact (see componentResolution), never dropped to
-    // produce a smaller composite the source never described.
+    // Experience. Every source member stays a member, resolved or not; an
+    // unresolved member is never dropped to produce a smaller composite the
+    // source never described. Admission (COMPLETE, or PARTIAL under the
+    // canonical rule: >= 2 distinct resolved GeoEntities and only
+    // missing-knowledge deficits) is decided by the single membership
+    // authority, from the same facts the trace records.
     const componentHints: GeoEntityHint[] = candidate?.componentHints ?? [];
-    const sourceCompositionComplete =
-      componentHints.length > 0 &&
-      componentHints.every((hint) =>
-        entities.some(
-          (entity) =>
-            entity.hintKey === hint.key && entity.status === 'resolved',
-        ),
-      );
+    const admission = decideSourceCompositionAdmission(
+      sourceMemberResolutions({
+        hints: componentHints,
+        entities,
+        componentAudits,
+      }),
+    );
     const resolvedEntities = entities.filter(
       (entity) => entity.status === 'resolved',
     );
 
-    if (resolvedEntities.length === 0 || !sourceCompositionComplete) {
+    if (resolvedEntities.length === 0 || !admission.admitted) {
       return {
         resolved: {
           candidate,
@@ -4054,6 +4051,60 @@ export class ExperienceProposalResolverService
    * (existing canonical policy). Membership comes from the complete source
    * composition, never from a per-component flag.
    */
+  /**
+   * Every source member of an admitted candidate, in source order, as the
+   * catalog persists it: one row per member, resolved or not (D2). Built
+   * from the same component facts the trace records. A member's position
+   * is its index in the source composition (assigned by the catalog from
+   * this order); `order` is the evidenced visiting sequence over ALL
+   * members (never renumbered over the resolved subset), null when the
+   * source declares none.
+   */
+  private sourceMemberInputs(
+    candidate: ResolvedExperienceCandidate,
+  ): VerifiedExperienceComponentInput[] {
+    const facts = candidate.componentResolution?.components;
+    if (!facts) {
+      throw new Error(
+        `Admitted candidate "${candidate.candidate.name}" has no component facts`,
+      );
+    }
+    return facts.map((fact): VerifiedExperienceComponentInput => {
+      if (fact.identityStatus === 'RESOLVED') {
+        const entity = candidate.resolvedEntities.find(
+          (item) => item.hintKey === fact.hintKey,
+        );
+        if (!entity?.geoEntityId) {
+          throw new Error(
+            `Resolved member "${fact.hintName}" has no GeoEntity to persist`,
+          );
+        }
+        return {
+          geoEntityId: entity.geoEntityId,
+          sourceName: fact.hintName,
+          order: fact.sourceOrder,
+          role: entity.role,
+        };
+      }
+      const resolutionReason = persistableUnresolvedReason(
+        fact.deficit!.reason,
+      );
+      if (!resolutionReason) {
+        // Unreachable after admission: a blocking deficit never admits.
+        throw new Error(
+          `Unresolved member "${fact.hintName}" has blocking deficit ${fact.deficit!.reason}`,
+        );
+      }
+      return {
+        resolutionState: 'UNRESOLVED',
+        resolutionReason,
+        sourceName: fact.hintName,
+        order: fact.sourceOrder,
+        role: fact.role,
+      };
+    });
+  }
+
   private dedupeResolvedEntitiesByGeoEntity<
     T extends { geoEntityId?: string; hintKey?: string },
   >(entities: T[]): T[] {

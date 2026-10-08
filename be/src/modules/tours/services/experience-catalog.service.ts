@@ -1,5 +1,10 @@
 import { Injectable, Inject, Logger, Optional } from '@nestjs/common';
-import { ExperienceStatus, GeoEntityKind, Prisma } from '@prisma/client';
+import {
+  ExperienceComponentResolutionReason,
+  ExperienceStatus,
+  GeoEntityKind,
+  Prisma,
+} from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import {
   IPlacesApiService,
@@ -30,6 +35,15 @@ import {
 } from '../utils/experience-dedupe.util';
 import { mergeExperienceMetadata } from '../utils/experience-metadata-merge.util';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
+import {
+  SourceMemberResolution,
+  decideSourceCompositionAdmission,
+  distinctResolvedSourceMembers,
+  isCompositeMembership,
+  resolvedSourceMembers,
+  sourceCompositionCompleteness,
+  unresolvedSourceMembers,
+} from '../utils/experience-source-membership.policy';
 import { ClassificationResult } from './experience-classification.service';
 import { ExperienceGroundingEvidence } from '../interfaces/experience-grounding.interface';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
@@ -202,6 +216,29 @@ export interface FindGeoEntityCandidatesForHintResult {
   candidates: CatalogGeoEntityCandidate[];
 }
 
+/** One source member to persist. */
+export type VerifiedExperienceComponentInput =
+  | {
+      resolutionState?: 'RESOLVED';
+      geoEntityId: string;
+      /**
+       * The member's component hint name. Optional only for callers that
+       * never knew it; the source-defined composite path always supplies it
+       * and it is never derived from `GeoEntity.name`.
+       */
+      sourceName?: string;
+      /** `null` (not just absent) means no intrinsic sequence evidence exists. */
+      order?: number | null;
+      role?: string;
+    }
+  | {
+      resolutionState: 'UNRESOLVED';
+      resolutionReason: ExperienceComponentResolutionReason;
+      sourceName: string;
+      order?: number | null;
+      role?: string;
+    };
+
 export interface VerifiedExperienceInput {
   canonicalName: string;
   description?: string;
@@ -212,12 +249,13 @@ export interface VerifiedExperienceInput {
   longitude?: number;
   openingHours?: NormalizedOpeningHours;
   metadata?: unknown;
-  components: Array<{
-    geoEntityId: string;
-    /** `null` (not just absent) means no intrinsic sequence evidence exists. */
-    order?: number | null;
-    role?: string;
-  }>;
+  /**
+   * The COMPLETE source-declared composition, in source order: one entry per
+   * source member, resolved or not. A member's array index is its
+   * `sourcePosition` (its identity inside the Experience). Two members may
+   * resolve to the same GeoEntity and stay two members.
+   */
+  components: VerifiedExperienceComponentInput[];
   evidence?: Array<{
     source: string;
     url?: string;
@@ -619,10 +657,10 @@ export class ExperienceCatalogService {
     return rows
       .filter(
         (experience) =>
-          experience.components.length > 1 &&
+          isCompositeMembership(experience) &&
           evaluateAreaScopeMembership(
             area.geometry as GeoJsonGeometry,
-            experience.components.map((component) => ({
+            resolvedSourceMembers(experience).map((component) => ({
               role: component.role,
               kind: component.geoEntity.kind,
               latitude: component.geoEntity.latitude,
@@ -648,11 +686,12 @@ export class ExperienceCatalogService {
         status: ExperienceStatus.VERIFIED,
         components: { some: { geoEntityId } },
       },
-      select: { id: true, _count: { select: { components: true } } },
+      select: {
+        id: true,
+        components: { select: { geoEntityId: true, resolutionState: true } },
+      },
     });
-    const ids = rows
-      .filter((row) => row._count.components > 1)
-      .map((row) => row.id);
+    const ids = rows.filter(isCompositeMembership).map((row) => row.id);
     if (ids.length === 0) return [];
     return this.findVerifiedByIds(ids);
   }
@@ -683,7 +722,7 @@ export class ExperienceCatalogService {
     return pool.filter(
       (row) =>
         normalizeGeoName(row.canonicalName ?? '') === normalizedAnchorName &&
-        row.components.length > 1,
+        isCompositeMembership(row),
     );
   }
 
@@ -781,11 +820,14 @@ export class ExperienceCatalogService {
       openingHours: unknown;
       metadata: unknown;
       components: Array<{
+        geoEntityId: string | null;
+        resolutionState?: 'RESOLVED' | 'UNRESOLVED' | null;
+        sourcePosition?: number | null;
         geoEntity: {
           kind: GeoEntityKind;
           latitude: number | null;
           longitude: number | null;
-        };
+        } | null;
         [key: string]: any;
       }>;
       traits: Array<{
@@ -798,7 +840,11 @@ export class ExperienceCatalogService {
     },
     center?: { latitude: number; longitude: number },
   ) {
-    const component = experience.components.find(
+    // Only resolved source members carry geography, embedding text, planner
+    // duration or Tour snapshot rows. Unresolved members never leave the
+    // catalog through this projection.
+    const resolvedComponents = distinctResolvedSourceMembers(experience);
+    const component = resolvedComponents.find(
       (item) =>
         Number.isFinite(item.geoEntity.latitude) &&
         Number.isFinite(item.geoEntity.longitude),
@@ -861,7 +907,9 @@ export class ExperienceCatalogService {
         source: 'experience_catalog',
         experienceId: experience.id,
       },
-      components: experience.components,
+      /** Navigable places: one resolved member per GeoEntity, source order. */
+      components: resolvedComponents,
+      compositionCompleteness: sourceCompositionCompleteness(experience),
     };
   }
 
@@ -905,7 +953,8 @@ export class ExperienceCatalogService {
         label: trait.traitDefinition.label ?? undefined,
       })),
     ];
-    const primaryGeoEntity = experience.components.find(
+    const resolvedComponents = distinctResolvedSourceMembers(experience);
+    const primaryGeoEntity = resolvedComponents.find(
       (item) =>
         Number.isFinite(item.geoEntity.latitude) &&
         Number.isFinite(item.geoEntity.longitude),
@@ -938,7 +987,26 @@ export class ExperienceCatalogService {
       type: this.stringList(metadata.themes)[0],
       photos: experience.media,
       mediaUpdatedAt: experience.mediaUpdatedAt,
-      components: experience.components,
+      /** Navigable places: one resolved member per GeoEntity, source order. */
+      components: resolvedComponents,
+      /**
+       * The source composition beyond its resolved places: COMPLETE, or
+       * PARTIAL with the members still waiting for knowledge. Never
+       * navigable, never on a map.
+       */
+      sourceComposition: {
+        completeness: sourceCompositionCompleteness(experience),
+        unresolvedMembers: unresolvedSourceMembers(experience).map(
+          (member) => ({
+            id: member.id,
+            sourcePosition: member.sourcePosition,
+            sourceName: member.sourceName,
+            role: member.role,
+            order: member.order,
+            resolutionReason: member.resolutionReason,
+          }),
+        ),
+      },
     };
   }
 
@@ -1539,6 +1607,25 @@ export class ExperienceCatalogService {
     if (input.components.length === 0) {
       throw new Error('A verified Experience requires at least one component');
     }
+    // The catalog enforces the same canonical admission rule the resolver
+    // applied: a COMPLETE composition, or a PARTIAL one with >= 2 distinct
+    // resolved GeoEntities and only missing-knowledge unresolved members.
+    const admission = decideSourceCompositionAdmission(
+      input.components.map(
+        (member): SourceMemberResolution =>
+          member.resolutionState === 'UNRESOLVED'
+            ? {
+                identityStatus: 'UNRESOLVED',
+                deficitReason: member.resolutionReason,
+              }
+            : { identityStatus: 'RESOLVED', geoEntityId: member.geoEntityId },
+      ),
+    );
+    if ('reason' in admission) {
+      throw new Error(
+        `Source composition is not persistable (${admission.reason})`,
+      );
+    }
 
     // `ExperienceTrait` has a composite PK `@@id([experienceId, traitDefinitionId])`.
     // The NEW-experience path below writes traits via a nested `create` with
@@ -1551,9 +1638,7 @@ export class ExperienceCatalogService {
 
     return this.prisma.$transaction(async (tx) => {
       const normalizedName = input.canonicalName.trim().toLocaleLowerCase();
-      const componentIds = [
-        ...new Set(input.components.map((component) => component.geoEntityId)),
-      ].sort();
+      const componentIds = [...admission.distinctResolvedGeoEntityIds].sort();
 
       // Serialize all identity domains that can make two writes compete. Keys
       // are sorted to keep acquisition workers from deadlocking each other.
@@ -1596,7 +1681,22 @@ export class ExperienceCatalogService {
         conceptTerms: this.conceptTerms(input.metadata),
         latitude: input.latitude,
         longitude: input.longitude,
-        components: input.components,
+        components: input.components.map((member) =>
+          member.resolutionState === 'UNRESOLVED'
+            ? {
+                geoEntityId: null as string | null,
+                resolutionState: 'UNRESOLVED' as const,
+                sourceName: member.sourceName,
+                role: member.role,
+                order: member.order,
+              }
+            : {
+                geoEntityId: member.geoEntityId,
+                sourceName: member.sourceName,
+                role: member.role,
+                order: member.order,
+              },
+        ),
         provenance: (input.evidence ?? []).map((item) => item.source),
       };
       const decision = decideExperienceDedupe(
@@ -1734,15 +1834,31 @@ export class ExperienceCatalogService {
           metadata: input.metadata as Prisma.InputJsonValue | undefined,
           status: ExperienceStatus.VERIFIED,
           components: {
-            create: input.components.map((component) => ({
-              geoEntityId: component.geoEntityId,
-              order: component.order,
-              role: component.role,
-              // `ExperienceComponent.required` is left to its schema
-              // default (true): a persisted Experience is always its FULL
-              // admitted source composition, so every row is a member.
-              // The column carries no geographic/planner authority.
-            })),
+            // One row per source member, in source order; the array index
+            // is the member's `sourcePosition`. `required` is left to its
+            // schema default (true): every source member is a member,
+            // resolved or not. The column carries no geographic/planner
+            // authority.
+            create: input.components.map((member, sourcePosition) =>
+              member.resolutionState === 'UNRESOLVED'
+                ? {
+                    sourcePosition,
+                    sourceName: member.sourceName,
+                    order: member.order,
+                    role: member.role,
+                    resolutionState: 'UNRESOLVED' as const,
+                    resolutionReason: member.resolutionReason,
+                  }
+                : {
+                    geoEntityId: member.geoEntityId,
+                    sourcePosition,
+                    sourceName: member.sourceName,
+                    order: member.order,
+                    role: member.role,
+                    resolutionState: 'RESOLVED' as const,
+                    resolutionSource: 'AUTOMATIC' as const,
+                  },
+            ),
           },
           evidence: input.evidence?.length
             ? { create: input.evidence }

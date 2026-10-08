@@ -12,6 +12,7 @@ function experience(id: string, overrides: Record<string, unknown> = {}) {
     components: [
       {
         id: `component-${id}`,
+        geoEntityId: `geo-${id}`,
         role: 'venue',
         geoEntity: {
           name: `Venue ${id}`,

@@ -4,6 +4,7 @@ import { PrismaService } from '../../../core/database/prisma.service';
 import { AiEmbeddingService } from './ai-embedding.service';
 import { EmbeddingWriteResult } from '../interfaces/embedding-index.interface';
 import { buildExperienceSemanticDocument } from '../utils/experience-semantic-document.util';
+import { distinctResolvedSourceMembers } from '@tours/utils/experience-source-membership.policy';
 
 /** Writes only canonical Experience embeddings; tour generation remains read-only. */
 @Injectable()
@@ -78,14 +79,18 @@ export class ExperienceEmbeddingIndexerService {
           key: traitDefinition.key,
           label: traitDefinition.label,
         })),
-        components: experience.components.map((component) => ({
-          role: component.role,
-          geoEntity: {
-            name: component.geoEntity.name,
-            kind: component.geoEntity.kind,
-            address: component.geoEntity.address,
-          },
-        })),
+        // Unresolved source members have no verified name or kind: only
+        // resolved members enter the canonical semantic document.
+        components: distinctResolvedSourceMembers(experience).map(
+          (component) => ({
+            role: component.role,
+            geoEntity: {
+              name: component.geoEntity.name,
+              kind: component.geoEntity.kind,
+              address: component.geoEntity.address,
+            },
+          }),
+        ),
       });
     });
 
