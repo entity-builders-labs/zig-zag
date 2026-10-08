@@ -842,6 +842,33 @@ This does not require complete official-source enrichment for every catalog row
 before v1. It requires truthful provenance and real feasibility where the facts
 exist.
 
+### 6a.4.1 Duration knowledge follow-up
+
+The durable design for evidence-backed Experience duration is specified in:
+
+../specs/2026-10-08-experience-duration-knowledge.md
+
+Status: **PROPOSED / DEFERRED**. It is a future
+experience-duration-knowledge track candidate, not authorization to expand the
+current Preference-First branch.
+
+The spec makes the following boundary explicit:
+
+- traveler time budget is a request/planning constraint;
+- source/evidence-backed Experience duration is reusable catalog knowledge;
+- composite duration may later be derived from applicable member dwell/visit
+  knowledge plus canonical internal travel when whole-Experience duration is
+  unavailable;
+- source-member role participates in derivation;
+- the current 90-minute composite policy is an uncalibrated fallback, not
+  factual knowledge;
+- an independent hardcoded 120-minute catalog fallback has no canonical
+  authority and must not create path-dependent planning semantics.
+
+Preference-First may normalize the current fallback path to one canonical
+planning policy. Acquisition, persistence, reconciliation and derivation of
+duration knowledge belong to the separate future feature.
+
 ### 6a.5 Multi-day product acceptance
 
 Before `TOUR ENGINE V1 COMPLETE`, run a small human-reviewed multi-day corpus
