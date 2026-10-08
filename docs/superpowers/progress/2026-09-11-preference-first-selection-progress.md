@@ -2969,6 +2969,20 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   Correct-candidate retrieval is a separate deficiency: "National Bank"
   corresponds NONE to "Banco Nación"; the atomized path has no TRANSLATION
   normalization.
+- PARTIAL-COMPOSITE-1: INVESTIGATED 2026-10-08, not implemented. The
+  owner's proposal is to persist a source composite with >= 2 distinct
+  resolved GeoEntities, keeping its unresolved members.
+  - Dossier: `spikes/partial-composite-investigation-2026-10-07/README.md`.
+  - Feasible on the same `ExperienceComponent` table (nullable
+    `geoEntityId`, plus source name and resolution fields), with
+    completeness derived.
+  - Impact: 4 intentional expectation changes and 1 dedupe risk to prove.
+  - At HEAD, National Bank is still a false VERIFIED, not unresolved. It
+    would persist as a routable stop. Its remembered hint would make an
+    admin link AMBIGUOUS.
+  - Tours freeze components in `TourExperienceComponent`, so enrichment
+    reaches only new Tours.
+  - Blocked on owner decisions D1–D7 in the dossier.
 - RW4-ID-RECALL-CABILDO-1: FIXED, confirmed live in PLANNER_CAPACITY
   (`c3-idretry2-cold`, 2026-10-07): VERIFIED / `GROUNDED_UNIQUE_ALIAS`
   via LOCAL_OSM_POOL, recordEquivalence grouped Q1024829
