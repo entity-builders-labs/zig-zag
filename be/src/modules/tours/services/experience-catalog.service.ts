@@ -210,6 +210,8 @@ export interface CatalogGeoEntityCandidate {
 export type RememberVerifiedHintNameResult =
   | 'REMEMBERED'
   | 'ALREADY_REMEMBERED'
+  /** An administrator revoked this (hint, GeoEntity) pair: not re-learned. */
+  | 'SUPPRESSED_BY_REVOCATION'
   | 'EMPTY_KEY';
 
 export interface FindGeoEntityCandidatesForHintResult {
@@ -1574,14 +1576,22 @@ export class ExperienceCatalogService {
    * rejected/ambiguous/unconfirmed/failed hint, never from string
    * similarity. This is recorded resolution history, not an alias engine.
    *
-   * One atomic, idempotent UPDATE appends the verbatim text and its
-   * `normalizeGeoName` key together (the two arrays stay positionally
-   * aligned; a DB CHECK enforces equal cardinality) only when the key is
-   * not already present. Under concurrent writers of the same key the
-   * row lock serializes the UPDATEs and PostgreSQL re-evaluates the
-   * `NOT @>` predicate against the committed row (READ COMMITTED
+   * One transaction records the provenance (an AUTOMATIC
+   * `GeoEntityVerifiedHintAssertion`, idempotent through the partial unique
+   * index on active assertions) and appends to the fast lookup index.
+   *
+   * The index write is one atomic, idempotent UPDATE that appends the
+   * verbatim text and its `normalizeGeoName` key together (the two arrays
+   * stay positionally aligned; a DB CHECK enforces equal cardinality) only
+   * when the key is not already present. Under concurrent writers of the
+   * same key the row lock serializes the UPDATEs and PostgreSQL re-evaluates
+   * the `NOT @>` predicate against the committed row (READ COMMITTED
    * EvalPlanQual), so the loser matches 0 rows: no lost update, no
    * duplicate key. No read-modify-write in application code.
+   *
+   * An administrator's revocation is durable: when the pair has a revoked
+   * assertion and no active one, the automatic resolver does not re-learn
+   * it (SUPPRESSED_BY_REVOCATION). Only an explicit admin confirmation can.
    */
   async rememberVerifiedHintName(
     geoEntityId: string,
@@ -1589,14 +1599,32 @@ export class ExperienceCatalogService {
   ): Promise<RememberVerifiedHintNameResult> {
     const key = normalizeGeoName(hintName);
     if (!key) return 'EMPTY_KEY';
-    const updated = await this.prisma.$executeRaw`
-      UPDATE "geo_entity"
-      SET "verifiedHintNames" = array_append("verifiedHintNames", ${hintName}),
-          "verifiedHintNameKeys" = array_append("verifiedHintNameKeys", ${key}),
-          "updatedAt" = NOW()
-      WHERE "id" = ${geoEntityId}
-        AND NOT ("verifiedHintNameKeys" @> ARRAY[${key}]::text[])`;
-    return updated > 0 ? 'REMEMBERED' : 'ALREADY_REMEMBERED';
+    return this.prisma.$transaction(async (tx) => {
+      const assertions = await tx.geoEntityVerifiedHintAssertion.findMany({
+        where: { geoEntityId, hintKey: key },
+        select: { revokedAt: true },
+      });
+      if (
+        assertions.length > 0 &&
+        assertions.every((assertion) => assertion.revokedAt !== null)
+      ) {
+        return 'SUPPRESSED_BY_REVOCATION' as const;
+      }
+      await tx.geoEntityVerifiedHintAssertion.createMany({
+        data: [{ geoEntityId, hintName, hintKey: key, source: 'AUTOMATIC' }],
+        skipDuplicates: true,
+      });
+      const updated = await tx.$executeRaw`
+        UPDATE "geo_entity"
+        SET "verifiedHintNames" = array_append("verifiedHintNames", ${hintName}),
+            "verifiedHintNameKeys" = array_append("verifiedHintNameKeys", ${key}),
+            "updatedAt" = NOW()
+        WHERE "id" = ${geoEntityId}
+          AND NOT ("verifiedHintNameKeys" @> ARRAY[${key}]::text[])`;
+      return updated > 0
+        ? ('REMEMBERED' as const)
+        : ('ALREADY_REMEMBERED' as const);
+    });
   }
 
   private normalizeGeoEntityName(value: string): string {

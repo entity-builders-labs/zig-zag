@@ -2118,11 +2118,22 @@ describe('ExperienceCatalogService — verified hint memory', () => {
   });
 
   describe('rememberVerifiedHintName', () => {
+    // Fixture shape only: the write now runs in a transaction that also
+    // records an AUTOMATIC provenance assertion; the asserted index UPDATE
+    // is unchanged.
     function withExecuteRaw(affected: number) {
       const $executeRaw = jest.fn().mockResolvedValue(affected);
+      const geoEntityVerifiedHintAssertion = {
+        findMany: jest.fn().mockResolvedValue([]),
+        createMany: jest.fn().mockResolvedValue({ count: 1 }),
+      };
+      const tx = { $executeRaw, geoEntityVerifiedHintAssertion };
       return {
         service: new ExperienceCatalogService(
-          { $executeRaw } as any,
+          {
+            ...tx,
+            $transaction: (fn: (client: typeof tx) => unknown) => fn(tx),
+          } as any,
           {} as any,
         ),
         $executeRaw,

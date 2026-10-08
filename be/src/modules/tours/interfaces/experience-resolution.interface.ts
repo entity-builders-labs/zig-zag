@@ -590,10 +590,16 @@ export interface ComponentResolutionAudit {
    * Verified hint memory write for this component (only after a VERIFIED
    * external resolution to a GeoEntity of the hint's expected kind):
    * REMEMBERED = the hint key was appended; ALREADY_REMEMBERED = the key
-   * was already on that GeoEntity (idempotent no-op); FAILED = the
-   * best-effort write failed and resolution was left untouched.
+   * was already on that GeoEntity (idempotent no-op);
+   * SUPPRESSED_BY_REVOCATION = an administrator revoked this pair, so it is
+   * not re-learned; FAILED = the best-effort write failed and resolution
+   * was left untouched.
    */
-  verifiedHintMemory?: 'REMEMBERED' | 'ALREADY_REMEMBERED' | 'FAILED';
+  verifiedHintMemory?:
+    | 'REMEMBERED'
+    | 'ALREADY_REMEMBERED'
+    | 'SUPPRESSED_BY_REVOCATION'
+    | 'FAILED';
 }
 
 export interface CandidateResolutionAudit {

@@ -42,6 +42,7 @@ import { TourPlanningFeasibilityValidatorService } from './services/tour-plannin
 import { PreferenceInterpreterService } from './services/preference-interpreter.service';
 import { ExperienceProposalResolverService } from './services/experience-proposal-resolver.service';
 import { ExperienceCatalogService } from './services/experience-catalog.service';
+import { CatalogKnowledgeAdministrationService } from './services/catalog-knowledge-administration.service';
 import { ExperienceAcquisitionService } from './services/experience-acquisition.service';
 import { WikivoyageApiService } from './services/wikivoyage-api.service';
 import { WikivoyageAcquisitionProvider } from './providers/wikivoyage-acquisition.provider';
@@ -142,6 +143,7 @@ import { MediaModule } from '../media/media.module';
     PreferenceInterpreterService,
     ExperienceProposalResolverService,
     ExperienceCatalogService,
+    CatalogKnowledgeAdministrationService,
     ExperienceAcquisitionService,
     WikivoyageApiService,
     WikivoyageAcquisitionProvider,
