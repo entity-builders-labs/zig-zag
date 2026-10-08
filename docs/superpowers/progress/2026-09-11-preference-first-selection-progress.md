@@ -2148,6 +2148,20 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
+Partial composite persistence (PARTIAL-COMPOSITE-1) is IMPLEMENTED,
+not merged (2026-10-08, owner decisions D1–D7). Evidence:
+`spikes/partial-composite-implementation-2026-10-08/README.md`.
+
+- One `ExperienceComponent` row per source member (resolved or not),
+  identity `(experienceId, sourcePosition)`; completeness derived.
+- PARTIAL = >= 2 distinct resolved GeoEntities and only MISSING_KNOWLEDGE
+  members, via one membership and one deficit-classification authority.
+- Verified-hint assertions are audited; admin REVOKE / CONFIRM primitives
+  exist (backend only). National Bank is administratively correctable.
+- 4 pre-authorized expectation changes, plus D2 resolver changes and one
+  dedupe interaction flagged for owner review (dossier §6–§7).
+- No C3, no live provider call.
+
 RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 (2026-10-03, amendment §19, dossier
 `identity-characterization/contextual-identity-2026-10-03/`).
@@ -2699,6 +2713,12 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 
 ## Next authorized action
 
+00. (2026-10-08) Owner review of the partial composite implementation
+    (`spikes/partial-composite-implementation-2026-10-08/README.md`),
+    especially §6 (expectation changes outside the pre-authorized four)
+    and §7 (identically described A-B held AMBIGUOUS). Do not merge. A
+    later C3 needs separate authorization and a fresh/reset catalog.
+
 0. (2026-10-06, C3 COLD ran; precondition not met, no composite) Owner
    decision on how to reach the oracle units. Options, each needing
    authorization; none is started:
@@ -2956,6 +2976,9 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
     Farmacia and was reverted (`89fcc6de`).
   - Both rows are persisted with the hint in `verifiedHintNames`: reset
     the C3 catalog before any WARM run on it.
+  - 2026-10-08: the false learned mapping is administratively correctable
+    (`CatalogKnowledgeAdministrationService` REVOKE, then CONFIRM against
+    Banco de la Nación). Automatic resolution is unchanged.
 - RW4-ID-SOURCE-GROUNDING-1: AUTHORIZED 2026-10-07 (typed adjacent-atom /
   anaphora assertions with provenance), not implemented:
   BLOCKED_BY_MISSING_DISCRIMINATING_EVIDENCE. The only fact separating
@@ -2969,9 +2992,14 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   Correct-candidate retrieval is a separate deficiency: "National Bank"
   corresponds NONE to "Banco Nación"; the atomized path has no TRANSLATION
   normalization.
-- PARTIAL-COMPOSITE-1: INVESTIGATED 2026-10-08, not implemented. The
-  owner's proposal is to persist a source composite with >= 2 distinct
-  resolved GeoEntities, keeping its unresolved members.
+- PARTIAL-COMPOSITE-1: IMPLEMENTED 2026-10-08 (`8bd16b97`, `d047b179`),
+  awaiting owner review; not merged. Evidence:
+  `spikes/partial-composite-implementation-2026-10-08/README.md`.
+  Open for the owner: the D2 resolver expectation changes and the
+  identically described A-B case (dossier §6–§7). Pre-implementation
+  investigation, kept for provenance: the owner's proposal is to persist a
+  source composite with >= 2 distinct resolved GeoEntities, keeping its
+  unresolved members.
   - Dossier: `spikes/partial-composite-investigation-2026-10-07/README.md`.
   - Feasible on the same `ExperienceComponent` table (nullable
     `geoEntityId`, plus source name and resolution fields), with

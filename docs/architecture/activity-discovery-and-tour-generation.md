@@ -1398,7 +1398,10 @@ reconfirmation of every already-known physical entity on every request.
 
 ### Component resolution does not create standalone Experiences
 
-`ExperienceComponent` continues to reference `GeoEntity`.
+`ExperienceComponent` continues to reference `GeoEntity` when it is
+resolved. (Amended 2026-10-08: a component is one source-declared member and
+may be UNRESOLVED; see "partial source compositions" at the end of this
+document.)
 
 A component verified while resolving a composite may create/reuse that
 GeoEntity, but it does not create a standalone Experience as a side effect.
@@ -1932,3 +1935,88 @@ authorization. The production extractor path stays unchanged until then.
 Spike evidence (2026-10-06, Gemini `gemini-3.5-flash-lite`, frozen
 `SECTION_UNIT`s and oracle) is in
 `spikes/rw4-atom-labelling-2026-10-06/README.md`.
+
+## Experience Domain V2 — partial source compositions and administrative identity correction (2026-10-08)
+
+**Status: IMPLEMENTED (owner decisions D1–D7, 2026-10-08).** Investigation:
+`spikes/partial-composite-investigation-2026-10-07/`. Implementation
+evidence: `spikes/partial-composite-implementation-2026-10-08/`.
+
+This amends the all-or-nothing composition rule above
+(`INCOMPLETE_SOURCE_COMPOSITION` for any unresolved member).
+
+### Source members
+
+An `ExperienceComponent` is one **source-declared member** of the
+Experience composition, not a unique GeoEntity membership row. Every member
+persists, resolved or not, in source order (`sourcePosition`, never
+renumbered). An unresolved member keeps its source wording and typed
+`resolutionReason`; no GeoEntity is invented for it and no ambiguous
+candidate is attached to it. Two members may resolve to the same GeoEntity
+("Caminito" and "Caminito Street") and stay two members. One membership
+authority (`experience-source-membership.policy.ts`) answers every read:
+all / resolved / unresolved members, distinct resolved GeoEntities, and the
+navigable view (one resolved member per distinct GeoEntity).
+
+### Admission
+
+```text
+COMPLETE = every source member resolved                  -> admitted
+PARTIAL  = >= 2 DISTINCT resolved GeoEntities
+           AND every unresolved member is MISSING_KNOWLEDGE -> admitted
+anything else incomplete -> INCOMPLETE_SOURCE_COMPOSITION
+```
+
+No percentage threshold. The unchanged composite geographic validator then
+judges the resolved members. Completeness is derived from the rows, never
+stored. One classification authority
+(`component-deficit-classification.policy.ts`) maps each deficit:
+
+| Class | Deficit reasons | PARTIAL |
+| --- | --- | --- |
+| MISSING_KNOWLEDGE | NO_CANDIDATE_ACQUIRED, CANDIDATE_UNCONFIRMED, AMBIGUOUS_CANDIDATES, CANDIDATE_REJECTED (candidate-level), RESOLUTION_REVOKED (admin) | eligible |
+| CONTRADICTORY_EVIDENCE | IDENTITY_CONFLICT, DESTINATION_INCOMPATIBLE | blocks |
+| UNKNOWN | DESTINATION_COMPATIBILITY_UNKNOWN | blocks |
+| SYSTEM_FAILURE | PROVIDER_FAILURE, IDENTITY_AUTHORITY_UNAVAILABLE (Wikidata unavailable) | blocks |
+| INVALID_SOURCE_COMPONENT | not produced yet | blocks |
+
+A transient failure never becomes durable domain incompleteness.
+
+### Readers
+
+Unresolved members never become navigable POIs, coordinates, duration
+inputs, embedding text or Tour snapshot rows. Catalog composite retrieval
+counts distinct resolved GeoEntities, never rows. Dedupe identifies a
+resolved member by its GeoEntity and an unresolved one by its source
+wording, so a PARTIAL A-B-C-D-E-F with only A and B resolved is not the
+COMPLETE A-B, and an unresolved member never becomes a shared `null`.
+
+### Tours and enrichment
+
+An Experience is mutable and shared by future materializations. A Tour
+already freezes its components in `TourExperienceComponent`, so enrichment
+reaches only Tours materialized after it. `ExperienceVersion` is deferred.
+
+### Administrative identity correction
+
+`GeoEntity.verifiedHintNameKeys` stays the fast lookup index.
+`GeoEntityVerifiedHintAssertion` records who asserted each hint (AUTOMATIC
+or ADMIN, optional actor `User`) and keeps revoked assertions as history.
+Admin verification is catalog knowledge, never provider metadata: provider
+names and OSM/Wikidata aliases are untouched.
+
+- REVOKE_VERIFIED_HINT: stamps the assertion; when no active assertion still
+  supports the pair, the key leaves the index and the members linked through
+  it become UNRESOLVED (`RESOLUTION_REVOKED`). Each affected Experience is
+  re-admitted (COMPLETE/PARTIAL) or ARCHIVED. The automatic resolver does not
+  re-learn a revoked pair.
+- CONFIRM_EXISTING_GEOENTITY: links one unresolved member to an existing
+  GeoEntity and learns its hint (ADMIN assertion + index), so
+  `findGeoEntityCandidatesForHint` returns it as `VERIFIED_HINT`. It fails
+  explicitly when the hint is active on another GeoEntity.
+- LEAVE_UNRESOLVED: no write. CREATE/IMPORT GEOENTITY: out of scope.
+
+Future backoffice (not built): list PARTIAL Experiences with their
+unresolved members (source name, position, provenance, reason), candidate
+GeoEntities with coordinates for a map, and the three actions above. Role
+authorization is future work.
