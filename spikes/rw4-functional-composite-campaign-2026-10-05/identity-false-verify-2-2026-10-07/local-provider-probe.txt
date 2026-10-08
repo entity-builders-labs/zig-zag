@@ -1,0 +1,61 @@
+# Local provider probe, 2026-10-07 (local Nominatim :8088, local Overpass :12345). No quota provider called.
+
+## Nominatim q=Club Atlético (viewbox -58.53,-34.53,-58.33,-34.71 bounded, limit 15)
+way 23634484 landuse=construction | Club Atlético San Lorenzo de Almagro - Sede Boedo | Boedo | {}
+way 23634997 leisure=sports_centre | Club Atlético San Lorenzo de Almagro | Avenida General Francisco Fernández de La Cruz Flores | {"wikidata":"Q218282","wikipedia":"es:Club Atlético San Lorenzo de Almagro"}
+relation 4423331 leisure=sports_centre | Club Atlético Atlanta | Humboldt 374 Villa Crespo | {"wikidata":"Q1022904","wikipedia":"es:Club Atlético Atlanta"}
+relation 18297302 leisure=sports_centre | Predio Alsina Club Atlético Lanús | Virrey Santiago de Liniers 3495 | {}
+way 529272297 leisure=sports_centre | Club Atlético Victoriano Arenas | Orma Barracas | {}
+way 213959211 leisure=sports_centre | Club Atlético Barracas Central | Luna Barracas | {"wikidata":"Q2469894","wikipedia":"es:Club Atlético Barracas Central"}
+relation 4564148 leisure=sports_centre | Club Atlético Nueva Chicago | Justo Antonio Suárez 6900 Mataderos | {"wikidata":"Q744555","wikipedia":"es:Club Atlético Nueva Chicago"}
+way 236507648 leisure=sports_centre | Club Atlético All Boys | Mercedes 1951 Monte Castro | {"wikidata":"Q646088","wikipedia":"es:Club Atlético All Boys"}
+way 1362832823 leisure=sports_centre | Club Atlético Huracán | Avenida Caseros 3159 Parque Patricios | {"wikidata":"Q327172","wikipedia":"es:Club Atlético Huracán"}
+way 1304130248 leisure=sports_centre | Club Atlético Chacarita Juniors | Teodoro García 3550 Chacarita | {"wikidata":"Q853053","wikipedia":"es:Club Atlético Chacarita Juniors"}
+way 1508928440 leisure=sports_centre | Club Atlético Virgen del Carmen | Santander Villa Lugano | {}
+way 205482678 leisure=sports_centre | Asociación Civil Club Atlético Miraflores | Somellera 1770 Parque Chacabuco | {}
+way 1267590994 amenity=school | Centro Educativo del Club Atlético Independiente | Adolfo Alsina 834 Crucecita | {}
+way 1516269009 leisure=sports_centre | Anexo Club Atlético Parque Patricios | Constitución San Cristóbal | {}
+way 319370232 leisure=sports_centre | Club Atlético Palermo | Fitz Roy 2238 Palermo | {"wikidata":"Q3681290","wikipedia":"es:Club Atlético Palermo"}
+
+## Nominatim q=National Bank (viewbox -58.53,-34.53,-58.33,-34.71 bounded, limit 15)
+relation 9254658 building=commercial | Edificio First National Bank of Boston | Avenida Presidente Roque Sáenz Peña San Nicolás | {"wikidata":"Q5818109"}
+
+## Nominatim q=Banco Nación (viewbox -58.53,-34.53,-58.33,-34.71 bounded, limit 15)
+way 26682898 amenity=bank | Banco Nación | Avenida Rivadavia 7000 Flores | {}
+way 475190493 amenity=bank | Banco Nación | Avenida Rivadavia Caballito | {}
+way 320900524 amenity=bank | Banco Nación | Avenida Manuel Augusto Montes de Oca 1699 Barracas | {}
+way 471647979 amenity=bank | Banco Nación | Avenida Nazca 1914 Villa Santa Rita | {}
+way 461195509 amenity=bank | Banco Nación | Avenida Martín García Barracas | {}
+way 462192011 amenity=bank | Banco Nación | Avenida Almirante Brown 1101 La Boca | {}
+way 547779084 amenity=bank | Banco Nación | Anatole France | {}
+way 680885159 amenity=bank | Banco Nación | Avenida Gaona 1800 Caballito | {}
+way 463922983 amenity=bank | Banco Nación | Avenida La Plata 1455 Parque Chacabuco | {}
+way 463974642 amenity=bank | Banco Nación | Avenida Eva Perón Flores | {}
+node 3814802569 amenity=bank | Banco Nación | Avenida Bartolomé Mitre 2700 | {}
+node 1060505850 amenity=bank | Banco Nación | Avenida Hipólito Yrigoyen | {}
+node 4413727390 amenity=bank | Banco Nación | Murguiondo 4130 Villa Lugano | {}
+node 5305601137 amenity=bank | Banco Nación | Avenida Presidente Teniente General Juan Domingo Perón | {}
+node 4413498696 amenity=bank | Banco Nación | Abraham J. Luppi 1090 Nueva Pompeya | {}
+
+## Nominatim q=Centro Clandestino Club Atlético (viewbox -58.53,-34.53,-58.33,-34.71 bounded, limit 15)
+
+## Overpass: nwr[name~"Club Atl[eé]tico|Banco Naci[oó]n|National Bank",i](-34.640,-58.385,-34.600,-58.360)
+node 2730001408 | Banco Nación | Bernardo de Irigoyen 1000 | amenity=bank,brand:wikidata=Q2883376
+node 3158482730 | Club Atlético |  | abandoned:amenity=prison_camp,wikidata=Q5821445
+node 3178186562 | Banco Nación |  | amenity=bank,brand:wikidata=Q2883376
+node 4413290654 | Banco Nación | Azopardo 350 | amenity=bank,brand:wikidata=Q2883376
+node 4413313315 | Banco Nación | Avenida Hipólito Yrigoyen 370 | amenity=bank,brand:wikidata=Q2883376
+node 4413336232 | Banco Nación | Avenida Hipólito Yrigoyen 250 | amenity=bank,brand:wikidata=Q2883376
+node 4413351516 | Banco Nación | Avenida Corrientes 345 | amenity=bank,brand:wikidata=Q2883376
+node 4413447374 | Banco Nación | Florida 238 | amenity=bank,brand:wikidata=Q2883376
+node 4413467246 | Banco Nación | Cerrito 572 | amenity=bank,brand:wikidata=Q2883376
+node 4413684776 | Banco Nación | Azopardo 250 | amenity=bank,brand:wikidata=Q2883376
+node 4451139649 | Club Atlético Atlanta |  | historic=memorial,memorial=plaque
+node 4704251860 | Banco Nación | Carlos Calvo | amenity=bank,brand:wikidata=Q2883376
+node 5290138525 | Espacio para la memoria "Club Atlético" |  | historic=monument
+way 461195509 | Banco Nación | Avenida Martín García | amenity=bank,brand:wikidata=Q2883376,building=yes
+way 473853905 | Banco Nación | Bernardo de Irigoyen | amenity=bank,brand:wikidata=Q2883376,building=yes
+way 476996821 | Banco Nación | Florida 101 | amenity=bank,brand:wikidata=Q2883376,building=yes
+way 476996835 | Banco Nación | Bartolomé Mitre | amenity=bank,brand:wikidata=Q2883376,building=yes
+relation 3527701 | Banco Nación | Bartolomé Mitre 326 | amenity=bank,brand:wikidata=Q2883376,building=yes,building:levels=9,wikidata=Q5718167
+relation 9254658 | Edificio First National Bank of Boston |  | building=commercial,wikidata=Q5818109

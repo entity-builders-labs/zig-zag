@@ -1117,7 +1117,8 @@ order has no score and no threshold:
 **Competitors (2026-10-03).** A record is a material competitor when all
 of these hold:
 - It answers to the hint's name or to the candidate's own name, or it
-  declares a hint alias.
+  declares a hint alias. When the candidate itself only OVERLAPs the hint,
+  answering to the hint at OVERLAP grade is enough (§19.5).
 - It is structurally a possible component. A same-name road is not a
   venue's competitor.
 - It lies inside the component's admission scope, as decided by the
@@ -1541,3 +1542,60 @@ either `grouped`, with its basis and members, or a typed reason —
 - "Don Carlos" stays unverified (Q270446 has no P625).
 - Dossier:
   `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2026-10-07/r1-r2-simulation/`.
+
+### 19.5 Competitors are counted at the candidate's own name grade (2026-10-07, RW4-ID-FALSE-VERIFY-2)
+
+**Why.** The canonical C3 run `c3-idretry2-cold` VERIFIED by
+`GROUNDED_CONVERGENCE`:
+- "Club Atlético" as San Lorenzo Sede Boedo (`osm:way:23634484`);
+- "National Bank" as Edificio First National Bank of Boston
+  (`osm:relation:9254658`).
+Each hint only OVERLAPs the record. Nominatim and Geoapify returned the
+same OSM record, and competitor examination reported 0.
+
+At verifier level these facts equal those of two accepted RW1 resolutions:
+- El Zanjón de Granados: Overpass + Nominatim on one OSM node;
+- Farmacia la Estrella: Nominatim + Geoapify on one OSM node.
+A rule on convergence provenance alone (`b3a13e33`, reverted) closed the
+C3 cases and regressed these two. It was withdrawn under the
+non-regression rule.
+
+**Discriminating fact.** Competitor examination counted records with the
+hint's or the candidate's exact name. For a candidate that only OVERLAPs
+the hint, that measures the uniqueness of the candidate's name, not of the
+hint's referent. The real Buenos Aires pool held three other records that
+answer to "Club Atlético" exactly as well as San Lorenzo did: Club
+Atlético Atlanta, the "Club Atlético" memorial and a San Lorenzo museum.
+For El Zanjón, Farmacia and National Bank there were none.
+
+**Rule.** `examineCompetitors` grades the candidate against the hint over
+its name and declared aliases (`bestNameCorrespondence`).
+- When that grade is OVERLAP, a pool record answering to the hint at
+  OVERLAP grade or better is a candidate for material competition. Every
+  other condition still applies: structure, admission scope, source
+  context, different identity.
+- An EQUIVALENT candidate keeps the exact-name competitor set unchanged
+  (Cabildo answers through its `short_name` alias).
+- A NONE-grade candidate also keeps the exact-name set.
+OVERLAP still never proves identity (§19.3). It only widens the set a
+uniqueness claim is measured against.
+
+**Effect** (dossier impact matrix, real resolver on local Overpass,
+Nominatim and live Wikidata, with recorded Places):
+- Club Atlético becomes AMBIGUOUS `MATERIAL_COMPETITOR_KNOWN`;
+- Basílica del Pilar goes from INSUFFICIENT_EVIDENCE to AMBIGUOUS (two
+  distinct OVERLAP records; unresolved before and after);
+- the other 27 replayed hints are identical, including El Zanjón,
+  Farmacia la Estrella, Cabildo, Museo Nacional del Cabildo, Quinquela,
+  MALBA, Don Carlos, Catedral and Bar El Federal.
+No existing test expectation changed.
+
+**National Bank: BLOCKED_BY_MISSING_DISCRIMINATING_EVIDENCE.** No
+examined pool, provider or Wikidata fact separates it from Farmacia la
+Estrella. The source does ("the headquarters of the National Bank" among
+the buildings surrounding Plaza de Mayo), but that fact is lost at atom
+labelling and is anaphoric, so §19's same-statement rule rejects it. It
+stays a false VERIFIED until an owner decision on source grounding
+(RW4-ID-SOURCE-GROUNDING-1).
+
+Dossier: `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2-2026-10-07/`.

@@ -1,0 +1,161 @@
+== El Zanjón de Granados
+   LOCAL OVERLAP osm:node:9953027884 | El Zanjón de Granados (historic ruins)
+   NOMI  OVERLAP node/9953027884 | El Zanjón de Granados (historic ruins) |  Ciudad Autónoma de Buenos Aires
+== Farmacia la Estrella
+   NOMI  OVERLAP node/3348573778 | Farmacia de la Estrella |  Ciudad Autónoma de Buenos Aires
+== Farmacia La Estrella
+   NOMI  OVERLAP node/3348573778 | Farmacia de la Estrella |  Ciudad Autónoma de Buenos Aires
+== Museo Benito Quinquela Martin
+   LOCAL OVERLAP+ALIAS_EQ osm:node:5721009562 | Museo de Artistas Argentinos Benito Quinquela Martín
+   NOMI  OVERLAP node/5721009562 | Museo de Artistas Argentinos Benito Quinquela Martín |  Distrito de Las Artes
+== Museo del Diseño
+   LOCAL OVERLAP osm:way:373685248 | Museo de Arquitectura y Diseño
+== Congreso
+   LOCAL OVERLAP osm:node:2892504247 | Antigua Sede del Congreso Nacional
+   LOCAL OVERLAP osm:node:6415483186 | Regina Martyrum Congreso
+   LOCAL OVERLAP osm:node:6433376874 | Museo del antiguo recinto del Congreso Nacional
+   LOCAL OVERLAP osm:way:17493172 | Plaza del Congreso
+   LOCAL OVERLAP osm:relation:2468981 | Congreso de la Nación Argentina
+   NOMI  EQUIVALENT relation/6173238 | Congreso |  Córdoba
+   NOMI  EQUIVALENT relation/4775874 | Congreso |  Departamento Capital
+   NOMI  EQUIVALENT relation/5312586 | Congreso |  Departamento Capital
+   NOMI  EQUIVALENT node/5141136496 | Congreso |  Tucumán
+   NOMI  EQUIVALENT way/46780408 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/132685024 | Congreso |  Tucumán
+   NOMI  EQUIVALENT way/29397105 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/106967206 | Congreso |  Tucumán
+   NOMI  EQUIVALENT way/217397194 | Congreso |  Jujuy
+   NOMI  EQUIVALENT way/37049795 | Congreso |  Tucumán
+   NOMI  OVERLAP way/107937239 | Congreso de Tucumán |  Tucumán
+   NOMI  EQUIVALENT way/54184917 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/160066254 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/221553154 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/245062689 | Congreso |  Santiago del Estero
+   NOMI  EQUIVALENT way/244155785 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/209586336 | Congreso |  Corrientes
+   NOMI  EQUIVALENT way/159936711 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/182748982 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/639822311 | Congreso |  Buenos Aires
+   NOMI  OVERLAP way/210256618 | 1134A- Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/529455545 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/118375049 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/259198235 | Congreso |  Tucumán
+   NOMI  EQUIVALENT way/316744609 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/49641780 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/468235550 | Congreso |  Córdoba
+   NOMI  EQUIVALENT way/50338730 | Congreso |  Corrientes
+   NOMI  EQUIVALENT way/316613998 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/190626998 | Congreso |  Córdoba
+   NOMI  EQUIVALENT way/373703766 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/183040609 | Congreso |  Jujuy
+   NOMI  EQUIVALENT way/160183508 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/413684806 | Congreso |  Tucumán
+   NOMI  EQUIVALENT way/533806071 | Congreso |  Ciudad Autónoma de Buenos Aires
+   NOMI  EQUIVALENT way/286005471 | Congreso |  Ciudad Autónoma de Buenos Aires
+   NOMI  EQUIVALENT way/134493789 | Congreso |  Salta
+   NOMI  EQUIVALENT way/335169965 | Congreso |  Ciudad Autónoma de Buenos Aires
+   NOMI  EQUIVALENT way/244606171 | Congreso |  Santiago del Estero
+   NOMI  EQUIVALENT way/28263027 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/1307537361 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/46839615 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/191657803 | Congreso |  Buenos Aires
+   NOMI  EQUIVALENT way/1321761074 | Congreso |  Tucumán
+   NOMI  EQUIVALENT way/369545757 | Congreso |  Ciudad Autónoma de Buenos Aires
+   NOMI  EQUIVALENT way/196034212 | Congreso |  Salta
+   NOMI  EQUIVALENT way/301565844 | Congreso |  Ciudad Autónoma de Buenos Aires
+   NOMI  EQUIVALENT way/104057595 | Congreso |  Tucumán
+   NOMI  EQUIVALENT way/1181757564 | Congreso |  La Rioja
+   NOMI  EQUIVALENT way/197145149 | Congreso |  Jujuy
+== Basílica del Pilar
+   LOCAL OVERLAP osm:node:6415312616 | Claustros históricos Basílica del Pilar
+   LOCAL OVERLAP osm:way:176335924 | Basílica de Nuestra Señora del Pilar
+   NOMI  OVERLAP way/176335924 | Basílica de Nuestra Señora del Pilar |  Ciudad Autónoma de Buenos Aires
+   NOMI  OVERLAP node/6415312616 | Claustros históricos Basílica del Pilar |  Ciudad Autónoma de Buenos Aires
+== National Congress
+== Museo Moderno
+   LOCAL OVERLAP osm:way:239518532 | Museo de Arte Moderno de Buenos Aires
+   NOMI  OVERLAP way/239518532 | Museo de Arte Moderno de Buenos Aires |  Distrito de Las Artes
+   NOMI  OVERLAP way/905252912 | Museo de Arte Moderno |  Chubut
+   NOMI  OVERLAP node/1376913820 | Museo Municipal de Arte Moderno de Mendoza (MMAMM) |  Mendoza
+== Mercado San Telmo
+   LOCAL OVERLAP+ALIAS_EQ osm:way:158893271 | Mercado de San Telmo
+   NOMI  OVERLAP way/158893271 | Mercado de San Telmo |  Ciudad Autónoma de Buenos Aires
+== El Mercado de San Telmo
+   LOCAL OVERLAP osm:way:158893271 | Mercado de San Telmo
+== Museo Nacional del Cabildo
+   LOCAL OVERLAP osm:node:767690911 | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo
+   NOMI  OVERLAP node/767690911 | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo |  Ciudad Autónoma de Buenos Aires
+== Museo de Arte Latinoamericano de Buenos Aires
+   LOCAL OVERLAP+ALIAS_EQ osm:way:23621021 | Museo de Arte Latinoamericano de Buenos Aires (MALBA)
+   NOMI  OVERLAP way/23621021 | Museo de Arte Latinoamericano de Buenos Aires (MALBA) |  Ciudad Autónoma de Buenos Aires
+== MALBA
+   LOCAL OVERLAP+ALIAS_EQ osm:way:23621021 | Museo de Arte Latinoamericano de Buenos Aires (MALBA)
+   NOMI  OVERLAP way/23621021 | Museo de Arte Latinoamericano de Buenos Aires (MALBA) |  Ciudad Autónoma de Buenos Aires
+   NOMI  EQUIVALENT node/4511468907 | Malba |  Ciudad Autónoma de Buenos Aires
+== Museo del Cabildo
+   LOCAL OVERLAP osm:node:767690911 | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo
+== Cabildo
+   LOCAL OVERLAP osm:node:767690911 | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo
+   LOCAL OVERLAP+ALIAS_EQ osm:way:293947112 | Cabildo de Buenos Aires
+   NOMI  EQUIVALENT relation/6418341 | Cabildo |  Partido de Bahía Blanca
+   NOMI  EQUIVALENT relation/6173235 | Cabildo |  Córdoba
+   NOMI  OVERLAP relation/21053915 | Barrio Cabildo |  Santiago del Estero
+   NOMI  OVERLAP relation/16331362 | Barrio Cabildo |  Rivadavia
+   NOMI  EQUIVALENT relation/9496077 | Cabildo |  Partido de Bahía Blanca
+   NOMI  EQUIVALENT way/244575800 | Cabildo |  Departamento Bermejo
+   NOMI  EQUIVALENT way/299916371 | Cabildo |  Entre Ríos
+   NOMI  EQUIVALENT way/294434771 | Cabildo |  Departamento Rosario
+   NOMI  EQUIVALENT way/126351297 | Cabildo |  Entre Ríos
+   NOMI  EQUIVALENT way/85944481 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/48664001 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/762005486 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/240142943 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/48579383 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/463877972 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/94213938 | Cabildo |  Mendoza
+   NOMI  EQUIVALENT way/40751300 | Cabildo |  Misiones
+   NOMI  EQUIVALENT way/111873951 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/366313136 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/332966783 | Cabildo |  Santa Fe
+   NOMI  EQUIVALENT way/103821218 | Cabildo |  Chaco
+   NOMI  EQUIVALENT way/639841822 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/1356571688 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/606246136 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/29197376 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/443676896 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/107640917 | Cabildo |  Corrientes
+   NOMI  EQUIVALENT way/357561824 | Cabildo |  Misiones
+   NOMI  EQUIVALENT way/286737043 | Cabildo |  Departamento General Manuel Belgrano
+   NOMI  EQUIVALENT way/1084509958 | Cabildo |  Santa Fe
+   NOMI  EQUIVALENT way/1084509956 | Cabildo |  Santa Fe
+   NOMI  EQUIVALENT way/298109449 | Cabildo |  Misiones
+   NOMI  EQUIVALENT way/269167450 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/49806844 | Cabildo |  Misiones
+   NOMI  EQUIVALENT way/127263332 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/138442781 | Cabildo |  Santa Fe
+   NOMI  EQUIVALENT way/279681451 | Cabildo |  Río Negro
+   NOMI  EQUIVALENT way/43995960 | Cabildo |  Misiones
+   NOMI  EQUIVALENT way/496505867 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/636405900 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/224809928 | Cabildo |  Corrientes
+   NOMI  EQUIVALENT way/85355054 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/1096077782 | Cabildo |  Departamento General Manuel Belgrano
+   NOMI  EQUIVALENT way/197873657 | Cabildo |  Buenos Aires
+   NOMI  EQUIVALENT way/1175815908 | Cabildo |  Buenos Aires
+== La Librería del Avila
+   LOCAL OVERLAP osm:node:3348571875 | La Librería de Avila
+== Riachuelo
+   LOCAL OVERLAP osm:way:335291903 | Plaza Paseo del Riachuelo
+   NOMI  OVERLAP relation/3127759 | Municipio de Riachuelo |  Departamento Capital
+   NOMI  EQUIVALENT relation/4870080 | Riachuelo |  Partido de La Matanza
+   NOMI  EQUIVALENT relation/4616919 | Riachuelo |  Departamento San Cosme
+== Club Atlético
+   LOCAL OVERLAP osm:node:4451139649 | Club Atlético Atlanta
+   LOCAL OVERLAP osm:node:5290138525 | Espacio para la memoria "Club Atlético"
+   LOCAL OVERLAP osm:way:464800145 | Museo Club Atlético San Lorenzo de Almagro
+   NOMI  EQUIVALENT relation/1586764 | Club Atlético |  Buenos Aires
+   NOMI  EQUIVALENT way/50975084 | Club Atlético |  Buenos Aires
+   NOMI  EQUIVALENT node/2393314898 | Club Atlético |  Buenos Aires
+   NOMI  EQUIVALENT node/649981256 | Club Atletico |  Buenos Aires
+== National Bank
+   NOMI  OVERLAP relation/9254658 | Edificio First National Bank of Boston |  Ciudad Autónoma de Buenos Aires

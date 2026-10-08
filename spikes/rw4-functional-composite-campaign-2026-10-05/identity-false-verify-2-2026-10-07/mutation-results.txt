@@ -1,0 +1,17 @@
+# Mutation proof (2026-10-07)
+
+## M1: grade rule disabled (exact names only, the old policy): 2 new tests fail
+examineCompetitors › competitors at the grade the candidate answers to the hint › C3 Club Atlético: other records answering at OVERLAP grade are material competitors of a
+ExperienceProposalResolverService -- competitors at the candidate grade (RW4-ID-FALSE-VERIFY-2) › C3 shape: one OSM record through Nominatim + Geoapify is not VERIFIED wh
+Tests:       2 failed, 71 passed, 73 total
+
+## M2: grade rule applied to every candidate (ignores the candidate's own grade): 8 fail, 6 of them pre-existing historical tests
+examineCompetitors › competitors at the grade the candidate answers to the hint › a candidate answering EQUIVALENTLY through an alias keeps the exact-name competitor set 
+examineCompetitors › competitors at the grade the candidate answers to the hint › an EQUIVALENT candidate never counts records that only OVERLAP the hint
+ExperienceProposalResolverService — bounded candidate concurrency › keeps all-or-nothing failure semantics: one persist rejection fails resolve()
+ExperienceProposalResolverService — bounded candidate concurrency › never persists more than the configured number of candidates at once, for a batch far larger than the 
+ExperienceProposalResolverService — bounded candidate concurrency › preserves deterministic output order even when tasks finish out of order
+ExperienceProposalResolverService › continues to local AREA-to-PLACE correction when the global candidate is rejected (P1)
+ExperienceProposalResolverService › falls through to the global Nominatim path when a local POI-pool match is found but fails confirmation (real regression, live-verified
+ExperienceProposalResolverService › picks the exact-name match among the Places top-N results instead of blindly taking rank 0 (real bug: resolveViaPlaces used to always 
+Tests:       8 failed, 2384 passed, 2392 total

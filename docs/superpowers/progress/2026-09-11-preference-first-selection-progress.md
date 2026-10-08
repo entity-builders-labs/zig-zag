@@ -2714,7 +2714,9 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
        was canonical: 0 multi-component Experiences, WARM not run,
        RW4_FUNCTIONAL_MILESTONE_PASSED NO. Cabildo is VERIFIED in
        PLANNER_CAPACITY; there are 2 new false VERIFIED
-       (RW4-ID-FALSE-VERIFY-2). Next step needs owner authorization;
+       (RW4-ID-FALSE-VERIFY-2). Club Atlético is fixed in code
+       (2026-10-07, §19.5); National Bank is blocked on an owner decision
+       (RW4-ID-SOURCE-GROUNDING-1). Next step needs owner authorization;
    - (c) extend B's scope to complete `WHOLE_DOCUMENT` and whole-unit
      continuation windows (RW4-ATOM-SCOPE-1).
    C3 rules (kept from B):
@@ -2945,7 +2947,20 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
     `BOUNDED_ADMISSION_SCOPE` (city).
   - Both were persisted as GeoEntities with the hint in
     `verifiedHintNames`, although their composite was REJECTED.
-  - Not fixed; thresholds untouched.
+  - 2026-10-07: Club Atlético FIXED in code (spec §19.5: competitors
+    counted at the candidate's own name grade; impact matrix 27/27
+    unchanged, no test expectation changed). National Bank OPEN,
+    BLOCKED_BY_MISSING_DISCRIMINATING_EVIDENCE: only the source context
+    separates it from Farmacia la Estrella (RW4-ID-SOURCE-GROUNDING-1).
+    An origin-independence fix (`b3a13e33`) regressed El Zanjón and
+    Farmacia and was reverted (`89fcc6de`).
+  - Both rows are persisted with the hint in `verifiedHintNames`: reset
+    the C3 catalog before any WARM run on it.
+- RW4-ID-SOURCE-GROUNDING-1: OPEN, owner decision. Source context lost at
+  atom labelling (`LabelledEntity` has no assertion slot) and atomized
+  mapping. The National Bank fact is anaphoric ("This historic place is
+  surrounded by ... the headquarters of the National Bank"), so §19's
+  same-statement admission rule rejects it.
 - RW4-ID-RECALL-CABILDO-1: FIXED, confirmed live in PLANNER_CAPACITY
   (`c3-idretry2-cold`, 2026-10-07): VERIFIED / `GROUNDED_UNIQUE_ALIAS`
   via LOCAL_OSM_POOL, recordEquivalence grouped Q1024829
