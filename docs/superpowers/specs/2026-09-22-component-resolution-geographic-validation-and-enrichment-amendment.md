@@ -1094,14 +1094,14 @@ order has no score and no threshold:
    verifies when each side either carries the item or names it
    EQUIVALENTLY. It runs after rule 4, so it never skips a known material
    competitor.
-5. **Convergence** (`IDENTITY_CONVERGENCE`, with its own
-   `CONVERGENCE_PROVENANCE`) verifies only when the result is
-   `NO_MATERIAL_COMPETITOR`. If the provenance or the examination is
-   missing, or the result is `NO_COMPETITOR_OBSERVED`, uniqueness is
-   unknown. That is never read as "no collision". This keeps the accepted
-   RW1 resolutions: El Zanjón and Farmacia la Estrella each carried an
-   untruncated country-bounded Nominatim response holding only the
-   candidate.
+5. **Convergence** (`IDENTITY_CONVERGENCE`) verifies only when its two
+   observations come from independent evidence origins
+   (`INDEPENDENT_ORIGINS`, §19.5) and the result is
+   `NO_MATERIAL_COMPETITOR`. One origin reached through two adapters, an
+   undetermined origin, a missing examination or `NO_COMPETITOR_OBSERVED`
+   decide nothing: uniqueness is unknown, never read as "no collision".
+   Superseded 2026-10-07 (§19.5): this rule used to keep El Zanjón and
+   Farmacia la Estrella, whose convergence is one OSM node read twice.
 6. **Name, address and alias evidence** with its own multiplicity. A pool
    can claim `SINGLE` only when it covered the admission scope. A saturated
    window, or a destination-bounded pool for an Experience admitted beyond
@@ -1170,8 +1170,9 @@ Overture participates on the same terms. The index returns every
 exact-name record, and the resolver chooses which one to try. A partial
 snapshot is a complete comparison for a locality only when its typed
 enumerated extent contains the locality's boundary (§19.2; superseded the
-earlier "extent is not a typed fact" rule). Records carry their upstream
-dataset (`meta`, for example) for the convergence rule.
+earlier "extent is not a typed fact" rule). Records carry their evidence
+origin (`meta / <upstream record id>`, for example) for the convergence
+rule (§19.5).
 
 Geography used here distinguishes physical identities. It is not the
 geography that decides whether a source-defined Experience is valid
@@ -1541,3 +1542,136 @@ either `grouped`, with its basis and members, or a typed reason —
 - "Don Carlos" stays unverified (Q270446 has no P625).
 - Dossier:
   `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2026-10-07/r1-r2-simulation/`.
+
+### 19.5 Provider diversity is not evidence independence (2026-10-07, RW4-ID-FALSE-VERIFY-2)
+
+**Why.** The canonical C3 run `c3-idretry2-cold` persisted two false
+VERIFIED identities, both by `GROUNDED_CONVERGENCE`:
+- "Club Atlético" (source: "Under the bridge, you see you a memory of
+  “Club Atlético", after "Walk up to Avenida Paseo Colon and take a right
+  turn") as `osm:way:23634484`, Club Atlético San Lorenzo de Almagro - Sede
+  Boedo;
+- "National Bank" (source: Plaza de Mayo "is surrounded by ... the
+  headquarters of the National Bank") as `osm:relation:9254658`, Edificio
+  First National Bank of Boston (Q5818109).
+
+In both, Nominatim and Geoapify Place Details returned the same OSM record,
+the hint only OVERLAPs the record name, competitor examination found 0
+material competitors and the geography was `BOUNDED_ADMISSION_SCOPE`. The
+verifier ignored the recorded provenance (`SHARED_UPSTREAM`): two adapters
+counted as two observations.
+
+**Evidence origin.** `EvidenceOrigin { authority, recordId? }` says who
+authored an observed record: the upstream dataset and, when known, the
+record's id in it. Adapters set it at their boundary:
+- LOCAL_OSM_POOL (Overpass) and NOMINATIM: `openstreetmap / osm:<type>:<id>`;
+- a Places provider that declares its sources (Geoapify Place Details): its
+  declared non-Wikidata identities (a QID is a cross-reference, not a
+  source); one that declared none leaves the origin unknown;
+- a Places provider without that capability (Google): its own record;
+- Overture: the row's upstream dataset and upstream record id.
+`EntityCandidate.evidenceOrigins` replaces `upstreamDatasets`.
+
+**Independent convergence.** `IDENTITY_CONVERGENCE` carries both
+observations (strategy + origins) and its `independence`:
+- `INDEPENDENT_ORIGINS`: no authority in common;
+- `SHARED_ORIGIN`: an authority in common. Comparison is by authority, so
+  two records of one dataset are not independent either (fail closed);
+- `UNDETERMINED_ORIGIN`: either side unknown, never assumed independent.
+
+`CONVERGENCE_PROVENANCE` is deleted: provenance is part of the fact.
+`identityEvidenceRole` makes only `INDEPENDENT_ORIGINS` convergence
+CORROBORATING; the others are QUALIFYING. Rule 5 decides only on a
+CORROBORATING convergence, with the existing competitor and geography
+requirements. Name correspondence is not graded for independent
+convergence: no evidence shows that policy is wrong, and no current
+adapter produces such a convergence (see residual risk). When several
+earlier observations share a key, an independent one is preferred.
+
+**Consequences (forced, not chosen).**
+- El Zanjón de Granados (RW1) and Farmacia la Estrella (RW1) no longer
+  verify on their recorded evidence. Each is one OSM node read by two
+  adapters (Overpass + Nominatim; Nominatim + Geoapify), and each hint only
+  OVERLAPs the record name ("... (historic ruins)", "Farmacia de la
+  Estrella"). Their facts are the same as National Bank's: a unique OVERLAP
+  record in a bounded scope, one origin. No rule that keeps them VERIFIED
+  on these facts can reject National Bank without a lexical exception
+  (stopwords, parentheticals), which §19.3 forbids. They are now
+  INSUFFICIENT_EVIDENCE. They verify again only on a fact that singles
+  them out: a source address, a source QID, a Wikidata item naming the
+  hint, an EQUIVALENT alias or an independent origin.
+- With today's adapters every observed convergence is OSM read twice, so
+  `GROUNDED_CONVERGENCE` is reachable only when an independently authored
+  record shares a cross-identity.
+
+**Correct candidates.** Both real entities exist in OSM, and neither was
+retrievable:
+- `node 3158482730` "Club Atlético" (`abandoned:amenity=prison_camp`,
+  `wikidata=Q5821445`) has no POI tag the local pool keeps, and the local
+  Nominatim does not return it;
+- `relation 3527701` "Banco Nación" (Bartolomé Mitre 326,
+  `wikidata=Q5718167`) corresponds NONE to the hint "National Bank".
+Not VERIFIED is the correct outcome for both. Nothing was added to
+manufacture either.
+
+**Source-grounding forensic (no contract change in this amendment).**
+
+Club Atlético, source → identity:
+- `a-066` (4489–4542, `ROUTE_LEG`): "Walk up to Avenida Paseo Colon and
+  take a right turn." It becomes `segment.routeLegs`, never a component
+  fact.
+- `a-067` (4543–4600, `ITINERARY_STOP`): "Under the bridge, you see you a
+  memory of “Club Atlético." Entity span 4586–4599.
+- `a-068` (4601–4709) and `a-069` (`NON_ITINERARY`): "It was a clandestine
+  center of detention, torture and extermination ..." Not segment members.
+- Segment member `m-16`: `sourceName`, `physicalKind PLACE`, provenance
+  `a-067` only. `memberSupportSpan` narrows to "Club Atlético".
+- Hint: `{ name, role venue, expectedKind PLACE, evidenceKeys, supportSpan }`.
+  No `localityAssertion`, `physicalKindAssertion` or `addressHint`.
+
+National Bank, source → identity:
+- `a-004` (163–336, `ITINERARY_STOP`): "This historic place is surrounded
+  by **Casa Rosada** ..., **Museo del Cabildo**, and the headquarters of the
+  **National Bank**." "This historic place" refers to Plaza de Mayo in
+  `a-003`. Entity span 320–333.
+- Hint: name and kind only.
+
+Where context is lost:
+1. The atom labelling contract (`LabelledEntity`) has no slot for an
+   identity assertion. The relational facts never become typed data.
+2. The atomized mapping (`buildAtomizedRawCandidates`) writes no
+   component assertion; the generative path has one (`addressHint`) and
+   locality recovery another, neither reachable from atoms.
+
+Why no contract is added here:
+- The facts are not component-statement assertions under the canonical
+  rule ("one statement names both the component and the fact", §19 source
+  grounding, `statedWithComponent`). Paseo Colón is in another sentence
+  (`a-066`). Plaza de Mayo is an anaphor ("This historic place"). "Under
+  the bridge" names no entity. The detention-site description is two
+  NON_ITINERARY atoms later and starts with an anaphor ("It").
+- No deterministic, threshold-free consumer exists for them on the C3
+  data. San Lorenzo Sede Boedo carries no address. In the AREA_ROUTE_WALK
+  pass "Paseo de Colón" had no route candidate. Plaza de Mayo stayed
+  AMBIGUOUS in all three oracle composites. An `ON_STREET` or
+  `ADJACENT_TO` assertion would therefore be unavailable and change no
+  decision.
+Adding cross-sentence or anaphoric attribution changes §19's admission
+rule; it needs an owner decision (RW4-ID-SOURCE-GROUNDING-1).
+
+**Residual risk (RW4-ID-COMPETITOR-GRADE-1, not fixed).** Competitor
+examination counts records whose name is EXACT to the hint or to the
+candidate. For an OVERLAP candidate it measures the candidate's own name,
+not the hint's referent: the local Nominatim returns at least 15 "Club
+Atlético ..." records in the Buenos Aires bounding box, and LOCAL_OSM_POOL
+even selected another one (Club Atlético Atlanta), yet the outcome was
+`NO_MATERIAL_COMPETITOR`. Only GROUNDED_CONVERGENCE combines an OVERLAP
+candidate with this outcome, and §19.5 makes that path need independent
+origins, which no current adapter produces. It is latent, not live.
+
+**Persisted state.** The C3 database holds both false identities with the
+hint in `verifiedHintNames`. `CATALOG_VERIFIED_HINT` would reuse them on a
+WARM run. Reset the catalog, or delete those rows, before any WARM run that
+reads that database.
+
+Dossier: `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2-2026-10-07/`.

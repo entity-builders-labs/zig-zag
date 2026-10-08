@@ -1,0 +1,38 @@
+# Mutation results (2026-10-07). Suites: src/modules/tours/services/identity*, experience-proposal-resolver*. Baseline: 376/376 pass.
+
+## M2 convergenceIndependence always INDEPENDENT_ORIGINS (count adapters): 7 failed
+ExperienceProposalResolverService -- Stage 3 PLACE cutover › Farmacia gate: exact strong-identity convergence › Nominatim osm:node:3348573778 + Geoapify Place Details osm
+ExperienceProposalResolverService -- Stage 3 PLACE cutover › trusted-observation reuse keeps declared cross-identities › a Geoapify observation whose details declare the 
+ExperienceProposalResolverService -- candidate-scoped geographic authorization (matrix L/M) › one OSM record through Nominatim and Geoapify is one origin (C3 false VERIFI
+ExperienceProposalResolverService -- candidate-scoped geographic authorization (matrix L/M) › one OSM record through Nominatim and Geoapify is one origin (C3 false VERIFI
+ExperienceProposalResolverService -- RW4 candidate selection before verification › NEGATIVE: Nominatim and Geoapify converging on the same OSM node never decide a known h
+ExperienceProposalResolverService -- hint-level competitor examination › DEFECT A: a regional Experience never verifies on destination-bounded pools that saw no competito
+ExperienceProposalResolverService › RW1 forensic-rerun-2026-09-22 characterization (Stage 1) › Case A: NOMINATIM records one-origin IDENTITY_CONVERGENCE with LOCAL_OSM_PO
+
+## M3 rule 5 ignores independence (old GROUNDED_CONVERGENCE): 13 failed
+IdentityVerifier › RW1 El Zanjón facts, projected: convergence over an examined competitor set › one origin through two adapters is not decisive
+IdentityVerifier › RW1 El Zanjón facts, projected: convergence over an examined competitor set › a NEARBY item that matches only the hint text does not make it decisive
+IdentityVerifier › convergence provenance and competitor examination (defects A, B, C) › SHARED_ORIGIN convergence over an examined set with no material competitor is not
+IdentityVerifier › convergence provenance and competitor examination (defects A, B, C) › UNDETERMINED_ORIGIN convergence over an examined set with no material competitor 
+IdentityVerifier › NEARBY non-corroboration is never a contradiction (RW4-ID-NEARBY-1) › NEARBY(true, false) with one-origin convergence over a complete pool is INSUFFICI
+identity verification trust (RW4-ID-FALSE-VERIFY-1) › never verifies on retrieval-only or qualifier-only evidence
+identity verification trust (RW4-ID-FALSE-VERIFY-1) › 11. one origin seen through two adapters is one observation › A/C: an OVERLAP candidate repeated from one origin is 
+identity verification trust (RW4-ID-FALSE-VERIFY-1) › 11. one origin seen through two adapters is one observation › E: an undetermined origin earns no convergence credit 
+ExperienceProposalResolverService -- Stage 3 PLACE cutover › Farmacia gate: exact strong-identity convergence › Nominatim osm:node:3348573778 + Geoapify Place Details osm
+ExperienceProposalResolverService -- Stage 3 PLACE cutover › trusted-observation reuse keeps declared cross-identities › a Geoapify observation whose details declare the 
+ExperienceProposalResolverService -- candidate-scoped geographic authorization (matrix L/M) › one OSM record through Nominatim and Geoapify is one origin (C3 false VERIFI
+ExperienceProposalResolverService -- candidate-scoped geographic authorization (matrix L/M) › one OSM record through Nominatim and Geoapify is one origin (C3 false VERIFI
+ExperienceProposalResolverService › RW1 forensic-rerun-2026-09-22 characterization (Stage 1) › Case A: NOMINATIM records one-origin IDENTITY_CONVERGENCE with LOCAL_OSM_PO
+
+## M4 rule 5 removed (no legitimate independent convergence): 9 failed
+identity verification trust (RW4-ID-FALSE-VERIFY-1) › 4. independent convergence over an examined set stays decisive
+identity verification trust (RW4-ID-FALSE-VERIFY-1) › 11. one origin seen through two adapters is one observation › F: genuinely independent origins keep GROUNDED_CONVERG
+IdentityVerifier › RW1 El Zanjón facts, projected: convergence over an examined competitor set › the same facts with an independent second origin VERIFY
+IdentityVerifier › convergence provenance and competitor examination (defects A, B, C) › independent-origin convergence over an examined set with no material competitor V
+IdentityVerifier › NEARBY non-corroboration is never a contradiction (RW4-ID-NEARBY-1) › NEARBY(true, false) with independent convergence over a complete pool and no mate
+IdentityVerifier › NEARBY non-corroboration is never a contradiction (RW4-ID-NEARBY-1) › Wikidata unavailable keeps convergence over an examined set VERIFIED
+IdentityVerifier › geographic correspondence bounds name uniqueness (RW4-ID-CORRESPONDENCE-1) › convergence over an examined competitor set with correspondence BOUNDED_AD
+IdentityVerifier › geographic correspondence bounds name uniqueness (RW4-ID-CORRESPONDENCE-1) › convergence over an examined competitor set with correspondence SOURCE_LOC
+IdentityVerifier › geographic correspondence bounds name uniqueness (RW4-ID-CORRESPONDENCE-1) › convergence over an examined competitor set with correspondence SOURCE_ARE
+
+## M1 drop source-assertion propagation: not applicable (no source-assertion contract added; see README)

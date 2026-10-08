@@ -2148,6 +2148,12 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
+RW4-ID-FALSE-VERIFY-2 (2026-10-07): identity convergence needs independent
+evidence origins (spec §19.5). Club Atlético and National Bank no longer
+verify; El Zanjón and Farmacia la Estrella no longer verify either (same
+facts). Source grounding is left for an owner decision
+(RW4-ID-SOURCE-GROUNDING-1). C3 was not run.
+
 RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 (2026-10-03, amendment §19, dossier
 `identity-characterization/contextual-identity-2026-10-03/`).
@@ -2714,7 +2720,10 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
        was canonical: 0 multi-component Experiences, WARM not run,
        RW4_FUNCTIONAL_MILESTONE_PASSED NO. Cabildo is VERIFIED in
        PLANNER_CAPACITY; there are 2 new false VERIFIED
-       (RW4-ID-FALSE-VERIFY-2). Next step needs owner authorization;
+       (RW4-ID-FALSE-VERIFY-2), fixed in code 2026-10-07 (spec §19.5),
+       with RW4-ID-SOURCE-GROUNDING-1 left for an owner decision. Next
+       step needs owner authorization: an identity closure review, then
+       any C3 rerun (reset the C3 catalog first);
    - (c) extend B's scope to complete `WHOLE_DOCUMENT` and whole-unit
      continuation windows (RW4-ATOM-SCOPE-1).
    C3 rules (kept from B):
@@ -2934,9 +2943,9 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   Pellegrini. The cause was a fuzzy hint-to-label match on the
   candidate's own QID, decided ahead of 11 known material competitors.
   Spec §19.3. Thresholds untouched.
-- RW4-ID-FALSE-VERIFY-2: OPEN, HIGH (`c3-idretry2-cold`, 2026-10-07).
-  `GROUNDED_CONVERGENCE` VERIFIED two hints whose names only OVERLAP the
-  record: "Club Atlético" (the Paseo Colón memorial) as
+- RW4-ID-FALSE-VERIFY-2: FIXED in code (2026-10-07), not yet confirmed
+  live. `GROUNDED_CONVERGENCE` VERIFIED two hints whose names only OVERLAP
+  the record: "Club Atlético" (the Paseo Colón memorial) as
   `Club Atlético San Lorenzo de Almagro - Sede Boedo` (`osm:way:23634484`)
   and "National Bank" (the HQ on Plaza de Mayo) as
   `Edificio First National Bank of Boston` (`osm:relation:9254658`).
@@ -2944,8 +2953,29 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
     0 known material competitors, and the geography basis was
     `BOUNDED_ADMISSION_SCOPE` (city).
   - Both were persisted as GeoEntities with the hint in
-    `verifiedHintNames`, although their composite was REJECTED.
-  - Not fixed; thresholds untouched.
+    `verifiedHintNames`, although their composite was REJECTED. Reset that
+    catalog before any WARM run on it (CATALOG_VERIFIED_HINT would reuse
+    them).
+  - Fix (spec §19.5): typed `EvidenceOrigin`; `IDENTITY_CONVERGENCE`
+    carries both observations and `independence`; only
+    `INDEPENDENT_ORIGINS` corroborates. `CONVERGENCE_PROVENANCE` and
+    `upstreamDatasets` deleted. Dossier:
+    `rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2-2026-10-07/`.
+  - Forced consequence: RW1 El Zanjón and Farmacia la Estrella are now
+    INSUFFICIENT_EVIDENCE. This supersedes the 2026-10-03 decision to keep
+    shared-upstream convergence (`contextual-identity-2026-10-03/regression-matrix.md`,
+    those two rows): their facts equal National Bank's.
+- RW4-ID-SOURCE-GROUNDING-1: OPEN, owner decision. Source context that
+  would discriminate both C3 hints (Paseo Colón, under the bridge, the
+  detention-site description; "surrounded" Plaza de Mayo) is lost at atom
+  labelling (`LabelledEntity` has no assertion slot) and atomized mapping.
+  It is cross-sentence or anaphoric, so §19's same-statement admission
+  rule rejects it, and no threshold-free consumer could use it on the C3
+  data. No contract was added. Changing §19 to admit it is the decision.
+- RW4-ID-COMPETITOR-GRADE-1: OPEN, LOW (latent). Competitor examination
+  counts EXACT names only, so for an OVERLAP candidate it measures the
+  candidate's own name. Reachable only through independent-origin
+  convergence, which no current adapter produces. Spec §19.5.
 - RW4-ID-RECALL-CABILDO-1: FIXED, confirmed live in PLANNER_CAPACITY
   (`c3-idretry2-cold`, 2026-10-07): VERIFIED / `GROUNDED_UNIQUE_ALIAS`
   via LOCAL_OSM_POOL, recordEquivalence grouped Q1024829
