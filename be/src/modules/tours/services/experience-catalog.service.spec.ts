@@ -1213,6 +1213,66 @@ describe('ExperienceCatalogService.findVerifiedByIds', () => {
   });
 });
 
+// The catalog exposes only persisted duration knowledge. Unknown stays
+// unknown; the planning fallback is owned by PlanningCandidateNormalizer.
+describe('ExperienceCatalogService duration projection', () => {
+  const cases: Array<{
+    durationMinutes: number | null;
+    duration: number | undefined;
+  }> = [
+    { durationMinutes: null, duration: undefined },
+    { durationMinutes: 90, duration: 1.5 },
+    { durationMinutes: 120, duration: 2 },
+  ];
+  const row = (durationMinutes: number | null): any => ({
+    id: 'exp-1',
+    canonicalName: 'Circuito',
+    status: 'VERIFIED',
+    latitude: -34.6,
+    longitude: -58.38,
+    durationMinutes,
+    openingHours: null,
+    metadata: {},
+    components: [],
+    traits: [],
+    media: [],
+  });
+
+  it.each(cases)(
+    'findVerifiedByIds projects durationMinutes=$durationMinutes exactly',
+    async ({ durationMinutes, duration }) => {
+      const prisma: any = {
+        experience: {
+          findMany: jest.fn().mockResolvedValue([row(durationMinutes)]),
+        },
+      };
+      const service = new ExperienceCatalogService(prisma, {} as any);
+
+      const [result] = await service.findVerifiedByIds(['exp-1']);
+
+      expect(result.durationMinutes).toBe(durationMinutes);
+      expect(result.duration).toBe(duration);
+    },
+  );
+
+  it.each(cases)(
+    'findById projects durationMinutes=$durationMinutes exactly',
+    async ({ durationMinutes, duration }) => {
+      const prisma: any = {
+        experience: {
+          findUnique: jest.fn().mockResolvedValue(row(durationMinutes)),
+        },
+      };
+      const service = new ExperienceCatalogService(prisma, {} as any);
+
+      const result = await service.findById('exp-1');
+
+      expect(result?.durationMinutes).toBe(durationMinutes);
+      expect(result?.duration).toBe(duration);
+    },
+  );
+});
+
 describe('ExperienceCatalogService.findClassificationContextById', () => {
   it('T1: maps persisted ExperienceEvidence rows to ExperienceGroundingEvidence with persisted row ID as key', async () => {
     const prisma: any = {
