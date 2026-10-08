@@ -1,0 +1,35 @@
+{
+  "runLabel": "rw4-composite-rw4-final-cold",
+  "tourId": "4d10c9f9-3faf-4922-97e6-579c3c2e51f7",
+  "email": "rw3-spike-rw4-composite-rw4-final-cold-1791470343571@example.com",
+  "baseUrl": "http://localhost:3420",
+  "requestFile": "c3-buenos-aires-san-telmo-self-guided.json",
+  "createHttpMs": 135,
+  "generationStatus": "failed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 583875,
+  "startedAt": "2026-10-08T14:39:03.934Z",
+  "finishedAt": "2026-10-08T14:48:47.833Z",
+  "provenance": {
+    "sourceHead": "d102fbc083b8ec984222abe8529183c4f4b960c5",
+    "sourceBranch": "feat/preference-first-selection",
+    "buildCommit": "d102fbc083b8ec984222abe8529183c4f4b960c5",
+    "buildTimestamp": "2026-10-08T14:38:51Z",
+    "distSha256": "dcb6b362f2aeb7c7ea1b17c5681a490eb725820343460c7240ff24fdf2a57bc8",
+    "runtimeBuildCommit": "d102fbc083b8ec984222abe8529183c4f4b960c5",
+    "runtimeBuildTimestamp": "2026-10-08T14:38:51Z"
+  },
+  "effectiveConfig": {
+    "groundedSearchProvider": "serper",
+    "webSourceContentProvider": "tavily",
+    "discoveryExtractorProvider": "gemini",
+    "cloudflareDiscoveryModel": "@cf/qwen/qwen3.8-27b",
+    "cloudflareDiscoveryMaxCompletionTokens": 4096,
+    "classificationProvider": "gemini",
+    "geminiClassificationModel": "gemini-3.5-flash-lite",
+    "placesProvider": "geoapify",
+    "aiCacheMode": "off"
+  }
+}

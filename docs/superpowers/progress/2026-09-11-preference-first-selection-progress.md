@@ -2183,6 +2183,23 @@ campaign log, "C3 COLD with partial composite persistence".
 - National Bank: PASS_BY, no identity attempt, no hint written.
 - Gemini free-tier 429s failed GENERIC pass #2. WARM not run. Not merged.
 
+Final canonical COLD ran (2026-10-08, HEAD `d102fbc0`, fresh DB
+`zigzag_spike_rw4_final`, canonical provenance). Evidence:
+`spikes/rw4-final-cold-warm-validation-2026-10-08/README.md`.
+- Orchestration PASS: INITIAL snapshot (epoch 0) → GATHER (5 executions) →
+  PROVISIONAL plan (epoch 4) DISCARDED_FOR_REFILL → GATHER_COMPLETE (epoch 5)
+  → FINAL snapshot (epoch 5); `finalCatalogReadEpoch == lastAcquisitionEpoch`.
+- Structural PASS: one PARTIAL composite `32656b95` (13 members, 4 resolved,
+  9 unresolved retained; 0 unresolved-with-geo, 0 resolved-without-geo).
+- Duration PASS: all 18 rows `durationMinutes` NULL → catalog unknown remains
+  unknown; single 90-min planner fallback; no 120-min authority.
+- COLD_NOT_QUALIFIED for WARM: final plan failed at the feasibility
+  validator (MAX_CONTINUOUS_WALKING_EXCEEDED on the composite's inbound
+  leg), no Tour materialized. Deterministic planner infeasibility, not a
+  provider failure. "Late-acquired candidate changes the Tour" not
+  reproduced (composite acquired in the first pass; no SOB this run). WARM
+  not run.
+
 Source member identity (SOURCE_MEMBER_IDENTITY) is IMPLEMENTED, not merged
 (2026-10-08, code `273bf4aa`). Evidence:
 `spikes/source-member-identity-2026-10-08/README.md`.
@@ -2777,6 +2794,17 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 
 ## Next authorized action
 
+0000000. (2026-10-08) Owner review of the final canonical COLD
+         (`spikes/rw4-final-cold-warm-validation-2026-10-08/README.md`).
+         Orchestration/structural/duration invariants PASS, but the final
+         plan failed at the feasibility validator
+         (MAX_CONTINUOUS_WALKING_EXCEEDED on the composite's inbound leg),
+         so no Tour was materialized and WARM was not run. Decide whether
+         the blocker is (a) the planner/validator approximate-vs-real travel
+         mismatch or (b) composite geographic scope (Obelisco ~1.9 km
+         outside San Telmo under §P2-18), then authorize a targeted fix
+         before a COLD retry (and WARM only if COLD qualifies). Do not merge.
+
 000000. (2026-10-08) Owner review of GATHER_RECONCILE_PLAN
         (`spikes/gather-reconcile-plan-2026-10-08/README.md`, §11 behavior
         changes, §13 debt). Then a separately authorized COLD C3 on a
@@ -2878,6 +2906,16 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
 
 ## Open findings / blockers
 
+- RW4-FINAL-PLAN-INFEASIBLE-1: OPEN (owner decision). The final canonical
+  COLD (`d102fbc0`) reached the fresh post-acquisition snapshot and then
+  failed at the feasibility validator with
+  `MAX_CONTINUOUS_WALKING_EXCEEDED` on the composite's inbound leg, so no
+  Tour materialized and WARM was not run. The GATHER → RECONCILE → FREEZE →
+  PLAN orchestration is proven correct; the blocker is a planner/validator
+  travel-estimate mismatch on a composite whose descriptive-scope membership
+  spans Obelisco (~1.9 km outside San Telmo). Same class as
+  `PF-CI-FLAKE-1`, now observed in a live deterministic run. Dossier:
+  `spikes/rw4-final-cold-warm-validation-2026-10-08/README.md`.
 - RW4-RECONCILE-GEO-1: OPEN, LOW (debt). A SAME-reconciled resolution was
   validated by the observation that resolved it. The canonical set is not
   jointly re-validated by composite geography after enrichment.

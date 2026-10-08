@@ -609,3 +609,31 @@ navigable component. No false VERIFIED observed.
   quality caveats: 3/15 resolved, one member is the San Telmo AREA itself,
   Casa Rosada is outside the area. The richer SOB composite (8/15) is
   COMPOSITE_PERSISTED_NOT_SELECTED.
+
+## Final canonical COLD — 2026-10-08 — COLD_NOT_QUALIFIED (no WARM)
+
+- Run `rw4-final-cold/`, DB **`zigzag_spike_rw4_final`** (fresh, new name),
+  HEAD `d102fbc0`, canonical provenance verified. Same request and providers
+  as `c3-partial-cold` (serper, Gemini `gemini-3.5-flash-lite` extractor and
+  classifier, Tavily, geoapify, local Nominatim/Overpass).
+  `DISCOVERY_EXTRACTOR_PROVIDER=gemini bash run.sh rw4-final-cold
+  zigzag_spike_rw4_final fresh 3420 requests/c3-...json tavily`.
+- 584 s, generation `failed`. Provider requests (845): geoapify routing 505,
+  wikidata 90, gemini 64, geoapify place-details 39, nominatim 33, ollama 32,
+  geoapify geocode 28, wikipedia 24, overpass 14, wikivoyage 6, serper 4,
+  tavily 3, geoapify places 2, groq 1.
+- Provider degradation: Gemini 429 during GENERIC pass #2 extraction; 4
+  Wikidata proximity timeouts; 1 Geoapify text-search timeout. None caused
+  the failure.
+- One PARTIAL composite persisted: `32656b95` "Self Guided Walking Tour San
+  Telmo (part 1 of 3)", 13 members, 4 resolved (Obelisco, San Telmo AREA,
+  Defensa Street ROUTE, Casa Mínima), 9 unresolved retained. 18 Experiences
+  total, all `durationMinutes` NULL.
+- Orchestration: INITIAL snapshot epoch 0 → GATHER (5 executions) →
+  PROVISIONAL plan epoch 4 DISCARDED_FOR_REFILL → GATHER_COMPLETE epoch 5 →
+  FINAL snapshot epoch 5. `finalCatalogReadEpoch == lastAcquisitionEpoch`.
+- **Failure**: final plan rejected by the feasibility validator
+  `MAX_CONTINUOUS_WALKING_EXCEEDED` on the composite's inbound leg (Obelisco
+  ~1.9 km outside San Telmo); no TourExperience materialized. Deterministic
+  planner infeasibility, not a provider failure. WARM not run.
+- Dossier: `spikes/rw4-final-cold-warm-validation-2026-10-08/README.md`.
