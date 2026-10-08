@@ -1,0 +1,53 @@
+## correspondence vs "National Bank" (verification grade | retrieval overlap)
+OSM name                 | Banco Nación                                       | NONE       | retrieval=false
+OSM name:en              | Nation Bank                                        | NONE       | retrieval=false
+OSM name:es              | Banco Nación                                       | NONE       | retrieval=false
+OSM name:uk              | Національний банк Аргентини                        | NONE       | retrieval=false
+OSM official_name        | Banco de la Nación Argentina                       | NONE       | retrieval=false
+OSM official_name:en     | Bank of the Argentine Nation                       | NONE       | retrieval=false
+OSM official_name:es     | Banco de la Nación Argentina                       | NONE       | retrieval=false
+OSM short_name           | BNA                                                | NONE       | retrieval=false
+OSM brand                | Banco Nación                                       | NONE       | retrieval=false
+OSM brand:en             | Nation Bank                                        | NONE       | retrieval=false
+OSM branch               | Casa Central                                       | NONE       | retrieval=false
+WD Q5718167 label es     | Banco de la Nación Argentina Casa Central          | NONE       | retrieval=false
+WD Q5718167 alias es     | Casa Central del Banco de la Nación                | NONE       | retrieval=false
+WD Q5718167 label en     | National Bank of Argentina Headquarters Building   | OVERLAP    | retrieval=true
+WD Q5718167 enwiki       | Headquarters of the Bank of the Argentine Nation   | NONE       | retrieval=false
+WD Q2883376 label es     | Banco de la Nación Argentina                       | NONE       | retrieval=false
+WD Q2883376 label en     | Bank of the Argentine Nation                       | NONE       | retrieval=false
+WD Q2883376 alias en     | Banco de la Nacion Argentina                       | NONE       | retrieval=false
+WD Q2883376 alias en     | BNA                                                | NONE       | retrieval=false
+
+## LOCAL_OSM_POOL (Buenos Aires, 2712 POIs)
+relation 3527701 in pool: false
+pool records named banco/bank: 4
+   osm:node:6439099721 | Museo Histórico y Numismático del Banco de la Nación Argentina | 
+   osm:node:6439756188 | Archivo y Museo del Banco de la Provincia de Buenos Aires | 
+   osm:way:1279438067 | Museo y Biblioteca del Banco Ciudad | 
+   osm:relation:9272843 | Museo del Banco Central | 
+matchOsmCandidateByName("National Bank", pool): undefined
+
+## Nominatim q="National Bank": 1 results; relation 3527701 present: false
+   relation/9254658 | Edificio First National Bank of Boston
+
+## Nominatim q="Nation Bank": 50 results; relation 3527701 present: false
+   way/721052612 | Banco Nación
+   way/435654212 | Banco Nación
+   way/838319312 | Banco Nación
+   way/281164607 | Banco Nación
+   way/825339685 | Banco Nación
+
+## Nominatim q="Bank of the Argentine Nation": 50 results; relation 3527701 present: false
+   way/26682898 | Banco Nación
+   way/320900524 | Banco Nación
+   way/463974642 | Banco Nación
+   way/470756311 | Banco Nación
+   node/564420651 | Banco Nación
+
+## Nominatim q="Banco Nación": 50 results; relation 3527701 present: false
+   node/12505274063 | Banco Nación
+   way/80129463 | Banco Nación
+   way/721052612 | Banco Nación
+   way/435654212 | Banco Nación
+   way/838319312 | Banco Nación
