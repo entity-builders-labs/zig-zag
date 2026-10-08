@@ -37,6 +37,10 @@ import {
   decideSourceCompositionAdmission,
 } from './experience-source-membership.policy';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
+import {
+  SourceKnowledgeReconciliation,
+  SourceMemberReconciliation,
+} from './source-knowledge-reconciliation.policy';
 
 /**
  * Builds the per-component truth of one source-backed candidate: identity
@@ -338,6 +342,7 @@ export interface CompositeOutcome {
         experienceId: string;
         dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
         dedupeEvidence?: DedupeTraceEvidence;
+        reconciliation?: SourceKnowledgeReconciliationTrace;
       }
     | {
         status: 'NOT_PERSISTED';
@@ -362,7 +367,12 @@ export interface DedupeTraceEvidence {
   sourceCompositionRelation: StructuralCompositionRelation;
   containment: SubcompositionContainment | null;
   sourceRelation: SourceProvenanceRelation;
-  sharedSourceMembers: SharedSourceMember[];
+  /**
+   * One flat line per shared source member
+   * (`formatSharedSourceMember`): a nested object would sit past the trace
+   * serializer's depth cap and only its count would survive.
+   */
+  sharedSourceMembers: string[];
   sharedResolvedGeoEntities: string[];
   sourceMemberCounts: { incoming: number; existing: number };
   decisiveEvidence: DedupeDecisiveEvidence | null;
@@ -373,17 +383,76 @@ export interface DedupeTraceEvidence {
   reasons: string[];
 }
 
+/** `incoming[0] = existing[1] (SOURCE_WORDING, RESOLVED_GEOENTITY)`. */
+export function formatSharedSourceMember(member: SharedSourceMember): string {
+  const positions = (values: Array<number | null>) =>
+    values.map((value) => (value == null ? '?' : String(value))).join(',');
+  return `incoming[${positions(member.incomingSourcePositions)}] = existing[${positions(
+    member.existingSourcePositions,
+  )}] (${member.basis.join(', ')})`;
+}
+
+/**
+ * What a SAME observation taught the canonical members, flat enough to
+ * survive the trace serializer: one entry per member whose knowledge
+ * changed, conflicted or was refused (unchanged members are only counted).
+ */
+export interface SourceKnowledgeReconciliationTrace {
+  outcome: SourceKnowledgeReconciliation['outcome'];
+  reason?: string;
+  memberCount: number;
+  resolvedBefore: number;
+  resolvedAfter: number;
+  /** The SAME observation itself is the evidence source of every change. */
+  evidenceSource: 'SAME_SOURCE_OBSERVATION';
+  members: Array<{
+    sourcePosition: number;
+    sourceName: string | null;
+    change: SourceMemberReconciliation['change'];
+    before: string;
+    after: string;
+    observedGeoEntityId: string | null;
+  }>;
+}
+
+export function sourceKnowledgeReconciliationTrace(
+  reconciliation: SourceKnowledgeReconciliation,
+): SourceKnowledgeReconciliationTrace {
+  const state = (snapshot: SourceMemberReconciliation['before']) =>
+    snapshot.resolutionState === 'RESOLVED'
+      ? `RESOLVED ${snapshot.geoEntityId}`
+      : `UNRESOLVED ${snapshot.resolutionReason ?? 'UNKNOWN_REASON'}`;
+  const resolved = (key: 'before' | 'after') =>
+    reconciliation.members.filter(
+      (member) => member[key].resolutionState === 'RESOLVED',
+    ).length;
+  return {
+    outcome: reconciliation.outcome,
+    ...('reason' in reconciliation ? { reason: reconciliation.reason } : {}),
+    memberCount: reconciliation.members.length,
+    resolvedBefore: resolved('before'),
+    resolvedAfter: resolved('after'),
+    evidenceSource: 'SAME_SOURCE_OBSERVATION',
+    members: reconciliation.members
+      .filter((member) => member.change !== 'UNCHANGED')
+      .map((member) => ({
+        sourcePosition: member.sourcePosition,
+        sourceName: member.sourceName,
+        change: member.change,
+        before: state(member.before),
+        after: state(member.after),
+        observedGeoEntityId: member.observedGeoEntityId,
+      })),
+  };
+}
+
 function dedupeTraceEvidence(evidence: DedupeEvidence): DedupeTraceEvidence {
   return {
     sourceCompositionRelation: evidence.structure.relation,
     containment: evidence.structure.containment,
     sourceRelation: evidence.sourceRelation,
     sharedSourceMembers: evidence.structure.sharedSourceMembers.map(
-      (member) => ({
-        incomingSourcePositions: [...member.incomingSourcePositions],
-        existingSourcePositions: [...member.existingSourcePositions],
-        basis: [...member.basis],
-      }),
+      formatSharedSourceMember,
     ),
     sharedResolvedGeoEntities: [
       ...evidence.structure.sharedResolvedGeoEntityIds,
@@ -431,6 +500,13 @@ export function buildCompositeOutcome(
             : {}),
           ...(entry.dedupeEvidence
             ? { dedupeEvidence: dedupeTraceEvidence(entry.dedupeEvidence) }
+            : {}),
+          ...(entry.sourceKnowledgeReconciliation
+            ? {
+                reconciliation: sourceKnowledgeReconciliationTrace(
+                  entry.sourceKnowledgeReconciliation,
+                ),
+              }
             : {}),
         }
       : {

@@ -34,6 +34,14 @@ import {
   recordDailyPlanningStep,
   recordTourCompletenessStep,
   recordTourMaterializationStep,
+  recordCatalogSnapshotStep,
+  recordGatherBoundaryStep,
+  recordProvisionalPlanStep,
+  recordFinalSelectionStep,
+  gatherOutcomesOf,
+  CatalogCandidateSnapshot,
+  CatalogSnapshotPhase,
+  GatherExecutionRecord,
 } from '../utils/experience-generation-trace.util';
 import { TourCompletenessValidator } from './tour-completeness-validator.service';
 import {
@@ -94,7 +102,6 @@ import {
 import {
   PreferenceCoverageResult,
   PreferenceSpec,
-  ComposableExperience,
   CompositionSelectionResult,
 } from '../interfaces/preference-spec.interface';
 import {
@@ -102,10 +109,7 @@ import {
   GlobalCapacityDeficit,
 } from '../interfaces/experience-acquisition-plan.interface';
 import { AcquisitionExecutionLedger } from '../utils/acquisition-source-plan-fingerprint.util';
-import {
-  distinctResolvedSourceMembers,
-  sourceCompositionCompleteness,
-} from '../utils/experience-source-membership.policy';
+import { distinctResolvedSourceMembers } from '../utils/experience-source-membership.policy';
 
 /**
  * Hard bound on the canonical acquisition loop: initial catalog coverage,
@@ -143,32 +147,24 @@ interface CandidateSelection {
   compositionOrderScoreById: Map<string, number>;
 }
 
-function formatExperienceForPrompt(experience: any): string {
-  const themes = Array.isArray(experience.themes)
-    ? experience.themes.join(', ')
-    : '';
-  const traits = Array.isArray(experience.traits)
-    ? experience.traits.join(', ')
-    : '';
-  const intents = Array.isArray(experience.intents)
-    ? experience.intents.join(', ')
-    : '';
-  const components = Array.isArray(experience.components)
-    ? experience.components
-        .map((component: any) => component.geoEntity?.name ?? component.name)
-        .filter(Boolean)
-        .join(', ')
-    : '';
-  return [
-    `${experience.id}: ${experience.canonicalName ?? experience.name ?? 'Experience'}`,
-    experience.description,
-    themes ? `themes=${themes}` : undefined,
-    traits ? `traits=${traits}` : undefined,
-    intents ? `intents=${intents}` : undefined,
-    components ? `components=${components}` : undefined,
-  ]
-    .filter(Boolean)
-    .join(' | ');
+type PromotionStopReason =
+  | 'CAPACITY_SATURATED_OR_TINY_GAPS'
+  | 'RESERVOIR_EXHAUSTED'
+  | 'PROMOTION_BUDGET_EXHAUSTED'
+  | 'NO_PROGRESS';
+
+/** The plan of ONE selection; every field derives from that selection. */
+interface SelectionPlan {
+  selection: CandidateSelection;
+  /** The offered (initial + reservoir) candidates of `selection`. */
+  candidatesById: Map<string, any>;
+  overlapExcluded: Array<{ id: string; overlapsWith: string }>;
+  planningInput: DailyPlanningInput;
+  planningSolution: DailyPlanningSolution;
+  admittedPlanningCandidates: PlanningExperienceCandidate[];
+  promotionAttempts: number;
+  promotionStopReason: PromotionStopReason;
+  meaningfulResidual?: { dayNumber: number; availableMinutes: number };
 }
 
 @Injectable()
@@ -244,94 +240,6 @@ export class ExperienceGenerationService {
       groupPreferences: [],
       positiveSemanticQuery: '',
       notes: [],
-    };
-  }
-
-  private hydratePersistedExperience(
-    experience: any,
-  ): ComposableExperience & Record<string, unknown> {
-    const metadata =
-      experience?.metadata &&
-      typeof experience.metadata === 'object' &&
-      !Array.isArray(experience.metadata)
-        ? experience.metadata
-        : {};
-    // Only resolved source members carry geography or reach the planner.
-    const resolvedComponents = distinctResolvedSourceMembers<any>({
-      components: experience.components ?? [],
-    });
-    const firstPoint = resolvedComponents.find(
-      (component: any) =>
-        Number.isFinite(component.geoEntity?.latitude) &&
-        Number.isFinite(component.geoEntity?.longitude),
-    )?.geoEntity;
-    const traitDefinitions = (experience.traits ?? []).map(
-      (trait: any) => trait.traitDefinition,
-    );
-    const metadataDimensioned = Array.isArray(metadata.dimensionedTraits)
-      ? (metadata.dimensionedTraits as Array<{
-          dimension: string;
-          key: string;
-          label?: string;
-        }>)
-      : [];
-    const dimensionedTraits = [
-      ...metadataDimensioned,
-      ...traitDefinitions.filter(Boolean).map((definition: any) => ({
-        dimension: definition.dimension,
-        key: definition.key,
-        label: definition.label ?? undefined,
-      })),
-    ];
-    return {
-      id: experience.id,
-      name: experience.canonicalName,
-      canonicalName: experience.canonicalName,
-      description: experience.description,
-      latitude: experience.latitude ?? firstPoint?.latitude,
-      longitude: experience.longitude ?? firstPoint?.longitude,
-      duration:
-        (experience.durationMinutes ??
-          this.dailyPlanningPolicy.compositeDefaultDurationMinutes) / 60,
-      durationMinutes: experience.durationMinutes,
-      price: experience.price,
-      qualityScore: experience.qualityScore,
-      themes: Array.isArray(metadata.themes) ? metadata.themes : [],
-      intents: Array.isArray(metadata.intents)
-        ? metadata.intents
-        : Array.isArray(metadata.archetypes)
-          ? metadata.archetypes
-          : [],
-      traits: Array.from(
-        new Set([
-          ...(Array.isArray(metadata.traits) ? metadata.traits : []),
-          ...traitDefinitions.flatMap((definition: any) =>
-            [definition?.label, definition?.key].filter(Boolean),
-          ),
-        ]),
-      ),
-      dimensionedTraits,
-      explorationFacts: {
-        placesReviewCount: metadata.reviewCount ?? metadata.userRatingCount,
-        wikidataSitelinkCount: metadata.wikidataSitelinkCount,
-        wikipediaPresent: metadata.wikipediaPresent,
-        wikivoyageListed: metadata.wikivoyageListed,
-        heritageOrLandmark: metadata.heritageOrLandmark,
-        explicitTourismIntensityEvidence:
-          metadata.explorationEvidence?.tourismIntensity ?? [],
-        explicitLocalCharacterEvidence:
-          metadata.explorationEvidence?.localCharacter ?? [],
-      },
-      metadata: {
-        ...metadata,
-        dimensionedTraits,
-        source: 'experience_catalog',
-        experienceId: experience.id,
-      },
-      components: resolvedComponents,
-      compositionCompleteness: sourceCompositionCompleteness<any>({
-        components: experience.components ?? [],
-      }),
     };
   }
 
@@ -650,6 +558,8 @@ export class ExperienceGenerationService {
       | GenericWorkUnit
       | DedicatedIntentWorkUnit
       | PlannerCapacityWorkUnit,
+    /** GATHER ledger of this generation (trace only). */
+    gatherExecutions?: GatherExecutionRecord[],
   ): Promise<ExecuteAcquisitionPlanResult> {
     const execution = await this.experienceAcquisition.executePlan(
       plan,
@@ -690,48 +600,268 @@ export class ExperienceGenerationService {
       execution,
       resolution,
     });
+    gatherExecutions?.push({
+      pass: passNumber,
+      workUnit: workUnit.kind,
+      sourcePlanCount: plan.sourcePlans.length,
+      candidateCount: execution.candidates.length,
+      outcomes: gatherOutcomesOf(resolution),
+    });
     return execution;
   }
 
-  /** Shared catalog refresh/recomposition seam after any materialization. */
-  private async refreshCatalogAndRecompose(
-    scope: {
-      latitude: number;
-      longitude: number;
-      radiusMeters: number;
-      destination: GeographicScope;
-    },
-    allEligibleExperiencesById: Map<string, any>,
-    preferenceSpec: PreferenceSpec,
-    venueMustIds: string[],
-    venueSoftIds: string[],
-    venueAnchorNames: string[],
-  ): Promise<{ pool: any[]; selection: CandidateSelection }> {
-    const refreshed = await this.experienceCatalog.findVerifiedWithin(
-      scope.latitude,
-      scope.longitude,
-      scope.radiusMeters,
-      this.CATALOG_RETRIEVAL_POOL_LIMIT,
-    );
-    // PD1: the destination window returns candidates for consideration;
-    // only Experiences WITHIN the destination are tour-eligible here.
-    refreshed
-      .filter((experience: any) =>
-        isTourEligibleForDestinationRequest(experience, scope.destination),
+  /**
+   * THE catalog snapshot of one generation, read fresh through the
+   * canonical catalog boundary: the destination window (PD1: only
+   * Experiences WITHIN the destination are tour-eligible from it) plus the
+   * exact rows a request scope established (venue anchors, AREA_ROUTE_WALK
+   * acquisitions). Nothing from an earlier read survives into it, and its
+   * order is canonical (by id) so discovery order never decides eligibility.
+   */
+  private async readCatalogSnapshot(input: {
+    phase: CatalogSnapshotPhase;
+    acquisitionEpoch: number;
+    window: { latitude: number; longitude: number; radiusMeters: number };
+    destination: GeographicScope;
+    explicitIds: string[];
+  }): Promise<CatalogCandidateSnapshot<VerifiedExperienceRow>> {
+    const windowRows = (
+      await this.experienceCatalog.findVerifiedWithin(
+        input.window.latitude,
+        input.window.longitude,
+        input.window.radiusMeters,
+        this.CATALOG_RETRIEVAL_POOL_LIMIT,
       )
-      .forEach((experience: any) =>
-        allEligibleExperiencesById.set(experience.id, experience),
-      );
-    const pool = Array.from(allEligibleExperiencesById.values());
+    ).filter((experience) =>
+      isTourEligibleForDestinationRequest(experience, input.destination),
+    );
+    const explicitRows = await this.experienceCatalog.findVerifiedByIds([
+      ...new Set(input.explicitIds),
+    ]);
+    const byId = new Map<string, VerifiedExperienceRow>();
+    [...windowRows, ...explicitRows].forEach((experience) =>
+      byId.set(experience.id, experience),
+    );
     return {
-      pool,
-      selection: await this.composeExperiences(
-        pool,
-        preferenceSpec,
-        venueMustIds,
-        venueSoftIds,
-        venueAnchorNames,
+      phase: input.phase,
+      acquisitionEpoch: input.acquisitionEpoch,
+      experiences: [...byId.values()].sort((left, right) =>
+        left.id.localeCompare(right.id),
       ),
+    };
+  }
+
+  /**
+   * Plans ONE selection, deriving every planner input from that selection
+   * only (no candidate, weight or score survives from an earlier
+   * selection): overlap filter → initial solve → bounded reservoir
+   * promotion → residual capacity.
+   */
+  private async planFromSelection(
+    selection: CandidateSelection,
+    planningBase: Omit<DailyPlanningInput, 'candidates'>,
+    preferenceSpec: PreferenceSpec,
+  ): Promise<SelectionPlan> {
+    const offered = [
+      ...selection.initialExperiences,
+      ...selection.reservoirExperiences,
+    ];
+    const candidatesById = new Map<string, any>(
+      offered.map((experience: any) => [experience.id, experience]),
+    );
+    // Verified live: a standalone POI Experience and a composite Experience
+    // that separately resolved the *same real place* as one of its own
+    // components can both reach this pool as unrelated records (their
+    // GeoEntity rows may predate ExperienceCatalogService.upsertGeoEntity's
+    // cross-provider reconciliation, or some other gap could still produce
+    // the same split) — the solver has no way to know they're the same
+    // place, so it can book a traveler into it twice on two different days.
+    // Filter that overlap out of the pool itself, before normalization. The
+    // input is in composition order (a function of the snapshot alone).
+    const overlapFilter = filterOverlappingExperienceCandidates(
+      offered.map((experience: any) => ({
+        ...experience,
+        compositionOrderScore: selection.compositionOrderScoreById.get(
+          experience.id,
+        ),
+        weightedPreferenceCoverage: selection.preferenceWeightById.get(
+          experience.id,
+        ),
+        mustInclude: selection.mustIncludeExperienceIds.has(experience.id),
+      })),
+    );
+    if (overlapFilter.excluded.length > 0) {
+      this.logger.log(
+        `Excluded ${overlapFilter.excluded.length} candidate(s) redundant with another selected candidate covering the same real place: ${overlapFilter.excluded
+          .map((item) => `${item.id} (kept ${item.overlapsWith})`)
+          .join(', ')}`,
+      );
+    }
+
+    const initialIds = new Set(
+      selection.initialExperiences.map((experience: any) => experience.id),
+    );
+    const candidatePool = overlapFilter.kept;
+    const initialPool = candidatePool.filter((experience) =>
+      initialIds.has(experience.id),
+    );
+    const reservoirPool = selection.reservoirExperiences
+      .map((reserved: any) =>
+        candidatePool.find((experience) => experience.id === reserved.id),
+      )
+      .filter((experience): experience is any => Boolean(experience));
+    const mustIncludeIds = selection.mustIncludeExperienceIds;
+    const normalizePlanningPool = (experiences: any[]) =>
+      this.planningCandidateNormalizer.normalizeExperiences(
+        experiences,
+        selection.scoreBreakdownById,
+        {
+          preferenceWeightById: selection.preferenceWeightById,
+          mustIncludeExperienceIds: mustIncludeIds,
+        },
+      );
+    const planningCandidates = await normalizePlanningPool(initialPool);
+    const planningInput: DailyPlanningInput = {
+      ...planningBase,
+      candidates: planningCandidates,
+    };
+
+    const scheduledCount = (solution: DailyPlanningSolution) =>
+      solution.days.reduce((total, day) => total + day.experiences.length, 0);
+    const utilization = (solution: DailyPlanningSolution) =>
+      solution.days.reduce((sum, day) => sum + day.utilizationMinutes, 0);
+    const solutionRelevance = (
+      solution: DailyPlanningSolution,
+      candidates: PlanningExperienceCandidate[],
+    ) => {
+      const byId = new Map(
+        candidates.map((candidate) => [candidate.experienceId, candidate]),
+      );
+      return solution.days.reduce(
+        (total, day) =>
+          total +
+          day.experiences.reduce(
+            (dayTotal, planned) =>
+              dayTotal +
+              plannerRelevanceScore(
+                byId.get(planned.experienceId)!,
+                this.dailyPlanningPolicy.scoring,
+              ),
+            0,
+          ),
+        0,
+      );
+    };
+    const mustCount = (solution: DailyPlanningSolution) =>
+      solution.days
+        .flatMap((day) => day.experiences)
+        .filter((planned) => mustIncludeIds.has(planned.experienceId)).length;
+    const meaningfulResidualCapacity = (solution: DailyPlanningSolution) =>
+      plannerResidualCapacity(
+        solution,
+        this.dailyPlanningPolicy.window,
+        this.dailyPlanningPolicy.backfill.minimumUsefulResidualMinutes,
+      ).some((residual) => residual.meaningful);
+
+    let planningSolution = await this.dailyPlanningSolver.solve(planningInput);
+    let admittedPlanningCandidates = [...planningCandidates];
+    let promotionAttempts = 0;
+    let promotionStopReason: PromotionStopReason =
+      reservoirPool.length === 0 ? 'RESERVOIR_EXHAUSTED' : 'NO_PROGRESS';
+    for (const experience of reservoirPool) {
+      if (!meaningfulResidualCapacity(planningSolution)) {
+        promotionStopReason = 'CAPACITY_SATURATED_OR_TINY_GAPS';
+        break;
+      }
+      if (
+        promotionAttempts >=
+        this.dailyPlanningPolicy.backfill.maxReservoirPromotionAttempts
+      ) {
+        promotionStopReason = 'PROMOTION_BUDGET_EXHAUSTED';
+        break;
+      }
+      promotionAttempts++;
+      const promotedCandidates = await normalizePlanningPool([
+        ...initialPool,
+        ...admittedPlanningCandidates
+          .filter((candidate) => !initialIds.has(candidate.experienceId))
+          .map((candidate) =>
+            candidatePool.find((item) => item.id === candidate.experienceId),
+          )
+          .filter(Boolean),
+        experience,
+      ]);
+      const trialSolution = await this.dailyPlanningSolver.solve({
+        ...planningInput,
+        candidates: promotedCandidates,
+      });
+      const promoted = trialSolution.days
+        .flatMap((day) => day.experiences)
+        .some((planned) => planned.experienceId === experience.id);
+      const noDegradation =
+        mustCount(trialSolution) >= mustCount(planningSolution) &&
+        solutionRelevance(trialSolution, promotedCandidates) >=
+          solutionRelevance(planningSolution, admittedPlanningCandidates) -
+            1e-9;
+      const strictProgress =
+        scheduledCount(trialSolution) > scheduledCount(planningSolution) ||
+        utilization(trialSolution) > utilization(planningSolution);
+      if (promoted && noDegradation && strictProgress) {
+        planningSolution = trialSolution;
+        admittedPlanningCandidates = promotedCandidates;
+        promotionStopReason = 'NO_PROGRESS';
+      }
+    }
+
+    if (
+      reservoirPool.length > 0 &&
+      promotionAttempts >=
+        this.dailyPlanningPolicy.backfill.maxReservoirPromotionAttempts
+    ) {
+      promotionStopReason = 'PROMOTION_BUDGET_EXHAUSTED';
+    } else if (
+      reservoirPool.length > 0 &&
+      promotionStopReason === 'NO_PROGRESS' &&
+      promotionAttempts >= reservoirPool.length
+    ) {
+      promotionStopReason = 'RESERVOIR_EXHAUSTED';
+    }
+    planningSolution.metadata.residualCapacity = plannerResidualCapacity(
+      planningSolution,
+      this.dailyPlanningPolicy.window,
+      this.dailyPlanningPolicy.backfill.minimumUsefulResidualMinutes,
+    );
+    const residuals = planningSolution.metadata.residualCapacity;
+    const meaningfulResidual = residuals?.find(
+      (residual) => residual.meaningful,
+    );
+    if (residuals && promotionAttempts >= reservoirPool.length) {
+      planningSolution.metadata.capacityDeficits = meaningfulResidual
+        ? [
+            {
+              origin: 'planner_capacity',
+              dayNumber: meaningfulResidual.dayNumber,
+              availableMinutes: meaningfulResidual.availableMinutes,
+              preferredFacets: preferenceSpec.facets.map((facet) => ({
+                dimension: facet.dimension,
+                key: facet.key,
+                weight: facet.weight,
+              })),
+            },
+          ]
+        : [];
+    }
+
+    return {
+      selection,
+      candidatesById,
+      overlapExcluded: overlapFilter.excluded,
+      planningInput,
+      planningSolution,
+      admittedPlanningCandidates,
+      promotionAttempts,
+      promotionStopReason,
+      meaningfulResidual,
     };
   }
 
@@ -779,52 +909,26 @@ export class ExperienceGenerationService {
         );
       }
 
-      let availableExperiencesText = '';
-      const candidateExperienceIds = new Set<string>();
-      const candidateExperiencesById = new Map<string, any>();
-      const offeredScoreBreakdownById = new Map<
-        string,
-        CandidateScoreBreakdown
-      >();
-      const planningPreferenceWeightById = new Map<string, number>();
-      const planningMustIncludeExperienceIds = new Set<string>();
-      const offeredCompositionOrderScoreById = new Map<string, number>();
-      const allEligibleExperiencesById = new Map<string, any>();
       const discoveryResolvedExperienceIds = new Set<string>();
       const acquisitionExecutionLedger: AcquisitionExecutionLedger = {
         executedSourcePlanFingerprints: new Set(),
       };
-
-      const recordOfferedCandidates = (selection: CandidateSelection) => {
-        selection.preferenceWeightById.forEach((weight, id) =>
-          planningPreferenceWeightById.set(id, weight),
-        );
-        selection.mustIncludeExperienceIds.forEach((id) =>
-          planningMustIncludeExperienceIds.add(id),
-        );
-        [
-          ...selection.initialExperiences,
-          ...selection.reservoirExperiences,
-        ].forEach((experience: any) => {
-          candidateExperienceIds.add(experience.id);
-          candidateExperiencesById.set(experience.id, experience);
-          const compositionOrderScore = selection.compositionOrderScoreById.get(
-            experience.id,
-          );
-          if (compositionOrderScore !== undefined) {
-            offeredCompositionOrderScoreById.set(
-              experience.id,
-              compositionOrderScore,
-            );
-          }
-          const breakdown = selection.scoreBreakdownById.get(experience.id);
-          if (breakdown) {
-            offeredScoreBreakdownById.set(experience.id, breakdown);
-          }
+      // GATHER bookkeeping. `acquisitionEpoch` counts the acquisition
+      // executions (catalog writes) of this generation; every catalog
+      // snapshot records the epoch it was read at, and the final plan may
+      // only be built from a snapshot read at the final epoch.
+      let acquisitionEpoch = 0;
+      const gatherExecutions: GatherExecutionRecord[] = [];
+      let gatherStarted = false;
+      const startGather = (deficitCount: number) => {
+        if (gatherStarted) return;
+        gatherStarted = true;
+        recordGatherBoundaryStep(traceRecorder, {
+          boundary: 'GATHER_START',
+          deficitCount,
         });
       };
 
-      let finalSelection: CandidateSelection | undefined;
       let semanticRankingOutcome: SemanticRankingOutcome = {
         status: 'not_requested',
         eligibleCandidateCount: 0,
@@ -952,406 +1056,316 @@ export class ExperienceGenerationService {
         destinationCountryCode: destinationResolution.countryCode,
         geographicScope,
       });
-      venueAnchorResolution.resolvedMustIds.forEach((id) =>
-        planningMustIncludeExperienceIds.add(id),
-      );
       if (
-        Number.isFinite(request.destination.latitude) &&
-        Number.isFinite(request.destination.longitude)
+        !Number.isFinite(request.destination.latitude) ||
+        !Number.isFinite(request.destination.longitude)
       ) {
-        const radius = searchArea.radiusMeters;
-        const experienceLimit = this.CATALOG_RETRIEVAL_POOL_LIMIT;
-
-        await this.updateGenerationStatus(
-          tourId,
-          'generating',
-          `Buscando Experiences verificadas en la zona (radio ${Math.round(radius / 1000)}km)...`,
+        throw new Error(
+          'No se encontraron Experiences verificadas y relevantes para esta solicitud.',
         );
+      }
 
+      const radius = searchArea.radiusMeters;
+      // One canonical catalog window and one canonical composition input
+      // for every snapshot of this generation: initial, gather and final
+      // reads differ only in WHEN they are taken.
+      const readSnapshot = (phase: CatalogSnapshotPhase) =>
+        this.readCatalogSnapshot({
+          phase,
+          acquisitionEpoch,
+          window: {
+            latitude: searchArea.latitude,
+            longitude: searchArea.longitude,
+            radiusMeters: radius,
+          },
+          destination: geographicScope,
+          // Venue resolution and AREA_ROUTE_WALK acquisition establish
+          // canonical ids independently of the window scan; hydrate those
+          // exact rows so they stay eligible whatever the distance order.
+          explicitIds: [
+            ...venueAnchorResolution.resolvedMustIds,
+            ...venueAnchorResolution.resolvedSoftIds,
+            ...discoveryResolvedExperienceIds,
+          ],
+        });
+      const composeSnapshot = (
+        snapshot: CatalogCandidateSnapshot<VerifiedExperienceRow>,
+      ) =>
+        this.composeExperiences(
+          snapshot.experiences,
+          preferenceSpec,
+          venueAnchorResolution.resolvedMustIds,
+          venueAnchorResolution.resolvedSoftIds,
+          venueAnchorResolution.resolvedNames,
+        );
+      const coverageScope = { ...searchArea, destination: geographicScope };
+
+      await this.updateGenerationStatus(
+        tourId,
+        'generating',
+        `Buscando Experiences verificadas en la zona (radio ${Math.round(radius / 1000)}km)...`,
+      );
+
+      // ── INITIAL_CATALOG_SNAPSHOT ──
+      let snapshot = await this.withTimeout(
+        readSnapshot('INITIAL'),
+        10000,
+        'Experience catalog search timeout',
+      );
+      const initialCatalogCount = snapshot.experiences.length;
+      recordCatalogSnapshotStep(traceRecorder, snapshot);
+      let selection = await composeSnapshot(snapshot);
+      semanticRankingOutcome = selection.semanticRanking;
+      let preferenceCoverage = await this.computePreferenceCoverage(
+        preferenceSpec,
+        coverageScope,
+        venueAnchorResolution.resolvedMustIds,
+      );
+      recordPreferenceCoverageStep(traceRecorder, {
+        coverage: preferenceCoverage,
+        context: {
+          offeredCandidateCount: selection.initialExperiences.length,
+          semanticRanking: semanticRankingOutcome,
+          providerHealth: { status: 'healthy' },
+        },
+      });
+      recordCatalogSearchStep(traceRecorder, {
+        candidates: preferenceCoverage.sufficient
+          ? selection.initialExperiences
+          : snapshot.experiences,
+        radiusKm: radius / 1000,
+      });
+
+      // ── GATHER: coverage deficits ──
+      // The canonical bounded multi-source acquisition loop:
+      //   coverage deficits → ExperienceAcquisitionPlannerService
+      //   .buildAcquisitionPlan → ExperienceAcquisitionService.executePlan
+      //   (structured providers + web discovery) → materializeExecution
+      //   (resolver: NEW, SAME + member reconciliation, or rejected) →
+      //   fresh catalog snapshot → preference sufficiency, bounded by
+      //   MAX_ACQUISITION_PASSES. Selections computed here are provisional.
+      if (!preferenceCoverage.sufficient) {
         try {
-          // PD1: the destination window (a bounding-box circle) retrieves
-          // rows for consideration; only Experiences WITHIN the destination
-          // are tour-eligible from it. Regional Experiences enter only
-          // through an explicit request scope (anchor / named venue).
-          const nearbyExperiences = (
-            await this.withTimeout(
-              this.experienceCatalog.findVerifiedWithin(
-                searchArea.latitude,
-                searchArea.longitude,
-                radius,
-                experienceLimit,
-              ),
-              10000,
-              'Experience catalog search timeout',
-            )
-          ).filter((experience: any) =>
-            isTourEligibleForDestinationRequest(experience, geographicScope),
+          const acquisitionScope = this.acquisitionDiscoveryScope(
+            canonicalDestinationName,
+            destinationResolution.countryCode,
+            searchArea,
           );
-          // Venue resolution establishes canonical IDs independently of the
-          // nearby scan. Hydrate those exact rows so a resolved must anchor is
-          // eligible for forcing even when its distance/index ordering omits it.
-          const resolvedAnchorRows =
-            await this.experienceCatalog.findVerifiedByIds([
-              ...venueAnchorResolution.resolvedMustIds,
-              ...venueAnchorResolution.resolvedSoftIds,
-            ]);
-          resolvedAnchorRows.forEach((experience: any) =>
-            allEligibleExperiencesById.set(experience.id, experience),
-          );
-          nearbyExperiences.forEach((experience: any) =>
-            allEligibleExperiencesById.set(experience.id, experience),
-          );
-          const selection = await this.composeExperiences(
-            nearbyExperiences,
-            preferenceSpec,
-            venueAnchorResolution.resolvedMustIds,
-            venueAnchorResolution.resolvedSoftIds,
-            venueAnchorResolution.resolvedNames,
-          );
-          const nearbyExperiencesSample = selection.initialExperiences;
-          semanticRankingOutcome = selection.semanticRanking;
-          const initialPreferenceCoverage =
-            await this.computePreferenceCoverage(
+          startGather(preferenceCoverage.acquisitionDeficits.length);
+
+          // Resolution is request-scoped: repeated acquisition passes reuse
+          // the same canonical anchor result, including a transient
+          // provider failure, instead of silently changing scope semantics.
+          let currentProviderHealth: {
+            status: 'healthy' | 'degraded' | 'unknown';
+            reason?: string;
+          } = { status: 'healthy' };
+          for (let pass = 1; pass <= MAX_ACQUISITION_PASSES; pass++) {
+            if (preferenceCoverage.sufficient) break;
+
+            // The ONE place open deficits are assigned to acquisition work
+            // units (acquisition-strategy-selector.util.ts): each
+            // walk/route_like deficit gets its own AREA_ROUTE_WALK or
+            // DEDICATED_INTENT unit (one owner, one geographic grant);
+            // every other deficit -- including every dimensionless
+            // global_capacity deficit -- joins the single GENERIC unit.
+            // The canonical deficit objects from FacetRetrievalService/
+            // preference-sufficiency.util.ts pass straight through --
+            // never recomputed, never reconstructed.
+            const workUnits = partitionDeficitsIntoWorkUnits(
+              preferenceCoverage.acquisitionDeficits,
+              resolvedAnchors,
+            );
+            recordDeficitRoutingStep(traceRecorder, {
+              workUnits,
+              resolvedAnchors,
+              acquisitionDeficits: preferenceCoverage.acquisitionDeficits,
+            });
+
+            // GENERIC and DEDICATED_INTENT units share the generic
+            // acquisition pipeline, each with a plan built from ONLY its
+            // own deficits, so a dedicated unit's query, requested
+            // intents and evidence requirement keep its one deficit's
+            // provenance.
+            const plannedUnits = workUnits
+              .flatMap((unit) =>
+                unit.kind === 'GENERIC' || unit.kind === 'DEDICATED_INTENT'
+                  ? [
+                      {
+                        unit,
+                        plan: this.experienceAcquisitionPlanner.buildAcquisitionPlan(
+                          {
+                            destination: acquisitionScope,
+                            deficits: workUnitDeficits(unit),
+                            semanticQuery: preferenceSpec.semanticQuery,
+                            breadth: 'focused',
+                            anchors: resolvedAnchors,
+                          },
+                        ),
+                      },
+                    ]
+                  : [],
+              )
+              .filter(({ plan }) => plan.sourcePlans.length > 0);
+            const areaRouteWalkUnits = workUnits.filter(
+              (unit): unit is AreaRouteWalkWorkUnit =>
+                unit.kind === 'AREA_ROUTE_WALK',
+            );
+
+            if (plannedUnits.length === 0 && areaRouteWalkUnits.length === 0) {
+              // Nothing routable — a soft-only deficit. Stop acquiring; the
+              // gap stays visible in the coverage trace, never fatal.
+              break;
+            }
+
+            for (const routed of areaRouteWalkUnits) {
+              await this.updateGenerationStatus(
+                tourId,
+                'generating',
+                `Buscando una experiencia de tipo "${routed.deficit.key}" en "${routed.anchor.rawName}"...`,
+              );
+
+              const areaRouteWalkResult =
+                await this.areaRouteWalkAcquisition.acquireOrReuse({
+                  anchor: routed.anchor,
+                  destination: acquisitionScope,
+                  destinationCountryCode: destinationResolution.countryCode,
+                  destinationPoint: {
+                    latitude: searchArea.latitude,
+                    longitude: searchArea.longitude,
+                  },
+                  geographicScope,
+                  deficit: routed.deficit,
+                  semanticQuery: preferenceSpec.semanticQuery,
+                  executionLedger: acquisitionExecutionLedger,
+                });
+              acquisitionEpoch++;
+              recordAreaRouteWalkStep(traceRecorder, {
+                anchor: routed.anchor,
+                deficit: routed.deficit,
+                result: areaRouteWalkResult,
+              });
+
+              const lifecycle =
+                'lifecycle' in areaRouteWalkResult
+                  ? areaRouteWalkResult.lifecycle
+                  : undefined;
+              if (lifecycle) {
+                recordAcquisitionLifecycle(traceRecorder, {
+                  passNumber: pass,
+                  workUnit: routed,
+                  geographicGrant: workUnitGeographicGrant(routed),
+                  plan: lifecycle.plan,
+                  execution: lifecycle.execution,
+                  resolution: lifecycle.materialization,
+                });
+              }
+              gatherExecutions.push({
+                pass,
+                workUnit: routed.kind,
+                sourcePlanCount: lifecycle?.plan.sourcePlans.length ?? 0,
+                candidateCount: lifecycle?.execution.candidates.length ?? 0,
+                outcomes: gatherOutcomesOf(lifecycle?.materialization),
+              });
+
+              if (areaRouteWalkResult.outcome !== 'no_result') {
+                discoveryResolvedExperienceIds.add(
+                  areaRouteWalkResult.experienceId,
+                );
+              }
+            }
+
+            for (const { unit, plan } of plannedUnits) {
+              await this.updateGenerationStatus(
+                tourId,
+                'generating',
+                unit.kind === 'DEDICATED_INTENT'
+                  ? `Buscando una experiencia de tipo "${unit.deficit.key}"...`
+                  : `Buscando más Experiences (fuentes: ${plan.sourcePlans
+                      .map((sourcePlan) => sourcePlan.provider)
+                      .join(', ')})...`,
+              );
+
+              await this.executeAndMaterializeAcquisitionPlan(
+                plan,
+                pass,
+                {
+                  destinationName: canonicalDestinationName,
+                  destinationCountryCode: destinationResolution.countryCode,
+                  geographicScope,
+                },
+                traceRecorder,
+                {
+                  attempted: acquisitionProvidersAttempted,
+                  failed: acquisitionProvidersFailed,
+                },
+                acquisitionExecutionLedger,
+                unit,
+                gatherExecutions,
+              );
+              acquisitionEpoch++;
+            }
+
+            // Re-read the real catalog — the resolver may have created NEW,
+            // reconciled SAME knowledge into an existing row, or rejected;
+            // the accepted-id list alone is not the pool.
+            snapshot = await readSnapshot('GATHER');
+            selection = await composeSnapshot(snapshot);
+            semanticRankingOutcome = selection.semanticRanking;
+
+            currentProviderHealth =
+              acquisitionProvidersAttempted.size > 0 &&
+              acquisitionProvidersFailed.size ===
+                acquisitionProvidersAttempted.size
+                ? {
+                    status: 'degraded',
+                    reason: `all_acquisition_providers_failed:${[
+                      ...acquisitionProvidersFailed,
+                    ]
+                      .sort()
+                      .join(',')}`,
+                  }
+                : { status: 'healthy' };
+            if (currentProviderHealth.status === 'degraded') {
+              degradedAcquisitionReason =
+                currentProviderHealth.reason ?? 'degraded';
+            }
+
+            preferenceCoverage = await this.computePreferenceCoverage(
               preferenceSpec,
-              { ...searchArea, destination: geographicScope },
+              coverageScope,
               venueAnchorResolution.resolvedMustIds,
             );
-          recordPreferenceCoverageStep(traceRecorder, {
-            coverage: initialPreferenceCoverage,
-            context: {
-              offeredCandidateCount: nearbyExperiencesSample.length,
-              semanticRanking: semanticRankingOutcome,
-              providerHealth: { status: 'healthy' },
-            },
-          });
+            recordPreferenceCoverageStep(traceRecorder, {
+              coverage: preferenceCoverage,
+              context: {
+                offeredCandidateCount: selection.initialExperiences.length,
+                semanticRanking: semanticRankingOutcome,
+                providerHealth: currentProviderHealth,
+              },
+            });
+          }
 
-          if (initialPreferenceCoverage.sufficient) {
-            await this.updateGenerationStatus(
-              tourId,
-              'generating',
-              `${nearbyExperiences.length} Experiences relevantes encontradas. Ordenando según tus preferencias...`,
+          // A requested soft theme/trait/intent still missing after catalog +
+          // bounded acquisition is a real, trace-visible deficit — but per
+          // invariant it must never fail the Tour on its own. Only a
+          // genuinely infeasible pool (the snapshot is empty) aborts here.
+          if (snapshot.experiences.length === 0) {
+            const coverageError = new Error(
+              `Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: ${preferenceCoverage.acquisitionDeficits
+                .map((deficit) => deficit.reason)
+                .join(', ')}`,
             );
-            recordOfferedCandidates(selection);
-            finalSelection = selection;
-            availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${nearbyExperiencesSample
-              .map((experience: any) => formatExperienceForPrompt(experience))
-              .join('\n')}`;
-            recordCatalogSearchStep(traceRecorder, {
-              candidates: nearbyExperiencesSample,
-              radiusKm: radius / 1000,
-            });
-            recordCandidatePoolSelectionStep(traceRecorder, {
-              selection,
-              request,
-              initialCatalogCount: nearbyExperiences.length,
-              postAcquisitionCatalogCount: nearbyExperiences.length,
-              eligibleCount:
-                initialPreferenceCoverage.totalDistinctEligibleExperiences,
-              discoveryResolvedExperienceIds,
-              newlyAcquiredExperienceIds: new Set(),
-              crawlProvider: undefined,
-            });
-          } else {
-            recordCatalogSearchStep(traceRecorder, {
-              candidates: nearbyExperiences,
-              radiusKm: radius / 1000,
-            });
-
-            // ── Canonical bounded multi-source acquisition loop ──
-            // Replaces the former hand-rolled discovery + Places-only refill
-            // cascade with the single canonical path:
-            //   coverage deficits → ExperienceAcquisitionPlannerService
-            //   .buildAcquisitionPlan → ExperienceAcquisitionService.executePlan
-            //   (structured providers + web discovery) → materializeExecution
-            //   (ExperienceProposalResolver) → catalog re-query →
-            //   FacetRetrievalService/preference-sufficiency, bounded by
-            //   MAX_ACQUISITION_PASSES.
-            const acquisitionScope = this.acquisitionDiscoveryScope(
-              canonicalDestinationName,
-              destinationResolution.countryCode,
-              searchArea,
-            );
-
-            let currentPool = nearbyExperiences;
-            let currentSelection = selection;
-            let currentPreferenceCoverage = initialPreferenceCoverage;
-            // Resolution is request-scoped: repeated acquisition passes reuse
-            // the same canonical anchor result, including a transient
-            // provider failure, instead of silently changing scope semantics.
-            let currentProviderHealth: {
-              status: 'healthy' | 'degraded' | 'unknown';
-              reason?: string;
-            } = { status: 'healthy' };
-            for (let pass = 1; pass <= MAX_ACQUISITION_PASSES; pass++) {
-              if (currentPreferenceCoverage.sufficient) break;
-
-              // The ONE place open deficits are assigned to acquisition work
-              // units (acquisition-strategy-selector.util.ts): each
-              // walk/route_like deficit gets its own AREA_ROUTE_WALK or
-              // DEDICATED_INTENT unit (one owner, one geographic grant);
-              // every other deficit -- including every dimensionless
-              // global_capacity deficit -- joins the single GENERIC unit.
-              // The canonical deficit objects from FacetRetrievalService/
-              // preference-sufficiency.util.ts pass straight through --
-              // never recomputed, never reconstructed.
-              const workUnits = partitionDeficitsIntoWorkUnits(
-                currentPreferenceCoverage.acquisitionDeficits,
-                resolvedAnchors,
-              );
-              recordDeficitRoutingStep(traceRecorder, {
-                workUnits,
-                resolvedAnchors,
-                acquisitionDeficits:
-                  currentPreferenceCoverage.acquisitionDeficits,
-              });
-
-              // GENERIC and DEDICATED_INTENT units share the generic
-              // acquisition pipeline, each with a plan built from ONLY its
-              // own deficits, so a dedicated unit's query, requested
-              // intents and evidence requirement keep its one deficit's
-              // provenance.
-              const plannedUnits = workUnits
-                .flatMap((unit) =>
-                  unit.kind === 'GENERIC' || unit.kind === 'DEDICATED_INTENT'
-                    ? [
-                        {
-                          unit,
-                          plan: this.experienceAcquisitionPlanner.buildAcquisitionPlan(
-                            {
-                              destination: acquisitionScope,
-                              deficits: workUnitDeficits(unit),
-                              semanticQuery: preferenceSpec.semanticQuery,
-                              breadth: 'focused',
-                              anchors: resolvedAnchors,
-                            },
-                          ),
-                        },
-                      ]
-                    : [],
-                )
-                .filter(({ plan }) => plan.sourcePlans.length > 0);
-              const areaRouteWalkUnits = workUnits.filter(
-                (unit): unit is AreaRouteWalkWorkUnit =>
-                  unit.kind === 'AREA_ROUTE_WALK',
-              );
-
-              if (
-                plannedUnits.length === 0 &&
-                areaRouteWalkUnits.length === 0
-              ) {
-                // Nothing routable — a soft-only deficit. Stop acquiring; the
-                // gap stays visible in the coverage trace, never fatal.
-                break;
-              }
-
-              for (const routed of areaRouteWalkUnits) {
-                await this.updateGenerationStatus(
-                  tourId,
-                  'generating',
-                  `Buscando una experiencia de tipo "${routed.deficit.key}" en "${routed.anchor.rawName}"...`,
-                );
-
-                const areaRouteWalkResult =
-                  await this.areaRouteWalkAcquisition.acquireOrReuse({
-                    anchor: routed.anchor,
-                    destination: acquisitionScope,
-                    destinationCountryCode: destinationResolution.countryCode,
-                    destinationPoint: {
-                      latitude: searchArea.latitude,
-                      longitude: searchArea.longitude,
-                    },
-                    geographicScope,
-                    deficit: routed.deficit,
-                    semanticQuery: preferenceSpec.semanticQuery,
-                    executionLedger: acquisitionExecutionLedger,
-                  });
-                recordAreaRouteWalkStep(traceRecorder, {
-                  anchor: routed.anchor,
-                  deficit: routed.deficit,
-                  result: areaRouteWalkResult,
-                });
-
-                if (
-                  'lifecycle' in areaRouteWalkResult &&
-                  areaRouteWalkResult.lifecycle
-                ) {
-                  recordAcquisitionLifecycle(traceRecorder, {
-                    passNumber: pass,
-                    workUnit: routed,
-                    geographicGrant: workUnitGeographicGrant(routed),
-                    plan: areaRouteWalkResult.lifecycle.plan,
-                    execution: areaRouteWalkResult.lifecycle.execution,
-                    resolution: areaRouteWalkResult.lifecycle.materialization,
-                  });
-                }
-
-                if (areaRouteWalkResult.outcome !== 'no_result') {
-                  const persisted = await this.prisma.experience.findMany({
-                    where: {
-                      id: areaRouteWalkResult.experienceId,
-                      status: 'VERIFIED',
-                    },
-                    include: {
-                      components: { include: { geoEntity: true } },
-                      traits: { include: { traitDefinition: true } },
-                    },
-                  });
-                  persisted.forEach((experience: any) => {
-                    allEligibleExperiencesById.set(
-                      experience.id,
-                      this.hydratePersistedExperience(experience),
-                    );
-                    discoveryResolvedExperienceIds.add(experience.id);
-                  });
-                }
-              }
-
-              for (const { unit, plan } of plannedUnits) {
-                await this.updateGenerationStatus(
-                  tourId,
-                  'generating',
-                  unit.kind === 'DEDICATED_INTENT'
-                    ? `Buscando una experiencia de tipo "${unit.deficit.key}"...`
-                    : `Buscando más Experiences (fuentes: ${plan.sourcePlans
-                        .map((sourcePlan) => sourcePlan.provider)
-                        .join(', ')})...`,
-                );
-
-                await this.executeAndMaterializeAcquisitionPlan(
-                  plan,
-                  pass,
-                  {
-                    destinationName: canonicalDestinationName,
-                    destinationCountryCode: destinationResolution.countryCode,
-                    geographicScope,
-                  },
-                  traceRecorder,
-                  {
-                    attempted: acquisitionProvidersAttempted,
-                    failed: acquisitionProvidersFailed,
-                  },
-                  acquisitionExecutionLedger,
-                  unit,
-                );
-              }
-
-              // Re-query the real catalog — the resolver may have created NEW,
-              // resolved SAME, enriched an existing row, or rejected; the
-              // accepted-id list alone is not the pool.
-              const refreshed = await this.refreshCatalogAndRecompose(
-                {
-                  latitude: searchArea.latitude,
-                  longitude: searchArea.longitude,
-                  radiusMeters: radius,
-                  destination: geographicScope,
-                },
-                allEligibleExperiencesById,
-                preferenceSpec,
-                venueAnchorResolution.resolvedMustIds,
-                venueAnchorResolution.resolvedSoftIds,
-                venueAnchorResolution.resolvedNames,
-              );
-              currentPool = refreshed.pool;
-              currentSelection = refreshed.selection;
-              semanticRankingOutcome = currentSelection.semanticRanking;
-
-              currentProviderHealth =
-                acquisitionProvidersAttempted.size > 0 &&
-                acquisitionProvidersFailed.size ===
-                  acquisitionProvidersAttempted.size
-                  ? {
-                      status: 'degraded',
-                      reason: `all_acquisition_providers_failed:${[
-                        ...acquisitionProvidersFailed,
-                      ]
-                        .sort()
-                        .join(',')}`,
-                    }
-                  : { status: 'healthy' };
-              if (currentProviderHealth.status === 'degraded') {
-                degradedAcquisitionReason =
-                  currentProviderHealth.reason ?? 'degraded';
-              }
-
-              currentPreferenceCoverage = await this.computePreferenceCoverage(
-                preferenceSpec,
-                { ...searchArea, destination: geographicScope },
-                venueAnchorResolution.resolvedMustIds,
-              );
-              recordPreferenceCoverageStep(traceRecorder, {
-                coverage: currentPreferenceCoverage,
-                context: {
-                  offeredCandidateCount:
-                    currentSelection.initialExperiences.length,
-                  semanticRanking: semanticRankingOutcome,
-                  providerHealth: currentProviderHealth,
-                },
-              });
-            }
-
-            // A requested soft theme/trait/intent still missing after catalog +
-            // bounded acquisition is a real, trace-visible deficit — but per
-            // invariant it must never fail the Tour on its own. Only a
-            // genuinely infeasible pool (currentPool is empty) aborts here.
-            if (currentPool.length === 0) {
-              const coverageError = new Error(
-                `Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: ${currentPreferenceCoverage.acquisitionDeficits
-                  .map((deficit) => deficit.reason)
-                  .join(', ')}`,
-              );
-              (coverageError as any).retryable =
-                currentProviderHealth.status === 'degraded';
-              throw coverageError;
-            }
-
-            recordOfferedCandidates(currentSelection);
-            finalSelection = currentSelection;
-            availableExperiencesText = `\n\nAvailable verified Experiences in the area (within ${radius / 1000}km):\n${currentSelection.initialExperiences
-              .map((experience: any) => formatExperienceForPrompt(experience))
-              .join('\n')}`;
-            recordCandidatePoolSelectionStep(traceRecorder, {
-              selection: currentSelection,
-              request,
-              initialCatalogCount: nearbyExperiences.length,
-              postAcquisitionCatalogCount: currentPool.length,
-              eligibleCount:
-                currentPreferenceCoverage.totalDistinctEligibleExperiences,
-              discoveryResolvedExperienceIds,
-              newlyAcquiredExperienceIds: new Set(),
-              crawlProvider: undefined,
-            });
+            (coverageError as any).retryable =
+              currentProviderHealth.status === 'degraded';
+            throw coverageError;
           }
         } catch (error: any) {
           this.logger.warn(
             `Experience catalog/acquisition pipeline failed: ${error.message}`,
           );
-          if (!availableExperiencesText) {
-            throw error;
-          }
+          throw error;
         }
-
-        recordSemanticRankingStep(traceRecorder, {
-          semanticRankingOutcome,
-          candidateCount: candidateExperienceIds.size,
-        });
-      }
-
-      if (!availableExperiencesText) {
-        if (degradedAcquisitionReason) {
-          // Every acquisition source consulted this run failed and the catalog
-          // has no relevant coverage yet — worth retrying once the providers
-          // recover. (A bare destination with providers responding normally
-          // but empty is NOT retryable — that path lands on the generic
-          // message below.)
-          const degradedError = new Error(
-            'No se encontraron Experiences verificadas y relevantes, y todas las fuentes de adquisición consultadas fallaron. Volvé a intentar cuando los proveedores se recuperen.',
-          );
-          (degradedError as any).retryable = true;
-          throw degradedError;
-        }
-        throw new Error(
-          'No se encontraron Experiences verificadas y relevantes para esta solicitud.',
-        );
       }
 
       await this.updateGenerationStatus(
@@ -1360,235 +1374,40 @@ export class ExperienceGenerationService {
         'Planificando el itinerario día a día...',
       );
 
-      // Verified live: a standalone POI Experience and a composite Experience
-      // that separately resolved the *same real place* as one of its own
-      // components can both reach this pool as unrelated records (their
-      // GeoEntity rows may predate ExperienceCatalogService.upsertGeoEntity's
-      // cross-provider reconciliation, or some other gap could still produce
-      // the same split) — the solver has no way to know they're the same
-      // place, so it can book a traveler into it twice on two different days.
-      // Filter that overlap out of the pool itself, before normalization.
-      const buildOverlapFilter = () =>
-        filterOverlappingExperienceCandidates(
-          Array.from(candidateExperiencesById.values()).map((experience) => ({
-            ...experience,
-            compositionOrderScore: offeredCompositionOrderScoreById.get(
-              experience.id,
-            ),
-            weightedPreferenceCoverage: planningPreferenceWeightById.get(
-              experience.id,
-            ),
-            mustInclude: planningMustIncludeExperienceIds.has(experience.id),
-          })),
-        );
-      let overlapFilter = buildOverlapFilter();
-      if (overlapFilter.excluded.length > 0) {
-        this.logger.log(
-          `Excluded ${overlapFilter.excluded.length} candidate(s) redundant with another selected candidate covering the same real place: ${overlapFilter.excluded
-            .map((item) => `${item.id} (kept ${item.overlapsWith})`)
-            .join(', ')}`,
-        );
-      }
-
-      if (!finalSelection) {
-        throw new Error(
-          'Preference-first composition did not produce a selection',
-        );
-      }
-
-      let initialIds = new Set(
-        finalSelection.initialExperiences.map(
-          (experience: any) => experience.id,
-        ),
-      );
-      let reservoirIds = finalSelection.reservoirExperiences.map(
-        (experience: any) => experience.id,
-      );
-      let candidatePool = overlapFilter.kept;
-      let initialPool = candidatePool.filter((experience) =>
-        initialIds.has(experience.id),
-      );
-      let reservoirPool = reservoirIds
-        .map((id) => candidatePool.find((experience) => experience.id === id))
-        .filter((experience): experience is any => Boolean(experience));
-      const normalizePlanningPool = (experiences: any[]) =>
-        this.planningCandidateNormalizer.normalizeExperiences(
-          experiences,
-          offeredScoreBreakdownById,
-          {
-            preferenceWeightById: planningPreferenceWeightById,
-            mustIncludeExperienceIds: planningMustIncludeExperienceIds,
-          },
-        );
-      let planningCandidates = await normalizePlanningPool(initialPool);
-
-      let planningInput: DailyPlanningInput = {
+      const planningBase: Omit<DailyPlanningInput, 'candidates'> = {
         destination: destinationResolution,
         requestedDays: request.days,
-        candidates: planningCandidates,
         mobility: request.mobility,
         travelPace: request.mobility.travelPace,
         planningWindow: this.dailyPlanningPolicy.window,
         startDates: request.startDates,
       };
 
-      const scheduledCount = (
-        solution: Awaited<ReturnType<DailyPlanningSolver['solve']>>,
-      ) =>
-        solution.days.reduce((total, day) => total + day.experiences.length, 0);
-      const solutionRelevance = (
-        solution: Awaited<ReturnType<DailyPlanningSolver['solve']>>,
-        candidates: PlanningExperienceCandidate[],
-      ) => {
-        const byId = new Map(
-          candidates.map((candidate) => [candidate.experienceId, candidate]),
-        );
-        return solution.days.reduce(
-          (total, day) =>
-            total +
-            day.experiences.reduce(
-              (dayTotal, planned) =>
-                dayTotal +
-                plannerRelevanceScore(
-                  byId.get(planned.experienceId)!,
-                  this.dailyPlanningPolicy.scoring,
-                ),
-              0,
-            ),
-          0,
-        );
-      };
-      const meaningfulResidualCapacity = (solution: DailyPlanningSolution) =>
-        plannerResidualCapacity(
-          solution,
-          this.dailyPlanningPolicy.window,
-          this.dailyPlanningPolicy.backfill.minimumUsefulResidualMinutes,
-        ).some((residual) => residual.meaningful);
-
-      let planningSolution =
-        await this.dailyPlanningSolver.solve(planningInput);
-      let admittedPlanningCandidates = [...planningCandidates];
-      let promotionAttempts = 0;
-      let promotionStopReason:
-        | 'CAPACITY_SATURATED_OR_TINY_GAPS'
-        | 'RESERVOIR_EXHAUSTED'
-        | 'PROMOTION_BUDGET_EXHAUSTED'
-        | 'NO_PROGRESS' =
-        reservoirPool.length === 0 ? 'RESERVOIR_EXHAUSTED' : 'NO_PROGRESS';
-      for (const experience of reservoirPool) {
-        if (!meaningfulResidualCapacity(planningSolution)) {
-          promotionStopReason = 'CAPACITY_SATURATED_OR_TINY_GAPS';
-          break;
-        }
-        if (
-          promotionAttempts >=
-          this.dailyPlanningPolicy.backfill.maxReservoirPromotionAttempts
-        ) {
-          promotionStopReason = 'PROMOTION_BUDGET_EXHAUSTED';
-          break;
-        }
-        promotionAttempts++;
-        const promotedCandidates = await normalizePlanningPool([
-          ...initialPool,
-          ...admittedPlanningCandidates
-            .filter((candidate) => !initialIds.has(candidate.experienceId))
-            .map((candidate) =>
-              candidatePool.find((item) => item.id === candidate.experienceId),
-            )
-            .filter(Boolean),
-          experience,
-        ]);
-        const trialSolution = await this.dailyPlanningSolver.solve({
-          ...planningInput,
-          candidates: promotedCandidates,
-        });
-        const previousMustCount = planningSolution.days
-          .flatMap((day) => day.experiences)
-          .filter((planned) =>
-            planningMustIncludeExperienceIds.has(planned.experienceId),
-          ).length;
-        const trialMustCount = trialSolution.days
-          .flatMap((day) => day.experiences)
-          .filter((planned) =>
-            planningMustIncludeExperienceIds.has(planned.experienceId),
-          ).length;
-        const promoted = trialSolution.days
-          .flatMap((day) => day.experiences)
-          .some((planned) => planned.experienceId === experience.id);
-        const noDegradation =
-          trialMustCount >= previousMustCount &&
-          solutionRelevance(trialSolution, promotedCandidates) >=
-            solutionRelevance(planningSolution, admittedPlanningCandidates) -
-              1e-9;
-        const strictProgress =
-          scheduledCount(trialSolution) > scheduledCount(planningSolution) ||
-          trialSolution.days.reduce(
-            (sum, day) => sum + day.utilizationMinutes,
-            0,
-          ) >
-            planningSolution.days.reduce(
-              (sum, day) => sum + day.utilizationMinutes,
-              0,
-            );
-        if (promoted && noDegradation && strictProgress) {
-          planningSolution = trialSolution;
-          admittedPlanningCandidates = promotedCandidates;
-          promotionStopReason = 'NO_PROGRESS';
-        }
-      }
-
-      if (
-        reservoirPool.length > 0 &&
-        promotionAttempts >=
-          this.dailyPlanningPolicy.backfill.maxReservoirPromotionAttempts
-      ) {
-        promotionStopReason = 'PROMOTION_BUDGET_EXHAUSTED';
-      } else if (
-        reservoirPool.length > 0 &&
-        promotionStopReason === 'NO_PROGRESS' &&
-        promotionAttempts >= reservoirPool.length
-      ) {
-        promotionStopReason = 'RESERVOIR_EXHAUSTED';
-      }
-      planningSolution.metadata.residualCapacity = plannerResidualCapacity(
-        planningSolution,
-        this.dailyPlanningPolicy.window,
-        this.dailyPlanningPolicy.backfill.minimumUsefulResidualMinutes,
+      // ── GATHER: planner capacity ──
+      // A plan over the current snapshot is needed to discover a global
+      // capacity deficit. While a PLANNER_CAPACITY acquisition is still
+      // authorized, that plan is PROVISIONAL (acquisition planning only):
+      // the acquisition runs, the catalog is re-read and the plan is
+      // recomputed from the fresh snapshot. It never leaks into the Tour.
+      let plan = await this.planFromSelection(
+        selection,
+        planningBase,
+        preferenceSpec,
       );
-      const residuals = planningSolution.metadata.residualCapacity;
-      const meaningfulResidual = residuals?.find(
-        (residual) => residual.meaningful,
-      );
-      if (residuals && promotionAttempts >= reservoirPool.length) {
-        planningSolution.metadata.capacityDeficits = meaningfulResidual
-          ? [
-              {
-                origin: 'planner_capacity',
-                dayNumber: meaningfulResidual.dayNumber,
-                availableMinutes: meaningfulResidual.availableMinutes,
-                preferredFacets: preferenceSpec.facets.map((facet) => ({
-                  dimension: facet.dimension,
-                  key: facet.key,
-                  weight: facet.weight,
-                })),
-              },
-            ]
-          : [];
-      }
-
       let acquisitionPasses = 0;
-      if (
-        meaningfulResidual &&
-        promotionStopReason === 'RESERVOIR_EXHAUSTED' &&
+      while (
+        plan.meaningfulResidual &&
+        plan.promotionStopReason === 'RESERVOIR_EXHAUSTED' &&
         acquisitionPasses <
           this.dailyPlanningPolicy.backfill.maxAcquisitionPasses
       ) {
+        const residual = plan.meaningfulResidual;
         acquisitionPasses++;
         const plannerDeficit: GlobalCapacityDeficit = {
           origin: 'global_capacity',
-          reason: `Planner has ${meaningfulResidual.availableMinutes} minutes of residual capacity on day ${meaningfulResidual.dayNumber}`,
-          currentEligibleCount: allEligibleExperiencesById.size,
-          requiredEligibleCount: allEligibleExperiencesById.size + 1,
+          reason: `Planner has ${residual.availableMinutes} minutes of residual capacity on day ${residual.dayNumber}`,
+          currentEligibleCount: snapshot.experiences.length,
+          requiredEligibleCount: snapshot.experiences.length + 1,
         };
         const plannerAcquisitionPlan =
           this.experienceAcquisitionPlanner.buildAcquisitionPlan({
@@ -1615,101 +1434,96 @@ export class ExperienceGenerationService {
             breadth: 'focused',
             anchors: resolvedAnchors,
           });
-
-        if (plannerAcquisitionPlan.sourcePlans.length === 0) {
-          promotionStopReason = 'NO_PROGRESS';
-        } else {
-          await this.executeAndMaterializeAcquisitionPlan(
-            plannerAcquisitionPlan,
-            acquisitionPasses,
-            {
-              destinationName: canonicalDestinationName,
-              destinationCountryCode: destinationResolution.countryCode,
-              geographicScope,
-            },
-            traceRecorder,
-            {
-              attempted: acquisitionProvidersAttempted,
-              failed: acquisitionProvidersFailed,
-            },
-            acquisitionExecutionLedger,
-            // Residual capacity owns no policy-bearing deficit: grant NONE,
-            // whatever intents the tour requested elsewhere.
-            { kind: 'PLANNER_CAPACITY', deficit: plannerDeficit },
-          );
-
-          const refreshed = await this.refreshCatalogAndRecompose(
-            {
-              latitude: request.destination.latitude,
-              longitude: request.destination.longitude,
-              radiusMeters:
-                request.destination.radiusMeters ??
-                this.destinationScopePolicy.pointRadiusMeters,
-              destination: geographicScope,
-            },
-            allEligibleExperiencesById,
-            preferenceSpec,
-            planningMustIncludeExperienceIds.size > 0
-              ? [...planningMustIncludeExperienceIds]
-              : [],
-            [],
-            [],
-          );
-          const refreshedSelection = refreshed.selection;
-          finalSelection = refreshedSelection;
-          recordOfferedCandidates(refreshedSelection);
-          overlapFilter = buildOverlapFilter();
-          candidatePool = overlapFilter.kept;
-          initialIds = new Set(
-            refreshedSelection.initialExperiences.map(
-              (experience: any) => experience.id,
-            ),
-          );
-          reservoirIds = refreshedSelection.reservoirExperiences.map(
-            (experience: any) => experience.id,
-          );
-          initialPool = candidatePool.filter((experience) =>
-            initialIds.has(experience.id),
-          );
-          reservoirPool = reservoirIds
-            .map((id) =>
-              candidatePool.find((experience) => experience.id === id),
-            )
-            .filter((experience): experience is any => Boolean(experience));
-          planningCandidates = await normalizePlanningPool(initialPool);
-          planningInput = { ...planningInput, candidates: planningCandidates };
-          const replanned = await this.dailyPlanningSolver.solve(planningInput);
-          const replannedResiduals = plannerResidualCapacity(
-            replanned,
-            this.dailyPlanningPolicy.window,
-            this.dailyPlanningPolicy.backfill.minimumUsefulResidualMinutes,
-          );
-          const usefulProgress =
-            scheduledCount(replanned) > scheduledCount(planningSolution) ||
-            replanned.days.reduce(
-              (sum, day) => sum + day.utilizationMinutes,
-              0,
-            ) >
-              planningSolution.days.reduce(
-                (sum, day) => sum + day.utilizationMinutes,
-                0,
-              );
-          if (usefulProgress) {
-            planningSolution = replanned;
-            admittedPlanningCandidates = planningCandidates;
-            promotionStopReason = replannedResiduals.some(
-              (residual) => residual.meaningful,
-            )
-              ? 'NO_PROGRESS'
-              : 'CAPACITY_SATURATED_OR_TINY_GAPS';
-          } else {
-            promotionStopReason = 'NO_PROGRESS';
-          }
+        const refillAuthorized = plannerAcquisitionPlan.sourcePlans.length > 0;
+        recordProvisionalPlanStep(traceRecorder, {
+          acquisitionEpoch,
+          plannedExperienceIds: plan.planningSolution.days.flatMap((day) =>
+            day.experiences.map((experience) => experience.experienceId),
+          ),
+          stopReason: plan.promotionStopReason,
+          residualMinutes: residual.availableMinutes,
+          refillAuthorized,
+        });
+        if (!refillAuthorized) {
+          plan.promotionStopReason = 'NO_PROGRESS';
+          break;
         }
+
+        startGather(1);
+        await this.executeAndMaterializeAcquisitionPlan(
+          plannerAcquisitionPlan,
+          acquisitionPasses,
+          {
+            destinationName: canonicalDestinationName,
+            destinationCountryCode: destinationResolution.countryCode,
+            geographicScope,
+          },
+          traceRecorder,
+          {
+            attempted: acquisitionProvidersAttempted,
+            failed: acquisitionProvidersFailed,
+          },
+          acquisitionExecutionLedger,
+          // Residual capacity owns no policy-bearing deficit: grant NONE,
+          // whatever intents the tour requested elsewhere.
+          { kind: 'PLANNER_CAPACITY', deficit: plannerDeficit },
+          gatherExecutions,
+        );
+        acquisitionEpoch++;
+
+        // Reconciled knowledge and refill-persisted Experiences get the same
+        // ranking/composition opportunity as everything found earlier.
+        snapshot = await readSnapshot('GATHER');
+        selection = await composeSnapshot(snapshot);
+        semanticRankingOutcome = selection.semanticRanking;
+        plan = await this.planFromSelection(
+          selection,
+          planningBase,
+          preferenceSpec,
+        );
       }
 
+      // ── ACQUISITION_COMPLETE_FOR_GENERATION ──
+      // No further canonical acquisition is expected for this generation.
+      // The plan below is the POST_RECONCILIATION_SELECTION: it was built
+      // from a catalog snapshot read after the last acquisition execution.
+      if (snapshot.acquisitionEpoch !== acquisitionEpoch) {
+        throw new Error(
+          `Final planning snapshot is stale (read at acquisition epoch ${snapshot.acquisitionEpoch}, gather ended at ${acquisitionEpoch})`,
+        );
+      }
+      recordGatherBoundaryStep(traceRecorder, {
+        boundary: 'GATHER_COMPLETE',
+        executions: gatherExecutions,
+        acquisitionEpoch,
+        executedSourcePlanCount:
+          acquisitionExecutionLedger.executedSourcePlanFingerprints.size,
+      });
+      recordCatalogSnapshotStep(traceRecorder, { ...snapshot, phase: 'FINAL' });
+      recordCandidatePoolSelectionStep(traceRecorder, {
+        selection,
+        request,
+        initialCatalogCount,
+        postAcquisitionCatalogCount: snapshot.experiences.length,
+        eligibleCount: preferenceCoverage.totalDistinctEligibleExperiences,
+        discoveryResolvedExperienceIds,
+        newlyAcquiredExperienceIds: new Set(),
+        crawlProvider: undefined,
+      });
+      recordSemanticRankingStep(traceRecorder, {
+        semanticRankingOutcome,
+        candidateCount: plan.candidatesById.size,
+      });
+
+      const {
+        planningSolution,
+        planningInput,
+        admittedPlanningCandidates,
+        candidatesById: candidateExperiencesById,
+        promotionAttempts,
+      } = plan;
       planningSolution.metadata.convergence = {
-        stopReason: promotionStopReason,
+        stopReason: plan.promotionStopReason,
         promotionAttempts,
         acquisitionPasses,
       };
@@ -1741,6 +1555,25 @@ export class ExperienceGenerationService {
       }
 
       recordDailyPlanningStep(traceRecorder, { planningSolution });
+      recordFinalSelectionStep(traceRecorder, {
+        acquisitionEpoch,
+        selectedIds: plan.selection.initialExperiences.map(
+          (experience: any) => experience.id,
+        ),
+        reservoirIds: plan.selection.reservoirExperiences.map(
+          (experience: any) => experience.id,
+        ),
+        labelsById: new Map(
+          [...candidateExperiencesById.values()].map((experience: any) => [
+            experience.id,
+            experience.canonicalName ?? experience.name,
+          ]),
+        ),
+        scoreBreakdownById: plan.selection.scoreBreakdownById,
+        overlapExcluded: plan.overlapExcluded,
+        planningSolution,
+        convergence: planningSolution.metadata.convergence!,
+      });
 
       await this.updateGenerationStatus(
         tourId,

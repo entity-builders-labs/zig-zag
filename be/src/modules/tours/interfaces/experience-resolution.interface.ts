@@ -15,6 +15,7 @@ import {
   ContextualPoolOutcome,
 } from './component-identity-context.interface';
 import { DedupeEvidence } from '../utils/experience-dedupe.util';
+import { SourceKnowledgeReconciliation } from '../utils/source-knowledge-reconciliation.policy';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import {
   AreaScopeMembershipAudit,
@@ -901,6 +902,8 @@ export interface ResolvedExperienceCandidate {
   dedupeDecision?: 'SAME' | 'NEW' | 'AMBIGUOUS';
   dedupeEvidence?: DedupeEvidence;
   dedupeCandidates?: string[];
+  /** What a SAME observation taught the canonical Experience's members. */
+  sourceKnowledgeReconciliation?: SourceKnowledgeReconciliation;
 }
 
 export interface ExperienceResolutionRequest {

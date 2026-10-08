@@ -18,6 +18,7 @@ import {
   projectEntityResolutionStepInput,
 } from './experience-generation-trace.util';
 import { traceCandidateKey } from './experience-candidate-correlation.util';
+import { GenerationTraceRecorder } from './generation-trace-recorder.util';
 
 /**
  * Stage 5 trace fidelity: every way a source-backed component can end
@@ -632,11 +633,7 @@ describe('Stage 5 trace failure semantics', () => {
               sourceCompositionRelation: 'PARTIAL_OVERLAP',
               sourceRelation: 'SOURCE_UNKNOWN',
               sharedSourceMembers: [
-                {
-                  incomingSourcePositions: [0],
-                  existingSourcePositions: [1],
-                  basis: ['SOURCE_WORDING', 'RESOLVED_GEOENTITY'],
-                },
+                'incoming[0] = existing[1] (SOURCE_WORDING, RESOLVED_GEOENTITY)',
               ],
               sharedResolvedGeoEntities: ['geo-a'],
               sourceMemberCounts: { incoming: 2, existing: 2 },
@@ -649,6 +646,127 @@ describe('Stage 5 trace failure semantics', () => {
           },
         },
         plannerEligible: false,
+      });
+    });
+
+    it('persisted dedupe structure and SAME reconciliation survive trace serialization (no MAX_DEPTH cut)', () => {
+      const structure = {
+        relation: 'EXACT_COMPOSITION' as const,
+        containment: null as null,
+        sharedSourceMembers: [0, 1].map((position) => ({
+          incomingSourcePositions: [position],
+          existingSourcePositions: [position],
+          basis: ['SOURCE_WORDING' as const],
+        })),
+        sharedResolvedGeoEntityIds: ['geo-a'],
+        sourceMemberCounts: { incoming: 2, existing: 2 },
+      };
+      const recorder = new GenerationTraceRecorder();
+      recorder.record(
+        projectCatalogMaterializationStepInput({
+          totalCandidates: 1,
+          acceptedCount: 1,
+          rejectedCount: 0,
+          resolved: [],
+          geographicValidation: {
+            results: [validation('Complete walk', true)],
+            acceptedCount: 1,
+            rejectedCount: 0,
+            resolved: [complete.resolved],
+          },
+          materialization: {
+            resolved: [
+              {
+                ...complete.resolved,
+                status: 'accepted',
+                experienceId: 'exp-canonical',
+                dedupeDecision: 'SAME',
+                dedupeEvidence: {
+                  nameSimilarity: 1,
+                  semanticSimilarity: 1,
+                  componentOverlap: 1,
+                  roleAwareComponentOverlap: 1,
+                  distanceKm: 0,
+                  provenanceOverlap: 1,
+                  conceptOverlap: 1,
+                  orderConflict: false,
+                  structure,
+                  sourceRelation: 'SAME_SOURCE',
+                  decisiveEvidence: 'EXACT_COMPOSITION_IDENTITY_CONFIRMED',
+                  reasons: ['exact_structure'],
+                },
+                sourceKnowledgeReconciliation: {
+                  outcome: 'ENRICHED',
+                  members: [
+                    {
+                      sourcePosition: 0,
+                      sourceName: 'Plaza Dorrego',
+                      before: {
+                        resolutionState: 'RESOLVED',
+                        geoEntityId: 'geo-a',
+                        resolutionReason: null,
+                      },
+                      after: {
+                        resolutionState: 'RESOLVED',
+                        geoEntityId: 'geo-a',
+                        resolutionReason: null,
+                      },
+                      change: 'UNCHANGED',
+                      observedGeoEntityId: 'geo-a',
+                      incomingSourcePositions: [0],
+                    },
+                    {
+                      sourcePosition: 1,
+                      sourceName: 'Teatro Colon',
+                      before: {
+                        resolutionState: 'UNRESOLVED',
+                        geoEntityId: null,
+                        resolutionReason: 'NO_CANDIDATE_ACQUIRED',
+                      },
+                      after: {
+                        resolutionState: 'RESOLVED',
+                        geoEntityId: 'geo-c',
+                        resolutionReason: null,
+                      },
+                      change: 'RESOLVED_BY_OBSERVATION',
+                      observedGeoEntityId: 'geo-c',
+                      incomingSourcePositions: [1],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        }),
+      );
+      const [serialized] = recorder.build({
+        canonicalRequest: {},
+        result: { status: 'COMPLETED', outcome: 'COMPLETED' },
+      } as any).steps as any[];
+      const persistence =
+        serialized.facts.materializationAudit[0].compositeOutcome.persistence;
+
+      expect(JSON.stringify(persistence)).not.toContain('MAX_DEPTH');
+      expect(persistence.dedupeEvidence.sharedSourceMembers).toEqual([
+        'incoming[0] = existing[0] (SOURCE_WORDING)',
+        'incoming[1] = existing[1] (SOURCE_WORDING)',
+      ]);
+      expect(persistence.reconciliation).toEqual({
+        outcome: 'ENRICHED',
+        memberCount: 2,
+        resolvedBefore: 1,
+        resolvedAfter: 2,
+        evidenceSource: 'SAME_SOURCE_OBSERVATION',
+        members: [
+          {
+            sourcePosition: 1,
+            sourceName: 'Teatro Colon',
+            change: 'RESOLVED_BY_OBSERVATION',
+            before: 'UNRESOLVED NO_CANDIDATE_ACQUIRED',
+            after: 'RESOLVED geo-c',
+            observedGeoEntityId: 'geo-c',
+          },
+        ],
       });
     });
 

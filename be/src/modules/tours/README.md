@@ -130,6 +130,23 @@ The primary flow when a user creates a tour from the mobile app wizard:
      hint and when it was revoked. `services/catalog-knowledge-administration.service.ts`
      holds the admin primitives (REVOKE_VERIFIED_HINT, CONFIRM_EXISTING_GEOENTITY);
      no UI or role model exists yet.
+   - A SAME dedupe decision over `EXACT_COMPOSITION` reconciles knowledge
+     into the canonical Experience (`utils/source-knowledge-reconciliation.policy.ts`):
+     a member the observation resolved becomes RESOLVED; nothing is
+     downgraded, source identity never changes, an admin-revoked member is
+     not re-learned, and a conflicting resolution writes no member at all.
+     SUBCOMPOSITION / PARTIAL_OVERLAP never merge members. The SAME write
+     invalidates the embedding; the resolver reindexes it synchronously.
+   - Generation is GATHER → RECONCILE → FREEZE → PLAN
+     (`ExperienceGenerationService.generateTourExperiences`): every catalog
+     snapshot is a fresh `readCatalogSnapshot` read in id order; a plan that
+     only discovers residual capacity is PROVISIONAL, and after a
+     `PLANNER_CAPACITY` acquisition the catalog is re-read, recomposed and
+     re-planned. The Tour comes from the plan built after the last
+     acquisition (`ACQUISITION_COMPLETE_FOR_GENERATION`, guarded by the
+     acquisition epoch). Trace: `catalog.snapshot` (INITIAL/FINAL),
+     `generation.gather` (GATHER_START/GATHER_COMPLETE),
+     `planning.provisional`, `selection.final`.
    - Runs deterministic daily planning and persists `TourExperience` snapshots
      (frozen copies: later Experience enrichment reaches only new Tours)
    - Publishes media work through the existing outbox flow

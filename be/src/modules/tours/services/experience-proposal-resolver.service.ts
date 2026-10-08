@@ -749,6 +749,12 @@ export class ExperienceProposalResolverService
           experienceId: experience.id,
           dedupeDecision: (experience as any).dedupeDecision,
           dedupeEvidence: (experience as any).dedupeEvidence,
+          ...('sourceKnowledgeReconciliation' in experience
+            ? {
+                sourceKnowledgeReconciliation:
+                  experience.sourceKnowledgeReconciliation,
+              }
+            : {}),
         };
       },
     );

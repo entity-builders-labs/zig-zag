@@ -40,10 +40,12 @@ import {
   decideSourceCompositionAdmission,
   distinctResolvedSourceMembers,
   isCompositeMembership,
+  isResolvedSourceMember,
   resolvedSourceMembers,
   sourceCompositionCompleteness,
   unresolvedSourceMembers,
 } from '../utils/experience-source-membership.policy';
+import { reconcileSameSourceComposition } from '../utils/source-knowledge-reconciliation.policy';
 import { ClassificationResult } from './experience-classification.service';
 import { ExperienceGroundingEvidence } from '../interfaces/experience-grounding.interface';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
@@ -912,6 +914,12 @@ export class ExperienceCatalogService {
       /** Navigable places: one resolved member per GeoEntity, source order. */
       components: resolvedComponents,
       compositionCompleteness: sourceCompositionCompleteness(experience),
+      /** Source-membership counts (trace/audit only; never planner input). */
+      sourceMembership: {
+        memberCount: experience.components.length,
+        resolvedMemberCount: resolvedSourceMembers(experience).length,
+        navigableCount: resolvedComponents.length,
+      },
     };
   }
 
@@ -1808,6 +1816,49 @@ export class ExperienceCatalogService {
           });
         }
 
+        // UNION OF KNOWLEDGE (source-knowledge-reconciliation.policy.ts):
+        // a SAME observation of the same source composition may resolve
+        // canonical members that are still unresolved. Source identity
+        // (position, wording, member count) never changes; a conflicting
+        // resolution writes nothing.
+        const sourceKnowledgeReconciliation = reconcileSameSourceComposition({
+          identityDecision: decision.decision,
+          structure: decision.evidence.structure,
+          canonical: same.components.map((member) => ({
+            sourcePosition: member.sourcePosition,
+            sourceName: member.sourceName,
+            resolutionState: member.resolutionState,
+            geoEntityId: member.geoEntityId,
+            resolutionReason: member.resolutionReason,
+          })),
+          incoming: incomingFingerprint.components.map(
+            (member, sourcePosition) => ({
+              sourcePosition,
+              sourceName: member.sourceName ?? null,
+              geoEntityId: isResolvedSourceMember(member)
+                ? member.geoEntityId
+                : null,
+            }),
+          ),
+        });
+        for (const member of sourceKnowledgeReconciliation.members) {
+          if (member.change !== 'RESOLVED_BY_OBSERVATION') continue;
+          await tx.experienceComponent.update({
+            where: {
+              experienceId_sourcePosition: {
+                experienceId: same.id,
+                sourcePosition: member.sourcePosition,
+              },
+            },
+            data: {
+              geoEntityId: member.after.geoEntityId,
+              resolutionState: 'RESOLVED',
+              resolutionReason: null,
+              resolutionSource: 'AUTOMATIC',
+            },
+          });
+        }
+
         // Order-independent merge (plan Task B4, spec §8): canonical
         // per-field policies (union semantic arrays, strongest valid
         // quality, version-aware classification replacement), not a
@@ -1853,6 +1904,9 @@ export class ExperienceCatalogService {
           ...updated,
           dedupeDecision: 'SAME' as const,
           dedupeEvidence: decision.evidence,
+          sourceKnowledgeReconciliation,
+          // The embedding was invalidated above; an enrichment also changes
+          // the semantic document (resolved members are embedding text).
           semanticDocumentChanged: true,
         };
       }
