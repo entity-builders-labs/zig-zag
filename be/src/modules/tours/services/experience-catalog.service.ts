@@ -1709,17 +1709,21 @@ export class ExperienceCatalogService {
         conceptTerms: this.conceptTerms(input.metadata),
         latitude: input.latitude,
         longitude: input.longitude,
-        components: input.components.map((member) =>
+        // The array index is the member's `sourcePosition` (see
+        // `VerifiedExperienceInput.components`), its source identity.
+        components: input.components.map((member, sourcePosition) =>
           member.resolutionState === 'UNRESOLVED'
             ? {
                 geoEntityId: null as string | null,
                 resolutionState: 'UNRESOLVED' as const,
+                sourcePosition,
                 sourceName: member.sourceName,
                 role: member.role,
                 order: member.order,
               }
             : {
                 geoEntityId: member.geoEntityId,
+                sourcePosition,
                 sourceName: member.sourceName,
                 role: member.role,
                 order: member.order,

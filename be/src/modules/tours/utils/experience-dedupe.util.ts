@@ -4,19 +4,20 @@ import {
   allSourceMembers,
   distinctResolvedGeoEntityIds,
   isResolvedSourceMember,
-  resolvedSourceMembers,
 } from './experience-source-membership.policy';
 
 /**
- * One SOURCE MEMBER of a composition. A resolved member is identified by its
- * GeoEntity; an unresolved member (no GeoEntity) only by its source wording.
- * The source-defined composition is part of composite identity: a PARTIAL
+ * One SOURCE MEMBER of a composition, resolved or not. Its identity is
+ * source-defined (`sourcePosition` inside its Experience + `sourceName`
+ * wording, see `SourceMemberIdentity`) and does not change when the member
+ * resolves or is revoked; its GeoEntity is knowledge about it. The
+ * source-defined composition is part of composite identity: a PARTIAL
  * A-B-C-D-E-F whose only resolved members are A and B is not the COMPLETE
  * A-B composition, and an unresolved member never becomes a shared `null`.
  */
 export interface DedupeComponentFingerprint extends SourceMemberShape {
   geoEntityId: string | null;
-  /** Source wording; the identity of an UNRESOLVED member. */
+  /** Source wording (`ExperienceComponent.sourceName`), resolved or not. */
   sourceName?: string | null;
   role?: string | null;
   /**
@@ -60,18 +61,55 @@ export interface DedupeExperienceFingerprint {
 }
 
 /**
+ * The resolution-independent identity of one source member: its persisted
+ * `sourcePosition` inside its Experience (null only on legacy rows) and its
+ * normalized source wording (null when none was recorded). It is NOT
+ * visiting order and carries no GeoEntity: resolving, confirming or
+ * revoking the member never changes it (identity spec hard invariant 15).
+ * A position is only meaningful inside its own composition, so two
+ * Experiences are never compared by naked positions (see
+ * `StructuralCompositionRelation`).
+ */
+export interface SourceMemberIdentity {
+  sourcePosition: number | null;
+  sourceWording: string | null;
+}
+
+/**
+ * How two source members of different Experiences were established to be
+ * the same source-defined member:
+ *  - SOURCE_WORDING: the same normalized source wording, when the members
+ *    bearing that wording do not resolve to more than one distinct
+ *    GeoEntity (an ambiguous wording is no member identity);
+ *  - RESOLVED_GEOENTITY: both resolved to the same GeoEntity (supporting
+ *    identity evidence that links differently worded members).
+ */
+export type SourceMemberCorrespondenceBasis =
+  | 'SOURCE_WORDING'
+  | 'RESOLVED_GEOENTITY';
+
+/** One source member present in both compositions. */
+export interface SharedSourceMember {
+  incomingSourcePositions: Array<number | null>;
+  existingSourcePositions: Array<number | null>;
+  basis: SourceMemberCorrespondenceBasis[];
+}
+
+/**
  * Deterministic structural relation between two source-defined
- * compositions, derived only from their source members:
+ * compositions, derived only from SOURCE MEMBERSHIP. Members of the two
+ * sides correspond by source wording or by a shared resolved GeoEntity
+ * (`SourceMemberCorrespondenceBasis`); resolution never replaces a
+ * member's source identity, so a PARTIAL and the later COMPLETE view of the
+ * same source composition stay EXACT_COMPOSITION:
  *
- *  - EXACT_COMPOSITION: the same source-member set (a resolved member is
- *    its GeoEntity, an unresolved one its source wording), so a PARTIAL
- *    composition seen twice is exact without every member resolving;
+ *  - EXACT_COMPOSITION: every member of each side has a counterpart;
  *  - SUBCOMPOSITION: one member set strictly contained in the other, with
  *    no conflicting evidenced order over the shared members;
- *  - PARTIAL_OVERLAP: they share at least one resolved GeoEntity but
- *    neither contains the other (or evidenced order conflicts);
- *  - DISJOINT: no shared resolved GeoEntity. Shared unresolved wording
- *    alone is never shared structure.
+ *  - PARTIAL_OVERLAP: shared members, but neither side contains the other
+ *    (or evidenced order conflicts);
+ *  - DISJOINT: no shared member grounded by a resolved GeoEntity on either
+ *    side. Shared unresolved wording alone is never shared structure.
  *
  * Text (names, descriptions, themes) never enters this relation.
  */
@@ -97,8 +135,14 @@ export type SourceProvenanceRelation =
   | 'SOURCE_UNKNOWN';
 
 export interface StructuralCompositionEvidence {
+  /** Derived from source membership only. */
   relation: StructuralCompositionRelation;
   containment: SubcompositionContainment | null;
+  sharedSourceMembers: SharedSourceMember[];
+  /**
+   * GeoEntities resolved on both sides: supporting identity evidence, never
+   * the identity of a source member.
+   */
   sharedResolvedGeoEntityIds: string[];
   sourceMemberCounts: { incoming: number; existing: number };
 }
@@ -377,8 +421,8 @@ export function compareFingerprints(
     semanticTokenSet(incoming),
     semanticTokenSet(existing),
   );
-  const incomingKeys = sourceMemberKeys(incoming, 'incoming');
-  const existingKeys = sourceMemberKeys(existing, 'existing');
+  const correspondence = sourceMemberCorrespondence(incoming, existing);
+  const { incoming: incomingKeys, existing: existingKeys } = correspondence;
   const componentOverlap = setOverlap(
     new Set(incomingKeys.map(({ key }) => key)),
     new Set(existingKeys.map(({ key }) => key)),
@@ -401,15 +445,14 @@ export function compareFingerprints(
   );
   const distanceKm = haversineKm(incoming, existing);
   const orderConflict = hasConflictingEvidencedOrder(
-    resolvedSourceMembers(incoming),
-    resolvedSourceMembers(existing),
+    incomingKeys,
+    existingKeys,
   );
 
   const structure = structuralCompositionRelation(
     incoming,
     existing,
-    incomingKeys,
-    existingKeys,
+    correspondence,
     orderConflict,
   );
   const sourceRelation = sourceProvenanceRelation(incoming, existing);
@@ -449,19 +492,19 @@ export function compareFingerprints(
 }
 
 /**
- * Structural relation over source-member keys (see
+ * Structural relation over corresponding source members (see
  * `StructuralCompositionRelation`). Containment reads the member SET; the
  * only sequence semantics are the evidenced `order` ones (spec §9, no
- * manufactured order), so a conflicting evidenced order downgrades
- * containment to PARTIAL_OVERLAP.
+ * manufactured order; `sourcePosition` is never read as order), so a
+ * conflicting evidenced order downgrades containment to PARTIAL_OVERLAP.
  */
 function structuralCompositionRelation(
   incoming: DedupeExperienceFingerprint,
   existing: DedupeExperienceFingerprint,
-  incomingKeys: SourceMemberKey[],
-  existingKeys: SourceMemberKey[],
+  correspondence: SourceMemberCorrespondence,
   orderConflict: boolean,
 ): StructuralCompositionEvidence {
+  const { incoming: incomingKeys, existing: existingKeys } = correspondence;
   const existingGeo = new Set(distinctResolvedGeoEntityIds(existing));
   const sharedResolvedGeoEntityIds = distinctResolvedGeoEntityIds(
     incoming,
@@ -476,11 +519,20 @@ function structuralCompositionRelation(
   ): StructuralCompositionEvidence => ({
     relation,
     containment,
+    sharedSourceMembers: correspondence.shared.map(
+      ({ incomingSourcePositions, existingSourcePositions, basis }) => ({
+        incomingSourcePositions,
+        existingSourcePositions,
+        basis,
+      }),
+    ),
     sharedResolvedGeoEntityIds,
     sourceMemberCounts,
   });
 
-  if (!sharedResolvedGeoEntityIds.length) return of('DISJOINT');
+  if (!correspondence.shared.some(({ grounded }) => grounded)) {
+    return of('DISJOINT');
+  }
 
   const incomingSet = new Set(incomingKeys.map(({ key }) => key));
   const existingSet = new Set(existingKeys.map(({ key }) => key));
@@ -532,71 +584,182 @@ function canonicalSourceDocuments(
 
 /**
  * True only when BOTH sides carry a real, persisted evidenced order
- * (`order != null`) for at least two of the SAME real components, and the
+ * (`order != null`) for at least two of the SAME source members, and the
  * relative sequence those two evidenced orders induce over that shared
- * subset genuinely disagrees. A component with no evidenced order on
- * either side never participates -- "no manufactured order when order is
- * null" (spec §9). Two proposals sharing every real stop but describing
- * them in explicitly conflicting sequences (A->B->C->D vs D->C->B->A) is
- * real identity-relevant evidence AGAINST a confident SAME, independent
- * of how similar their names/themes otherwise look.
+ * subset genuinely disagrees. A member with no evidenced order on either
+ * side never participates -- "no manufactured order when order is null"
+ * (spec §9), and `sourcePosition` is never read as order. Two proposals
+ * sharing every real stop but describing them in explicitly conflicting
+ * sequences (A->B->C->D vs D->C->B->A) is real identity-relevant evidence
+ * AGAINST a confident SAME, independent of how similar their names/themes
+ * otherwise look.
  */
 function hasConflictingEvidencedOrder(
-  incoming: DedupeComponentFingerprint[],
-  existing: DedupeComponentFingerprint[],
+  incoming: ComparedSourceMember[],
+  existing: ComparedSourceMember[],
 ): boolean {
-  const existingOrderById = new Map(
+  const existingOrderByKey = new Map(
     existing
-      .filter((component) => component.order != null)
-      .map((component) => [component.geoEntityId, component.order as number]),
+      .filter((member) => member.order != null)
+      .map((member) => [member.key, member.order as number]),
   );
   const sharedOrderedIncoming = incoming
     .filter(
-      (component) =>
-        component.order != null && existingOrderById.has(component.geoEntityId),
+      (member) => member.order != null && existingOrderByKey.has(member.key),
     )
     .sort((a, b) => (a.order as number) - (b.order as number));
 
   if (sharedOrderedIncoming.length < 2) return false;
 
-  const incomingSequence = sharedOrderedIncoming.map(
-    (component) => component.geoEntityId,
-  );
+  const incomingSequence = sharedOrderedIncoming.map((member) => member.key);
   const existingSequence = [...sharedOrderedIncoming]
     .sort(
-      (a, b) =>
-        existingOrderById.get(a.geoEntityId)! -
-        existingOrderById.get(b.geoEntityId)!,
+      (a, b) => existingOrderByKey.get(a.key)! - existingOrderByKey.get(b.key)!,
     )
-    .map((component) => component.geoEntityId);
+    .map((member) => member.key);
 
   return incomingSequence.join('|') !== existingSequence.join('|');
 }
 
-interface SourceMemberKey {
+/**
+ * The source-defined identity of every member of a composition, in source
+ * order. Resolution state and GeoEntity never enter it, so it is invariant
+ * under automatic resolution, admin CONFIRM and admin REVOKE.
+ */
+export function sourceCompositionIdentity(
+  fingerprint: Pick<DedupeExperienceFingerprint, 'components'>,
+): SourceMemberIdentity[] {
+  return allSourceMembers(fingerprint).map((member) => ({
+    sourcePosition: member.sourcePosition ?? null,
+    sourceWording: normalizeGeoName(member.sourceName ?? '') || null,
+  }));
+}
+
+type ComparisonSide = 'incoming' | 'existing';
+
+/** One source member inside one comparison, keyed by its correspondence. */
+interface ComparedSourceMember {
+  /** Correspondence class inside this comparison; never a GeoEntity id. */
   key: string;
   role: string;
+  order: number | null;
+}
+
+interface SourceMemberCorrespondence {
+  incoming: ComparedSourceMember[];
+  existing: ComparedSourceMember[];
+  shared: Array<SharedSourceMember & { grounded: boolean }>;
 }
 
 /**
- * Identity key of each source member inside a dedupe comparison, in source
- * order: its GeoEntity when resolved, else its normalized source wording.
- * Never a bare `null`; an unresolved member without wording gets a key no
- * other member can share, so it never becomes shared structure.
+ * Establishes which source members of two compositions are the same
+ * source-defined member. Members are linked (transitively, on both sides)
+ * when they
+ *
+ *  - carry the same normalized source wording, unless the members bearing
+ *    that wording resolve to more than one distinct GeoEntity (then the
+ *    wording is no identity; this also keeps every class on at most one
+ *    GeoEntity, so the result is independent of comparison direction); or
+ *  - both resolved to the same GeoEntity.
+ *
+ * Resolution only ever ADDS a link between differently worded members; it
+ * never replaces a member's source identity. An unresolved member without
+ * wording links to nothing. A shared member is `grounded` when at least one
+ * of its members (either side) is resolved: only grounded members make two
+ * compositions structurally related.
  */
-function sourceMemberKeys(
-  fingerprint: Pick<DedupeExperienceFingerprint, 'components'>,
-  side: 'incoming' | 'existing',
-): SourceMemberKey[] {
-  return allSourceMembers(fingerprint).map((component, index) => {
-    const wording = normalizeGeoName(component.sourceName ?? '');
-    const key = isResolvedSourceMember(component)
-      ? `geo:${component.geoEntityId}`
-      : wording
-        ? `source:${wording}`
-        : `unnamed:${side}:${index}`;
-    return { key, role: normalize(component.role ?? 'component') };
+function sourceMemberCorrespondence(
+  incoming: Pick<DedupeExperienceFingerprint, 'components'>,
+  existing: Pick<DedupeExperienceFingerprint, 'components'>,
+): SourceMemberCorrespondence {
+  const sides: Array<[ComparisonSide, typeof incoming]> = [
+    ['incoming', incoming],
+    ['existing', existing],
+  ];
+  const members = sides.flatMap(([side, fingerprint]) => {
+    const identities = sourceCompositionIdentity(fingerprint);
+    return allSourceMembers(fingerprint).map((member, index) => ({
+      side,
+      identity: identities[index],
+      geoEntityId: isResolvedSourceMember(member) ? member.geoEntityId : null,
+      role: normalize(member.role ?? 'component'),
+      order: member.order ?? null,
+    }));
   });
+
+  const groupBy = (
+    keyOf: (member: (typeof members)[number]) => string | null,
+  ) => {
+    const groups = new Map<string, number[]>();
+    members.forEach((member, index) => {
+      const key = keyOf(member);
+      if (key) groups.set(key, [...(groups.get(key) ?? []), index]);
+    });
+    return [...groups.values()];
+  };
+  const geoGroups = groupBy(({ geoEntityId }) => geoEntityId);
+  const wordingGroups = groupBy(
+    ({ identity }) => identity.sourceWording,
+  ).filter(
+    (group) =>
+      new Set(group.map((index) => members[index].geoEntityId).filter(Boolean))
+        .size <= 1,
+  );
+
+  const parent = members.map((_, index) => index);
+  const find = (index: number): number =>
+    parent[index] === index ? index : (parent[index] = find(parent[index]));
+  for (const group of [...geoGroups, ...wordingGroups]) {
+    for (const index of group) parent[find(index)] = find(group[0]);
+  }
+
+  const crossesSides = (group: number[]) =>
+    group.some((index) => members[index].side === 'incoming') &&
+    group.some((index) => members[index].side === 'existing');
+  const classes = new Map<number, number[]>();
+  members.forEach((_, index) =>
+    classes.set(find(index), [...(classes.get(find(index)) ?? []), index]),
+  );
+
+  const shared = [...classes.values()].filter(crossesSides).map((group) => {
+    const inClass = (links: number[][]) =>
+      links.some(
+        (link) =>
+          link.some((index) => group.includes(index)) && crossesSides(link),
+      );
+    const positions = (side: ComparisonSide) =>
+      group
+        .filter((index) => members[index].side === side)
+        .map((index) => members[index].identity.sourcePosition);
+    const basis: SourceMemberCorrespondenceBasis[] = [];
+    if (inClass(wordingGroups)) basis.push('SOURCE_WORDING');
+    if (inClass(geoGroups)) basis.push('RESOLVED_GEOENTITY');
+    return {
+      incomingSourcePositions: positions('incoming'),
+      existingSourcePositions: positions('existing'),
+      basis,
+      grounded: group.some((index) => members[index].geoEntityId != null),
+    };
+  });
+
+  const compared = (side: ComparisonSide): ComparedSourceMember[] =>
+    members.flatMap((member, index) =>
+      member.side === side
+        ? [
+            {
+              key: `member:${find(index)}`,
+              role: member.role,
+              order: member.order,
+            },
+          ]
+        : [],
+    );
+
+  return {
+    incoming: compared('incoming'),
+    existing: compared('existing'),
+    shared,
+  };
 }
 
 /**
@@ -740,6 +903,7 @@ function emptyEvidence(
     structure: {
       relation: 'DISJOINT',
       containment: null,
+      sharedSourceMembers: [],
       sharedResolvedGeoEntityIds: [],
       sourceMemberCounts: { incoming: incomingMemberCount, existing: 0 },
     },

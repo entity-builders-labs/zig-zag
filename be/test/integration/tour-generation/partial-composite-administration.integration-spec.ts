@@ -1,6 +1,11 @@
 import { GeoEntityKind } from '@prisma/client';
 import { ExperienceCatalogService } from 'src/modules/tours/services/experience-catalog.service';
 import { CatalogKnowledgeAdministrationService } from 'src/modules/tours/services/catalog-knowledge-administration.service';
+import {
+  DedupeExperienceFingerprint,
+  compareFingerprints,
+  sourceCompositionIdentity,
+} from 'src/modules/tours/utils/experience-dedupe.util';
 import { buildTourExperienceCreateData } from 'src/modules/tours/utils/tour-experience-snapshot.util';
 import { getPrisma, resetDb, closeDb } from '../support/test-db';
 
@@ -544,5 +549,127 @@ describe('tour-generation integration · partial composite administration', () =
     expect(pool.map((row) => [row.id, row.compositionCompleteness])).toEqual([
       [first.id, 'PARTIAL'],
     ]);
+  });
+
+  it('enrichment invariance: PARTIAL -> ADMIN confirm -> COMPLETE -> ADMIN revoke -> PARTIAL keeps the source composition identity and every structural relation', async () => {
+    const prisma = await getPrisma();
+    const walk = (nationalBank: 'UNRESOLVED' | 'BANCO_NACION') => ({
+      canonicalName: 'Plaza de Mayo historic walk',
+      metadata: { themes: ['history'], intents: ['walk'] },
+      components: [
+        { geoEntityId: plazaDeMayo, sourceName: 'Plaza de Mayo', order: 1 },
+        { geoEntityId: cabildo, sourceName: 'Cabildo', order: 2 },
+        nationalBank === 'UNRESOLVED'
+          ? {
+              resolutionState: 'UNRESOLVED' as const,
+              resolutionReason: 'CANDIDATE_UNCONFIRMED' as const,
+              sourceName: 'National Bank',
+              order: 3,
+            }
+          : { geoEntityId: bancoNacion, sourceName: 'National Bank', order: 3 },
+        { geoEntityId: casaRosada, sourceName: 'Casa Rosada', order: 4 },
+      ],
+    });
+    /** The persisted Experience as dedupe reads it: its real member rows. */
+    const persisted = async (
+      experienceId: string,
+    ): Promise<DedupeExperienceFingerprint> => ({
+      canonicalName: 'Plaza de Mayo historic walk',
+      components: await prisma.experienceComponent.findMany({
+        where: { experienceId },
+      }),
+    });
+    const references: Record<string, DedupeExperienceFingerprint> = {
+      sameSourceComplete: {
+        canonicalName: 'Plaza de Mayo historic walk',
+        components: [
+          ['Plaza de Mayo', plazaDeMayo],
+          ['Cabildo', cabildo],
+          ['National Bank', bancoNacion],
+          ['Casa Rosada', casaRosada],
+        ].map(([sourceName, geoEntityId], sourcePosition) => ({
+          geoEntityId,
+          sourceName,
+          sourcePosition,
+          order: sourcePosition + 1,
+        })),
+      },
+      plazaAndCabildo: {
+        canonicalName: 'Plaza de Mayo and Cabildo',
+        components: [
+          { geoEntityId: plazaDeMayo, sourceName: 'Plaza de Mayo' },
+          { geoEntityId: cabildo, sourceName: 'Cabildo' },
+        ],
+      },
+    };
+    const structuralFingerprint = async (experienceId: string) => {
+      const experience = await persisted(experienceId);
+      return {
+        identity: sourceCompositionIdentity(experience),
+        relations: Object.fromEntries(
+          Object.entries(references).map(([name, reference]) => [
+            name,
+            [
+              compareFingerprints(experience, reference).structure.relation,
+              compareFingerprints(reference, experience).structure.relation,
+            ],
+          ]),
+        ),
+      };
+    };
+
+    const { id: experienceId } = await catalog.persistVerifiedExperience(
+      walk('UNRESOLVED'),
+    );
+    const partial = await structuralFingerprint(experienceId);
+    expect(partial).toEqual({
+      identity: [
+        { sourcePosition: 0, sourceWording: 'plaza de mayo' },
+        { sourcePosition: 1, sourceWording: 'cabildo' },
+        { sourcePosition: 2, sourceWording: 'national bank' },
+        { sourcePosition: 3, sourceWording: 'casa rosada' },
+      ],
+      relations: {
+        sameSourceComplete: ['EXACT_COMPOSITION', 'EXACT_COMPOSITION'],
+        plazaAndCabildo: ['SUBCOMPOSITION', 'SUBCOMPOSITION'],
+      },
+    });
+
+    // ADMIN CONFIRM: PARTIAL -> COMPLETE, same source composition.
+    const nationalBank = (await membersOf(experienceId))[2];
+    expect(
+      await admin.confirmSourceMember({
+        componentId: nationalBank.id,
+        geoEntityId: bancoNacion,
+      }),
+    ).toMatchObject({ status: 'CONFIRMED', completeness: 'COMPLETE' });
+    expect(await structuralFingerprint(experienceId)).toEqual(partial);
+
+    // ADMIN REVOKE: COMPLETE -> PARTIAL, same source composition.
+    const assertion =
+      await prisma.geoEntityVerifiedHintAssertion.findFirstOrThrow({
+        where: { geoEntityId: bancoNacion, hintKey: 'national bank' },
+      });
+    expect(
+      await admin.revokeVerifiedHintAssertion({
+        assertionId: assertion.id,
+        reason: 'enrichment invariance',
+      }),
+    ).toMatchObject({
+      status: 'REVOKED',
+      experiences: [{ experienceId, outcome: 'PARTIAL' }],
+    });
+    expect(await structuralFingerprint(experienceId)).toEqual(partial);
+
+    // The same source seen COMPLETE dedupes onto the PARTIAL Experience.
+    const complete = await catalog.persistVerifiedExperience(
+      walk('BANCO_NACION'),
+    );
+    expect(complete.id).toBe(experienceId);
+    expect((complete as any).dedupeDecision).toBe('SAME');
+    expect((complete as any).dedupeEvidence.structure.relation).toBe(
+      'EXACT_COMPOSITION',
+    );
+    expect(await prisma.experience.count()).toBe(1);
   });
 });

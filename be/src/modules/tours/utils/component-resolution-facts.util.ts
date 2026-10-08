@@ -26,6 +26,7 @@ import { deficitClassification } from './component-deficit-classification.policy
 import {
   DedupeDecisiveEvidence,
   DedupeEvidence,
+  SharedSourceMember,
   SourceProvenanceRelation,
   StructuralCompositionRelation,
   SubcompositionContainment,
@@ -351,13 +352,17 @@ export interface CompositeOutcome {
 
 /**
  * What the trace records of one dedupe decision: the structural and
- * source-provenance facts that decided it. `semanticScore` is diagnostic
- * only and is never the decisive evidence.
+ * source-provenance facts that decided it. `sourceCompositionRelation` is
+ * derived from source membership (`sharedSourceMembers`, by source
+ * position); `sharedResolvedGeoEntities` is separate supporting evidence,
+ * never a member identity. `semanticScore` is diagnostic only and is never
+ * the decisive evidence.
  */
 export interface DedupeTraceEvidence {
-  structuralRelation: StructuralCompositionRelation;
+  sourceCompositionRelation: StructuralCompositionRelation;
   containment: SubcompositionContainment | null;
   sourceRelation: SourceProvenanceRelation;
+  sharedSourceMembers: SharedSourceMember[];
   sharedResolvedGeoEntities: string[];
   sourceMemberCounts: { incoming: number; existing: number };
   decisiveEvidence: DedupeDecisiveEvidence | null;
@@ -370,9 +375,16 @@ export interface DedupeTraceEvidence {
 
 function dedupeTraceEvidence(evidence: DedupeEvidence): DedupeTraceEvidence {
   return {
-    structuralRelation: evidence.structure.relation,
+    sourceCompositionRelation: evidence.structure.relation,
     containment: evidence.structure.containment,
     sourceRelation: evidence.sourceRelation,
+    sharedSourceMembers: evidence.structure.sharedSourceMembers.map(
+      (member) => ({
+        incomingSourcePositions: [...member.incomingSourcePositions],
+        existingSourcePositions: [...member.existingSourcePositions],
+        basis: [...member.basis],
+      }),
+    ),
     sharedResolvedGeoEntities: [
       ...evidence.structure.sharedResolvedGeoEntityIds,
     ],

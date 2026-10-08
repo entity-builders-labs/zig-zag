@@ -289,15 +289,16 @@ evidence may by itself make the pair AMBIGUOUS". Why
   inside a larger one was either merged or rejected by word overlap.
 
 The dedupe primitive derives a deterministic **structural relation** from
-the two source-defined compositions. A resolved member is its GeoEntity; an
-unresolved member is its source wording and never a shared `null`:
+the two source-defined compositions, over their **source members**
+(see "Source member identity" below):
 
 ```text
-EXACT_COMPOSITION  same source-member set (PARTIAL seen twice included)
+EXACT_COMPOSITION  every member of each side has a counterpart (a PARTIAL
+                   and its later COMPLETE view of one source included)
 SUBCOMPOSITION     one member set strictly inside the other, with no
                    conflicting evidenced order over the shared members
-PARTIAL_OVERLAP    shared resolved GeoEntities, neither contains the other
-DISJOINT           no shared resolved GeoEntity
+PARTIAL_OVERLAP    shared members, neither contains the other
+DISJOINT           no shared member grounded by a resolved GeoEntity
 ```
 
 and a **source relation** from evidence URLs only (`SAME_SOURCE`,
@@ -317,6 +318,41 @@ future work. The lexical semantic score remains for diagnostics and
 candidate ordering only. The remaining uncalibrated cuts (name `>= 0.72`,
 component `>= 0.5`, role-aware `>= 0.4`) are explicit follow-up debt; the
 name cut is the last text-based AMBIGUOUS authority.
+
+### Source member identity (amendment 2026-10-08, before C3)
+
+The first structural-authority cut keyed a member by its GeoEntity when
+resolved and by its source wording otherwise. The identity of an
+Experience's composition then changed when a member resolved: a PARTIAL
+A-B-C-D (C, D unresolved) and its later COMPLETE view were
+PARTIAL_OVERLAP. Source-member identity and resolved GeoEntity identity are
+now separate:
+
+- **Source member identity** is the persisted `ExperienceComponent`
+  `sourcePosition` inside its Experience plus its `sourceName` wording. It
+  carries no GeoEntity and no resolution state. `sourcePosition` is source
+  membership, never visiting order (§9).
+- **Cross-Experience correspondence.** A position means nothing outside its
+  own composition, so naked positions are never compared. Two members of
+  different Experiences are the same source member when they carry the same
+  normalized source wording (unless the members bearing that wording
+  resolve to more than one distinct GeoEntity, so an ambiguous wording is
+  no identity), or when both resolved to the same GeoEntity (supporting
+  evidence that links differently worded members). Correspondence is
+  transitive and symmetric; each corresponding member set spans at most one
+  GeoEntity.
+- **Grounding.** Only a shared member with a resolved GeoEntity on at least
+  one side relates two compositions. Shared unresolved wording alone, and
+  members without wording, are never shared structure.
+
+The decision table above is unchanged. The trace records
+`sourceCompositionRelation` with `sharedSourceMembers` (source positions
+and correspondence basis) apart from `sharedResolvedGeoEntities`, which is
+supporting evidence and never a member identity.
+
+Known gap: a SAME onto a PARTIAL Experience merges evidence and metadata
+but does not adopt the incoming resolution of its still-unresolved members;
+enrichment of members happens through resolution or the admin primitives.
 
 ---
 
@@ -430,6 +466,7 @@ It is **not required now** and must not be introduced simply to solve identity. 
 12. Evidence can resolve ambiguity later; catalog decisions remain auditable.
 13. Shared GeoEntity membership between a standalone Experience and a composite is not, by itself, a SAME or AMBIGUOUS identity signal.
 14. Lexical/semantic text similarity alone never decides SAME, AMBIGUOUS or NEW; a source-defined sub-composition is never SAME with the composition that contains it.
+15. Resolving or unresolving a source member (automatic resolution, admin confirm, admin revoke, PARTIAL ↔ COMPLETE) may change knowledge about the member, but never the source-defined composition identity of the Experience or its structural relation to another composition, unless new identity evidence actually establishes that two differently worded members correspond.
 
 ---
 

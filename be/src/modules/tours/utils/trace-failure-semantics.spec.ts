@@ -600,6 +600,13 @@ describe('Stage 5 trace failure semantics', () => {
                 structure: {
                   relation: 'PARTIAL_OVERLAP',
                   containment: null,
+                  sharedSourceMembers: [
+                    {
+                      incomingSourcePositions: [0],
+                      existingSourcePositions: [1],
+                      basis: ['SOURCE_WORDING', 'RESOLVED_GEOENTITY'],
+                    },
+                  ],
                   sharedResolvedGeoEntityIds: ['geo-a'],
                   sourceMemberCounts: { incoming: 2, existing: 2 },
                 },
@@ -622,8 +629,15 @@ describe('Stage 5 trace failure semantics', () => {
           dedupe: {
             conflictingExperienceIds: ['exp-composite'],
             evidence: {
-              structuralRelation: 'PARTIAL_OVERLAP',
+              sourceCompositionRelation: 'PARTIAL_OVERLAP',
               sourceRelation: 'SOURCE_UNKNOWN',
+              sharedSourceMembers: [
+                {
+                  incomingSourcePositions: [0],
+                  existingSourcePositions: [1],
+                  basis: ['SOURCE_WORDING', 'RESOLVED_GEOENTITY'],
+                },
+              ],
               sharedResolvedGeoEntities: ['geo-a'],
               sourceMemberCounts: { incoming: 2, existing: 2 },
               decisiveEvidence: 'PARTIAL_OVERLAP_IDENTITY_UNRESOLVED',

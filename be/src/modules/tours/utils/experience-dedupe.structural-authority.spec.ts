@@ -91,6 +91,18 @@ describe('decideExperienceDedupe · structural identity authority', () => {
       expect(decision.evidence.structure).toEqual({
         relation: 'SUBCOMPOSITION',
         containment: 'INCOMING_WITHIN_EXISTING',
+        sharedSourceMembers: [
+          {
+            incomingSourcePositions: [0],
+            existingSourcePositions: [0],
+            basis: ['SOURCE_WORDING', 'RESOLVED_GEOENTITY'],
+          },
+          {
+            incomingSourcePositions: [1],
+            existingSourcePositions: [1],
+            basis: ['SOURCE_WORDING', 'RESOLVED_GEOENTITY'],
+          },
+        ],
         sharedResolvedGeoEntityIds: ['A', 'B'],
         sourceMemberCounts: { incoming: 2, existing: 6 },
       });
