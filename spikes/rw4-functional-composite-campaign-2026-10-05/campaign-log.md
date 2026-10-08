@@ -463,3 +463,149 @@ All passes: `selectedSources == examinedSources`.
 - No regression in the measured RW4-ID-FALSE-VERIFY-1 class.
   RW4-ID-FALSE-VERIFY-2 is the same lexical-overlap class reaching
   VERIFIED through `GROUNDED_CONVERGENCE`.
+
+## C3 COLD with partial composite persistence — 2026-10-08
+
+- Authorized after `READY_FOR_C3` (source member identity). Run
+  `c3-partial-cold/`, DB **`zigzag_spike_rw4_c3_partial`** (new name,
+  created fresh; the poisoned `c3_idretry*` catalogs were not reused, and
+  nothing was seeded or repaired). HEAD `df71a9cf` (includes `273bf4aa`).
+  Canonical provenance verified. Same request
+  (`requests/c3-buenos-aires-san-telmo-self-guided.json`) and providers as
+  `c3-idretry2-cold`: serper, Gemini `gemini-3.5-flash-lite` extractor and
+  classifier, Tavily, geoapify, local Nominatim/Overpass.
+  `DISCOVERY_EXTRACTOR_PROVIDER=gemini bash run.sh c3-partial-cold
+  zigzag_spike_rw4_c3_partial fresh 3417 requests/c3-...json tavily`.
+- 514 s, `completed`. Provider requests: serper 4, Tavily 4, Gemini 75,
+  wikidata 111, geoapify 330 (238 routing), local Nominatim 51, Overpass
+  27, groq 1.
+- Provider degradation: Gemini free-tier rate limit (429, 15 RPM) failed
+  the second GENERIC pass (AG and SOB atomized units `INVALID_RUN`, AG w2
+  `FAILED`), one classification ("Nestor Kirchner") and one chat call.
+  No extractor timeout. Wikidata proximity lookups timed out twice.
+- No admin revoke/confirm was used. WARM not run.
+- Analyses: `atomized-analysis.json`, `identity-analysis.json`,
+  `composite-analysis.json` (`analyze-composites.cjs`, new, read-only),
+  `db-evidence.txt` (`partial-composite-db-evidence.sql`, direct DB),
+  `catalog-visibility.txt` (`catalog-visibility.ts`, real
+  `findVerifiedWithinForMatching` read against the run DB).
+
+### Selected / examined / extraction path
+
+All passes: `selectedSources == examinedSources`.
+
+| Pass | Sources | Path per window |
+|---|---|---|
+| AREA_ROUTE_WALK | AG, SOB | AG w1 atomized `SECTION_UNIT` ASSEMBLED (95 atoms), satisfied; SOB w1 atomized ASSEMBLED (11-atom intro, no qualifying candidate); SOB w2, w3 `DOCUMENT_ORDER_CONTINUATION` generative (RW4-ATOM-SCOPE-1): the "Day 1" walk was rejected at extraction, `SOURCE_CONTRACT_VIOLATION` `MISSING_NORMALIZATION_KIND` (Cabildo, Defensa, Estados Unidos, Paseo Colón) |
+| GENERIC #1 | solsalute, argentina4u | solsalute w1 atomized `CONTRACT_FAIL_CLOSED` (`SPAN_NOT_IN_ATOM:a-138`, `MENTION_ANTECEDENT_MISSING:a-140`), w2–w5 generative, exhausted; a4u w1 atomized ASSEMBLED |
+| GENERIC #2 | AG, SOB | both atomized `INVALID_RUN` (Gemini 429); AG w2 `FAILED` (429) |
+| PLANNER_CAPACITY | AG, SOB | AG w1 atomized ASSEMBLED; SOB w1 atomized ASSEMBLED (182 atoms); National Bank classified `PASS_BY` (not a member) |
+
+### Composite candidate matrix
+
+| Pass | Candidate | Members | Resolved | Distinct Geo | Outcome |
+|---|---|---|---|---|---|
+| AREA_ROUTE_WALK | AG part 1 of 3 | 15 | 3 | 3 | **PARTIAL accepted, PERSISTED NEW** `42211eec` (all 12 unresolved PARTIAL-eligible) |
+| AREA_ROUTE_WALK | AG part 2 of 3 | 2 | 1 | 1 | REJECTED `INCOMPLETE_SOURCE_COMPOSITION` (Don Carlos `DESTINATION_INCOMPATIBLE`, blocking) |
+| GENERIC #1 | a4u "Frequently Asked Questions" | 9 | 3 | 3 | REJECTED `INCOMPLETE_SOURCE_COMPOSITION` ("Fair" `DESTINATION_INCOMPATIBLE`, blocking) |
+| PLANNER_CAPACITY | AG part 1 of 3 (13 members) | 13 | 5 | 5 | NOT PERSISTED `AMBIGUOUS_DEDUPE` vs `42211eec` |
+| PLANNER_CAPACITY | AG part 2 of 3 | 2 | 2 | 1 | REJECTED `insufficient_resolved_entities` (Caminito + Caminito Street → one GeoEntity) |
+| PLANNER_CAPACITY | SOB "Day 1 (part 1 of 2)" | 15 | 8 | 8 | **PARTIAL accepted, PERSISTED NEW** `03e3222c` |
+| PLANNER_CAPACITY | SOB "Day 1 (part 2 of 2)" (La Boca) | 2 | 0 | 0 | REJECTED `NO_OSM_MATCH`, `UNCONFIRMED_MATCH` |
+
+SOB "Day 1: Plaza de Mayo → San Telmo" in AREA_ROUTE_WALK never reached
+identity (extraction contract, above).
+
+### Dedupe
+
+| Candidate | `sourceCompositionRelation` | containment | `sourceRelation` | shared source members | shared resolved Geo | decisive | semantic (diag.) | outcome |
+|---|---|---|---|---|---|---|---|---|
+| ARW AG part 1 | DISJOINT | — | SOURCE_UNKNOWN | 0 | 0 | `NO_EXISTING_CANDIDATES` | 0 | NEW |
+| PC AG part 1 vs `42211eec` | PARTIAL_OVERLAP | — | SAME_SOURCE | 10 | San Telmo, Casa Mínima | `STRUCTURAL_OVERLAP_WITH_SIMILAR_NAME` (name 1.0) | 0.33 | AMBIGUOUS, not persisted |
+| PC SOB part 1 vs `42211eec` | PARTIAL_OVERLAP | — | DIFFERENT_SOURCE | 4 | Casa Rosada, San Telmo | `PARTIAL_OVERLAP_INSUFFICIENT` | 0.20 | NEW |
+
+No candidate was rejected by the removed semantic `0.58` rule. Trace
+finding: `sharedSourceMembers` entries are cut by the trace serializer
+(`MAX_DEPTH`); only their count is in the trace.
+
+### Persisted composites (direct DB)
+
+| Experience | Members | Resolved | Distinct Geo | Unresolved | Completeness |
+|---|---|---|---|---|---|
+| `42211eec` Self Guided Walking Tour San Telmo (part 1 of 3) | 15 | 3 | 3 | 12 | PARTIAL |
+| `03e3222c` Walking tour Buenos Aires – Day 1 (part 1 of 2) | 15 | 8 | 8 | 7 | PARTIAL |
+
+Every candidate member is a row (15/15 each), positions 0..14, all with
+`sourceName`. 0 unresolved rows with a GeoEntity, 0 resolved without. No
+GeoEntity was created for an unresolved member (the one name match,
+"Teatro Colón", was VERIFIED in the PLANNER_CAPACITY pass). Full ordered
+member tables: `db-evidence.txt`. Both PARTIAL rows are returned by the
+catalog-first read with only their resolved members as navigable
+components (`catalog-visibility.txt`).
+
+### Tour
+
+Tour `d90f4d5b-f158-4c00-aa8e-ade254d63a4f`, 1 day, 4 Experiences:
+
+| # | Experience | Canonical members | Resolved | TourExperienceComponent |
+|---|---|---|---|---|
+| 1 | Museo Histórico Nacional | 1 | 1 | 1 |
+| 2 | Plaza Dorrego | 1 | 1 | 1 |
+| 3 | Manzana de las Luces | 1 | 1 | 1 |
+| 4 | **Self Guided Walking Tour San Telmo (part 1 of 3)** `42211eec` | 15 | 3 | 3 |
+
+`42211eec` entered the pool as the discovery candidate and was planned
+at day 1, position 4 (`FEASIBLE_AND_SELECTED`). Snapshot = its 3 resolved
+members (orders 5, 8, 13): Casa Rosada, San Telmo, Casa Mínima. R = R' = 3
+(3 distinct GeoEntities, no navigable dedupe needed).
+
+`03e3222c` is **COMPOSITE_PERSISTED_NOT_SELECTED**: it was persisted by
+the PLANNER_CAPACITY refill (step 134), after the pool and ranking
+(steps 108–109); it is absent from `candidate_pool.selection` and
+`planning.daily`. The refreshed selection and the replan after the refill
+are not traced (no second selection step; convergence `stopReason` is not
+persisted), so why the replan did not add it is not observable here.
+
+### National Bank
+
+The SOB source text names it ("the headquarters of the National Bank"),
+but it is not a source member in this run: the atomized SOB unit
+classified it `PASS_BY` (non-membership) and the generative SOB walk was
+rejected before identity. No identity attempt, no verified hint for
+"national bank" (none in `verifiedHintNames` or assertions), no
+navigable component. No false VERIFIED observed.
+
+### Known risks
+
+- Plaza de Mayo: AMBIGUOUS `MATERIAL_COMPETITOR_KNOWN` in all three
+  attempts (4, 9 and 8 competitors); UNRESOLVED (`AMBIGUOUS_CANDIDATES`)
+  in both persisted composites.
+- Cabildo: AREA_ROUTE_WALK (AG) INSUFFICIENT_EVIDENCE via NOMINATIM (LOCAL_OSM_POOL
+  acquired nothing), persisted UNRESOLVED; PLANNER_CAPACITY (SOB) VERIFIED
+  `GROUNDED_UNIQUE_ALIAS` via LOCAL_OSM_POOL. Teatro Colón shows the same
+  strategy split (AMBIGUOUS vs VERIFIED).
+- Estados Unidos, Paseo Colón: only in the generative SOB walk, which
+  failed `MISSING_NORMALIZATION_KIND`; no identity attempt.
+- RW4-ATOM-SCOPE-1: still present (SOB walk as continuation windows in
+  AREA_ROUTE_WALK).
+- CONTRACT_FAIL_CLOSED: solsalute w1. Extractor timeouts: none.
+- Casa Rosada in `42211eec` is RESOLVED/OUTSIDE 865 m of the San Telmo
+  area, admitted under source-defined descriptive scope (§P2-18).
+- `42211eec` keeps Teatro Colón UNRESOLVED although the same run later
+  VERIFIED it; the PLANNER_CAPACITY view of the same walk (5 resolved,
+  incl. Teatro Colón, Obelisco, Defensa) was AMBIGUOUS-deduped and its
+  knowledge not merged (spec §6.1 known gap).
+
+### Verdict
+
+- Primary: `42211eec` is an authentic source-defined composite (agusyornet
+  walk, part 1 of 3), persisted with 3 distinct resolved GeoEntities and
+  all 12 unresolved members retained, and selected into the generated Tour,
+  whose snapshot holds only its 3 resolved members.
+- Secondary: no member loss, no fake GeoEntity, no semantic-only dedupe
+  rejection, single-place snapshots unchanged (1/1), PARTIAL rows visible
+  to the catalog-first read.
+- **RW4_FUNCTIONAL_MILESTONE_PASSED** (functional criteria), with
+  quality caveats: 3/15 resolved, one member is the San Telmo AREA itself,
+  Casa Rosada is outside the area. The richer SOB composite (8/15) is
+  COMPOSITE_PERSISTED_NOT_SELECTED.

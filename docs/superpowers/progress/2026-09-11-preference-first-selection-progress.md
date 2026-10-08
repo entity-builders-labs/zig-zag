@@ -2148,6 +2148,21 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
+C3 COLD with partial composite persistence ran (2026-10-08, HEAD
+`df71a9cf`, fresh DB `zigzag_spike_rw4_c3_partial`, canonical). Evidence:
+campaign log, "C3 COLD with partial composite persistence".
+- RW4_FUNCTIONAL_MILESTONE_PASSED (functional criteria): AG part 1 of 3
+  persisted PARTIAL (15 members, 3 distinct resolved, 12 unresolved
+  retained) and selected into Tour `d90f4d5b`; its snapshot holds only
+  the 3 resolved members.
+- Quality caveats: 3/15 resolved, one member is the San Telmo AREA,
+  Casa Rosada is 865 m outside the area.
+- SOB "Day 1 (part 1 of 2)" persisted PARTIAL (8/15) but is
+  COMPOSITE_PERSISTED_NOT_SELECTED: persisted by the PLANNER_CAPACITY
+  refill after ranking; the replan after the refill is not traced.
+- National Bank: PASS_BY, no identity attempt, no hint written.
+- Gemini free-tier 429s failed GENERIC pass #2. WARM not run. Not merged.
+
 Source member identity (SOURCE_MEMBER_IDENTITY) is IMPLEMENTED, not merged
 (2026-10-08, code `273bf4aa`). Evidence:
 `spikes/source-member-identity-2026-10-08/README.md`.
@@ -2741,6 +2756,14 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 - No C3 run.
 
 ## Next authorized action
+
+00000. (2026-10-08) Owner review of the C3 partial result (campaign log,
+       "C3 COLD with partial composite persistence"). Candidates, each
+       needing authorization: the manual National Bank lifecycle is moot
+       here (not a member this run); trace the post-refill replan
+       (`stopReason`, refreshed selection) and the `sharedSourceMembers`
+       `MAX_DEPTH` truncation; WARM on `zigzag_spike_rw4_c3_partial`.
+       Do not merge.
 
 0000. (2026-10-08) Owner review of source member identity
       (`spikes/source-member-identity-2026-10-08/README.md`) together with
