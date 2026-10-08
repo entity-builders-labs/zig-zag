@@ -411,7 +411,6 @@ function projectIdentityDecision(attempt: ResolutionAttemptAudit) {
   const contextual = find('CONTEXTUAL_CORRESPONDENCE');
   const geographic = find('GEOGRAPHIC_CORRESPONDENCE');
   const competitors = find('COMPETITOR_EXAMINATION');
-  const convergence = find('IDENTITY_CONVERGENCE');
   return {
     rule: attempt.verificationRule,
     decisiveEvidence: (attempt.decisiveEvidence ?? []).map((item) => ({
@@ -435,42 +434,6 @@ function projectIdentityDecision(attempt: ResolutionAttemptAudit) {
           },
         }
       : {}),
-    ...(convergence ? { convergence: projectConvergence(convergence) } : {}),
-  };
-}
-
-/**
- * "2 adapters / 1 origin" versus "2 adapters / 2 independent origins":
- * the observing strategies, the distinct evidence origins behind them and
- * how many of those are independent (absent while undetermined).
- */
-function projectConvergence(
-  convergence: Extract<IdentityEvidence, { type: 'IDENTITY_CONVERGENCE' }>,
-) {
-  const origins = new Map(
-    convergence.observations
-      .flatMap((observation) => observation.origins)
-      .map((origin) => [
-        `${origin.authority}/${origin.recordId ?? ''}`,
-        origin,
-      ]),
-  );
-  return {
-    identity: `${convergence.identity.provider}/${convergence.identity.externalId}`,
-    observations: convergence.observations.map((observation) => ({
-      strategy: observation.strategy,
-      origins: observation.origins,
-    })),
-    evidenceOrigins: [...origins.values()],
-    independence: convergence.independence,
-    ...(convergence.independence === 'UNDETERMINED_ORIGIN'
-      ? {}
-      : {
-          independentOriginCount:
-            convergence.independence === 'INDEPENDENT_ORIGINS'
-              ? convergence.observations.length
-              : 1,
-        }),
   };
 }
 

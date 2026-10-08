@@ -295,16 +295,7 @@ export class OverturePlacesIndexService {
         // Overture itself.
         structuralKind: 'UNKNOWN',
         ...(row.upstreamDataset
-          ? {
-              evidenceOrigins: [
-                {
-                  authority: row.upstreamDataset.toLowerCase(),
-                  ...(row.upstreamRecordId
-                    ? { recordId: row.upstreamRecordId }
-                    : {}),
-                },
-              ],
-            }
+          ? { upstreamDatasets: [row.upstreamDataset.toLowerCase()] }
           : {}),
         persistenceMetadata: {
           overture: {

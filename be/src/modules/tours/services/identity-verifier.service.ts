@@ -28,11 +28,9 @@ import { identityEvidenceRole } from '../utils/identity-evidence-role.policy';
  *  4b. A QID link (OWN_QID / OBSERVATION_QID) that corroborates both sides
  *     -> VERIFIED, now that no competitor is known. It is not
  *     discriminating: it may never skip rule 4.
- *  5. Convergence (two strategies on one strong identity from independent
- *     evidence origins) decides only over an examined competitor set
- *     (NO_MATERIAL_COMPETITOR). Over an unexamined one it confirms a
- *     record, nothing more; one origin seen through two adapters is one
- *     observation and decides nothing.
+ *  5. Convergence (two strategies on one strong identity) decides only
+ *     over an examined competitor set (NO_MATERIAL_COMPETITOR). Over an
+ *     unexamined one it confirms a record, nothing more.
  *  6. Name, address and alias evidence with its own multiplicity.
  *  7. Wikidata corroboration (NEARBY never decides a name collision, and
  *     a NEARBY non-match is NOT_CORROBORATED, never a contradiction).
@@ -214,29 +212,21 @@ export class IdentityVerifier {
       correspondence.basis !== 'ADMISSION_SCOPE_ONLY';
 
     // 5. IDENTITY_CONVERGENCE: two acquisition strategies reached the same
-    // strong identity (pure ID equality) from INDEPENDENT evidence origins.
-    // Provider diversity is not independence: one OSM record reached
-    // through Nominatim and Geoapify (or Overpass and Nominatim) is one
-    // observation, so a lexical OVERLAP repeated through a second adapter
-    // cannot bootstrap itself into VERIFIED (RW4-ID-FALSE-VERIFY-2: "Club
-    // Atletico" -> San Lorenzo Sede Boedo, "National Bank" -> First
-    // National Bank of Boston). Independent convergence establishes that
-    // the record matches the hint, not that no other record does: it
-    // decides only when the competitor set was examined by a complete pool
-    // that holds this candidate and no material competitor. Absent or
-    // partial examination is UNKNOWN uniqueness, never "no collision" --
-    // it falls through to the remaining evidence.
-    const convergence = this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE');
+    // strong identity (pure ID equality). Whatever the upstream relation,
+    // it establishes that the record matches the hint, not that no other
+    // record does: it decides only when the competitor set was examined by
+    // a complete pool that holds this candidate and no material competitor.
+    // Absent or partial examination is UNKNOWN uniqueness, never "no
+    // collision" -- it falls through to the remaining evidence.
     if (
       uniquenessIsGrounded &&
-      convergence &&
-      identityEvidenceRole(convergence) === 'CORROBORATING' &&
+      this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE') &&
       competitors?.outcome === 'NO_MATERIAL_COMPETITOR'
     ) {
       return verdict(
         'VERIFIED',
         'GROUNDED_CONVERGENCE',
-        convergence,
+        this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE'),
         competitors,
         correspondence,
       );

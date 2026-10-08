@@ -16,8 +16,7 @@ import { IdentityEvidence } from '../interfaces/experience-resolution.interface'
  *    explain why a record was considered; it never proves identity.
  *  - CONTRADICTORY: the record is identified as something else.
  *  - QUALIFYING: says where or over what set the other facts hold
- *    (competitors, grounded geography, availability), or repeats one
- *    observation (convergence without independent origins). Never
+ *    (competitors, grounded geography, provenance, availability). Never
  *    decisive alone.
  */
 export type IdentityEvidenceRole =
@@ -51,13 +50,8 @@ export function identityEvidenceRole(
         ? 'DISCRIMINATING'
         : 'QUALIFYING';
     case 'EXACT_NAME':
-      return 'CORROBORATING';
-    // One record reached through two adapters is one observation: only
-    // convergence of independent origins corroborates.
     case 'IDENTITY_CONVERGENCE':
-      return evidence.independence === 'INDEPENDENT_ORIGINS'
-        ? 'CORROBORATING'
-        : 'QUALIFYING';
+      return 'CORROBORATING';
     case 'DECLARED_ALIAS_MATCH':
       return evidence.correspondence === 'EQUIVALENT'
         ? 'CORROBORATING'
@@ -65,6 +59,7 @@ export function identityEvidenceRole(
     case 'WIKIDATA_IDENTITY_MATCH':
       return wikidataLinkRole(evidence);
     case 'WIKIDATA_UNAVAILABLE':
+    case 'CONVERGENCE_PROVENANCE':
     case 'COMPETITOR_EXAMINATION':
     case 'GEOGRAPHIC_CORRESPONDENCE':
       return 'QUALIFYING';

@@ -1,12 +1,10 @@
 import {
-  ConvergenceIndependence,
   IdentityMultiplicity,
   ResolutionAttempt,
 } from '../interfaces/experience-resolution.interface';
 import { IdentityVerifier } from './identity-verifier.service';
 import { IdentityEvidence } from '../interfaces/experience-resolution.interface';
 import { GeoEntityKind } from '@prisma/client';
-import { identityConvergence } from '../fixtures/identity-convergence.fixture';
 
 const candidate = (
   exactName: IdentityMultiplicity = 'SINGLE',
@@ -42,17 +40,6 @@ const destinationBounded = {
   type: 'GEOGRAPHIC_CORRESPONDENCE' as const,
   basis: 'BOUNDED_ADMISSION_SCOPE' as const,
 };
-
-/**
- * RW1 El Zanjón's real convergence: LOCAL_OSM_POOL (Overpass) and
- * NOMINATIM both read OSM node 9953027884 -- one origin, two adapters.
- */
-const zanjonSharedConvergence = identityConvergence(
-  'SHARED_ORIGIN',
-  { provider: 'openstreetmap', externalId: 'osm:node:9953027884' },
-  'LOCAL_OSM_POOL',
-  'NOMINATIM',
-);
 
 /** Legacy boolean shape of a Wikidata link, as the pre-2026-10-07
  * fixtures state it: `true` is the strongest correspondence (the side
@@ -101,7 +88,16 @@ describe('IdentityVerifier', () => {
     await expect(
       verifier.verify(
         { name: 'El Zanjón de Granados' },
-        attempt([zanjonSharedConvergence]),
+        attempt([
+          {
+            type: 'IDENTITY_CONVERGENCE',
+            priorStrategy: 'LOCAL_OSM_POOL',
+            identity: {
+              provider: 'openstreetmap',
+              externalId: 'osm:node:9953027884',
+            },
+          },
+        ]),
       ),
     ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
   });
@@ -123,7 +119,14 @@ describe('IdentityVerifier', () => {
       verifier.verify(
         { name: 'El Zanjón de Granados' },
         attempt([
-          zanjonSharedConvergence,
+          {
+            type: 'IDENTITY_CONVERGENCE',
+            priorStrategy: 'LOCAL_OSM_POOL',
+            identity: {
+              provider: 'openstreetmap',
+              externalId: 'osm:node:9953027884',
+            },
+          },
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
             source: 'NEARBY',
@@ -135,45 +138,50 @@ describe('IdentityVerifier', () => {
     ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
   });
 
-  /**
-   * Changed 2026-10-07 (RW4-ID-FALSE-VERIFY-2). These projected RW1 facts
-   * VERIFIED by GROUNDED_CONVERGENCE. Their convergence is one OSM node read
-   * by Overpass and Nominatim (one evidence origin), and the hint only
-   * OVERLAPs the record name "El Zanjón de Granados (historic ruins)", so no
-   * EXACT_NAME applies: the same shape as the C3 false VERIFIEDs ("Club
-   * Atletico" -> San Lorenzo Sede Boedo). With no independent origin and no
-   * other decisive fact, the verdict is INSUFFICIENT_EVIDENCE. The same
-   * facts with a genuinely independent second origin still VERIFY.
-   */
   describe('RW1 El Zanjón facts, projected: convergence over an examined competitor set', () => {
     const verifier = new IdentityVerifier();
-    // Nominatim's untruncated country-bounded response held only this node.
-    const examined = {
-      type: 'COMPETITOR_EXAMINATION' as const,
-      outcome: 'NO_MATERIAL_COMPETITOR' as const,
-      examinedStrategies: ['LOCAL_OSM_POOL' as const, 'NOMINATIM' as const],
-      competitorCount: 0,
-    };
-    const zanjonFacts = [zanjonSharedConvergence, examined, destinationBounded];
+    const zanjonConvergence = [
+      {
+        type: 'IDENTITY_CONVERGENCE' as const,
+        priorStrategy: 'LOCAL_OSM_POOL' as const,
+        identity: {
+          provider: 'openstreetmap',
+          externalId: 'osm:node:9953027884',
+        },
+      },
+      {
+        type: 'CONVERGENCE_PROVENANCE' as const,
+        identity: {
+          provider: 'openstreetmap',
+          externalId: 'osm:node:9953027884',
+        },
+        upstream: 'SHARED_UPSTREAM' as const,
+      },
+      // Nominatim's untruncated country-bounded response held only this node.
+      {
+        type: 'COMPETITOR_EXAMINATION' as const,
+        outcome: 'NO_MATERIAL_COMPETITOR' as const,
+        examinedStrategies: ['LOCAL_OSM_POOL' as const, 'NOMINATIM' as const],
+        competitorCount: 0,
+      },
+      destinationBounded,
+    ];
 
-    it('one origin through two adapters is not decisive', () => {
+    it('VERIFIES with no other evidence needed', () => {
       expect(
-        verifier.decide(
+        verifier.verify(
           { name: 'El Zanjón de Granados' },
-          attempt(zanjonFacts),
+          attempt(zanjonConvergence),
         ),
-      ).toMatchObject({
-        status: 'INSUFFICIENT_EVIDENCE',
-        rule: 'NO_DECISIVE_EVIDENCE',
-      });
+      ).toEqual({ status: 'VERIFIED' });
     });
 
-    it('a NEARBY item that matches only the hint text does not make it decisive', () => {
+    it('outweighs a NEARBY item that matches only the hint text', () => {
       expect(
         verifier.verify(
           { name: 'El Zanjón de Granados' },
           attempt([
-            ...zanjonFacts,
+            ...zanjonConvergence,
             {
               type: 'WIKIDATA_IDENTITY_MATCH',
               source: 'NEARBY',
@@ -182,25 +190,7 @@ describe('IdentityVerifier', () => {
             },
           ]),
         ),
-      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
-    });
-
-    it('the same facts with an independent second origin VERIFY', () => {
-      expect(
-        verifier.decide(
-          { name: 'El Zanjón de Granados' },
-          attempt([
-            identityConvergence(
-              'INDEPENDENT_ORIGINS',
-              zanjonSharedConvergence.identity,
-              'LOCAL_OSM_POOL',
-              'PLACES',
-            ),
-            examined,
-            destinationBounded,
-          ]),
-        ),
-      ).toMatchObject({ status: 'VERIFIED', rule: 'GROUNDED_CONVERGENCE' });
+      ).toEqual({ status: 'VERIFIED' });
     });
   });
 
@@ -976,7 +966,16 @@ describe('IdentityVerifier', () => {
           },
         ],
       ],
-      ['IDENTITY_CONVERGENCE', [identityConvergence('INDEPENDENT_ORIGINS')]],
+      [
+        'IDENTITY_CONVERGENCE',
+        [
+          {
+            type: 'IDENTITY_CONVERGENCE',
+            priorStrategy: 'NOMINATIM',
+            identity: { provider: 'openstreetmap', externalId: 'osm:node:1' },
+          },
+        ],
+      ],
       [
         'CATALOG_VERIFIED_HINT_MATCH + SINGLE',
         [
@@ -1168,8 +1167,21 @@ describe('IdentityVerifier', () => {
       provider: 'openstreetmap',
       externalId: 'osm:node:4797394430',
     };
-    const convergence = (independence: ConvergenceIndependence) =>
-      identityConvergence(independence, identity);
+    const convergence = {
+      type: 'IDENTITY_CONVERGENCE' as const,
+      priorStrategy: 'NOMINATIM' as const,
+      identity,
+    };
+    const provenance = (
+      upstream:
+        | 'SHARED_UPSTREAM'
+        | 'INDEPENDENT_UPSTREAMS'
+        | 'UNDETERMINED_UPSTREAM',
+    ) => ({
+      type: 'CONVERGENCE_PROVENANCE' as const,
+      identity,
+      upstream,
+    });
     const examination = (
       outcome:
         | 'MATERIAL_COMPETITOR_KNOWN'
@@ -1183,45 +1195,25 @@ describe('IdentityVerifier', () => {
       competitorCount,
     });
     const upstreams = [
-      'SHARED_ORIGIN',
-      'INDEPENDENT_ORIGINS',
-      'UNDETERMINED_ORIGIN',
+      'SHARED_UPSTREAM',
+      'INDEPENDENT_UPSTREAMS',
+      'UNDETERMINED_UPSTREAM',
     ] as const;
 
-    it('independent-origin convergence over an examined set with no material competitor VERIFIES', () => {
-      expect(
-        verifier.decide(
-          { name: 'Ojo de Agua' },
-          attempt([
-            convergence('INDEPENDENT_ORIGINS'),
-            examination('NO_MATERIAL_COMPETITOR'),
-            destinationBounded,
-          ]),
-        ),
-      ).toMatchObject({ status: 'VERIFIED', rule: 'GROUNDED_CONVERGENCE' });
-    });
-
-    // Changed 2026-10-07 (RW4-ID-FALSE-VERIFY-2). Before, every upstream
-    // relation VERIFIED here. One record reached through two adapters is
-    // one observation: it earns no convergence credit, so with nothing
-    // else decisive the verdict is INSUFFICIENT_EVIDENCE (C3 "Club
-    // Atletico" and "National Bank"; RW1 El Zanjón has the same shape).
-    it.each(['SHARED_ORIGIN', 'UNDETERMINED_ORIGIN'] as const)(
-      '%s convergence over an examined set with no material competitor is not decisive',
-      (independence) => {
+    it.each(upstreams)(
+      '%s convergence over an examined set with no material competitor VERIFIES (RW1 El Zanjón / Farmacia shape)',
+      (upstream) => {
         expect(
-          verifier.decide(
+          verifier.verify(
             { name: 'Ojo de Agua' },
             attempt([
-              convergence(independence),
+              convergence,
+              provenance(upstream),
               examination('NO_MATERIAL_COMPETITOR'),
               destinationBounded,
             ]),
           ),
-        ).toMatchObject({
-          status: 'INSUFFICIENT_EVIDENCE',
-          rule: 'NO_DECISIVE_EVIDENCE',
-        });
+        ).toEqual({ status: 'VERIFIED' });
       },
     );
 
@@ -1232,7 +1224,8 @@ describe('IdentityVerifier', () => {
           verifier.verify(
             { name: 'Ojo de Agua' },
             attempt([
-              convergence(upstream),
+              convergence,
+              provenance(upstream),
               examination('NO_COMPETITOR_OBSERVED'),
             ]),
           ),
@@ -1242,10 +1235,7 @@ describe('IdentityVerifier', () => {
 
     it('missing provenance and missing examination: convergence alone is not decisive', () => {
       expect(
-        verifier.verify(
-          { name: 'Ojo de Agua' },
-          attempt([convergence('UNDETERMINED_ORIGIN')]),
-        ),
+        verifier.verify({ name: 'Ojo de Agua' }, attempt([convergence])),
       ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
     });
 
@@ -1255,7 +1245,8 @@ describe('IdentityVerifier', () => {
           { name: 'Ojo de Agua' },
           attempt(
             [
-              convergence('SHARED_ORIGIN'),
+              convergence,
+              provenance('SHARED_UPSTREAM'),
               { type: 'EXACT_NAME', identityMultiplicity: 'UNKNOWN' },
               examination('NO_COMPETITOR_OBSERVED'),
             ],
@@ -1272,7 +1263,8 @@ describe('IdentityVerifier', () => {
           verifier.verify(
             { name: 'Ojo de Agua' },
             attempt([
-              convergence(upstream),
+              convergence,
+              provenance(upstream),
               examination('MATERIAL_COMPETITOR_KNOWN'),
             ]),
           ),
@@ -1331,7 +1323,8 @@ describe('IdentityVerifier', () => {
             { name: 'Ojo de Agua' },
             attempt([
               discriminating,
-              convergence('SHARED_ORIGIN'),
+              convergence,
+              provenance('SHARED_UPSTREAM'),
               examination('MATERIAL_COMPETITOR_KNOWN', 30),
             ]),
           ),
@@ -1357,7 +1350,8 @@ describe('IdentityVerifier', () => {
               hintCorrespondence: 'DECLARES_QID',
               candidateCorrespondence: 'EQUIVALENT',
             },
-            convergence('SHARED_ORIGIN'),
+            convergence,
+            provenance('SHARED_UPSTREAM'),
             examination('MATERIAL_COMPETITOR_KNOWN', 30),
           ]),
         ),
@@ -1385,7 +1379,8 @@ describe('IdentityVerifier', () => {
         verifier.verify(
           { name: 'Ojo de Agua' },
           attempt([
-            convergence('INDEPENDENT_ORIGINS'),
+            convergence,
+            provenance('INDEPENDENT_UPSTREAMS'),
             examination('NO_MATERIAL_COMPETITOR'),
             {
               type: 'IDENTITY_CONTRADICTION',
@@ -1437,14 +1432,14 @@ describe('IdentityVerifier', () => {
       examinedStrategies: ['LOCAL_OSM_POOL' as const, 'NOMINATIM' as const],
       competitorCount: outcome === 'MATERIAL_COMPETITOR_KNOWN' ? 1 : 0,
     });
-    // Independent-origin convergence: the positive control. The real RW1
-    // shape (one origin) is `zanjonSharedConvergence`.
-    const convergence = identityConvergence(
-      'INDEPENDENT_ORIGINS',
-      zanjonSharedConvergence.identity,
-      'LOCAL_OSM_POOL',
-      'PLACES',
-    );
+    const convergence = {
+      type: 'IDENTITY_CONVERGENCE' as const,
+      priorStrategy: 'LOCAL_OSM_POOL' as const,
+      identity: {
+        provider: 'openstreetmap',
+        externalId: 'osm:node:9953027884',
+      },
+    };
     const qidConflict = {
       type: 'IDENTITY_CONTRADICTION' as const,
       fact: 'WIKIDATA_QID' as const,
@@ -1502,7 +1497,7 @@ describe('IdentityVerifier', () => {
       ).toEqual({ status: 'AMBIGUOUS' });
     });
 
-    it('NEARBY(true, false) with independent convergence over a complete pool and no material competitor VERIFIES', () => {
+    it('NEARBY(true, false) with convergence over a complete pool and no material competitor VERIFIES', () => {
       expect(
         verifier.verify(
           hint,
@@ -1514,20 +1509,6 @@ describe('IdentityVerifier', () => {
           ]),
         ),
       ).toEqual({ status: 'VERIFIED' });
-    });
-
-    it('NEARBY(true, false) with one-origin convergence over a complete pool is INSUFFICIENT_EVIDENCE (RW4-ID-FALSE-VERIFY-2)', () => {
-      expect(
-        verifier.verify(
-          hint,
-          attempt([
-            zanjonSharedConvergence,
-            nearby(true, false),
-            examination('NO_MATERIAL_COMPETITOR'),
-            destinationBounded,
-          ]),
-        ),
-      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
     });
 
     it.each([
@@ -1693,7 +1674,11 @@ describe('IdentityVerifier', () => {
       examinedStrategies: ['NOMINATIM' as const],
       competitorCount: 0,
     };
-    const convergence = identityConvergence('INDEPENDENT_ORIGINS');
+    const convergence = {
+      type: 'IDENTITY_CONVERGENCE' as const,
+      priorStrategy: 'NOMINATIM' as const,
+      identity: { provider: 'openstreetmap', externalId: 'osm:node:1' },
+    };
 
     it.each([
       ['BOUNDED_ADMISSION_SCOPE' as const, 'VERIFIED'],

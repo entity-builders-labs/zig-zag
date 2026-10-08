@@ -7,10 +7,8 @@ import { projectComponentIdentityStepInputs } from './resolution-audit';
 import {
   CandidateResolutionAudit,
   ComponentResolutionAudit,
-  IdentityEvidence,
   ResolutionAttemptAudit,
 } from '../../interfaces/experience-resolution.interface';
-import { identityConvergence } from '../../fixtures/identity-convergence.fixture';
 import { ownedIntentGrant } from '../geographic-validation-authorization.util';
 import {
   geographicIntentDeficit,
@@ -284,74 +282,6 @@ describe('resolution.component_identity compact audit', () => {
       competitors: {
         outcome: 'MATERIAL_COMPETITOR_KNOWN',
         competitorCount: 11,
-      },
-    });
-  });
-
-  it('shows whether a convergence was 2 adapters / 1 origin or 2 independent origins (RW4-ID-FALSE-VERIFY-2)', () => {
-    const decisionWith = (
-      independence: 'SHARED_ORIGIN' | 'INDEPENDENT_ORIGINS',
-    ) => {
-      const convergence = identityConvergence(independence, {
-        provider: 'openstreetmap',
-        externalId: 'osm:way:23634484',
-      });
-      const audit = withIdentityDecisions(heavyAudit(2));
-      const [step] = projectComponentIdentityStepInputs(
-        resolutionWith([
-          {
-            ...audit,
-            componentAudits: audit.componentAudits.map((component) => ({
-              ...component,
-              attempts: component.attempts.map((attempt) => ({
-                ...attempt,
-                identityEvidence: [convergence],
-                verificationDecision: 'INSUFFICIENT_EVIDENCE' as const,
-                verificationRule: 'NO_DECISIVE_EVIDENCE' as const,
-                decisiveEvidence: [] as IdentityEvidence[],
-              })),
-            })),
-          },
-        ]) as any,
-        { strategy: 'generic', passNumber: 1, workUnitKind: 'GENERIC' },
-      );
-      return (step.facts as any).components[0].identityDecision;
-    };
-
-    expect(decisionWith('SHARED_ORIGIN')).toMatchObject({
-      evidence: [{ type: 'IDENTITY_CONVERGENCE', role: 'QUALIFYING' }],
-      convergence: {
-        identity: 'openstreetmap/osm:way:23634484',
-        observations: [
-          {
-            strategy: 'NOMINATIM',
-            origins: [
-              { authority: 'openstreetmap', recordId: 'osm:way:23634484' },
-            ],
-          },
-          {
-            strategy: 'PLACES',
-            origins: [
-              { authority: 'openstreetmap', recordId: 'osm:way:23634484' },
-            ],
-          },
-        ],
-        evidenceOrigins: [
-          { authority: 'openstreetmap', recordId: 'osm:way:23634484' },
-        ],
-        independence: 'SHARED_ORIGIN',
-        independentOriginCount: 1,
-      },
-    });
-    expect(decisionWith('INDEPENDENT_ORIGINS')).toMatchObject({
-      evidence: [{ type: 'IDENTITY_CONVERGENCE', role: 'CORROBORATING' }],
-      convergence: {
-        evidenceOrigins: [
-          { authority: 'openstreetmap', recordId: 'osm:way:23634484' },
-          { authority: 'independent_dataset', recordId: 'record-1' },
-        ],
-        independence: 'INDEPENDENT_ORIGINS',
-        independentOriginCount: 2,
       },
     });
   });

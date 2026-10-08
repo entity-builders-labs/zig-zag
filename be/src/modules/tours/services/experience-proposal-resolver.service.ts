@@ -25,9 +25,7 @@ import { ExperienceEmbeddingIndexerService } from '@shared/ai/services/experienc
 import { Coordinates } from '@shared/utils/distance.utils';
 import {
   ExperienceEntityResolutionResponse,
-  ConvergenceObservation,
   EntityCandidate,
-  EvidenceOrigin,
   ExperienceProposalResolver,
   ExperienceResolutionRequest,
   FinalExperienceResolutionResponse,
@@ -111,7 +109,7 @@ import {
 } from '../utils/places-external-identity.util';
 import {
   buildLocalIdentityEvidence,
-  convergenceIndependence,
+  upstreamRelation,
 } from '../utils/identity-evidence-builder.util';
 import {
   candidateIdentityKey,
@@ -211,11 +209,17 @@ interface ComponentAcquisitionScope {
 export { selectBestPlaceCandidate } from '../utils/places-candidate-selector.util';
 
 /**
- * Strong identities acquired for one hint so far: every strategy that
- * reached each, in order, with the evidence origins of its record (to tell
- * real convergence from one record found twice).
+ * Strong identities acquired for one hint so far, with the strategy that
+ * first reached each and the upstream datasets that strategy's record
+ * derives from (to tell real convergence from one record found twice).
  */
-type SeenIdentities = Map<string, ConvergenceObservation[]>;
+type SeenIdentities = Map<
+  string,
+  {
+    strategy: ResolutionStrategy;
+    upstreamDatasets?: readonly string[];
+  }
+>;
 
 /**
  * Every pool examined for one hint so far, plus the canonical admission
@@ -2052,41 +2056,38 @@ export class ExperienceProposalResolverService
       // and Geoapify's views of one OSM node share a key while `osm:node:1`
       // and `osm:way:1` never do. Exact equality only -- no names, no
       // coordinates, no count of agreeing providers. Whether the two
-      // observations are independent is part of the same fact: their
-      // records' evidence origins.
+      // acquisitions are independent is a separate fact: their records'
+      // upstream datasets.
       const identities = strongIdentitiesOf(entity);
-      const current: ConvergenceObservation = {
-        strategy,
-        origins: entity.evidenceOrigins ?? [],
-      };
-      // Every earlier observation by a different strategy on any shared
-      // key; an independent one is preferred, so a record first found
-      // twice through one origin does not hide a later independent one.
-      const convergences = identities.flatMap((identity) =>
-        (seenIdentities.get(strongIdentityKey(identity)) ?? [])
-          .filter((prior) => prior.strategy !== strategy)
-          .map((prior) => ({
-            type: 'IDENTITY_CONVERGENCE' as const,
-            priorStrategy: prior.strategy,
-            identity,
-            observations: [prior, current] as [
-              ConvergenceObservation,
-              ConvergenceObservation,
-            ],
-            independence: convergenceIndependence(
-              prior.origins,
-              current.origins,
-            ),
-          })),
-      );
-      const convergence =
-        convergences.find(
-          (item) => item.independence === 'INDEPENDENT_ORIGINS',
-        ) ?? convergences[0];
-      if (convergence) evidence.push(convergence);
+      for (const identity of identities) {
+        const prior = seenIdentities.get(strongIdentityKey(identity));
+        if (prior && prior.strategy !== strategy) {
+          evidence.push(
+            {
+              type: 'IDENTITY_CONVERGENCE',
+              priorStrategy: prior.strategy,
+              identity,
+            },
+            {
+              type: 'CONVERGENCE_PROVENANCE',
+              identity,
+              upstream: upstreamRelation(
+                prior.upstreamDatasets,
+                entity.upstreamDatasets,
+              ),
+            },
+          );
+          break;
+        }
+      }
       for (const identity of identities) {
         const key = strongIdentityKey(identity);
-        seenIdentities.set(key, [...(seenIdentities.get(key) ?? []), current]);
+        if (!seenIdentities.has(key)) {
+          seenIdentities.set(key, {
+            strategy,
+            upstreamDatasets: entity.upstreamDatasets,
+          });
+        }
       }
     }
     const attempt: ResolutionAttempt = {
@@ -2689,7 +2690,7 @@ export class ExperienceProposalResolverService
       addressConfirmed: matchesAddressHint(hint.addressHint, matched.tags),
       nameEvidenceMultiplicity: nameMultiplicity,
       structuralKind: structuralKindFromOsmTags(matched.tags),
-      evidenceOrigins: [{ authority: 'openstreetmap', recordId: matched.id }],
+      upstreamDatasets: ['openstreetmap'],
       persistenceMetadata: { tags: matched.tags },
     };
   }
@@ -3175,9 +3176,7 @@ export class ExperienceProposalResolverService
           role: correctedHint.role,
           nameEvidenceMultiplicity: nameMultiplicity,
           structuralKind: structuralKindFromNominatim(match),
-          evidenceOrigins: [
-            { authority: 'openstreetmap', recordId: externalId },
-          ],
+          upstreamDatasets: ['openstreetmap'],
           ...(contextualPool ? { contextualPool } : {}),
           adminContext: {
             country: match.address?.country,
@@ -3603,11 +3602,7 @@ export class ExperienceProposalResolverService
           exactName: 'UNKNOWN',
           declaredAlias: 'UNKNOWN',
         },
-        ...this.placesEvidenceOrigins(
-          providerLabel,
-          externalId,
-          sourceIdentities,
-        ),
+        ...this.placesUpstreamDatasets(providerLabel, sourceIdentities),
         ...(wikidataQid ? { wikidataQid } : {}),
         ...(sourceIdentities.length > 0
           ? {
@@ -3870,11 +3865,7 @@ export class ExperienceProposalResolverService
           structuralKind: structuralKindFromPlaceFeatureClass(
             place.featureClass,
           ),
-          ...this.placesEvidenceOrigins(
-            providerLabel,
-            externalId,
-            sourceIdentities,
-          ),
+          ...this.placesUpstreamDatasets(providerLabel, sourceIdentities),
           ...(contextualPool ? { contextualPool } : {}),
           ...(wikidataQid ? { wikidataQid } : {}),
           ...(sourceIdentities.length > 0
@@ -3905,30 +3896,27 @@ export class ExperienceProposalResolverService
   }
 
   /**
-   * Evidence origins of a Places record. A provider that declares its
+   * Upstream datasets of a Places record. A provider that declares its
    * records' sources (Place Details) derives this record from the declared
-   * non-Wikidata identities (a QID is a cross-reference, not a source); a
-   * provider without that capability authored the record itself. A
-   * declaring provider that declared nothing leaves the origin
-   * undetermined.
+   * non-Wikidata namespaces (a QID is a cross-reference, not a source); a
+   * provider without that capability is its own dataset. A declaring
+   * provider that declared nothing leaves the upstream undetermined.
    */
-  private placesEvidenceOrigins(
+  private placesUpstreamDatasets(
     providerLabel: string,
-    externalId: string,
-    sourceIdentities: ReadonlyArray<StrongIdentity>,
-  ): { evidenceOrigins?: EvidenceOrigin[] } {
+    sourceIdentities: ReadonlyArray<{ provider: string }>,
+  ): { upstreamDatasets?: string[] } {
     if (!this.placesApi?.declaresSourceIdentitiesInDetails) {
-      return {
-        evidenceOrigins: [{ authority: providerLabel, recordId: externalId }],
-      };
+      return { upstreamDatasets: [providerLabel] };
     }
-    const origins = sourceIdentities
-      .filter((identity) => identity.provider !== 'wikidata')
-      .map((identity) => ({
-        authority: identity.provider,
-        recordId: identity.externalId,
-      }));
-    return origins.length > 0 ? { evidenceOrigins: origins } : {};
+    const upstream = [
+      ...new Set(
+        sourceIdentities
+          .map((identity) => identity.provider)
+          .filter((provider) => provider !== 'wikidata'),
+      ),
+    ];
+    return upstream.length > 0 ? { upstreamDatasets: upstream } : {};
   }
 
   /**
