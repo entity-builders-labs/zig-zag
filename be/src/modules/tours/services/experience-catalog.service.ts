@@ -896,7 +896,10 @@ export class ExperienceCatalogService {
       latitude: lat,
       longitude: lon,
       distance: distanceKm,
-      duration: (experience.durationMinutes ?? 120) / 60,
+      duration:
+        experience.durationMinutes == null
+          ? undefined
+          : experience.durationMinutes / 60,
       durationMinutes: experience.durationMinutes,
       openingHours: experience.openingHours,
       themes: this.stringList(metadata.themes),
@@ -979,7 +982,10 @@ export class ExperienceCatalogService {
       latitude: experience.latitude ?? primaryGeoEntity?.latitude,
       longitude: experience.longitude ?? primaryGeoEntity?.longitude,
       address: primaryGeoEntity?.address,
-      duration: (experience.durationMinutes ?? 120) / 60,
+      duration:
+        experience.durationMinutes == null
+          ? undefined
+          : experience.durationMinutes / 60,
       durationMinutes: experience.durationMinutes,
       openingHours: experience.openingHours,
       themes: this.stringList(metadata.themes),

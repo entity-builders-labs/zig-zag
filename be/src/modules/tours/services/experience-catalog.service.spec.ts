@@ -1320,6 +1320,7 @@ describe('ExperienceCatalogService.findVerifiedMultiComponentByExactComponent (T
       }),
     );
     expect(result.map((row) => row.id)).toEqual(['exp-caminito']);
+    expect(result[0].duration).toBeUndefined();
   });
 
   it('excludes a single-component Experience (the exact component alone does not satisfy "multi-component")', async () => {
