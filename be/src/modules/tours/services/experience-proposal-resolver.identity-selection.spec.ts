@@ -1920,3 +1920,94 @@ describe('ExperienceProposalResolverService -- identity policy reassessment scen
     expect(catalog.upsertGeoEntity).toHaveBeenCalledTimes(1);
   });
 });
+
+/**
+ * RW4-ID-FALSE-VERIFY-2 at resolver level, generic names. C3 shape: the
+ * hint only OVERLAPs the record Nominatim and Geoapify both return (one OSM
+ * record), while the local pool holds other records answering to the hint
+ * at that same grade. The control is the RW1 El Zanjón / Farmacia shape:
+ * the same convergence with no other record at that grade still VERIFIES.
+ */
+describe('ExperienceProposalResolverService -- competitors at the candidate grade (RW4-ID-FALSE-VERIFY-2)', () => {
+  const selected: NominatimResult = {
+    osmType: 'way',
+    osmId: 901,
+    class: 'leisure',
+    type: 'sports_centre',
+    addresstype: 'leisure',
+    displayName:
+      'Kestrel Club Hollowmere - North Seat, Ciudad de Mendoza, Mendoza, Argentina',
+    importance: 0.1,
+    latitude: -32.89,
+    longitude: -68.85,
+    address: {},
+  } as NominatimResult;
+  const poolNode = (osmId: number, name: string) => ({
+    id: `osm:node:${osmId}`,
+    name,
+    osmType: 'node',
+    osmId,
+    geometry: { type: 'Point', coordinates: [-68.86, -32.88] },
+    tags: { tourism: 'attraction' },
+  });
+  const resolveClub = (osmPool: unknown[]) => {
+    const built = build({
+      nominatimResults: [selected],
+      osmPool,
+      placesDeclaringOsm: {
+        name: 'Kestrel Club Hollowmere - North Seat',
+        latitude: -32.89,
+        longitude: -68.85,
+        osmId: 'osm:way:901',
+      },
+    });
+    return built.service
+      .resolve({
+        destinationName: 'Ciudad de Mendoza',
+        destinationCountryCode: 'AR',
+        geographicScope: MENDOZA,
+        candidates: withDefaultGeographicAuthorization([
+          lujanItinerary('Kestrel Club'),
+        ]),
+        evidence: [
+          {
+            key: 'ev-1',
+            source: 'web',
+            title: 'Mendoza walk',
+            snippet: 'Under the bridge, a memory of Kestrel Club',
+          },
+        ],
+      } as any)
+      .then((result) => ({ result, catalog: built.catalog }));
+  };
+
+  it('C3 shape: one OSM record through Nominatim + Geoapify is not VERIFIED while other records answer to the hint at its grade', async () => {
+    const { result, catalog } = await resolveClub([
+      poolNode(902, 'Kestrel Club Atlanta'),
+      poolNode(903, 'Memorial "Kestrel Club"'),
+    ]);
+
+    const places = attemptOf(result, 'PLACES');
+    expect(
+      places.identityEvidence.some(
+        (item: any) => item.type === 'IDENTITY_CONVERGENCE',
+      ),
+    ).toBe(true);
+    expect(
+      places.identityEvidence.find(
+        (item: any) => item.type === 'COMPETITOR_EXAMINATION',
+      ),
+    ).toMatchObject({ outcome: 'MATERIAL_COMPETITOR_KNOWN' });
+    expect(places.verificationDecision).toBe('AMBIGUOUS');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('control (RW1 El Zanjón / Farmacia shape): the same convergence with no other record at that grade still VERIFIES', async () => {
+    const { result } = await resolveClub([poolNode(904, 'Unrelated Gallery')]);
+
+    expect(attemptOf(result, 'PLACES')).toMatchObject({
+      verificationDecision: 'VERIFIED',
+      verificationRule: 'GROUNDED_CONVERGENCE',
+    });
+  });
+});

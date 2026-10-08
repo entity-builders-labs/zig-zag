@@ -447,4 +447,116 @@ describe('examineCompetitors', () => {
       );
     });
   });
+  /**
+   * RW4-ID-FALSE-VERIFY-2 (C3 `c3-idretry2-cold`): competitors are counted
+   * at the grade the candidate itself answers to the hint. The real Buenos
+   * Aires pool held three other records that answer to "Club Atlético" as
+   * well as the selected San Lorenzo Sede Boedo did; counting exact names
+   * only reported none.
+   */
+  describe('competitors at the grade the candidate answers to the hint', () => {
+    const at = (key: string, name: string, extra = {}) =>
+      member(`openstreetmap/${key}`, name, -34.62, -58.37, extra);
+    const examineHint = (
+      hintName: string,
+      entity: EntityCandidate,
+      members: CompetitorPoolMember[],
+    ) =>
+      examineCompetitors({
+        hintName,
+        candidate: entity,
+        pools: [{ strategy: 'LOCAL_OSM_POOL', coverage: 'COMPLETE', members }],
+        context: {},
+        admits: () => true,
+      });
+    const overlapCandidate = (key: string, name: string, extra = {}) =>
+      candidate({
+        hintName: 'h',
+        externalId: key,
+        canonicalName: name,
+        latitude: -34.62,
+        longitude: -58.37,
+        ...extra,
+      });
+
+    it('C3 Club Atlético: other records answering at OVERLAP grade are material competitors of an OVERLAP candidate', () => {
+      const sanLorenzo = at(
+        'osm:way:23634484',
+        'Club Atlético San Lorenzo de Almagro - Sede Boedo',
+      );
+      expect(
+        examineHint(
+          'Club Atlético',
+          overlapCandidate('osm:way:23634484', sanLorenzo.name),
+          [
+            sanLorenzo,
+            at('osm:node:4451139649', 'Club Atlético Atlanta'),
+            at(
+              'osm:node:5290138525',
+              'Espacio para la memoria "Club Atlético"',
+            ),
+            at(
+              'osm:way:464800145',
+              'Museo Club Atlético San Lorenzo de Almagro',
+            ),
+          ],
+        ),
+      ).toMatchObject({
+        outcome: 'MATERIAL_COMPETITOR_KNOWN',
+        competitorCount: 3,
+      });
+    });
+
+    it('RW1 El Zanjón: an OVERLAP candidate alone at its grade keeps NO_MATERIAL_COMPETITOR', () => {
+      const zanjon = at(
+        'osm:node:9953027884',
+        'El Zanjón de Granados (historic ruins)',
+      );
+      expect(
+        examineHint(
+          'El Zanjón de Granados',
+          overlapCandidate('osm:node:9953027884', zanjon.name),
+          [zanjon, at('osm:node:2', 'Casa Mínima')],
+        ).outcome,
+      ).toBe('NO_MATERIAL_COMPETITOR');
+    });
+
+    it('RW1 Farmacia la Estrella: an OVERLAP candidate alone at its grade keeps NO_MATERIAL_COMPETITOR', () => {
+      const farmacia = at('osm:node:3348573778', 'Farmacia de la Estrella');
+      expect(
+        examineHint(
+          'Farmacia la Estrella',
+          overlapCandidate('osm:node:3348573778', farmacia.name),
+          [farmacia, at('osm:node:3', 'Farmacia Central')],
+        ).outcome,
+      ).toBe('NO_MATERIAL_COMPETITOR');
+    });
+
+    it('a candidate answering EQUIVALENTLY through an alias keeps the exact-name competitor set (Cabildo)', () => {
+      const museum = at(
+        'osm:node:767690911',
+        'Museo Histórico Nacional del Cabildo y de la Revolución de Mayo',
+      );
+      expect(
+        examineHint(
+          'Cabildo',
+          overlapCandidate('osm:node:767690911', museum.name, {
+            nameAliasCandidates: ['Cabildo'],
+          }),
+          [museum, at('osm:node:4', 'Museo del Cabildo de Luján')],
+        ).outcome,
+      ).toBe('NO_MATERIAL_COMPETITOR');
+    });
+
+    it('an EQUIVALENT candidate never counts records that only OVERLAP the hint', () => {
+      const exact = at('osm:node:5', 'Kestrel Club');
+      expect(
+        examineHint(
+          'Kestrel Club',
+          overlapCandidate('osm:node:5', 'Kestrel Club'),
+          [exact, at('osm:node:6', 'Kestrel Club Annex')],
+        ).outcome,
+      ).toBe('NO_MATERIAL_COMPETITOR');
+    });
+  });
 });

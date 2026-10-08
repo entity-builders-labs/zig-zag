@@ -10,6 +10,10 @@ import {
   kindCompatibility,
   localityRelation,
 } from './contextual-identity.policy';
+import {
+  bestNameCorrespondence,
+  nameCorrespondence,
+} from './identity-name-correspondence.util';
 import { normalizeGeoName } from './nominatim-match.util';
 import { evaluateStructuralCompatibility } from './place-structural-compatibility.policy';
 import { strongIdentitiesOf, strongIdentityKey } from './strong-identity.util';
@@ -25,7 +29,8 @@ export type CompetitorExamination = Extract<
  * score. IdentityVerifier interprets the fact it produces.
  *
  * A member is a material competitor when it answers to the hint's name or
- * to the candidate's own name (or declares a hint alias), can structurally
+ * to the candidate's own name (or declares a hint alias) at least as well as
+ * the candidate itself does, can structurally
  * be the hinted kind of component (`evaluateStructuralCompatibility`, the
  * same authority that gates PLACE selection -- a stop named after a plaza
  * cannot be the plaza, so it never blocks the plaza's identity), lies
@@ -41,6 +46,16 @@ export type CompetitorExamination = Extract<
  * itself (a lone Nominatim node versus a Places record that declared no
  * OSM cross-reference) is not counted, because whether it is a competitor
  * is unknown.
+ *
+ * "As well as the candidate" (RW4-ID-FALSE-VERIFY-2): a candidate whose own
+ * name and aliases only OVERLAP the hint was admitted at retrieval grade,
+ * so every other record answering to the hint at that grade is an equally
+ * good reading of the source. Counting only exact names would measure the
+ * uniqueness of the candidate's name, not of the hint's referent (C3:
+ * "Club Atletico" -> San Lorenzo Sede Boedo while the pool held Club
+ * Atletico Atlanta, the "Club Atletico" memorial and a San Lorenzo
+ * museum). A candidate that answers EQUIVALENTLY keeps the exact-name
+ * competitor set; nothing here changes for it.
  */
 export function examineCompetitors(input: {
   hintName: string;
@@ -64,14 +79,22 @@ export function examineCompetitors(input: {
   );
   const isCandidate = (member: CompetitorPoolMember) =>
     member.identityKeys.some((key) => candidateKeys.has(key));
+  const candidateGrade = bestNameCorrespondence(input.hintName, [
+    input.candidate.canonicalName ?? '',
+    ...(input.candidate.nameAliasCandidates ?? []),
+  ]);
+  const answersToHint = (member: CompetitorPoolMember) =>
+    names.has(normalizeGeoName(member.name)) ||
+    member.declaresHintAlias === true ||
+    (candidateGrade === 'OVERLAP' &&
+      nameCorrespondence(input.hintName, member.name) !== 'NONE');
 
   let competitorCount = 0;
   let examined = false;
   for (const pool of input.pools) {
     const material = pool.members.filter(
       (member) =>
-        (names.has(normalizeGeoName(member.name)) ||
-          member.declaresHintAlias === true) &&
+        answersToHint(member) &&
         evaluateStructuralCompatibility(
           input.expectedKind,
           member.structuralKind,
