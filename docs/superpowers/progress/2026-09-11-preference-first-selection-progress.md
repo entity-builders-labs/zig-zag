@@ -2148,6 +2148,26 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
+GATHER_RECONCILE_PLAN is IMPLEMENTED, not merged (2026-10-08, on top of
+`9e5a6c9a`). Evidence: `spikes/gather-reconcile-plan-2026-10-08/README.md`.
+- Diagnosis: the C3 SOB 8/15 composite was selected by the post-refill
+  recomposition (replay against the C3 DB). The replan was only adopted on
+  strict progress, so the pre-refill plan became the Tour.
+- Generation is now GATHER → RECONCILE → FREEZE → PLAN: fresh id-ordered
+  catalog snapshots, a PROVISIONAL plan before any PLANNER_CAPACITY
+  acquisition, and the final plan built from a snapshot read after the
+  last acquisition (epoch guard).
+- SAME + EXACT_COMPOSITION reconciles member knowledge
+  (`source-knowledge-reconciliation.policy.ts`). Conflicts fail closed; an
+  admin revoke is never re-learned.
+- New trace steps: `catalog.snapshot`, `generation.gather`,
+  `planning.provisional`, `selection.final`. `sharedSourceMembers` is no
+  longer cut by `MAX_DEPTH`.
+- Dedupe replay of 122 pre-existing tests (287 calls): 0 decision or
+  relation flips. Mutations M1–M8 killed. Unit, integration, e2e and
+  acceptance green; characterization 35/36 (pre-existing CHAR-7).
+- Verdict: READY_FOR_FINAL_COLD_WARM_VALIDATION. C3 not run.
+
 C3 COLD with partial composite persistence ran (2026-10-08, HEAD
 `df71a9cf`, fresh DB `zigzag_spike_rw4_c3_partial`, canonical). Evidence:
 campaign log, "C3 COLD with partial composite persistence".
@@ -2757,6 +2777,11 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 
 ## Next authorized action
 
+000000. (2026-10-08) Owner review of GATHER_RECONCILE_PLAN
+        (`spikes/gather-reconcile-plan-2026-10-08/README.md`, §11 behavior
+        changes, §13 debt). Then a separately authorized COLD C3 on a
+        fresh/reset catalog, and WARM only if COLD qualifies. Do not merge.
+
 00000. (2026-10-08) Owner review of the C3 partial result (campaign log,
        "C3 COLD with partial composite persistence"). Candidates, each
        needing authorization: the manual National Bank lifecycle is moot
@@ -2853,6 +2878,12 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
 
 ## Open findings / blockers
 
+- RW4-RECONCILE-GEO-1: OPEN, LOW (debt). A SAME-reconciled resolution was
+  validated by the observation that resolved it. The canonical set is not
+  jointly re-validated by composite geography after enrichment.
+- RW4-EXTRACT-STABILITY-1: OPEN. Two extractions of one source unit (C3 AG:
+  15 vs 13 members) are PARTIAL_OVERLAP, so their knowledge cannot be
+  reconciled (correctly). The fix is extraction stability, not a merge.
 - RW4-DEDUPE-SEMANTIC-1: OPEN, owner decision. The lexical
   `semanticSimilarity >= 0.58` alone forces AMBIGUOUS (fail-closed reject).
   It is uncalibrated (`baba7da0`, no evidence), order-dependent through

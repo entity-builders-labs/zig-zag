@@ -1,0 +1,8 @@
+windows 19 19 union 19 AG in refill window true SOB in refill window true
+semantic applied 19 / 19
+SELECTED  0:03e3222c(SOB) w=3.00 sim=0.644 | 1:5f113b51 w=1.00 sim=0.593 | 2:577880f8 w=1.00 sim=0.576 | 3:a7cc39ab w=1.00 sim=0.520
+RESERVOIR 0:42211eec(AG) w=0.00 sim=0.826 | 1:e632bcc7 w=0.00 sim=0.615 | 2:9f15cc57 w=0.00 sim=0.581 | 3:5837ce3e w=0.00 sim=0.574 | 4:4faf9630 w=0.00 sim=0.559 | 5:91e64e85 w=0.00 sim=0.548 | 6:14206dc0 w=0.00 sim=0.544 | 7:1b038054 w=0.00 sim=0.534 | 8:687604e9 w=0.00 sim=0.534 | 9:1d1725df w=0.00 sim=0.532 | 10:9f150d5b w=0.00 sim=0.532 | 11:316798cf w=0.00 sim=0.525 | 12:ca899e24 w=0.00 sim=0.525 | 13:64f45185 w=0.00 sim=0.524 | 14:24d38b9b w=0.00 sim=0.516
+SOB 03e3222c-e646-494c-ab99-7733e44d173a navigable 8 selected? true reservoirIdx -1
+AG 42211eec-ae54-4733-a33b-21c068359a38 navigable 3 selected? false reservoirIdx 0
+overlap AG-first excluded 42211eec(AG)→03e3222c, a7cc39ab→03e3222c, e632bcc7→03e3222c
+overlap SOB-first excluded a7cc39ab→03e3222c, 42211eec(AG)→03e3222c, e632bcc7→03e3222c

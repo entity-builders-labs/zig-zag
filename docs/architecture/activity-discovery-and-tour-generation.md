@@ -2020,3 +2020,72 @@ Future backoffice (not built): list PARTIAL Experiences with their
 unresolved members (source name, position, provenance, reason), candidate
 GeoEntities with coordinates for a map, and the three actions above. Role
 authorization is future work.
+
+## Experience Domain V2 — gather, reconcile, then plan (2026-10-08)
+
+**Status: IMPLEMENTED, not merged.** Evidence:
+`spikes/gather-reconcile-plan-2026-10-08/README.md`.
+
+### Invariant
+
+For one generation, every Experience observation acquired inside the
+authorized acquisition budget is reconciled into the canonical catalog
+before the final candidate snapshot is chosen. The Tour is composed from the
+best canonical knowledge available at the end of bounded acquisition, never
+from an earlier snapshot. Acquisition order does not decide eligibility.
+
+```text
+INITIAL_CATALOG_SNAPSHOT
+→ GATHER (coverage passes; provisional plan → PLANNER_CAPACITY acquisition)*
+   each execution: resolve → validate → dedupe → persist NEW
+                   or reconcile SAME knowledge
+→ ACQUISITION_COMPLETE_FOR_GENERATION
+→ FINAL_CATALOG_SNAPSHOT (read after the last acquisition)
+→ FINAL ranking / composition → FINAL plan → TourExperience snapshots
+```
+
+Gather stays bounded: it runs exactly the work current policy already
+authorizes (coverage passes, the planner-capacity pass budget, source-plan
+dedupe, provider limits). It never searches "until complete".
+
+### Snapshots and planning
+
+- A snapshot is a fresh read through the catalog boundary (destination
+  window filtered by PD1 eligibility + exact rows of request-scoped ids),
+  ordered by id. Nothing from an earlier snapshot (hydrated objects, weights,
+  scores, composition inputs) survives into a later one.
+- A plan derives every planner input from one selection.
+- A plan computed only to discover residual capacity is PROVISIONAL. When a
+  planner-capacity acquisition follows it, it is discarded: the catalog is
+  re-read, recomposed and re-planned, with reservoir promotion.
+- Each snapshot records the acquisition epoch it was read at; planning from
+  a snapshot older than the last acquisition fails closed. When no
+  acquisition happened after the last read, that read is the final
+  snapshot.
+
+### SAME reconciliation (union of knowledge, not of Experiences)
+
+Owner: `source-knowledge-reconciliation.policy.ts`, applied inside the
+catalog's SAME transaction.
+
+- Eligible only for a SAME identity decision over `EXACT_COMPOSITION`.
+  SUBCOMPOSITION, PARTIAL_OVERLAP and DISJOINT never merge members; a shared
+  source URL is not enough.
+- Member correspondence is the dedupe authority's `sharedSourceMembers`.
+- An unresolved canonical member becomes RESOLVED (AUTOMATIC) when its
+  corresponding observed member resolved it. A resolved member is never
+  downgraded. Source identity (id, `sourcePosition`, `sourceName`, member
+  count) never changes.
+- Two GeoEntities for one corresponding member is a conflict: the
+  observation writes no member knowledge (no recency/provider/order
+  tie-break). The dedupe authority already refuses SAME in that case; the
+  policy check is defense in depth.
+- A member an administrator revoked (`RESOLUTION_REVOKED`) is not re-learned
+  automatically.
+
+### Embeddings
+
+The SAME write nulls the vector and its index identity in the same
+transaction, and the resolver reindexes synchronously. A stale vector can
+never rank the enriched Experience. If the provider is unavailable, the
+Experience falls in the explicit "no compatible embedding" tier.
