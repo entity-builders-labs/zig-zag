@@ -720,6 +720,10 @@ Canonical plan:
 
 - `docs/superpowers/plans/2026-10-09-city-geoentity-catalog-bootstrap.md`
 
+Durable contract:
+
+- `docs/superpowers/specs/2026-10-09-city-geoentity-catalog-bootstrap-and-learning.md`
+
 This track addresses the long-term destination-knowledge model exposed by the
 current identity work:
 
