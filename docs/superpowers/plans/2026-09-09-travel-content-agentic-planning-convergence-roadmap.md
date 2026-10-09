@@ -770,6 +770,35 @@ Activation requires a separate owner decision. At activation time create a
 dedicated branch/worktree and ACTIVE progress document; do not create a
 `progress/` file merely because this roadmap records the future track.
 
+## Post-Preference-First governance track — OpenSpec Documentation Cutover
+
+Status: **PROPOSED / NON-BLOCKING / NOT ACTIVE UNTIL PREFERENCE-FIRST MERGES**.
+
+Canonical plan:
+
+- `docs/superpowers/plans/2026-10-09-openspec-documentation-governance-cutover.md`
+
+Hard sequencing:
+
+```text
+close Preference-First blockers
+→ final merge reconciliation
+→ merge Preference-First to main
+→ create OpenSpec migration branch FROM accepted main
+→ activate the OpenSpec track there
+```
+
+Do not create another long-lived descendant branch from
+`feat/preference-first-selection` for this work. While Preference-First is
+unmerged, this is documentation of a future track only: no ACTIVE progress
+document, no worktree and no implementation.
+
+The migration will evaluate OpenSpec as the future owner of stable specs,
+change proposals/delta specs, design, tasks/progress and completed-change
+archive while preserving Zig-Zag's branch/worktree safety, preflight, owner
+approval gates, PR review boundary, roadmap-level sequencing and immutable
+forensic evidence where those remain necessary.
+
 ## 6a. Planner Product Acceptance — required before Tour Engine v1
 
 Closing RW4–RW6 proves the canonical Experience research/knowledge system. It
