@@ -3,6 +3,7 @@
 Status: **PROPOSED / NON-BLOCKING / NOT YET ACTIVE**  
 Created: 2026-10-09  
 Roadmap owner: `docs/superpowers/plans/2026-09-09-travel-content-agentic-planning-convergence-roadmap.md`
+Canonical spec: `docs/superpowers/specs/2026-10-09-city-geoentity-catalog-bootstrap-and-learning.md`
 
 This document defines a future knowledge-bootstrap track. It is **not** an
 ACTIVE execution track and therefore intentionally has no `progress/` file or
