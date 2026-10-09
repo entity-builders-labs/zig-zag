@@ -146,6 +146,20 @@ therefore not a future sequencing gate anymore.
 
 There is no required `preference-first → experience-domain-v2 → unified` detour.
 
+A separate **City GeoEntity Catalog Bootstrap** knowledge track is now proposed in:
+
+- `docs/superpowers/plans/2026-10-09-city-geoentity-catalog-bootstrap.md`
+
+It is **non-blocking for the current Preference-First merge reconciliation** and
+is not yet an ACTIVE execution track. Its target architecture is to bootstrap
+canonical GeoEntities aggressively when a city is onboarded, seed a
+conservative set of simple Experiences from tourism-relevant GeoEntities, and
+keep source-defined/composite Experiences primarily demand-driven so they are
+learned and reconciled into the catalog as real requests discover them. The
+track may begin from an accepted tour-engine base without waiting for every
+post-convergence product capability, but it must not weaken current runtime
+identity rules while it is deferred.
+
 The component-resolution milestone is complete and stays closed unless a real
 regression invalidates an accepted invariant. The immediate post-milestone
 gate is the Experience-dedupe policy defect observed live in RW1, not more
@@ -697,6 +711,60 @@ At closure the research/knowledge core must satisfy, at minimum:
 - reservoir/backfill/acquisition convergence is bounded;
 - Generation Trace v5 / Bitácora explain the real decisions;
 - no second legacy tour-generation authority remains.
+
+## Parallel future knowledge track — City GeoEntity Catalog Bootstrap
+
+Status: **PROPOSED / NON-BLOCKING / NOT ACTIVE**.
+
+Canonical plan:
+
+- `docs/superpowers/plans/2026-10-09-city-geoentity-catalog-bootstrap.md`
+
+This track addresses the long-term destination-knowledge model exposed by the
+current identity work:
+
+```text
+city onboarding
+→ broad GeoEntity discovery
+→ cross-provider canonicalization
+→ aliases / translations / provider IDs / provenance
+→ automatic high-confidence acceptance or backoffice review
+→ reusable city GeoEntity catalog
+→ conservative simple-Experience bootstrap
+```
+
+Runtime generation then becomes primarily:
+
+```text
+source member
+→ catalog identity lookup
+→ runtime resolver only on catalog miss / insufficient evidence
+→ typed learning proposal
+→ catalog or backoffice
+```
+
+The track deliberately separates:
+
+```text
+GeoEntity = what place/entity exists
+Experience = what a traveler can do there
+```
+
+GeoEntities are the aggressive onboarding surface. Simple Experiences may be
+seeded conservatively for tourism-relevant entities. Composite and
+source-defined Experiences remain primarily demand-driven and accumulate in the
+Experience catalog through the existing evidence → resolve → validate → dedupe
+→ reconcile → persist path.
+
+This future architecture makes conservative runtime identity behavior more
+acceptable: correct-but-unproven source members may remain
+`INSUFFICIENT_EVIDENCE` until stronger evidence or backoffice confirmation
+turns the wording/alias into durable catalog knowledge. It does **not** justify
+weak `OVERLAP`-grade convergence or fabricated aliases today.
+
+Activation requires a separate owner decision. At activation time create a
+dedicated branch/worktree and ACTIVE progress document; do not create a
+`progress/` file merely because this roadmap records the future track.
 
 ## 6a. Planner Product Acceptance — required before Tour Engine v1
 
