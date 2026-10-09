@@ -79,6 +79,13 @@ Key current references include:
 - specs/2026-10-09-city-geoentity-catalog-bootstrap-and-learning.md
   — proposed/deferred durable contract for city GeoEntity bootstrap, alias/translation authority, simple-Experience seeding, backoffice correction and runtime catalog learning.
 
+
+Proposed future governance migration:
+
+- plans/2026-10-09-openspec-documentation-governance-cutover.md
+  — proposed/non-blocking OpenSpec cutover track; it activates only after
+    Preference-First is merged to `main`, and its branch must start from that
+    accepted `main` HEAD.
 Future feature specs may exist before their implementation tracks are active.
 A proposed/deferred spec is **not** authorization to create a branch, worktree,
 PR, or implementation plan.
