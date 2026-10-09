@@ -88,13 +88,19 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
     },
   );
 
-  let catalog: { findVerifiedWithin: jest.Mock; findVerifiedByIds: jest.Mock };
+  let catalog: {
+    findVerifiedWithinForMatching: jest.Mock;
+    findVerifiedByIds: jest.Mock;
+  };
   let normalizer: { normalizeExperiences: jest.Mock };
   let solver: { solve: jest.Mock };
   let service: ExperienceGenerationService;
 
   beforeEach(() => {
-    catalog = { findVerifiedWithin: jest.fn(), findVerifiedByIds: jest.fn() };
+    catalog = {
+      findVerifiedWithinForMatching: jest.fn(),
+      findVerifiedByIds: jest.fn(),
+    };
     normalizer = {
       normalizeExperiences: jest.fn(async (experiences: any[]) =>
         experiences.map((experience) => ({
@@ -154,7 +160,6 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
             maxAcquisitionPasses: 1,
           },
         },
-        CATALOG_RETRIEVAL_POOL_LIMIT: 250,
         logger: { log: jest.fn(), warn: jest.fn(), error: jest.fn() },
       },
     );
@@ -183,7 +188,7 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
       ...row('exp-a'),
       canonicalName: 'Experience exp-a (enriched)',
     };
-    catalog.findVerifiedWithin
+    catalog.findVerifiedWithinForMatching
       .mockResolvedValueOnce([stale])
       .mockResolvedValueOnce([enriched]);
     catalog.findVerifiedByIds.mockResolvedValue([]);
@@ -191,7 +196,14 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
     const first = await readSnapshot([], 0);
     const second = await readSnapshot([], 1);
 
-    expect(catalog.findVerifiedWithin).toHaveBeenCalledTimes(2);
+    expect(catalog.findVerifiedWithinForMatching).toHaveBeenCalledTimes(2);
+    // The canonical PostGIS window: center and radius only, no result cap.
+    expect(catalog.findVerifiedWithinForMatching).toHaveBeenNthCalledWith(
+      1,
+      window.latitude,
+      window.longitude,
+      window.radiusMeters,
+    );
     expect(first.experiences[0]).toBe(stale);
     expect(second.experiences[0]).toBe(enriched);
     expect(second.acquisitionEpoch).toBe(1);
@@ -201,7 +213,7 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
     const inside = row('exp-inside');
     const outside = row('exp-outside', 'geo-outside', 1);
     const anchored = row('exp-anchored', 'geo-anchored', 1);
-    catalog.findVerifiedWithin.mockResolvedValue([inside, outside]);
+    catalog.findVerifiedWithinForMatching.mockResolvedValue([inside, outside]);
     catalog.findVerifiedByIds.mockResolvedValue([anchored]);
 
     const snapshot = await readSnapshot(['exp-anchored']);
@@ -220,7 +232,7 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
     const c = row('exp-c', 'geo-shared', 0.002);
 
     const run = async (windowRows: any[], discovered: any[]) => {
-      catalog.findVerifiedWithin.mockResolvedValueOnce(windowRows);
+      catalog.findVerifiedWithinForMatching.mockResolvedValueOnce(windowRows);
       catalog.findVerifiedByIds.mockResolvedValueOnce(discovered);
       const snapshot = await readSnapshot(discovered.map((item) => item.id));
       const selection = await compose(snapshot.experiences);

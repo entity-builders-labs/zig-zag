@@ -3810,7 +3810,7 @@ describe('ExperienceAcquisitionService', () => {
       beforeEach(() => {
         catalog = {
           acquireNearbyAsExperiences: jest.fn(),
-          findVerifiedWithin: jest.fn(),
+          findVerifiedWithinForMatching: jest.fn(),
           findVerifiedByIds: jest.fn(),
         };
         embeddingIndexer = {
@@ -3925,7 +3925,7 @@ describe('ExperienceAcquisitionService', () => {
         expect(catalog.findVerifiedByIds).toHaveBeenCalledWith([
           'exp-teatro-colon',
         ]);
-        expect(catalog.findVerifiedWithin).not.toHaveBeenCalled();
+        expect(catalog.findVerifiedWithinForMatching).not.toHaveBeenCalled();
         expect(result.experienceIds).toEqual(['exp-teatro-colon']);
         expect(result.experiences).toHaveLength(1);
         expect(result.experiences[0].id).toBe('exp-teatro-colon');
@@ -3997,7 +3997,7 @@ describe('ExperienceAcquisitionService', () => {
 
         expect(proposalResolver.resolve).toHaveBeenCalledTimes(1);
         expect(catalog.findVerifiedByIds).not.toHaveBeenCalled();
-        expect(catalog.findVerifiedWithin).not.toHaveBeenCalled();
+        expect(catalog.findVerifiedWithinForMatching).not.toHaveBeenCalled();
         expect(result.experienceIds).toEqual([]);
         expect(result.experiences).toEqual([]);
         expect(result.provenance.acceptedCount).toBe(0);

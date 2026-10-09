@@ -2148,6 +2148,30 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
+Preference-First review state (2026-10-09, accepted):
+- Final COLD + WARM: FUNCTIONAL PASS (`27315cf7`, see below).
+- Full Preference-First review: COMPLETE. Architecture verdict:
+  ARCHITECTURE DRIFT WARNING.
+- Confirmed merge blockers: RW4-ID-FALSE-VERIFY-2 (BLOCKER, OPEN) and
+  PF-REV-SNAPSHOT-WINDOW-1 (BLOCKER, CLOSED on 2026-10-09).
+- PF-REV-MATERIALIZE-FREEZE-1: OPEN, MEDIUM. RW4-FINAL-PLAN-INFEASIBLE-1:
+  CLOSED.
+
+PF-REV-SNAPSHOT-WINDOW-1 FIXED (2026-10-09, on top of `a6c79be7`). Evidence:
+`spikes/snapshot-window-fix-2026-10-09/README.md`.
+- `readCatalogSnapshot` reads the PostGIS boundary coverage reads
+  (`findVerifiedWithinForMatching`). The global id-ordered `take: 1000` and
+  the nearest-250 slice before composition are gone, and
+  `findVerifiedWithin` is deleted. Destination eligibility, the explicit-id
+  merge, id order and the epoch guard are unchanged.
+- Real-DB regressions A/B/C/D: >1000 global rows, a late PLANNER_CAPACITY
+  row, the 251st row by distance, and coverage/snapshot consistency.
+  Mutations M1 (old implementation), M2 (250 slice) and M3 (eligibility
+  removed) were killed.
+- Unit, integration, e2e, acceptance and architecture tests are green.
+  Characterization is 35/36 (pre-existing CHAR-7). Final COLD/WARM was not
+  rerun.
+
 RW4 final canonical COLD + WARM rerun PASSED functionally (2026-10-08, HEAD
 `27315cf7`, fresh DB `zigzag_spike_rw4_final_rerun`, canonical). Evidence:
 `spikes/rw4-final-rerun-cold-warm-2026-10-08/README.md`.
@@ -2806,7 +2830,14 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 
 ## Next authorized action
 
-000000000. (2026-10-08) Full Preference-First PR review (governance-aware,
+0000000000. (2026-10-09) RW4-ID-FALSE-VERIFY-2 impact analysis /
+            correction (the remaining confirmed merge blocker). Not a merge.
+            PF-REV-SNAPSHOT-WINDOW-1 is closed
+            (`spikes/snapshot-window-fix-2026-10-09/README.md`).
+
+000000000. (2026-10-08) [DONE: review COMPLETE, ARCHITECTURE DRIFT
+           WARNING, blockers RW4-ID-FALSE-VERIFY-2 and
+           PF-REV-SNAPSHOT-WINDOW-1] Full Preference-First PR review (governance-aware,
            ARCHITECTURE PASS/DRIFT), carrying RW4-ID-FALSE-VERIFY-2 as an
            open HIGH owner decision. Evidence:
            `spikes/rw4-final-rerun-cold-warm-2026-10-08/README.md`. Do not
@@ -2931,6 +2962,14 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
 
 ## Open findings / blockers
 
+- PF-REV-SNAPSHOT-WINDOW-1: CLOSED (2026-10-09), was a BLOCKER
+  (`SUPERSEDED_GLOBAL_SCAN_AUTHORITY`). The generation snapshot read a global
+  id-ordered `take: 1000` before geography, then the nearest 250. An
+  in-radius row persisted after the 1000th id was invisible although the
+  epoch guard passed. Fixed by reading the canonical PostGIS boundary.
+  Dossier: `spikes/snapshot-window-fix-2026-10-09/README.md`.
+- PF-REV-MATERIALIZE-FREEZE-1: OPEN, MEDIUM (review finding, 2026-10-08).
+  Materialization concurrency. Not addressed.
 - RW4-FINAL-PLAN-INFEASIBLE-1: CLOSED (2026-10-08). The final canonical
   COLD rerun at `27315cf7` emitted only legs ≤ 3,000 m and passed the
   validator; WARM reproduced the same plan
@@ -2957,12 +2996,13 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
 - RW4-EXTRACT-STABILITY-1: OPEN. Two extractions of one source unit (C3 AG:
   15 vs 13 members) are PARTIAL_OVERLAP, so their knowledge cannot be
   reconciled (correctly). The fix is extraction stability, not a merge.
-- RW4-DEDUPE-SEMANTIC-1: OPEN, owner decision. The lexical
-  `semanticSimilarity >= 0.58` alone forces AMBIGUOUS (fail-closed reject).
-  It is uncalibrated (`baba7da0`, no evidence), order-dependent through
-  existing-side trait tokens, and the only reason the later A-B is held. The
-  dedupe has no containment or source-document authority. Dossier:
-  `spikes/semantic-overlap-threshold-forensic-2026-10-08/README.md`.
+- RW4-DEDUPE-SEMANTIC-1: OPEN, debt (reworded 2026-10-09). The
+  `semanticSimilarity >= 0.58` rule is no longer live: since `dc3177d6`,
+  lexical semantic overlap has no decision authority. What remains is the
+  uncalibrated `nameSimilarity >= 0.72` name authority and the composite
+  overlap cuts (0.5 / 0.4) in `experience-dedupe.util.ts`, inherited from
+  `57d2dfcf` and without calibration evidence. Dossier:
+  `spikes/semantic-overlap-threshold-forensic-2026-10-08/README.md` §12.7.
 - PF-REVIEW-PROVIDER-1: OPEN, BLOCKING for automated review. The contextual
   review workflow cannot publish an artifact: the configured Groq endpoint
   rejects the Codex CLI request body (`invalid JSON body`, with
@@ -3133,7 +3173,8 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   Pellegrini. The cause was a fuzzy hint-to-label match on the
   candidate's own QID, decided ahead of 11 known material competitors.
   Spec §19.3. Thresholds untouched.
-- RW4-ID-FALSE-VERIFY-2: OPEN, HIGH (`c3-idretry2-cold`, 2026-10-07).
+- RW4-ID-FALSE-VERIFY-2: OPEN, BLOCKER (confirmed merge blocker by the
+  2026-10-08 review; first seen `c3-idretry2-cold`, 2026-10-07).
   `GROUNDED_CONVERGENCE` VERIFIED two hints whose names only OVERLAP the
   record: "Club Atlético" (the Paseo Colón memorial) as
   `Club Atlético San Lorenzo de Almagro - Sede Boedo` (`osm:way:23634484`)

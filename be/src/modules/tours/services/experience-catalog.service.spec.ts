@@ -237,7 +237,7 @@ describe('ExperienceCatalogService.upsertGeoEntity', () => {
 });
 
 describe('ExperienceCatalogService catalog retrieval', () => {
-  it('does not pre-rank nearby candidates by quality before relevance ranking', async () => {
+  it('does not pre-rank nearby candidates by quality: the PostGIS order survives hydration', async () => {
     const lowQualityRelevant: any = {
       id: 'relevant-low-quality',
       canonicalName: 'Relevant',
@@ -260,6 +260,12 @@ describe('ExperienceCatalogService catalog retrieval', () => {
       metadata: { themes: ['shopping'], traits: [], intents: ['visit'] },
     };
     const prisma: any = {
+      // PostGIS decides scope and order (distance, then id) ...
+      $queryRaw: jest.fn().mockResolvedValue([
+        { id: 'relevant-low-quality', distance_meters: 0 },
+        { id: 'generic-high-quality', distance_meters: 33 },
+      ]),
+      // ... and hydration returns rows in an unrelated order.
       experience: {
         findMany: jest
           .fn()
@@ -268,18 +274,14 @@ describe('ExperienceCatalogService catalog retrieval', () => {
     };
     const service = new ExperienceCatalogService(prisma, {} as any);
 
-    const result = await service.findVerifiedWithin(
+    const result = await service.findVerifiedWithinForMatching(
       -34.6037,
       -58.3816,
       5000,
-      10,
     );
 
     expect(prisma.experience.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        orderBy: { id: 'asc' },
-        take: 1000,
-      }),
+      expect.not.objectContaining({ take: expect.anything() }),
     );
     expect(result.map((item) => item.id)).toEqual([
       'relevant-low-quality',
@@ -431,8 +433,11 @@ describe('ExperienceCatalogService.findById', () => {
     );
   });
 
-  it('preserves dimensionedTraits alongside traits: string[] in findVerifiedWithin', async () => {
+  it('preserves dimensionedTraits alongside traits: string[] in findVerifiedWithinForMatching', async () => {
     const prisma: any = {
+      $queryRaw: jest
+        .fn()
+        .mockResolvedValue([{ id: 'e-winery-1', distance_meters: 0 }]),
       experience: {
         findMany: jest.fn().mockResolvedValue([
           {
@@ -461,7 +466,11 @@ describe('ExperienceCatalogService.findById', () => {
       },
     };
     const service = new ExperienceCatalogService(prisma, {} as any);
-    const results = await service.findVerifiedWithin(-34.6, -58.38, 5000, 10);
+    const results = await service.findVerifiedWithinForMatching(
+      -34.6,
+      -58.38,
+      5000,
+    );
 
     expect(results).toHaveLength(1);
     expect(results[0].traits).toEqual(

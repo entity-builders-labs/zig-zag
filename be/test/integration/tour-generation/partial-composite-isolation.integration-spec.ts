@@ -98,20 +98,14 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
     });
   };
 
-  /** Every catalog boundary the planner/acquisition reads candidates from. */
+  /** The one geographic catalog boundary coverage and generation read. */
   const plannerVisibleIds = async () => {
-    const within = await catalog.findVerifiedWithin(
-      CENTER.latitude,
-      CENTER.longitude,
-      5_000,
-    );
     const forMatching = await catalog.findVerifiedWithinForMatching(
       CENTER.latitude,
       CENTER.longitude,
       5_000,
     );
     return {
-      within: within.map((row: { id: string }) => row.id),
       forMatching: forMatching.map((row: { id: string }) => row.id),
     };
   };
@@ -209,7 +203,6 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
     // Planner-visible through every catalog boundary, as a composite, with
     // only its resolved members as navigable components.
     const visible = await plannerVisibleIds();
-    expect(visible.within).toEqual([experience.id]);
     expect(visible.forMatching).toEqual([experience.id]);
     const [projected] = await catalog.findVerifiedByIds([experience.id]);
     expect(projected.compositionCompleteness).toBe('PARTIAL');
@@ -258,7 +251,6 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
       [3, 'Stop C'],
     ]);
     const visible = await plannerVisibleIds();
-    expect(visible.within).toEqual([experience.id]);
     expect(visible.forMatching).toEqual([experience.id]);
   });
 
@@ -440,7 +432,6 @@ describe('tour-generation integration · partial composite isolation (Stage 4)',
       ['Stop C', 'RESOLVED', null, 'Stop C'],
     ]);
     const visible = await plannerVisibleIds();
-    expect(visible.within).toEqual([experience.id]);
     expect(visible.forMatching).toEqual([experience.id]);
   });
 });

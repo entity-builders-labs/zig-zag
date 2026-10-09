@@ -13,9 +13,9 @@ import { isTourEligibleForDestinationRequest } from '../utils/tour-destination-e
  *
  * A6 originally called `findVerifiedWithin(..., FACET_RETRIEVAL_LIMIT)`
  * with a generously large constant (2000). That only moved the failure
- * threshold: `findVerifiedWithin` performs a bounded JS/Prisma scan-then-
- * filter that can still truncate a relevant row before semantic matching
- * ever sees it. `findVerifiedWithinForMatching` resolves geographic scope
+ * threshold: `findVerifiedWithin` (since deleted) performed a bounded
+ * JS/Prisma scan-then-filter that could still truncate a relevant row before
+ * semantic matching ever saw it. `findVerifiedWithinForMatching` resolves geographic scope
  * entirely in PostgreSQL/PostGIS with no correctness-visible result cap, so
  * there is no longer a limit constant to pass here at all.
  */

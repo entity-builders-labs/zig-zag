@@ -16,7 +16,7 @@
  *     → StructuredCandidateCorroborationService
  *     → ExperienceProposalResolverService  (+ CompositeGeographicValidationService)
  *     → real Prisma persistence  (Experience / GeoEntity / components / traits / evidence)
- *     → real catalog re-query (ExperienceCatalogService.findVerifiedWithin)
+ *     → real catalog re-query (ExperienceCatalogService.findVerifiedWithinForMatching)
  *     → preference / semantic ranking
  *     → PlanningCandidateNormalizerService
  *     → GreedyDailyPlanningSolver

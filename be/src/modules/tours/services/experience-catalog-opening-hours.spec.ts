@@ -76,6 +76,9 @@ describe('ExperienceCatalogService opening hours', () => {
       },
     };
     const prisma: any = {
+      $queryRaw: jest
+        .fn()
+        .mockResolvedValue([{ id: 'experience-1', distance_meters: 0 }]),
       experience: {
         findMany: jest.fn().mockResolvedValue([
           {
@@ -97,11 +100,10 @@ describe('ExperienceCatalogService opening hours', () => {
     };
     const service = new ExperienceCatalogService(prisma, {} as any);
 
-    const result = await service.findVerifiedWithin(
+    const result = await service.findVerifiedWithinForMatching(
       -34.6037,
       -58.3816,
       5000,
-      10,
     );
 
     expect(result).toHaveLength(1);

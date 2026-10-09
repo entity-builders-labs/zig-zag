@@ -502,11 +502,10 @@ function webUnavailable(
           }
 
           await resetDbWith(prisma);
-          const initialCatalog = await catalog.findVerifiedWithin(
+          const initialCatalog = await catalog.findVerifiedWithinForMatching(
             searchArea.latitude,
             searchArea.longitude,
             searchArea.radiusMeters,
-            250,
           );
           if (initialCatalog.length !== 0) {
             throw new Error(
@@ -599,11 +598,10 @@ function webUnavailable(
               : undefined;
           const elapsedMs = Date.now() - startedAt;
 
-          const refreshed = await catalog.findVerifiedWithin(
+          const refreshed = await catalog.findVerifiedWithinForMatching(
             searchArea.latitude,
             searchArea.longitude,
             searchArea.radiusMeters,
-            250,
           );
           const finalCoverage = summarizeFacetCoverage(
             coverageCandidates(refreshed),

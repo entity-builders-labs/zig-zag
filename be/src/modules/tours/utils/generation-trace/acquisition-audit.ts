@@ -116,7 +116,7 @@ export function recordCatalogSearchStep(
     description: candidates.length
       ? `${candidates.length} Experiences recuperadas del catálogo dentro del alcance (${radiusKm}km).`
       : `No se recuperaron actividades del catálogo en el alcance inicial (${radiusKm}km).`,
-    component: 'ExperienceCatalog.findVerifiedWithin',
+    component: 'ExperienceCatalog.findVerifiedWithinForMatching',
     decision: {
       status: candidates.length ? 'PASS' : 'WARN',
       outcome: candidates.length

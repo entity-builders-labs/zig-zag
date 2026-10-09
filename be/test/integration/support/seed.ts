@@ -43,7 +43,7 @@ export interface SeedExperienceInput {
 /**
  * Seeds one VERIFIED Experience with a primary PLACE GeoEntity component (plus
  * optional extra components), mirroring what the catalog persists. Enough for
- * `findVerifiedWithin`, ranking, normalization and the solver.
+ * `findVerifiedWithinForMatching`, ranking, normalization and the solver.
  */
 export async function seedVerifiedExperience(
   prisma: PrismaService,
@@ -213,6 +213,13 @@ export interface BulkSeedFillerInput {
   scatterDegrees?: number;
   themes?: string[];
   qualityScore?: number;
+  /**
+   * When set (8 hex chars, e.g. `'00000000'`), Experience ids are
+   * `<prefix>-0000-0000-0000-<index>` instead of random v4 UUIDs, so the
+   * fillers' place in a global id order is deterministic: an all-zero
+   * prefix sorts before every random v4 UUID.
+   */
+  idPrefix?: string;
 }
 
 /**
@@ -245,7 +252,11 @@ export async function bulkSeedFillerExperiences(
 
   for (let i = 0; i < count; i++) {
     geoIds.push(randomUUID());
-    expIds.push(randomUUID());
+    expIds.push(
+      input.idPrefix
+        ? `${input.idPrefix}-0000-0000-0000-${String(i).padStart(12, '0')}`
+        : randomUUID(),
+    );
     if (scatterDegrees) {
       lats.push(latitude + (Math.random() * 2 - 1) * scatterDegrees);
       lngs.push(longitude + (Math.random() * 2 - 1) * scatterDegrees);

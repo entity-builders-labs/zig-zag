@@ -379,75 +379,16 @@ export class ExperienceCatalogService {
     };
   }
 
-  async findVerifiedWithin(
-    latitude: number,
-    longitude: number,
-    radiusMeters: number,
-    limit = 100,
-  ) {
-    // This method owns geography only. Do not pre-rank the catalog by quality
-    // here: doing so can discard lower-rated but highly relevant Experiences
-    // before semantic/preference ranking ever sees them. Scan a bounded,
-    // deterministic pool, filter by radius, then keep the geographically
-    // nearest rows with a stable id tie-break. Relevance is applied later.
-    const scanLimit = Math.max(limit * 4, 1000);
-    const experiences = await this.prisma.experience.findMany({
-      where: { status: ExperienceStatus.VERIFIED },
-      include: {
-        components: { include: { geoEntity: true } },
-        traits: { include: { traitDefinition: true } },
-      },
-      take: scanLimit,
-      orderBy: { id: 'asc' },
-    });
-    const radiusSquared = radiusMeters * radiusMeters;
-    return experiences
-      .map((experience) => {
-        const projected = this.projectVerifiedExperienceRow(experience, {
-          latitude,
-          longitude,
-        });
-        if (
-          !Number.isFinite(projected.latitude) ||
-          !Number.isFinite(projected.longitude)
-        ) {
-          return undefined;
-        }
-        const distanceSquared =
-          ((projected.latitude! - latitude) * 111_000) ** 2 +
-          ((projected.longitude! - longitude) *
-            111_000 *
-            Math.cos((latitude * Math.PI) / 180)) **
-            2;
-        if (distanceSquared > radiusSquared) return undefined;
-        return { ...projected, distanceSquared };
-      })
-      .filter(
-        (experience): experience is NonNullable<typeof experience> =>
-          !!experience,
-      )
-      .sort(
-        (left, right) =>
-          left.distanceSquared - right.distanceSquared ||
-          left.id.localeCompare(right.id),
-      )
-      .slice(0, limit)
-      .map(({ distanceSquared, ...experience }) => {
-        void distanceSquared;
-        return experience;
-      });
-  }
-
   /**
    * Canonical geospatial catalog boundary for preference-first per-facet
    * retrieval (Task A6.1 — `docs/superpowers/specs/2026-09-11-postgis-geospatial-catalog-boundary.md`).
    *
-   * Unlike `findVerifiedWithin` (a bounded JS/Prisma scan-then-filter that a
-   * pre-semantic result cap can silently truncate before facet matching ever
-   * runs), this method resolves geographic scope entirely in PostgreSQL via
-   * PostGIS: it joins `experience` → `experience_component` → `geo_entity`,
-   * keeps only VERIFIED Experiences with at least one resolved component
-   * whose GeoEntity coordinates are finite and within real-world range
+   * It is the ONLY geographic catalog retrieval authority: coverage, the
+   * generation catalog snapshot and warm reuse all read it. It resolves
+   * geographic scope entirely in PostgreSQL via PostGIS: it joins
+   * `experience` → `experience_component` → `geo_entity`, keeps only
+   * VERIFIED Experiences with at least one resolved component whose
+   * GeoEntity coordinates are finite and within real-world range
    * (matching the A5 validity contract — `BETWEEN -90 AND 90` /
    * `BETWEEN -180 AND 180` also structurally excludes NaN/Infinity, which
    * never satisfy a Postgres `BETWEEN`), and whose nearest component lies
@@ -534,10 +475,11 @@ export class ExperienceCatalogService {
 
   /**
    * Retrieves verified Experiences by their exact ids, in the order given.
-   * Unlike `findVerifiedWithin` this performs no geographic scan/filter — it
-   * returns exactly the requested rows (subject only to a genuinely missing or
-   * non-VERIFIED row), so an acquisition boundary can report precisely the
-   * Experiences a resolver just materialized rather than a broader nearby pool.
+   * Unlike `findVerifiedWithinForMatching` this performs no geographic
+   * filter — it returns exactly the requested rows (subject only to a
+   * genuinely missing or non-VERIFIED row), so an acquisition boundary can
+   * report precisely the Experiences a resolver just materialized rather
+   * than a broader nearby pool.
    */
   async findVerifiedByIds(ids: string[]) {
     if (ids.length === 0) return [];

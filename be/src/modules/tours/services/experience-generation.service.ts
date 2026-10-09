@@ -461,7 +461,6 @@ export class ExperienceGenerationService {
     await this.prisma.tour.update({ where: { id: tourId }, data });
   }
 
-  private readonly CATALOG_RETRIEVAL_POOL_LIMIT = 250;
   private async composeExperiences(
     experiences: any[],
     preferenceSpec: PreferenceSpec,
@@ -617,6 +616,12 @@ export class ExperienceGenerationService {
    * exact rows a request scope established (venue anchors, AREA_ROUTE_WALK
    * acquisitions). Nothing from an earlier read survives into it, and its
    * order is canonical (by id) so discovery order never decides eligibility.
+   *
+   * The window is the PostGIS geospatial boundary that coverage also reads
+   * (`findVerifiedWithinForMatching`): the database resolves geographic
+   * scope, with no global scan cap and no distance slice before
+   * composition. Its distance order is discarded here; the snapshot order
+   * is by id.
    */
   private async readCatalogSnapshot(input: {
     phase: CatalogSnapshotPhase;
@@ -626,11 +631,10 @@ export class ExperienceGenerationService {
     explicitIds: string[];
   }): Promise<CatalogCandidateSnapshot<VerifiedExperienceRow>> {
     const windowRows = (
-      await this.experienceCatalog.findVerifiedWithin(
+      await this.experienceCatalog.findVerifiedWithinForMatching(
         input.window.latitude,
         input.window.longitude,
         input.window.radiusMeters,
-        this.CATALOG_RETRIEVAL_POOL_LIMIT,
       )
     ).filter((experience) =>
       isTourEligibleForDestinationRequest(experience, input.destination),

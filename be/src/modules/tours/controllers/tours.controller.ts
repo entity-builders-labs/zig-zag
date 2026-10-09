@@ -32,6 +32,8 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { RequestUser } from '../../auth/interfaces/jwt-payload.interface';
 import { ExperienceCatalogService } from '../services/experience-catalog.service';
 
+const NEARBY_EXPERIENCES_PAGE_SIZE = 100;
+
 @ApiTags('tours')
 @Controller('tours')
 export class ToursController {
@@ -54,7 +56,15 @@ export class ToursController {
     @Query('lng') lng: number,
     @Query('radius') radius = 5000,
   ) {
-    return this.experienceCatalog.findVerifiedWithin(+lat, +lng, +radius, 100);
+    // The canonical PostGIS boundary, nearest first; the endpoint returns
+    // one page of the nearest rows (a response size, not catalog scope).
+    const experiences =
+      await this.experienceCatalog.findVerifiedWithinForMatching(
+        +lat,
+        +lng,
+        +radius,
+      );
+    return experiences.slice(0, NEARBY_EXPERIENCES_PAGE_SIZE);
   }
 
   @Get('experiences/:id')

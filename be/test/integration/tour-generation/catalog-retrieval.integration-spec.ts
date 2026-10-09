@@ -10,7 +10,7 @@ import {
  * (PrismaService, ExperienceCatalogService, the resolver, …) against a real
  * Postgres, with external transports faked. This first spec proves the DB
  * seam itself: a seeded VERIFIED Experience is retrieved by the real
- * `ExperienceCatalogService.findVerifiedWithin` geography query, and rows
+ * `ExperienceCatalogService.findVerifiedWithinForMatching` geography query, and rows
  * outside the radius or not VERIFIED are excluded.
  *
  * The full acquisition → resolver → Prisma persistence → catalog re-query →
@@ -56,11 +56,10 @@ describe('tour-generation integration · catalog retrieval', () => {
       themes: ['history'],
     });
 
-    const found = await catalog.findVerifiedWithin(
+    const found = await catalog.findVerifiedWithinForMatching(
       -34.6083,
       -58.3712,
       3000,
-      50,
     );
 
     const ids = found.map((experience: any) => experience.id);
@@ -100,11 +99,10 @@ describe('tour-generation integration · catalog retrieval', () => {
       },
     });
 
-    const found = await catalog.findVerifiedWithin(
+    const found = await catalog.findVerifiedWithinForMatching(
       -34.6083,
       -58.3712,
       3000,
-      50,
     );
     expect(found.map((experience: any) => experience.canonicalName)).toEqual([
       'Verified Landmark',
