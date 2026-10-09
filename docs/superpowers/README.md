@@ -76,6 +76,8 @@ Key current references include:
   — work-unit authorization and Experience geographic scope.
 - specs/2026-10-08-experience-duration-knowledge.md
   — proposed/deferred evidence-backed Experience-duration knowledge.
+- specs/2026-10-09-city-geoentity-catalog-bootstrap-and-learning.md
+  — proposed/deferred durable contract for city GeoEntity bootstrap, alias/translation authority, simple-Experience seeding, backoffice correction and runtime catalog learning.
 
 Future feature specs may exist before their implementation tracks are active.
 A proposed/deferred spec is **not** authorization to create a branch, worktree,
