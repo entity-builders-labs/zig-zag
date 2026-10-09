@@ -84,6 +84,17 @@ const FARMACIA = place(
   -58.3721513,
   'point_of_interest',
 );
+// The same record spelled as the hint names it ("Farmacia la Estrella"):
+// a legitimate EQUIVALENT name grade, for tests whose subject is what
+// happens after a convergence VERIFIES (RW4-ID-FALSE-VERIFY-2: the real
+// spelling only OVERLAPs the hint and no longer verifies by convergence).
+const FARMACIA_AS_HINTED = place(
+  'geo-farmacia-search',
+  'Farmacia la Estrella',
+  -34.6102605,
+  -58.3721513,
+  'point_of_interest',
+);
 
 const placeCandidate = (hintName: string) => ({
   name: `${hintName} visit`,
@@ -497,10 +508,50 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
       address: { city: 'Buenos Aires', country: 'Argentina' },
     };
 
-    it('Nominatim osm:node:3348573778 + Geoapify Place Details osm:node:3348573778 -> IDENTITY_CONVERGENCE -> RESOLVED -> one PLACE GeoEntity with both identities', async () => {
-      const { service, catalog, placesApi } = build({
+    /**
+     * The real RW1 names: the hint "Farmacia la Estrella" only OVERLAPs
+     * "Farmacia de la Estrella". Until RW4-ID-FALSE-VERIFY-2 this
+     * convergence VERIFIED; the owner accepted INSUFFICIENT_EVIDENCE
+     * (2026-10-09): the referent looks right, but one record returned by
+     * two strategies does not prove the hint names it.
+     */
+    it('the real OVERLAP spelling: Nominatim + Geoapify converge on osm:node:3348573778, but convergence alone is not identity', async () => {
+      const { service, catalog } = build({
         nominatimResults: [NOMINATIM_FARMACIA],
         searchResults: [FARMACIA],
+        details: {
+          'geo-farmacia-search': {
+            id: 'geo-farmacia-details',
+            sourceIdentities: [
+              { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
+            ],
+          },
+        },
+      });
+
+      const result = await resolveHint(service, 'Farmacia la Estrella');
+
+      const attempt = placesAttempt(result);
+      expect(attempt.identityEvidence).toContainEqual({
+        type: 'IDENTITY_CONVERGENCE',
+        priorStrategy: 'NOMINATIM',
+        identity: {
+          provider: 'openstreetmap',
+          externalId: 'osm:node:3348573778',
+        },
+        correspondence: 'OVERLAP',
+      });
+      expect(attempt.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+      expect(catalog.upsertGeoEntityWithIdentities).not.toHaveBeenCalled();
+      expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
+      expect(catalog.rememberVerifiedHintName).not.toHaveBeenCalled();
+      expect(componentAudit(result).finalStatus).toBe('unresolved');
+    });
+
+    it('an EQUIVALENT spelling: Nominatim osm:node:3348573778 + Geoapify Place Details osm:node:3348573778 -> IDENTITY_CONVERGENCE -> RESOLVED -> one PLACE GeoEntity with both identities', async () => {
+      const { service, catalog, placesApi } = build({
+        nominatimResults: [NOMINATIM_FARMACIA],
+        searchResults: [FARMACIA_AS_HINTED],
         details: {
           'geo-farmacia-search': {
             id: 'geo-farmacia-details',
@@ -517,7 +568,7 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
       const nominatimAttempt = audit.attempts.find(
         (a: any) => a.strategy === 'NOMINATIM',
       );
-      // Nominatim alone never verified it (non-exact name, no Wikidata).
+      // Nominatim alone never verified it (OVERLAP name, no Wikidata).
       expect(nominatimAttempt.verificationDecision).not.toBe('VERIFIED');
       expect(nominatimAttempt.selectedCandidate.identities).toEqual([
         { provider: 'openstreetmap', externalId: 'osm:node:3348573778' },
@@ -538,14 +589,16 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
           provider: 'openstreetmap',
           externalId: 'osm:node:3348573778',
         },
+        correspondence: 'EQUIVALENT',
       });
       expect(attempt.verificationDecision).toBe('VERIFIED');
+      expect(attempt.verificationRule).toBe('GROUNDED_CONVERGENCE');
 
       expect(catalog.upsertGeoEntity).not.toHaveBeenCalled();
       expect(catalog.upsertGeoEntityWithIdentities).toHaveBeenCalledTimes(1);
       expect(catalog.upsertGeoEntityWithIdentities).toHaveBeenCalledWith(
         expect.objectContaining({
-          name: 'Farmacia de la Estrella',
+          name: 'Farmacia la Estrella',
           kind: GeoEntityKind.PLACE,
           identities: [
             {
@@ -611,7 +664,7 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
     it('IDENTITY_CONFLICT at persistence fails closed (no merge, no winner)', async () => {
       const { service } = build({
         nominatimResults: [NOMINATIM_FARMACIA],
-        searchResults: [FARMACIA],
+        searchResults: [FARMACIA_AS_HINTED],
         details: {
           'geo-farmacia-search': {
             sourceIdentities: [
@@ -747,8 +800,10 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
             class: 'amenity',
             type: 'pharmacy',
             addresstype: 'amenity',
+            // Spelled as hinted: an EQUIVALENT convergence (the subject here
+            // is the declared cross-identity, not the name grade).
             displayName:
-              'Farmacia de la Estrella, Defensa, Monserrat, Buenos Aires, Argentina',
+              'Farmacia la Estrella, Defensa, Monserrat, Buenos Aires, Argentina',
             importance: 0.1,
             latitude: -34.6101871,
             longitude: -58.3721455,
@@ -803,6 +858,7 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
           provider: 'openstreetmap',
           externalId: 'osm:node:3348573778',
         },
+        correspondence: 'EQUIVALENT',
       });
       expect(nominatimAttempt.verificationDecision).toBe('VERIFIED');
       expect(placesApi.searchText).not.toHaveBeenCalled();
@@ -908,10 +964,12 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
       longitude: -58.3721455,
       address: { city: 'Buenos Aires', country: 'Argentina' },
     };
+    // A legitimate EQUIVALENT convergence: these tests are about memory
+    // after a VERIFIED resolution, not about the real OVERLAP spelling.
     const farmaciaCold = (extra: Parameters<typeof build>[0] = {}) =>
       build({
         nominatimResults: [NOMINATIM_FARMACIA],
-        searchResults: [FARMACIA],
+        searchResults: [FARMACIA_AS_HINTED],
         details: {
           'geo-farmacia-search': {
             id: 'geo-farmacia-details',
@@ -1004,7 +1062,10 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
     });
 
     it('does not remember a REJECTED candidate (PLACES alone, no convergence -- Farmacia without Nominatim)', async () => {
-      const { service, catalog } = farmaciaCold({ nominatimResults: [] });
+      const { service, catalog } = farmaciaCold({
+        nominatimResults: [],
+        searchResults: [FARMACIA],
+      });
 
       const result = await resolveHint(service, 'Farmacia la Estrella');
 
@@ -1038,6 +1099,7 @@ describe('ExperienceProposalResolverService -- Stage 3 PLACE cutover', () => {
 
       const result = await resolveHint(service, 'Farmacia la Estrella');
 
+      expect(placesAttempt(result).verificationDecision).toBe('VERIFIED');
       expect(componentAudit(result).finalStatus).toBe('unresolved');
       expect(catalog.rememberVerifiedHintName).not.toHaveBeenCalled();
     });

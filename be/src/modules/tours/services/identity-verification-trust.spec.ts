@@ -1,12 +1,16 @@
 import {
   EntityCandidate,
   IdentityEvidence,
+  NameCorrespondence,
   ResolutionAttempt,
 } from '../interfaces/experience-resolution.interface';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
 import { buildLocalIdentityEvidence } from '../utils/identity-evidence-builder.util';
 import { identityEvidenceRole } from '../utils/identity-evidence-role.policy';
-import { nameCorrespondence } from '../utils/identity-name-correspondence.util';
+import {
+  hintCandidateCorrespondence,
+  nameCorrespondence,
+} from '../utils/identity-name-correspondence.util';
 import { IdentityEvidenceCollector } from './identity-evidence-collector.service';
 import { IdentityVerifier } from './identity-verifier.service';
 
@@ -194,18 +198,29 @@ describe('identity verification trust (RW4-ID-FALSE-VERIFY-1)', () => {
     });
   });
 
-  it('4. independent convergence over an examined set stays decisive', () => {
-    expect(
-      verifier.decide(
+  /**
+   * Until RW4-ID-FALSE-VERIFY-2 the OVERLAP case below ("Kestrel Hall" ->
+   * "Kestrel Hall Annex") VERIFIED by GROUNDED_CONVERGENCE: convergence was
+   * CORROBORATING whatever the name grade. Convergence proves one record
+   * was returned twice, not that the hint names it.
+   */
+  describe('4. convergence over an examined set decides only at an EQUIVALENT name grade', () => {
+    const convergedOn = (canonicalName: string) => {
+      const candidate = candidateNamed(canonicalName);
+      return verifier.decide(
         { name: 'Kestrel Hall' },
         {
           strategy: 'PLACES',
-          candidate: candidateNamed('Kestrel Hall Annex'),
+          candidate,
           evidence: [
             {
               type: 'IDENTITY_CONVERGENCE',
               priorStrategy: 'NOMINATIM',
               identity: { provider: 'openstreetmap', externalId: 'osm:way:9' },
+              correspondence: hintCandidateCorrespondence(
+                'Kestrel Hall',
+                candidate,
+              ),
             },
             {
               type: 'CONVERGENCE_PROVENANCE',
@@ -216,8 +231,21 @@ describe('identity verification trust (RW4-ID-FALSE-VERIFY-1)', () => {
             bounded,
           ],
         },
-      ),
-    ).toMatchObject({ status: 'VERIFIED', rule: 'GROUNDED_CONVERGENCE' });
+      );
+    };
+
+    it('an EQUIVALENT name: independent convergence stays decisive', () => {
+      expect(convergedOn('Hall Kestrel')).toMatchObject({
+        status: 'VERIFIED',
+        rule: 'GROUNDED_CONVERGENCE',
+      });
+    });
+
+    it('an OVERLAP name ("Kestrel Hall Annex"): not identity', () => {
+      expect(convergedOn('Kestrel Hall Annex')).toMatchObject({
+        status: 'INSUFFICIENT_EVIDENCE',
+      });
+    });
   });
 
   it("5. the source's own address discriminates a variant name", () => {
@@ -380,6 +408,14 @@ describe('identity verification trust (RW4-ID-FALSE-VERIFY-1)', () => {
           correspondence: 'EQUIVALENT',
         },
       ],
+      ...correspondences.map((correspondence): IdentityEvidence[] => [
+        {
+          type: 'IDENTITY_CONVERGENCE',
+          priorStrategy: 'NOMINATIM',
+          identity: { provider: 'openstreetmap', externalId: 'osm:node:1' },
+          correspondence,
+        },
+      ]),
     ];
     const links: IdentityEvidence[] = [
       ...(['OWN_QID', 'NEARBY'] as const).flatMap((source) =>
@@ -433,5 +469,119 @@ describe('identity verification trust (RW4-ID-FALSE-VERIFY-1)', () => {
           ).toBe(true);
         }
     expect(verifiedCount).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * RW4-ID-FALSE-VERIFY-2 (2026-10-09, owner-approved Variant A). The hint
+ * "National Bank" (the Plaza de Mayo HQ) VERIFIED as "Edificio First
+ * National Bank of Boston": two strategies returned one record, no material
+ * competitor was known and the geography was bounded, but the hint only
+ * OVERLAPs the record's name. The true referent was never retrieved.
+ * Generic shape: "Kestrel Bank" -> "First Kestrel Bank of Hollowmere".
+ */
+describe('RW4-ID-FALSE-VERIFY-2: convergence inherits the name grade', () => {
+  const identity = {
+    provider: 'openstreetmap',
+    externalId: 'osm:relation:42',
+  };
+  const falseCandidate = candidateNamed('First Kestrel Bank of Hollowmere');
+  const convergence = (
+    correspondence: NameCorrespondence,
+  ): IdentityEvidence => ({
+    type: 'IDENTITY_CONVERGENCE',
+    priorStrategy: 'NOMINATIM',
+    identity,
+    correspondence,
+  });
+  const provenance = (
+    upstream: 'SHARED_UPSTREAM' | 'INDEPENDENT_UPSTREAMS',
+  ): IdentityEvidence => ({
+    type: 'CONVERGENCE_PROVENANCE',
+    identity,
+    upstream,
+  });
+
+  it('R3: the role matrix of IDENTITY_CONVERGENCE by name grade', () => {
+    expect(identityEvidenceRole(convergence('EQUIVALENT'))).toBe(
+      'CORROBORATING',
+    );
+    expect(identityEvidenceRole(convergence('OVERLAP'))).toBe('RETRIEVAL_ONLY');
+    expect(identityEvidenceRole(convergence('NONE'))).toBe('RETRIEVAL_ONLY');
+  });
+
+  it('R1: the hint only OVERLAPs the converged record', () => {
+    expect(hintCandidateCorrespondence('Kestrel Bank', falseCandidate)).toBe(
+      'OVERLAP',
+    );
+  });
+
+  it.each(['SHARED_UPSTREAM', 'INDEPENDENT_UPSTREAMS'] as const)(
+    'R1/R2: OVERLAP convergence over %s, NO_MATERIAL_COMPETITOR and a bounded geography is not VERIFIED',
+    (upstream) => {
+      const verdict = verifier.decide(
+        { name: 'Kestrel Bank' },
+        {
+          strategy: 'PLACES',
+          candidate: falseCandidate,
+          evidence: [
+            convergence(
+              hintCandidateCorrespondence('Kestrel Bank', falseCandidate),
+            ),
+            provenance(upstream),
+            competitors('NO_MATERIAL_COMPETITOR'),
+            bounded,
+          ],
+        },
+      );
+
+      expect(verdict.status).not.toBe('VERIFIED');
+      expect(verdict).toMatchObject({
+        status: 'INSUFFICIENT_EVIDENCE',
+        rule: 'NO_DECISIVE_EVIDENCE',
+      });
+    },
+  );
+
+  it('R4: the same facts at an EQUIVALENT grade (a declared alias) VERIFY', () => {
+    const aliased = candidateNamed('First Kestrel Bank of Hollowmere', {
+      nameAliasCandidates: ['Kestrel Bank'],
+    });
+    expect(hintCandidateCorrespondence('Kestrel Bank', aliased)).toBe(
+      'EQUIVALENT',
+    );
+    expect(
+      verifier.decide(
+        { name: 'Kestrel Bank' },
+        {
+          strategy: 'PLACES',
+          candidate: aliased,
+          evidence: [
+            convergence(hintCandidateCorrespondence('Kestrel Bank', aliased)),
+            provenance('SHARED_UPSTREAM'),
+            competitors('NO_MATERIAL_COMPETITOR'),
+            bounded,
+          ],
+        },
+      ),
+    ).toMatchObject({ status: 'VERIFIED', rule: 'GROUNDED_CONVERGENCE' });
+  });
+
+  it('a known material competitor still decides before EQUIVALENT convergence (rule 4)', () => {
+    expect(
+      verifier.decide(
+        { name: 'Kestrel Bank' },
+        {
+          strategy: 'PLACES',
+          candidate: candidateNamed('Kestrel Bank'),
+          evidence: [
+            convergence('EQUIVALENT'),
+            provenance('INDEPENDENT_UPSTREAMS'),
+            competitors('MATERIAL_COMPETITOR_KNOWN', 2),
+            bounded,
+          ],
+        },
+      ),
+    ).toMatchObject({ status: 'AMBIGUOUS', rule: 'MATERIAL_COMPETITOR_KNOWN' });
   });
 });

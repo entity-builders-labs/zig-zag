@@ -3,7 +3,10 @@ import {
   ResolutionAttempt,
 } from '../interfaces/experience-resolution.interface';
 import { IdentityVerifier } from './identity-verifier.service';
-import { IdentityEvidence } from '../interfaces/experience-resolution.interface';
+import {
+  IdentityEvidence,
+  NameCorrespondence,
+} from '../interfaces/experience-resolution.interface';
 import { GeoEntityKind } from '@prisma/client';
 
 const candidate = (
@@ -81,6 +84,10 @@ describe('IdentityVerifier', () => {
    * untruncated country-bounded response holding only that node, which the
    * companion tests project (and the resolver-level RW1 Case A test proves
    * on the original fixture).
+   *
+   * The convergence carries an EQUIVALENT name grade (the strongest one),
+   * so the missing competitor examination stays the only reason it is not
+   * decisive (RW4-ID-FALSE-VERIFY-2 grades convergence by name).
    */
   it('convergence with no examination of competitors is not decisive (baseline input; defect A)', async () => {
     const verifier = new IdentityVerifier();
@@ -96,6 +103,7 @@ describe('IdentityVerifier', () => {
               provider: 'openstreetmap',
               externalId: 'osm:node:9953027884',
             },
+            correspondence: 'EQUIVALENT',
           },
         ]),
       ),
@@ -126,6 +134,7 @@ describe('IdentityVerifier', () => {
               provider: 'openstreetmap',
               externalId: 'osm:node:9953027884',
             },
+            correspondence: 'EQUIVALENT',
           },
           {
             type: 'WIKIDATA_IDENTITY_MATCH',
@@ -138,17 +147,27 @@ describe('IdentityVerifier', () => {
     ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
   });
 
+  /**
+   * RW1 El Zanjón: the hint "El Zanjón de Granados" only OVERLAPs the
+   * converged record "El Zanjón de Granados (historic ruins)". Until
+   * RW4-ID-FALSE-VERIFY-2 these facts VERIFIED by GROUNDED_CONVERGENCE.
+   * Convergence proves one record was returned twice, not that the hint
+   * names it, so OVERLAP convergence is retrieval-only. The owner accepted
+   * El Zanjón -> INSUFFICIENT_EVIDENCE (2026-10-09) as a correctness
+   * tightening: the referent looks right, the evidence does not prove it.
+   */
   describe('RW1 El Zanjón facts, projected: convergence over an examined competitor set', () => {
     const verifier = new IdentityVerifier();
-    const zanjonConvergence = [
-      {
-        type: 'IDENTITY_CONVERGENCE' as const,
-        priorStrategy: 'LOCAL_OSM_POOL' as const,
-        identity: {
-          provider: 'openstreetmap',
-          externalId: 'osm:node:9953027884',
-        },
+    const convergenceAt = (correspondence: NameCorrespondence) => ({
+      type: 'IDENTITY_CONVERGENCE' as const,
+      priorStrategy: 'LOCAL_OSM_POOL' as const,
+      identity: {
+        provider: 'openstreetmap',
+        externalId: 'osm:node:9953027884',
       },
+      correspondence,
+    });
+    const zanjonQualifiers = [
       {
         type: 'CONVERGENCE_PROVENANCE' as const,
         identity: {
@@ -166,17 +185,30 @@ describe('IdentityVerifier', () => {
       },
       destinationBounded,
     ];
+    const zanjonConvergence = [convergenceAt('OVERLAP'), ...zanjonQualifiers];
 
-    it('VERIFIES with no other evidence needed', () => {
+    it('the real OVERLAP grade is INSUFFICIENT_EVIDENCE, not VERIFIED (RW4-ID-FALSE-VERIFY-2)', () => {
       expect(
-        verifier.verify(
+        verifier.decide(
           { name: 'El Zanjón de Granados' },
           attempt(zanjonConvergence),
         ),
-      ).toEqual({ status: 'VERIFIED' });
+      ).toMatchObject({
+        status: 'INSUFFICIENT_EVIDENCE',
+        rule: 'NO_DECISIVE_EVIDENCE',
+      });
     });
 
-    it('outweighs a NEARBY item that matches only the hint text', () => {
+    it('the same facts with an EQUIVALENT grade VERIFY by GROUNDED_CONVERGENCE', () => {
+      expect(
+        verifier.decide(
+          { name: 'El Zanjón de Granados' },
+          attempt([convergenceAt('EQUIVALENT'), ...zanjonQualifiers]),
+        ),
+      ).toMatchObject({ status: 'VERIFIED', rule: 'GROUNDED_CONVERGENCE' });
+    });
+
+    it('a NEARBY item that matches only the hint text does not repair OVERLAP convergence', () => {
       expect(
         verifier.verify(
           { name: 'El Zanjón de Granados' },
@@ -190,7 +222,7 @@ describe('IdentityVerifier', () => {
             },
           ]),
         ),
-      ).toEqual({ status: 'VERIFIED' });
+      ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
     });
   });
 
@@ -967,12 +999,13 @@ describe('IdentityVerifier', () => {
         ],
       ],
       [
-        'IDENTITY_CONVERGENCE',
+        'EQUIVALENT IDENTITY_CONVERGENCE',
         [
           {
             type: 'IDENTITY_CONVERGENCE',
             priorStrategy: 'NOMINATIM',
             identity: { provider: 'openstreetmap', externalId: 'osm:node:1' },
+            correspondence: 'EQUIVALENT',
           },
         ],
       ],
@@ -1167,11 +1200,14 @@ describe('IdentityVerifier', () => {
       provider: 'openstreetmap',
       externalId: 'osm:node:4797394430',
     };
-    const convergence = {
+    const convergenceAt = (correspondence: NameCorrespondence) => ({
       type: 'IDENTITY_CONVERGENCE' as const,
       priorStrategy: 'NOMINATIM' as const,
       identity,
-    };
+      correspondence,
+    });
+    // The strongest grade, so each test below isolates its own qualifier.
+    const convergence = convergenceAt('EQUIVALENT');
     const provenance = (
       upstream:
         | 'SHARED_UPSTREAM'
@@ -1201,7 +1237,7 @@ describe('IdentityVerifier', () => {
     ] as const;
 
     it.each(upstreams)(
-      '%s convergence over an examined set with no material competitor VERIFIES (RW1 El Zanjón / Farmacia shape)',
+      '%s EQUIVALENT convergence over an examined set with no material competitor VERIFIES',
       (upstream) => {
         expect(
           verifier.verify(
@@ -1214,6 +1250,33 @@ describe('IdentityVerifier', () => {
             ]),
           ),
         ).toEqual({ status: 'VERIFIED' });
+      },
+    );
+
+    // RW1 El Zanjón / Farmacia shape: the hint only OVERLAPs (or does not
+    // name) the converged record. Until RW4-ID-FALSE-VERIFY-2 every upstream
+    // relation VERIFIED here; upstream independence never raises a
+    // retrieval-grade match into identity.
+    it.each(
+      upstreams.flatMap((upstream) =>
+        (['OVERLAP', 'NONE'] as const).map(
+          (grade) => [upstream, grade] as const,
+        ),
+      ),
+    )(
+      '%s %s convergence over an examined set with no material competitor is INSUFFICIENT_EVIDENCE',
+      (upstream, grade) => {
+        expect(
+          verifier.verify(
+            { name: 'Ojo de Agua' },
+            attempt([
+              convergenceAt(grade),
+              provenance(upstream),
+              examination('NO_MATERIAL_COMPETITOR'),
+              destinationBounded,
+            ]),
+          ),
+        ).toEqual({ status: 'INSUFFICIENT_EVIDENCE' });
       },
     );
 
@@ -1432,6 +1495,8 @@ describe('IdentityVerifier', () => {
       examinedStrategies: ['LOCAL_OSM_POOL' as const, 'NOMINATIM' as const],
       competitorCount: outcome === 'MATERIAL_COMPETITOR_KNOWN' ? 1 : 0,
     });
+    // A legitimate (EQUIVALENT) convergence: these tests are about NEARBY,
+    // not about El Zanjón's own OVERLAP grade (see the RW1 El Zanjón tests).
     const convergence = {
       type: 'IDENTITY_CONVERGENCE' as const,
       priorStrategy: 'LOCAL_OSM_POOL' as const,
@@ -1439,6 +1504,7 @@ describe('IdentityVerifier', () => {
         provider: 'openstreetmap',
         externalId: 'osm:node:9953027884',
       },
+      correspondence: 'EQUIVALENT' as const,
     };
     const qidConflict = {
       type: 'IDENTITY_CONTRADICTION' as const,
@@ -1678,6 +1744,7 @@ describe('IdentityVerifier', () => {
       type: 'IDENTITY_CONVERGENCE' as const,
       priorStrategy: 'NOMINATIM' as const,
       identity: { provider: 'openstreetmap', externalId: 'osm:node:1' },
+      correspondence: 'EQUIVALENT' as const,
     };
 
     it.each([

@@ -48,6 +48,7 @@ import {
   PlaceSearchAudit,
 } from '../interfaces/experience-resolution.interface';
 import { examineCompetitors } from '../utils/competitor-examination.policy';
+import { hintCandidateCorrespondence } from '../utils/identity-name-correspondence.util';
 import {
   bestNominatimMatch,
   candidateMatchCountToMultiplicity,
@@ -2070,6 +2071,7 @@ export class ExperienceProposalResolverService
               type: 'IDENTITY_CONVERGENCE',
               priorStrategy: prior.strategy,
               identity,
+              correspondence: hintCandidateCorrespondence(hint.name, entity),
             },
             {
               type: 'CONVERGENCE_PROVENANCE',

@@ -1925,8 +1925,10 @@ describe('ExperienceProposalResolverService -- identity policy reassessment scen
  * RW4-ID-FALSE-VERIFY-2 at resolver level, generic names. C3 shape: the
  * hint only OVERLAPs the record Nominatim and Geoapify both return (one OSM
  * record), while the local pool holds other records answering to the hint
- * at that same grade. The control is the RW1 El Zanjón / Farmacia shape:
- * the same convergence with no other record at that grade still VERIFIES.
+ * at that same grade. The control is the RW1 El Zanjón / Farmacia / National
+ * Bank shape: the same convergence with no other record at that grade.
+ * Until 2026-10-09 the control VERIFIED; OVERLAP convergence is now
+ * retrieval-only, so it is INSUFFICIENT_EVIDENCE (owner-approved Variant A).
  */
 describe('ExperienceProposalResolverService -- competitors at the candidate grade (RW4-ID-FALSE-VERIFY-2)', () => {
   const selected: NominatimResult = {
@@ -1998,16 +2000,146 @@ describe('ExperienceProposalResolverService -- competitors at the candidate grad
         (item: any) => item.type === 'COMPETITOR_EXAMINATION',
       ),
     ).toMatchObject({ outcome: 'MATERIAL_COMPETITOR_KNOWN' });
-    expect(places.verificationDecision).toBe('AMBIGUOUS');
+    // Decided by competitor rule 4, before convergence is consulted.
+    expect(places).toMatchObject({
+      verificationDecision: 'AMBIGUOUS',
+      verificationRule: 'MATERIAL_COMPETITOR_KNOWN',
+    });
     expectNoIdentityWrites(catalog);
   });
 
-  it('control (RW1 El Zanjón / Farmacia shape): the same convergence with no other record at that grade still VERIFIES', async () => {
-    const { result } = await resolveClub([poolNode(904, 'Unrelated Gallery')]);
+  it('control (RW1 El Zanjón / Farmacia / National Bank shape): the same OVERLAP convergence with no other record at that grade is not VERIFIED', async () => {
+    const { result, catalog } = await resolveClub([
+      poolNode(904, 'Unrelated Gallery'),
+    ]);
+
+    const places = attemptOf(result, 'PLACES');
+    expect(
+      places.identityEvidence.find(
+        (item: any) => item.type === 'COMPETITOR_EXAMINATION',
+      ),
+    ).toMatchObject({ outcome: 'NO_MATERIAL_COMPETITOR' });
+    expect(places).toMatchObject({
+      verificationDecision: 'INSUFFICIENT_EVIDENCE',
+      verificationRule: 'NO_DECISIVE_EVIDENCE',
+    });
+    expectNoIdentityWrites(catalog);
+  });
+});
+
+/**
+ * RW4-ID-FALSE-VERIFY-2 (2026-10-09, owner-approved Variant A), generic
+ * National Bank shape. The source says "Kestrel Bank"; Nominatim and
+ * Geoapify return one OSM record, "First Kestrel Bank of Hollowmere", which
+ * the hint only OVERLAPs. No material competitor is known, the geography is
+ * bounded, and the true referent is never retrieved. Convergence proves one
+ * record was returned twice, not that the hint names it.
+ */
+describe('ExperienceProposalResolverService -- OVERLAP convergence is retrieval-only (RW4-ID-FALSE-VERIFY-2)', () => {
+  const nominatimRecord = (name: string): NominatimResult =>
+    ({
+      osmType: 'relation',
+      osmId: 9254,
+      class: 'building',
+      type: 'commercial',
+      addresstype: 'building',
+      displayName: `${name}, Ciudad de Mendoza, Mendoza, Argentina`,
+      importance: 0.1,
+      latitude: -32.89,
+      longitude: -68.85,
+      address: {},
+    }) as NominatimResult;
+  const resolveBank = (placesName: string) => {
+    const built = build({
+      nominatimResults: [nominatimRecord('First Kestrel Bank of Hollowmere')],
+      osmPool: [
+        {
+          id: 'osm:node:905',
+          name: 'Unrelated Gallery',
+          osmType: 'node',
+          osmId: 905,
+          geometry: { type: 'Point', coordinates: [-68.86, -32.88] },
+          tags: { tourism: 'gallery' },
+        },
+      ],
+      placesDeclaringOsm: {
+        name: placesName,
+        latitude: -32.89,
+        longitude: -68.85,
+        osmId: 'osm:relation:9254',
+      },
+    });
+    return built.service
+      .resolve({
+        destinationName: 'Ciudad de Mendoza',
+        destinationCountryCode: 'AR',
+        geographicScope: MENDOZA,
+        candidates: withDefaultGeographicAuthorization([
+          lujanItinerary('Kestrel Bank'),
+        ]),
+        evidence: [
+          {
+            key: 'ev-1',
+            source: 'web',
+            title: 'Mendoza walk',
+            snippet:
+              'Around the square stands the headquarters of Kestrel Bank',
+          },
+        ],
+      } as any)
+      .then((result) => ({ result, catalog: built.catalog }));
+  };
+
+  it('R1: Nominatim + Geoapify converging on an OVERLAP record, with no material competitor in a bounded geography, is not VERIFIED, persisted or remembered', async () => {
+    const { result, catalog } = await resolveBank(
+      'First Kestrel Bank of Hollowmere',
+    );
+
+    const places = attemptOf(result, 'PLACES');
+    expect(places.identityEvidence).toEqual(
+      expect.arrayContaining([
+        {
+          type: 'IDENTITY_CONVERGENCE',
+          priorStrategy: 'NOMINATIM',
+          identity: {
+            provider: 'openstreetmap',
+            externalId: 'osm:relation:9254',
+          },
+          correspondence: 'OVERLAP',
+        },
+        expect.objectContaining({
+          type: 'COMPETITOR_EXAMINATION',
+          outcome: 'NO_MATERIAL_COMPETITOR',
+        }),
+        {
+          type: 'GEOGRAPHIC_CORRESPONDENCE',
+          basis: 'BOUNDED_ADMISSION_SCOPE',
+        },
+      ]),
+    );
+    const decisions =
+      result.entityResolution.forensicAudit[0].componentAudits[0].attempts
+        .map((attempt: any) => attempt.verificationDecision)
+        .filter(Boolean);
+    expect(decisions).not.toContain('VERIFIED');
+    expect(places.verificationDecision).toBe('INSUFFICIENT_EVIDENCE');
+    expect(
+      result.entityResolution.forensicAudit[0].componentAudits[0].finalStatus,
+    ).toBe('unresolved');
+    expectNoIdentityWrites(catalog);
+  });
+
+  it('R4: the same convergence where the record names the hint EQUIVALENTLY VERIFIES and is remembered', async () => {
+    const { result, catalog } = await resolveBank('Kestrel Bank');
 
     expect(attemptOf(result, 'PLACES')).toMatchObject({
       verificationDecision: 'VERIFIED',
       verificationRule: 'GROUNDED_CONVERGENCE',
     });
+    expect(catalog.upsertGeoEntityWithIdentities).toHaveBeenCalledTimes(1);
+    expect(catalog.rememberVerifiedHintName).toHaveBeenCalledWith(
+      'geo-1',
+      'Kestrel Bank',
+    );
   });
 });

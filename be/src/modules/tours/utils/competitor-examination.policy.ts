@@ -11,7 +11,7 @@ import {
   localityRelation,
 } from './contextual-identity.policy';
 import {
-  bestNameCorrespondence,
+  hintCandidateCorrespondence,
   nameCorrespondence,
 } from './identity-name-correspondence.util';
 import { normalizeGeoName } from './nominatim-match.util';
@@ -79,10 +79,10 @@ export function examineCompetitors(input: {
   );
   const isCandidate = (member: CompetitorPoolMember) =>
     member.identityKeys.some((key) => candidateKeys.has(key));
-  const candidateGrade = bestNameCorrespondence(input.hintName, [
-    input.candidate.canonicalName ?? '',
-    ...(input.candidate.nameAliasCandidates ?? []),
-  ]);
+  const candidateGrade = hintCandidateCorrespondence(
+    input.hintName,
+    input.candidate,
+  );
   const answersToHint = (member: CompetitorPoolMember) =>
     names.has(normalizeGeoName(member.name)) ||
     member.declaresHintAlias === true ||

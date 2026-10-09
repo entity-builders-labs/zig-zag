@@ -28,9 +28,10 @@ import { identityEvidenceRole } from '../utils/identity-evidence-role.policy';
  *  4b. A QID link (OWN_QID / OBSERVATION_QID) that corroborates both sides
  *     -> VERIFIED, now that no competitor is known. It is not
  *     discriminating: it may never skip rule 4.
- *  5. Convergence (two strategies on one strong identity) decides only
- *     over an examined competitor set (NO_MATERIAL_COMPETITOR). Over an
- *     unexamined one it confirms a record, nothing more.
+ *  5. Convergence (two strategies on one strong identity) of a candidate
+ *     the hint names EQUIVALENTLY decides only over an examined competitor
+ *     set (NO_MATERIAL_COMPETITOR). Over an unexamined one it confirms a
+ *     record, nothing more. OVERLAP / NONE convergence never decides.
  *  6. Name, address and alias evidence with its own multiplicity.
  *  7. Wikidata corroboration (NEARBY never decides a name collision, and
  *     a NEARBY non-match is NOT_CORROBORATED, never a contradiction).
@@ -212,21 +213,27 @@ export class IdentityVerifier {
       correspondence.basis !== 'ADMISSION_SCOPE_ONLY';
 
     // 5. IDENTITY_CONVERGENCE: two acquisition strategies reached the same
-    // strong identity (pure ID equality). Whatever the upstream relation,
-    // it establishes that the record matches the hint, not that no other
-    // record does: it decides only when the competitor set was examined by
-    // a complete pool that holds this candidate and no material competitor.
-    // Absent or partial examination is UNKNOWN uniqueness, never "no
-    // collision" -- it falls through to the remaining evidence.
+    // strong identity (pure ID equality). That proves one record was
+    // returned twice, not that the hint names it: convergence corroborates
+    // only when the hint names the candidate EQUIVALENTLY. OVERLAP / NONE
+    // convergence is RETRIEVAL_ONLY whatever the upstream relation, and
+    // NO_MATERIAL_COMPETITOR never promotes it (RW4-ID-FALSE-VERIFY-2: the
+    // hint "National Bank" -> "Edificio First National Bank of Boston").
+    // Corroborating convergence decides only when the competitor set was
+    // examined by a complete pool that holds this candidate and no material
+    // competitor. Absent or partial examination is UNKNOWN uniqueness,
+    // never "no collision" -- it falls through to the remaining evidence.
+    const convergence = this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE');
     if (
       uniquenessIsGrounded &&
-      this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE') &&
+      convergence &&
+      identityEvidenceRole(convergence) === 'CORROBORATING' &&
       competitors?.outcome === 'NO_MATERIAL_COMPETITOR'
     ) {
       return verdict(
         'VERIFIED',
         'GROUNDED_CONVERGENCE',
-        this.evidenceOf(evidence, 'IDENTITY_CONVERGENCE'),
+        convergence,
         competitors,
         correspondence,
       );

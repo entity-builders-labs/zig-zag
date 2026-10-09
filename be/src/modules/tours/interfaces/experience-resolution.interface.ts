@@ -195,10 +195,19 @@ export type IdentityEvidence =
        * exact same object is strictly stronger than any one fuzzy name
        * match. It is NOT provider-majority voting -- it never counts
        * opinions or picks a winner among competing candidates.
+       *
+       * Convergence proves that several strategies returned one record; it
+       * does not prove that the hint names that record. `correspondence` is
+       * how the hint names this candidate (canonical name or declared
+       * alias, `hintCandidateCorrespondence`), and the convergence inherits
+       * it: only EQUIVALENT convergence corroborates identity; OVERLAP or
+       * NONE convergence is retrieval-grade, whatever the upstreams
+       * (RW4-ID-FALSE-VERIFY-2).
        */
       type: 'IDENTITY_CONVERGENCE';
       priorStrategy: ResolutionStrategy;
       identity: StrongIdentity;
+      correspondence: NameCorrespondence;
     }
   | {
       /**

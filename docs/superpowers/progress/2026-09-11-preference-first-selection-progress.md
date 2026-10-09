@@ -2152,10 +2152,35 @@ Preference-First review state (2026-10-09, accepted):
 - Final COLD + WARM: FUNCTIONAL PASS (`27315cf7`, see below).
 - Full Preference-First review: COMPLETE. Architecture verdict:
   ARCHITECTURE DRIFT WARNING.
-- Confirmed merge blockers: RW4-ID-FALSE-VERIFY-2 (BLOCKER, OPEN) and
-  PF-REV-SNAPSHOT-WINDOW-1 (BLOCKER, CLOSED on 2026-10-09).
+- Confirmed merge blockers: RW4-ID-FALSE-VERIFY-2 and
+  PF-REV-SNAPSHOT-WINDOW-1, both CLOSED on 2026-10-09.
 - PF-REV-MATERIALIZE-FREEZE-1: OPEN, MEDIUM. RW4-FINAL-PLAN-INFEASIBLE-1:
   CLOSED.
+
+RW4-ID-FALSE-VERIFY-2 FIXED (2026-10-09, on top of `c1bbf288`,
+owner-approved Variant A). Evidence:
+`spikes/identity-false-verify-2-fix-2026-10-09/README.md`. Spec §19.6.
+- `IDENTITY_CONVERGENCE` carries a typed name `correspondence`
+  (`hintCandidateCorrespondence`, the grade competitor examination also
+  reads). `identityEvidenceRole` maps EQUIVALENT to CORROBORATING and
+  OVERLAP/NONE to RETRIEVAL_ONLY. Rule 5 consumes that role, so
+  `NO_MATERIAL_COMPETITOR` never promotes retrieval-only evidence.
+- Owner-approved behavior changes, VERIFIED → INSUFFICIENT_EVIDENCE:
+  - National Bank: bug correction.
+  - El Zanjón de Granados, Farmacia la Estrella and Museo Nacional del
+    Cabildo: accepted correctness tightening. The referent appears
+    correct, but the evidence does not prove identity.
+  - None of the four writes `verifiedHintNames`.
+- 30-hint replay: only these four hints changed. The other 26 are
+  identical down to every attempt.
+- Mutations: M1 (OVERLAP convergence CORROBORATING again) killed by 13
+  tests; M2 (rule 5 ignores the role) killed by 16.
+- Gates:
+  - unit 2954/2954, integration 138/138, e2e 41/41, acceptance 30/30;
+  - characterization 35/36 (pre-existing CHAR-7);
+  - typecheck, lint, prettier and `git diff --check` clean.
+- Deferred: durable hint memory does not record the deciding rule or the
+  evidence strength. Live acceptance needs a fresh catalog.
 
 PF-REV-SNAPSHOT-WINDOW-1 FIXED (2026-10-09, on top of `a6c79be7`). Evidence:
 `spikes/snapshot-window-fix-2026-10-09/README.md`.
@@ -2830,8 +2855,18 @@ RW4 contextual physical identity: milestones 1, 2 and 3 are DONE
 
 ## Next authorized action
 
-0000000000. (2026-10-09) RW4-ID-FALSE-VERIFY-2 impact analysis /
-            correction (the remaining confirmed merge blocker). Not a merge.
+00000000000. (2026-10-09) Both confirmed merge blockers are closed. Next,
+             and only with owner authorization: a final canonical
+             COLD + WARM on a fresh catalog, so no memory learned under the
+             old rule 5 can mask the identity correction. Then merge
+             reconciliation with `main`. Do not merge without separate
+             authorization. The OpenSpec cutover stays PROPOSED /
+             NON-BLOCKING / NOT ACTIVE until Preference-First is merged.
+
+0000000000. (2026-10-09) [DONE: CLOSED by Variant A,
+            `spikes/identity-false-verify-2-fix-2026-10-09/README.md`]
+            RW4-ID-FALSE-VERIFY-2 impact analysis / correction (the
+            remaining confirmed merge blocker). Not a merge.
             PF-REV-SNAPSHOT-WINDOW-1 is closed
             (`spikes/snapshot-window-fix-2026-10-09/README.md`).
 
@@ -3173,8 +3208,18 @@ RW4-ID-CORRESPONDENCE-1 before RW4 COLD #12. That review does not block the extr
   Pellegrini. The cause was a fuzzy hint-to-label match on the
   candidate's own QID, decided ahead of 11 known material competitors.
   Spec §19.3. Thresholds untouched.
-- RW4-ID-FALSE-VERIFY-2: OPEN, BLOCKER (confirmed merge blocker by the
-  2026-10-08 review; first seen `c3-idretry2-cold`, 2026-10-07).
+- RW4-ID-FALSE-VERIFY-2: CLOSED (2026-10-09), was a BLOCKER. Fixed by
+  owner-approved Variant A: convergence inherits the hint's name grade
+  (spec §19.6). OVERLAP/NONE convergence is RETRIEVAL_ONLY.
+  - National Bank → INSUFFICIENT_EVIDENCE (bug correction).
+  - El Zanjón, Farmacia la Estrella and Museo Nacional del Cabildo →
+    INSUFFICIENT_EVIDENCE (accepted correctness tightening).
+  - The 30-hint replay changed only these four.
+  - Dossier: `spikes/identity-false-verify-2-fix-2026-10-09/README.md`.
+  - Deferred debt: durable hint memory does not record the deciding rule
+    or the evidence strength.
+  History follows. Confirmed merge blocker by the 2026-10-08 review;
+  first seen `c3-idretry2-cold`, 2026-10-07.
   `GROUNDED_CONVERGENCE` VERIFIED two hints whose names only OVERLAP the
   record: "Club Atlético" (the Paseo Colón memorial) as
   `Club Atlético San Lorenzo de Almagro - Sede Boedo` (`osm:way:23634484`)

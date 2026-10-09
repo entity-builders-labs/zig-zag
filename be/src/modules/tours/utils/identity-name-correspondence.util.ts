@@ -40,6 +40,24 @@ const STRENGTH: Record<NameCorrespondence, number> = {
   EQUIVALENT: 2,
 };
 
+/**
+ * How a hint names a candidate record: the strongest correspondence of the
+ * hint to the record's canonical name or any alias the record declares.
+ * The one grade competitor examination and identity convergence read.
+ */
+export function hintCandidateCorrespondence(
+  hintName: string,
+  candidate: {
+    canonicalName?: string | null;
+    nameAliasCandidates?: readonly string[];
+  },
+): NameCorrespondence {
+  return bestNameCorrespondence(hintName, [
+    candidate.canonicalName ?? '',
+    ...(candidate.nameAliasCandidates ?? []),
+  ]);
+}
+
 /** The strongest correspondence of `name` to any of `others`. */
 export function bestNameCorrespondence(
   name: string,

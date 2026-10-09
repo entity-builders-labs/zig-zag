@@ -50,8 +50,11 @@ export function identityEvidenceRole(
         ? 'DISCRIMINATING'
         : 'QUALIFYING';
     case 'EXACT_NAME':
-    case 'IDENTITY_CONVERGENCE':
       return 'CORROBORATING';
+    // Convergence inherits how the hint names the candidate: repeating a
+    // retrieval-grade match across strategies or upstreams does not raise
+    // its identity authority (RW4-ID-FALSE-VERIFY-2).
+    case 'IDENTITY_CONVERGENCE':
     case 'DECLARED_ALIAS_MATCH':
       return evidence.correspondence === 'EQUIVALENT'
         ? 'CORROBORATING'

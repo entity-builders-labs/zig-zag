@@ -279,12 +279,35 @@ describe('tour-generation integration · verified hint memory', () => {
       },
     };
 
+    // COLD verifies through a declared alias the record names the hint by
+    // EQUIVALENTLY (`alt_name`), while its canonical name differs, so WARM
+    // can only reach it through verified hint memory. Until
+    // RW4-ID-FALSE-VERIFY-2 (2026-10-09) COLD verified by Nominatim +
+    // Geoapify convergence on this node; the hint only OVERLAPs "Farmacia de
+    // la Estrella", and OVERLAP convergence is no longer identity.
     function providers() {
       return {
         osmPlaces: {
-          lookupPoisWithin: jest
-            .fn()
-            .mockResolvedValue({ status: 'success', value: [] }),
+          lookupPoisWithin: jest.fn().mockResolvedValue({
+            status: 'success',
+            value: [
+              {
+                id: 'osm:node:3348573778',
+                name: 'Farmacia de la Estrella',
+                osmType: 'node',
+                osmId: 3348573778,
+                geometry: {
+                  type: 'Point',
+                  coordinates: [-58.3721455, -34.6101871],
+                },
+                tags: {
+                  amenity: 'pharmacy',
+                  name: 'Farmacia de la Estrella',
+                  alt_name: 'Farmacia la Estrella',
+                },
+              },
+            ],
+          }),
           lookupPoisNear: jest
             .fn()
             .mockResolvedValue({ status: 'success', value: [] }),
@@ -409,6 +432,14 @@ describe('tour-generation integration · verified hint memory', () => {
       const coldResult = await resolveFarmacia(cold);
       const coldAudit = audit(coldResult);
       expect(coldAudit.finalStatus).toBe('resolved');
+      expect(
+        coldAudit.attempts.find(
+          (a: any) => a.verificationDecision === 'VERIFIED',
+        ),
+      ).toMatchObject({
+        strategy: 'LOCAL_OSM_POOL',
+        verificationRule: 'GROUNDED_UNIQUE_ALIAS',
+      });
       expect(coldAudit.verifiedHintMemory).toBe('REMEMBERED');
       const geoEntityId = coldAudit.resolvedGeoEntity.geoEntityId;
       expect(await memoryOf(geoEntityId)).toEqual({

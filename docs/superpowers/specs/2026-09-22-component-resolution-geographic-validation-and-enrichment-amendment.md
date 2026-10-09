@@ -238,6 +238,12 @@ Only the last case is contradictory evidence.
 > upstream (Overpass, Nominatim and an OSM-backed Places result on one OSM
 > node) it is one record found twice. Across independent upstreams it
 > corroborates existence, not which homonym the source meant.
+>
+> **Amended 2026-10-09 (§19.6).** Convergence proves that several strategies
+> returned one record, not that the hint names it. It inherits the hint's
+> name grade for the candidate: only EQUIVALENT convergence corroborates
+> identity; OVERLAP or NONE convergence is retrieval-only, whatever the
+> upstreams.
 
 ### 5.1 Correlation groups observations; IdentityVerifier decides identity
 
@@ -1095,13 +1101,18 @@ order has no score and no threshold:
    EQUIVALENTLY. It runs after rule 4, so it never skips a known material
    competitor.
 5. **Convergence** (`IDENTITY_CONVERGENCE`, with its own
-   `CONVERGENCE_PROVENANCE`) verifies only when the result is
-   `NO_MATERIAL_COMPETITOR`. If the provenance or the examination is
-   missing, or the result is `NO_COMPETITOR_OBSERVED`, uniqueness is
-   unknown. That is never read as "no collision". This keeps the accepted
-   RW1 resolutions: El Zanjón and Farmacia la Estrella each carried an
-   untruncated country-bounded Nominatim response holding only the
-   candidate.
+   `CONVERGENCE_PROVENANCE`) corroborates only when the hint names the
+   candidate EQUIVALENTLY (its canonical name or a declared alias, §19.6).
+   OVERLAP or NONE convergence is RETRIEVAL_ONLY and never decides, whatever
+   the upstreams; `NO_MATERIAL_COMPETITOR` never promotes it. EQUIVALENT
+   convergence verifies only when the result is `NO_MATERIAL_COMPETITOR`.
+   If the provenance or the examination is missing, or the result is
+   `NO_COMPETITOR_OBSERVED`, uniqueness is unknown. That is never read as
+   "no collision". (Until 2026-10-09 this rule ignored the name grade. It
+   was written to keep the RW1 resolutions of El Zanjón and Farmacia la
+   Estrella, whose hints only OVERLAP their records, and it also VERIFIED
+   "National Bank" as the wrong building. Those cases are now
+   INSUFFICIENT_EVIDENCE; see §19.6.)
 6. **Name, address and alias evidence** with its own multiplicity. A pool
    can claim `SINGLE` only when it covered the admission scope. A saturated
    window, or a destination-bounded pool for an Experience admitted beyond
@@ -1596,6 +1607,64 @@ Estrella. The source does ("the headquarters of the National Bank" among
 the buildings surrounding Plaza de Mayo), but that fact is lost at atom
 labelling and is anaphoric, so §19's same-statement rule rejects it. It
 stays a false VERIFIED until an owner decision on source grounding
-(RW4-ID-SOURCE-GROUNDING-1).
+(RW4-ID-SOURCE-GROUNDING-1). *(Superseded 2026-10-09 by §19.6: the owner
+accepted that Farmacia need not stay VERIFIED, and National Bank is no
+longer VERIFIED.)*
 
 Dossier: `spikes/rw4-functional-composite-campaign-2026-10-05/identity-false-verify-2-2026-10-07/`.
+
+### 19.6 Convergence inherits the hint's name grade (2026-10-09, RW4-ID-FALSE-VERIFY-2, owner-approved Variant A)
+
+**Why.** After §19.5, "National Bank" still VERIFIED as Edificio First
+National Bank of Boston by `GROUNDED_CONVERGENCE`. The forensic found the
+defect in rule 5 itself: `IDENTITY_CONVERGENCE` was CORROBORATING whatever
+the hint↔candidate name grade. Convergence proves only that several
+strategies returned one record key. It does not prove that the source hint
+names that record. Two retrieval-grade searches returning the same record
+is still retrieval-grade evidence, and upstream independence does not
+change that.
+
+**Rule.**
+- `IDENTITY_CONVERGENCE` carries `correspondence`: how the hint names the
+  candidate (canonical name or a declared alias). The resolver computes it
+  with `hintCandidateCorrespondence`, the same grade competitor
+  examination reads (§19.5).
+- `identityEvidenceRole`: EQUIVALENT → CORROBORATING; OVERLAP and NONE →
+  RETRIEVAL_ONLY.
+- Rule 5 decides only for a CORROBORATING convergence.
+- `NO_MATERIAL_COMPETITOR` qualifies a CORROBORATING fact. It never
+  promotes RETRIEVAL_ONLY evidence into a VERIFIED identity.
+- Repeating retrieval-grade evidence across strategies or upstreams does
+  not raise its identity authority. There is no upstream-independence
+  requirement, no name lexicon, no new threshold and no per-case
+  exception.
+
+**Owner-approved behavior change (2026-10-09).** Replay of the 30-hint
+impact matrix, the same as §19.5's, against `c1bbf288`:
+
+| Hint | Before | After | Classification |
+| --- | --- | --- | --- |
+| National Bank | VERIFIED `GROUNDED_CONVERGENCE` (wrong building) | INSUFFICIENT_EVIDENCE | bug correction |
+| El Zanjón de Granados | VERIFIED `GROUNDED_CONVERGENCE` | INSUFFICIENT_EVIDENCE | accepted correctness tightening |
+| Farmacia la Estrella | VERIFIED `GROUNDED_CONVERGENCE` | INSUFFICIENT_EVIDENCE | accepted correctness tightening |
+| Museo Nacional del Cabildo | VERIFIED `GROUNDED_CONVERGENCE` | INSUFFICIENT_EVIDENCE | accepted correctness tightening |
+
+The other 26 hints are identical (decision, rule, candidate and every
+attempt). For El Zanjón, Farmacia and Museo Nacional del Cabildo the real
+referent appears correct, but the current evidence does not prove
+identity: each hint only OVERLAPs its record ("… (historic ruins)",
+"Farmacia de la Estrella", "Museo Histórico Nacional del Cabildo y de la
+Revolución de Mayo"). None of the four writes a new `verifiedHintNames`
+entry.
+
+The durable recall path for correct-but-unproven aliases is the future City
+GeoEntity Catalog Bootstrap / backoffice track
+(`2026-10-09-city-geoentity-catalog-bootstrap-and-learning.md`). It is not
+part of this rule.
+
+**Deferred.** Durable hint/alias memory does not record the deciding rule
+or the evidence strength. Memory written under the old rule 5 stays
+trusted. Live acceptance must use a fresh catalog, so a learned "National
+Bank" mapping cannot mask the correction.
+
+Dossier: `spikes/identity-false-verify-2-fix-2026-10-09/`.
